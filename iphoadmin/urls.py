@@ -1,0 +1,22 @@
+from django.conf.urls import patterns, include, url
+
+# Uncomment the next two lines to enable the admin:
+# from django.contrib import admin
+# admin.autodiscover()
+
+import static_views
+
+urlpatterns = patterns('',
+    # Examples:
+    # url(r'^$', 'iphoadmin.views.home', name='home'),
+    # url(r'^iphoadmin/', include('iphoadmin.foo.urls')),
+    
+    url(r'^/?$', static_views.render_page, {'p' : 'pages/home.html'}),
+    # url(r'^editor/', include('ipho_editor.urls')),
+    
+    # Uncomment the admin/doc line below to enable admin documentation:
+    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+    # Uncomment the next line to enable the admin:
+    # url(r'^admin/', include(admin.site.urls)),
+)

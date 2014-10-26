@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <style>
+    #front-box {
+    	background: #eee url('{% static "ipho_logo.png" %}') center right no-repeat;
+    	-webkit-background-clip: padding-box;
+    	background-clip: padding-box;
+    	background-origin: padding-box;
+    	-webkit-background-origin: padding-box;
+/*    	width: 100%;
+    	height: 100%;*/
+    }
+    </style>
+
+<div class="container">
+  <div class="jumbotron" id="front-box">
+    <h1>IPhO 2016</h1>
+    <p>
+        Main page of the IPhO 2016 admin tools.
+    </p>
+  </div>
+</div> <!-- /container -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+          <h2>Exam editing</h2>
+          <p>
+              Exam1...
+          </p>
+          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+        </div>
+        <div class="col-md-4">
+          <h2>Voting</h2>
+          <p>No open voting at this time.</p>
+          <p><a class="btn btn-default" href="#" role="button">See all &raquo;</a></p>
+       </div>
+        <div class="col-md-4">
+          <h2>Results</h2>
+          <p>No results available.</p>
+        </div>
+    </div>
+</div> <!-- /container -->
+
+
+{% endblock %}
