@@ -12,7 +12,7 @@ urlpatterns = patterns('',
     # url(r'^iphoadmin/', include('iphoadmin.foo.urls')),
     
     url(r'^/?$', static_views.render_page, {'p' : 'pages/home.html'}),
-    # url(r'^editor/', include('ipho_editor.urls')),
+    url(r'^exam/', include('ipho_editor.urls')),
     
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

@@ -1,0 +1,25 @@
+.figure {
+	text-align : center;
+}
+
+body {
+			text-align: justify;
+}
+
+@page {
+    counter-increment: page;
+    margin: 8mm 8mm 15mm 8mm;
+    size: A4;
+		
+    @bottom-left {
+        content: "Printed ${now}";
+        font-size: .75em;
+        padding-bottom: 6mm;
+    }
+
+    @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-size: .75em;
+        padding-bottom: 6mm;
+    }
+}

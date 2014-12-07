@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+ 
+<title>MathQuill Toolbar Demo</title>
+ 
+<!--script type="text/javascript" src="mathquill/vendor/jquery.min.js"></script>
+<script type="text/javascript" src="mathquill/build/mathquill.js"></script-->
+<!--<link rel="stylesheet" href="http://mathquill.com/mathquill.css">-->
+         <link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
+ 
+<style type="text/css">
+.toolbar{
+  border-spacing:0;
+}
+.toolbar, .toolbar .menu{
+  display: inline-block;
+  position: relative;
+}
+.toolbar p{
+  height:1.4em;
+  padding:.5em;
+  margin:0;
+}
+.toolbar .button, .toolbar .menu{
+  width:100px;
+  border:2px solid slategray;
+  border-radius:8px;
+  cursor:pointer;
+}
+.toolbar .menu{
+  border-bottom-color:lightgray;
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+}
+.toolbar .menu:hover div{
+  display:block;
+}
+.toolbar .menu div{
+  display:none;
+  width:100px;
+  padding:1px;
+  position:absolute;
+  top:2.5em;
+  left:-2px;
+  background-color:white;
+  border:2px solid slategray;
+  border-top:none;
+  border-bottom-left-radius:5px;
+  border-bottom-right-radius:5px;
+}
+.toolbar p:hover{
+  background-color:paleturquoise;
+}
+.box{
+  background-color:lightgray;
+}
+.toolbar p code{
+  display:block;
+  float:right;
+}
+</style>
+ 
+</head>
+<body>
+ 
+<h1>MathQuill Toolbar Demo</h1>
+ 
+<p>This is a demo of a discoverable toolbar GUI for MathQuill commands and symbols.
+ 
+<p>Editable Math: <span class="mathquill-editable"></span>
+<table class="toolbar"><tr><td>Insert:</td>
+  <td class="menu">
+    <p><span class="box">&nbsp;&nbsp;</span> <span class="mathquill-embedded-latex">^{}</span>
+      <code>^</code>
+    <div>
+      <p><span class="box">&nbsp;&nbsp;</span> <span class="mathquill-embedded-latex">_{}</span>
+        <code>_</code>
+    </div>
+  <td class="menu">
+    <p><span class="mathquill-embedded-latex">\left(\right)</span>
+      <code>(</code>
+    <div>
+      <p><span class="mathquill-embedded-latex">\left|\right|</span>
+        <code>|</code>
+      <p><span class="mathquill-embedded-latex">\left[\right]</span>
+        <code>[</code>
+      <p><span class="mathquill-embedded-latex">\left{\right}</span>
+        <code>{</code>
+    </div>
+  <td class="button">
+    <p><span class="mathquill-embedded-latex" style="position:relative;top:-.35em">\frac{}{}</span>
+      <code>\frac</code>
+  <td class="button">
+    <p><span class="mathquill-embedded-latex">\sqrt{}</span>
+      <code>\sqrt</code>
+  <td class="menu">
+    <p><span class="mathquill-embedded-latex">\del</span>
+      <code>\del</code>
+    <div>
+      <p><span class="mathquill-embedded-latex">\part</span>
+        <code>\part</code>
+      <p><span class="mathquill-embedded-latex">\int</span>
+        <code>\int</code>
+      <p><span class="mathquill-embedded-latex">\sum</span>
+        <code>\sum</code>
+      <p><span class="mathquill-embedded-latex">\prod</span>
+        <code>\prod</code>
+      <p><span class="mathquill-embedded-latex">\coprod</span>
+        <code>\coprod</code>
+    </div>
+  <td class="menu">
+    <p><span class="mathquill-embedded-latex">\div</span>
+      <code>\div</code>
+    <div>
+      <p><span class="mathquill-embedded-latex">\times</span>
+        <code>\times</code>
+      <p><span class="mathquill-embedded-latex">\cdot</span>
+        <code>*</code>
+      <p><span class="mathquill-embedded-latex">\pm</span>
+        <code>\pm</code>
+      <p><span class="mathquill-embedded-latex">\mp</span>
+        <code>\mp</code>
+    </div>
+  <td class="menu">
+    <p><span class="mathquill-embedded-latex">\ne</span>
+      <code>\ne</code>
+    <div>
+      <p><span class="mathquill-embedded-latex">\le</span>
+        <code>\le</code>
+      <p><span class="mathquill-embedded-latex">\ge</span>
+        <code>\ge</code>
+      <p><span class="mathquill-embedded-latex">\asymp</span>
+        <code>\asymp</code>
+      <p><span class="mathquill-embedded-latex">\cong</span>
+        <code>\cong</code>
+      <p><span class="mathquill-embedded-latex">\equiv</span>
+        <code>\equiv</code>
+    </div>
+  <td class="menu">
+    <p><span class="mathquill-embedded-latex">\pi</span>
+      <code>\pi</code>
+    <div>
+      <p><span class="mathquill-embedded-latex">\theta</span>
+        <code>\theta</code>
+      <p><span class="mathquill-embedded-latex">\infty</span>
+        <code>\infty</code>
+      <p><span class="mathquill-embedded-latex">\hbar</span>
+        <code>\hbar</code>
+      <p><span class="mathquill-embedded-latex">\deg</span>
+        <code>\deg</code>
+      <p><span class="mathquill-embedded-latex">\AA</span>
+        <code>\AA</code>
+    </div>
+</table>
+ 
+<!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://mathquill.com/mathquill.js"></script>-->
+<script src="{% static "jquery/js/jquery-1.8.2.min.js" %}"></script>
+<script src="{% static "mathquill/mathquill.min.js" %}"></script>
+
+<script type="text/javascript">
+var ed;
+$(function() {
+  ed = $('.mathquill-editable').focus();
+  $(window).load(function() {
+    $('.mathquill-rendered-math').mathquill('redraw');
+  });
+  $('td').mouseenter(function() {
+    $('.mathquill-rendered-math', this).mathquill('redraw');
+  });
+});
+$('.toolbar').click(function(e) {
+  var latex = $(e.target).closest('p').children('code').text();
+  if(latex)
+    ed.mathquill('write', latex).focus();
+});
+</script>
+ 
+</body>
+</html>

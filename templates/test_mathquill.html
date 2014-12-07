@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Test CKEditor</title>
+        <link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
+        
+    </head>
+    <body>
+
+				<div>
+				<span class="mathquill-editable">f(x)=?</span>
+				</div>
+				
+				<div>
+				<span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>
+				</div>
+
+<div>
+<span class="mathquill-editor">\sqrt[3]{8}=\frac{\sqrt{16}}{2}</span>
+</div>
+				
+        <script src="{% static "jquery/js/jquery-1.8.2.min.js" %}"></script>
+        
+        <script src="{% static "mathquill/mathquill.min.js" %}"></script>
+        
+    </body>
+</html>
