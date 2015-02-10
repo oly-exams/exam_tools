@@ -12,7 +12,9 @@
     <title>{% block head-title %}IPhO Admin Tools{% endblock %}</title>
 
     <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
-
+    
+    {% block extra-head %}{% endblock %}
+    
     <!-- Custom styles for this template -->
     <!-- <link href="navbar.css" rel="stylesheet"> -->
     <style>
@@ -58,5 +60,6 @@
 
     <script src="{% static "jquery/js/jquery-1.8.2.min.js" %}"></script>
     <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+    {% block extra-script %}{% endblock %}
   </body>
 </html>

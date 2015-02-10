@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+  <head>
+    <title>{% block head-title %}Exam Layout{% endblock %}</title>
+
+    <link href="{% static "exam/exam.css" %}" rel="stylesheet">
+    
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({   jax: 	["input/TeX", "output/HTML-CSS"],
+		  			 								tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+		</script>
+		<script type="text/javascript"
+		  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+		</script>
+  </head>
+
+  <body>
+      {% block content %}{% endblock %}
+  </body>
+</html>

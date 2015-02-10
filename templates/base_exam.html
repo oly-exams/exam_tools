@@ -1,21 +1,84 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 {% load static %}
-<html>
-  <head>
-    <title>{% block head-title %}Exam Layout{% endblock %}</title>
 
-    <link href="{% static "exam/exam.css" %}" rel="stylesheet">
+{% block extra-head %}
+    <link href="{% static "ckeditor/style.css" %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+
+<h2>{{ exam_title }}</h2>
+
+<div id="exam-translation">
+{% for part in exam_parts %}
+<div class="row">
+  <div class="col-sm-5 translate-original" id="part{{ forloop.counter }}-original">
+      {{ part|safe }}
+  </div>
+  <div class="col-sm-2 text-center" style="display: table-cell; vertical-align: middle;">
+    <a href="#" class="translate-copy-button" id="part{{ forloop.counter }}-copy" class aria-label="Copy original version" title="Copy original version">
+      <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="col-sm-5">
+      <div class="translate-foreign" id="part{{ forloop.counter }}-translate" contenteditable="true">
+      {{ part|safe }}
+      </div>
+  </div>
+</div>
+<hr/>
+{% endfor %}
+</div>
+
+</div> <!-- /container -->
+
+{% endblock %}
+
+{% block extra-script %}
+    <script src="{% static "ckeditor/ckeditor.js" %}"></script>
+    <script src="{% static "mathquill/mathquill.min.js" %}"></script>
     
-		<script type="text/x-mathjax-config">
-		  MathJax.Hub.Config({   jax: 	["input/TeX", "output/HTML-CSS"],
-		  			 								tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-		</script>
-		<script type="text/javascript"
-		  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-		</script>
-  </head>
+    <script>
+        CKEDITOR.plugins.addExternal( 'mathedit', '{% static "mathedit/" %}', 'plugin.js' );
+        
+        $(function(){
+            
+            $(".translate-original").each(function() {
+                var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img src="http://latex.codecogs.com/svg.latex?$1" />');
+                $(this).html(newtext);
+            });
+            $(".translate-foreign").each(function() {
+                var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img src="http://latex.codecogs.com/svg.latex?$1" />');
+                $(this).html(newtext);
+            });
+            
+            $(".translate-copy-button").click(function( event ) {
+                event.preventDefault();
+            });
+            
+            
+            // var newtext = $("#editor1").html().replace(/\$(.+?)\$/g, '<img src="http://latex.codecogs.com/svg.latex?$1" />');
+            // $("#editor1").html(newtext);
+            
+            // CKEDITOR.inline( 'exam-translation', {
+            //     extraPlugins: 'mathedit',
+            //     // height : '600px',
+            // });
+            
+            CKEDITOR.config.toolbarGroups = [
+						{ name: 'editing',		groups: [ 'basicstyles', 'links' ] },
+						{ name: 'undo' },
+                        '/',
+						{ name: 'clipboard',	groups: [ 'selection', 'clipboard' ] },
+                        { name: 'insert' },
+						{ name: 'about' }
+					];
+            
+        });
+        
+    </script>
+    
+{% endblock %}
 
-  <body>
-      {% block content %}{% endblock %}
-  </body>
-</html>
