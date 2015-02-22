@@ -39,9 +39,9 @@
       {{ part|safe }}
   </div>
   <div class="col-sm-2 text-center" style="display: table-cell; vertical-align: middle;">
-    <a href="#" class="translate-copy-button" id="part{{ forloop.counter }}-copy" class aria-label="Copy original version" title="Copy original version">
-      <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
-    </a>
+    <button type="button" class="btn btn-sm btn-default translate-copy-button" id="part{{ forloop.counter }}-copy" aria-label="Copy original version" title="Copy original version">
+      <span class="glyphicon glyphicon-arrow-right"></span>
+    </button>
   </div>
   <div class="col-sm-5">
       <div class="translate-foreign" id="part{{ forloop.counter }}-translate" contenteditable="true">
