@@ -19,5 +19,5 @@ class Student(models.Model):
     # exam_languages = models.ManyToManyField(Language)
 
     def __unicode__(self):
-        return '{} {}'.format(self.firstname, self.lastname)
+        return u'{} {}'.format(self.first_name, self.last_name)
 
