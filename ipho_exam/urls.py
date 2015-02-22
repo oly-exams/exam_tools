@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 
-urlpatterns = patterns('ipho_editor.views',
+urlpatterns = patterns('ipho_exam.views',
     url(r'^$', 'index'),
     url(r'^view$', 'view'),
     url(r'^edit$', 'edit'),
