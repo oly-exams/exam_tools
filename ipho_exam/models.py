@@ -3,7 +3,7 @@ from ipho_core.models import Delegation, Student
 
 
 class Language(models.Model):
-    name = models.CharField(max_length=100,unique=True)
+    name = models.CharField(max_length=100, unique=True)
     delegation = models.ManyToManyField(Delegation)
     hidden     = models.BooleanField(default=False)
     versioned  = models.BooleanField(default=False)
@@ -50,6 +50,9 @@ class VersionNode(models.Model):
     status    =  models.CharField(max_length=1, choices=STATUS_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
     
+    class Meta:
+        unique_together = (('question', 'language', 'version'),)
+    
     def __unicode__(self):
         return u'vnode: {} [{}, v{}, {}] - {}'.format(self.question.name, self.language, self.version, self.timestamp, self.status)
 
@@ -65,6 +68,9 @@ class TranslationNode(models.Model):
     language  = models.ForeignKey(Language)
     status    =  models.CharField(max_length=1, choices=STATUS_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = (('question', 'language'),)
     
     def __unicode__(self):
         return u'node: {} [{}, {}] - {}'.format(self.question.name, self.language, self.timestamp, self.status)
