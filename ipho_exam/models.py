@@ -17,6 +17,7 @@ class Language(models.Model):
         else:
             return self.delegation.filter(members=user).exists()
 
+
 class Exam(models.Model):
     name   = models.CharField(max_length=100)
     active = models.BooleanField(default=True,  help_text='Only active exams are editable.')
@@ -37,6 +38,7 @@ class Question(models.Model):
     def __unicode__(self):
         return u'{}} [#{} in {}]'.format(self.name, self.exam.name, self.position)
 
+
 class VersionNode(models.Model):
     STATUS_CHOICES = (
         ('P', 'proposal'),
@@ -55,6 +57,7 @@ class VersionNode(models.Model):
     
     def __unicode__(self):
         return u'vnode: {} [{}, v{}, {}] - {}'.format(self.question.name, self.language, self.version, self.timestamp, self.status)
+
 
 class TranslationNode(models.Model):
     STATUS_CHOICES = (
