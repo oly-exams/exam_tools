@@ -36,7 +36,7 @@ class Question(models.Model):
         ordering = ['position']
 
     def __unicode__(self):
-        return u'{}} [#{} in {}]'.format(self.name, self.exam.name, self.position)
+        return u'{} [#{} in {}]'.format(self.name, self.exam.name, self.position)
 
 
 class VersionNode(models.Model):
