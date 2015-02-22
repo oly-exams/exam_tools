@@ -8,7 +8,7 @@ class DelegationAdmin(admin.ModelAdmin):
     filter_horizontal = ('members',)
 
 class StudentAdmin(admin.ModelAdmin):
-    fields = ('code', ('firstname', 'lastname'), 'delegation',)
+    fields = ('code', ('first_name', 'last_name'), 'delegation',)
 
 
 admin.site.register(Delegation, DelegationAdmin)

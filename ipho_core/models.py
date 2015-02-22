@@ -13,8 +13,8 @@ class Delegation(models.Model):
 
 class Student(models.Model):
     code           = models.CharField(max_length=10, unique=True)
-    firstname      = models.CharField(max_length=200)
-    lastname       = models.CharField(max_length=200)
+    first_name     = models.CharField(max_length=200)
+    last_name      = models.CharField(max_length=200)
     delegation     = models.ForeignKey(Delegation)
     # exam_languages = models.ManyToManyField(Language)
 
