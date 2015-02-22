@@ -4,7 +4,7 @@ from ipho_core.models import Delegation, Student
 
 class Language(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    delegation = models.ManyToManyField(Delegation, blank=True)
+    delegation = models.ManyToManyField(Delegation, blank=True) # TODO: make a ForeignKey
     hidden     = models.BooleanField(default=False)
     versioned  = models.BooleanField(default=False)
     
