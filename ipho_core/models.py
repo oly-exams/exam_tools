@@ -1,3 +1,22 @@
 from django.db import models
+from django.contrib.auth.models import User, Group
 
-# Create your models here.
+
+
+class Delegation(models.Model):
+    name    = models.CharField(unique=True,max_length=3)
+    country = models.CharField(unique=True,max_length=100)
+    members = models.ManyToManyField(User)
+
+    def __unicode__(self):
+        return self.name
+
+class Student(models.Model):
+    firstname      = models.CharField(max_length=200)
+    lastname       = models.CharField(max_length=200)
+    delegation     = models.ForeignKey(Delegation)
+    # exam_languages = models.ManyToManyField(Language)
+
+    def __unicode__(self):
+        return '{} {}'.format(self.firstname, self.lastname)
+
