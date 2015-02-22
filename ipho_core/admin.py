@@ -3,5 +3,13 @@ from ipho_core.models import Delegation, Student
 
 # Register your models here.
 
-admin.site.register(Delegation)
-admin.site.register(Student)
+class DelegationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'country')
+    filter_horizontal = ('members',)
+
+class StudentAdmin(admin.ModelAdmin):
+    fields = ('code', ('firstname', 'lastname'), 'delegation',)
+
+
+admin.site.register(Delegation, DelegationAdmin)
+admin.site.register(Student, StudentAdmin)
