@@ -9,7 +9,7 @@ class Delegation(models.Model):
     members = models.ManyToManyField(User)
 
     def __unicode__(self):
-        return self.name
+        return u'{} ({})'.format(self.country, self.name)
 
 class Student(models.Model):
     firstname      = models.CharField(max_length=200)
