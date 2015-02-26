@@ -34,9 +34,12 @@ class Question(models.Model):
     
     class Meta:
         ordering = ['position']
-
+    
+    def exam_name(self):
+        return self.exam.name
+    
     def __unicode__(self):
-        return u'{} [#{} in {}]'.format(self.name, self.exam.name, self.position)
+        return u'{} [#{} in {}]'.format(self.name, self.position, self.exam.name)
 
 
 class VersionNode(models.Model):
@@ -49,11 +52,14 @@ class VersionNode(models.Model):
     question  = models.ForeignKey(Question)
     version   = models.IntegerField()
     language  = models.ForeignKey(Language)
-    status    =  models.CharField(max_length=1, choices=STATUS_CHOICES)
+    status    = models.CharField(max_length=1, choices=STATUS_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
     
     class Meta:
         unique_together = (('question', 'language', 'version'),)
+    
+    def question_name(self):
+        return self.question.name
     
     def __unicode__(self):
         return u'vnode: {} [{}, v{}, {}] - {}'.format(self.question.name, self.language, self.version, self.timestamp, self.status)
@@ -69,11 +75,14 @@ class TranslationNode(models.Model):
     text      = models.TextField()
     question  = models.ForeignKey(Question)
     language  = models.ForeignKey(Language)
-    status    =  models.CharField(max_length=1, choices=STATUS_CHOICES)
+    status    = models.CharField(max_length=1, choices=STATUS_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
     
     class Meta:
         unique_together = (('question', 'language'),)
+    
+    def question_name(self):
+        return self.question.name
     
     def __unicode__(self):
         return u'node: {} [{}, {}] - {}'.format(self.question.name, self.language, self.timestamp, self.status)

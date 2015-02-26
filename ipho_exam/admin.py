@@ -8,11 +8,21 @@ class QuestionInline(admin.StackedInline):
     extra = 2
 
 class ExamAdmin(admin.ModelAdmin):
+    list_display = ('name', 'active', 'hidden')
     inlines = [QuestionInline]
+
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'exam', 'position')
+
+class VersionNodeAdmin(admin.ModelAdmin):
+    list_display = ('question', 'language', 'version', 'status', 'timestamp')
+
+class TranslationNodeAdmin(admin.ModelAdmin):
+    list_display = ('question', 'language', 'status', 'timestamp')
 
 
 admin.site.register(Language)
 admin.site.register(Exam, ExamAdmin)
-admin.site.register(Question)
-admin.site.register(VersionNode)
-admin.site.register(TranslationNode)
+admin.site.register(Question, QuestionAdmin)
+admin.site.register(VersionNode, VersionNodeAdmin)
+admin.site.register(TranslationNode, TranslationNodeAdmin)
