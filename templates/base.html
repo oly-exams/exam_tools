@@ -47,8 +47,12 @@
               <li><a href="#">Results</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              <li class="navbar-text">Myname, <strong>admin</strong></li>
-              <li><a href="#">Logout</a></li>
+            {% if user.is_authenticated %}
+              <li class="navbar-text">{{ user.username }}, <strong>admin</strong></li>
+              <li><a href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
+            {% else %}
+              <li><a href="{% url 'django.contrib.auth.views.login' %}?next=/">Login</a></li>
+            {% endif %}
             </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container -->

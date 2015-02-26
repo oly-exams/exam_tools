@@ -14,7 +14,8 @@ urlpatterns = patterns('',
     url(r'^/?$', static_views.render_page, {'p' : 'pages/home.html'}),
     url(r'^exam/', include('ipho_exam.urls')),
     
-    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
+    (r'^accounts/login/?$', 'django.contrib.auth.views.login'),
+    (r'^accounts/logout/?$', 'django.contrib.auth.views.logout', {'next_page':'/'}),
     
     
     # Uncomment the admin/doc line below to enable admin documentation:
