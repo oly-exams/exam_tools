@@ -1,12 +1,14 @@
 from django.conf.urls import patterns, include, url
 
+
+
 urlpatterns = patterns('ipho_exam.views',
-    url(r'^$', 'index'),
-    url(r'^view$', 'view'),
-    url(r'^edit$', 'edit'),
-    url(r'^inline$', 'inline_edit'),
-    url(r'^mathquill$', 'mathquill'),
-    url(r'^mathquill_toolbar$', 'mathquill_toolbar'),
+    
+    url(r'^$', 'index', name='index'),
+    
+    
+    url(r'^test/', include('ipho_exam.urls_test', namespace='test')),
+    
     # url(r'^(?P<rep_id>\d+)/submit/?$', 'submit'),
 )
 

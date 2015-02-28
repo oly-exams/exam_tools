@@ -2,13 +2,14 @@
 {% load static %}
 
 {% block content %}
-<h2>Exam editor</h2>
+<div class="container">
+    <h2>Test Exam Editors</h2>
 
-<ul>
-<li><a href="/exam/view">View</a></li>
-<li><a href="/exam/edit">Edit</a></li>
-<li><a href="/exam/inline">Inline editor</a></li>
-<li><a href="/exam/mathquill">MathQuill</a></li>
-</ul>
-
+    <ul>
+    <li><a href="{% url 'exam:test:view' %}">View</a></li>
+    <li><a href="{% url 'exam:test:edit' %}">Edit</a></li>
+    <li><a href="{% url 'exam:test:inline' %}">Inline editor</a></li>
+    <li><a href="{% url 'exam:test:mathquill' %}">MathQuill</a></li>
+    </ul>
+</div>
 {% endblock %}

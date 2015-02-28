@@ -11,8 +11,8 @@ urlpatterns = patterns('',
     # url(r'^$', 'iphoadmin.views.home', name='home'),
     # url(r'^iphoadmin/', include('iphoadmin.foo.urls')),
     
-    url(r'^/?$', static_views.render_page, {'p' : 'pages/home.html'}),
-    url(r'^exam/', include('ipho_exam.urls')),
+    url(r'^/?$', static_views.render_page, {'p' : 'pages/home.html'}, name='home'),
+    url(r'^exam/', include('ipho_exam.urls', namespace='exam')),
     
     (r'^accounts/login/?$', 'django.contrib.auth.views.login'),
     (r'^accounts/logout/?$', 'django.contrib.auth.views.logout', {'next_page':'/'}),
