@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2>IPhO Exams</h2>
+
+    <div class="row">
+        <div class="col-md-3">
+          <h2>Languages</h2>
+          <h3>Available languages</h3>
+          <p>No languages assigned to your delegation.</p>
+          <h3>Create new</h3>
+          <p>
+              TODO. make form.
+          </p>
+        </div>
+        <div class="col-md-3">
+          <h2>Editor</h2>
+          <p>No open voting at this time.</p>
+          <p><a class="btn btn-default" href="#" role="button">See all &raquo;</a></p>
+       </div>
+        <div class="col-md-3">
+          <h2>View exams</h2>
+          <p>Theory exam:</p>
+              <select>
+                  <option>Select a language</option>
+                  <option>-----</option>
+                  <option>..populate..</option>
+              </select>
+        </div>
+        <div class="col-md-3">
+          <h2>Final submit</h2>
+          <p>Assign exams to students.</p>
+          <p><a class="btn btn-default" href="#" role="button">Go &raquo;</a></p>
+        </div>
+    </div>
+
+</div> <!-- /container -->
+
+{% endblock %}
