@@ -3,10 +3,7 @@
 
 # Import the OS module and work out our project's paths
 import os
-thisdir = os.path.dirname(__file__)
-
-SETTINGS_DIR = os.path.join(thisdir, os.pardir)
-SETTINGS_DIR = os.path.abspath(SETTINGS_DIR)
+SETTINGS_DIR = os.path.dirname(__file__)
 
 PROJECT_PATH = os.path.join(SETTINGS_DIR, os.pardir)
 PROJECT_PATH = os.path.abspath(PROJECT_PATH)
