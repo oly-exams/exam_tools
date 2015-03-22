@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra-head %}
+<style>
+.title-dropdown {
+    display: inline-block;
+}
+.title-dropdown .btn {
+    padding: 0px 28px;
+    padding: 0;
+    font-size: 28px;
+    line-height: normal;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+}
+.title-dropdown .dropdown-menu {
+    font-size: 20px;
+}
+</style>
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+<div class="page-header">
+  <h2>Exam editor :
+  
+  <span class="title-dropdown dropdown">
+    <a class="btn btn-link btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+      Theory Exam
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a href="#">Demo Exam</a></li>
+      <li class="active"><a href="#">Theory Exam</a></li>
+      <li><a href="#">Experimental Exam</a></li>
+    </ul>
+  </span>
+  </h1>
+</div>
+
+<ul class="nav nav-tabs">
+    <li><a href="#">Introduction</a></li>
+    <li class="active"><a href="#">Question 1</a></li>
+    <li><a href="#">Answer Sheet 1</a></li>
+    <li><a href="#">Question 2</a></li>
+    <li><a href="#">Answer Sheet 2</a></li>
+</ul>
+
+
+
+</div> <!-- /container -->
+
+{% endblock %}

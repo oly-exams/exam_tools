@@ -11,4 +11,7 @@ def index(request):
     return render_to_response('ipho_exam/index.html',
                               context_instance=RequestContext(request))
 
+def editor(request):
+    return render_to_response('ipho_exam/editor.html',
+                              context_instance=RequestContext(request))
 

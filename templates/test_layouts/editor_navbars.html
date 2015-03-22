@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra-head %}
+<style>
+.title-dropdown {
+    display: inline-block;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+<div class="page-header">
+  <h1>Exam editor
+  
+  <span class="title-dropdown dropdown">
+    <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      Theory Exam
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a tabindex="-1" href="#">Demo Exam</a></li>
+      <li class="active"><a tabindex="-1" href="#">Theory Exam</a></li>
+      <li><a tabindex="-1" href="#">Experimental Exam</a></li>
+    </ul>
+  </span>
+  </h1>
+</div>
+
+<ul class="nav nav-tabs">
+    <li><a href="#">Introduction</a></li>
+    <li class="active"><a href="#">Question 1</a></li>
+    <li><a href="#">Answer Sheet 1</a></li>
+    <li><a href="#">Question 2</a></li>
+    <li><a href="#">Answer Sheet 2</a></li>
+</ul>
+
+
+
+    <div class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <span class="navbar-brand">Theory 1:</span>
+        </div>
+        
+      <div class="navbar-inner">
+        <!-- Collect the nav links, forms, and other content for toggling -->
+          <ul class="nav navbar-nav">
+            <li><a href="#">Introduction</a></li>
+            <li class="active"><a href="#">Question 1</a></li>
+            <li><a href="#">Answer Sheet 1</a></li>
+            <li><a href="#">Question 2</a></li>
+            <li><a href="#">Answer Sheet 2</a></li>
+          </ul>
+    </div>
+      </div><!-- /.container-fluid -->
+    </div> <!-- /.navbar -->
+    
+
+
+<div>
+<div class="pull-left">
+Theory 1:
+</div>
+<div class="pull-left">
+          <ul class="nav nav-pills">
+            <li><a href="#">Introduction</a></li>
+            <li class="active"><a href="#">Question 1</a></li>
+            <li><a href="#">Answer Sheet 1</a></li>
+            <li><a href="#">Question 2</a></li>
+            <li><a href="#">Answer Sheet 2</a></li>
+          </ul>
+</div>
+<div class="clearfix"></div>
+</div>
+
+
+
+<ul class="nav nav-pills">
+<li class="dropdown active">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+      Theory Exam <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a href="#">Introduction</a></li>
+        <li class="active"><a href="#">Question 1</a></li>
+        <li><a href="#">Answer Sheet 1</a></li>
+        <li><a href="#">Question 2</a></li>
+        <li><a href="#">Answer Sheet 2</a></li>
+    </ul>
+    
+</ul>
+
+
+          <ul class="nav nav-tabs">
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                  Demo Exam <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Question 1</a></li>
+                    <li><a href="#">Answer Sheet 1</a></li>
+                </ul>
+            <li class="dropdown active">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                  Theory Exam <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Introduction</a></li>
+                    <li class="active"><a href="#">Question 1</a></li>
+                    <li><a href="#">Answer Sheet 1</a></li>
+                    <li><a href="#">Question 2</a></li>
+                    <li><a href="#">Answer Sheet 2</a></li>
+                </ul>
+                
+          </ul>
+
+
+</div> <!-- /container -->
+
+{% endblock %}

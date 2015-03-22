@@ -5,6 +5,7 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns('ipho_exam.views',
     
     url(r'^$', 'index', name='index'),
+    url(r'^editor/?$', 'editor', name='editor'),
     
     
     url(r'^test/', include('ipho_exam.urls_test', namespace='test')),
