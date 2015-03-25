@@ -25,10 +25,24 @@
 
 {% block content %}
 <div class="container">
-
 <div class="page-header">
+    <div class="dropdown pull-right">
+      <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+        Theory Exam
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="#">Demo Exam</a></li>
+        <li class="active"><a href="#">Theory Exam</a></li>
+        <li><a href="#">Experimental Exam</a></li>
+      </ul>
+    </div>
+  <h1>Exam editor</h1>
+</div>
+
+<!-- <div class="page-header">
   <h2>Exam editor :
-  
+
   <span class="title-dropdown dropdown">
     <a class="btn btn-link btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
       Theory Exam
@@ -40,8 +54,8 @@
       <li><a href="#">Experimental Exam</a></li>
     </ul>
   </span>
-  </h1>
-</div>
+  </h2>
+</div> -->
 
 <ul class="nav nav-tabs">
     <li><a href="#">Introduction</a></li>
