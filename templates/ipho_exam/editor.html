@@ -19,22 +19,26 @@
     font-size: 20px;
 }
 </style>
-</style>
 
 {% endblock %}
+
 
 {% block content %}
 <div class="container">
 <div class="page-header">
     <div class="dropdown pull-right">
       <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
-        Theory Exam
+{% if exam %}
+        {{ exam.name }}
+{% else %}
+        Select exam
+{% endif %}
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="#">Demo Exam</a></li>
-        <li class="active"><a href="#">Theory Exam</a></li>
-        <li><a href="#">Experimental Exam</a></li>
+    {% for ex in exam_list %}
+        <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:editor-exam' exam_id=ex.pk %}">{{ ex.name }}</a></li>
+    {% endfor %}
       </ul>
     </div>
   <h1>Exam editor</h1>
@@ -58,11 +62,15 @@
 </div> -->
 
 <ul class="nav nav-tabs">
-    <li><a href="#">Introduction</a></li>
+    {% for q in exam.question_set.all %}
+        <li {% if question == q %} class="active" {% endif %}><a href="{% url 'exam:editor-question' exam_id=exam.pk question_id=q.pk %}">{{ q.name }}</a></li>
+    {% endfor %}
+
+    <!-- <li><a href="#">Introduction</a></li>
     <li class="active"><a href="#">Question 1</a></li>
     <li><a href="#">Answer Sheet 1</a></li>
     <li><a href="#">Question 2</a></li>
-    <li><a href="#">Answer Sheet 2</a></li>
+    <li><a href="#">Answer Sheet 2</a></li> -->
 </ul>
 
 
