@@ -1,0 +1,37 @@
+{% for field in fields_set %}
+    <div class="row">
+    {% if field.heading %}
+        <div class="col-xs-12">
+            <h4>{{ field.heading }}</h4>
+        </div>
+    {% endif %}
+    
+    {% with field.children as fields_set %}
+        {% include 'ipho_exam/editor_field.html' %}
+    {% endwith %}
+    
+    </div>
+    
+    {% if field.original %}
+        <div class="row">
+            <div class="col-xs-5">
+                <div class="translate-original" id="{{ field.id }}-original">
+                    {{ field.original|safe }}
+                </div>
+            </div>
+        
+          <div class="col-sm-2 text-center" style="display: table-cell; vertical-align: middle;">
+            <button type="button" class="btn btn-sm btn-default translate-copy-button" id="{{ field.id }}-copy" aria-label="Copy original version" title="Copy original version">
+              <span class="glyphicon glyphicon-arrow-right"></span>
+            </button>
+          </div>
+        
+            <div class="col-xs-5">
+                <div class="translate-foreign" id="part{{ field.id }}-translate" contenteditable="true">
+                    {{ field.translate }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endfor %}

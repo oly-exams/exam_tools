@@ -18,7 +18,7 @@
 .title-dropdown .dropdown-menu {
     font-size: 20px;
 }
-body { padding-bottom: 70px; }
+body { margin-bottom: 70px; }
 </style>
 
 {% endblock %}
@@ -81,6 +81,9 @@ body { padding-bottom: 70px; }
     <h3>{{ question.name }} <small><span class="glyphicon glyphicon-lock"></span></small></h3>
     
     
+    {% with content_set as fields_set %}
+        {% include 'ipho_exam/editor_field.html' %}
+    {% endwith %}
     
     
     <div class="navbar navbar-default navbar-fixed-bottom">
@@ -95,4 +98,52 @@ body { padding-bottom: 70px; }
 {% endif %}
 </div> <!-- /container -->
 
+{% endblock %}
+
+
+
+{% block extra-script %}
+    <script src="{% static "ckeditor/ckeditor.js" %}"></script>
+    <script src="{% static "mathquill/mathquill.min.js" %}"></script>
+    
+    <script>
+        CKEDITOR.plugins.addExternal( 'mathedit', '{% static "mathedit/" %}', 'plugin.js' );
+        
+        $(function(){
+            
+            $(".translate-original").each(function() {
+                var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img src="http://latex.codecogs.com/svg.latex?$1" />');
+                $(this).html(newtext);
+            });
+            $(".translate-foreign").each(function() {
+                var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img src="http://latex.codecogs.com/svg.latex?$1" />');
+                $(this).html(newtext);
+            });
+            
+            $(".translate-copy-button").click(function( event ) {
+                event.preventDefault();
+            });
+            
+            
+            // var newtext = $("#editor1").html().replace(/\$(.+?)\$/g, '<img src="http://latex.codecogs.com/svg.latex?$1" />');
+            // $("#editor1").html(newtext);
+            
+            // CKEDITOR.inline( 'exam-translation', {
+            //     extraPlugins: 'mathedit',
+            //     // height : '600px',
+            // });
+            
+            CKEDITOR.config.toolbarGroups = [
+						{ name: 'editing',		groups: [ 'basicstyles', 'links' ] },
+						{ name: 'undo' },
+                        '/',
+						{ name: 'clipboard',	groups: [ 'selection', 'clipboard' ] },
+                        { name: 'insert' },
+						{ name: 'about' }
+					];
+            
+        });
+        
+    </script>
+    
 {% endblock %}

@@ -9,6 +9,7 @@ def make_content(root, trans_dict):
     ret = []
     for node in root.children:
         ret.append( make_content_node(node, trans_dict) )
+    return ret
 
 def make_content_node(node, trans_dict):
     """
@@ -178,8 +179,7 @@ class QMLtitle(QMLobject):
     has_text = True
     has_children = False
     
-    def heading(self):
-        return 'Title'
+    def heading(self): return 'Title'
 
 class QMLparagraph(QMLobject):
     abbr = "pa"
@@ -187,6 +187,8 @@ class QMLparagraph(QMLobject):
     
     has_text = True
     has_children = False
+
+    def heading(self): return 'Text'
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
@@ -207,6 +209,7 @@ class QMLequation(QMLobject):
     has_text = True
     has_children = False
 
+    def heading(self): return 'Equation'
 
 # class QMLfigureText(QMLobject):
 #     abbr = "ft"
@@ -224,6 +227,8 @@ class QMLlist(QMLobject):
     
     has_text = False
     has_children = True
+
+    def heading(self): return 'Bullet list'
 
 
 class QMLlistitem(QMLobject):
