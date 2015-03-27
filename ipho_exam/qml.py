@@ -1,6 +1,46 @@
 from xml.etree import ElementTree as ET
 #import lxml.etree as lxmltree
 
+from django import forms
+
+
+def make_content(root, trans_dict):
+    assert(root.tag == 'question')
+    ret = []
+    for node in root.children:
+        ret.append( make_content_node(node, trans_dict) )
+
+def make_content_node(node, trans_dict):
+    """
+    Recursively contruct a list of node descriptors for the template containing
+    the text of root and the form elements for the translated language.
+    The descriptor looks like:
+    {
+        'heading'   : str or None
+        'style'     : list of css classes
+        'id'        : object id
+        'original'  : original language, as html content
+        'translate' : translated language, as FormWidget
+        'children'  : list of other nodes
+    }
+    """
+    
+    descr = {}
+    descr['heading'] = node.heading()
+    descr['style']   = []
+    descr['id']      = node.id
+    descr['original']  = node.text if node.has_text else None
+    
+    descr['translate'] = node.form_element() if node.has_text else None
+    if descr['translate'] is not None and node.id in trans_dict:
+        descr['translate'].initial = trans_dict[node.id]
+        descr['translate'].widget.attrs.update({'id' : node.id})
+    
+    descr['children']  = []
+    for c in node.children:
+        descr['children'].append(  make_content_node(c, trans_dict) )
+    
+    return descr
 
 ## List of all QML obects available for parsing
 qml_objects = None
@@ -67,9 +107,11 @@ class QMLobject(object):
         
         return elem
     
+    def heading(self):
+        return None
     
     def form_element(self):
-        return None
+        return forms.CharField()
 
     #assign initial xml id attribute where it is empty
     def assign_initial_id(self,question_id,blacklist=None):
@@ -125,7 +167,9 @@ class QMLsubquestion(QMLobject):
     
     has_text = False
     has_children = True
-
+    
+    def heading(self):
+        return 'Subquestion, %spt' % self.attributes['points']
 
 class QMLtitle(QMLobject):
     abbr = "ti"
@@ -133,6 +177,9 @@ class QMLtitle(QMLobject):
     
     has_text = True
     has_children = False
+    
+    def heading(self):
+        return 'Title'
 
 class QMLparagraph(QMLobject):
     abbr = "pa"
@@ -141,7 +188,8 @@ class QMLparagraph(QMLobject):
     has_text = True
     has_children = False
 
-    # form_element = forms.CharField(label="text", initial = self.data, widget = forms.Textarea)
+    def form_element(self):
+        return forms.CharField(widget=forms.Textarea)
 
 
 class QMLfigure(QMLobject):
