@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra-head %}
+<style>
+.big-box,
+.mini-box {
+    background-color: #10BCFF;
+    color: white;
+    text-align: center;
+    margin: 2px;
+    font-size: 1.5em;
+}
+.big-box {
+    height: 65px
+}
+.mini-box {
+    height: 30px
+}
+.subquestion {
+    border: 1px #f00 solid;
+}
+.subquestion .row {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="mini-box">Title</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-5">
+            <div class="mini-box">orig</div>
+        </div>
+        <div class="col-xs-2">
+            <div class="mini-box">></div>
+        </div>
+        <div class="col-xs-5">
+            <div class="mini-box">translate</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 subquestion">
+            <div class="mini-box">Title2</div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="mini-box">Subtitle</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-5">
+                    <div class="mini-box">orig</div>
+                </div>
+                <div class="col-xs-2">
+                    <div class="mini-box">></div>
+                </div>
+                <div class="col-xs-5">
+                    <div class="mini-box">translate</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
