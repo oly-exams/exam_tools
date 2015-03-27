@@ -18,6 +18,7 @@
 .title-dropdown .dropdown-menu {
     font-size: 20px;
 }
+body { padding-bottom: 70px; }
 </style>
 
 {% endblock %}
@@ -25,6 +26,14 @@
 
 {% block content %}
 <div class="container">
+
+{% if warning %}
+    <div class="alert alert-warning alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <strong>Warning:</strong> {{ warning }}
+    </div>
+{% endif %}
+
 <div class="page-header">
     <div class="dropdown pull-right">
       <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
@@ -65,16 +74,25 @@
     {% for q in exam.question_set.all %}
         <li {% if question == q %} class="active" {% endif %}><a href="{% url 'exam:editor-question' exam_id=exam.pk question_id=q.pk %}">{{ q.name }}</a></li>
     {% endfor %}
-
-    <!-- <li><a href="#">Introduction</a></li>
-    <li class="active"><a href="#">Question 1</a></li>
-    <li><a href="#">Answer Sheet 1</a></li>
-    <li><a href="#">Question 2</a></li>
-    <li><a href="#">Answer Sheet 2</a></li> -->
 </ul>
 
-
-
+{% if question %}
+    
+    <h3>{{ question.name }} <small><span class="glyphicon glyphicon-lock"></span></small></h3>
+    
+    
+    
+    
+    <div class="navbar navbar-default navbar-fixed-bottom">
+      <div class="container">
+        <div class="navbar-right">
+            <button type="button" class="btn btn-default navbar-btn"><span class="glyphicon glyphicon-lock"></span> Lock</button>
+            <button type="button" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+        </div>
+    
+      </div>
+    </div>
+{% endif %}
 </div> <!-- /container -->
 
 {% endblock %}
