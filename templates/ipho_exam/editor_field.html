@@ -1,15 +1,13 @@
 {% for field in fields_set %}
     <div class="row">
-    {% if field.heading %}
-        <div class="col-xs-12">
+        <div class="col-xs-12 translation-field-container">
             <h4>{{ field.heading }}</h4>
+
+            {% with field.children as fields_set %}
+                {% include 'ipho_exam/editor_field.html' %}
+            {% endwith %}
+
         </div>
-    {% endif %}
-    
-    {% with field.children as fields_set %}
-        {% include 'ipho_exam/editor_field.html' %}
-    {% endwith %}
-    
     </div>
     
     {% if field.original %}

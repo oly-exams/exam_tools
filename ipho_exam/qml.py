@@ -200,7 +200,9 @@ class QMLfigure(QMLobject):
     
     has_text = False
     has_children = True
-    
+
+    def heading(self): return 'Figure'
+
 
 class QMLequation(QMLobject):
     abbr = "eq"
@@ -237,6 +239,8 @@ class QMLlistitem(QMLobject):
     
     has_text = True
     has_children = False
+
+    def heading(self): return 'Item'
 
 
 class QMLException(Exception):
