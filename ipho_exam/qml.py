@@ -29,7 +29,7 @@ def make_content_node(node, trans_dict):
     descr['heading'] = node.heading()
     descr['style']   = []
     descr['id']      = node.id
-    descr['original']  = node.text if node.has_text else None
+    descr['original']  = node.data if node.has_text else None
     
     descr['translate'] = node.form_element() if node.has_text else None
     if descr['translate'] is not None and node.id in trans_dict:
