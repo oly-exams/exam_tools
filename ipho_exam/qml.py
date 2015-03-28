@@ -30,18 +30,32 @@ def make_content_node(node, trans_dict):
     descr['heading'] = node.heading()
     descr['style']   = []
     descr['id']      = node.id
-    descr['original']  = node.data if node.has_text else None
+    descr['original'] = node.data if node.has_text else None
     
     descr['translate'] = node.form_element() if node.has_text else None
     if descr['translate'] is not None and node.id in trans_dict:
         descr['translate'].initial = trans_dict[node.id]
         descr['translate'].widget.attrs.update({'id' : node.id})
     
-    descr['children']  = []
+    descr['children'] = []
     for c in node.children:
-        descr['children'].append(  make_content_node(c, trans_dict) )
+        descr['children'].append( make_content_node(c, trans_dict) )
     
     return descr
+
+
+class QMLForm(forms.Form):
+    def __init__(self, root, initials, *args, **kwargs):
+        super(QMLForm, self).__init__(*args, **kwargs)
+        self.insert_fields(root, initials)
+    
+    def insert_fields(self, node, initials):
+        if node.has_text:
+            self.fields[node.id] = node.form_element()
+            self.fields[node.id].initial = initials[node.id] if node.id in initials else ''
+        for c in node.children:
+            self.insert_fields(c, initials)
+
 
 ## List of all QML obects available for parsing
 qml_objects = None
@@ -113,6 +127,14 @@ class QMLobject(object):
     
     def form_element(self):
         return forms.CharField()
+    
+    def get_data(self):
+        ret = {}
+        if self.has_text:
+            ret[self.id] = self.data
+        for c in self.children:
+            ret.update(c.get_data())
+        return ret
 
     #assign initial xml id attribute where it is empty
     def assign_initial_id(self,question_id,blacklist=None):
@@ -241,6 +263,9 @@ class QMLlistitem(QMLobject):
     has_children = False
 
     def heading(self): return 'Item'
+
+    def form_element(self):
+        return forms.CharField(widget=forms.Textarea)
 
 
 class QMLException(Exception):

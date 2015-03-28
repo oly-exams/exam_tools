@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load editor_extras %}
 
 {% block extra-head %}
 <style>
@@ -120,38 +121,44 @@ body { margin-bottom: 70px; }
     <script>
         CKEDITOR.plugins.addExternal( 'mathedit', '{% static "mathedit/" %}', 'plugin.js' );
         
+        all_editors = new Array();
+        
         $(function(){
             
             $(".translate-original").each(function() {
-                var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img src="http://latex.codecogs.com/svg.latex?$1" />');
+                var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
                 $(this).html(newtext);
             });
             $(".translate-foreign").each(function() {
-                var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img src="http://latex.codecogs.com/svg.latex?$1" />');
+                var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
                 $(this).html(newtext);
             });
             
             $(".translate-copy-button").click(function( event ) {
+                field_id =  $(this).attr('id').replace('-copy', '')
+                orig = '#' + $(this).attr('id').replace('-copy', '-original')
+                all_editors[field_id].setData($(orig).html())
                 event.preventDefault();
             });
             
             
-            // var newtext = $("#editor1").html().replace(/\$(.+?)\$/g, '<img src="http://latex.codecogs.com/svg.latex?$1" />');
-            // $("#editor1").html(newtext);
+            $('.translate-foreign textarea').each(function() {
+                myid = $(this).parent().attr('id').replace('-translate', '');
+                all_editors[myid] = CKEDITOR.inline(this);
+            })
             
-            // CKEDITOR.inline( 'exam-translation', {
-            //     extraPlugins: 'mathedit',
-            //     // height : '600px',
-            // });
-            
-            CKEDITOR.config.toolbarGroups = [
-						{ name: 'editing',		groups: [ 'basicstyles', 'links' ] },
-						{ name: 'undo' },
-                        '/',
-						{ name: 'clipboard',	groups: [ 'selection', 'clipboard' ] },
-                        { name: 'insert' },
-						{ name: 'about' }
-					];
+            CKEDITOR.config.forcePasteAsPlainText = true;
+            CKEDITOR.config.toolbar = [
+                    [ 'Bold', 'Italic', 'Underline', '-', 'mathedit', '-', 'BidiLtr', 'BidiRtl']
+                ];
+            CKEDITOR.config.removePlugins = 'elementspath';
+            CKEDITOR.config.resize_enabled = false;
+            CKEDITOR.config.extraPlugins = 'bidi,mathedit';
+            CKEDITOR.config.removePlugins = 'contextmenu,tabletools,liststyle';
+            CKEDITOR.config.extraAllowedContent = 'img(mathImg)';
+            CKEDITOR.config.width = '100%';
+            CKEDITOR.config.htmlEncodeOutput = false;
+            CKEDITOR.config.disableNativeSpellChecker = false;
             
         });
         

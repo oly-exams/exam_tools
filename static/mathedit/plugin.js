@@ -77,10 +77,9 @@ CKEDITOR.plugins.add( pluginName, {
 				   evt.data.dialog = pluginCmd;
 				   evt.cancelBubble = true;
 				   evt.returnValue = false;
-				   evt.stop();
 				}
 			}
-		}, null, null, 1);
+		}, null, null, 100);
 		
 		// add dialog for handling the math-input
 		// TODO: this could maybe look better; also integrating a latex-toolbar would be useful

@@ -29,6 +29,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     exam     = None
     question = None
     content  = None
+    form     = None
     
     if exam_id is not None:
         exam = Exam.objects.get(id=exam_id)
@@ -57,7 +58,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         # trans_q    = qml.QMLquestion(trans_node.text)
         # trans_content = trans_q.get_content()
         trans_content = {}
-        
+        form = qml.QMLForm(orig_q, trans_content, request.POST or None)
         content_set = qml.make_content(orig_q, trans_content)
     
     # except:
@@ -66,5 +67,6 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context['exam']        = exam
     context['question']    = question
     context['content_set'] = content_set
+    context['form']        = form
     return render(request, 'ipho_exam/editor.html', context)
 
