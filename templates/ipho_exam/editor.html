@@ -84,24 +84,28 @@ body { margin-bottom: 70px; }
 
 {% if question %}
     
-    <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
+    <form method="post" action=".">
+        {% csrf_token %}
+        <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
     
     
-    <div class="translation-field-container">
-    {% with content_set as fields_set %}
-        {% include 'ipho_exam/editor_field.html' %}
-    {% endwith %}
-    </div>
-    
-    <div class="navbar navbar-default navbar-fixed-bottom">
-      <div class="container">
-        <div class="navbar-right">
-            <button type="button" class="btn btn-default navbar-btn"><i class="fa fa-fw fa-unlock"></i> Lock</button>
-            <button type="button" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+        <div class="translation-field-container">
+        {% with content_set as fields_set %}
+            {% include 'ipho_exam/editor_field.html' %}
+        {% endwith %}
         </div>
     
-      </div>
-    </div>
+        <div class="navbar navbar-default navbar-fixed-bottom">
+          <div class="container">
+            <div class="navbar-right">
+                <button type="button" class="btn btn-success navbar-btn"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</button>
+                <button type="button" class="btn btn-default navbar-btn"><i class="fa fa-fw fa-unlock"></i> Lock</button>
+                <button type="submit" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+            </div>
+    
+          </div>
+        </div>
+    </form>
 {% endif %}
 </div> <!-- /container -->
 
