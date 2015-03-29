@@ -49,6 +49,7 @@ def index(request):
             })
 
 
+@login_required
 def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICIAL_LANGUAGE, orig_v=None):
     context = {'exam_id'     : exam_id,
                'question_id' : question_id,
