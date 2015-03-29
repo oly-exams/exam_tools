@@ -1,3 +1,10 @@
 <h2>Editor</h2>
-<p>No open voting at this time.</p>
-<p><a class="btn btn-default" href="#" role="button">See all &raquo;</a></p>
+<div class="panel panel-default">
+    <div class="panel-heading"><h3 class="panel-title">Available exams</h3></div>
+    <div class="list-group">
+    {% for ex in exam_list %}
+        <a class="list-group-item" href="{% url 'exam:editor-exam' exam_id=ex.pk %}">{{ ex.name }}</a>
+    {% endfor %}
+    </div>
+</div>
+

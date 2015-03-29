@@ -41,10 +41,15 @@ def index(request):
             language_form = LanguageForm()
             success = '<strong>Language created!</strong> The new languages has successfully been created.'
     
+    ## Exam section
+    exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
+    
+    
     return render(request, 'ipho_exam/index.html',
             {
                 'language_form' : language_form,
                 'own_lang'      : own_lang,
+                'exam_list'     : exam_list,
                 'success'       : success,
             })
 
