@@ -51,6 +51,8 @@ class QMLForm(forms.Form):
             self.fields[node.id] = node.form_element()
             self.fields[node.id].initial = initials[node.id] if node.id in initials else ''
             self.fields[node.id].required = False
+            self.fields[node.id].widget.attrs['class'] = 'form-control'
+            
         for c in node.children:
             self.insert_fields(c, initials)
 
