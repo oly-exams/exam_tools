@@ -23,12 +23,13 @@
               <span class="glyphicon glyphicon-arrow-right"></span>
             </button>
           </div>
-        
-            <div class="col-xs-5">
-                <div class="translate-foreign" id="{{ field.id }}-translate">
-                    {{ form|lookup:field.id }}
+            {% if form %}
+                <div class="col-xs-5">
+                    <div class="translate-foreign" id="{{ field.id }}-translate">
+                        {{ form|lookup:field.id }}
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     {% endif %}
 

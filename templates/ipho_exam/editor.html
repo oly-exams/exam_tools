@@ -3,8 +3,10 @@
 {% load editor_extras %}
 
 {% block extra-head %}
+<link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
+
 <style>
-.title-dropdown {
+span.dropdown {
     display: inline-block;
 }
 .title-dropdown .btn {
@@ -89,7 +91,53 @@ body { margin-bottom: 70px; }
         {% csrf_token %}
         <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
     
-    
+        <div class="row">
+            <div class="col-xs-5">
+                Original: 
+                <span class="dropdown">
+                  <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    {{ orig_lang.name }}
+                    <span class="caret"></span>
+                  </a>
+                  <ul class="dropdown-menu">
+                      {% if trans_lang %}
+                          {% for l in all_lang %}
+                              <li {% if orig_lang == l %} class="active" {% endif %}><a href="{% url 'exam:editor-lang' exam_id=exam.pk question_id=question.pk orig_id=l.pk lang_id=trans_lang.pk %}">{{ l.name }}</a></li>
+                          {% endfor %}
+                      {% else %}
+                          {% for l in all_lang %}
+                              <li {% if orig_lang == l %} class="active" {% endif %}><a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=question.pk orig_id=l.pk %}">{{ l.name }}</a></li>
+                          {% endfor %}
+                      {% endif %}
+                  </ul>
+                </span>
+            </div>
+            
+            <div class="col-sm-2 text-center">
+            </div>
+            
+            <div class="col-xs-5">
+                Translate to:
+                <span class="dropdown">
+                  <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    {% if trans_lang %}
+                        {{ trans_lang.name }}
+                    {% else %}
+                        Select language
+                    {% endif %}
+                    <span class="caret"></span>
+                  </a>
+                  <ul class="dropdown-menu">
+                      {% for l in own_lang %}
+                          <li {% if trans_lang == l %} class="active" {% endif %}><a href="{% url 'exam:editor-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk lang_id=l.pk %}">{{ l.name }}</a></li>
+                      {% endfor %}
+                  </ul>
+                </span>
+                
+            </div>
+        </div>
+        
+        
         <div class="translation-field-container">
         {% with content_set as fields_set %}
             {% include 'ipho_exam/editor_field.html' %}

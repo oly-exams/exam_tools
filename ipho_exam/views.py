@@ -8,6 +8,8 @@ from django.templatetags.static import static
 
 from copy import deepcopy
 
+from ipho_core.models import Delegation
+
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language
 from ipho_exam import qml
 
@@ -31,6 +33,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     question = None
     content  = None
     form     = None
+    orig_lang = None
+    trans_lang = None
     
     if exam_id is not None:
         exam = Exam.objects.get(id=exam_id)
@@ -39,9 +43,15 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.all()[0]
     
+    delegation = Delegation.objects.filter(members=request.user)
+    
     orig_lang = Language.objects.get(id=orig_id)
-    
-    
+    all_lang = Language.objects.filter(hidden=False)
+    if delegation.count() > 0:
+        own_lang = Language.objects.filter(hidden=False, delegation=delegation)
+    elif request.user.is_superuser:
+        own_lang = Language.objects.filter()
+        
     ## TODO:
     ## * check for read-only questions
     ## * deal with errors when node not found: no content
@@ -55,14 +65,18 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             orig_node = TranslationNode.objects.get(question=question, language=orig_lang)
         orig_q = qml.QMLquestion(orig_node.text)
         
-        trans_node = TranslationNode.objects.get_or_create(question=question, language_id=lang_id, defaults={'text': '', 'status' : 'O'}) ## TODO: check permissions for this.
-        trans_q    = qml.QMLquestion(trans_node.text)
-        trans_content = trans_q.get_content()
+        trans_content = {}
+        if lang_id is not None:
+            trans_lang = Language.objects.get(id=lang_id)
+            trans_node, created = TranslationNode.objects.get_or_create(question=question, language_id=lang_id, defaults={'text': '', 'status' : 'O'}) ## TODO: check permissions for this.
+            if len(trans_node.text) > 0:
+                trans_q    = qml.QMLquestion(trans_node.text)
+                trans_content = trans_q.get_content()
         
         form = qml.QMLForm(orig_q, trans_content, request.POST or None)
         content_set = qml.make_content(orig_q)
         
-        if form.is_valid():
+        if lang_id is not None and form.is_valid():
             ## update the content in the original XML.
             ## TODO: we could keep track of orig_v in the submission and, in case of updates, show a diff in the original language.
             q = deepcopy(orig_q)
@@ -75,6 +89,10 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     
     context['exam']        = exam
     context['question']    = question
+    context['all_lang']    = all_lang
+    context['own_lang']    = own_lang
+    context['orig_lang']   = orig_lang
+    context['trans_lang']  = trans_lang
     context['content_set'] = content_set
     context['form']        = form
     return render(request, 'ipho_exam/editor.html', context)
