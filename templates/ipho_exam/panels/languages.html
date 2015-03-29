@@ -4,15 +4,13 @@
 
 <div class="panel panel-default">
     <div class="panel-heading"><h3 class="panel-title">Available languages</h3></div>
-    <div class="panel-body">
-      <ul>
+      <ul class="list-group">
       {% for lang in own_lang %}
-          <li>{{ lang.name }}</li>
+          <li class="list-group-item">{{ lang.name }}</li>
       {% empty %}
-          <li>No languages assigned to your delegation.</li>
+          <li class="list-group-item">No languages assigned to your delegation.</li>
       {% endfor %}
       </ul>
-    </div>
 </div>
 
 <div class="panel panel-default">
