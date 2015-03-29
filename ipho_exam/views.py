@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 
 from django.templatetags.static import static
 
+from copy import deepcopy
 
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language
 from ipho_exam import qml
@@ -38,7 +39,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.all()[0]
     
-    lang = Language.objects.get(id=orig_id)
+    orig_lang = Language.objects.get(id=orig_id)
     
     
     ## TODO:
@@ -47,19 +48,27 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     
     if question:
     # try:
-        orig_node = None ## TODO: make a free function
-        if lang.versioned:
-            orig_node = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version')[0]
+        ## TODO: make a free function
+        if orig_lang.versioned:
+            orig_node = VersionNode.objects.filter(question=question, language=orig_lang, status='C').order_by('-version')[0]
         else:
-            orig_node = TranslationNode.objects.get(question=question, language=lang)
+            orig_node = TranslationNode.objects.get(question=question, language=orig_lang)
         orig_q = qml.QMLquestion(orig_node.text)
         
-        # trans_node = TranslationNode.objects.get(question=question, language_id=lang_id)
-        # trans_q    = qml.QMLquestion(trans_node.text)
-        # trans_content = trans_q.get_content()
-        trans_content = {}
+        trans_node = TranslationNode.objects.get_or_create(question=question, language_id=lang_id, defaults={'text': '', 'status' : 'O'}) ## TODO: check permissions for this.
+        trans_q    = qml.QMLquestion(trans_node.text)
+        trans_content = trans_q.get_content()
+        
         form = qml.QMLForm(orig_q, trans_content, request.POST or None)
-        content_set = qml.make_content(orig_q, trans_content)
+        content_set = qml.make_content(orig_q)
+        
+        if form.is_valid():
+            ## update the content in the original XML.
+            ## TODO: we could keep track of orig_v in the submission and, in case of updates, show a diff in the original language.
+            q = deepcopy(orig_q)
+            q.update(form.clean_data, set_blanks=True)
+            trans_node.text = qml.xml2string(q.make_xml())
+            q.save()
     
     # except:
     #     context['warning'] = 'This question does not have any content.'

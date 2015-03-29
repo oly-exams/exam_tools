@@ -4,14 +4,14 @@ from xml.etree import ElementTree as ET
 from django import forms
 
 
-def make_content(root, trans_dict):
+def make_content(root):
     assert(root.tag == 'question')
     ret = []
     for node in root.children:
-        ret.append( make_content_node(node, trans_dict) )
+        ret.append( make_content_node(node) )
     return ret
 
-def make_content_node(node, trans_dict):
+def make_content_node(node):
     """
     Recursively contruct a list of node descriptors for the template containing
     the text of root and the form elements for the translated language.
@@ -21,7 +21,7 @@ def make_content_node(node, trans_dict):
         'style'     : list of css classes
         'id'        : object id
         'original'  : original language, as html content
-        'translate' : translated language, as FormWidget
+        'translate' : translated language, as FormWidget # REMOVED
         'children'  : list of other nodes
     }
     """
@@ -32,17 +32,14 @@ def make_content_node(node, trans_dict):
     descr['id']      = node.id
     descr['original'] = node.data if node.has_text else None
     
-    descr['translate'] = node.form_element() if node.has_text else None
-    if descr['translate'] is not None and node.id in trans_dict:
-        descr['translate'].initial = trans_dict[node.id]
-        descr['translate'].widget.attrs.update({'id' : node.id})
-    
     descr['children'] = []
     for c in node.children:
-        descr['children'].append( make_content_node(c, trans_dict) )
+        descr['children'].append( make_content_node(c) )
     
     return descr
 
+def xml2string(xml):
+    return ET.tostring(xml)
 
 class QMLForm(forms.Form):
     def __init__(self, root, initials, *args, **kwargs):
@@ -135,6 +132,21 @@ class QMLobject(object):
         for c in self.children:
             ret.update(c.get_data())
         return ret
+    
+    def update(self, data, set_blanks=False):
+        """
+        Update content of the QMLobject and its children with the dict data.
+        If set_blanks is True, fields not contained in data will be set to empty strings,
+        otherwise leave the current content.
+        """
+        
+        if self.id in data:
+            self.data = data[self.id]
+        elif self.has_text and set_blanks:
+            self.data = ''
+        
+        for c in self.children:
+            c.update(data)
 
     #assign initial xml id attribute where it is empty
     def assign_initial_id(self,question_id,blacklist=None):
