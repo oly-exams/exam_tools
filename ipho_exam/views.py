@@ -67,7 +67,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     
     exam     = None
     question = None
-    content  = None
+    content_set = None
     form     = None
     orig_lang = None
     trans_lang = None
