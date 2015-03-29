@@ -87,7 +87,7 @@ body { margin-bottom: 70px; }
 
 {% if question %}
     
-    <form method="post" action=".">
+    <form method="post" action="">
         {% csrf_token %}
         <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
     
