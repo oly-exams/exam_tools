@@ -109,7 +109,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             trans_node, created = TranslationNode.objects.get_or_create(question=question, language_id=lang_id, defaults={'text': '', 'status' : 'O'}) ## TODO: check permissions for this.
             if len(trans_node.text) > 0:
                 trans_q    = qml.QMLquestion(trans_node.text)
-                trans_content = trans_q.get_content()
+                trans_content = trans_q.get_data()
             
             
             form = qml.QMLForm(orig_q, trans_content, request.POST or None)
