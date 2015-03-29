@@ -80,9 +80,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             ## update the content in the original XML.
             ## TODO: we could keep track of orig_v in the submission and, in case of updates, show a diff in the original language.
             q = deepcopy(orig_q)
-            q.update(form.clean_data, set_blanks=True)
+            q.update(form.cleaned_data, set_blanks=True)
             trans_node.text = qml.xml2string(q.make_xml())
-            q.save()
+            trans_node.save()
     
     # except:
     #     context['warning'] = 'This question does not have any content.'

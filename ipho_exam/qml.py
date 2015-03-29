@@ -50,6 +50,7 @@ class QMLForm(forms.Form):
         if node.has_text:
             self.fields[node.id] = node.form_element()
             self.fields[node.id].initial = initials[node.id] if node.id in initials else ''
+            self.fields[node.id].required = False
         for c in node.children:
             self.insert_fields(c, initials)
 
