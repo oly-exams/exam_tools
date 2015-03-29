@@ -1,10 +1,12 @@
+{% load crispy_forms_tags %}
+
 <h2>Languages</h2>
 
 <div class="panel panel-default">
     <div class="panel-heading"><h3 class="panel-title">Available languages</h3></div>
     <div class="panel-body">
       <ul>
-      {% for lang in own_languages %}
+      {% for lang in own_lang %}
           <li>{{ lang.name }}</li>
       {% empty %}
           <li>No languages assigned to your delegation.</li>
@@ -14,10 +16,12 @@
 </div>
 
 <div class="panel panel-default">
-    <div class="panel-heading"><h3 class="panel-title"><a data-toggle="collapse" href="#add-language-panel">Create new <span class="glyphicon glyphicon-plus pull-right"></span></a></h4></div>
-    <div class="panel-body collapse" id="add-language-panel">
-      <p>
-          TODO. make form.
-      </p>
+    <div class="panel-heading"><h3 class="panel-title">Create new</h4></div>
+    <div class="panel-body" id="add-language-panel">
+        {% if language_form %}
+            {% crispy language_form %}
+        {% else %}
+            Only delegations can create new languages with this form.
+        {% endif %}
     </div>
 </div>

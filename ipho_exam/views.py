@@ -14,12 +14,40 @@ from ipho_core.models import Delegation
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language
 from ipho_exam import qml
 
+from ipho_exam.forms import LanguageForm
+
 OFFICIAL_LANGUAGE = 1
 
 @login_required
 def index(request):
-    return render_to_response('ipho_exam/index.html',
-                              context_instance=RequestContext(request))
+    success = None
+    
+    delegation = Delegation.objects.filter(members=request.user)
+    print delegation
+    
+    ## Language section
+    own_lang = None
+    language_form = None
+    if delegation.count() > 0:
+        own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
+        print own_lang
+        
+        language_form = LanguageForm(request.POST or None)
+        if language_form.is_valid():
+            lang_model = language_form.save(commit=False)
+            lang_model.save()
+            lang_model.delegation = delegation
+            lang_model.save()
+            language_form = LanguageForm()
+            success = '<strong>Language created!</strong> The new languages has successfully been created.'
+    
+    return render(request, 'ipho_exam/index.html',
+            {
+                'language_form' : language_form,
+                'own_lang'      : own_lang,
+                'success'       : success,
+            })
+
 
 def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICIAL_LANGUAGE, orig_v=None):
     context = {'exam_id'     : exam_id,

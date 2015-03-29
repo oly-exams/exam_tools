@@ -124,11 +124,15 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
+    'crispy_forms',
     'ipho_core',
     'ipho_exam',
     # 'django_extensions', # Some useful utils, e.g. graph models
     
 )
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
