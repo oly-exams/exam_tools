@@ -46,11 +46,11 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     delegation = Delegation.objects.filter(members=request.user)
     
     orig_lang = Language.objects.get(id=orig_id)
-    all_lang = Language.objects.filter(hidden=False)
+    all_lang = Language.objects.filter(hidden=False).order_by('name')
     if delegation.count() > 0:
-        own_lang = Language.objects.filter(hidden=False, delegation=delegation)
+        own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
     elif request.user.is_superuser:
-        own_lang = Language.objects.filter()
+        own_lang = Language.objects.filter().order_by('name')
         
     ## TODO:
     ## * check for read-only questions
