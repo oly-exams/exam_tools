@@ -18,18 +18,18 @@
                 </div>
             </div>
         
+        {% if form %}
           <div class="col-sm-2 text-center" style="display: table-cell; vertical-align: middle;">
             <button type="button" class="btn btn-sm btn-default translate-copy-button" id="{{ field.id }}-copy" aria-label="Copy original version" title="Copy original version">
               <span class="glyphicon glyphicon-arrow-right"></span>
             </button>
           </div>
-            {% if form %}
                 <div class="col-xs-5">
                     <div class="translate-foreign" id="{{ field.id }}-translate">
                         {{ form|lookup:field.id }}
                     </div>
                 </div>
-            {% endif %}
+        {% endif %}
         </div>
     {% endif %}
 

@@ -144,7 +144,8 @@ body { margin-bottom: 70px; }
             {% include 'ipho_exam/editor_field.html' %}
         {% endwith %}
         </div>
-    
+        
+        {% if form %}
         <div class="navbar navbar-default navbar-fixed-bottom">
           <div class="container">
             <div class="navbar-right">
@@ -155,6 +156,7 @@ body { margin-bottom: 70px; }
     
           </div>
         </div>
+        {% endif %}
     </form>
 {% endif %}
 </div> <!-- /container -->

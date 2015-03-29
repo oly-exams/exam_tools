@@ -101,6 +101,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             orig_node = TranslationNode.objects.get(question=question, language=orig_lang)
         orig_q = qml.QMLquestion(orig_node.text)
         
+        content_set = qml.make_content(orig_q)
+        
         trans_content = {}
         if lang_id is not None:
             trans_lang = Language.objects.get(id=lang_id)
@@ -108,17 +110,17 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             if len(trans_node.text) > 0:
                 trans_q    = qml.QMLquestion(trans_node.text)
                 trans_content = trans_q.get_content()
+            
+            
+            form = qml.QMLForm(orig_q, trans_content, request.POST or None)
         
-        form = qml.QMLForm(orig_q, trans_content, request.POST or None)
-        content_set = qml.make_content(orig_q)
-        
-        if lang_id is not None and form.is_valid():
-            ## update the content in the original XML.
-            ## TODO: we could keep track of orig_v in the submission and, in case of updates, show a diff in the original language.
-            q = deepcopy(orig_q)
-            q.update(form.cleaned_data, set_blanks=True)
-            trans_node.text = qml.xml2string(q.make_xml())
-            trans_node.save()
+            if form.is_valid():
+                ## update the content in the original XML.
+                ## TODO: we could keep track of orig_v in the submission and, in case of updates, show a diff in the original language.
+                q = deepcopy(orig_q)
+                q.update(form.cleaned_data, set_blanks=True)
+                trans_node.text = qml.xml2string(q.make_xml())
+                trans_node.save()
     
     # except:
     #     context['warning'] = 'This question does not have any content.'
