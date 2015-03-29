@@ -147,41 +147,6 @@ class QMLobject(object):
         
         for c in self.children:
             c.update(data)
-
-    #assign initial xml id attribute where it is empty
-    def assign_initial_id(self,question_id,blacklist=None):
-        if blacklist is None:
-            blacklist = self.list_id()
-
-        #print blacklist
-        if "id" in self.xml.attrib:
-            if self.xml.attrib["id"] == "":
-                i = 0
-                ident = False
-                while (not ident) or (ident in blacklist):
-                    i += 1
-                    ident = self.make_ident(question_id,i)
-
-                self.identifier = ident
-                self.xml.attrib["id"] = ident
-                #print "assigned initial id " + ident
-                blacklist.append(ident)
-
-        for c in self.children:
-            c.assign_initial_id(question_id,blacklist)
-    
-    #list xml attribute id for self and all sub-elements
-    def list_id(self):
-        lst = []
-        if "id" in self.xml.attrib:
-            lst.append(self.xml.attrib["id"])
-        for c in self.children:
-            lst.extend(c.list_id())
-        
-        return lst
-
-    def make_ident(self,question_id,i):
-        return str(question_id) + "_" + self.__class__.abbr + str(i)
     
     def __str__(self):
         print '<%s>'.format(self.tag)
