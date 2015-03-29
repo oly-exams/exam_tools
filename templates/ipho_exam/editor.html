@@ -93,7 +93,7 @@ body { margin-bottom: 70px; }
     
         <div class="row">
             <div class="col-xs-5">
-                Original: 
+                <h4>Original: 
                 <span class="dropdown">
                   <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                     {{ orig_lang.name }}
@@ -111,13 +111,14 @@ body { margin-bottom: 70px; }
                       {% endif %}
                   </ul>
                 </span>
+                </h4>
             </div>
             
             <div class="col-sm-2 text-center">
             </div>
             
             <div class="col-xs-5">
-                Translate to:
+                <h4>Translate to:
                 <span class="dropdown">
                   <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                     {% if trans_lang %}
@@ -133,7 +134,7 @@ body { margin-bottom: 70px; }
                       {% endfor %}
                   </ul>
                 </span>
-                
+                </h4>
             </div>
         </div>
         
