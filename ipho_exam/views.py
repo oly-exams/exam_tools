@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render_to_response, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required
 
 from django.templatetags.static import static
 
@@ -15,6 +16,7 @@ from ipho_exam import qml
 
 OFFICIAL_LANGUAGE = 1
 
+@login_required
 def index(request):
     return render_to_response('ipho_exam/index.html',
                               context_instance=RequestContext(request))
