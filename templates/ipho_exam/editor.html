@@ -127,12 +127,16 @@ body { margin-bottom: 70px; }
             
             $(".translate-original").each(function() {
                 var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
+                // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
                 $(this).html(newtext);
             });
             $(".translate-foreign").each(function() {
                 var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
                 $(this).html(newtext);
             });
+            
+            // $('.mathquill-embedded-latex').mathquill();
+            
             
             $(".translate-copy-button").click(function( event ) {
                 field_id =  $(this).attr('id').replace('-copy', '')
