@@ -111,10 +111,13 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 trans_q    = qml.QMLquestion(trans_node.text)
                 trans_content = trans_q.get_data()
             
-            
             form = qml.QMLForm(orig_q, trans_content, request.POST or None)
         
             if form.is_valid():
+                if trans_node.status == 'L':
+                    raise Exception('The question cannot be modified. It is locked.')
+                if trans_node.status == 'S':
+                    raise Exception('The question cannot be modified. It is already submitted.')
                 ## update the content in the original XML.
                 ## TODO: we could keep track of orig_v in the submission and, in case of updates, show a diff in the original language.
                 q = deepcopy(orig_q)
