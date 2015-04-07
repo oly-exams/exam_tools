@@ -172,6 +172,24 @@ body { margin-bottom: 70px; }
     <script>
         CKEDITOR.plugins.addExternal( 'mathedit', '{% static "mathedit/" %}', 'plugin.js' );
         
+        CKEDITOR.config.forcePasteAsPlainText = true;
+        CKEDITOR.config.toolbar = [
+                [ 'Bold', 'Italic', 'Underline', '-', 'mathedit', '-', 'BidiLtr', 'BidiRtl']
+            ];
+        CKEDITOR.config.removePlugins = 'elementspath';
+        CKEDITOR.config.resize_enabled = false;
+        CKEDITOR.config.extraPlugins = 'bidi,mathedit';
+        CKEDITOR.config.removePlugins = 'contextmenu,tabletools,liststyle';
+        CKEDITOR.config.extraAllowedContent = 'img(mathImg)';
+        CKEDITOR.config.width = '100%';
+        CKEDITOR.config.entities = false;
+        CKEDITOR.config.htmlEncodeOutput = false;
+        CKEDITOR.config.basicEntities = false;
+        CKEDITOR.config.entities_latin = false;
+        CKEDITOR.config.entities_greek = false;
+        CKEDITOR.config.disableNativeSpellChecker = false;
+        CKEDITOR.config.autoParagraph = false;
+        
         all_editors = new Array();
         
         $(function(){
@@ -199,22 +217,8 @@ body { margin-bottom: 70px; }
             
             $('.translate-foreign textarea').each(function() {
                 myid = $(this).parent().attr('id').replace('-translate', '');
-                all_editors[myid] = CKEDITOR.inline(this);
+                // all_editors[myid] = CKEDITOR.inline(this);
             })
-            
-            CKEDITOR.config.forcePasteAsPlainText = true;
-            CKEDITOR.config.toolbar = [
-                    [ 'Bold', 'Italic', 'Underline', '-', 'mathedit', '-', 'BidiLtr', 'BidiRtl']
-                ];
-            CKEDITOR.config.removePlugins = 'elementspath';
-            CKEDITOR.config.resize_enabled = false;
-            CKEDITOR.config.extraPlugins = 'bidi,mathedit';
-            CKEDITOR.config.removePlugins = 'contextmenu,tabletools,liststyle';
-            CKEDITOR.config.extraAllowedContent = 'img(mathImg)';
-            CKEDITOR.config.width = '100%';
-            CKEDITOR.config.htmlEncodeOutput = false;
-            CKEDITOR.config.disableNativeSpellChecker = false;
-            
         });
         
     </script>
