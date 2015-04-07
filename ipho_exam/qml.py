@@ -2,7 +2,9 @@ from xml.etree import ElementTree as ET
 #import lxml.etree as lxmltree
 
 from django import forms
-
+from django.utils.safestring import mark_safe
+from django.utils.html import escape
+from django.utils.text import unescape_entities
 
 def make_content(root):
     assert(root.tag == 'question')
@@ -30,7 +32,7 @@ def make_content_node(node):
     descr['heading'] = node.heading()
     descr['style']   = []
     descr['id']      = node.id
-    descr['original'] = node.data if node.has_text else None
+    descr['original'] = node.content() if node.has_text else None
     
     descr['children'] = []
     for c in node.children:
@@ -41,6 +43,15 @@ def make_content_node(node):
 def xml2string(xml):
     return ET.tostring(xml, encoding='utf8')
 
+
+def content2string(node):
+    parts = ([node.text] +
+             [ ET.tostring(c, encoding="utf-8") for c in node ] +
+             [node.tail])
+    # filter removes possible Nones in texts and tails
+    return ''.join(filter(None, parts))
+
+
 class QMLForm(forms.Form):
     def __init__(self, root, initials, *args, **kwargs):
         super(QMLForm, self).__init__(*args, **kwargs)
@@ -49,7 +60,7 @@ class QMLForm(forms.Form):
     def insert_fields(self, node, initials):
         if node.has_text:
             self.fields[node.id] = node.form_element()
-            self.fields[node.id].initial = initials[node.id] if node.id in initials else ''
+            self.fields[node.id].initial = mark_safe(initials[node.id]) if node.id in initials else ''
             self.fields[node.id].required = False
             self.fields[node.id].widget.attrs['class'] = 'form-control'
             
@@ -105,7 +116,8 @@ class QMLobject(object):
         
         self.data = None
         if self.__class__.has_text:
-            self.data = root.text
+            content = content2string(root)
+            self.data = unescape_entities(content)
         
         if self.__class__.has_children:
             for elem in root:
@@ -131,10 +143,13 @@ class QMLobject(object):
     def get_data(self):
         ret = {}
         if self.has_text:
-            ret[self.id] = self.data
+            ret[self.id] = unescape_entities(self.data)
         for c in self.children:
             ret.update(c.get_data())
         return ret
+    
+    def content(self):
+        return self.data
     
     def update(self, data, set_blanks=False):
         """
@@ -144,7 +159,7 @@ class QMLobject(object):
         """
         
         if self.id in data:
-            self.data = data[self.id]
+            self.data = data[self.id] #escape(data[self.id])
         elif self.has_text and set_blanks:
             self.data = ''
         
