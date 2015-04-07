@@ -5,8 +5,6 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 
-from django.templatetags.static import static
-
 from copy import deepcopy
 
 from ipho_core.models import Delegation
