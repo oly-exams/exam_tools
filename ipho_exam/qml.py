@@ -39,7 +39,7 @@ def make_content_node(node):
     return descr
 
 def xml2string(xml):
-    return ET.tostring(xml)
+    return ET.tostring(xml, encoding='utf8')
 
 class QMLForm(forms.Form):
     def __init__(self, root, initials, *args, **kwargs):
