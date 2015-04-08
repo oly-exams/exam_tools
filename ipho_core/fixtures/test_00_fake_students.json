@@ -1,0 +1,5392 @@
+[
+{
+  "fields": {
+    "last_name": "Surname",
+    "delegation": [
+      "ALB"
+    ],
+    "first_name": "GivenName",
+    "code": "ALB-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Voronova",
+    "delegation": [
+      "ALB"
+    ],
+    "first_name": "Xenia",
+    "code": "ALB-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Goncalves",
+    "delegation": [
+      "ALB"
+    ],
+    "first_name": "Tiago",
+    "code": "ALB-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e1e\u0e32\u0e01\u0e40\u0e1e\u0e35\u0e22\u0e23",
+    "delegation": [
+      "ALB"
+    ],
+    "first_name": "\u0e2a\u0e38\u0e1a\u0e38\u0e29\u0e22\u0e21\u0e32\u0e28",
+    "code": "ALB-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ruwolt",
+    "delegation": [
+      "ALB"
+    ],
+    "first_name": "Ebony",
+    "code": "ALB-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Udobata",
+    "delegation": [
+      "ARG"
+    ],
+    "first_name": "Chizoba",
+    "code": "ARG-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Tomaszewski",
+    "delegation": [
+      "ARG"
+    ],
+    "first_name": "Kajetan",
+    "code": "ARG-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Soko\u0142owski",
+    "delegation": [
+      "ARG"
+    ],
+    "first_name": "Marik",
+    "code": "ARG-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Vincent",
+    "delegation": [
+      "ARG"
+    ],
+    "first_name": "Amy",
+    "code": "ARG-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Mandi\u0107",
+    "delegation": [
+      "ARG"
+    ],
+    "first_name": "Damjan",
+    "code": "ARG-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kinfe",
+    "delegation": [
+      "ARM"
+    ],
+    "first_name": "Abraham",
+    "code": "ARM-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Brandagamba",
+    "delegation": [
+      "ARM"
+    ],
+    "first_name": "Saradoc",
+    "code": "ARM-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u6a4b\u4e0a",
+    "delegation": [
+      "ARM"
+    ],
+    "first_name": "\u512a\u592a",
+    "code": "ARM-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Christensen",
+    "delegation": [
+      "ARM"
+    ],
+    "first_name": "Malik",
+    "code": "ARM-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Pedersen",
+    "delegation": [
+      "ARM"
+    ],
+    "first_name": "Ole",
+    "code": "ARM-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u6797",
+    "delegation": [
+      "AUS"
+    ],
+    "first_name": "\u5b5d\u6148",
+    "code": "AUS-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Madrigal",
+    "delegation": [
+      "AUS"
+    ],
+    "first_name": "Ademaro",
+    "code": "AUS-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Barto\u0148ov\u00e1",
+    "delegation": [
+      "AUS"
+    ],
+    "first_name": "Alena",
+    "code": "AUS-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Fadden",
+    "delegation": [
+      "AUS"
+    ],
+    "first_name": "Lucy",
+    "code": "AUS-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hommersom",
+    "delegation": [
+      "AUS"
+    ],
+    "first_name": "Elaine",
+    "code": "AUS-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Tao",
+    "delegation": [
+      "AUT"
+    ],
+    "first_name": "Xian",
+    "code": "AUT-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ibragimov",
+    "delegation": [
+      "AUT"
+    ],
+    "first_name": "Aslan",
+    "code": "AUT-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ph\u00f9ng",
+    "delegation": [
+      "AUT"
+    ],
+    "first_name": "Thanh",
+    "code": "AUT-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Tobiassen",
+    "delegation": [
+      "AUT"
+    ],
+    "first_name": "Thomas",
+    "code": "AUT-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Cross",
+    "delegation": [
+      "AUT"
+    ],
+    "first_name": "Emma",
+    "code": "AUT-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Nakahara",
+    "delegation": [
+      "AZE"
+    ],
+    "first_name": "Kousuke",
+    "code": "AZE-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Propst",
+    "delegation": [
+      "AZE"
+    ],
+    "first_name": "Melanie",
+    "code": "AZE-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Girmay",
+    "delegation": [
+      "AZE"
+    ],
+    "first_name": "Lidya",
+    "code": "AZE-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Cardoso",
+    "delegation": [
+      "AZE"
+    ],
+    "first_name": "Samuel",
+    "code": "AZE-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kiosan",
+    "delegation": [
+      "AZE"
+    ],
+    "first_name": "R'Sira",
+    "code": "AZE-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Russom",
+    "delegation": [
+      "BGD"
+    ],
+    "first_name": "Jamila",
+    "code": "BGD-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "McKeddie",
+    "delegation": [
+      "BGD"
+    ],
+    "first_name": "Kiara",
+    "code": "BGD-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Tallus",
+    "delegation": [
+      "BGD"
+    ],
+    "first_name": "Vilma",
+    "code": "BGD-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Varnak",
+    "delegation": [
+      "BGD"
+    ],
+    "first_name": "Dora",
+    "code": "BGD-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "McCrone",
+    "delegation": [
+      "BGD"
+    ],
+    "first_name": "Olivia",
+    "code": "BGD-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e41\u0e0b\u0e48\u0e04\u0e39",
+    "delegation": [
+      "BLR"
+    ],
+    "first_name": "\u0e2a\u0e38\u0e17\u0e34\u0e1e\u0e32\u0e27\u0e23\u0e35",
+    "code": "BLR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Carvalho",
+    "delegation": [
+      "BLR"
+    ],
+    "first_name": "Gabriela",
+    "code": "BLR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sambell",
+    "delegation": [
+      "BLR"
+    ],
+    "first_name": "Ethan",
+    "code": "BLR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Grandpr\u00e9",
+    "delegation": [
+      "BLR"
+    ],
+    "first_name": "Henriette",
+    "code": "BLR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kalinowska",
+    "delegation": [
+      "BLR"
+    ],
+    "first_name": "Malwina",
+    "code": "BLR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Jeremiassen",
+    "delegation": [
+      "BEL"
+    ],
+    "first_name": "Sara",
+    "code": "BEL-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bender",
+    "delegation": [
+      "BEL"
+    ],
+    "first_name": "Rodney",
+    "code": "BEL-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sisneros",
+    "delegation": [
+      "BEL"
+    ],
+    "first_name": "Abele",
+    "code": "BEL-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "BEL"
+    ],
+    "first_name": "Aridoarikato",
+    "code": "BEL-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Man",
+    "delegation": [
+      "BEL"
+    ],
+    "first_name": "Maysa",
+    "code": "BEL-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Nwebube",
+    "delegation": [
+      "BOL"
+    ],
+    "first_name": "Nwakego",
+    "code": "BOL-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Liao",
+    "delegation": [
+      "BOL"
+    ],
+    "first_name": "Long",
+    "code": "BOL-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Acevedo",
+    "delegation": [
+      "BOL"
+    ],
+    "first_name": "Klaus",
+    "code": "BOL-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bazhenov",
+    "delegation": [
+      "BOL"
+    ],
+    "first_name": "Mark",
+    "code": "BOL-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Asl",
+    "delegation": [
+      "BOL"
+    ],
+    "first_name": "Ana Amalija",
+    "code": "BOL-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e14\u0e33\u0e02\u0e33",
+    "delegation": [
+      "BIH"
+    ],
+    "first_name": "\u0e2a\u0e38\u0e22\u0e38\u0e1e\u0e32\u0e27\u0e14\u0e35",
+    "code": "BIH-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ujv\u00e1ri",
+    "delegation": [
+      "BIH"
+    ],
+    "first_name": "Gergely",
+    "code": "BIH-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Barteaux",
+    "delegation": [
+      "BIH"
+    ],
+    "first_name": "Amabella",
+    "code": "BIH-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Shen",
+    "delegation": [
+      "BIH"
+    ],
+    "first_name": "Park",
+    "code": "BIH-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Araujo",
+    "delegation": [
+      "BIH"
+    ],
+    "first_name": "Evelyn",
+    "code": "BIH-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Polg\u00e1r",
+    "delegation": [
+      "BRA"
+    ],
+    "first_name": "Vencel",
+    "code": "BRA-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Decara",
+    "delegation": [
+      "BRA"
+    ],
+    "first_name": "Kabarann",
+    "code": "BRA-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Peji\u0107",
+    "delegation": [
+      "BRA"
+    ],
+    "first_name": "Mirela",
+    "code": "BRA-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hsing",
+    "delegation": [
+      "BRA"
+    ],
+    "first_name": "Qiang",
+    "code": "BRA-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kvande",
+    "delegation": [
+      "BRA"
+    ],
+    "first_name": "Emelie",
+    "code": "BRA-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Chien",
+    "delegation": [
+      "BRN"
+    ],
+    "first_name": "Zhen",
+    "code": "BRN-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Keraz",
+    "delegation": [
+      "BRN"
+    ],
+    "first_name": "Ch'Tihla",
+    "code": "BRN-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Zeeb",
+    "delegation": [
+      "BRN"
+    ],
+    "first_name": "Marius",
+    "code": "BRN-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "BRN"
+    ],
+    "first_name": "Rinkaku",
+    "code": "BRN-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bu\u010dkov\u00e1",
+    "delegation": [
+      "BRN"
+    ],
+    "first_name": "Jana",
+    "code": "BRN-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Onyemauchechi",
+    "delegation": [
+      "BGR"
+    ],
+    "first_name": "Otutodilichukwu",
+    "code": "BGR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e15\u0e34\u0e14\u0e40\u0e01\u0e35\u0e22",
+    "delegation": [
+      "BGR"
+    ],
+    "first_name": "\u0e08\u0e35\u0e23\u0e20\u0e31\u0e17\u0e23",
+    "code": "BGR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Baranova",
+    "delegation": [
+      "BGR"
+    ],
+    "first_name": "Dean",
+    "code": "BGR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "T\u00f4n",
+    "delegation": [
+      "BGR"
+    ],
+    "first_name": "Tuy\u1ebfn",
+    "code": "BGR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kristensen",
+    "delegation": [
+      "BGR"
+    ],
+    "first_name": "Laila",
+    "code": "BGR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Margeirsson",
+    "delegation": [
+      "KHM"
+    ],
+    "first_name": "R\u00edkhar\u00f0ur",
+    "code": "KHM-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Davidson",
+    "delegation": [
+      "KHM"
+    ],
+    "first_name": "Finlay",
+    "code": "KHM-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Borkowski",
+    "delegation": [
+      "KHM"
+    ],
+    "first_name": "Korneliusz",
+    "code": "KHM-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e2b\u0e49\u0e32\u0e27\u0e2b\u0e32\u0e0d",
+    "delegation": [
+      "KHM"
+    ],
+    "first_name": "\u0e2a\u0e38\u0e28\u0e34\u0e23\u0e32\u0e1e\u0e23",
+    "code": "KHM-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Took",
+    "delegation": [
+      "KHM"
+    ],
+    "first_name": "Gloriana",
+    "code": "KHM-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Burrowes",
+    "delegation": [
+      "CAN"
+    ],
+    "first_name": "Alfrida",
+    "code": "CAN-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Zielinska",
+    "delegation": [
+      "CAN"
+    ],
+    "first_name": "Asia",
+    "code": "CAN-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Boni",
+    "delegation": [
+      "CAN"
+    ],
+    "first_name": "Elvira",
+    "code": "CAN-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Mett\u00e4l\u00e4",
+    "delegation": [
+      "CAN"
+    ],
+    "first_name": "Pertti",
+    "code": "CAN-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u010cubra",
+    "delegation": [
+      "CAN"
+    ],
+    "first_name": "Andrew",
+    "code": "CAN-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Petersen",
+    "delegation": [
+      "CHL"
+    ],
+    "first_name": "Pipaluk",
+    "code": "CHL-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ochi",
+    "delegation": [
+      "CHL"
+    ],
+    "first_name": "Senta",
+    "code": "CHL-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ibeamaka",
+    "delegation": [
+      "CHL"
+    ],
+    "first_name": "Anayochukwu",
+    "code": "CHL-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Mokro\u0161",
+    "delegation": [
+      "CHL"
+    ],
+    "first_name": "Martin",
+    "code": "CHL-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Odili",
+    "delegation": [
+      "CHL"
+    ],
+    "first_name": "Ebelegbulam",
+    "code": "CHL-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ma",
+    "delegation": [
+      "CHN"
+    ],
+    "first_name": "Deborah",
+    "code": "CHN-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Heged\u00fbs",
+    "delegation": [
+      "CHN"
+    ],
+    "first_name": "Kadosa",
+    "code": "CHN-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Niels",
+    "delegation": [
+      "CHN"
+    ],
+    "first_name": "April",
+    "code": "CHN-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Onyekaozulu",
+    "delegation": [
+      "CHN"
+    ],
+    "first_name": "Onuora",
+    "code": "CHN-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Fikru",
+    "delegation": [
+      "CHN"
+    ],
+    "first_name": "Helen",
+    "code": "CHN-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Munro",
+    "delegation": [
+      "COL"
+    ],
+    "first_name": "Armaan",
+    "code": "COL-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Varnak",
+    "delegation": [
+      "COL"
+    ],
+    "first_name": "G'Eneth",
+    "code": "COL-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Lynge",
+    "delegation": [
+      "COL"
+    ],
+    "first_name": "Nivi",
+    "code": "COL-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Usamov",
+    "delegation": [
+      "COL"
+    ],
+    "first_name": "Aymani",
+    "code": "COL-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kluge",
+    "delegation": [
+      "COL"
+    ],
+    "first_name": "Philipp",
+    "code": "COL-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Rumble",
+    "delegation": [
+      "HRV"
+    ],
+    "first_name": "Peregrin",
+    "code": "HRV-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Fuchs",
+    "delegation": [
+      "HRV"
+    ],
+    "first_name": "Sara",
+    "code": "HRV-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u897f\u7247",
+    "delegation": [
+      "HRV"
+    ],
+    "first_name": "\u7bc0\u5b50",
+    "code": "HRV-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Chen",
+    "delegation": [
+      "HRV"
+    ],
+    "first_name": "Xiao Hong",
+    "code": "HRV-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gomes",
+    "delegation": [
+      "HRV"
+    ],
+    "first_name": "Luana",
+    "code": "HRV-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ibragimov",
+    "delegation": [
+      "CUB"
+    ],
+    "first_name": "Sovbika",
+    "code": "CUB-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Medrano",
+    "delegation": [
+      "CUB"
+    ],
+    "first_name": "Lisandro",
+    "code": "CUB-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Matth\u00edasd\u00f3ttir",
+    "delegation": [
+      "CUB"
+    ],
+    "first_name": "Fr\u00ed\u00f0ur",
+    "code": "CUB-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Charbonneau",
+    "delegation": [
+      "CUB"
+    ],
+    "first_name": "Barry",
+    "code": "CUB-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Raaphorst",
+    "delegation": [
+      "CUB"
+    ],
+    "first_name": "\u00d6zg\u00fcl",
+    "code": "CUB-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Tr\u1ecbnh",
+    "delegation": [
+      "CYP"
+    ],
+    "first_name": "X\u1ee9ng",
+    "code": "CYP-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "White",
+    "delegation": [
+      "CYP"
+    ],
+    "first_name": "Tamzin",
+    "code": "CYP-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Thordarson",
+    "delegation": [
+      "CYP"
+    ],
+    "first_name": "\u00c1str\u00e1\u00f0ur",
+    "code": "CYP-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Wright",
+    "delegation": [
+      "CYP"
+    ],
+    "first_name": "Anngjerd",
+    "code": "CYP-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u7b26",
+    "delegation": [
+      "CYP"
+    ],
+    "first_name": "\u5bb6\u831c",
+    "code": "CYP-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ivarsson",
+    "delegation": [
+      "CZE"
+    ],
+    "first_name": "Leopold",
+    "code": "CZE-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bj\u00f8rdal",
+    "delegation": [
+      "CZE"
+    ],
+    "first_name": "Joyce",
+    "code": "CZE-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Novak",
+    "delegation": [
+      "CZE"
+    ],
+    "first_name": "Fran",
+    "code": "CZE-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Jamieson",
+    "delegation": [
+      "CZE"
+    ],
+    "first_name": "Regan",
+    "code": "CZE-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Biryukova",
+    "delegation": [
+      "CZE"
+    ],
+    "first_name": "Ustinov",
+    "code": "CZE-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Saenz",
+    "delegation": [
+      "DNK"
+    ],
+    "first_name": "Quichauel",
+    "code": "DNK-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Tri\u1ec7u",
+    "delegation": [
+      "DNK"
+    ],
+    "first_name": "M\u00f9i",
+    "code": "DNK-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "V\u00e4limaa",
+    "delegation": [
+      "DNK"
+    ],
+    "first_name": "Tommi",
+    "code": "DNK-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Edronh",
+    "delegation": [
+      "DNK"
+    ],
+    "first_name": "Kala",
+    "code": "DNK-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Oddgeirsson",
+    "delegation": [
+      "DNK"
+    ],
+    "first_name": "Hlynur",
+    "code": "DNK-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Heiberg",
+    "delegation": [
+      "ECU"
+    ],
+    "first_name": "Gunnlaug",
+    "code": "ECU-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Pugliesi",
+    "delegation": [
+      "ECU"
+    ],
+    "first_name": "Odetta ",
+    "code": "ECU-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "H\u00e0n",
+    "delegation": [
+      "ECU"
+    ],
+    "first_name": "L\u1ef1",
+    "code": "ECU-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Wan",
+    "delegation": [
+      "ECU"
+    ],
+    "first_name": "Bao",
+    "code": "ECU-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0646\u0648\u06cc\u062f\u06cc",
+    "delegation": [
+      "ECU"
+    ],
+    "first_name": "\u0647\u0646\u06af\u0627\u0645\u0647",
+    "code": "ECU-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Oquendo",
+    "delegation": [
+      "EGY"
+    ],
+    "first_name": "Giulio",
+    "code": "EGY-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hrafnsd\u00f3ttir",
+    "delegation": [
+      "EGY"
+    ],
+    "first_name": "Vera",
+    "code": "EGY-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Eenkhoorn",
+    "delegation": [
+      "EGY"
+    ],
+    "first_name": "Jenno",
+    "code": "EGY-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hoveling",
+    "delegation": [
+      "EGY"
+    ],
+    "first_name": "Nazanin",
+    "code": "EGY-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Korpnik",
+    "delegation": [
+      "EGY"
+    ],
+    "first_name": "Georgij",
+    "code": "EGY-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gelencs\u00e9r",
+    "delegation": [
+      "SLV"
+    ],
+    "first_name": "Ibolya",
+    "code": "SLV-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Runde",
+    "delegation": [
+      "SLV"
+    ],
+    "first_name": "Emmelie",
+    "code": "SLV-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kenenna",
+    "delegation": [
+      "SLV"
+    ],
+    "first_name": "Onyekachukwu",
+    "code": "SLV-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u6751\u4e3b",
+    "delegation": [
+      "SLV"
+    ],
+    "first_name": "\u9e97\u83ef",
+    "code": "SLV-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Williams",
+    "delegation": [
+      "SLV"
+    ],
+    "first_name": "Mary",
+    "code": "SLV-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sz\u00f4ts",
+    "delegation": [
+      "EST"
+    ],
+    "first_name": "Teca",
+    "code": "EST-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e1e\u0e38\u0e49\u0e22\u0e2b\u0e25\u0e49\u0e32\u0e21\u0e13\u0e35",
+    "delegation": [
+      "EST"
+    ],
+    "first_name": "\u0e04\u0e07\u0e01\u0e24\u0e29\u0e0e\u0e34\u0e4c",
+    "code": "EST-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kyt\u00f6nen",
+    "delegation": [
+      "EST"
+    ],
+    "first_name": "Aamos",
+    "code": "EST-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Serti\u0107 \u0160abec",
+    "delegation": [
+      "EST"
+    ],
+    "first_name": "Inti",
+    "code": "EST-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Musliyevich",
+    "delegation": [
+      "EST"
+    ],
+    "first_name": "Mahmud",
+    "code": "EST-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0635\u0627\u062d\u0628\u06a9\u0627\u0631",
+    "delegation": [
+      "FIN"
+    ],
+    "first_name": "\u0647\u0648\u0634\u0645\u0646\u062f",
+    "code": "FIN-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "McNab",
+    "delegation": [
+      "FIN"
+    ],
+    "first_name": "Brayden",
+    "code": "FIN-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u062d\u06a9\u0645\u062a",
+    "delegation": [
+      "FIN"
+    ],
+    "first_name": "\u0641\u0631\u062d\u0646\u0627\u0632",
+    "code": "FIN-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e19\u0e32\u0e21\u0e1a\u0e38\u0e0d\u0e40\u0e23\u0e37\u0e2d\u0e07",
+    "delegation": [
+      "FIN"
+    ],
+    "first_name": "\u0e2a\u0e38\u0e44\u0e1e\u0e1e\u0e23\u0e23\u0e13",
+    "code": "FIN-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Timayev",
+    "delegation": [
+      "FIN"
+    ],
+    "first_name": "Kamisa",
+    "code": "FIN-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u6c5f",
+    "delegation": [
+      "FRA"
+    ],
+    "first_name": "\u4f73\u7a4e",
+    "code": "FRA-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Chibueze",
+    "delegation": [
+      "FRA"
+    ],
+    "first_name": "Nkemdilim",
+    "code": "FRA-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bo\u0159ilov\u00e1",
+    "delegation": [
+      "FRA"
+    ],
+    "first_name": "Zuzana",
+    "code": "FRA-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Renjar",
+    "delegation": [
+      "FRA"
+    ],
+    "first_name": "K'zhen",
+    "code": "FRA-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Madison",
+    "delegation": [
+      "FRA"
+    ],
+    "first_name": "Edward",
+    "code": "FRA-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ba",
+    "delegation": [
+      "GEO"
+    ],
+    "first_name": "Mustafa",
+    "code": "GEO-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Fiorentino",
+    "delegation": [
+      "GEO"
+    ],
+    "first_name": "Amilcare",
+    "code": "GEO-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Semere",
+    "delegation": [
+      "GEO"
+    ],
+    "first_name": "Fatimah",
+    "code": "GEO-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Perkovi\u0107",
+    "delegation": [
+      "GEO"
+    ],
+    "first_name": "Blaga",
+    "code": "GEO-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gebre",
+    "delegation": [
+      "GEO"
+    ],
+    "first_name": "Osman",
+    "code": "GEO-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "P'an",
+    "delegation": [
+      "DEU"
+    ],
+    "first_name": "Jin",
+    "code": "DEU-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kino",
+    "delegation": [
+      "DEU"
+    ],
+    "first_name": "Atsue",
+    "code": "DEU-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Csonka",
+    "delegation": [
+      "DEU"
+    ],
+    "first_name": "Csenger",
+    "code": "DEU-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Riskal",
+    "delegation": [
+      "DEU"
+    ],
+    "first_name": "G'Rali",
+    "code": "DEU-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Karum",
+    "delegation": [
+      "DEU"
+    ],
+    "first_name": "Kilmeny",
+    "code": "DEU-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hsiung",
+    "delegation": [
+      "GHA"
+    ],
+    "first_name": "Liang",
+    "code": "GHA-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Khemara",
+    "delegation": [
+      "GHA"
+    ],
+    "first_name": "K'Kara",
+    "code": "GHA-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kanda",
+    "delegation": [
+      "GHA"
+    ],
+    "first_name": "Fumiho",
+    "code": "GHA-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Mortensen",
+    "delegation": [
+      "GHA"
+    ],
+    "first_name": "Amanda",
+    "code": "GHA-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "van der Aalst",
+    "delegation": [
+      "GHA"
+    ],
+    "first_name": "Havin",
+    "code": "GHA-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Vizirov",
+    "delegation": [
+      "GRC"
+    ],
+    "first_name": "Busana",
+    "code": "GRC-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "De Groot",
+    "delegation": [
+      "GRC"
+    ],
+    "first_name": "Oliver",
+    "code": "GRC-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Darj",
+    "delegation": [
+      "GRC"
+    ],
+    "first_name": "D'Kara",
+    "code": "GRC-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u041b\u0430\u0437\u0430\u0440\u0435\u0432",
+    "delegation": [
+      "GRC"
+    ],
+    "first_name": "\u0422\u0438\u043c\u043e\u0444\u0435\u0439",
+    "code": "GRC-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "GRC"
+    ],
+    "first_name": "Takumeikiari",
+    "code": "GRC-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Correia",
+    "delegation": [
+      "HKG"
+    ],
+    "first_name": "Enzo",
+    "code": "HKG-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Mandi\u0107",
+    "delegation": [
+      "HKG"
+    ],
+    "first_name": "Darija",
+    "code": "HKG-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bruce",
+    "delegation": [
+      "HKG"
+    ],
+    "first_name": "Sam",
+    "code": "HKG-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Whitfoot",
+    "delegation": [
+      "HKG"
+    ],
+    "first_name": "Marigold",
+    "code": "HKG-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ko\u0161trin",
+    "delegation": [
+      "HKG"
+    ],
+    "first_name": "Pavel Peter",
+    "code": "HKG-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kater",
+    "delegation": [
+      "HUN"
+    ],
+    "first_name": "Jesse",
+    "code": "HUN-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Barros",
+    "delegation": [
+      "HUN"
+    ],
+    "first_name": "Douglas",
+    "code": "HUN-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Allan",
+    "delegation": [
+      "HUN"
+    ],
+    "first_name": "Brayden",
+    "code": "HUN-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bajzek",
+    "delegation": [
+      "HUN"
+    ],
+    "first_name": "Valdi",
+    "code": "HUN-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bradley",
+    "delegation": [
+      "HUN"
+    ],
+    "first_name": "Tegan",
+    "code": "HUN-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "IS"
+    ],
+    "first_name": "Katochirimotofu",
+    "code": "IS-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Alexander",
+    "delegation": [
+      "IS"
+    ],
+    "first_name": "Olive",
+    "code": "IS-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Soldal",
+    "delegation": [
+      "IS"
+    ],
+    "first_name": "Ane",
+    "code": "IS-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Szczepa\u0144ski",
+    "delegation": [
+      "IS"
+    ],
+    "first_name": "Cibor",
+    "code": "IS-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Krylov",
+    "delegation": [
+      "IS"
+    ],
+    "first_name": "Yefim",
+    "code": "IS-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Puddifoot",
+    "delegation": [
+      "IND"
+    ],
+    "first_name": "Diamond",
+    "code": "IND-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ar\u00e9valo",
+    "delegation": [
+      "IND"
+    ],
+    "first_name": "Melina",
+    "code": "IND-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ootsuka",
+    "delegation": [
+      "IND"
+    ],
+    "first_name": "Chinatsu",
+    "code": "IND-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Walczak",
+    "delegation": [
+      "IND"
+    ],
+    "first_name": "Ludmita",
+    "code": "IND-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Fleischer",
+    "delegation": [
+      "IND"
+    ],
+    "first_name": "Sara",
+    "code": "IND-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0414\u0443\u0431\u0438\u043d\u0438\u043d\u0430",
+    "delegation": [
+      "IDN"
+    ],
+    "first_name": "\u0424\u0430\u0442\u0438\u043c\u0430",
+    "code": "IDN-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Chou",
+    "delegation": [
+      "IDN"
+    ],
+    "first_name": "Yu Jie",
+    "code": "IDN-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Berg",
+    "delegation": [
+      "IDN"
+    ],
+    "first_name": "Alberte",
+    "code": "IDN-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Dratchev",
+    "delegation": [
+      "IDN"
+    ],
+    "first_name": "Khava",
+    "code": "IDN-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Cvijeti\u0107",
+    "delegation": [
+      "IDN"
+    ],
+    "first_name": "Valenka",
+    "code": "IDN-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ph\u00f9ng",
+    "delegation": [
+      "IRN"
+    ],
+    "first_name": "L\u1ed9c",
+    "code": "IRN-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hrb\u00e1\u010dov\u00e1",
+    "delegation": [
+      "IRN"
+    ],
+    "first_name": "Jarom\u00edra",
+    "code": "IRN-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Rodrigues",
+    "delegation": [
+      "IRN"
+    ],
+    "first_name": "Maria",
+    "code": "IRN-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Aksenov",
+    "delegation": [
+      "IRN"
+    ],
+    "first_name": "Chariton",
+    "code": "IRN-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e2d\u0e31\u0e14\u0e17\u0e2d\u0e07",
+    "delegation": [
+      "IRN"
+    ],
+    "first_name": "\u0e08\u0e34\u0e15\u0e1b\u0e23\u0e30\u0e2a\u0e07\u0e04\u0e4c",
+    "code": "IRN-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0628\u0646\u0641\u0634\u0647 \u062e\u0648\u0627\u0647",
+    "delegation": [
+      "ISR"
+    ],
+    "first_name": "\u0645\u0647\u06cc\u0627\u0631",
+    "code": "ISR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "J\u00f6rundsson",
+    "delegation": [
+      "ISR"
+    ],
+    "first_name": "Di\u00f0rik",
+    "code": "ISR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Szak\u00e1cs",
+    "delegation": [
+      "ISR"
+    ],
+    "first_name": "K\u00edra",
+    "code": "ISR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Vogel",
+    "delegation": [
+      "ISR"
+    ],
+    "first_name": "Niklas",
+    "code": "ISR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sandyman",
+    "delegation": [
+      "ISR"
+    ],
+    "first_name": "Falco",
+    "code": "ISR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Herzog",
+    "delegation": [
+      "ITA"
+    ],
+    "first_name": "Uwe",
+    "code": "ITA-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Skandali",
+    "delegation": [
+      "ITA"
+    ],
+    "first_name": "Lane",
+    "code": "ITA-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ozoemena",
+    "delegation": [
+      "ITA"
+    ],
+    "first_name": "Mbanefo",
+    "code": "ITA-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Pagnotto",
+    "delegation": [
+      "ITA"
+    ],
+    "first_name": "Bellina",
+    "code": "ITA-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "J\u00f3akimsd\u00f3ttir",
+    "delegation": [
+      "ITA"
+    ],
+    "first_name": "S\u00f3lr\u00fan",
+    "code": "ITA-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Wiken",
+    "delegation": [
+      "JPN"
+    ],
+    "first_name": "Kristianna",
+    "code": "JPN-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Barsukov",
+    "delegation": [
+      "JPN"
+    ],
+    "first_name": "Zulay",
+    "code": "JPN-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Dabanovi\u0107",
+    "delegation": [
+      "JPN"
+    ],
+    "first_name": "\u0160ehida",
+    "code": "JPN-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e04\u0e33\u0e2a\u0e35",
+    "delegation": [
+      "JPN"
+    ],
+    "first_name": "\u0e17\u0e19\u0e32\u0e19\u0e32\u0e08",
+    "code": "JPN-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bruce",
+    "delegation": [
+      "JPN"
+    ],
+    "first_name": "Freddie",
+    "code": "JPN-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Alcantar",
+    "delegation": [
+      "JOR"
+    ],
+    "first_name": "Liora",
+    "code": "JOR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gram",
+    "delegation": [
+      "JOR"
+    ],
+    "first_name": "Kenny",
+    "code": "JOR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Unger",
+    "delegation": [
+      "JOR"
+    ],
+    "first_name": "Christian",
+    "code": "JOR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Burrowes",
+    "delegation": [
+      "JOR"
+    ],
+    "first_name": "Jago",
+    "code": "JOR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bazhenov",
+    "delegation": [
+      "JOR"
+    ],
+    "first_name": "Sviatoslav",
+    "code": "JOR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u041a\u0430\u043b\u0438\u043d\u0438\u043d\u0430",
+    "delegation": [
+      "KAZ"
+    ],
+    "first_name": "\u042d\u043b\u0435\u043e\u043d\u043e\u0440\u0430",
+    "code": "KAZ-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ganem",
+    "delegation": [
+      "KAZ"
+    ],
+    "first_name": "Khuzama",
+    "code": "KAZ-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Diggle",
+    "delegation": [
+      "KAZ"
+    ],
+    "first_name": "Nahand",
+    "code": "KAZ-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Valdyr",
+    "delegation": [
+      "KAZ"
+    ],
+    "first_name": "D'Reli",
+    "code": "KAZ-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Cameron",
+    "delegation": [
+      "KAZ"
+    ],
+    "first_name": "Neive",
+    "code": "KAZ-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Calvillo",
+    "delegation": [
+      "KEN"
+    ],
+    "first_name": "Martino",
+    "code": "KEN-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Moeller",
+    "delegation": [
+      "KEN"
+    ],
+    "first_name": "Patrick",
+    "code": "KEN-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Artemyeva",
+    "delegation": [
+      "KEN"
+    ],
+    "first_name": "Cristina",
+    "code": "KEN-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hagos",
+    "delegation": [
+      "KEN"
+    ],
+    "first_name": "Semere",
+    "code": "KEN-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Nwokezuike",
+    "delegation": [
+      "KEN"
+    ],
+    "first_name": "Chigozie",
+    "code": "KEN-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Asselin",
+    "delegation": [
+      "KWT"
+    ],
+    "first_name": "Fayette",
+    "code": "KWT-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Pavlovi\u0107",
+    "delegation": [
+      "KWT"
+    ],
+    "first_name": "Predrag",
+    "code": "KWT-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gomes",
+    "delegation": [
+      "KWT"
+    ],
+    "first_name": "Miguel",
+    "code": "KWT-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kleist",
+    "delegation": [
+      "KWT"
+    ],
+    "first_name": "Sofie",
+    "code": "KWT-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Chiemezie",
+    "delegation": [
+      "KWT"
+    ],
+    "first_name": "Chimaraoke",
+    "code": "KWT-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Zeeb",
+    "delegation": [
+      "KGZ"
+    ],
+    "first_name": "Mette",
+    "code": "KGZ-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Amadi",
+    "delegation": [
+      "KGZ"
+    ],
+    "first_name": "Onyemachukwu",
+    "code": "KGZ-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ramsey",
+    "delegation": [
+      "KGZ"
+    ],
+    "first_name": "Freda",
+    "code": "KGZ-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Almeida",
+    "delegation": [
+      "KGZ"
+    ],
+    "first_name": "Beatrice",
+    "code": "KGZ-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Dratchev",
+    "delegation": [
+      "KGZ"
+    ],
+    "first_name": "Tamerlan",
+    "code": "KGZ-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Faerber",
+    "delegation": [
+      "LAO"
+    ],
+    "first_name": "Karolin",
+    "code": "LAO-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Caird",
+    "delegation": [
+      "LAO"
+    ],
+    "first_name": "Tayla",
+    "code": "LAO-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "LAO"
+    ],
+    "first_name": "Rinkimirikakuta",
+    "code": "LAO-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "LAO"
+    ],
+    "first_name": "Rinkimirikutataku",
+    "code": "LAO-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Puurunen",
+    "delegation": [
+      "LAO"
+    ],
+    "first_name": "Riitta",
+    "code": "LAO-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Karlov\u0161ek",
+    "delegation": [
+      "LVA"
+    ],
+    "first_name": "\u0160eval",
+    "code": "LVA-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Lang",
+    "delegation": [
+      "LVA"
+    ],
+    "first_name": "Mike",
+    "code": "LVA-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e1e\u0e25\u0e17\u0e2d\u0e07\u0e2a\u0e16\u0e34\u0e15\u0e22\u0e4c",
+    "delegation": [
+      "LVA"
+    ],
+    "first_name": "\u0e01\u0e34\u0e15\u0e34\u0e1e\u0e31\u0e12\u0e19\u0e4c",
+    "code": "LVA-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Wulfek",
+    "delegation": [
+      "LVA"
+    ],
+    "first_name": "Reclaw",
+    "code": "LVA-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0686\u0631\u0645\u0634\u06cc\u0631",
+    "delegation": [
+      "LVA"
+    ],
+    "first_name": "\u062a\u0631\u0644\u0627\u0646",
+    "code": "LVA-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bengtsson",
+    "delegation": [
+      "LIE"
+    ],
+    "first_name": "Lowe",
+    "code": "LIE-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0637\u0627\u0647\u0631\u0646\u0698\u0627\u062f",
+    "delegation": [
+      "LIE"
+    ],
+    "first_name": "\u0641\u0631\u0648\u0632\u0646\u062f\u0647",
+    "code": "LIE-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Welde",
+    "delegation": [
+      "LIE"
+    ],
+    "first_name": "Yonas",
+    "code": "LIE-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hellstr\u00f6m",
+    "delegation": [
+      "LIE"
+    ],
+    "first_name": "Ayub",
+    "code": "LIE-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Nnaife",
+    "delegation": [
+      "LIE"
+    ],
+    "first_name": "Ndulu",
+    "code": "LIE-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e19\u0e32\u0e23\u0e35",
+    "delegation": [
+      "LTU"
+    ],
+    "first_name": "\u0e17\u0e27\u0e34\u0e17\u0e22\u0e4c",
+    "code": "LTU-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sutou",
+    "delegation": [
+      "LTU"
+    ],
+    "first_name": "Nayuko",
+    "code": "LTU-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Arian",
+    "delegation": [
+      "LTU"
+    ],
+    "first_name": "Nash'ah",
+    "code": "LTU-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0411\u0430\u0437\u0430\u0440\u043e\u0432",
+    "delegation": [
+      "LTU"
+    ],
+    "first_name": "\u0412\u043b\u0430\u0434",
+    "code": "LTU-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Rice",
+    "delegation": [
+      "LTU"
+    ],
+    "first_name": "Michelle",
+    "code": "LTU-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Cookson",
+    "delegation": [
+      "LUX"
+    ],
+    "first_name": "Clarice",
+    "code": "LUX-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Barsukov",
+    "delegation": [
+      "LUX"
+    ],
+    "first_name": "Cheqag",
+    "code": "LUX-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Eberechukwu",
+    "delegation": [
+      "LUX"
+    ],
+    "first_name": "Zikoranaudodimma",
+    "code": "LUX-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Siciliano",
+    "delegation": [
+      "LUX"
+    ],
+    "first_name": "Fiore",
+    "code": "LUX-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Nissen",
+    "delegation": [
+      "LUX"
+    ],
+    "first_name": "Anders",
+    "code": "LUX-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Greve",
+    "delegation": [
+      "MAC"
+    ],
+    "first_name": "Egbertje",
+    "code": "MAC-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "M\u00e5rtensson",
+    "delegation": [
+      "MAC"
+    ],
+    "first_name": "Tyra",
+    "code": "MAC-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sz\u00f6ll\u00f6ssi",
+    "delegation": [
+      "MAC"
+    ],
+    "first_name": "Sasa",
+    "code": "MAC-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Tsao",
+    "delegation": [
+      "MAC"
+    ],
+    "first_name": "Cong",
+    "code": "MAC-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Lima",
+    "delegation": [
+      "MAC"
+    ],
+    "first_name": "Kaua",
+    "code": "MAC-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e04\u0e33\u0e40\u0e21\u0e37\u0e2d\u0e07\u0e28\u0e23\u0e35",
+    "delegation": [
+      "MKD"
+    ],
+    "first_name": "\u0e2a\u0e38\u0e42\u0e09\u0e21\u0e2a\u0e38\u0e14\u0e32",
+    "code": "MKD-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Castro",
+    "delegation": [
+      "MKD"
+    ],
+    "first_name": "Matilde",
+    "code": "MKD-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Schoonderwoerd",
+    "delegation": [
+      "MKD"
+    ],
+    "first_name": "Billie",
+    "code": "MKD-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u529b\u4e38",
+    "delegation": [
+      "MKD"
+    ],
+    "first_name": "\u840c",
+    "code": "MKD-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kishiev",
+    "delegation": [
+      "MKD"
+    ],
+    "first_name": "Zargan",
+    "code": "MKD-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Dingman",
+    "delegation": [
+      "MYS"
+    ],
+    "first_name": "Eric",
+    "code": "MYS-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Beaudouin",
+    "delegation": [
+      "MYS"
+    ],
+    "first_name": "Mirabelle",
+    "code": "MYS-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Pantoja",
+    "delegation": [
+      "MYS"
+    ],
+    "first_name": "Nabor",
+    "code": "MYS-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e2a\u0e16\u0e32\u0e1e\u0e23",
+    "delegation": [
+      "MYS"
+    ],
+    "first_name": "\u0e04\u0e21\u0e2a\u0e23\u0e23",
+    "code": "MYS-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0634\u0627\u062f\u06cc\u0646",
+    "delegation": [
+      "MYS"
+    ],
+    "first_name": "\u06af\u0644\u0633\u0627",
+    "code": "MYS-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kino",
+    "delegation": [
+      "MEX"
+    ],
+    "first_name": "Kimie",
+    "code": "MEX-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Collins",
+    "delegation": [
+      "MEX"
+    ],
+    "first_name": "Kai",
+    "code": "MEX-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Russo",
+    "delegation": [
+      "MEX"
+    ],
+    "first_name": "Ella",
+    "code": "MEX-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Pinto",
+    "delegation": [
+      "MEX"
+    ],
+    "first_name": "Gigliola",
+    "code": "MEX-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Abdulov",
+    "delegation": [
+      "MEX"
+    ],
+    "first_name": "Mayor",
+    "code": "MEX-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Dobrota",
+    "delegation": [
+      "MDA"
+    ],
+    "first_name": "Agan",
+    "code": "MDA-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Negishi",
+    "delegation": [
+      "MDA"
+    ],
+    "first_name": "Hatomi",
+    "code": "MDA-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u52a0\u9580",
+    "delegation": [
+      "MDA"
+    ],
+    "first_name": "\u7f8e\u54b2",
+    "code": "MDA-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0646\u0648\u0631\u06cc",
+    "delegation": [
+      "MDA"
+    ],
+    "first_name": "\u0646\u06cc\u06a9\u0648",
+    "code": "MDA-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Thomson",
+    "delegation": [
+      "MDA"
+    ],
+    "first_name": "Scarlett",
+    "code": "MDA-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Puente",
+    "delegation": [
+      "MNG"
+    ],
+    "first_name": "Leonila",
+    "code": "MNG-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "MNG"
+    ],
+    "first_name": "Tekuzumoshikari",
+    "code": "MNG-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "MacDonald",
+    "delegation": [
+      "MNG"
+    ],
+    "first_name": "Stephen",
+    "code": "MNG-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e1e\u0e31\u0e19\u0e18\u0e38\u0e1e\u0e31\u0e12",
+    "delegation": [
+      "MNG"
+    ],
+    "first_name": "\u0e17\u0e2d\u0e07\u0e43\u0e2b\u0e21\u0e48",
+    "code": "MNG-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u010crep",
+    "delegation": [
+      "MNG"
+    ],
+    "first_name": "\u0106amila",
+    "code": "MNG-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u041c\u0435\u0434\u0432\u0435\u0434\u0435\u0432\u0430",
+    "delegation": [
+      "MNE"
+    ],
+    "first_name": "\u0413\u0435\u043b\u043b\u0430",
+    "code": "MNE-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Matkovi\u0107",
+    "delegation": [
+      "MNE"
+    ],
+    "first_name": "Radoslav",
+    "code": "MNE-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Symanski",
+    "delegation": [
+      "MNE"
+    ],
+    "first_name": "Boles\u0142aw",
+    "code": "MNE-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Primeau",
+    "delegation": [
+      "MNE"
+    ],
+    "first_name": "Patrice",
+    "code": "MNE-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Cao",
+    "delegation": [
+      "MNE"
+    ],
+    "first_name": "Tuy",
+    "code": "MNE-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kanno",
+    "delegation": [
+      "MMR"
+    ],
+    "first_name": "Kaikou",
+    "code": "MMR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sogn",
+    "delegation": [
+      "MMR"
+    ],
+    "first_name": "Metusalem",
+    "code": "MMR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Tuomi",
+    "delegation": [
+      "MMR"
+    ],
+    "first_name": "Olavi",
+    "code": "MMR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Mau\u010dnik",
+    "delegation": [
+      "MMR"
+    ],
+    "first_name": "Myriam",
+    "code": "MMR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Isaksen",
+    "delegation": [
+      "MMR"
+    ],
+    "first_name": "Margrethe",
+    "code": "MMR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Mayonga",
+    "delegation": [
+      "NPL"
+    ],
+    "first_name": "Ceferino",
+    "code": "NPL-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Roper",
+    "delegation": [
+      "NPL"
+    ],
+    "first_name": "Marigold",
+    "code": "NPL-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kanjis",
+    "delegation": [
+      "NPL"
+    ],
+    "first_name": "Raka",
+    "code": "NPL-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Iqbal",
+    "delegation": [
+      "NPL"
+    ],
+    "first_name": "George",
+    "code": "NPL-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gordon",
+    "delegation": [
+      "NPL"
+    ],
+    "first_name": "Niamh",
+    "code": "NPL-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Masaev",
+    "delegation": [
+      "NLD"
+    ],
+    "first_name": "Malika",
+    "code": "NLD-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Zinachidi",
+    "delegation": [
+      "NLD"
+    ],
+    "first_name": "Nduru",
+    "code": "NLD-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u8523",
+    "delegation": [
+      "NLD"
+    ],
+    "first_name": "\u5609\u7469",
+    "code": "NLD-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Douglas",
+    "delegation": [
+      "NLD"
+    ],
+    "first_name": "Elsa",
+    "code": "NLD-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Banks",
+    "delegation": [
+      "NLD"
+    ],
+    "first_name": "Skye",
+    "code": "NLD-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Lori",
+    "delegation": [
+      "NZL"
+    ],
+    "first_name": "Ornella",
+    "code": "NZL-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "NZL"
+    ],
+    "first_name": "Kushitokuarichi",
+    "code": "NZL-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Juhl",
+    "delegation": [
+      "NZL"
+    ],
+    "first_name": "Jens",
+    "code": "NZL-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e01\u0e34\u0e48\u0e07\u0e17\u0e38\u0e21",
+    "delegation": [
+      "NZL"
+    ],
+    "first_name": "\u0e0a\u0e19\u0e32\u0e01\u0e32\u0e23\u0e15\u0e4c",
+    "code": "NZL-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Diribe",
+    "delegation": [
+      "NZL"
+    ],
+    "first_name": "Mgbeke",
+    "code": "NZL-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Onwuemelie",
+    "delegation": [
+      "NGA"
+    ],
+    "first_name": "Chiemenam",
+    "code": "NGA-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Simonsen",
+    "delegation": [
+      "NGA"
+    ],
+    "first_name": "Niels",
+    "code": "NGA-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Tewolde",
+    "delegation": [
+      "NGA"
+    ],
+    "first_name": "Hana",
+    "code": "NGA-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Pinto",
+    "delegation": [
+      "NGA"
+    ],
+    "first_name": "Tommaso",
+    "code": "NGA-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Benavidez",
+    "delegation": [
+      "NGA"
+    ],
+    "first_name": "Loruhama",
+    "code": "NGA-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Davidsen",
+    "delegation": [
+      "NOR"
+    ],
+    "first_name": "Minik",
+    "code": "NOR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Olsson",
+    "delegation": [
+      "NOR"
+    ],
+    "first_name": "Amelie",
+    "code": "NOR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Rahnaz",
+    "delegation": [
+      "NOR"
+    ],
+    "first_name": "Mek'Ka",
+    "code": "NOR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Archer",
+    "delegation": [
+      "NOR"
+    ],
+    "first_name": "Aaron",
+    "code": "NOR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Simonsen",
+    "delegation": [
+      "NOR"
+    ],
+    "first_name": "Simon",
+    "code": "NOR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Haddal",
+    "delegation": [
+      "PAK"
+    ],
+    "first_name": "Antoinette",
+    "code": "PAK-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Rogers",
+    "delegation": [
+      "PAK"
+    ],
+    "first_name": "Kiera",
+    "code": "PAK-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u062e\u0644\u06cc\u0641\u0647",
+    "delegation": [
+      "PAK"
+    ],
+    "first_name": "\u0628\u0647\u0646\u0627\u0632",
+    "code": "PAK-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Grinde",
+    "delegation": [
+      "PAK"
+    ],
+    "first_name": "Lora",
+    "code": "PAK-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u00c5str\u00f6m",
+    "delegation": [
+      "PAK"
+    ],
+    "first_name": "Fredrik",
+    "code": "PAK-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u9b3c\u6d77",
+    "delegation": [
+      "PER"
+    ],
+    "first_name": "\u967d\u83dc",
+    "code": "PER-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0160andov\u00e1",
+    "delegation": [
+      "PER"
+    ],
+    "first_name": "Ad\u00e9la",
+    "code": "PER-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e28\u0e34\u0e23\u0e34\u0e40\u0e07\u0e34\u0e19\u0e22\u0e27\u0e07",
+    "delegation": [
+      "PER"
+    ],
+    "first_name": "\u0e23\u0e33\u0e1e\u0e23\u0e23\u0e13",
+    "code": "PER-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sabbagh",
+    "delegation": [
+      "PER"
+    ],
+    "first_name": "Husna",
+    "code": "PER-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e19\u0e19\u0e17\u0e4c\u0e25\u0e32\u0e22",
+    "delegation": [
+      "PER"
+    ],
+    "first_name": "\u0e2a\u0e38\u0e1a\u0e38\u0e0d\u0e2b\u0e25\u0e32\u0e22",
+    "code": "PER-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gar\u00f0arsd\u00f3ttir",
+    "delegation": [
+      "PHL"
+    ],
+    "first_name": "N\u00edna",
+    "code": "PHL-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Zaj\u00ed\u010dek",
+    "delegation": [
+      "PHL"
+    ],
+    "first_name": "Karel",
+    "code": "PHL-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Huurman",
+    "delegation": [
+      "PHL"
+    ],
+    "first_name": "Mallory",
+    "code": "PHL-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Jurkovi\u0107",
+    "delegation": [
+      "PHL"
+    ],
+    "first_name": "Dubravko",
+    "code": "PHL-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Fernandes",
+    "delegation": [
+      "PHL"
+    ],
+    "first_name": "Yasmin",
+    "code": "PHL-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Chidi",
+    "delegation": [
+      "POL"
+    ],
+    "first_name": "Uchechukwu",
+    "code": "POL-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "V\u0103n",
+    "delegation": [
+      "POL"
+    ],
+    "first_name": "H\u1eefu",
+    "code": "POL-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Mati\u0107",
+    "delegation": [
+      "POL"
+    ],
+    "first_name": "Milorad",
+    "code": "POL-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Chinwendu",
+    "delegation": [
+      "POL"
+    ],
+    "first_name": "Ugonna",
+    "code": "POL-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sabbag",
+    "delegation": [
+      "POL"
+    ],
+    "first_name": "Shamilah",
+    "code": "POL-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sawicka",
+    "delegation": [
+      "PRT"
+    ],
+    "first_name": "Radomi\u0142a",
+    "code": "PRT-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e25\u0e30\u0e21\u0e49\u0e32\u0e22\u0e40\u0e21\u0e37\u0e2d\u0e07",
+    "delegation": [
+      "PRT"
+    ],
+    "first_name": "\u0e0a\u0e32",
+    "code": "PRT-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Rocha",
+    "delegation": [
+      "PRT"
+    ],
+    "first_name": "Sarah",
+    "code": "PRT-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Timayev",
+    "delegation": [
+      "PRT"
+    ],
+    "first_name": "Ruvayda",
+    "code": "PRT-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Rosulnik",
+    "delegation": [
+      "PRT"
+    ],
+    "first_name": "Talita",
+    "code": "PRT-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Vizirov",
+    "delegation": [
+      "PRI"
+    ],
+    "first_name": "Nurbika",
+    "code": "PRI-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bisliev",
+    "delegation": [
+      "PRI"
+    ],
+    "first_name": "Marzhan",
+    "code": "PRI-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Maroun",
+    "delegation": [
+      "PRI"
+    ],
+    "first_name": "Khayriyyah",
+    "code": "PRI-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Butolen",
+    "delegation": [
+      "PRI"
+    ],
+    "first_name": "Pavel Peter",
+    "code": "PRI-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "S\u00f6r\u00f6s",
+    "delegation": [
+      "PRI"
+    ],
+    "first_name": "Tas",
+    "code": "PRI-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Maalouf",
+    "delegation": [
+      "ROU"
+    ],
+    "first_name": "Marwan",
+    "code": "ROU-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Petrussen",
+    "delegation": [
+      "ROU"
+    ],
+    "first_name": "Miki",
+    "code": "ROU-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gammidge",
+    "delegation": [
+      "ROU"
+    ],
+    "first_name": "Fatima",
+    "code": "ROU-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hostnikar",
+    "delegation": [
+      "ROU"
+    ],
+    "first_name": "Renatka",
+    "code": "ROU-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Agan",
+    "delegation": [
+      "ROU"
+    ],
+    "first_name": "Kruel",
+    "code": "ROU-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Koza",
+    "delegation": [
+      "RUS"
+    ],
+    "first_name": "Zden\u011bk",
+    "code": "RUS-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Trevisano",
+    "delegation": [
+      "RUS"
+    ],
+    "first_name": "Felicita",
+    "code": "RUS-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Nyman",
+    "delegation": [
+      "RUS"
+    ],
+    "first_name": "Haris",
+    "code": "RUS-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u937e",
+    "delegation": [
+      "RUS"
+    ],
+    "first_name": "\u76c8\u5747",
+    "code": "RUS-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Mook",
+    "delegation": [
+      "RUS"
+    ],
+    "first_name": "Shan",
+    "code": "RUS-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Cerv\u00e1ntez",
+    "delegation": [
+      "SAU"
+    ],
+    "first_name": "Alfeo",
+    "code": "SAU-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "So\u0161ka",
+    "delegation": [
+      "SAU"
+    ],
+    "first_name": "Ji\u0159\u00ed",
+    "code": "SAU-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ruedl",
+    "delegation": [
+      "SAU"
+    ],
+    "first_name": "Nuredin",
+    "code": "SAU-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Pavi\u010di\u0107",
+    "delegation": [
+      "SAU"
+    ],
+    "first_name": "Borna",
+    "code": "SAU-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ong",
+    "delegation": [
+      "SAU"
+    ],
+    "first_name": "Milco",
+    "code": "SAU-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0622\u0633\u0627\u06cc\u0634",
+    "delegation": [
+      "SRB"
+    ],
+    "first_name": "\u0633\u0627\u0645",
+    "code": "SRB-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Haapalainen",
+    "delegation": [
+      "SRB"
+    ],
+    "first_name": "Valtteri",
+    "code": "SRB-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Dreher",
+    "delegation": [
+      "SRB"
+    ],
+    "first_name": "Christine",
+    "code": "SRB-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Leirvik",
+    "delegation": [
+      "SRB"
+    ],
+    "first_name": "Botvid",
+    "code": "SRB-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Shirai",
+    "delegation": [
+      "SRB"
+    ],
+    "first_name": "Akashi",
+    "code": "SRB-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Barbosa",
+    "delegation": [
+      "SGP"
+    ],
+    "first_name": "Luan",
+    "code": "SGP-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Robillard",
+    "delegation": [
+      "SGP"
+    ],
+    "first_name": "Fleurette",
+    "code": "SGP-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "H\u00e0n",
+    "delegation": [
+      "SGP"
+    ],
+    "first_name": "Nh\u00e3",
+    "code": "SGP-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Zotova",
+    "delegation": [
+      "SGP"
+    ],
+    "first_name": "Ruslana",
+    "code": "SGP-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Selassie",
+    "delegation": [
+      "SGP"
+    ],
+    "first_name": "Kinfe",
+    "code": "SGP-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Lepist\u00f6",
+    "delegation": [
+      "SVK"
+    ],
+    "first_name": "Topias",
+    "code": "SVK-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Pesonen",
+    "delegation": [
+      "SVK"
+    ],
+    "first_name": "Mika",
+    "code": "SVK-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e19\u0e31\u0e19\u0e08\u0e31\u0e19\u0e17\u0e35",
+    "delegation": [
+      "SVK"
+    ],
+    "first_name": "\u0e25\u0e2d\u0e2d\u0e07",
+    "code": "SVK-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ng\u00f4",
+    "delegation": [
+      "SVK"
+    ],
+    "first_name": "X\u00ed",
+    "code": "SVK-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gorski",
+    "delegation": [
+      "SVK"
+    ],
+    "first_name": "Justyn",
+    "code": "SVK-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "L\u00fd",
+    "delegation": [
+      "SVN"
+    ],
+    "first_name": "Gi\u1ecfi",
+    "code": "SVN-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Clayhanger",
+    "delegation": [
+      "SVN"
+    ],
+    "first_name": "Guido",
+    "code": "SVN-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Aliyev",
+    "delegation": [
+      "SVN"
+    ],
+    "first_name": "Emmanuel",
+    "code": "SVN-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Batukayev",
+    "delegation": [
+      "SVN"
+    ],
+    "first_name": "Dzhamal",
+    "code": "SVN-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "L\u00ea",
+    "delegation": [
+      "SVN"
+    ],
+    "first_name": "L\u1ed9c",
+    "code": "SVN-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "ZAF"
+    ],
+    "first_name": "Tokachikatakiku",
+    "code": "ZAF-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "ZAF"
+    ],
+    "first_name": "Jikushikatatekitoku",
+    "code": "ZAF-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Daniels",
+    "delegation": [
+      "ZAF"
+    ],
+    "first_name": "Paige",
+    "code": "ZAF-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "ZAF"
+    ],
+    "first_name": "Zumoariku",
+    "code": "ZAF-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Jeremiassen",
+    "delegation": [
+      "ZAF"
+    ],
+    "first_name": "Johanne",
+    "code": "ZAF-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Panova",
+    "delegation": [
+      "KOR"
+    ],
+    "first_name": "Dzhamal",
+    "code": "KOR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Matsuyama",
+    "delegation": [
+      "KOR"
+    ],
+    "first_name": "Misaki",
+    "code": "KOR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "H\u1ed3",
+    "delegation": [
+      "KOR"
+    ],
+    "first_name": "Vang",
+    "code": "KOR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hamid",
+    "delegation": [
+      "KOR"
+    ],
+    "first_name": "Nebyat",
+    "code": "KOR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0637\u0644\u0627\u06cc\u06cc",
+    "delegation": [
+      "KOR"
+    ],
+    "first_name": "\u0645\u0647\u06af\u0644",
+    "code": "KOR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Christensen",
+    "delegation": [
+      "ESP"
+    ],
+    "first_name": "Regine",
+    "code": "ESP-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u6fa4",
+    "delegation": [
+      "ESP"
+    ],
+    "first_name": "\u592a\u967d",
+    "code": "ESP-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Toyota",
+    "delegation": [
+      "ESP"
+    ],
+    "first_name": "Tsukika",
+    "code": "ESP-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u062e\u0627\u0644\u062f\u06cc",
+    "delegation": [
+      "ESP"
+    ],
+    "first_name": "\u0628\u062e\u062a\u06cc\u0627\u0631",
+    "code": "ESP-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Aziz",
+    "delegation": [
+      "ESP"
+    ],
+    "first_name": "Massawa",
+    "code": "ESP-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Salama",
+    "delegation": [
+      "LKA"
+    ],
+    "first_name": "Atte",
+    "code": "LKA-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u7389\u8170",
+    "delegation": [
+      "LKA"
+    ],
+    "first_name": "\u6075\u7f8e",
+    "code": "LKA-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Myers",
+    "delegation": [
+      "LKA"
+    ],
+    "first_name": "Elliot",
+    "code": "LKA-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Benediktsd\u00f3ttir",
+    "delegation": [
+      "LKA"
+    ],
+    "first_name": "Eik",
+    "code": "LKA-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Th\u1ea1ch",
+    "delegation": [
+      "LKA"
+    ],
+    "first_name": "Tuy\u00ean",
+    "code": "LKA-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Karataev",
+    "delegation": [
+      "SUR"
+    ],
+    "first_name": "Elbrus",
+    "code": "SUR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Dratchev",
+    "delegation": [
+      "SUR"
+    ],
+    "first_name": "Khasmogomed",
+    "code": "SUR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u6d25\u4e45\u4e95",
+    "delegation": [
+      "SUR"
+    ],
+    "first_name": "\u7531\u7f8e\u5b50",
+    "code": "SUR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Bendov\u00e1",
+    "delegation": [
+      "SUR"
+    ],
+    "first_name": "Libu\u0161e",
+    "code": "SUR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Luoma",
+    "delegation": [
+      "SUR"
+    ],
+    "first_name": "Eemeli",
+    "code": "SUR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "SWE"
+    ],
+    "first_name": "Karinkatoteka",
+    "code": "SWE-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Wardlaw",
+    "delegation": [
+      "SWE"
+    ],
+    "first_name": "Archie",
+    "code": "SWE-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u8881",
+    "delegation": [
+      "SWE"
+    ],
+    "first_name": "\u5cb3\u878d",
+    "code": "SWE-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e27\u0e2d\u0e41\u0e1e\u0e07",
+    "delegation": [
+      "SWE"
+    ],
+    "first_name": "\u0e01\u0e32\u0e0d\u0e08\u0e19\u0e30",
+    "code": "SWE-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ani\u0107",
+    "delegation": [
+      "SWE"
+    ],
+    "first_name": "Ljuba",
+    "code": "SWE-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Boivin",
+    "delegation": [
+      "CHE"
+    ],
+    "first_name": "Laure",
+    "code": "CHE-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Cavalcanti",
+    "delegation": [
+      "CHE"
+    ],
+    "first_name": "Luiza",
+    "code": "CHE-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Holmgren",
+    "delegation": [
+      "CHE"
+    ],
+    "first_name": "Stella",
+    "code": "CHE-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0110\u00e0o",
+    "delegation": [
+      "CHE"
+    ],
+    "first_name": "N\u1eef",
+    "code": "CHE-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Nahas",
+    "delegation": [
+      "CHE"
+    ],
+    "first_name": "Abdul-Ahad",
+    "code": "CHE-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sandheaver",
+    "delegation": [
+      "SYR"
+    ],
+    "first_name": "Menegilda",
+    "code": "SYR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "De\u00e1k",
+    "delegation": [
+      "SYR"
+    ],
+    "first_name": "R\u00f3kus",
+    "code": "SYR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kattan",
+    "delegation": [
+      "SYR"
+    ],
+    "first_name": "Sahir",
+    "code": "SYR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Slep\u010d\u00edkov\u00e1",
+    "delegation": [
+      "SYR"
+    ],
+    "first_name": "Blanka",
+    "code": "SYR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "op 't Hof",
+    "delegation": [
+      "SYR"
+    ],
+    "first_name": "Rinke",
+    "code": "SYR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sousa",
+    "delegation": [
+      "TWN"
+    ],
+    "first_name": "Maria",
+    "code": "TWN-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gordon",
+    "delegation": [
+      "TWN"
+    ],
+    "first_name": "Stewart",
+    "code": "TWN-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e20\u0e32\u0e19\u0e38\u0e23\u0e31\u0e01\u0e29\u0e4c",
+    "delegation": [
+      "TWN"
+    ],
+    "first_name": "\u0e2a\u0e38\u0e1a\u0e38\u0e0d\u0e23\u0e31\u0e15\u0e19\u0e4c",
+    "code": "TWN-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0633\u0627\u0648\u062c\u06cc",
+    "delegation": [
+      "TWN"
+    ],
+    "first_name": "\u062f\u0627\u0631\u06cc\u0633",
+    "code": "TWN-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Badich",
+    "delegation": [
+      "TWN"
+    ],
+    "first_name": "Kahlest",
+    "code": "TWN-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Lar'at",
+    "delegation": [
+      "TJK"
+    ],
+    "first_name": "Kaybok",
+    "code": "TJK-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ossenblok",
+    "delegation": [
+      "TJK"
+    ],
+    "first_name": "Christa",
+    "code": "TJK-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Fernandes",
+    "delegation": [
+      "TJK"
+    ],
+    "first_name": "Vinicius",
+    "code": "TJK-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kovanen",
+    "delegation": [
+      "TJK"
+    ],
+    "first_name": "Taina",
+    "code": "TJK-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Dunstan",
+    "delegation": [
+      "TJK"
+    ],
+    "first_name": "Jett",
+    "code": "TJK-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Pedersen",
+    "delegation": [
+      "THA"
+    ],
+    "first_name": "Anton",
+    "code": "THA-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Chinagorom",
+    "delegation": [
+      "THA"
+    ],
+    "first_name": "Adaugo",
+    "code": "THA-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gunnarsson",
+    "delegation": [
+      "THA"
+    ],
+    "first_name": "Styrmir",
+    "code": "THA-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Nyman",
+    "delegation": [
+      "THA"
+    ],
+    "first_name": "Pascal",
+    "code": "THA-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Matu\u0161kov\u00e1",
+    "delegation": [
+      "THA"
+    ],
+    "first_name": "Radka",
+    "code": "THA-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Brki\u0107",
+    "delegation": [
+      "TUR"
+    ],
+    "first_name": "Helena",
+    "code": "TUR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "D'Ghor",
+    "delegation": [
+      "TUR"
+    ],
+    "first_name": "Lukara",
+    "code": "TUR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Aoki",
+    "delegation": [
+      "TUR"
+    ],
+    "first_name": "Nunoe",
+    "code": "TUR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hermansson",
+    "delegation": [
+      "TUR"
+    ],
+    "first_name": "Anthon",
+    "code": "TUR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Endo",
+    "delegation": [
+      "TUR"
+    ],
+    "first_name": "Meiya",
+    "code": "TUR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Pena",
+    "delegation": [
+      "TKM"
+    ],
+    "first_name": "John",
+    "code": "TKM-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sorokina",
+    "delegation": [
+      "TKM"
+    ],
+    "first_name": "Snjezana",
+    "code": "TKM-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Simon",
+    "delegation": [
+      "TKM"
+    ],
+    "first_name": "Robel",
+    "code": "TKM-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Buccho",
+    "delegation": [
+      "TKM"
+    ],
+    "first_name": "Natascia",
+    "code": "TKM-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "T'ang",
+    "delegation": [
+      "TKM"
+    ],
+    "first_name": "Bi",
+    "code": "TKM-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Yao",
+    "delegation": [
+      "UKR"
+    ],
+    "first_name": "Chi",
+    "code": "UKR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Gr\u00f8ndalen",
+    "delegation": [
+      "UKR"
+    ],
+    "first_name": "Willa",
+    "code": "UKR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Brookes",
+    "delegation": [
+      "UKR"
+    ],
+    "first_name": "Daisy",
+    "code": "UKR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Chevrette",
+    "delegation": [
+      "UKR"
+    ],
+    "first_name": "Searlas",
+    "code": "UKR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Ailleboust",
+    "delegation": [
+      "UKR"
+    ],
+    "first_name": "Robinette",
+    "code": "UKR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Hrom\u00e1dkov\u00e1",
+    "delegation": [
+      "GBR"
+    ],
+    "first_name": "Libu\u0161e",
+    "code": "GBR-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u6ce2\u5ca1",
+    "delegation": [
+      "GBR"
+    ],
+    "first_name": "\u7531\u7f8e",
+    "code": "GBR-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kralj",
+    "delegation": [
+      "GBR"
+    ],
+    "first_name": "Iva",
+    "code": "GBR-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "M\u00e1th\u00e9",
+    "delegation": [
+      "GBR"
+    ],
+    "first_name": "Gr\u00e9ta",
+    "code": "GBR-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Mai",
+    "delegation": [
+      "GBR"
+    ],
+    "first_name": "Nhi",
+    "code": "GBR-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "V\u00f6r\u00f6s",
+    "delegation": [
+      "USA"
+    ],
+    "first_name": "Katakin",
+    "code": "USA-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "USA"
+    ],
+    "first_name": "Lushikutekushikimime",
+    "code": "USA-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Desnoyers",
+    "delegation": [
+      "USA"
+    ],
+    "first_name": "Victorine",
+    "code": "USA-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0e28\u0e23\u0e35\u0e40\u0e01\u0e15\u0e38",
+    "delegation": [
+      "USA"
+    ],
+    "first_name": "\u0e2a\u0e38\u0e18\u0e32\u0e23\u0e32\u0e20\u0e23\u0e13\u0e4c",
+    "code": "USA-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Olaussen",
+    "delegation": [
+      "USA"
+    ],
+    "first_name": "Egill",
+    "code": "USA-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Goffage",
+    "delegation": [
+      "UZB"
+    ],
+    "first_name": "Christian",
+    "code": "UZB-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Yasuda",
+    "delegation": [
+      "UZB"
+    ],
+    "first_name": "Kaito",
+    "code": "UZB-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u0411\u043e\u0440\u043e\u0434\u0438\u043d\u0430",
+    "delegation": [
+      "UZB"
+    ],
+    "first_name": "\u0411\u0435\u043b\u043b\u0430",
+    "code": "UZB-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Z\u00fa\u00f1iga",
+    "delegation": [
+      "UZB"
+    ],
+    "first_name": "Lot",
+    "code": "UZB-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Kay",
+    "delegation": [
+      "UZB"
+    ],
+    "first_name": "Tegan",
+    "code": "UZB-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Shamon",
+    "delegation": [
+      "VNM"
+    ],
+    "first_name": "Wahbiyah",
+    "code": "VNM-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Onyenachiya",
+    "delegation": [
+      "VNM"
+    ],
+    "first_name": "Iheoma",
+    "code": "VNM-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Dickson",
+    "delegation": [
+      "VNM"
+    ],
+    "first_name": "Ramsay",
+    "code": "VNM-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "\u79cb\u9593",
+    "delegation": [
+      "VNM"
+    ],
+    "first_name": "\u512a\u6708",
+    "code": "VNM-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Laursen",
+    "delegation": [
+      "VNM"
+    ],
+    "first_name": "Signe",
+    "code": "VNM-S-5"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Jonsson",
+    "delegation": [
+      "XYZ"
+    ],
+    "first_name": "Rebecca",
+    "code": "XYZ-S-1"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Sigf\u00fasson",
+    "delegation": [
+      "XYZ"
+    ],
+    "first_name": "Arn\u00f3r",
+    "code": "XYZ-S-2"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Lin",
+    "delegation": [
+      "XYZ"
+    ],
+    "first_name": "Qing Yuan",
+    "code": "XYZ-S-3"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "Abrha",
+    "delegation": [
+      "XYZ"
+    ],
+    "first_name": "Aman",
+    "code": "XYZ-S-4"
+  },
+  "model": "ipho_core.student",
+},
+{
+  "fields": {
+    "last_name": "",
+    "delegation": [
+      "XYZ"
+    ],
+    "first_name": "Tekashishikuto",
+    "code": "XYZ-S-5"
+  },
+  "model": "ipho_core.student",
+}
+]

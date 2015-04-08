@@ -1,0 +1,9 @@
+[
+{
+  "fields": {
+    "name": "Delegation",
+    "permissions": []
+  },
+  "model": "auth.group",
+},
+]

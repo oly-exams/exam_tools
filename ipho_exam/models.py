@@ -2,11 +2,19 @@ from django.db import models
 from ipho_core.models import Delegation, Student
 
 
+class LanguageManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
 class Language(models.Model):
+    objects = LanguageManager()
+    
     name = models.CharField(max_length=100, unique=True)
     delegation = models.ManyToManyField(Delegation, blank=True) # TODO: make a ForeignKey
     hidden     = models.BooleanField(default=False)
     versioned  = models.BooleanField(default=False)
+    
+    def natural_key(self):
+        return (self.name,)
     
     def __unicode__(self):
         return u'%s' % (self.name)
