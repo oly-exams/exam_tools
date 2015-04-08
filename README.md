@@ -9,14 +9,17 @@ django-crispy-forms
 ```bash
 cp iphoadmin/settings_example.py iphoadmin/settings.py
 ```
+
 2. Initialize DB
 ```bash
 TODO...
 ```
+
 2. Fill with initial data
 ```bash
 TODO... # loaddata xx_name fixtures.
 ```
+
 3. (optional) Fill with test data
 ```bash
 TODO... # loaddata test_xx_name fixtures.
