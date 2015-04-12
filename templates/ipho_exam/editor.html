@@ -227,7 +227,7 @@ body { margin-bottom: 70px; }
                 if (field_id in all_editors)
                     all_editors[field_id].setData($(orig).data('original-text'));
                 else
-                    $('#'+field_id+'-translate input').val($(orig).data('original-text'));
+                    $('#'+field_id+'-translate input[type="text"]').val($(orig).data('original-text'));
                 event.preventDefault();
             });
             
