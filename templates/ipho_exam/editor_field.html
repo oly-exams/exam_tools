@@ -13,7 +13,7 @@
     {% if field.original %}
         <div class="row">
             <div class="col-xs-5">
-                <div class="translate-original" id="{{ field.id }}-original">
+                <div class="translate-original" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
                     {{ field.original|safe }}
                 </div>
             </div>

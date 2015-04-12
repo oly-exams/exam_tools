@@ -192,7 +192,6 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.entities_greek = false;
         CKEDITOR.config.disableNativeSpellChecker = false;
         CKEDITOR.config.autoParagraph = false;
-        
         CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
         
         
@@ -218,7 +217,7 @@ body { margin-bottom: 70px; }
             $(".translate-copy-button").click(function( event ) {
                 field_id =  $(this).attr('id').replace('-copy', '')
                 orig = '#' + $(this).attr('id').replace('-copy', '-original')
-                all_editors[field_id].setData($(orig).html())
+                all_editors[field_id].setData($(orig).data('original-text'))
                 event.preventDefault();
             });
             
