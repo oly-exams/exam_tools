@@ -236,7 +236,7 @@ body { margin-bottom: 70px; }
             $('.translate-foreign textarea').each(function() {
                 myid = $(this).parent().attr('id').replace('-translate', '');
                 // all_editors[myid] = CKEDITOR.replace(this);
-                all_editors[myid] = $(this).ckeditor();
+                all_editors[myid] = $(this).ckeditor().ckeditorGet();
             })
         });
         
