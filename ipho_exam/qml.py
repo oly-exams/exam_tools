@@ -41,12 +41,12 @@ def make_content_node(node):
     return descr
 
 def xml2string(xml):
-    return ET.tostring(xml, encoding='utf8')
+    return ET.tostring(xml)
 
 
 def content2string(node):
     parts = ([node.text] +
-             [ ET.tostring(c, encoding="utf-8") for c in node ] +
+             [ ET.tostring(c) for c in node ] +
              [node.tail])
     # filter removes possible Nones in texts and tails
     return ''.join(filter(None, parts))
