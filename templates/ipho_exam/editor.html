@@ -166,21 +166,24 @@ body { margin-bottom: 70px; }
 
 
 {% block extra-script %}
+    
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            showMathMenu: false,
+        });
+    </script>
+    <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{% static "ckeditor/ckeditor.js" %}"></script>
-    <script src="{% static "mathquill/mathquill.min.js" %}"></script>
     
     <script>
-        CKEDITOR.plugins.addExternal( 'mathedit', '{% static "mathedit/" %}', 'plugin.js' );
-        
-        CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'mathedit', '-', 'BidiLtr', 'BidiRtl']
+                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax', '-', 'BidiLtr', 'BidiRtl']
             ];
-        CKEDITOR.config.removePlugins = 'elementspath';
+        CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
-        CKEDITOR.config.extraPlugins = 'bidi,mathedit';
+        CKEDITOR.config.extraPlugins = 'widget,bidi,mathjax';
         CKEDITOR.config.removePlugins = 'contextmenu,tabletools,liststyle';
-        CKEDITOR.config.extraAllowedContent = 'img(mathImg)';
+        // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
         CKEDITOR.config.width = '100%';
         CKEDITOR.config.entities = false;
         CKEDITOR.config.htmlEncodeOutput = false;
@@ -190,22 +193,27 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.disableNativeSpellChecker = false;
         CKEDITOR.config.autoParagraph = false;
         
+        CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
+        
+        
         all_editors = new Array();
+        
+        function content2math() {
+            // convert equations for mathquill
+            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
+            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
+            
+            // convert equations for mathjax
+            // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
+            var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
+            $(this).html(newtext);
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
+        }
         
         $(function(){
             
-            $(".translate-original").each(function() {
-                var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
-                // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
-                $(this).html(newtext);
-            });
-            $(".translate-foreign").each(function() {
-                var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
-                $(this).html(newtext);
-            });
-            
-            // $('.mathquill-embedded-latex').mathquill();
-            
+            $(".translate-original").each(content2math);
+            $(".translate-foreign").each(content2math);
             
             $(".translate-copy-button").click(function( event ) {
                 field_id =  $(this).attr('id').replace('-copy', '')
@@ -217,7 +225,7 @@ body { margin-bottom: 70px; }
             
             $('.translate-foreign textarea').each(function() {
                 myid = $(this).parent().attr('id').replace('-translate', '');
-                // all_editors[myid] = CKEDITOR.inline(this);
+                all_editors[myid] = CKEDITOR.inline(this);
             })
         });
         
