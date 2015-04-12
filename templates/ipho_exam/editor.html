@@ -27,6 +27,10 @@ span.dropdown {
     padding-right: 1em;
 }
 
+.cke_textarea_inline {
+/*    border:1px #000 solid;*/
+}
+
 body { margin-bottom: 70px; }
 </style>
 
@@ -181,10 +185,13 @@ body { margin-bottom: 70px; }
             ];
         CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
-        CKEDITOR.config.extraPlugins = 'widget,bidi,mathjax';
-        CKEDITOR.config.removePlugins = 'contextmenu,tabletools,liststyle';
+        CKEDITOR.config.extraPlugins = 'autogrow,widget,bidi,mathjax';
+        CKEDITOR.config.removePlugins = 'elementspath,contextmenu,tabletools,liststyle';
         // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
         CKEDITOR.config.width = '100%';
+        CKEDITOR.config.autoGrow_onStartup = true;
+        CKEDITOR.config.autoGrow_minHeight = 0;
+        CKEDITOR.config.autoGrow_bottomSpace = 10;
         CKEDITOR.config.entities = false;
         CKEDITOR.config.htmlEncodeOutput = false;
         CKEDITOR.config.basicEntities = false;
@@ -227,7 +234,7 @@ body { margin-bottom: 70px; }
             
             $('.translate-foreign textarea').each(function() {
                 myid = $(this).parent().attr('id').replace('-translate', '');
-                all_editors[myid] = CKEDITOR.inline(this);
+                all_editors[myid] = CKEDITOR.replace(this);
             })
         });
         
