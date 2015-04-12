@@ -178,6 +178,7 @@ body { margin-bottom: 70px; }
     </script>
     <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{% static "ckeditor/ckeditor.js" %}"></script>
+    <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
     
     <script>
         CKEDITOR.config.toolbar = [
@@ -234,7 +235,8 @@ body { margin-bottom: 70px; }
             
             $('.translate-foreign textarea').each(function() {
                 myid = $(this).parent().attr('id').replace('-translate', '');
-                all_editors[myid] = CKEDITOR.replace(this);
+                // all_editors[myid] = CKEDITOR.replace(this);
+                all_editors[myid] = $(this).ckeditor();
             })
         });
         
