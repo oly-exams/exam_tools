@@ -47,6 +47,29 @@ body { margin-bottom: 70px; }
     </div>
 {% endif %}
 
+<div class="modal fade" id="ipho_exam-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Do you want to save changes before leaving?</h3>
+      </div>
+      <div class="modal-body">
+        <p>Your changes will be lost if you don't save them.</p>
+      </div>
+      <div class="modal-footer">
+          <div class="pull-left">
+              <button type="button" class="btn btn-default" data-action="discard">Discard changes</button>
+          </div>
+          <div class="pull-right">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" data-action="save">Save changes</button>
+          </div>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <div class="page-header">
     <div class="dropdown pull-right">
       <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
@@ -91,7 +114,7 @@ body { margin-bottom: 70px; }
 
 {% if question %}
     
-    <form method="post" action="" charset="utf8">
+    <form method="post" action="" charset="utf8" id="ipho_exam-form">
         {% csrf_token %}
         <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
     
@@ -180,6 +203,9 @@ body { margin-bottom: 70px; }
     <script src="{% static "ckeditor/ckeditor.js" %}"></script>
     <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
     
+    <script src="{% static "jquery-dirtyforms/jquery.dirtyforms.js" %}"></script>
+    <script src="{% static "jquery-dirtyforms/helpers/ckeditor.js" %}"></script>
+    
     <script>
         CKEDITOR.config.toolbar = [
                 [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax', '-', 'BidiLtr', 'BidiRtl']
@@ -238,6 +264,38 @@ body { margin-bottom: 70px; }
                 // all_editors[myid] = CKEDITOR.replace(this);
                 all_editors[myid] = $(this).ckeditor().ckeditorGet();
             })
+            
+            
+            $.DirtyForms.dialog = {
+                            refire : function(content, ev){
+                                $('#ipho_exam-modal').modal('show');
+                            },
+                            fire : function(message, title){
+                                $('#ipho_exam-modal .modal-title').html(title);
+                                $('#ipho_exam-modal .modal-body').html(message);
+                                $('#ipho_exam-modal').modal('show');
+                                
+                            },
+                            bind : function(){
+                                // $('.modal .close, .modal .secondary').click(decidingCancel);
+                                $(".modal [data-action='save']").click(function() {alert('want to save!');});
+                                $(".modal [data-action='discard']").click(decidingContinue);
+                                $(document).bind('decidingcancelled.dirtyforms', function(){
+                                    $('#ipho_exam-modal').modal('hide');
+                                });
+                            },
+                            stash : function(){
+                                var fb = $('.modal');
+                                return ($.trim(fb.html()) == '' || fb.css('display') != 'block') ?
+                                   false :
+                                   $('.modal .modal-body').clone(true);
+                            },
+                            selector : '.modal .modal-body'
+                        };
+            $.DirtyForms.title = "Do you want to save changes before leaving?"
+            $.DirtyForms.message = "Your changes will be lost if you don't save them."
+            $('#ipho_exam-form').dirtyForms();
+            
         });
         
     </script>
