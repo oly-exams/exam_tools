@@ -3,7 +3,7 @@
 {% load editor_extras %}
 
 {% block extra-head %}
-<link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
+<link href="{% static "mathquill_alpha/mathquill.css" %}" rel="stylesheet">
 
 <style>
 span.dropdown {
@@ -183,7 +183,7 @@ body { margin-bottom: 70px; }
     <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{% static "ckeditor/ckeditor.js" %}"></script>
     <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
-    <script src="{% static "mathquill/mathquill.js" %}"></script>
+    <script src="{% static "mathquill_alpha/mathquill.js" %}"></script>
     
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
