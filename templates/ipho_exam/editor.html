@@ -181,12 +181,14 @@ body { margin-bottom: 70px; }
     <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
     
     <script>
+        CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
+        
         CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax', '-', 'BidiLtr', 'BidiRtl']
+                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
             ];
         CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
-        CKEDITOR.config.extraPlugins = 'autogrow,widget,bidi,mathjax';
+        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax';
         CKEDITOR.config.removePlugins = 'elementspath,contextmenu,tabletools,liststyle';
         // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
         CKEDITOR.config.width = '100%';
@@ -201,7 +203,7 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.disableNativeSpellChecker = false;
         CKEDITOR.config.autoParagraph = false;
         CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
-        
+        CKEDITOR.config.jsvk_skin = "flat_gray";
         
         all_editors = new Array();
         
