@@ -20,13 +20,13 @@ CKEDITOR.dialog.add( 'mathjax-mathquill', function( editor ) {
 				elements: [
 					{
 						type : 'html',
-						id : 'mathquill-editor',
-						html : "<span style='border: 1px solid gray;" +
-								"padding: 2px; line-height:40px; font-size: 16pt;'></span>",
+						id : 'mathjax-mathquill-editor',
+						html : "<span class='mathquill-editor' style='border: 1px solid gray;" +
+								"'></span>",
 						setup : function( widget ) {
 							// $ accesses the actual DOM-element
 							mathquillEl = jQuery( CKEDITOR.document.getById( this.domId ).$ );
-							mathquillEl.mathquill('editable');
+							mathquillEl.mathquill('editor');
 							mathquillEl.mathquill('latex', CKEDITOR.plugins.mathjax.trim( widget.data.math ));
 						},
 						onLoad: function() {
