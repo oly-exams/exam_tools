@@ -46,7 +46,7 @@
 				},
 
 				defaults: {
-					math: '\\(x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}\\)'
+					math: '\\(x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}\\)'
 				},
 
 				init: function() {
