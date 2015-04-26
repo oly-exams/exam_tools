@@ -28,6 +28,7 @@ CKEDITOR.dialog.add( 'mathjax-mathquill', function( editor ) {
 							mathquillEl = jQuery( CKEDITOR.document.getById( this.domId ).$ );
 							mathquillEl.mathquill('editor');
 							mathquillEl.mathquill('latex', CKEDITOR.plugins.mathjax.trim( widget.data.math ));
+              mathquillEl.find('*').removeClass('cke_reset_all');
 						},
 						onLoad: function() {
 							var that = this;
