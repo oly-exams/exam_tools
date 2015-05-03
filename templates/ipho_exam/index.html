@@ -53,10 +53,10 @@ $(function() {
             .find('span.glyphicon')
             .toggleClass('glyphicon-chevron-down glyphicon-chevron-right');
     }
-    
+    $('#editor-accordion').on('hide.bs.collapse', toggleChevron);
+    $('#editor-accordion').on('show.bs.collapse', toggleChevron);
     $('#view-accordion').on('hide.bs.collapse', toggleChevron);
     $('#view-accordion').on('show.bs.collapse', toggleChevron);
-    
 });
 </script>
 {% endblock %}
