@@ -27,13 +27,11 @@ def index(request):
     success = None
     
     delegation = Delegation.objects.filter(members=request.user)
-    print delegation
     
     own_lang   = None
     other_lang = None
     if delegation.count() > 0:
         own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
-        print own_lang
         other_lang = Language.objects.filter(hidden=False).exclude(delegation=delegation).order_by('name')
     else:
         other_lang = Language.objects.filter(hidden=False).order_by('name')
