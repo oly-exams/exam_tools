@@ -27,6 +27,10 @@ def html2tex(el):
                 if att =='style':
                     if 'font-style:italic' in sel.attrib[att]:
                         result.append(u'\\textit{%s}' % (html2tex(sel)))
+                    elif 'font-weight:bold' in sel.attrib[att]:
+                        result.append(u'\\textbf{%s}' % (html2tex(sel)))
+                elif att =='class' and 'math-tex' in sel.attrib[att]:
+                        result.append( html2tex(sel) )
         ## Bold
         elif sel.tag in ["b","strong"]:
             result.append(u'\\textbf{%s}' % (html2tex(sel)))
