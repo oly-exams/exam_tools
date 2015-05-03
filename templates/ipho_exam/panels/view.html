@@ -1,30 +1,41 @@
 <h2>View exams</h2>
-<div class="panel panel-default">
-    <div class="panel-heading"><h3 class="panel-title">Select language to show</h3></div>
-    <div class="list-group">
-    {% for ex in exam_list %}
-    {% for q in ex.question_set.all %}
-        <li class="list-group-item">
-            <div class="dropdown">
-                <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                {{ ex.name }} - Q{{ q.position }}
-                <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                    {% for l in own_lang %}
-                        <li><a href="{% url 'exam:pdf' question_id=q.pk lang_id=l.pk %}" target="_blank">{{ l.name }} <i class="fa fa-external-link" style="font-size:70%"></i></a></li>
-                    {% endfor %}
-                    {% if own_lang %}
-                        <li class="divider"></li>
-                    {% endif %}
-                    {% for l in other_lang %}
-                        <li><a href="{% url 'exam:pdf' question_id=q.pk lang_id=l.pk %}" target="_blank">{{ l.name }} <i class="fa fa-external-link" style="font-size:70%"></i></a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </li>
-    {% endfor %}
-    {% endfor %}
-    </div>
-</div>
 
+<div class="panel-group" id="view-accordion">
+{% for ex in exam_list %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" data-parent="#view-accordion" href="#view-collapse-{{ forloop.counter }}">
+          {{ ex.name }}
+        </a>
+      </h4>
+    </div>
+    <div id="view-collapse-{{ forloop.counter }}" class="panel-collapse collapse {% if forloop.first %}in{% endif %}">
+        <ul class="list-group">
+        {% for q in ex.question_set.all %}
+            <li class="list-group-item">
+                {{ q.name }}
+                <span class="dropdown">
+                    <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-language"></i> Language
+                    <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for l in own_lang %}
+                            <li><a href="{% url 'exam:pdf' question_id=q.pk lang_id=l.pk %}" target="_blank">{{ l.name }} <i class="fa fa-external-link" style="font-size:70%"></i></a></li>
+                        {% endfor %}
+                        {% if own_lang %}
+                            <li class="divider"></li>
+                        {% endif %}
+                        {% for l in other_lang %}
+                            <li><a href="{% url 'exam:pdf' question_id=q.pk lang_id=l.pk %}" target="_blank">{{ l.name }} <i class="fa fa-external-link" style="font-size:70%"></i></a></li>
+                        {% endfor %}
+                    </ul>
+                </span>
+            </li>
+        {% endfor %}
+        </ul>
+    </div> <!-- ./panel-collapse -->
+  </div> <!-- ./panel -->
+{% endfor %}
+</div>
