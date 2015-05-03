@@ -3,7 +3,7 @@
     <div class="panel-heading"><h3 class="panel-title">Available exams</h3></div>
     <div class="list-group">
     {% for ex in exam_list %}
-        <a class="list-group-item" href="{% url 'exam:editor-exam' exam_id=ex.pk %}">{{ ex.name }}</a>
+        <a class="list-group-item" href="{% url 'exam:editor-exam' exam_id=ex.pk %}">{{ ex.name }} <i class="fa fa-angle-double-right"></i></a>
     {% endfor %}
     </div>
 </div>
