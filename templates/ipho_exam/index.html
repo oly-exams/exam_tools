@@ -43,3 +43,20 @@
 </div> <!-- /container -->
 
 {% endblock %}
+
+{% block extra-script %}
+<script>
+$(function() {
+    function toggleChevron(e) {
+        $(e.target)
+            .prev('.panel-heading')
+            .find('span.glyphicon')
+            .toggleClass('glyphicon-chevron-down glyphicon-chevron-right');
+    }
+    
+    $('#view-accordion').on('hide.bs.collapse', toggleChevron);
+    $('#view-accordion').on('show.bs.collapse', toggleChevron);
+    
+});
+</script>
+{% endblock %}

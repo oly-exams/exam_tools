@@ -5,6 +5,7 @@
   <div class="panel panel-default">
     <div class="panel-heading">
       <h4 class="panel-title">
+        <span class="glyphicon {% if forloop.first %}glyphicon-chevron-down{% else %}glyphicon-chevron-right{% endif %}"></span>
         <a data-toggle="collapse" data-parent="#view-accordion" href="#view-collapse-{{ forloop.counter }}">
           {{ ex.name }}
         </a>
