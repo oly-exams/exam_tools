@@ -7,8 +7,14 @@ from django.contrib.auth.decorators import login_required
 
 from copy import deepcopy
 
-from ipho_core.models import Delegation
+from tempfile import mkdtemp
+import subprocess
+import os
+import shutil
+from hashlib import md5
 
+
+from ipho_core.models import Delegation
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language
 from ipho_exam import qml
 
@@ -135,4 +141,24 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context['content_set'] = content_set
     context['form']        = form
     return render(request, 'ipho_exam/editor.html', context)
+
+
+@login_required
+def pdf(request, question_id, lang_id):
+    # exam = Exam.objects.get(id=exam_id)
+    question = Question.objects.get(id=question_id)
+    
+    trans_lang = Language.objects.get(id=lang_id)
+    trans_node = TranslationNode.objects.get(question=question, language=trans_lang)
+    
+    trans_q = qml.QMLquestion(trans_node.text)
+    trans_content = trans_q.make_tex()
+    
+    context = {
+                'title'   : question.name,
+                'document' : trans_content,
+              }
+    
+    return render(request, 'ipho_exam/tex/exam_question.tex', context)
+
 

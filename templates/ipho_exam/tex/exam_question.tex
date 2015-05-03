@@ -1,0 +1,62 @@
+\documentclass[a4paper]{article}
+
+
+% PDF search & cut'n'paste
+\usepackage{cmap}
+
+
+% Page options
+\usepackage{geometry}
+\geometry{left=2.5cm}
+\geometry{right=2.5cm}
+\geometry{top=1cm}
+\geometry{bottom=2cm}
+
+% Font settings
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainfont{Calibri}
+\setmainlanguage{english}
+%\setotherlanguage{arabic} % TODO
+
+% Math
+\usepackage{amsmath}
+\usepackage[]{unicode-math}
+%\setmathfont{XITS Math}
+
+\nonstopmode
+
+
+\newcommand\subquestion[2]{
+\vspace{0.5em}
+\noindent
+  \framebox[\textwidth]{
+    \vspace{0.5em}
+    \parbox[t]{.1\textwidth}{
+      \hspace{1em}
+      X.Y
+    }
+    \parbox[t]{.8\textwidth}{
+      #2 % content here
+    }
+    \parbox{.1\textwidth}{
+      \flushright
+      #1 pt
+      \hspace{1em}
+    }
+    \vspace{0.5em}
+  }
+\vspace{0.5em}
+}
+
+
+{% block extraheader %}{% endblock %}
+
+\title{% templatetag openbrace %}{{ title }}}
+\author{}
+\date{}
+
+\begin{document}
+    \maketitle
+{{ document }}
+\end{document}

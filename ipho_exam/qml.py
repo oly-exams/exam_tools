@@ -1,5 +1,6 @@
 from xml.etree import ElementTree as ET
 #import lxml.etree as lxmltree
+import tex
 
 from django import forms
 from django.utils.safestring import mark_safe
@@ -134,6 +135,22 @@ class QMLobject(object):
         
         return elem
     
+    def tex_begin(self):
+        return ''
+    def tex_end(self):
+        return '\n\n'
+    
+    def make_tex(self):
+        texout = self.tex_begin()
+        if self.__class__.has_text:
+            cont_str = '<content>'+unescape_entities(self.data)+'</content>'
+            cont_xml = ET.fromstring(cont_str.encode('utf-8'))
+            texout += tex.html2tex(cont_xml)
+        for c in self.children:
+            texout += c.make_tex()
+        texout += self.tex_end()
+        return texout
+    
     def heading(self):
         return None
     
@@ -189,6 +206,12 @@ class QMLsubquestion(QMLobject):
     def heading(self):
         return 'Subquestion, %spt' % self.attributes['points']
 
+    def tex_begin(self):
+        return u'\\subquestion{%s}{' % self.attributes['points']
+    def tex_end(self):
+        return '}\n\n'
+
+
 class QMLtitle(QMLobject):
     abbr = "ti"
     tag  = "title"
@@ -197,6 +220,12 @@ class QMLtitle(QMLobject):
     has_children = False
     
     def heading(self): return 'Title'
+    
+    def tex_begin(self):
+        return u'\\section{'
+    def tex_end(self):
+        return '}\n'
+
 
 class QMLparagraph(QMLobject):
     abbr = "pa"
@@ -230,6 +259,12 @@ class QMLequation(QMLobject):
 
     def heading(self): return 'Equation'
 
+    def tex_begin(self):
+        return u'\\begin{equation}\n'
+    def tex_end(self):
+        return u'\\end{equation}\n\n'
+
+
 # class QMLfigureText(QMLobject):
 #     abbr = "ft"
 #     def parse(self,elem):
@@ -249,6 +284,11 @@ class QMLlist(QMLobject):
 
     def heading(self): return 'Bullet list'
 
+    def tex_begin(self):
+        return u'\\begin{itemize}\n'
+    def tex_end(self):
+        return u'\\end{itemize}\n\n'
+
 
 class QMLlistitem(QMLobject):
     abbr = "li"
@@ -261,6 +301,9 @@ class QMLlistitem(QMLobject):
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
+
+    def tex_begin(self):
+        return u'\\item '
 
 
 class QMLException(Exception):
