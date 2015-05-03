@@ -1,7 +1,30 @@
 <h2>View exams</h2>
-<p>Theory exam:</p>
-<select>
-  <option>Select a language</option>
-  <option>-----</option>
-  <option>..populate..</option>
-</select>
+<div class="panel panel-default">
+    <div class="panel-heading"><h3 class="panel-title">Select language to show</h3></div>
+    <div class="list-group">
+    {% for ex in exam_list %}
+    {% for q in ex.question_set.all %}
+        <li class="list-group-item">
+            <div class="dropdown">
+                <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                {{ ex.name }} - Q{{ q.position }}
+                <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    {% for l in own_lang %}
+                        <li><a href="{% url 'exam:pdf' question_id=q.pk lang_id=l.pk %}" target="_blank">{{ l.name }} <i class="fa fa-external-link" style="font-size:70%"></i></a></li>
+                    {% endfor %}
+                    {% if own_lang %}
+                        <li class="divider"></li>
+                    {% endif %}
+                    {% for l in other_lang %}
+                        <li><a href="{% url 'exam:pdf' question_id=q.pk lang_id=l.pk %}" target="_blank">{{ l.name }} <i class="fa fa-external-link" style="font-size:70%"></i></a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </li>
+    {% endfor %}
+    {% endfor %}
+    </div>
+</div>
+

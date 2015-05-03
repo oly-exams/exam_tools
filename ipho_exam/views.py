@@ -29,13 +29,18 @@ def index(request):
     delegation = Delegation.objects.filter(members=request.user)
     print delegation
     
-    ## Language section
-    own_lang = None
-    language_form = None
+    own_lang   = None
+    other_lang = None
     if delegation.count() > 0:
         own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
         print own_lang
-        
+        other_lang = Language.objects.filter(hidden=False).exclude(delegation=delegation).order_by('name')
+    else:
+        other_lang = Language.objects.filter(hidden=False).order_by('name')
+    
+    ## Language section
+    language_form = None
+    if delegation.count() > 0:
         language_form = LanguageForm(request.POST or None)
         if language_form.is_valid():
             lang_model = language_form.save(commit=False)
@@ -53,6 +58,7 @@ def index(request):
             {
                 'language_form' : language_form,
                 'own_lang'      : own_lang,
+                'other_lang'    : other_lang,
                 'exam_list'     : exam_list,
                 'success'       : success,
             })
