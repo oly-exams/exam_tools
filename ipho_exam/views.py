@@ -16,7 +16,7 @@ from hashlib import md5
 
 from ipho_core.models import Delegation
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language
-from ipho_exam import qml
+from ipho_exam import qml, tex
 
 from ipho_exam.forms import LanguageForm
 
@@ -155,10 +155,9 @@ def pdf(request, question_id, lang_id):
     trans_content = trans_q.make_tex()
     
     context = {
-                'title'   : question.name,
+                'title'    : question.name,
                 'document' : trans_content,
               }
-    
-    return render(request, 'ipho_exam/tex/exam_question.tex', context)
+    return tex.render_tex(request, 'ipho_exam/tex/exam_question.tex', context)
 
 

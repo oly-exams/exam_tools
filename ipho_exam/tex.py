@@ -87,7 +87,7 @@ def render_tex(request, template, ctx={}):
             if error:
                 if request.user.is_superuser:
                     log = open("%s/%s.log" % (tmp, doc)).read()
-                    return HttpResponse(log, mimetype="text/plain")
+                    return HttpResponse(log, content_type="text/plain")
                 else:
                     raise RuntimeError("pdflatex error (code %s) in %s/%s" % (error, tmp, doc))
  
@@ -98,6 +98,6 @@ def render_tex(request, template, ctx={}):
         if pdf:
             cache.set(cache_key, pdf, CACHE_TIMEOUT)
  
-    res = HttpResponse(pdf, mimetype="application/pdf")
+    res = HttpResponse(pdf, content_type="application/pdf")
     res['ETag'] = etag
     return res
