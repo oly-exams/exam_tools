@@ -77,6 +77,8 @@ $(function() {
     $('#editor-accordion').on('show.bs.collapse', toggleChevron);
     $('#view-accordion').on('hide.bs.collapse', toggleChevron);
     $('#view-accordion').on('show.bs.collapse', toggleChevron);
+    
+    $("[data-toggle=popover]").popover();
 });
 </script>
 {% endblock %}

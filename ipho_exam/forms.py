@@ -9,7 +9,9 @@ class LanguageForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(LanguageForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(Field('name', placeholder='Name'),Field('polyglossia'))
+        self.helper.layout = Layout(Field('name', placeholder='Name'),
+                                    Field('polyglossia'),
+                                    )
         self.helper.html5_required = True
         # self.helper.form_show_labels = False
         self.helper.form_method = 'post'
@@ -19,3 +21,6 @@ class LanguageForm(ModelForm):
     class Meta:
         model = Language
         fields = ['name','polyglossia']
+        labels = {
+                   'polyglossia': 'Language style <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Select a lanugage similar to yours. This will improve the final typesetting, e.g. allowing correct hyphenation."><span class="glyphicon glyphicon-info-sign"></span></a>',
+               }
