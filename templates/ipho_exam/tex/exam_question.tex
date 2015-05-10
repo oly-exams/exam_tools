@@ -16,10 +16,13 @@
 
 % Font settings
 \usepackage{fontspec}
-\usepackage{polyglossia}
+\usepackage[quite]{polyglossia}
 \setmainfont{Roboto} %Calibri
-\setmainlanguage{english}
-%\setotherlanguage{arabic} % TODO
+\setmainlanguage{{{ extraheader }}}
+\setotherlanguage{english}
+% Usage:
+% Start other language with \begin{English}, or \textenglish
+
 
 % Math
 \usepackage{amsmath}
@@ -52,7 +55,7 @@
 }
 
 
-{% block extraheader %}{% endblock %}
+{{ extraheader }}
 
 \title{% templatetag openbrace %}{{ title }}}
 \author{}
