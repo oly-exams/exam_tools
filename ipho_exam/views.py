@@ -139,15 +139,15 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     trans_lang = None
     
     if exam_id is not None:
-        exam = Exam.objects.get(id=exam_id)
+        exam = get_object_or_404(Exam, id=exam_id)
     if question_id is not None:
-        question = Question.objects.get(id=question_id)
+        question = get_object_or_404(Question, id=question_id)
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.all()[0]
     
     delegation = Delegation.objects.filter(members=request.user)
     
-    orig_lang = Language.objects.get(id=orig_id)
+    orig_lang = get_object_or_404(Language, id=orig_id)
     all_lang = Language.objects.filter(hidden=False).order_by('name')
     if delegation.count() > 0:
         own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
@@ -164,14 +164,14 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         if orig_lang.versioned:
             orig_node = VersionNode.objects.filter(question=question, language=orig_lang, status='C').order_by('-version')[0]
         else:
-            orig_node = TranslationNode.objects.get(question=question, language=orig_lang)
+            orig_node = get_object_or_404(TranslationNode, question=question, language=orig_lang)
         orig_q = qml.QMLquestion(orig_node.text)
         
         content_set = qml.make_content(orig_q)
         
         trans_content = {}
         if lang_id is not None:
-            trans_lang = Language.objects.get(id=lang_id)
+            trans_lang = get_object_or_404(Language, id=lang_id)
             trans_node, created = TranslationNode.objects.get_or_create(question=question, language_id=lang_id, defaults={'text': '', 'status' : 'O'}) ## TODO: check permissions for this.
             if len(trans_node.text) > 0:
                 trans_q    = qml.QMLquestion(trans_node.text)
@@ -207,11 +207,10 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
 @login_required
 def pdf(request, question_id, lang_id):
-    # exam = Exam.objects.get(id=exam_id)
-    question = Question.objects.get(id=question_id)
+    question = get_object_or_404(Question, id=question_id)
     
-    trans_lang = Language.objects.get(id=lang_id)
-    trans_node = TranslationNode.objects.get(question=question, language=trans_lang)
+    trans_lang = get_object_or_404(Language, id=lang_id)
+    trans_node = get_object_or_404(TranslationNode, question=question, language=trans_lang)
     
     trans_q = qml.QMLquestion(trans_node.text)
     trans_content = trans_q.make_tex()
