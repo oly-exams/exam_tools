@@ -217,9 +217,11 @@ def pdf(request, question_id, lang_id):
     trans_content = trans_q.make_tex()
     
     context = {
-                'title'    : question.name,
-                'document' : trans_content,
-                'filename' : u'IPhO16 - {} Q{} - {}.pdf'.format(question.exam.name, question.position, trans_lang.name),
+                'polyglossia' : trans_lang.polyglossia,
+                'extraheader' : trans_lang.extraheader,
+                'title'       : question.name,
+                'document'    : trans_content,
+                'filename'    : u'IPhO16 - {} Q{} - {}.pdf'.format(question.exam.name, question.position, trans_lang.name),
               }
     return tex.render_tex(request, 'ipho_exam/tex/exam_question.tex', context)
 
