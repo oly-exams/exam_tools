@@ -1,10 +1,12 @@
 from django.conf.urls import patterns, include, url
 
 
-
 urlpatterns = patterns('ipho_exam.views',
     
     url(r'^$', 'index', name='index'),
+    
+    url(r'^language/add$', 'add_language', name='language-add'),
+    url(r'^language/edit/(?P<lang_id>\d+)$', 'edit_language', name='language-edit'),
     
     url(r'^editor/?$', 'editor'),
     url(r'^editor/(?P<exam_id>\d+)$', 'editor', name='editor-exam'),

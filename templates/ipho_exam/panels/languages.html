@@ -2,16 +2,36 @@
 
 <h2>Languages</h2>
 
+<div class="modal fade" id="language-modal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <form method="post" action="">
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="panel panel-default">
     <div class="panel-heading"><h3 class="panel-title">Available languages</h3></div>
-      <ul class="list-group">
+      <div id="language-list" class="list-group">
       {% for lang in own_lang %}
-          <li class="list-group-item">{{ lang.name }}</li>
+          <a class="list-group-item" data-toggle="modal" data-target="#language-modal" href="{% url 'exam:language-edit' lang_id=lang.pk %}">{{ lang.name }} <span class="pull-right"><i class="fa fa-pencil"></i></span></a>
       {% empty %}
-          <li class="list-group-item">No languages assigned to your delegation.</li>
+          <a class="list-group-item">No languages assigned to your delegation.</a>
       {% endfor %}
-      </ul>
+      </div>
 </div>
+
+<a class="btn btn-default" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-add' %}"><i class="fa fa-plus fa-fw"></i> Create new</a>
 
 <div class="panel panel-default">
     <div class="panel-heading"><h3 class="panel-title">Create new</h4></div>

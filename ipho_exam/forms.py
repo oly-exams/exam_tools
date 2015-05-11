@@ -13,10 +13,11 @@ class LanguageForm(ModelForm):
                                     Field('polyglossia'),
                                     )
         self.helper.html5_required = True
-        # self.helper.form_show_labels = False
-        self.helper.form_method = 'post'
-        self.helper.form_action = 'exam:index'
-        self.helper.add_input(Submit('submit', 'Create'))
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        # self.helper.form_method = 'post'
+        # self.helper.form_action = 'exam:index'
+        # self.helper.add_input(Submit('submit', 'Create'))
         
     class Meta:
         model = Language

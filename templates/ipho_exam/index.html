@@ -35,12 +35,14 @@
       <h1>IPhO Exams</h1>
     </div>
     
-    {% if success %}
-    <div class="alert alert-success alert-dismissible" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      {{ success|safe }}
+    <div id="alerts-container">
+        {% if success %}
+        <div class="alert alert-success alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          {{ success|safe }}
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
     
     <div class="row">
         <div class="col-md-3">
@@ -67,6 +69,37 @@
 {% block extra-script %}
 <script>
 $(function() {
+    // Get csrftoken
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+    
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    
+    
     function toggleChevron(e) {
         $(e.target)
             .prev('.panel-heading')
@@ -79,6 +112,49 @@ $(function() {
     $('#view-accordion').on('show.bs.collapse', toggleChevron);
     
     $("[data-toggle=popover]").popover();
+    
+    
+    // Language modal
+    $(document).on('submit', '#language-modal form', function(evt) {
+        var form = evt.target;
+        var $form = $(form);
+        evt.preventDefault();
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: $form.serialize(),
+            success: function(data) {
+                if (!data['success']) {
+                    $('#language-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    return;
+                }
+                
+                if (data['type'] == 'add') {
+                    $('#language-list').append('<a class="list-group-item" data-toggle="modal" data-target="#language-modal" href="'+data['href']+'">'+data['name']+' <span class="pull-right"><i class="fa fa-pencil"></i></span></a>');
+                    // TODO: sort
+                }
+                $('#language-modal').modal('hide');
+                $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+            }
+        });
+    });
+    
+    $('#language-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('form').attr('action', href);
+                modal.find('.modal-body').html(data['form']);
+                modal.find("[data-toggle=popover]").popover(); // activate popover
+            },
+        });
+    })
 });
 </script>
 {% endblock %}

@@ -1,9 +1,10 @@
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from crispy_forms.utils import render_crispy_form
 
 from copy import deepcopy
 
@@ -60,6 +61,74 @@ def index(request):
                 'exam_list'     : exam_list,
                 'success'       : success,
             })
+
+
+@login_required
+def add_language(request):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    delegation = Delegation.objects.get(members=request.user)
+    
+    ## Language section
+    language_form = LanguageForm(request.POST or None)
+    if language_form.is_valid():
+        # language_form.instance.delegation = delegation
+        # lang = language_form.save()
+        lang = language_form.save(commit=False)
+        lang.save()
+        lang.delegation = [delegation]
+        lang.save()
+        
+        return JsonResponse({
+                    'type'    : 'add',
+                    'name'    : lang.name,
+                    'href'    : reverse('exam:language-edit', args=[lang.pk]),
+                    'success' : True,
+                    'message' : '<strong>Language created!</strong> The new languages has successfully been created.',
+                })
+    
+    
+    form_html = render_crispy_form(language_form)
+    return JsonResponse({
+                'title'   : 'Add new language',
+                'form'    : form_html,
+                'submit'  : 'Create',
+                'success' : False,
+            })
+
+@login_required
+def edit_language(request, lang_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    delegation = Delegation.objects.get(members=request.user)
+    
+    ## Language section
+    language_form = LanguageForm(request.POST or None)
+    if language_form.is_valid():
+        # language_form.instance.delegation = delegation
+        # lang = language_form.save()
+        lang = language_form.save(commit=False)
+        lang.save()
+        lang.delegation = [delegation]
+        lang.save()
+        
+        return JsonResponse({
+                    'type'    : 'add',
+                    'name'    : lang.name,
+                    'href'    : reverse('exam:language-edit', args=[lang.pk]),
+                    'success' : True,
+                    'message' : '<strong>Language modified!</strong> The language '+lang.name+' has successfully been modified.',
+                })
+    
+    
+    form_html = render_crispy_form(language_form)
+    return JsonResponse({
+                'title'   : 'Edit language',
+                'form'    : form_html,
+                'submit'  : 'Save',
+                'success' : False,
+            })
+
 
 
 @login_required
