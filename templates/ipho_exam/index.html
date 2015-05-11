@@ -130,7 +130,7 @@ $(function() {
                 }
                 
                 if (data['type'] == 'add') {
-                    $('#language-list').append('<a class="list-group-item" data-toggle="modal" data-target="#language-modal" href="'+data['href']+'">'+data['name']+' <span class="pull-right"><i class="fa fa-pencil"></i></span></a>');
+                    $('#language-list').append('<a class="list-group-item" data-toggle="modal" data-target="#language-modal" data-remote="false" href="'+data['href']+'">'+data['name']+' <span class="pull-right"><i class="fa fa-pencil"></i></span></a>');
                     // TODO: sort
                 }
                 $('#language-modal').modal('hide');
@@ -151,6 +151,7 @@ $(function() {
                 modal.find('.modal-title').text(data['title']);
                 modal.find('form').attr('action', href);
                 modal.find('.modal-body').html(data['form']);
+                modal.find('button[type="submit"]').text(data['submit']);
                 modal.find("[data-toggle=popover]").popover(); // activate popover
             },
         });

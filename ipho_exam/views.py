@@ -91,8 +91,8 @@ def edit_language(request, lang_id):
         raise Exception('TODO: implement small template page for handling without Ajax.')
     delegation = Delegation.objects.get(members=request.user)
     
-    ## Language section
-    language_form = LanguageForm(request.POST or None)
+    instance = get_object_or_404(Language, pk=lang_id)
+    language_form = LanguageForm(request.POST or None, instance=instance)
     if language_form.is_valid():
         # language_form.instance.delegation = delegation
         # lang = language_form.save()
@@ -102,7 +102,7 @@ def edit_language(request, lang_id):
         lang.save()
         
         return JsonResponse({
-                    'type'    : 'add',
+                    'type'    : 'edit',
                     'name'    : lang.name,
                     'href'    : reverse('exam:language-edit', args=[lang.pk]),
                     'success' : True,

@@ -24,7 +24,7 @@
     <div class="panel-heading"><h3 class="panel-title">Available languages</h3></div>
       <div id="language-list" class="list-group">
       {% for lang in own_lang %}
-          <a class="list-group-item" data-toggle="modal" data-target="#language-modal" href="{% url 'exam:language-edit' lang_id=lang.pk %}">{{ lang.name }} <span class="pull-right"><i class="fa fa-pencil"></i></span></a>
+          <a class="list-group-item" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-edit' lang_id=lang.pk %}">{{ lang.name }} <span class="pull-right"><i class="fa fa-pencil"></i></span></a>
       {% empty %}
           <a class="list-group-item">No languages assigned to your delegation.</a>
       {% endfor %}
