@@ -8,6 +8,11 @@ from ipho_exam.models import Language
 class LanguageForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(LanguageForm, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            self.fields['name'].widget.attrs['readonly'] = True
+        
+        
         self.helper = FormHelper()
         self.helper.layout = Layout(Field('name', placeholder='Name'),
                                     Field('polyglossia'),
