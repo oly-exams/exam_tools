@@ -39,25 +39,12 @@ def index(request):
     else:
         other_lang = Language.objects.filter(hidden=False).order_by('name')
     
-    ## Language section
-    language_form = None
-    if delegation.count() > 0:
-        language_form = LanguageForm(request.POST or None)
-        if language_form.is_valid():
-            lang_model = language_form.save(commit=False)
-            lang_model.save()
-            lang_model.delegation = delegation
-            lang_model.save()
-            language_form = LanguageForm()
-            success = '<strong>Language created!</strong> The new languages has successfully been created.'
-    
     ## Exam section
     exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
     
     
     return render(request, 'ipho_exam/index.html',
             {
-                'language_form' : language_form,
                 'own_lang'      : own_lang,
                 'other_lang'    : other_lang,
                 'exam_list'     : exam_list,
