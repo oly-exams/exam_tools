@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import ensure_csrf_cookie
 from crispy_forms.utils import render_crispy_form
 
 from copy import deepcopy
@@ -24,6 +25,7 @@ from ipho_exam.forms import LanguageForm
 OFFICIAL_LANGUAGE = 1
 
 @login_required
+@ensure_csrf_cookie
 def index(request):
     success = None
     
