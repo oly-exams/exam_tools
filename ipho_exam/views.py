@@ -61,12 +61,8 @@ def add_language(request):
     ## Language section
     language_form = LanguageForm(request.POST or None)
     if language_form.is_valid():
-        # language_form.instance.delegation = delegation
-        # lang = language_form.save()
-        lang = language_form.save(commit=False)
-        lang.save()
-        lang.delegation = [delegation]
-        lang.save()
+        lang = language_form.instance.delegation = delegation
+        lang = language_form.save()
         
         return JsonResponse({
                     'type'    : 'add',
@@ -94,12 +90,7 @@ def edit_language(request, lang_id):
     instance = get_object_or_404(Language, pk=lang_id)
     language_form = LanguageForm(request.POST or None, instance=instance)
     if language_form.is_valid():
-        # language_form.instance.delegation = delegation
-        # lang = language_form.save()
-        lang = language_form.save(commit=False)
-        lang.save()
-        lang.delegation = [delegation]
-        lang.save()
+        lang = language_form.save()
         
         return JsonResponse({
                     'type'    : 'edit',
