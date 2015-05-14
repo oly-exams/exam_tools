@@ -2,7 +2,7 @@ from django.forms import ModelForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field
 
-from ipho_exam.models import Language
+from ipho_exam.models import Language, Figure
 
 
 class LanguageForm(ModelForm):
@@ -31,3 +31,23 @@ class LanguageForm(ModelForm):
         labels = {
                    'polyglossia': 'Language style <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Select a lanugage similar to yours. This will improve the final typesetting, e.g. allowing correct hyphenation."><span class="glyphicon glyphicon-info-sign"></span></a>',
                }
+
+class FigureForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FigureForm, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        # if instance and instance.pk:
+        #     self.fields['file'].widget.attrs['required'] = True
+        
+        
+        self.helper = FormHelper()
+        self.helper.layout = Layout(Field('name', placeholder='Name'),
+                                    )
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.disable_csrf = True
+        
+    class Meta:
+        model = Figure
+        fields = ['name']

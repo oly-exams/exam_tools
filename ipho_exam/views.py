@@ -17,10 +17,10 @@ from hashlib import md5
 
 
 from ipho_core.models import Delegation
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure
 from ipho_exam import qml, tex
 
-from ipho_exam.forms import LanguageForm
+from ipho_exam.forms import LanguageForm, FigureForm
 
 OFFICIAL_LANGUAGE = 1
 
@@ -113,40 +113,38 @@ def edit_language(request, lang_id):
 @login_required
 @ensure_csrf_cookie
 def figure_list(request):    
-    # figure_list = Figure.objects.all()
+    figure_list = Figure.objects.all()
     
     return render(request, 'ipho_exam/figures.html',
             {
-                # 'figure_list' : figure_list,
+                'figure_list' : figure_list,
             })
-
 
 @login_required
 def figure_add(request):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    delegation = Delegation.objects.get(members=request.user)
-    
     ## Language section
-    language_form = LanguageForm(request.POST or None)
-    if language_form.is_valid():
-        lang = language_form.instance.delegation = delegation
-        lang = language_form.save()
+    form = FigureForm(request.POST or None)
+    if form.is_valid():
+        obj = form.save()
         
         return JsonResponse({
-                    'type'    : 'add',
-                    'name'    : lang.name,
-                    'href'    : reverse('exam:language-edit', args=[lang.pk]),
-                    'success' : True,
-                    'message' : '<strong>Language created!</strong> The new languages has successfully been created.',
+                    'type'      : 'add',
+                    'name'      : obj.name,
+                    'params'    : obj.params,
+                    'src'       : reverse('exam:figure-export', args=[obj.pk]),
+                    'edit-href' : reverse('exam:figure-edit', args=[obj.pk]),
+                    'success'   : True,
+                    'message'   : '<strong>Figure added!</strong> The new figure has successfully been created.',
                 })
     
     
-    form_html = render_crispy_form(language_form)
+    form_html = render_crispy_form(form)
     return JsonResponse({
-                'title'   : 'Add new language',
+                'title'   : 'Add new figure',
                 'form'    : form_html,
-                'submit'  : 'Create',
+                'submit'  : 'Upload',
                 'success' : False,
             })
 
@@ -154,25 +152,26 @@ def figure_add(request):
 def figure_edit(request, fig_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    delegation = Delegation.objects.get(members=request.user)
     
-    instance = get_object_or_404(Language, pk=lang_id)
-    language_form = LanguageForm(request.POST or None, instance=instance)
-    if language_form.is_valid():
-        lang = language_form.save()
+    instance = get_object_or_404(Figure, pk=fig_id)
+    form = FigureForm(request.POST or None, instance=instance)
+    if form.is_valid():
+        obj = form.save()
         
         return JsonResponse({
                     'type'    : 'edit',
-                    'name'    : lang.name,
-                    'href'    : reverse('exam:language-edit', args=[lang.pk]),
-                    'success' : True,
+                    'name'      : obj.name,
+                    'params'    : obj.params,
+                    'src'       : reverse('exam:figure-export', args=[obj.pk]),
+                    'edit-href' : reverse('exam:figure-edit', args=[obj.pk]),
+                    'success'   : True,
                     'message' : '<strong>Language modified!</strong> The language '+lang.name+' has successfully been modified.',
                 })
     
     
-    form_html = render_crispy_form(language_form)
+    form_html = render_crispy_form(form)
     return JsonResponse({
-                'title'   : 'Edit language',
+                'title'   : 'Edit figure',
                 'form'    : form_html,
                 'submit'  : 'Save',
                 'success' : False,
@@ -180,8 +179,6 @@ def figure_edit(request, fig_id):
 
 @login_required
 def figure_export(request, fig_id):
-    if not request.is_ajax:
-        raise Exception('TODO: implement small template page for handling without Ajax.')
     
     return JsonResponse({
                 'title'   : 'Edit language',
@@ -189,6 +186,7 @@ def figure_export(request, fig_id):
                 'submit'  : 'Save',
                 'success' : False,
             })
+
 
 
 @login_required

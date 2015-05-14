@@ -99,3 +99,14 @@ class TranslationNode(models.Model):
     def __unicode__(self):
         return u'node: {} [{}, {}] - {}'.format(self.question.name, self.language, self.timestamp, self.status)
 
+
+class Figure(models.Model):
+    name    = models.CharField(max_length=100)
+    content = models.TextField(blank=True)
+    params  = models.TextField(blank=True)
+    
+    def params_as_list(self):
+        return list([si.trim() for si in self.params.split(',')])
+    
+    def __unicode__(self):
+        return u'%s' % (self.name)
