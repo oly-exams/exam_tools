@@ -18,6 +18,11 @@ urlpatterns = patterns('ipho_exam.views',
     
     url(r'^pdf/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'pdf', name='pdf'),
     
+    url(r'^figures/?$', 'figure_list', name='figures'),
+    url(r'^figure/add$', 'figure_add', name='figure-add'),
+    url(r'^figure/(?P<fig_id>\d+)?$', 'figure_edit', name='figure-edit'),
+    url(r'^figure/(?P<fig_id>\d+)/export?$', 'figure_export', name='figure-export'),
+    
     
     url(r'^test/', include('ipho_exam.urls_test', namespace='test')),
     

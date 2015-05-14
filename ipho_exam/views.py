@@ -110,6 +110,86 @@ def edit_language(request, lang_id):
             })
 
 
+@login_required
+@ensure_csrf_cookie
+def figure_list(request):    
+    # figure_list = Figure.objects.all()
+    
+    return render(request, 'ipho_exam/figures.html',
+            {
+                # 'figure_list' : figure_list,
+            })
+
+
+@login_required
+def figure_add(request):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    delegation = Delegation.objects.get(members=request.user)
+    
+    ## Language section
+    language_form = LanguageForm(request.POST or None)
+    if language_form.is_valid():
+        lang = language_form.instance.delegation = delegation
+        lang = language_form.save()
+        
+        return JsonResponse({
+                    'type'    : 'add',
+                    'name'    : lang.name,
+                    'href'    : reverse('exam:language-edit', args=[lang.pk]),
+                    'success' : True,
+                    'message' : '<strong>Language created!</strong> The new languages has successfully been created.',
+                })
+    
+    
+    form_html = render_crispy_form(language_form)
+    return JsonResponse({
+                'title'   : 'Add new language',
+                'form'    : form_html,
+                'submit'  : 'Create',
+                'success' : False,
+            })
+
+@login_required
+def figure_edit(request, fig_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    delegation = Delegation.objects.get(members=request.user)
+    
+    instance = get_object_or_404(Language, pk=lang_id)
+    language_form = LanguageForm(request.POST or None, instance=instance)
+    if language_form.is_valid():
+        lang = language_form.save()
+        
+        return JsonResponse({
+                    'type'    : 'edit',
+                    'name'    : lang.name,
+                    'href'    : reverse('exam:language-edit', args=[lang.pk]),
+                    'success' : True,
+                    'message' : '<strong>Language modified!</strong> The language '+lang.name+' has successfully been modified.',
+                })
+    
+    
+    form_html = render_crispy_form(language_form)
+    return JsonResponse({
+                'title'   : 'Edit language',
+                'form'    : form_html,
+                'submit'  : 'Save',
+                'success' : False,
+            })
+
+@login_required
+def figure_export(request, fig_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    
+    return JsonResponse({
+                'title'   : 'Edit language',
+                'form'    : form_html,
+                'submit'  : 'Save',
+                'success' : False,
+            })
+
 
 @login_required
 def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICIAL_LANGUAGE, orig_v=None):
