@@ -120,6 +120,9 @@ def figure_list(request):
                 'figure_list' : figure_list,
             })
 
+import re
+figparam_placeholder = re.compile(r'%([\w-]+)%')
+
 @login_required
 def figure_add(request):
     if not request.is_ajax:
@@ -129,6 +132,8 @@ def figure_add(request):
     if form.is_valid():
         obj = form.save(commit=False)
         obj.content = request.FILES['file'].read()
+        placeholders = figparam_placeholder.findall(obj.content)
+        obj.params = ','.join(placeholders)
         obj.save()
     
         return JsonResponse({
@@ -160,6 +165,8 @@ def figure_edit(request, fig_id):
         obj = form.save()
         if 'file' in request.FILES:
             obj.content = request.FILES['file'].read()
+            placeholders = figparam_placeholder.findall(obj.content)
+            obj.params = ','.join(placeholders)
             obj.save()
         
         return JsonResponse({
