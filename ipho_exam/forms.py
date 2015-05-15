@@ -50,7 +50,7 @@ class FigureForm(ModelForm):
         super(FigureForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
         if instance and instance.pk:
-            self.fields['file'].widget.attrs['required'] = False
+            self.fields['file'].required = False
         
         self.helper = FormHelper()
         self.helper.layout = Layout(Field('name', placeholder='Enter figure name'),

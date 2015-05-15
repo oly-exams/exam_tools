@@ -112,7 +112,7 @@ def edit_language(request, lang_id):
 
 @login_required
 @ensure_csrf_cookie
-def figure_list(request):    
+def figure_list(request):
     figure_list = Figure.objects.all()
     
     return render(request, 'ipho_exam/figures.html',
@@ -158,6 +158,9 @@ def figure_edit(request, fig_id):
     form = FigureForm(request.POST or None, request.FILES or None, instance=instance)
     if form.is_valid():
         obj = form.save()
+        if 'file' in request.FILES:
+            obj.content = request.FILES['file'].read()
+            obj.save()
         
         return JsonResponse({
                     'type'    : 'edit',
@@ -166,7 +169,7 @@ def figure_edit(request, fig_id):
                     'src'       : reverse('exam:figure-export', args=[obj.pk]),
                     'edit-href' : reverse('exam:figure-edit', args=[obj.pk]),
                     'success'   : True,
-                    'message' : '<strong>Language modified!</strong> The language '+lang.name+' has successfully been modified.',
+                    'message' : '<strong>Figure modified!</strong> The figure '+obj.name+' has successfully been modified.',
                 })
     
     
