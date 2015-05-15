@@ -249,6 +249,28 @@ class QMLfigure(QMLobject):
 
     def heading(self): return 'Figure'
 
+class QMLfigureText(QMLobject):
+    abbr = "pq"
+    tag  = "param"
+    
+    has_text = True
+    has_children = False
+    
+    def heading(self): return 'Figure Text'
+
+class QMLfigureCaption(QMLobject):
+    abbr = "ca"
+    tag  = "caption"
+    
+    has_text = True
+    has_children = False
+    
+    def heading(self): return 'Figure Caption'
+    
+    def form_element(self):
+        return forms.CharField(widget=forms.Textarea)
+    
+
 
 class QMLequation(QMLobject):
     abbr = "eq"
@@ -263,16 +285,6 @@ class QMLequation(QMLobject):
         return u'\\begin{equation}\n'
     def tex_end(self):
         return u'\\end{equation}\n\n'
-
-
-# class QMLfigureText(QMLobject):
-#     abbr = "ft"
-#     def parse(self,elem):
-#         self.data = elem.text
-#         self.meta = elem.attrib['ibotag']
-#
-#     def form_element(self):
-#         return forms.CharField(label=self.meta,initial=self.data)
 
 
 class QMLlist(QMLobject):
