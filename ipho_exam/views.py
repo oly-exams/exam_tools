@@ -179,13 +179,8 @@ def figure_edit(request, fig_id):
 
 @login_required
 def figure_export(request, fig_id):
-    
-    return JsonResponse({
-                'title'   : 'Edit language',
-                'form'    : form_html,
-                'submit'  : 'Save',
-                'success' : False,
-            })
+    fig = get_object_or_404(Figure, pk=fig_id)
+    return HttpResponse(fig.content, content_type="image/svg+xml")
 
 
 
