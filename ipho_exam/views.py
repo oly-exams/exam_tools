@@ -124,11 +124,13 @@ def figure_list(request):
 def figure_add(request):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    ## Language section
-    form = FigureForm(request.POST or None)
+    
+    form = FigureForm(request.POST or None, request.FILES or None)
     if form.is_valid():
-        obj = form.save()
-        
+        obj = form.save(commit=False)
+        obj.content = request.FILES['file'].read()
+        obj.save()
+    
         return JsonResponse({
                     'type'      : 'add',
                     'name'      : obj.name,
@@ -138,7 +140,6 @@ def figure_add(request):
                     'success'   : True,
                     'message'   : '<strong>Figure added!</strong> The new figure has successfully been created.',
                 })
-    
     
     form_html = render_crispy_form(form)
     return JsonResponse({
@@ -154,7 +155,7 @@ def figure_edit(request, fig_id):
         raise Exception('TODO: implement small template page for handling without Ajax.')
     
     instance = get_object_or_404(Figure, pk=fig_id)
-    form = FigureForm(request.POST or None, instance=instance)
+    form = FigureForm(request.POST or None, request.FILES or None, instance=instance)
     if form.is_valid():
         obj = form.save()
         
