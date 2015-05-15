@@ -17,6 +17,7 @@ urlpatterns = patterns('ipho_exam.views',
     # url(r'^editor/(?P<exam_id>\d+)/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/(?P<orig_id>\d+)v(?P<orig_v1>\d+)v(?P<orig_v2>\d+)?$', 'editor', name='editor-orig-version'),
     
     url(r'^pdf/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'pdf', name='pdf'),
+    url(r'^tex/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'pdf', {'raw_tex': True}, name='tex'),
     
     url(r'^figures/?$', 'figure_list', name='figures'),
     url(r'^figure/add$', 'figure_add', name='figure-add'),

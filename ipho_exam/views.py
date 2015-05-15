@@ -286,7 +286,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
 
 @login_required
-def pdf(request, question_id, lang_id):
+def pdf(request, question_id, lang_id, raw_tex=False):
     question = get_object_or_404(Question, id=question_id)
     
     trans_lang = get_object_or_404(Language, id=lang_id)
@@ -302,6 +302,8 @@ def pdf(request, question_id, lang_id):
                 'document'    : trans_content,
                 'filename'    : u'IPhO16 - {} Q{} - {}.pdf'.format(question.exam.name, question.position, trans_lang.name),
               }
+    if raw_tex:
+        return render(request, 'ipho_exam/tex/exam_question.tex', context, content_type='text/plain')
     return tex.render_tex(request, 'ipho_exam/tex/exam_question.tex', context)
 
 
