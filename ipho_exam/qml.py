@@ -47,8 +47,9 @@ def xml2string(xml):
 
 def content2string(node):
     parts = ([node.text] +
-             [ ET.tostring(c) for c in node ] +
-             [node.tail])
+             [ ET.tostring(c) for c in node ])
+              # We assume that `node` is a pure QML tag, therefore we don't consider the tail.
+              # +[node.tail])
     # filter removes possible Nones in texts and tails
     return ''.join(filter(None, parts))
 

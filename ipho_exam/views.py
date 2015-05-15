@@ -290,7 +290,10 @@ def pdf(request, question_id, lang_id, raw_tex=False):
     question = get_object_or_404(Question, id=question_id)
     
     trans_lang = get_object_or_404(Language, id=lang_id)
-    trans_node = get_object_or_404(TranslationNode, question=question, language=trans_lang)
+    if trans_lang.versioned:
+        trans_node = VersionNode.objects.filter(question=question, language=trans_lang, status='C').order_by('-version')[0]
+    else:
+        trans_node = get_object_or_404(TranslationNode, question=question, language=trans_lang)
     
     trans_q = qml.QMLquestion(trans_node.text)
     trans_content = trans_q.make_tex()
