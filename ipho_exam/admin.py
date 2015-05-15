@@ -1,5 +1,5 @@
 from django.contrib import admin
-from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode
+from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, Figure
 
 # Register your models here.
 
@@ -26,3 +26,4 @@ admin.site.register(Exam, ExamAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(VersionNode, VersionNodeAdmin)
 admin.site.register(TranslationNode, TranslationNodeAdmin)
+admin.site.register(Figure)
