@@ -6,6 +6,8 @@ from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.utils.text import unescape_entities
+import urllib
+from django.core.urlresolvers import reverse
 
 def make_content(root):
     assert(root.tag == 'question')
@@ -33,7 +35,7 @@ def make_content_node(node):
     descr['heading'] = node.heading()
     descr['style']   = []
     descr['id']      = node.id
-    descr['original'] = node.content() if node.has_text else None
+    descr['original'] = node.content()
     
     descr['children'] = []
     for c in node.children:
@@ -167,8 +169,10 @@ class QMLobject(object):
         return ret
     
     def content(self):
-        return self.data
-    
+        if self.has_text:
+            return self.data
+        return None
+        
     def update(self, data, set_blanks=False):
         """
         Update content of the QMLobject and its children with the dict data.
@@ -249,6 +253,17 @@ class QMLfigure(QMLobject):
     has_children = True
 
     def heading(self): return 'Figure'
+    
+    def content(self):
+        img_src = reverse('exam:figure-export', args=[self.attributes['figid']])
+        query = {}
+        for c in self.children:
+            if c.tag == 'param':
+                query[c.attributes['name']] = c.data
+        if len(query) > 0:
+            img_src += '?' + urllib.urlencode(query)
+        return u'<div class="field-figure text-center"><img src="{}" /></div>'.format(img_src)
+    
 
 class QMLfigureText(QMLobject):
     abbr = "pq"
