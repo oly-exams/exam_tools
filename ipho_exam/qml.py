@@ -281,7 +281,7 @@ class QMLfigureCaption(QMLobject):
     has_text = True
     has_children = False
     
-    def heading(self): return 'Figure Caption'
+    def heading(self): return 'Caption'
     
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
