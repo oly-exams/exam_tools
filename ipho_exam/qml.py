@@ -262,7 +262,7 @@ class QMLfigure(QMLobject):
                 query[c.attributes['name']] = c.data
         if len(query) > 0:
             img_src += '?' + urllib.urlencode(query)
-        return u'<div class="field-figure text-center"><img src="{}" /></div>'.format(img_src)
+        return u'<div class="field-figure text-center"><a data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{0}"><img src="{0}" /></a></div>'.format(img_src)
     
 
 class QMLfigureText(QMLobject):
