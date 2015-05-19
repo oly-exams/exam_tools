@@ -1,6 +1,6 @@
 from django.db import models
 from ipho_core.models import Delegation, Student
-
+from django.shortcuts import get_object_or_404
 
 class LanguageManager(models.Manager):
     def get_by_natural_key(self, name):
@@ -110,3 +110,14 @@ class Figure(models.Model):
     
     def __unicode__(self):
         return u'%s' % (self.name)
+    
+    @staticmethod
+    def get_fig_query(fig_id, query):
+        fig = get_object_or_404(Figure, pk=fig_id)
+        placeholders = fig.params.split(',')
+        fig_svg = fig.content
+        for pl in placeholders:
+            if pl in query:
+                fig_svg = fig_svg.replace(u'%{}%'.format(pl), query[pl])
+        return fig_svg
+    

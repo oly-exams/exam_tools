@@ -190,19 +190,13 @@ def figure_edit(request, fig_id):
 
 @login_required
 def figure_export(request, fig_id, output_format='svg'):
-    fig = get_object_or_404(Figure, pk=fig_id)
-    placeholders = fig.params.split(',')
-    fig_svg = fig.content
-    for pl in placeholders:
-        if pl in request.GET:
-            fig_svg = fig_svg.replace(u'%{}%'.format(pl), request.GET[pl])
-    
+    fig_svg = Figure.get_fig_query(fig_id, request.GET)
     if output_format == 'svg':
         return HttpResponse(fig_svg, content_type="image/svg+xml")
     if output_format == 'pdf':
         import cairosvg
-        fig_pdf = cairosvg.svg2pdf(str(fig_svg))
-        return HttpResponse(fig_pdf, content_type="image/pdf")
+        fig_pdf = cairosvg.svg2pdf(fig_svg.encode('utf8'))
+        return HttpResponse(fig_pdf, content_type="application/pdf")
 
 
 @login_required
