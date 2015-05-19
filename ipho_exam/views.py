@@ -297,7 +297,7 @@ def pdf(request, question_id, lang_id, raw_tex=False):
         trans_node = get_object_or_404(TranslationNode, question=question, language=trans_lang)
     
     trans_q = qml.QMLquestion(trans_node.text)
-    trans_content = trans_q.make_tex()
+    trans_content, ext_resources = trans_q.make_tex()
     
     context = {
                 'polyglossia' : trans_lang.polyglossia,
@@ -308,6 +308,6 @@ def pdf(request, question_id, lang_id, raw_tex=False):
               }
     if raw_tex:
         return render(request, 'ipho_exam/tex/exam_question.tex', context, content_type='text/plain')
-    return tex.render_tex(request, 'ipho_exam/tex/exam_question.tex', context)
+    return tex.render_tex(request, 'ipho_exam/tex/exam_question.tex', context, ext_resources)
 
 

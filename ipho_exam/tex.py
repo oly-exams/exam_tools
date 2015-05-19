@@ -10,6 +10,8 @@ import os
 import shutil
 from hashlib import md5
 
+from ipho_exam.models import Figure
+
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
 CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
@@ -52,7 +54,26 @@ def html2tex(el):
     return u"".join(result)
 
 
-def render_tex(request, template, ctx={}):
+class FigureExport(object):
+    def __init__(self, figname, figid, query):
+        self.figname = figname
+        self.figid = figid
+        self.query = query
+    def save(self, dirname):
+        fig_svg = Figure.get_fig_query(self.figid, self.query)
+        import cairosvg
+        with open('%s/%s' % (dirname, self.figname), 'w') as fp:
+            fig_pdf = cairosvg.svg2pdf(fig_svg.encode('utf8'))
+            fp.write(fig_pdf)
+#        cairosvg.svg2pdf(fig_svg.encode('utf8'), '%s/%s' % (dirname, self.figname))
+
+class StaticExport(object):
+    def __init__(self):
+        pass
+    def save(self, dirname):
+        pass
+
+def render_tex(request, template, ctx={}, ext_resources=[]):
     doc = template.rsplit('/', 1)[-1].rsplit('.', 1)[0]
  
     try:
@@ -72,6 +93,9 @@ def render_tex(request, template, ctx={}):
  
         tmp = mkdtemp(prefix=TEMP_PREFIX)
         try:
+            for res in ext_resources:
+                res.save(tmp)
+
             with open("%s/%s.tex" % (tmp, doc), "w") as f:
                 f.write(body)
             del body

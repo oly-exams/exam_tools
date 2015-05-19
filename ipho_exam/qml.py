@@ -55,6 +55,11 @@ def content2string(node):
     # filter removes possible Nones in texts and tails
     return ''.join(filter(None, parts))
 
+def data2tex(data):
+    cont_str = '<content>'+unescape_entities(data)+'</content>'
+    cont_xml = ET.fromstring(cont_str.encode('utf-8'))
+    return tex.html2tex(cont_xml)
+
 
 class QMLForm(forms.Form):
     def __init__(self, root, initials, *args, **kwargs):
@@ -144,15 +149,17 @@ class QMLobject(object):
         return '\n\n'
     
     def make_tex(self):
+        externals = []
         texout = self.tex_begin()
         if self.__class__.has_text:
-            cont_str = '<content>'+unescape_entities(self.data)+'</content>'
-            cont_xml = ET.fromstring(cont_str.encode('utf-8'))
-            texout += tex.html2tex(cont_xml)
+            texout += data2tex(self.data)
         for c in self.children:
-            texout += c.make_tex()
+            (texchild, extchild) = c.make_tex()
+            externals += extchild
+            texout    += texchild
+            
         texout += self.tex_end()
-        return texout
+        return texout, externals
     
     def heading(self):
         return None
@@ -254,15 +261,45 @@ class QMLfigure(QMLobject):
 
     def heading(self): return 'Figure'
     
-    def content(self):
-        img_src = reverse('exam:figure-export', args=[self.attributes['figid']])
+    def fig_query(self):
         query = {}
         for c in self.children:
             if c.tag == 'param':
                 query[c.attributes['name']] = c.data
-        if len(query) > 0:
-            img_src += '?' + urllib.urlencode(query)
+        return query
+    def fig_url(self, output_format='svg'):
+        if output_format == 'svg':
+            img_src = reverse('exam:figure-export', args=[self.attributes['figid']])
+        else:
+            img_src = reverse('exam:figure-export-pdf', args=[self.attributes['figid']])
+        
+        query = self.fig_query()
+        if len(query) > 0: img_src += '?' + urllib.urlencode(query)
+        
+        return img_src
+    
+    def content(self):
+        img_src = self.fig_url()
         return u'<div class="field-figure text-center"><a data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{0}"><img src="{0}" /></a></div>'.format(img_src)
+    
+    def make_tex(self):
+        figname = 'fig_{}.pdf'.format(self.id)
+        
+        fig_caption = ''
+        for c in self.children:
+            if c.tag == 'caption':
+                fig_caption += data2tex(c.data)
+        
+        texout = u''
+        texout += u'\\begin{figure}[h]\n'
+        texout += u'\\centering\n'
+        texout += u'\\includegraphics[width=.6\\textwidth]{%s}\n' % figname
+        if len(fig_caption) > 0: texout += u'\\caption{%s}\n' % fig_caption
+        texout += u'\\end{figure}\n\n'
+        
+        externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query())]
+        
+        return texout, externals
     
 
 class QMLfigureText(QMLobject):
