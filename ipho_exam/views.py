@@ -131,6 +131,8 @@ def figure_add(request):
     form = FigureForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         obj = form.save(commit=False)
+        # import codecs
+        # f = codecs.open('unicode.rst', encoding='utf-8')
         obj.content = request.FILES['file'].read()
         placeholders = figparam_placeholder.findall(obj.content)
         obj.params = ','.join(placeholders)
