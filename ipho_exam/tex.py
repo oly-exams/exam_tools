@@ -114,8 +114,9 @@ def render_tex(request, template, ctx={}, ext_resources=[]):
                     return HttpResponse(log, content_type="text/plain")
                 else:
                     raise RuntimeError("pdflatex error (code %s) in %s/%s" % (error, tmp, doc))
- 
-            pdf = open("%s/%s.pdf" % (tmp, doc))
+            
+            with open("%s/%s.pdf" % (tmp, doc)) as f:
+                pdf = f.read()
         finally:
             shutil.rmtree(tmp)
  
