@@ -196,9 +196,10 @@ class QMLobject(object):
             c.update(data)
     
     def __str__(self):
-        print '<%s>'.format(self.tag)
+        ret = '<%s %s>\n' % (self.tag, self.id)
         for c in self.children:
-            print '..', c
+            ret += '..<%s %s>\n' % (c.tag, c.id)
+        return ret
 
 
 class QMLquestion(QMLobject):
