@@ -274,7 +274,7 @@ class QMLfigure(QMLobject):
             img_src = reverse('exam:figure-export-pdf', args=[self.attributes['figid']])
         
         query = self.fig_query()
-        if len(query) > 0: img_src += u'?' + urllib.urlencode(query)
+        if len(query) > 0: img_src += '?' + urllib.urlencode(query)
         
         return img_src
     

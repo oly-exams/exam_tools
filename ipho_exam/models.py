@@ -118,6 +118,6 @@ class Figure(models.Model):
         fig_svg = fig.content
         for pl in placeholders:
             if pl in query:
-                fig_svg = fig_svg.replace(u'%{}%'.format(pl), query[pl])
+                fig_svg = fig_svg.replace(u'%{}%'.format(pl), query[pl].decode('utf-8'))
         return fig_svg
     
