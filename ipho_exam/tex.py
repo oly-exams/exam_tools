@@ -123,6 +123,6 @@ def render_tex(request, template, ctx={}, ext_resources=[]):
             cache.set(cache_key, pdf, CACHE_TIMEOUT)
  
     res = HttpResponse(pdf, content_type="application/pdf")
-    res['content-disposition'] = 'inline; filename="{}"'.format(ctx['filename'])
+    res['content-disposition'] = 'inline; filename="{}"'.format(ctx['filename'].encode('utf-8'))
     res['ETag'] = etag
     return res
