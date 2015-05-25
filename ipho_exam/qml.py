@@ -88,16 +88,15 @@ def all_subclasses(cls):
 class QMLobject(object):
     all_objects = None
     @staticmethod
-    def init_object(elem, **kwargs):
+    def get_qml(tag):
         if QMLobject.all_objects is None:
             QMLobject.all_objects = all_subclasses(QMLobject)
         
         for obj in QMLobject.all_objects:
-            if obj.tag == elem.tag:
-                return obj(elem, **kwargs)
+            if obj.tag == tag: return obj
         raise QMLException('Tag `%s` not found.' % elem.tag)
         
-    def __init__(self, xml):
+    def __init__(self, xml, force_id=None):
         """
         Generic __init__ for all QMLobjects. It relies on:
         self.tag : Tag to be used by the class.
@@ -110,6 +109,9 @@ class QMLobject(object):
         else:
             root = xml
         
+        if force_id is not None:
+            self.id = force_id
+            root.attrib['id'] = force_id
         try:
             self.id = root.attrib['id']
         except KeyError:
@@ -128,9 +130,16 @@ class QMLobject(object):
             content = content2string(root)
             self.data = unescape_entities(content)
         
+        tag_counter = {}
         if self.__class__.has_children:
             for elem in root:
-                self.children.append( self.init_object(elem) )
+                child_qml = QMLobject.get_qml(elem.tag)
+                child_id = None
+                if not 'id' in elem.attrib:
+                    if not child_qml.abbr in tag_counter: tag_counter[child_qml.abbr] = 0
+                    tag_counter[child_qml.abbr] += 1
+                    child_id = self.id + '_%s%s' % (child_qml.abbr, tag_counter[child_qml.abbr])
+                self.children.append( child_qml(elem, force_id=child_id) )
     
     def make_xml(self):
         assert('id' in self.attributes)
