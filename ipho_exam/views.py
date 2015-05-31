@@ -214,6 +214,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     
     exam     = None
     question = None
+    question_langs = None
+    own_lang      = None
+    question_versions = None
     content_set = None
     form     = None
     orig_lang = None
@@ -228,24 +231,39 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     
     delegation = Delegation.objects.filter(members=request.user)
     
-    orig_lang = get_object_or_404(Language, id=orig_id)
-    all_lang = Language.objects.filter(hidden=False).order_by('name')
-    if delegation.count() > 0:
-        own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
-    elif request.user.is_superuser:
-        own_lang = Language.objects.filter().order_by('name')
-        
+    
     ## TODO:
     ## * check for read-only questions
     ## * deal with errors when node not found: no content
     
     if question:
+        orig_lang = get_object_or_404(Language, id=orig_id)
+        
+        if delegation.count() > 0:
+            own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
+        elif request.user.is_superuser:
+            own_lang = Language.objects.all().order_by('name')
+        
+        
     # try:
         ## TODO: make a free function
         if orig_lang.versioned:
             orig_node = VersionNode.objects.filter(question=question, language=orig_lang, status='C').order_by('-version')[0]
+            orig_lang.version = orig_node.version
+            question_versions = VersionNode.objects.values_list('version', flat=True).order_by('-version').filter(question=question, language=orig_lang, status='C')[1:]
         else:
             orig_node = get_object_or_404(TranslationNode, question=question, language=orig_lang)
+        
+        
+        question_langs = []
+        ## TODO: improve this loop. maybe with annotate?
+        for vn in VersionNode.objects.filter(question=question, status='C'):
+            if not vn.language in question_langs:
+                question_langs.append(vn.language)
+                question_langs[-1].version = vn.version
+        question_langs += Language.objects.filter(translationnode__question=question)
+        
+        
         orig_q = qml.QMLquestion(orig_node.text)
         
         if orig_diff is not None:
@@ -287,15 +305,16 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     
     # except:
     #     context['warning'] = 'This question does not have any content.'
-    
-    context['exam']        = exam
-    context['question']    = question
-    context['all_lang']    = all_lang
-    context['own_lang']    = own_lang
-    context['orig_lang']   = orig_lang
-    context['trans_lang']  = trans_lang
-    context['content_set'] = content_set
-    context['form']        = form
+    if context['orig_diff'] is not None: context['orig_diff'] = int(context['orig_diff'])
+    context['exam']          = exam
+    context['question']      = question
+    context['question_langs'] = question_langs
+    context['question_versions'] = question_versions
+    context['own_lang']      = own_lang
+    context['orig_lang']     = orig_lang
+    context['trans_lang']    = trans_lang
+    context['content_set']   = content_set
+    context['form']          = form
     return render(request, 'ipho_exam/editor.html', context)
 
 
