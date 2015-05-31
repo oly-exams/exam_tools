@@ -1,6 +1,7 @@
 from xml.etree import ElementTree as ET
 #import lxml.etree as lxmltree
 import tex
+import simplediff
 
 from django import forms
 from django.utils.safestring import mark_safe
@@ -203,6 +204,19 @@ class QMLobject(object):
         
         for c in self.children:
             c.update(data)
+    
+    def diff_content(self, other_data):
+        if self.has_text:
+            if self.id in other_data:
+                self.data = simplediff.html_diff(other_data[self.id], self.data)
+            else:
+                self.data = u'<ins>' + self.data + u'</ins>'
+            # if self.id in other_data:
+            #     self.data = escape(simplediff.html_diff(unescape_entities(self.data), other_data[self.id]))
+            # else:
+            #     self.data = escape(u'<ins>' + unescape_entities(self.data) + u'</ins>')
+        for c in self.children:
+            c.diff_content(other_data)
     
     def __str__(self):
         ret = '<%s %s>\n' % (self.tag, self.id)

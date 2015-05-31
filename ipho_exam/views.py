@@ -207,7 +207,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                'question_id' : question_id,
                'lang_id'     : question_id,
                'orig_id'     : orig_id,
-               'orig_v'      : orig_v,
+               'orig_diff'   : orig_diff,
                }
     exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
     context['exam_list'] = exam_list
@@ -248,7 +248,20 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             orig_node = get_object_or_404(TranslationNode, question=question, language=orig_lang)
         orig_q = qml.QMLquestion(orig_node.text)
         
+        if orig_diff is not None:
+            if not orig_lang.versioned:
+                raise Exception('Original language does not support versioning.')
+            orig_diff_node = get_object_or_404(VersionNode, question=question, language=orig_lang, version=orig_diff)
+            orig_diff_q = qml.QMLquestion(orig_diff_node.text)
+            orig_diff_data = orig_diff_q.get_data()
+            
+            ## make diff
+            ## show diff, new elements
+            ## don't show, removed elements (non-trivial insert in the tree)
+            orig_q.diff_content(orig_diff_data)
+        
         content_set = qml.make_content(orig_q)
+        
         
         trans_content = {}
         if lang_id is not None:
