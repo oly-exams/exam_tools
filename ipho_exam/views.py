@@ -202,7 +202,7 @@ def figure_export(request, fig_id, output_format='svg'):
 
 
 @login_required
-def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICIAL_LANGUAGE, orig_v=None):
+def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICIAL_LANGUAGE, orig_diff=None):
     context = {'exam_id'     : exam_id,
                'question_id' : question_id,
                'lang_id'     : question_id,

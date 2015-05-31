@@ -20,7 +20,7 @@
                 </a>
                 <ul class="dropdown-menu">
                     {% for l in own_lang %}
-                        <li><a href="{% url 'exam:editor-lang' exam_id=ex.pk question_id=q.pk orig_id=1 lang_id=l.pk %}">{{ l.name }} <i class="fa fa-angle-double-right"></i></a></li>
+                        <li><a href="{% url 'exam:editor-orig-lang' exam_id=ex.pk question_id=q.pk orig_id=1 lang_id=l.pk %}">{{ l.name }} <i class="fa fa-angle-double-right"></i></a></li>
                     {% endfor %}
                 </ul>
             </div>
