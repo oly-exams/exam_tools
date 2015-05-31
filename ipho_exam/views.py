@@ -258,7 +258,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             ## make diff
             ## show diff, new elements
             ## don't show, removed elements (non-trivial insert in the tree)
-            orig_q.diff_content(orig_diff_data)
+            orig_q.diff_content_html(orig_diff_data)
         
         content_set = qml.make_content(orig_q)
         

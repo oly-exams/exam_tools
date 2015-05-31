@@ -37,6 +37,7 @@ def make_content_node(node):
     descr['style']   = []
     descr['id']      = node.id
     descr['original'] = node.content()
+    descr['original_html'] = node.content_html()
     
     descr['children'] = []
     for c in node.children:
@@ -130,6 +131,7 @@ class QMLobject(object):
         if self.__class__.has_text:
             content = content2string(root)
             self.data = unescape_entities(content)
+        self.data_html = self.data
         
         tag_counter = {}
         if self.__class__.has_children:
@@ -189,6 +191,8 @@ class QMLobject(object):
         if self.has_text:
             return self.data
         return None
+    def content_html(self):
+        return self.data_html
         
     def update(self, data, set_blanks=False):
         """
@@ -205,18 +209,18 @@ class QMLobject(object):
         for c in self.children:
             c.update(data)
     
-    def diff_content(self, other_data):
+    def diff_content_html(self, other_data):
         if self.has_text:
             if self.id in other_data:
-                self.data = simplediff.html_diff(other_data[self.id], self.data)
+                self.data_html = simplediff.html_diff(other_data[self.id], self.data_html)
             else:
-                self.data = u'<ins>' + self.data + u'</ins>'
+                self.data_html = u'<ins>' + self.data_html + u'</ins>'
             # if self.id in other_data:
             #     self.data = escape(simplediff.html_diff(unescape_entities(self.data), other_data[self.id]))
             # else:
             #     self.data = escape(u'<ins>' + unescape_entities(self.data) + u'</ins>')
         for c in self.children:
-            c.diff_content(other_data)
+            c.diff_content_html(other_data)
     
     def __str__(self):
         ret = '<%s %s>\n' % (self.tag, self.id)
@@ -302,7 +306,7 @@ class QMLfigure(QMLobject):
         
         return img_src
     
-    def content(self):
+    def content_html(self):
         img_src = self.fig_url()
         return u'<div class="field-figure text-center"><a data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{0}"><img src="{0}" /></a></div>'.format(img_src)
     
