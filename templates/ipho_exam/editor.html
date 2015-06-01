@@ -165,7 +165,7 @@ body { margin-bottom: 70px; }
                                   {% if trans_lang %}
                                       <a href="{% url 'exam:editor-origdiff-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v lang_id=trans_lang.pk %}">v{{ v }}</a>
                                   {% else %}
-                                      <a href="{% url 'exam:editor-origdiff' exam_id=exam.pk question_id=question.pk orig_id=l.pk orig_diff=v %}">v{{ v }}</a>
+                                      <a href="{% url 'exam:editor-origdiff' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v %}">v{{ v }}</a>
                                   {% endif %}
                               </li>
                           {% endfor %}
