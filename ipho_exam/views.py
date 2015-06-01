@@ -257,7 +257,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         
         question_langs = []
         ## TODO: improve this loop. maybe with annotate?
-        for vn in VersionNode.objects.filter(question=question, status='C'):
+        for vn in VersionNode.objects.filter(question=question, status='C').order_by('-version'):
             if not vn.language in question_langs:
                 question_langs.append(vn.language)
                 question_langs[-1].version = vn.version
