@@ -96,7 +96,7 @@ class QMLobject(object):
         
         for obj in QMLobject.all_objects:
             if obj.tag == tag: return obj
-        raise QMLException('Tag `%s` not found.' % elem.tag)
+        raise QMLException('Tag `%s` not found.' % tag)
         
     def __init__(self, xml, force_id=None):
         """
