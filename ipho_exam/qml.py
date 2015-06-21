@@ -117,7 +117,7 @@ class QMLobject(object):
         try:
             self.id = root.attrib['id']
         except KeyError:
-            raise KeyError("`id` missing from QML element %s." % self.xml.tag)
+            raise KeyError("`id` missing from QML element `%s`." % root.tag)
         
         self.children = []
         self.parse(root)
