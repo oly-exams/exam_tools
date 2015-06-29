@@ -5,6 +5,7 @@ try:
 except ImportError:
     from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
+from django.templatetags.static import static
 
 ## from https://github.com/bradleyayers/django-ace
 ## Last commit: 74a9cd9d510c1629b5f4d2e477ac43b61b51a4d4
@@ -26,15 +27,15 @@ class AceWidget(forms.Textarea):
     @property
     def media(self):
         js = [
-            "django_ace/ace/ace.js",
-            "django_ace/widget.js",
+            static("ace/ace.js"),
+            static("django_ace/widget.js"),
             ]
         if self.mode:
-            js.append("django_ace/ace/mode-%s.js" % self.mode)
+            js.append(static("ace/mode-%s.js" % self.mode))
         if self.theme:
-            js.append("django_ace/ace/theme-%s.js" % self.theme)
+            js.append(static("ace/theme-%s.js" % self.theme))
         css = {
-            "screen": ["django_ace/widget.css"],
+            "screen": [static("django_ace/widget.css")],
             }
         return forms.Media(js=js, css=css)
 
