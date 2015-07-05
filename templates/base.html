@@ -8,14 +8,14 @@
     <meta name="description" content="">
     <meta name="author" content="Michele Dolfi, IPhO 2016">
     {# <link rel="icon" href="../../favicon.ico"> #}
-    
+
     <title>{% block head-title %}IPhO Admin Tools{% endblock %}</title>
-    
+
     <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
     <link href="{% static "font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
-    
+
     {% block extra-head %}{% endblock %}
-    
+
     <!-- Custom styles for this template -->
     <!-- <link href="navbar.css" rel="stylesheet"> -->
     <style>
@@ -46,7 +46,8 @@
               <li><a href="{% url 'exam:index' %}">Exam</a></li>
               <li><a href="#">Voting</a></li>
               <li><a href="#">Results</a></li>
-              
+
+              {% if perms.iphoperm.is_staff %}
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin tools <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
@@ -55,7 +56,8 @@
                   <li><a href="{% url 'admin:index' %}">Admin interface</a></li>
                 </ul>
               </li>
-              
+              {% endif %}
+
             </ul>
             <ul class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
@@ -68,8 +70,8 @@
           </div><!--/.nav-collapse -->
         </div><!--/.container -->
       </div>
-      
-      
+
+
       {% block content %}{% endblock %}
 
 

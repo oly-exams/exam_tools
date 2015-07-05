@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render_to_response, render
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from crispy_forms.utils import render_crispy_form
 
@@ -28,9 +28,9 @@ OFFICIAL_LANGUAGE = 1
 @ensure_csrf_cookie
 def index(request):
     success = None
-    
+
     delegation = Delegation.objects.filter(members=request.user)
-    
+
     own_lang   = None
     other_lang = None
     if delegation.count() > 0:
@@ -38,11 +38,11 @@ def index(request):
         other_lang = Language.objects.filter(hidden=False).exclude(delegation=delegation).order_by('name')
     else:
         other_lang = Language.objects.filter(hidden=False).order_by('name')
-    
+
     ## Exam section
     exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
-    
-    
+
+
     return render(request, 'ipho_exam/index.html',
             {
                 'own_lang'      : own_lang,
@@ -57,13 +57,13 @@ def add_language(request):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     delegation = Delegation.objects.get(members=request.user)
-    
+
     ## Language section
     language_form = LanguageForm(request.POST or None)
     if language_form.is_valid():
         lang = language_form.instance.delegation = delegation
         lang = language_form.save()
-        
+
         return JsonResponse({
                     'type'    : 'add',
                     'name'    : lang.name,
@@ -71,8 +71,8 @@ def add_language(request):
                     'success' : True,
                     'message' : '<strong>Language created!</strong> The new languages has successfully been created.',
                 })
-    
-    
+
+
     form_html = render_crispy_form(language_form)
     return JsonResponse({
                 'title'   : 'Add new language',
@@ -86,12 +86,12 @@ def edit_language(request, lang_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     delegation = Delegation.objects.get(members=request.user)
-    
+
     instance = get_object_or_404(Language, pk=lang_id)
     language_form = LanguageForm(request.POST or None, instance=instance)
     if language_form.is_valid():
         lang = language_form.save()
-        
+
         return JsonResponse({
                     'type'    : 'edit',
                     'name'    : lang.name,
@@ -99,8 +99,8 @@ def edit_language(request, lang_id):
                     'success' : True,
                     'message' : '<strong>Language modified!</strong> The language '+lang.name+' has successfully been modified.',
                 })
-    
-    
+
+
     form_html = render_crispy_form(language_form)
     return JsonResponse({
                 'title'   : 'Edit language',
@@ -110,11 +110,11 @@ def edit_language(request, lang_id):
             })
 
 
-@login_required
+@permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie
 def figure_list(request):
     figure_list = Figure.objects.all()
-    
+
     return render(request, 'ipho_exam/figures.html',
             {
                 'figure_list' : figure_list,
@@ -123,11 +123,11 @@ def figure_list(request):
 import re
 figparam_placeholder = re.compile(r'%([\w-]+)%')
 
-@login_required
+@permission_required('iphoperm.is_staff')
 def figure_add(request):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    
+
     form = FigureForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         obj = form.save(commit=False)
@@ -137,7 +137,7 @@ def figure_add(request):
         placeholders = figparam_placeholder.findall(obj.content)
         obj.params = ','.join(placeholders)
         obj.save()
-    
+
         return JsonResponse({
                     'type'      : 'add',
                     'name'      : obj.name,
@@ -147,7 +147,7 @@ def figure_add(request):
                     'success'   : True,
                     'message'   : '<strong>Figure added!</strong> The new figure has successfully been created.',
                 })
-    
+
     form_html = render_crispy_form(form)
     return JsonResponse({
                 'title'   : 'Add new figure',
@@ -156,11 +156,11 @@ def figure_add(request):
                 'success' : False,
             })
 
-@login_required
+@permission_required('iphoperm.is_staff')
 def figure_edit(request, fig_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    
+
     instance = get_object_or_404(Figure, pk=fig_id)
     form = FigureForm(request.POST or None, request.FILES or None, instance=instance)
     if form.is_valid():
@@ -170,7 +170,7 @@ def figure_edit(request, fig_id):
             placeholders = figparam_placeholder.findall(obj.content)
             obj.params = ','.join(placeholders)
             obj.save()
-        
+
         return JsonResponse({
                     'type'    : 'edit',
                     'name'      : obj.name,
@@ -180,8 +180,8 @@ def figure_edit(request, fig_id):
                     'success'   : True,
                     'message' : '<strong>Figure modified!</strong> The figure '+obj.name+' has successfully been modified.',
                 })
-    
-    
+
+
     form_html = render_crispy_form(form)
     return JsonResponse({
                 'title'   : 'Edit figure',
@@ -211,7 +211,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                }
     exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
     context['exam_list'] = exam_list
-    
+
     exam     = None
     question = None
     question_langs = None
@@ -221,30 +221,30 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     form     = None
     orig_lang = None
     trans_lang = None
-    
+
     if exam_id is not None:
         exam = get_object_or_404(Exam, id=exam_id)
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id)
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.all()[0]
-    
+
     delegation = Delegation.objects.filter(members=request.user)
-    
-    
+
+
     ## TODO:
     ## * check for read-only questions
     ## * deal with errors when node not found: no content
-    
+
     if question:
         orig_lang = get_object_or_404(Language, id=orig_id)
-        
+
         if delegation.count() > 0:
             own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
         elif request.user.is_superuser:
             own_lang = Language.objects.all().order_by('name')
-        
-        
+
+
     # try:
         ## TODO: make a free function
         if orig_lang.versioned:
@@ -253,8 +253,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             question_versions = VersionNode.objects.values_list('version', flat=True).order_by('-version').filter(question=question, language=orig_lang, status='C')[1:]
         else:
             orig_node = get_object_or_404(TranslationNode, question=question, language=orig_lang)
-        
-        
+
+
         question_langs = []
         ## TODO: improve this loop. maybe with annotate?
         for vn in VersionNode.objects.filter(question=question, status='C').order_by('-version'):
@@ -262,25 +262,25 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 question_langs.append(vn.language)
                 question_langs[-1].version = vn.version
         question_langs += Language.objects.filter(translationnode__question=question)
-        
-        
+
+
         orig_q = qml.QMLquestion(orig_node.text)
-        
+
         if orig_diff is not None:
             if not orig_lang.versioned:
                 raise Exception('Original language does not support versioning.')
             orig_diff_node = get_object_or_404(VersionNode, question=question, language=orig_lang, version=orig_diff)
             orig_diff_q = qml.QMLquestion(orig_diff_node.text)
             orig_diff_data = orig_diff_q.get_data()
-            
+
             ## make diff
             ## show diff, new elements
             ## don't show, removed elements (non-trivial insert in the tree)
             orig_q.diff_content_html(orig_diff_data)
-        
+
         content_set = qml.make_content(orig_q)
-        
-        
+
+
         trans_content = {}
         if lang_id is not None:
             trans_lang = get_object_or_404(Language, id=lang_id)
@@ -288,9 +288,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             if len(trans_node.text) > 0:
                 trans_q    = qml.QMLquestion(trans_node.text)
                 trans_content = trans_q.get_data()
-            
+
             form = qml.QMLForm(orig_q, trans_content, request.POST or None)
-        
+
             if form.is_valid():
                 if trans_node.status == 'L':
                     raise Exception('The question cannot be modified. It is locked.')
@@ -302,7 +302,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 q.update(form.cleaned_data, set_blanks=True)
                 trans_node.text = qml.xml2string(q.make_xml())
                 trans_node.save()
-    
+
     # except:
     #     context['warning'] = 'This question does not have any content.'
     if context['orig_diff'] is not None: context['orig_diff'] = int(context['orig_diff'])
@@ -321,16 +321,16 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 @login_required
 def pdf(request, question_id, lang_id, raw_tex=False):
     question = get_object_or_404(Question, id=question_id)
-    
+
     trans_lang = get_object_or_404(Language, id=lang_id)
     if trans_lang.versioned:
         trans_node = VersionNode.objects.filter(question=question, language=trans_lang, status='C').order_by('-version')[0]
     else:
         trans_node = get_object_or_404(TranslationNode, question=question, language=trans_lang)
-    
+
     trans_q = qml.QMLquestion(trans_node.text)
     trans_content, ext_resources = trans_q.make_tex()
-    
+
     context = {
                 'polyglossia' : trans_lang.polyglossia,
                 'extraheader' : trans_lang.extraheader,
@@ -341,5 +341,3 @@ def pdf(request, question_id, lang_id, raw_tex=False):
     if raw_tex:
         return render(request, 'ipho_exam/tex/exam_question.tex', context, content_type='text/plain')
     return tex.render_tex(request, 'ipho_exam/tex/exam_question.tex', context, ext_resources)
-
-
