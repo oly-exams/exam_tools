@@ -12,6 +12,10 @@ class VersionNodeAdminForm(forms.ModelForm):
         # widgets = {
         #     'body':AceWidget()
         # }
+class FigureAdminForm(forms.ModelForm):
+    content = forms.CharField(widget=AceWidget(mode='xml', width='100%'))
+    class Meta:
+        model = Figure
 
 class QuestionInline(admin.StackedInline):
     model = Question
@@ -31,10 +35,13 @@ class VersionNodeAdmin(admin.ModelAdmin):
 class TranslationNodeAdmin(admin.ModelAdmin):
     list_display = ('question', 'language', 'status', 'timestamp')
 
+class FigureAdmin(admin.ModelAdmin):
+    form = FigureAdminForm
+
 
 admin.site.register(Language)
 admin.site.register(Exam, ExamAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(VersionNode, VersionNodeAdmin)
 admin.site.register(TranslationNode, TranslationNodeAdmin)
-admin.site.register(Figure)
+admin.site.register(Figure, FigureAdmin)
