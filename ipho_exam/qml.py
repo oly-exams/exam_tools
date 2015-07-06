@@ -392,6 +392,9 @@ class QMLlistitem(QMLobject):
 
     def heading(self): return 'Item'
 
+    def content_html(self):
+        return u'<ul><li>%s</li></ul>' % self.data_html
+
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
 
