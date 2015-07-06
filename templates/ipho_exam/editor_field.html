@@ -4,7 +4,7 @@
             <h4>{{ field.heading }}</h4>
         </div>
     </div>
-    
+
     {% if field.original %}
         <div class="row">
             <div class="col-xs-5">
@@ -12,7 +12,7 @@
                     {{ field.original_html|safe }}
                 </div>
             </div>
-        
+
         {% if form and form|lookup:field.id %}
           <div class="col-sm-2 text-center" style="display: table-cell; vertical-align: middle;">
             <button type="button" class="btn btn-sm btn-default translate-copy-button" id="{{ field.id }}-copy" aria-label="Copy original version" title="Copy original version">
@@ -26,8 +26,16 @@
                 </div>
         {% endif %}
         </div>
+    {% elif field.original_html %}
+        <div class="row">
+            <div class="col-xs-5">
+                <div class="translate-original" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
+                    {{ field.original_html|safe }}
+                </div>
+            </div>
+        </div>
     {% endif %}
-    
+
     {% if field.children %}
     <div class="row">
         <div class="col-xs-12 translation-field-nested">
@@ -37,5 +45,5 @@
         </div>
     </div>
     {% endif %}
-    
+
 {% endfor %}
