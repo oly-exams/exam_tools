@@ -212,13 +212,14 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
     context['exam_list'] = exam_list
 
-    exam     = None
+    exam = None
     question = None
     question_langs = None
-    own_lang      = None
+    own_lang = None
     question_versions = None
     content_set = None
-    form     = None
+    form = None
+    trans_extra_html = None
     orig_lang = None
     trans_lang = None
 
@@ -288,6 +289,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             if len(trans_node.text) > 0:
                 trans_q    = qml.QMLquestion(trans_node.text)
                 trans_content = trans_q.get_data()
+                trans_extra_html = trans_q.get_trans_extra_html()
 
             form = qml.QMLForm(orig_q, trans_content, request.POST or None)
 
@@ -310,11 +312,12 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context['question']      = question
     context['question_langs'] = question_langs
     context['question_versions'] = question_versions
-    context['own_lang']      = own_lang
-    context['orig_lang']     = orig_lang
-    context['trans_lang']    = trans_lang
-    context['content_set']   = content_set
-    context['form']          = form
+    context['own_lang']         = own_lang
+    context['orig_lang']        = orig_lang
+    context['trans_lang']       = trans_lang
+    context['content_set']      = content_set
+    context['form']             = form
+    context['trans_extra_html'] = trans_extra_html
     return render(request, 'ipho_exam/editor.html', context)
 
 

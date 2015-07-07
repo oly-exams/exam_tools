@@ -2,6 +2,7 @@ from xml.etree import ElementTree as ET
 #import lxml.etree as lxmltree
 import tex
 import simplediff
+import json
 
 from django import forms
 from django.utils.safestring import mark_safe
@@ -186,6 +187,11 @@ class QMLobject(object):
         for c in self.children:
             ret.update(c.get_data())
         return ret
+    def get_trans_extra_html(self):
+        ret = {}
+        for c in self.children:
+            ret.update(c.get_trans_extra_html())
+        return ret
 
     def content(self):
         if self.has_text:
@@ -310,6 +316,13 @@ class QMLfigure(QMLobject):
         img_src = self.fig_url()
         return u'<div class="field-figure text-center"><a data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{0}"><img src="{0}" /></a></div>'.format(img_src)
 
+    def get_trans_extra_html(self):
+        figid = self.attributes['figid']
+        img_src = reverse('exam:figure-export', args=[figid])
+        param_ids = dict([(c.attributes['name'], c.id) for c in self.children if c.tag == 'param'])
+        ret = u'<div class="field-figure text-center"><button type="button" class="btn btn-link" data-toggle="modal" data-target="#figure-modal" data-remote="false" data-figparams=\'{0}\' data-base-url="{1}"><img src="{1}" /></button></div>'.format(json.dumps(param_ids),img_src)
+        return {self.id: ret}
+
     def make_tex(self):
         figname = 'fig_{}.pdf'.format(self.id)
 
@@ -338,6 +351,10 @@ class QMLfigureText(QMLobject):
     has_children = False
 
     def heading(self): return 'Figure Text'
+
+    # def form_element(self):
+    #     return forms.CharField(widget=forms.TextInput(attrs={'rel':'figparam', 'data-placeholder-name={}'.format(self.attributes['name'])}))
+
 
 class QMLfigureCaption(QMLobject):
     abbr = "ca"

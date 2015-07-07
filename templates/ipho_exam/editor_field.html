@@ -29,10 +29,18 @@
     {% elif field.original_html %}
         <div class="row">
             <div class="col-xs-5">
-                <div class="translate-original" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
+                <div>
                     {{ field.original_html|safe }}
                 </div>
             </div>
+            {% if trans_extra_html and trans_extra_html|lookup:field.id %}
+              <div class="col-sm-2"></div>
+              <div class="col-xs-5">
+                  <div>
+                      {{ trans_extra_html|lookup:field.id|safe }}
+                  </div>
+              </div>
+            {% endif %}
         </div>
     {% endif %}
 

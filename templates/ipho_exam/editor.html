@@ -120,14 +120,14 @@ body { margin-bottom: 70px; }
 </ul>
 
 {% if question %}
-    
+
     <form method="post" action="" charset="utf8">
         {% csrf_token %}
         <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
-    
+
         <div class="row">
             <div class="col-xs-5">
-                <h4>Original: 
+                <h4>Original:
                 <span class="dropdown">
                   <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                     {{ orig_lang.name }}
@@ -150,7 +150,7 @@ body { margin-bottom: 70px; }
                       {% endif %}
                   </ul>
                 </span>
-                
+
                 {% if orig_lang.versioned %}
                     <small>
                     Compare to:
@@ -175,10 +175,10 @@ body { margin-bottom: 70px; }
                 {% endif %}
                 </h4>
             </div>
-            
+
             <div class="col-sm-2 text-center">
             </div>
-            
+
             <div class="col-xs-5">
                 <h4>Translate to:
                 <span class="dropdown">
@@ -199,14 +199,14 @@ body { margin-bottom: 70px; }
                 </h4>
             </div>
         </div>
-        
-        
+
+
         <div class="translation-field-container">
         {% with content_set as fields_set %}
             {% include 'ipho_exam/editor_field.html' %}
         {% endwith %}
         </div>
-        
+
         {% if form %}
         <div class="navbar navbar-default navbar-fixed-bottom">
           <div class="container">
@@ -215,7 +215,7 @@ body { margin-bottom: 70px; }
                 <button type="button" class="btn btn-default navbar-btn"><i class="fa fa-fw fa-unlock"></i> Lock</button>
                 <button type="submit" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
             </div>
-    
+
           </div>
         </div>
         {% endif %}
@@ -228,7 +228,7 @@ body { margin-bottom: 70px; }
 
 
 {% block extra-script %}
-    
+
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({
             showMathMenu: false,
@@ -237,10 +237,10 @@ body { margin-bottom: 70px; }
     <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{% static "ckeditor/ckeditor.js" %}"></script>
     <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
-    
+
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
-        
+
         CKEDITOR.config.toolbar = [
                 [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
             ];
@@ -262,26 +262,26 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.autoParagraph = false;
         CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
         CKEDITOR.config.jsvk_skin = "flat_gray";
-        
+
         all_editors = new Array();
-        
+
         function content2math() {
             // convert equations for mathquill
             // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
             // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
-            
+
             // convert equations for mathjax
             // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
             var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
             $(this).html(newtext);
             MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
         }
-        
+
         $(function(){
-            
+
             $(".translate-original").each(content2math);
             $(".translate-foreign").each(content2math);
-            
+
             $(".translate-copy-button").click(function( event ) {
                 field_id =  $(this).attr('id').replace('-copy', '');
                 orig = '#' + $(this).attr('id').replace('-copy', '-original');
@@ -291,24 +291,38 @@ body { margin-bottom: 70px; }
                     $('#'+field_id+'-translate input[type="text"]').val($(orig).data('original-text'));
                 event.preventDefault();
             });
-            
-            
+
+
             $('.translate-foreign textarea').each(function() {
                 myid = $(this).parent().attr('id').replace('-translate', '');
                 // all_editors[myid] = CKEDITOR.replace(this);
                 all_editors[myid] = $(this).ckeditor().ckeditorGet();
             })
-            
+
             // Figure preview
             $('#figure-modal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget); // Button that triggered the modal
-                var href = button.attr('href');
                 var modal = $(this);
-                modal.find('.modal-body').html('<img src="'+href+'" />');
+                var button = $(event.relatedTarget); // Button that triggered the modal
+
+                var href = button.attr('href');
+                if (typeof href !== typeof undefined && href !== false) {
+                  modal.find('.modal-body').html('<img src="'+href+'" />');
+                } else {
+                  var img_url = button.data('base-url');
+                  var figparams = button.data('figparams');
+                  if (Object.keys(figparams).length > 0) {
+                    fig_query = new Object;
+                    for (k in figparams) {
+                      fig_query[k] = $('#id_'+figparams[k]).val();
+                    }
+                    img_url += '?' + $.param(fig_query);
+                  }
+                  modal.find('.modal-body').html('<img src="'+img_url+'" />');
+                }
             });
-            
+
         });
-        
+
     </script>
-    
+
 {% endblock %}
