@@ -39,6 +39,7 @@ def make_content_node(node):
     descr['id']      = node.id
     descr['original'] = node.content()
     descr['original_html'] = node.content_html()
+    descr['description'] = node.attributes.get('description')
 
     descr['children'] = []
     for c in node.children:
