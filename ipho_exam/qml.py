@@ -175,7 +175,7 @@ class QMLobject(object):
         return texout, externals
 
     def heading(self):
-        return None
+        return self.attributes['heading'] if 'heading' in self.attributes else self.default_heading
 
     def form_element(self):
         return forms.CharField()
@@ -238,6 +238,7 @@ class QMLobject(object):
 class QMLquestion(QMLobject):
     abbr = "q"
     tag  = "question"
+    default_heading = None
 
     has_text = False
     has_children = True
@@ -245,6 +246,7 @@ class QMLquestion(QMLobject):
 class QMLsubquestion(QMLobject):
     abbr = "sq"
     tag  = "subquestion"
+    default_heading = "Subquestion"
 
     has_text = False
     has_children = True
@@ -261,11 +263,10 @@ class QMLsubquestion(QMLobject):
 class QMLtitle(QMLobject):
     abbr = "ti"
     tag  = "title"
+    default_heading = "Title"
 
     has_text = True
     has_children = False
-
-    def heading(self): return 'Title'
 
     def tex_begin(self):
         return u'\\section{'
@@ -276,11 +277,10 @@ class QMLtitle(QMLobject):
 class QMLparagraph(QMLobject):
     abbr = "pa"
     tag  = "paragraph"
+    default_heading = None
 
     has_text = True
     has_children = False
-
-    def heading(self): return 'Text'
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
@@ -289,11 +289,10 @@ class QMLparagraph(QMLobject):
 class QMLfigure(QMLobject):
     abbr = "fi"
     tag  = "figure"
+    default_heading = "Figure"
 
     has_text = False
     has_children = True
-
-    def heading(self): return 'Figure'
 
     def fig_query(self):
         query = {}
@@ -346,11 +345,10 @@ class QMLfigure(QMLobject):
 class QMLfigureText(QMLobject):
     abbr = "pq"
     tag  = "param"
+    default_heading = None
 
     has_text = True
     has_children = False
-
-    def heading(self): return 'Figure Text'
 
     # def form_element(self):
     #     return forms.CharField(widget=forms.TextInput(attrs={'rel':'figparam', 'data-placeholder-name={}'.format(self.attributes['name'])}))
@@ -359,11 +357,10 @@ class QMLfigureText(QMLobject):
 class QMLfigureCaption(QMLobject):
     abbr = "ca"
     tag  = "caption"
+    default_heading = "Caption"
 
     has_text = True
     has_children = False
-
-    def heading(self): return 'Caption'
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
@@ -373,11 +370,10 @@ class QMLfigureCaption(QMLobject):
 class QMLequation(QMLobject):
     abbr = "eq"
     tag  = "equation"
+    default_heading = "Equation"
 
     has_text = True
     has_children = False
-
-    def heading(self): return 'Equation'
 
     def tex_begin(self):
         return u'\\begin{equation}\n'
@@ -388,11 +384,10 @@ class QMLequation(QMLobject):
 class QMLlist(QMLobject):
     abbr = "ls"
     tag  = "list"
+    default_heading = "Bullet list"
 
     has_text = False
     has_children = True
-
-    def heading(self): return 'Bullet list'
 
     def tex_begin(self):
         return u'\\begin{itemize}\n'
@@ -403,11 +398,10 @@ class QMLlist(QMLobject):
 class QMLlistitem(QMLobject):
     abbr = "li"
     tag  = "item"
+    default_heading = None
 
     has_text = True
     has_children = False
-
-    def heading(self): return 'Item'
 
     def content_html(self):
         return u'<ul><li>%s</li></ul>' % self.data_html

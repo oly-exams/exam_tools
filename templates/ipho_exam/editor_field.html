@@ -1,9 +1,11 @@
 {% for field in fields_set %}
+    {% if field.heading %}
     <div class="row">
         <div class="col-xs-12 translation-field-nested">
             <h4>{{ field.heading }}</h4>
         </div>
     </div>
+    {% endif %}
 
     {% if field.original %}
         <div class="row">
