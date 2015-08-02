@@ -1,21 +1,25 @@
 from django.db import models
 from ipho_core.models import Delegation, Student
-
+from django.shortcuts import get_object_or_404
 
 class LanguageManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
 class Language(models.Model):
     objects = LanguageManager()
-    
+
+    POLYGLOSSIA_CHOICES = (('albanian', 'Albanian'), ('amharic', 'Amharic'), ('arabic', 'Arabic'), ('armenian', 'Armenian'), ('asturian', 'Asturian'), ('bahasai', 'Bahasai'), ('bahasam', 'Bahasam'), ('basque', 'Basque'), ('bengali', 'Bengali'), ('brazilian', 'Brazilian'), ('breton', 'Breton'), ('bulgarian', 'Bulgarian'), ('catalan', 'Catalan'), ('coptic', 'Coptic'), ('croatian', 'Croatian'), ('czech', 'Czech'), ('danish', 'Danish'), ('divehi', 'Divehi'), ('dutch', 'Dutch'), ('english', 'English'), ('esperanto', 'Esperanto'), ('estonian', 'Estonian'), ('farsi', 'Farsi'), ('finnish', 'Finnish'), ('french', 'French'), ('friulan', 'Friulan'), ('galician', 'Galician'), ('german', 'German'), ('greek', 'Greek'), ('hebrew', 'Hebrew'), ('hindi', 'Hindi'), ('icelandic', 'Icelandic'), ('interlingua', 'Interlingua'), ('irish', 'Irish'), ('italian', 'Italian'), ('kannada', 'Kannada'), ('lao', 'Lao'), ('latin', 'Latin'), ('latvian', 'Latvian'), ('lithuanian', 'Lithuanian'), ('lsorbian', 'Lsorbian'), ('magyar', 'Magyar'), ('malayalam', 'Malayalam'), ('marathi', 'Marathi'), ('nko', 'Nko'), ('norsk', 'Norsk'), ('nynorsk', 'Nynorsk'), ('occitan', 'Occitan'), ('piedmontese', 'Piedmontese'), ('polish', 'Polish'), ('portuges', 'Portuges'), ('romanian', 'Romanian'), ('romansh', 'Romansh'), ('russian', 'Russian'), ('samin', 'Samin'), ('sanskrit', 'Sanskrit'), ('scottish', 'Scottish'), ('serbian', 'Serbian'), ('slovak', 'Slovak'), ('slovenian', 'Slovenian'), ('spanish', 'Spanish'), ('swedish', 'Swedish'), ('syriac', 'Syriac'), ('tamil', 'Tamil'), ('telugu', 'Telugu'), ('thai', 'Thai'), ('tibetan', 'Tibetan'), ('turkish', 'Turkish'), ('turkmen', 'Turkmen'), ('ukrainian', 'Ukrainian'), ('urdu', 'Urdu'), ('usorbian', 'Usorbian'), ('vietnamese', 'Vietnamese'), ('welsh', 'Welsh'))
+
     name = models.CharField(max_length=100, unique=True)
-    delegation = models.ManyToManyField(Delegation, blank=True) # TODO: make a ForeignKey
-    hidden     = models.BooleanField(default=False)
-    versioned  = models.BooleanField(default=False)
-    
+    delegation  = models.ForeignKey(Delegation, blank=True, null=True)
+    hidden      = models.BooleanField(default=False)
+    versioned   = models.BooleanField(default=False)
+    polyglossia = models.CharField(max_length=100, default='english', choices=POLYGLOSSIA_CHOICES)
+    extraheader = models.TextField(blank=True)
+
     def natural_key(self):
         return (self.name,)
-    
+
     def __unicode__(self):
         return u'%s' % (self.name)
 
@@ -30,7 +34,7 @@ class Exam(models.Model):
     name   = models.CharField(max_length=100)
     active = models.BooleanField(default=True,  help_text='Only active exams are editable.')
     hidden = models.BooleanField(default=False, help_text='Is the exam hidden for the delegations?')
-    
+
     def __unicode__(self):
         return u'%s' % (self.name)
 
@@ -39,13 +43,13 @@ class Question(models.Model):
     name = models.CharField(max_length=100)
     exam = models.ForeignKey(Exam)
     position = models.PositiveSmallIntegerField(help_text='Sortign index inside one exam')
-    
+
     class Meta:
         ordering = ['position']
-    
+
     def exam_name(self):
         return self.exam.name
-    
+
     def __unicode__(self):
         return u'{} [#{} in {}]'.format(self.name, self.position, self.exam.name)
 
@@ -55,20 +59,20 @@ class VersionNode(models.Model):
         ('P', 'proposal'),
         ('C', 'confirmed'),
     )
-    
+
     text      = models.TextField()
     question  = models.ForeignKey(Question)
     version   = models.IntegerField()
     language  = models.ForeignKey(Language)
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         unique_together = (('question', 'language', 'version'),)
-    
+
     def question_name(self):
         return self.question.name
-    
+
     def __unicode__(self):
         return u'vnode: {} [{}, v{}, {}] - {}'.format(self.question.name, self.language, self.version, self.timestamp, self.status)
 
@@ -79,19 +83,43 @@ class TranslationNode(models.Model):
         ('L', 'locked'),
         ('S', 'submitted'),
     )
-    
+
     text      = models.TextField()
     question  = models.ForeignKey(Question)
     language  = models.ForeignKey(Language)
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         unique_together = (('question', 'language'),)
-    
+
     def question_name(self):
         return self.question.name
-    
+
     def __unicode__(self):
         return u'node: {} [{}, {}] - {}'.format(self.question.name, self.language, self.timestamp, self.status)
 
+
+class Figure(models.Model):
+    name    = models.CharField(max_length=100)
+    content = models.TextField(blank=True)
+    params  = models.TextField(blank=True)
+
+    def params_as_list(self):
+        return list([si.trim() for si in self.params.split(',')])
+
+    def __unicode__(self):
+        return u'%s' % (self.name)
+
+    @staticmethod
+    def get_fig_query(fig_id, query):
+        fig = get_object_or_404(Figure, pk=fig_id)
+        placeholders = fig.params.split(',')
+        fig_svg = fig.content
+        for pl in placeholders:
+            if pl in query:
+                repl = query[pl]
+                if type(repl) != unicode:
+                    repl = repl.decode('utf-8')
+                fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
+        return fig_svg

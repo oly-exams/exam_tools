@@ -1,10 +1,33 @@
-<h2>Editor</h2>
-<div class="panel panel-default">
-    <div class="panel-heading"><h3 class="panel-title">Available exams</h3></div>
-    <div class="list-group">
-    {% for ex in exam_list %}
-        <a class="list-group-item" href="{% url 'exam:editor-exam' exam_id=ex.pk %}">{{ ex.name }}</a>
-    {% endfor %}
+<h2>Exam editor</h2>
+
+<div class="panel-group" id="editor-accordion">
+{% for ex in exam_list %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <span class="glyphicon {% if forloop.first %}glyphicon-chevron-down{% else %}glyphicon-chevron-right{% endif %}"></span>
+        <a data-toggle="collapse" data-parent="#editor-accordion" href="#editor-collapse-{{ forloop.counter }}">
+          {{ ex.name }}
+        </a>
+      </h4>
     </div>
+    <div id="editor-collapse-{{ forloop.counter }}" class="panel-collapse collapse {% if forloop.first %}in{% endif %}">
+        <ul class="list-group">
+        {% for q in ex.question_set.all %}
+            <div class="dropdown">
+                <a class="list-group-item dropdown-toggle" data-toggle="dropdown" href="#">
+                    {{ q.name }} <span class="pull-right"><i class="fa fa-angle-double-right"></i></span>
+                </a>
+                <ul class="dropdown-menu">
+                    {% for l in own_lang %}
+                        <li><a href="{% url 'exam:editor-orig-lang' exam_id=ex.pk question_id=q.pk orig_id=1 lang_id=l.pk %}">{{ l.name }} <i class="fa fa-angle-double-right"></i></a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+        </ul>
+    </div> <!-- ./panel-collapse -->
+  </div> <!-- ./panel -->
+{% endfor %}
 </div>
 

@@ -32,11 +32,31 @@ span.dropdown {
 /*    border:1px #000 solid;*/
 }
 
+<<<<<<< HEAD
 .mathquill-rendered-math .mathquill-editable {
   min-width: 1cm;
 }
 .mathquill-editor {
   width:6.5in;
+=======
+.field-figure img {
+    max-height: 80px;
+}
+#figure-modal .modal-body img {
+    max-width: 100%;
+}
+
+ins {
+    color: #00f;
+    font-decoration: underline;
+    -moz-text-decoration-style: wavy;
+    -webkit-text-decoration-style: wavy;
+    text-decoration-style: wavy;
+}
+del {
+    color: #f00;
+    font-decoration: line-through;
+>>>>>>> master
 }
 
 body { margin-bottom: 70px; }
@@ -47,6 +67,17 @@ body { margin-bottom: 70px; }
 
 {% block content %}
 <div class="container">
+
+    <div class="modal fade" id="figure-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          </div>
+              <div class="modal-body text-center"></div>
+        </div>
+      </div>
+    </div>
 
 {% if warning %}
     <div class="alert alert-warning alert-dismissible" role="alert">
@@ -98,23 +129,28 @@ body { margin-bottom: 70px; }
 </ul>
 
 {% if question %}
-    
+
     <form method="post" action="" charset="utf8">
         {% csrf_token %}
         <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
-    
+
         <div class="row">
             <div class="col-xs-5">
-                <h4>Original: 
+                <h4>Original:
                 <span class="dropdown">
                   <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                     {{ orig_lang.name }}
+                    {% if orig_lang.versioned %}<span class="badge">v{{ orig_lang.version }}</span>{% endif %}
                     <span class="caret"></span>
                   </a>
                   <ul class="dropdown-menu">
                       {% if trans_lang %}
-                          {% for l in all_lang %}
-                              <li {% if orig_lang == l %} class="active" {% endif %}><a href="{% url 'exam:editor-lang' exam_id=exam.pk question_id=question.pk orig_id=l.pk lang_id=trans_lang.pk %}">{{ l.name }}</a></li>
+                          {% for l in question_langs %}
+                              <li {% if orig_lang == l %} class="active" {% endif %}>
+                                  <a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=question.pk orig_id=l.pk lang_id=trans_lang.pk %}">
+                                      {{ l.name }}
+                                      {% if l.versioned %}<span class="badge">v{{ l.version }}</span>{% endif %}
+                                  </a></li>
                           {% endfor %}
                       {% else %}
                           {% for l in all_lang %}
@@ -123,12 +159,35 @@ body { margin-bottom: 70px; }
                       {% endif %}
                   </ul>
                 </span>
+
+                {% if orig_lang.versioned %}
+                    <small>
+                    Compare to:
+                    <span class="dropdown">
+                      <button class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown">
+                        {% if orig_diff %}v{{ orig_diff }}{% endif %}
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu">
+                          {% for v in question_versions %}
+                              <li {% if orig_diff == v %} class="active" {% endif %}>
+                                  {% if trans_lang %}
+                                      <a href="{% url 'exam:editor-origdiff-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v lang_id=trans_lang.pk %}">v{{ v }}</a>
+                                  {% else %}
+                                      <a href="{% url 'exam:editor-origdiff' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v %}">v{{ v }}</a>
+                                  {% endif %}
+                              </li>
+                          {% endfor %}
+                      </ul>
+                    </span>
+                    </small>
+                {% endif %}
                 </h4>
             </div>
-            
+
             <div class="col-sm-2 text-center">
             </div>
-            
+
             <div class="col-xs-5">
                 <h4>Translate to:
                 <span class="dropdown">
@@ -142,30 +201,30 @@ body { margin-bottom: 70px; }
                   </a>
                   <ul class="dropdown-menu">
                       {% for l in own_lang %}
-                          <li {% if trans_lang == l %} class="active" {% endif %}><a href="{% url 'exam:editor-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk lang_id=l.pk %}">{{ l.name }}</a></li>
+                          <li {% if trans_lang == l %} class="active" {% endif %}><a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk lang_id=l.pk %}">{{ l.name }}</a></li>
                       {% endfor %}
                   </ul>
                 </span>
                 </h4>
             </div>
         </div>
-        
-        
+
+
         <div class="translation-field-container">
         {% with content_set as fields_set %}
             {% include 'ipho_exam/editor_field.html' %}
         {% endwith %}
         </div>
-        
+
         {% if form %}
         <div class="navbar navbar-default navbar-fixed-bottom">
           <div class="container">
             <div class="navbar-right">
-                <button type="button" class="btn btn-success navbar-btn"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</button>
+                <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
                 <button type="button" class="btn btn-default navbar-btn"><i class="fa fa-fw fa-unlock"></i> Lock</button>
                 <button type="submit" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
             </div>
-    
+
           </div>
         </div>
         {% endif %}
@@ -178,7 +237,7 @@ body { margin-bottom: 70px; }
 
 
 {% block extra-script %}
-    
+
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({
             showMathMenu: false,
@@ -188,11 +247,11 @@ body { margin-bottom: 70px; }
     <script src="{% static "ckeditor/ckeditor.js" %}"></script>
     <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
     <script src="{% static "mathquill_alpha/mathquill.js" %}"></script>
-    
+
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
         CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
-        
+
         CKEDITOR.config.toolbar = [
                 [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax-mathquill', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
             ];
@@ -214,26 +273,26 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.autoParagraph = false;
         CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
         CKEDITOR.config.jsvk_skin = "flat_gray";
-        
+
         all_editors = new Array();
-        
+
         function content2math() {
             // convert equations for mathquill
             // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
             // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
-            
+
             // convert equations for mathjax
             // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
             var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
             $(this).html(newtext);
             MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
         }
-        
+
         $(function(){
-            
+
             $(".translate-original").each(content2math);
             $(".translate-foreign").each(content2math);
-            
+
             $(".translate-copy-button").click(function( event ) {
                 field_id =  $(this).attr('id').replace('-copy', '');
                 orig = '#' + $(this).attr('id').replace('-copy', '-original');
@@ -243,15 +302,38 @@ body { margin-bottom: 70px; }
                     $('#'+field_id+'-translate input[type="text"]').val($(orig).data('original-text'));
                 event.preventDefault();
             });
-            
-            
+
+
             $('.translate-foreign textarea').each(function() {
                 myid = $(this).parent().attr('id').replace('-translate', '');
                 // all_editors[myid] = CKEDITOR.replace(this);
                 all_editors[myid] = $(this).ckeditor().ckeditorGet();
             })
+
+            // Figure preview
+            $('#figure-modal').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var button = $(event.relatedTarget); // Button that triggered the modal
+
+                var href = button.attr('href');
+                if (typeof href !== typeof undefined && href !== false) {
+                  modal.find('.modal-body').html('<img src="'+href+'" />');
+                } else {
+                  var img_url = button.data('base-url');
+                  var figparams = button.data('figparams');
+                  if (Object.keys(figparams).length > 0) {
+                    fig_query = new Object;
+                    for (k in figparams) {
+                      fig_query[k] = $('#id_'+figparams[k]).val();
+                    }
+                    img_url += '?' + $.param(fig_query);
+                  }
+                  modal.find('.modal-body').html('<img src="'+img_url+'" />');
+                }
+            });
+
         });
-        
+
     </script>
-    
+
 {% endblock %}

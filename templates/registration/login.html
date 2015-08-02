@@ -43,11 +43,13 @@
 
 {% block content %}
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
 
 <div class="container">
+    {% if form.errors %}
+    <div class="alert alert-danger">
+      Your username and password didn't match. Please try again.
+    </div>
+    {% endif %}
       <form class="form-signin" role="form" action="{% url 'django.contrib.auth.views.login' %}" method="POST">
         {% csrf_token %}
         <h2 class="form-signin-heading">Please sign in</h2>
