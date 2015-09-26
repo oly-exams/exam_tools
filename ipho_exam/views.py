@@ -53,6 +53,57 @@ def index(request):
 
 
 @login_required
+@ensure_csrf_cookie
+def list(request):
+    delegation = Delegation.objects.filter(members=request.user)
+
+    # if request.is_ajax and 'exam_id' in request.GET:
+    if 'exam_id' in request.GET:
+        exam = get_object_or_404(Exam, id=request.GET['exam_id'])
+        node_list = TranslationNode.objects.filter(question__exam=exam, language__delegation=delegation)
+        return render(request, 'ipho_exam/partials/list_exam_tbody.html',
+                {
+                    'exam'      : exam,
+                    'node_list' : node_list,
+                })
+    else:
+        exam_list = Exam.objects.filter(hidden=False)
+        return render(request, 'ipho_exam/list.html',
+                {
+                    'exam_list' : exam_list,
+                })
+
+@login_required
+def add_translation(request):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    delegation = Delegation.objects.get(members=request.user)
+    
+    ## Language section
+    language_form = LanguageForm(request.POST or None)
+    if language_form.is_valid():
+        lang = language_form.instance.delegation = delegation
+        lang = language_form.save()
+
+        return JsonResponse({
+                    'type'    : 'add',
+                    'name'    : lang.name,
+                    'href'    : reverse('exam:language-edit', args=[lang.pk]),
+                    'success' : True,
+                    'message' : '<strong>Language created!</strong> The new languages has successfully been created.',
+                })
+
+
+    form_html = render_crispy_form(language_form)
+    return JsonResponse({
+                'title'   : 'Add new language',
+                'form'    : form_html,
+                'submit'  : 'Create',
+                'success' : False,
+            })
+
+
+@login_required
 def add_language(request):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
