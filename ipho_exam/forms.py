@@ -6,7 +6,7 @@ from crispy_forms.layout import Submit, Layout, Field
 from django.core.exceptions import ValidationError
 
 
-from ipho_exam.models import Language, Figure
+from ipho_exam.models import Language, Figure, TranslationNode
 
 def validate_file_extension(value):
     import os
@@ -22,8 +22,8 @@ class LanguageForm(ModelForm):
         instance = getattr(self, 'instance', None)
         if instance and instance.pk:
             self.fields['name'].widget.attrs['readonly'] = True
-        
-        
+
+
         self.helper = FormHelper()
         self.helper.layout = Layout(Field('name', placeholder='Name'),
                                     Field('polyglossia'),
@@ -35,7 +35,7 @@ class LanguageForm(ModelForm):
         # self.helper.form_method = 'post'
         # self.helper.form_action = 'exam:index'
         # self.helper.add_input(Submit('submit', 'Create'))
-        
+
     class Meta:
         model = Language
         fields = ['name','polyglossia']
@@ -45,13 +45,13 @@ class LanguageForm(ModelForm):
 
 class FigureForm(ModelForm):
     file = forms.FileField(validators=[validate_file_extension], label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: *.svg, *.svgz"><span class="glyphicon glyphicon-info-sign"></span></a>')
-    
+
     def __init__(self, *args, **kwargs):
         super(FigureForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
         if instance and instance.pk:
             self.fields['file'].required = False
-        
+
         self.helper = FormHelper()
         self.helper.layout = Layout(Field('name', placeholder='Enter figure name'),
                                     Field('file')
@@ -60,8 +60,32 @@ class FigureForm(ModelForm):
         self.helper.form_show_labels = True
         self.form_tag = False
         self.disable_csrf = True
-    
-    
+
+
     class Meta:
         model = Figure
         fields = ['name']
+
+class TranslationForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(TranslationForm, self).__init__(*args, **kwargs)
+        self.fields['question'].label_from_instance = lambda obj: obj.name
+        
+        self.helper = FormHelper()
+        # self.helper.layout = Layout(Field('name', placeholder='Name'),
+        #                             Field('polyglossia'),
+        #                             )
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.disable_csrf = True
+        # self.helper.form_method = 'post'
+        # self.helper.form_action = 'exam:index'
+        # self.helper.add_input(Submit('submit', 'Create'))
+
+    class Meta:
+        model = TranslationNode
+        fields = ['question','language']
+        labels = {
+                   'language': 'Language <a href="#" onclick="return false;" data-toggle="popover" data-trigger="hover" data-container="body" data-content="More languages can be created from the Exam > Languages interface."><span class="glyphicon glyphicon-info-sign"></span></a>',
+               }

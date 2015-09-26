@@ -20,7 +20,7 @@ from ipho_core.models import Delegation
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure
 from ipho_exam import qml, tex
 
-from ipho_exam.forms import LanguageForm, FigureForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm
 
 OFFICIAL_LANGUAGE = 1
 
@@ -74,32 +74,33 @@ def list(request):
                 })
 
 @login_required
-def add_translation(request):
+def add_translation(request, exam_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     delegation = Delegation.objects.get(members=request.user)
-    
-    ## Language section
-    language_form = LanguageForm(request.POST or None)
-    if language_form.is_valid():
-        lang = language_form.instance.delegation = delegation
-        lang = language_form.save()
+    exam = get_object_or_404(Exam, id=exam_id)
+
+    translation_form = TranslationForm(request.POST or None)
+    translation_form.fields['question'].queryset = Question.objects.filter(exam=exam)
+    translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation)
+    if translation_form.is_valid():
+        translation_form.cleaned_data['status'] = 'O'
+        translation_form.data['status'] = 'O'
+        translation_form.save()
 
         return JsonResponse({
-                    'type'    : 'add',
-                    'name'    : lang.name,
-                    'href'    : reverse('exam:language-edit', args=[lang.pk]),
                     'success' : True,
-                    'message' : '<strong>Language created!</strong> The new languages has successfully been created.',
+                    'message' : '<strong>Translation added!</strong> The new translation has successfully been added.',
+                    'exam_id' : exam.pk,
                 })
 
 
-    form_html = render_crispy_form(language_form)
+    form_html = render_crispy_form(translation_form)
     return JsonResponse({
-                'title'   : 'Add new language',
-                'form'    : form_html,
-                'submit'  : 'Create',
-                'success' : False,
+                'title'       : 'Add translation to {}'.format(exam.name),
+                'form'        : form_html,
+                'submit_text' : 'Add',
+                'success'     : False,
             })
 
 

@@ -5,7 +5,7 @@ urlpatterns = patterns('ipho_exam.views',
 
     url(r'^$', 'index', name='index'),
     url(r'^translation/list/?$', 'list', name='list'),
-    # url(r'^translation/add/?$', 'add_translation', name='add-translation'),
+    url(r'^translation/add/(?P<exam_id>\d+)$', 'add_translation', name='add-translation'),
 
     url(r'^language/add$', 'add_language', name='language-add'),
     url(r'^language/edit/(?P<lang_id>\d+)$', 'edit_language', name='language-edit'),

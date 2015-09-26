@@ -16,11 +16,31 @@
       <h1>Your Translations</h1>
     </div>
 
+    <div class="modal fade" id="translation-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title">Add translation</h4>
+          </div>
+          <form method="post" action="">
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Add</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="alerts-container"></div>
+
     {% for ex in exam_list %}
     {# {% url 'exam:add-translation' exam_id=ex.pk %}#}
     <h3>
         {{ ex.name }}
-        <button class="btn btn-large btn-primary" data-toggle="modal" data-target="#question-modal" data-remote="false" data-exam-id="{{ ex.pk }}"><i class="fa fa-plus fa-fw"></i> Add translation</button>
+        <a class="btn btn-large btn-primary" data-toggle="modal" data-target="#translation-modal" data-remote="false" href="{% url 'exam:add-translation' exam_id=ex.pk %}"><i class="fa fa-plus fa-fw"></i> Add translation</a>
     </h3>
     <table class="table table-striped">
       <tr>
@@ -71,6 +91,57 @@ $(function() {
             }
         }
     });
+
+    // Figure modal
+    $(document).on('submit', '#translation-modal form', function(evt) {
+        var form = evt.target;
+        var $form = $(form);
+        evt.preventDefault();
+
+        var data = new FormData($form.get(0));
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (!data['success']) {
+                    $('#translation-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    return;
+                }
+
+                update_questions(data['exam_id']);
+
+                $('#translation-modal').modal('hide');
+                $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+
+            }
+        });
+    });
+
+    $('#translation-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
+
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('form').attr('action', href);
+                modal.find('.modal-body').html(data['form']);
+                modal.find('button[type="submit"]').text(data['submit_text']);
+                modal.find("[data-toggle=popover]").popover(); // activate popover
+            },
+        });
+    })
+
 
     function update_questions(tid) {
         $.ajax({

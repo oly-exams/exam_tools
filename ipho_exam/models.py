@@ -79,15 +79,15 @@ class VersionNode(models.Model):
 
 class TranslationNode(models.Model):
     STATUS_CHOICES = (
-        ('O', 'open'),
-        ('L', 'locked'),
-        ('S', 'submitted'),
+        ('O', 'In progress'),
+        ('L', 'Locked'),
+        ('S', 'Submitted'),
     )
 
-    text      = models.TextField()
+    text      = models.TextField(blank=True)
     question  = models.ForeignKey(Question)
     language  = models.ForeignKey(Language)
-    status    = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
     timestamp = models.DateTimeField(auto_now=True)
 
     class Meta:
