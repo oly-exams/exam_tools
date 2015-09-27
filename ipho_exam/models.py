@@ -56,8 +56,8 @@ class Question(models.Model):
 
 class VersionNode(models.Model):
     STATUS_CHOICES = (
-        ('P', 'proposal'),
-        ('C', 'confirmed'),
+        ('P', 'Proposal'),
+        ('C', 'Confirmed'),
     )
 
     text      = models.TextField()
