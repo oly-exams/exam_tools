@@ -253,6 +253,32 @@ def figure_export(request, fig_id, output_format='svg'):
         return HttpResponse(fig_pdf, content_type="application/pdf")
 
 
+@permission_required('iphoperm.is_staff')
+@ensure_csrf_cookie
+def admin_list(request):
+    if request.is_ajax and 'exam_id' in request.GET:
+        exam = get_object_or_404(Exam, id=request.GET['exam_id'])
+        return render(request, 'ipho_exam/partials/admin_exam_tbody.html',
+                {
+                    'exam'      : exam,
+                })
+    else:
+        exam_list = Exam.objects.filter(hidden=False)
+        return render(request, 'ipho_exam/admin.html',
+                {
+                    'exam_list' : exam_list,
+                })
+
+@permission_required('iphoperm.is_staff')
+def admin_props(request, exam_id, question_id):
+    pass
+
+@permission_required('iphoperm.is_staff')
+@ensure_csrf_cookie
+def admin_editor(request, exam_id, question_id):
+    pass
+
+
 @login_required
 def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICIAL_LANGUAGE, orig_diff=None):
     context = {'exam_id'     : exam_id,
