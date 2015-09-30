@@ -9,6 +9,7 @@ class VersionNodeAdminForm(forms.ModelForm):
     text = forms.CharField(widget=AceWidget(mode='xml', width='100%'))
     class Meta:
         model = VersionNode
+        fields = '__all__'
         # widgets = {
         #     'body':AceWidget()
         # }
@@ -16,6 +17,7 @@ class FigureAdminForm(forms.ModelForm):
     content = forms.CharField(widget=AceWidget(mode='xml', width='100%'))
     class Meta:
         model = Figure
+        fields = '__all__'
 
 class QuestionInline(admin.StackedInline):
     model = Question
