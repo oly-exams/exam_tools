@@ -28,6 +28,7 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^figure/(?P<fig_id>\d+)/export.pdf$', 'figure_export', {'output_format': 'pdf'}, name='figure-export-pdf'),
 
     url(r'^admin/?$', 'admin_list', name='admin'),
+    url(r'^admin/(?P<exam_id>\d+)/sort$', 'admin_sort', name='admin-sort'),
     url(r'^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/props$', 'admin_props', name='admin-props'),
     url(r'^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/editor$', 'admin_editor', name='admin-editor'),
 

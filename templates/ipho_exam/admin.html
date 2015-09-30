@@ -2,11 +2,14 @@
 {% load static %}
 
 {% block extra-head %}
+<link href="{% static "jquery/css/smoothness/jquery-ui-1.9.1.min.css" %}" rel="stylesheet">
 <style>
 .asteriskField {
     display: none;
 }
-
+.handle {
+    cursor: move;
+}
 </style>
 {% endblock %}
 
@@ -24,6 +27,7 @@
     </h3>
     <table class="table table-striped">
       <tr>
+          <th width="25px"></th>
           <th>Question</th>
           <th>Status</th>
           <th>Actions</th>
@@ -38,6 +42,8 @@
 {% endblock %}
 
 {% block extra-script %}
+<script src="{% static "jquery/js/jquery-ui-1.9.1.min.js" %}"></script>
+
 <script>
 $(function() {
     // Get csrftoken
@@ -75,15 +81,28 @@ $(function() {
             method: "GET",
             url: "{% url 'exam:admin' %}/",
             data:{exam_id:tid},
-            dataType: "html",
+            dataType: "json",
         }).done(function( data ) {
-            $("#exam-tbody-"+tid).html(data);
+            var exam_tbody = $("#exam-tbody-"+tid);
+            exam_tbody.html(data['content']);
+            exam_tbody.sortable({
+                handle: '.handle',
+                update: function(event, ui) {
+                    var serial = exam_tbody.sortable('serialize', {expression: /(.+)[-](.+)/});
+                    $.ajax({
+                        url: data['sort_url'],
+                        method: "POST",
+                        data: serial
+                    });
+                },
+            }).disableSelection();
         });
     }
 
     {% for ex in exam_list %}
     update_questions({{ ex.pk }});
     {% endfor %}
+
 
 });
 </script>

@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from crispy_forms.utils import render_crispy_form
+from django.template.loader import render_to_string
 
 from copy import deepcopy
 
@@ -258,9 +259,9 @@ def figure_export(request, fig_id, output_format='svg'):
 def admin_list(request):
     if request.is_ajax and 'exam_id' in request.GET:
         exam = get_object_or_404(Exam, id=request.GET['exam_id'])
-        return render(request, 'ipho_exam/partials/admin_exam_tbody.html',
-                {
-                    'exam'      : exam,
+        return JsonResponse({
+                    'sort_url' : reverse('exam:admin-sort', args=[exam.pk]),
+                    'content'  : render_to_string('ipho_exam/partials/admin_exam_tbody.html', {'exam': exam}),
                 })
     else:
         exam_list = Exam.objects.filter(hidden=False)
@@ -268,6 +269,17 @@ def admin_list(request):
                 {
                     'exam_list' : exam_list,
                 })
+@permission_required('iphoperm.is_staff')
+def admin_sort(request, exam_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    for position, question_id in enumerate(request.POST.getlist('ex{}_q[]'.format(exam_id))):
+        question = get_object_or_404(Question, pk=int(question_id))
+        question.position = position
+        question.save()
+    return HttpResponse('')
+
+
 
 @permission_required('iphoperm.is_staff')
 def admin_props(request, exam_id, question_id):
