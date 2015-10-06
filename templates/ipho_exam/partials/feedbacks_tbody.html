@@ -1,0 +1,10 @@
+{% load static %}
+{% for fb in feedbacks %}
+<tr>
+    <td>{{ fb.get_status_display }}</td>
+    <td>{{ fb.delegation.name }}</td>
+    <td>{{ fb.question.name }}</td>
+    <td>{{ fb.comment }}</td>
+    <td>{{ fb.timestamp }}</td>
+</tr>
+{% endfor %}

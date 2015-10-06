@@ -123,3 +123,17 @@ class Figure(models.Model):
                     repl = repl.decode('utf-8')
                 fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
         return fig_svg
+
+
+class Feedback(models.Model):
+    STATUS_CHOICES = (
+        ('O', 'In progress'),
+        ('A', 'Accepted'),
+        ('R', 'Rejected'),
+    )
+
+    delegation = models.ForeignKey(Delegation)
+    question  = models.ForeignKey(Question)
+    comment   = models.TextField(blank=True)
+    status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
+    timestamp = models.DateTimeField(auto_now=True)
