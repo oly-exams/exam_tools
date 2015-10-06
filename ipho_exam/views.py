@@ -165,10 +165,10 @@ def edit_language(request, lang_id):
 @login_required
 @ensure_csrf_cookie
 def feedbacks_list(request):
-    exam_list = Exam.objects.filter(hidden=False) # TODO: add field to specify if feddbacks are enabled
+    exam_list = Exam.objects.filter(hidden=False, feedback_active=True)
 
     if 'exam_id' in request.GET:
-        exam = get_object_or_404(Exam, id=request.GET['exam_id'])
+        exam = get_object_or_404(Exam, id=request.GET['exam_id'], feedback_active=True)
         feedbacks = Feedback.objects.filter(question__exam=request.GET['exam_id']).order_by('-timestamp')
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
@@ -184,7 +184,7 @@ def feedbacks_add(request, exam_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     delegation = Delegation.objects.get(members=request.user)
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam, id=exam_id, feedback_active=True)
 
     ## Language section
     form = FeedbackForm(request.POST or None)

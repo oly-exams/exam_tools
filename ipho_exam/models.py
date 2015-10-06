@@ -34,6 +34,7 @@ class Exam(models.Model):
     name   = models.CharField(max_length=100)
     active = models.BooleanField(default=True,  help_text='Only active exams are editable.')
     hidden = models.BooleanField(default=False, help_text='Is the exam hidden for the delegations?')
+    feedback_active = models.BooleanField(default=False, help_text='Are feedbacks allowed?')
 
     def __unicode__(self):
         return u'%s' % (self.name)
