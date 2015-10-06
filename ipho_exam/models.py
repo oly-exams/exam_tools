@@ -34,6 +34,7 @@ class Exam(models.Model):
     name   = models.CharField(max_length=100)
     active = models.BooleanField(default=True,  help_text='Only active exams are editable.')
     hidden = models.BooleanField(default=False, help_text='Is the exam hidden for the delegations?')
+    feedback_active = models.BooleanField(default=False, help_text='Are feedbacks allowed?')
 
     def __unicode__(self):
         return u'%s' % (self.name)
@@ -123,3 +124,17 @@ class Figure(models.Model):
                     repl = repl.decode('utf-8')
                 fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
         return fig_svg
+
+
+class Feedback(models.Model):
+    STATUS_CHOICES = (
+        ('O', 'In progress'),
+        ('A', 'Accepted'),
+        ('R', 'Rejected'),
+    )
+
+    delegation = models.ForeignKey(Delegation)
+    question  = models.ForeignKey(Question)
+    comment   = models.TextField(blank=True)
+    status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
+    timestamp = models.DateTimeField(auto_now=True)

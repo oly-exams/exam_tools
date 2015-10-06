@@ -18,10 +18,10 @@ from hashlib import md5
 
 
 from ipho_core.models import Delegation
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback
 from ipho_exam import qml, tex
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm
 
 OFFICIAL_LANGUAGE = 1
 
@@ -159,6 +159,51 @@ def edit_language(request, lang_id):
                 'title'   : 'Edit language',
                 'form'    : form_html,
                 'submit'  : 'Save',
+                'success' : False,
+            })
+
+@login_required
+@ensure_csrf_cookie
+def feedbacks_list(request):
+    exam_list = Exam.objects.filter(hidden=False, feedback_active=True)
+
+    if 'exam_id' in request.GET:
+        exam = get_object_or_404(Exam, id=request.GET['exam_id'], feedback_active=True)
+        feedbacks = Feedback.objects.filter(question__exam=request.GET['exam_id']).order_by('-timestamp')
+        return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
+                {
+                    'feedbacks' : feedbacks,
+                })
+    else:
+        return render(request, 'ipho_exam/feedbacks.html', {
+                    'exam_list' : exam_list,
+                })
+
+@login_required
+def feedbacks_add(request, exam_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    delegation = Delegation.objects.get(members=request.user)
+    exam = get_object_or_404(Exam, id=exam_id, feedback_active=True)
+
+    ## Language section
+    form = FeedbackForm(request.POST or None)
+    form.fields['question'].queryset = Question.objects.filter(exam=exam)
+    if form.is_valid():
+        form.instance.delegation = delegation
+        form.save()
+
+        return JsonResponse({
+                    'success' : True,
+                    'message' : '<strong>Feedback added!</strong> The new feedback has successfully been added. The staff will look at it.',
+                    'exam_id' : exam.pk,
+                })
+
+    form_html = render_crispy_form(form)
+    return JsonResponse({
+                'title'   : 'Add new feedback',
+                'form'    : form_html,
+                'submit'  : 'Submit',
                 'success' : False,
             })
 

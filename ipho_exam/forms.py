@@ -6,7 +6,7 @@ from crispy_forms.layout import Submit, Layout, Field
 from django.core.exceptions import ValidationError
 
 
-from ipho_exam.models import Language, Figure, TranslationNode
+from ipho_exam.models import Language, Figure, TranslationNode, Feedback
 
 def validate_file_extension(value):
     import os
@@ -70,7 +70,7 @@ class TranslationForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(TranslationForm, self).__init__(*args, **kwargs)
         self.fields['question'].label_from_instance = lambda obj: obj.name
-        
+
         self.helper = FormHelper()
         # self.helper.layout = Layout(Field('name', placeholder='Name'),
         #                             Field('polyglossia'),
@@ -89,3 +89,21 @@ class TranslationForm(ModelForm):
         labels = {
                    'language': 'Language <a href="#" onclick="return false;" data-toggle="popover" data-trigger="hover" data-container="body" data-content="More languages can be created from the Exam > Languages interface."><span class="glyphicon glyphicon-info-sign"></span></a>',
                }
+
+class FeedbackForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FeedbackForm, self).__init__(*args, **kwargs)
+        self.fields['question'].label_from_instance = lambda obj: obj.name
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(Field('question'),
+                                    Field('comment', placeholder='Comment'),
+                                    )
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.disable_csrf = True
+
+    class Meta:
+        model = Feedback
+        fields = ['question','comment']

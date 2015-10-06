@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, Figure
+from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, Figure, Feedback
 from ipho_exam.widgets import AceWidget
 
 # Register your models here.
@@ -24,7 +24,7 @@ class QuestionInline(admin.StackedInline):
     extra = 2
 
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'active', 'hidden')
+    list_display = ('name', 'active', 'feedback_active', 'hidden')
     inlines = [QuestionInline]
 
 class QuestionAdmin(admin.ModelAdmin):
@@ -37,11 +37,15 @@ class VersionNodeAdmin(admin.ModelAdmin):
 class TranslationNodeAdmin(admin.ModelAdmin):
     list_display = ('question', 'language', 'status', 'timestamp')
 
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ('question', 'delegation', 'comment', 'status', 'timestamp')
+
 class FigureAdmin(admin.ModelAdmin):
     form = FigureAdminForm
 
 
 admin.site.register(Language)
+admin.site.register(Feedback, FeedbackAdmin)
 admin.site.register(Exam, ExamAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(VersionNode, VersionNodeAdmin)
