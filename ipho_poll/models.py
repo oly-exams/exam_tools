@@ -21,6 +21,6 @@ class Choice(models.Model):
     def __str__(self):
         return self.choice_text
 
-class vote(models.Model):
+class Vote(models.Model):
     choice = models.ForeignKey(Choice)
     delegation = models.ForeignKey(Delegation)    
