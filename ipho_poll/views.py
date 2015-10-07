@@ -1,17 +1,44 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from django.views import generic
-from django.utils import timezone
 from django.contrib.auth.decorators import login_required, permission_required
 
+from ipho_poll.models import Question, Choice, Vote
+# What about staff ask Michele again
 
 
-from ipho_poll.models import Choice, Question
-from ipho_core.models import Staff
 
-class AdminOverview(generic.DetailView)
+
+
+@login_required
+@permission('iphoperm.is_staff')
+def AdminOverview():
+    drafted_questions_list = Question.objects.filter(status = 0)
+    live_questions_list = Question.objects.filter(status = 1)
+    closed_questions_list = Question.objects.filter(status = 2) 
     pass
+
+
+@login_required
+@permission('iphoperm.is_leader')
+def DelegationOverwiev():
+    live_questions_list = Question.objects.filter(status = 1)
+    pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
