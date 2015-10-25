@@ -21,7 +21,7 @@ from ipho_core.models import Delegation
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback
 from ipho_exam import qml, tex
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm
 
 OFFICIAL_LANGUAGE = 1
 
@@ -323,12 +323,10 @@ def admin_sort(request, exam_id):
         question.position = position
         question.save()
     return HttpResponse('')
-
-
-
 @permission_required('iphoperm.is_staff')
 def admin_props(request, exam_id, question_id):
     pass
+
 
 @permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie
@@ -354,6 +352,45 @@ def admin_editor(request, exam_id, question_id):
     }
     return render(request, 'ipho_exam/admin_editor.html', context)
 
+@permission_required('iphoperm.is_staff')
+@ensure_csrf_cookie
+def admin_editor_block(request, exam_id, question_id, block_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    lang_id = OFFICIAL_LANGUAGE
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    question = get_object_or_404(Question, id=question_id)
+
+    lang = get_object_or_404(Language, id=lang_id)
+    if lang.versioned:
+        node = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version')[0]
+    else:
+        node = get_object_or_404(TranslationNode, question=question, language=lang)
+
+    q = qml.QMLquestion(node.text)
+
+    block = q.find(block_id)
+    if block is None:
+        raise Exception('block_id not found') # TODO: turn it into 404 error
+
+    form = AdminBlockForm(request.POST or None, instance=block)
+    if form.is_valid():
+        # TODO: save
+
+        return JsonResponse({
+                    'type'       : 'edit',
+                    'content'    : block.content_html(),
+                    'attributes' : render_to_string('ipho_exam/partials/admin_editor_attributes.html', {'attributes': block.attributes}),
+                    'success'    : True,
+                })
+
+    form_html = render_crispy_form(form)
+    return JsonResponse({
+                'title'   : 'Edit',
+                'form'    : form_html,
+                'success' : False,
+            })
 
 
 

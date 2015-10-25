@@ -34,6 +34,7 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^admin/(?P<exam_id>\d+)/sort$', 'admin_sort', name='admin-sort'),
     #url(r'^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/props$', 'admin_props', name='admin-props'),
     url(r'^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/editor$', 'admin_editor', name='admin-editor'),
+    url(r'^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/editor/block/edit/(?P<block_id>\w+)$', 'admin_editor_block', name='admin-editor-block'),
 
     url(r'^test/', include('ipho_exam.urls_test', namespace='test')),
 

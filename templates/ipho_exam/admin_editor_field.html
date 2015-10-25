@@ -9,7 +9,7 @@
                 {% include 'ipho_exam/partials/admin_editor_attributes.html' %}
             {% endwith %}
             </span>
-            <button type="button" class="btn btn-xs btn-default" title="Edit block" data-toggle="modal" data-target="#block-modal" data-block-id="{{ field.id }}"><i class="fa fa-pencil fa-fw"></i></button>
+            <a class="btn btn-xs btn-default" title="Edit block" data-toggle="modal" data-target="#block-modal" href="{% url 'exam:admin-editor-block' question_id=question.pk exam_id=exam.pk block_id=field.id %}"><i class="fa fa-pencil fa-fw"></i></a>
             <a class="btn btn-xs btn-danger" href="#" title="Delete block" data-toggle="modal" data-target="#delete-modal" data-block-id="{{ field.id }}"><i class="fa fa-trash-o fa-fw"></i></a>
             {% if field.description %} <p>{{ field.description }}</p> {% endif %}
         </div>

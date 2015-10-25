@@ -233,6 +233,15 @@ class QMLobject(object):
         for c in self.children:
             c.diff_content_html(other_data)
 
+    def find(self, search_id):
+        if self.id == search_id:
+            return self
+        for c in self.children:
+            cfind = c.find(search_id)
+            if cfind is not None:
+                return cfind
+        return None
+
     def __str__(self):
         ret = '<%s %s>\n' % (self.tag, self.id)
         for c in self.children:

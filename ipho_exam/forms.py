@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import ModelForm
+from django.forms import ModelForm, Form
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field
 
@@ -107,3 +107,8 @@ class FeedbackForm(ModelForm):
     class Meta:
         model = Feedback
         fields = ['question','comment']
+
+class AdminBlockForm(Form):
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.pop('instance')
+        super(AdminBlockForm, self).__init__(*args, **kwargs)
