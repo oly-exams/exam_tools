@@ -333,7 +333,28 @@ def admin_props(request, exam_id, question_id):
 @permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie
 def admin_editor(request, exam_id, question_id):
-    pass
+    lang_id = OFFICIAL_LANGUAGE
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    question = get_object_or_404(Question, id=question_id)
+
+    lang = get_object_or_404(Language, id=lang_id)
+    if lang.versioned:
+        node = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version')[0]
+    else:
+        node = get_object_or_404(TranslationNode, question=question, language=lang)
+
+    q = qml.QMLquestion(node.text)
+    content_set = qml.make_content(q)
+
+    context = {
+        'exam' : exam,
+        'question' : question,
+        'content_set' : content_set,
+    }
+    return render(request, 'ipho_exam/admin_editor.html', context)
+
+
 
 
 @login_required

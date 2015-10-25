@@ -27,6 +27,8 @@ def make_content_node(node):
         'heading'   : str or None
         'style'     : list of css classes
         'id'        : object id
+        'type       : object type (aka the tag)
+        'attrs      : dict of attributes
         'original'  : original language, as html content
         'translate' : translated language, as FormWidget # REMOVED
         'children'  : list of other nodes
@@ -37,6 +39,8 @@ def make_content_node(node):
     descr['heading'] = node.heading()
     descr['style']   = []
     descr['id']      = node.id
+    descr['type']    = node.tag
+    descr['attrs']    = node.attributes
     descr['original'] = node.content()
     descr['original_html'] = node.content_html()
     descr['description'] = node.attributes.get('description')

@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% load static %}
+{% load editor_extras %}
+
+{% block extra-head %}
+<link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
+
+<style>
+span.dropdown {
+    display: inline-block;
+}
+.title-dropdown .btn {
+    padding: 0px 28px;
+    padding: 0;
+    font-size: 28px;
+    line-height: normal;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+}
+.title-dropdown .dropdown-menu {
+    font-size: 20px;
+}
+
+.translation-field-nested .row {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.cke_textarea_inline {
+/*    border:1px #000 solid;*/
+}
+
+.field-figure img {
+    max-height: 80px;
+}
+#figure-modal .modal-body img {
+    max-width: 100%;
+}
+
+ins {
+    color: #00f;
+    font-decoration: underline;
+    -moz-text-decoration-style: wavy;
+    -webkit-text-decoration-style: wavy;
+    text-decoration-style: wavy;
+}
+del {
+    color: #f00;
+    font-decoration: line-through;
+}
+
+body { margin-bottom: 70px; }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+
+    <div class="modal fade" id="figure-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          </div>
+              <div class="modal-body text-center"></div>
+        </div>
+      </div>
+    </div>
+
+{% if warning %}
+    <div class="alert alert-warning alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <strong>Warning:</strong> {{ warning }}
+    </div>
+{% endif %}
+
+<div class="page-header">
+    <div class="pull-right">
+        {{ exam.name }}
+    </div>
+  <h1>Exam admin editor</h1>
+</div>
+
+
+<form method="post" action="" charset="utf8">
+    {% csrf_token %}
+    <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
+
+
+    <div class="translation-field-container">
+    {% with content_set as fields_set %}
+        {% include 'ipho_exam/admin_editor_field.html' %}
+    {% endwith %}
+    </div>
+
+
+    <div class="navbar navbar-default navbar-fixed-bottom">
+      <div class="container">
+        <div class="navbar-right">
+            <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
+            {# <button type="button" class="btn btn-default navbar-btn"><i class="fa fa-fw fa-unlock"></i> Lock</button>#}
+            <button type="submit" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+        </div>
+
+      </div>
+    </div>
+</form>
+</div> <!-- /container -->
+
+{% endblock %}
+
+
+
+{% block extra-script %}
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            showMathMenu: false,
+        });
+    </script>
+    <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="{% static "ckeditor/ckeditor.js" %}"></script>
+    <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
+
+    <script>
+        CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
+
+        CKEDITOR.config.toolbar = [
+                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
+            ];
+        CKEDITOR.config.forcePasteAsPlainText = true;
+        CKEDITOR.config.resize_enabled = false;
+        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax';
+        CKEDITOR.config.removePlugins = 'elementspath,contextmenu,tabletools,liststyle';
+        // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
+        CKEDITOR.config.width = '100%';
+        CKEDITOR.config.autoGrow_onStartup = true;
+        CKEDITOR.config.autoGrow_minHeight = 0;
+        CKEDITOR.config.autoGrow_bottomSpace = 10;
+        CKEDITOR.config.entities = false;
+        CKEDITOR.config.htmlEncodeOutput = false;
+        CKEDITOR.config.basicEntities = false;
+        CKEDITOR.config.entities_latin = false;
+        CKEDITOR.config.entities_greek = false;
+        CKEDITOR.config.disableNativeSpellChecker = false;
+        CKEDITOR.config.autoParagraph = false;
+        CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
+        CKEDITOR.config.jsvk_skin = "flat_gray";
+
+        all_editors = new Array();
+
+        function content2math() {
+            // convert equations for mathquill
+            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
+            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
+
+            // convert equations for mathjax
+            // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
+            var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
+            $(this).html(newtext);
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
+        }
+
+        $(function(){
+
+            $(".translate-original").each(content2math);
+            $(".translate-foreign").each(content2math);
+
+            $(".translate-copy-button").click(function( event ) {
+                field_id =  $(this).attr('id').replace('-copy', '');
+                orig = '#' + $(this).attr('id').replace('-copy', '-original');
+                if (field_id in all_editors)
+                    all_editors[field_id].setData($(orig).data('original-text'));
+                else
+                    $('#'+field_id+'-translate input[type="text"]').val($(orig).data('original-text'));
+                event.preventDefault();
+            });
+
+
+            $('.translate-foreign textarea').each(function() {
+                myid = $(this).parent().attr('id').replace('-translate', '');
+                // all_editors[myid] = CKEDITOR.replace(this);
+                all_editors[myid] = $(this).ckeditor().ckeditorGet();
+            })
+
+            // Figure preview
+            $('#figure-modal').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var button = $(event.relatedTarget); // Button that triggered the modal
+
+                var href = button.attr('href');
+                if (typeof href !== typeof undefined && href !== false) {
+                  modal.find('.modal-body').html('<img src="'+href+'" />');
+                } else {
+                  var img_url = button.data('base-url');
+                  var figparams = button.data('figparams');
+                  if (Object.keys(figparams).length > 0) {
+                    fig_query = new Object;
+                    for (k in figparams) {
+                      fig_query[k] = $('#id_'+figparams[k]).val();
+                    }
+                    img_url += '?' + $.param(fig_query);
+                  }
+                  modal.find('.modal-body').html('<img src="'+img_url+'" />');
+                }
+            });
+
+        });
+
+    </script>
+
+{% endblock %}

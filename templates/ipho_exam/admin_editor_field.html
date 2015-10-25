@@ -1,0 +1,57 @@
+{% for field in fields_set %}
+    <div class="row">
+        <div class="col-xs-12 translation-field-nested">
+            <span class="label label-info">{{ field.type }}</span>
+            {% for k,v in field.attrs.items  %}
+                <span class="label label-default">{{ k }} : {{ v }}</span>
+            {% endfor %}
+            {% if field.description %} <p>{{ field.description }}</p> {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-10">
+            {% if field.original_html %}
+            <div class="question-content" id="{{ field.id }}-content">
+                {{ field.original_html|safe }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-sm-2">
+            <a class="btn btn-sm btn-default" href="#" title="Edit block"><i class="fa fa-pencil fa-fw"></i></a>
+            <a class="btn btn-sm btn-danger" href="#" title="Delete block"><i class="fa fa-trash-o fa-fw"></i></a>
+        </div>
+    </div>
+
+    {% if field.children %}
+    <div class="row">
+        <div class="col-xs-12 translation-field-nested">
+            {% with field.children as fields_set %}
+                {% include 'ipho_exam/admin_editor_field.html' %}
+            {% endwith %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-10"></div>
+        <div class="col-sm-2">
+            <div class="dropdown">
+              <a class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" title="New block">
+                <i class="fa fa-plus fa-fw"></i>
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Subquestion</a></li>
+                <li><a href="#">Paragraph</a></li>
+                <li><a href="#">Bullet list</a></li>
+                <li><a href="#">Bullet list item</a></li>
+                <li><a href="#">Figure</a></li>
+                <li><a href="#">Equation</a></li>
+              </ul>
+            </div>
+        </div>
+    </div>
+
+{% endfor %}
