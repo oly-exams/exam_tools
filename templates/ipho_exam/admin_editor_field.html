@@ -5,11 +5,13 @@
             <span class="handle"><i class="fa fa-arrows"></i></span>
             <span class="label label-info">{{ field.tag }}</span>
             {% for k,v in field.attributes.items  %}
+                {% if k != "description" %}
                 <span class="label label-default">{{ k }} : {{ v }}</span>
+                {% endif %}
             {% endfor %}
-            {% if field.description %} <p>{{ field.description }}</p> {% endif %}
             <button type="button" class="btn btn-xs btn-default" title="Edit block" data-toggle="modal" data-target="#block-modal" data-block-id="{{ field.id }}"><i class="fa fa-pencil fa-fw"></i></button>
             <a class="btn btn-xs btn-danger" href="#" title="Delete block" data-toggle="modal" data-target="#delete-modal" data-block-id="{{ field.id }}"><i class="fa fa-trash-o fa-fw"></i></a>
+            {% if field.description %} <p>{{ field.description }}</p> {% endif %}
         </div>
     </div>
 
@@ -25,7 +27,7 @@
 
     {% if field.children %}
     <div class="row">
-        <div class="col-xs-12 content-field-nested">
+        <div class="col-xs-12 content-field-nested" id="{{ field.id }}-children">
             {% with field.children as fields_set %}
                 {% include 'ipho_exam/admin_editor_field.html' %}
             {% endwith %}
