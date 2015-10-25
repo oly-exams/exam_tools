@@ -43,7 +43,7 @@ class Exam(models.Model):
 class Question(models.Model):
     name = models.CharField(max_length=100)
     exam = models.ForeignKey(Exam)
-    position = models.PositiveSmallIntegerField(help_text='Sortign index inside one exam')
+    position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
 
     class Meta:
         ordering = ['position']
