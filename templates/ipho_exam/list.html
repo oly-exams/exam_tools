@@ -40,7 +40,7 @@
     {# {% url 'exam:add-translation' exam_id=ex.pk %}#}
     <h3>
         {{ ex.name }}
-        <a class="btn btn-large btn-primary" data-toggle="modal" data-target="#translation-modal" data-remote="false" href="{% url 'exam:add-translation' exam_id=ex.pk %}"><i class="fa fa-plus fa-fw"></i> Add translation</a>
+        <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#translation-modal" data-remote="false" href="{% url 'exam:add-translation' exam_id=ex.pk %}"><i class="fa fa-plus"></i> Add translation</a>
     </h3>
     <table class="table table-striped">
       <tr>

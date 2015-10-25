@@ -39,7 +39,7 @@
     {% for ex in exam_list %}
     <h3>
         {{ ex.name }}
-        <a class="btn btn-large btn-primary" data-toggle="modal" data-target="#feedback-modal" data-remote="false" href="{% url 'exam:feedbacks-add' exam_id=ex.pk %}"><i class="fa fa-plus fa-fw"></i> Add feedback</a>
+        <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#feedback-modal" data-remote="false" href="{% url 'exam:feedbacks-add' exam_id=ex.pk %}"><i class="fa fa-plus"></i> Add feedback</a>
     </h3>
     <table class="table table-striped">
       <tr>
