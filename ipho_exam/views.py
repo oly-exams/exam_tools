@@ -345,12 +345,12 @@ def admin_editor(request, exam_id, question_id):
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
     q = qml.QMLquestion(node.text)
-    content_set = qml.make_content(q)
+    #content_set = qml.make_content(q)
 
     context = {
         'exam' : exam,
         'question' : question,
-        'content_set' : content_set,
+        'content_set' : q.children,
     }
     return render(request, 'ipho_exam/admin_editor.html', context)
 
