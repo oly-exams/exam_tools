@@ -234,20 +234,23 @@ body { margin-bottom: 70px; }
                 var block_id = button.data("block-id");
                 var block_obj = $("#"+block_id+"-content")
 
-                modal.find('.modal-body').append('<textarea class="block-editor">'+block_obj.data('content')+'</textarea>');
+                modal.find('.modal-body').html('<textarea class="block-editor">'+block_obj.data('content')+'</textarea>');
                 modal.find('.block-editor').ckeditor();
             });
 
             // Delete
+            $(document).on('click', '#delete-modal button[data-confirm="delete"]', function(evt) {
+                evt.preventDefault();
+                var modal = $('#delete-modal');
+
+                // TODO: submit delete request
+                alert("You asked to delete "+modal.data('block-id')+".");
+                modal.modal('hide');
+            });
             $('#delete-modal').on('show.bs.modal', function (event) {
                 var modal = $(this);
                 var button = $(event.relatedTarget); // Button that triggered the modal
-                modal.find('[data-confirm=delete]').on('click', function (event) {
-                    // TODO: submit delete request
-                    alert("You asked to delete.");
-                    modal.modal('hide');
-                    return false;
-                });
+                modal.data('block-id', button.data('block-id'));
             });
 
         });
