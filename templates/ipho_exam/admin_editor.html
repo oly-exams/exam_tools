@@ -6,25 +6,10 @@
 <link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
 
 <style>
-span.dropdown {
-    display: inline-block;
-}
-.title-dropdown .btn {
-    padding: 0px 28px;
-    padding: 0;
-    font-size: 28px;
-    line-height: normal;
-    -webkit-border-radius: 8px;
-       -moz-border-radius: 8px;
-            border-radius: 8px;
-}
-.title-dropdown .dropdown-menu {
-    font-size: 20px;
-}
-
 .translation-field-nested .row {
     padding-left: 1em;
     padding-right: 1em;
+    border: #00f 1x solid;
 }
 
 .cke_textarea_inline {
@@ -78,16 +63,13 @@ body { margin-bottom: 70px; }
 {% endif %}
 
 <div class="page-header">
-    <div class="pull-right">
-        {{ exam.name }}
-    </div>
   <h1>Exam admin editor</h1>
 </div>
 
 
 <form method="post" action="" charset="utf8">
     {% csrf_token %}
-    <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
+    <h3>{{ exam.name }} - {{ question.name }}</h3>
 
 
     <div class="translation-field-container">
