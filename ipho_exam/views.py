@@ -21,7 +21,7 @@ from ipho_core.models import Delegation
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback
 from ipho_exam import qml, tex
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper
 
 OFFICIAL_LANGUAGE = 1
 
@@ -377,6 +377,7 @@ def admin_editor_block(request, exam_id, question_id, block_id):
     heading = 'Edit '+block.heading() if block.heading() is not None else 'Edit block'
 
     form = AdminBlockForm(block, request.POST or None)
+    attrs_form = AdminBlockAttributeFormSet(request.POST or None, initial=[{'key':k,'value':v} for k,v in block.attributes.items()])
     if form.is_valid():
         # TODO: save
 
@@ -388,9 +389,10 @@ def admin_editor_block(request, exam_id, question_id, block_id):
                 })
 
     form_html = render_crispy_form(form)
+    attrs_form_html = render_crispy_form(attrs_form, AdminBlockAttributeHelper())
     return JsonResponse({
                 'title'   : heading,
-                'form'    : form_html,
+                'form'    : form_html+attrs_form_html,
                 'success' : False,
             })
 

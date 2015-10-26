@@ -1,7 +1,8 @@
 from django import forms
 from django.forms import ModelForm, Form
+from django.forms.formsets import formset_factory
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field
+from crispy_forms.layout import Submit, Layout, Field, MultiField, Div
 from django.utils.safestring import mark_safe
 
 from django.core.exceptions import ValidationError
@@ -109,6 +110,25 @@ class FeedbackForm(ModelForm):
         model = Feedback
         fields = ['question','comment']
 
+
+class AdminBlockAttributeForm(forms.Form):
+    key = forms.CharField()
+    value = forms.CharField()
+    def __init__(self, *args, **kwargs):
+        super(AdminBlockAttributeForm, self).__init__(*args, **kwargs)
+class AdminBlockAttributeHelper(FormHelper):
+    def __init__(self, *args, **kwargs):
+        super(AdminBlockAttributeHelper, self).__init__(*args, **kwargs)
+        self.layout = Layout(Div(Field('key', placeholder='key'),
+                                  Field('value', placeholder='value'),
+                                css_class='form-inline'
+                              ))
+        self.html5_required = True
+        self.form_show_labels = True
+        self.form_tag = False
+        self.disable_csrf = True
+
+AdminBlockAttributeFormSet = formset_factory(AdminBlockAttributeForm, can_delete=True, extra=2)
 
 class AdminBlockForm(forms.Form):
     def __init__(self, node, *args, **kwargs):
