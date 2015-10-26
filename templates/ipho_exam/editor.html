@@ -202,9 +202,7 @@ body { margin-bottom: 70px; }
 
 
         <div class="translation-field-container">
-        {% with content_set as fields_set %}
-            {% include 'ipho_exam/editor_field.html' %}
-        {% endwith %}
+            {% include 'ipho_exam/editor_field.html' with fields_set=content_set %}
         </div>
 
         {% if form %}
