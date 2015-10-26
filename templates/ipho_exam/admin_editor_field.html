@@ -26,9 +26,7 @@
     {% if field.children %}
     <div class="row">
         <div class="col-xs-12 content-field-nested" id="{{ field.id }}-children">
-            {% with field.children as fields_set %}
-                {% include 'ipho_exam/admin_editor_field.html' %}
-            {% endwith %}
+            {% include 'ipho_exam/admin_editor_field.html' with fields_set=field.children %}
         </div>
     </div>
     {% endif %}
