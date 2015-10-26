@@ -2,6 +2,7 @@ from django import forms
 from django.forms import ModelForm, Form
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field
+from django.utils.safestring import mark_safe
 
 from django.core.exceptions import ValidationError
 
@@ -108,7 +109,21 @@ class FeedbackForm(ModelForm):
         model = Feedback
         fields = ['question','comment']
 
-class AdminBlockForm(Form):
-    def __init__(self, *args, **kwargs):
-        instance = kwargs.pop('instance')
+
+class AdminBlockForm(forms.Form):
+    def __init__(self, node, *args, **kwargs):
         super(AdminBlockForm, self).__init__(*args, **kwargs)
+        if node.has_text:
+            self.fields['block_content'] = node.form_element()
+            self.fields['block_content'].initial = mark_safe(node.content())
+            self.fields['block_content'].required = False
+            self.fields['block_content'].widget.attrs['class'] = 'block-content-editor'
+        for k,v in node.attributes.items():
+            self.fields['attribute_'+k] = forms.CharField()
+            self.fields['attribute_'+k].initial = v
+
+        self.helper = FormHelper()
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.disable_csrf = True

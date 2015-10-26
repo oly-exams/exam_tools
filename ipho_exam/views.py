@@ -374,12 +374,14 @@ def admin_editor_block(request, exam_id, question_id, block_id):
     if block is None:
         raise Exception('block_id not found') # TODO: turn it into 404 error
 
-    form = AdminBlockForm(request.POST or None, instance=block)
+    heading = 'Edit '+block.heading() if block.heading() is not None else 'Edit block'
+
+    form = AdminBlockForm(block, request.POST or None)
     if form.is_valid():
         # TODO: save
 
         return JsonResponse({
-                    'type'       : 'edit',
+                    'title'      : heading,
                     'content'    : block.content_html(),
                     'attributes' : render_to_string('ipho_exam/partials/admin_editor_attributes.html', {'attributes': block.attributes}),
                     'success'    : True,
@@ -387,7 +389,7 @@ def admin_editor_block(request, exam_id, question_id, block_id):
 
     form_html = render_crispy_form(form)
     return JsonResponse({
-                'title'   : 'Edit',
+                'title'   : heading,
                 'form'    : form_html,
                 'success' : False,
             })
