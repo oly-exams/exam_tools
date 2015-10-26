@@ -5,9 +5,7 @@
             <span class="handle"><i class="fa fa-arrows"></i></span>
             <span class="label label-info">{{ field.tag }}</span>
             <span id="{{ field.id }}-attributes">
-            {% with field.attributes as attributes %}
-                {% include 'ipho_exam/partials/admin_editor_attributes.html' %}
-            {% endwith %}
+            {% include 'ipho_exam/partials/admin_editor_attributes.html' with attributes=field.attributes %}
             </span>
             <a class="btn btn-xs btn-default" title="Edit block" data-toggle="modal" data-target="#block-modal" data-remote="false" href="{% url 'exam:admin-editor-block' question_id=question.pk exam_id=exam.pk block_id=field.id %}"><i class="fa fa-pencil fa-fw"></i></a>
             <a class="btn btn-xs btn-danger" href="#" title="Delete block" data-toggle="modal" data-target="#delete-modal" data-remote="false" data-block-id="{{ field.id }}"><i class="fa fa-trash-o fa-fw"></i></a>

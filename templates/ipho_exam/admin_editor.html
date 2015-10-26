@@ -112,9 +112,7 @@ body { margin-bottom: 70px; }
 
 
     <div class="content-field-container">
-    {% with content_set as fields_set %}
-        {% include 'ipho_exam/admin_editor_field.html' %}
-    {% endwith %}
+        {% include 'ipho_exam/admin_editor_field.html' with fields_set=content_set %}
     </div>
 
 
