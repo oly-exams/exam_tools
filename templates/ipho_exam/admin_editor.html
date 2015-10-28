@@ -184,6 +184,36 @@ body { margin-bottom: 70px; }
         }
 
         $(function(){
+            // Get csrftoken
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            var csrftoken = getCookie('csrftoken');
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
 
             $(".translate-original").each(content2math);
             $(".translate-foreign").each(content2math);
@@ -256,6 +286,33 @@ body { margin-bottom: 70px; }
                 // modal.find('.modal-body').html('<textarea class="block-editor">'+block_obj.data('content')+'</textarea>');
                 // modal.find('.block-editor').ckeditor();
             });
+            // Submit
+            $(document).on('submit', '#block-modal form', function(evt) {
+                    var form = evt.target;
+                    var $form = $(form);
+                    evt.preventDefault();
+
+                    var data = new FormData($form.get(0));
+                    $.ajax({
+                        url: form.action,
+                        type: form.method,
+                        data: data,
+                        cache: false,
+                        processData: false,
+                        contentType: false,
+                        success: function(data) {
+                            if (!data['success']) {
+                                $('#block-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                                return;
+                            }
+
+
+
+                            $('#block-modal').modal('hide');
+                            // $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+                        }
+                    });
+                });
 
             // Delete
             $(document).on('click', '#delete-modal button[data-confirm="delete"]', function(evt) {

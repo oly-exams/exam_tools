@@ -116,14 +116,16 @@ class AdminBlockAttributeForm(forms.Form):
     value = forms.CharField()
     def __init__(self, *args, **kwargs):
         super(AdminBlockAttributeForm, self).__init__(*args, **kwargs)
+        self.disable_csrf = True
 class AdminBlockAttributeHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super(AdminBlockAttributeHelper, self).__init__(*args, **kwargs)
-        self.layout = Layout(Div(Field('key', placeholder='key'),
-                                  Field('value', placeholder='value'),
+        self.layout = Layout(Div(
+                                Div(Field('key', placeholder='key'), css_class='form-group'),
+                                 Div(Field('value', placeholder='value'),css_class='form-group'),
                                 css_class='form-inline'
                               ))
-        self.html5_required = True
+        #self.html5_required = True
         self.form_show_labels = True
         self.form_tag = False
         self.disable_csrf = True

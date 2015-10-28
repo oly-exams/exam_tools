@@ -353,7 +353,6 @@ def admin_editor(request, exam_id, question_id):
     return render(request, 'ipho_exam/admin_editor.html', context)
 
 @permission_required('iphoperm.is_staff')
-@ensure_csrf_cookie
 def admin_editor_block(request, exam_id, question_id, block_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -378,7 +377,7 @@ def admin_editor_block(request, exam_id, question_id, block_id):
 
     form = AdminBlockForm(block, request.POST or None)
     attrs_form = AdminBlockAttributeFormSet(request.POST or None, initial=[{'key':k,'value':v} for k,v in block.attributes.items()])
-    if form.is_valid():
+    if form.is_valid() and attrs_form.is_valid():
         # TODO: save
 
         return JsonResponse({
