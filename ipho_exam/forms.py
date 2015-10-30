@@ -140,9 +140,9 @@ class AdminBlockForm(forms.Form):
             self.fields['block_content'].initial = mark_safe(node.content())
             self.fields['block_content'].required = False
             self.fields['block_content'].widget.attrs['class'] = 'block-content-editor'
-        for k,v in node.attributes.items():
-            self.fields['attribute_'+k] = forms.CharField()
-            self.fields['attribute_'+k].initial = v
+        # for k,v in node.attributes.items():
+        #     self.fields['attribute_'+k] = forms.CharField()
+        #     self.fields['attribute_'+k].initial = v
 
         self.helper = FormHelper()
         self.helper.html5_required = True
