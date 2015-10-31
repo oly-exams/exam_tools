@@ -262,14 +262,15 @@ body { margin-bottom: 70px; }
                 var button = $(event.relatedTarget); // Button that triggered the modal
                 var href = button.attr('href');
                 var modal = $(this);
+                var block_id = button.data('block-id');
 
                 modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
                 modal.find('.modal-body').html('');
-
                 $.ajax({
                     url: href,
                     dataType: 'json',
                     success: function(data) {
+                        modal.data('block-id', block_id);
                         modal.find('.modal-title').text(data['title']);
                         modal.find('form').attr('action', href);
                         modal.find('.modal-body').html(data['form']);
@@ -291,6 +292,8 @@ body { margin-bottom: 70px; }
                     var form = evt.target;
                     var $form = $(form);
                     evt.preventDefault();
+                    var modal = $('#block-modal');
+                    var block_id = modal.data("block-id");
 
                     var data = new FormData($form.get(0));
                     $.ajax({
@@ -302,13 +305,16 @@ body { margin-bottom: 70px; }
                         contentType: false,
                         success: function(data) {
                             if (!data['success']) {
-                                $('#block-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                                modal.find('.modal-body').html(data['form']).find("[data-toggle=popover]").popover();
                                 return;
                             }
+                            $('#'+block_id+'-attributes').html(data['attributes']);
+                            if (data['content'] !== null) {
+                                $('#'+block_id+'-content').html(data['content']);
+                                $('#'+block_id+'-content').each(content2math);
+                            }
 
-
-
-                            $('#block-modal').modal('hide');
+                            modal.modal('hide');
                             // $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
                         }
                     });

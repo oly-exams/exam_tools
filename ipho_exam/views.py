@@ -378,7 +378,13 @@ def admin_editor_block(request, exam_id, question_id, block_id):
     form = AdminBlockForm(block, request.POST or None)
     attrs_form = AdminBlockAttributeFormSet(request.POST or None, initial=[{'key':k,'value':v} for k,v in block.attributes.items()])
     if form.is_valid() and attrs_form.is_valid():
-        # TODO: save
+        if 'block_content' in form.cleaned_data:
+            block.data = form.cleaned_data['block_content']
+            block.data_html = form.cleaned_data['block_content']
+        block.attributes = dict([(ff.cleaned_data['key'],ff.cleaned_data['value']) for ff in attrs_form if ff.cleaned_data])
+        node.text = qml.xml2string(q.make_xml())
+        node.save()
+        # TODO: with save should create a new revision!!
 
         return JsonResponse({
                     'title'      : heading,
