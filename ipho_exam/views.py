@@ -1,6 +1,7 @@
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
+
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
@@ -371,7 +372,7 @@ def admin_editor_block(request, exam_id, question_id, block_id):
 
     block = q.find(block_id)
     if block is None:
-        raise Exception('block_id not found') # TODO: turn it into 404 error
+        raise Http404('block_id not found')
 
     heading = 'Edit '+block.heading() if block.heading() is not None else 'Edit block'
 
