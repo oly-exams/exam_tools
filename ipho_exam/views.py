@@ -364,7 +364,7 @@ def admin_editor_block(request, exam_id, question_id, block_id):
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
-        node = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version')[0]
+        node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
@@ -403,6 +403,45 @@ def admin_editor_block(request, exam_id, question_id, block_id):
                 'title'   : heading,
                 'form'    : form_html+attrs_form_html,
                 'success' : False,
+            })
+
+@permission_required('iphoperm.is_staff')
+def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    lang_id = OFFICIAL_LANGUAGE
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    question = get_object_or_404(Question, id=question_id)
+
+    lang = get_object_or_404(Language, id=lang_id)
+    if lang.versioned:
+        node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
+    else:
+        node = get_object_or_404(TranslationNode, question=question, language=lang)
+
+    q = qml.QMLquestion(node.text)
+
+    block = q.find(block_id)
+    if block is None:
+        raise Http404('block_id not found')
+
+    newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)))
+    node.text = qml.xml2string(q.make_xml())
+    if lang.versioned: ## make new version and increase version number
+        node.pk = None
+        node.version += 1
+        node.status = 'P'
+    node.save()
+
+    ctx = {
+        'fields_set': [newblock],
+        'exam': exam,
+        'question': question,
+    }
+    return JsonResponse({
+                'new_block' : render_to_string('ipho_exam/admin_editor_field.html', ctx),
+                'success'    : True,
             })
 
 

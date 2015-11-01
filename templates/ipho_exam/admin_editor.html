@@ -257,6 +257,23 @@ body { margin-bottom: 70px; }
                 }
             });
 
+            // Block add
+            $("a[data-action='add-block']").on('click', function (evt) {
+                evt.preventDefault();
+
+                var button = $(this);
+                var href = button.attr('href');
+                var block_id = button.data('block-id');
+
+                $.ajax({
+                    url: href,
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#'+block_id+'-children').append(data['new_block']);
+                    },
+                });
+            });
+
             // Block edit
             $('#block-modal').on('show.bs.modal', function (event) {
                 var button = $(event.relatedTarget); // Button that triggered the modal

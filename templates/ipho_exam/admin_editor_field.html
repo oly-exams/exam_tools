@@ -40,12 +40,15 @@
                 <span class="caret"></span>
               </a>
               <ul class="dropdown-menu">
-                <li><a href="#">Subquestion</a></li>
-                <li><a href="#">Paragraph</a></li>
-                <li><a href="#">Bullet list</a></li>
-                <li><a href="#">Bullet list item</a></li>
-                <li><a href="#">Figure</a></li>
-                <li><a href="#">Equation</a></li>
+                <li><a data-action="add-block" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk block_id=field.id tag_name='title' %}">Title</a></li>
+                <li><a data-action="add-block" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk block_id=field.id tag_name='subquestion' %}">Subquestion</a></li>
+                <li><a data-action="add-block" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk block_id=field.id tag_name='paragraph' %}">Paragraph</a></li>
+                <li><a data-action="add-block" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk block_id=field.id tag_name='list' %}">Bullet list</a></li>
+                <li><a data-action="add-block" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk block_id=field.id tag_name='item' %}">Bullet list item</a></li>
+                <li><a data-action="add-block" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk block_id=field.id tag_name='figure' %}">Figure</a></li>
+                <li><a data-action="add-block" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk block_id=field.id tag_name='param' %}">Figure param</a></li>
+                <li><a data-action="add-block" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk block_id=field.id tag_name='caption' %}">Figure caption</a></li>
+                <li><a data-action="add-block" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk block_id=field.id tag_name='equation' %}">Equation</a></li>
               </ul>
             </div>
         </div>
