@@ -138,3 +138,9 @@ class Feedback(models.Model):
     comment   = models.TextField(blank=True)
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
     timestamp = models.DateTimeField(auto_now=True)
+
+class StudentSubmission(models.Model):
+    student  = models.ForeignKey(Student)
+    exam     = models.ForeignKey(Exam)
+    language = models.ForeignKey(Language)
+    ## TODO: do we need a status? (in progress, submitted, printed)

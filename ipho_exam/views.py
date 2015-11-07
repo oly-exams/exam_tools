@@ -445,6 +445,22 @@ def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
             })
 
 
+@login_required
+def submission_list(request, exam_id):
+    pass
+
+@login_required
+def submission_assign(request, exam_id, lang_id, student_id):
+    pass
+
+@login_required
+def submission_delete(request, submission_id):
+    pass
+
+@login_required
+def submission_submit(request, submission_id):
+    pass
+
 
 @login_required
 def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICIAL_LANGUAGE, orig_diff=None):
