@@ -18,11 +18,11 @@ import shutil
 from hashlib import md5
 
 
-from ipho_core.models import Delegation
+from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback
 from ipho_exam import qml, tex
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm
 
 OFFICIAL_LANGUAGE = 1
 
@@ -447,11 +447,32 @@ def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
 
 @login_required
 def submission_list(request, exam_id):
-    pass
+    exam = get_object_or_404(Exam, id=exam_id)
+    delegation = Delegation.objects.get(members=request.user)
+
+    return render(request, 'ipho_exam/submissions.html', {
+                'exam' : exam,
+            })
 
 @login_required
-def submission_assign(request, exam_id, lang_id, student_id):
-    pass
+def submission_assign(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    delegation = Delegation.objects.get(members=request.user)
+
+    if request.POST:
+        form = SubmissionAssignForm(request.POST)
+        if form.is_valid():
+            form.instance.exam = exam
+            form.save()
+        return HttpResponseRedirect(reverse('exam:submission-list', args=(exam.pk,)))
+    else:
+        form = SubmissionAssignForm()
+        form.fields['student'].queryset = Student.objects.filter(delegation=delegation)
+        form.fields['language'].queryset = Language.objects.filter(delegation=delegation) | Language.objects.filter(id=OFFICIAL_LANGUAGE)
+        ## TODO: identify official languages by delegation
+
+        return HttpResponse(render_crispy_form(form, context=RequestContext(request)))
+
 
 @login_required
 def submission_delete(request, submission_id):

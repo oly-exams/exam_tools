@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
 
-from ipho_exam.models import Language, Figure, TranslationNode, Feedback
+from ipho_exam.models import Language, Figure, TranslationNode, Feedback, StudentSubmission
 
 def validate_file_extension(value):
     import os
@@ -110,6 +110,20 @@ class FeedbackForm(ModelForm):
         model = Feedback
         fields = ['question','comment']
 
+class SubmissionAssignForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(SubmissionAssignForm, self).__init__(*args, **kwargs)
+        self.fields['student'].label_from_instance = lambda obj: u'{} {}'.format(obj.first_name, obj.last_name)
+
+        self.helper = FormHelper()
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.helper.disable_csrf = False
+        self.helper.form_tag = False
+
+    class Meta:
+        model = StudentSubmission
+        fields = ['student','language']
 
 class AdminBlockAttributeForm(forms.Form):
     key = forms.CharField()
