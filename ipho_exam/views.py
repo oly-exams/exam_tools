@@ -19,7 +19,7 @@ from hashlib import md5
 
 
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission
 from ipho_exam import qml, tex
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm
@@ -444,18 +444,23 @@ def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
                 'success'    : True,
             })
 
-
 @login_required
-def submission_list(request, exam_id):
+def submission_exam(request, exam_id):
+    pass
+
+@permission_required('iphoperm.is_staff')
+def admin_submission_list(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
+    submissions = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
 
-    return render(request, 'ipho_exam/submissions.html', {
+    return render(request, 'ipho_exam/admin_submissions.html', {
                 'exam' : exam,
+                'submissions' : submissions,
             })
 
-@login_required
-def submission_assign(request, exam_id):
+@permission_required('iphoperm.is_staff')
+def admin_submission_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
 
@@ -464,7 +469,7 @@ def submission_assign(request, exam_id):
         if form.is_valid():
             form.instance.exam = exam
             form.save()
-        return HttpResponseRedirect(reverse('exam:submission-list', args=(exam.pk,)))
+        return HttpResponseRedirect(reverse('exam:admin-submission-list', args=(exam.pk,)))
     else:
         form = SubmissionAssignForm()
         form.fields['student'].queryset = Student.objects.filter(delegation=delegation)
@@ -473,13 +478,8 @@ def submission_assign(request, exam_id):
 
         return HttpResponse(render_crispy_form(form, context=RequestContext(request)))
 
-
-@login_required
-def submission_delete(request, submission_id):
-    pass
-
-@login_required
-def submission_submit(request, submission_id):
+@permission_required('iphoperm.is_staff')
+def admin_submission_delete(request, submission_id):
     pass
 
 

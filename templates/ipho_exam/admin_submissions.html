@@ -13,7 +13,7 @@
 {% block content %}
 <div class="container">
     <div class="page-header">
-      <h1>Exam submissions</h1>
+      <h1>Translation submissions</h1>
     </div>
 
     <div class="modal fade" id="submission-modal" tabindex="-1">
@@ -36,17 +36,48 @@
 
     <div id="alerts-container"></div>
 
-        <a class="btn btn-default btn-sm" data-toggle="modal" data-target="#submission-modal" data-remote="false" href="{% url 'exam:submission-assign' exam_id=exam.pk %}"><i class="fa fa-plus"></i> Assign language</a>
-    <table class="table table-striped">
+    <p class="lead">
+        In this interface you assign which languages should be delivered to your students.
+    </p>
+
+    <p> Depending on the translation status, certain actions are allowed or they could be disabled. Refer to the following status description to know what are the allowed operations.
+        <dl class="dl-horizontal">
+            <dt>In progress</dt>
+            <dd>
+                The question is still being translated. The <i class="fa fa-pencil"></i> button will take you to the web editor. This status does not allow submission neither PDF preview.
+                The status can be upgraded to "locked" in the web editor.
+            </dd>
+            <dt>Locked</dt>
+            <dd>
+                The question has been locked. The <i class="fa fa-paper-plane-o"></i> button will take you to the final submission form. The preview PDF can be generated with the <i class="fa fa-file-pdf-o"></i> action.
+                The status can be reverted to "in progress" in the web editor.
+            </dd>
+            <dt>Submitted</dt>
+            <dd>
+                The question has been submitted to the organizers. Editing is no longer allowed. The final PDF is available with the <i class="fa fa-file-pdf-o"></i> button.
+            </dd>
+        </dl>
+    </p>
+
+    <a class="btn btn-default btn-sm" data-toggle="modal" data-target="#submission-modal" data-remote="false" href="{% url 'exam:admin-submission-assign' exam_id=exam.pk %}"><i class="fa fa-plus"></i> Assign language</a>
+
+    {% for ss in submissions %}
+    <h4> {{ ss.student.first_name }} {{ ss.student.last_name }} ({{ ss.student.code }})
+        <span class="label label-default">{{ ss.language.name }}</span>
+        <a class="btn btn-xs btn-danger" data-confirm="delete" href="#" title="Delete language assignment"><i class="fa fa-trash-o fa-fw"></i></a>
+</h4>
+    <table class="table">
+      {% for q in exam.question_set.all %}
       <tr>
-          <th>Student</th>
-          <th>Language</th>
-          <th>Action</th>
+          <td>{{ q.name }}</td>
+          <td>
+              <a class="btn btn-xs btn-default" title="Print" href="#"><i class="fa fa-fw fa-print"></i></a>
+              <a class="btn btn-xs btn-success" target="_blank" title="View PDF" href="#"><i class="fa fa-fw fa-file-pdf-o"></i></a>
+          </td>
       </tr>
-
-      <tbody id="exam-tbody"></tbody>
+      {% endfor %}
     </table>
-
+    {% endfor %}
 
 </div> <!-- /container -->
 
