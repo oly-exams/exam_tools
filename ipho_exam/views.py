@@ -446,7 +446,18 @@ def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
 
 @login_required
 def submission_exam(request, exam_id):
-    pass
+    exam = get_object_or_404(Exam, id=exam_id)
+    delegation = Delegation.objects.get(members=request.user)
+    official_lang = Language.objects.get(id=OFFICIAL_LANGUAGE)
+    languages = Language.objects.filter(delegation=delegation)
+
+    return render(request, 'ipho_exam/submission.html', {
+                'exam' : exam,
+                'delegation' : delegation,
+                'languages' : languages,
+                'official_languages' : [official_lang],
+            })
+
 
 @permission_required('iphoperm.is_staff')
 def admin_submission_list(request, exam_id):

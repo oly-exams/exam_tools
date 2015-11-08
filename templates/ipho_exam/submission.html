@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra-head %}
+<style>
+.asteriskField {
+    display: none;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+      <h1>Translations submission</h1>
+    </div>
+
+    <div class="modal fade" id="submission-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <form method="post" action="">
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Add</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="alerts-container"></div>
+
+    <p class="lead">
+        In this interface you assign which languages should be delivered to your students.
+    </p>
+
+    <p>Select the languages that you want to deliver to your students. For each student more than one language can be delivered.</p>
+    <p>A final preview of the translation is available with the <i class="fa fa-file-pdf-o"></i> button. Be sure to check the final layout before proceeding.</p>
+    <p><strong>Note:</strong> The table below shows only the translations that have been already submitted.</p>
+
+    <h2>{{ exam.name }}</h2>
+    <form>
+        <table class="table table-striped form-inline">
+            <tr>
+                <th></th>
+                {% for lang in official_languages %}
+                  <th class="text-center">{{ lang.name }}</th>
+                {% endfor %}
+              {% for lang in languages %}
+                <th class="text-center">{{ lang.name }}</th>
+              {% endfor %}
+            </tr>
+            <tbody>
+          {% for ss in delegation.student_set.all %}
+          <tr>
+              <td>{{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})</td>
+              {% for lang in official_languages %}
+                  <td class="text-center">
+                      <label class="checkbox">
+                          <input type="checkbox" autocomplete="off" class="form-control" />
+                      </label>
+                      <a class="btn btn-xs btn-success" target="_blank" title="Preview PDF" href="#"><i class="fa fa-fw fa-file-pdf-o"></i></a>
+                  </td>
+              {% endfor %}
+              {% for lang in languages %}
+                  <td class="text-center">
+                      <label class="checkbox">
+                          <input type="checkbox" autocomplete="off" class="form-control" />
+                      </label>
+                  </td>
+              {% endfor %}
+          </tr>
+          {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="alert alert-warning">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox"> I understand that this is the final submission of the exam translation. I will have no further possibility to chenge it.
+              </label>
+            </div>
+        </div>
+
+        <div class="pull-right">
+            <input type="submit" class="form-control btn btn-primary" value="Submit" />
+        </div>
+
+    </form>
+</div> <!-- /container -->
+
+{% endblock %}
+
+{% block extra-script %}
+<script>
+$(function() {
+    // Get csrftoken
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+
+    $('#submission-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
+
+        $.ajax({
+            url: href,
+            dataType: 'html',
+            success: function(data) {
+                modal.find('form').attr('action', href);
+                modal.find('.modal-title').html('Assign language to student');
+                modal.find('.modal-body').html(data);
+                modal.find("[data-toggle=popover]").popover(); // activate popover
+            },
+        });
+    })
+
+});
+</script>
+{% endblock %}
