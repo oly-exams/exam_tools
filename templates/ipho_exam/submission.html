@@ -46,7 +46,7 @@
 
     <h2>{{ exam.name }}</h2>
     <form>
-        <table class="table table-striped form-inline">
+        <table class="table table-striped">
             <tr>
                 <th></th>
                 {% for lang in official_languages %}
@@ -62,17 +62,24 @@
               <td>{{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})</td>
               {% for lang in official_languages %}
                   <td class="text-center">
-                      <label class="checkbox">
-                          <input type="checkbox" autocomplete="off" class="form-control" />
+                      <div class="checkbox">
+                      <label>
+                          <input type="checkbox" autocomplete="off" />
+                          deliver
                       </label>
-                      <a class="btn btn-xs btn-success" target="_blank" title="Preview PDF" href="#"><i class="fa fa-fw fa-file-pdf-o"></i></a>
+                    </div>
+                      <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="#"><i class="fa fa-fw fa-file-pdf-o"></i> Preview</a>
                   </td>
               {% endfor %}
               {% for lang in languages %}
                   <td class="text-center">
-                      <label class="checkbox">
-                          <input type="checkbox" autocomplete="off" class="form-control" />
+                      <div class="checkbox">
+                      <label>
+                          <input type="checkbox" autocomplete="off" />
+                          deliver
                       </label>
+                    </div>
+                      <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="#"><i class="fa fa-fw fa-file-pdf-o"></i> Preview</a>
                   </td>
               {% endfor %}
           </tr>
