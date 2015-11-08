@@ -40,7 +40,7 @@
     {# {% url 'exam:add-translation' exam_id=ex.pk %}#}
     <h3>
         {{ ex.name }}
-        <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#translation-modal" data-remote="false" href="{% url 'exam:add-translation' exam_id=ex.pk %}"><i class="fa fa-plus"></i> Add translation</a>
+        <a class="btn btn-default btn-sm" data-toggle="modal" data-target="#translation-modal" data-remote="false" href="{% url 'exam:add-translation' exam_id=ex.pk %}"><i class="fa fa-plus"></i> Add translation</a>
     </h3>
     <table class="table table-striped">
       <tr>
@@ -52,6 +52,19 @@
       </tr>
       <tbody id="exam-tbody-{{ ex.pk }}"></tbody>
     </table>
+    <form>
+        <h3>Submit translations</h3>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" />
+                My translation are finished. I have to proceed to the final submission!
+            </label>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+    <hr />
     {% endfor %}
 
 
