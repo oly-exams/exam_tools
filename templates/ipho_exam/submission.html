@@ -42,7 +42,12 @@
 
     <p>Select the languages that you want to deliver to your students. For each student more than one language can be delivered.</p>
     <p>A final preview of the translation is available with the <i class="fa fa-file-pdf-o"></i> button. Be sure to check the final layout before proceeding.</p>
-    <p><strong>Note:</strong> The table below shows only the translations that have been already submitted.</p>
+
+    {% if submission_status == 'O' %}
+        <div class="alert alert-warning">
+            <strong>Warning:</strong> The translations are not yet submitted. (TODO: do not allow to continue if translations are not submitted)
+        </div>
+    {% endif %}
 
     <h2>{{ exam.name }}</h2>
     <form>

@@ -19,7 +19,7 @@ from hashlib import md5
 
 
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
 from ipho_exam import qml, tex
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm
@@ -451,11 +451,14 @@ def submission_exam(request, exam_id):
     official_lang = Language.objects.get(id=OFFICIAL_LANGUAGE)
     languages = Language.objects.filter(delegation=delegation)
 
+    ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
+
     return render(request, 'ipho_exam/submission.html', {
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,
                 'official_languages' : [official_lang],
+                'submission_status' : ex_submission.status,
             })
 
 

@@ -139,6 +139,17 @@ class Feedback(models.Model):
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
     timestamp = models.DateTimeField(auto_now=True)
 
+class ExamDelegationSubmission(models.Model):
+    STATUS_CHOICES = (
+        ('O', 'In progress'),
+        ('S', 'Translations submitted'),
+        ('A', 'Translations assigned'),
+    )
+    exam       = models.ForeignKey(Exam)
+    delegation = models.ForeignKey(Delegation)
+    status     = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
+    timestamp  = models.DateTimeField(auto_now=True)
+
 class StudentSubmission(models.Model):
     student  = models.ForeignKey(Student)
     exam     = models.ForeignKey(Exam)
