@@ -14,6 +14,12 @@
 <div class="container">
     <div class="page-header">
       <h1>Translations submission</h1>
+      <div class="progress text-center">
+          step 1 on two
+          <div class="progress-bar" style="width: 50%;">
+          </div>
+      </div>
+
     </div>
 
     <div class="modal fade" id="submission-modal" tabindex="-1">
@@ -50,7 +56,9 @@
     {% endif %}
 
     <h2>{{ exam.name }}</h2>
-    <form>
+
+    <form method="post">
+        {% csrf_token %}
         <table class="table table-striped">
             <tr>
                 <th></th>
@@ -62,25 +70,14 @@
               {% endfor %}
             </tr>
             <tbody>
-          {% for ss in delegation.student_set.all %}
+          {% for ss,stud_langs in students_languages.items %}
           <tr>
               <td>{{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})</td>
-              {% for lang in official_languages %}
+              {% for lang,checked in stud_langs.items %}
                   <td class="text-center">
                       <div class="checkbox">
                       <label>
-                          <input type="checkbox" autocomplete="off" />
-                          deliver
-                      </label>
-                    </div>
-                      <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="#"><i class="fa fa-fw fa-file-pdf-o"></i> Preview</a>
-                  </td>
-              {% endfor %}
-              {% for lang in languages %}
-                  <td class="text-center">
-                      <div class="checkbox">
-                      <label>
-                          <input type="checkbox" autocomplete="off" />
+                          <input type="checkbox" autocomplete="off" name="assign-{{ ss.pk }}-{{ lang.pk }}" {% if checked %}checked{% endif %} />
                           deliver
                       </label>
                     </div>
@@ -95,13 +92,16 @@
         <div class="alert alert-warning">
             <div class="checkbox">
               <label>
-                <input type="checkbox"> I understand that this is the final submission of the exam translation. I will have no further possibility to chenge it.
+                <input type="checkbox" autocomplete="off" name="agree-submit"> I understand that this is the final submission of the exam translation. I will have no further possibility to chenge it.
               </label>
             </div>
         </div>
 
-        <div class="pull-right">
-            <input type="submit" class="form-control btn btn-primary" value="Submit" />
+        <div>
+            <input type="button" class="btn btn-default" value="Back" />
+            <div class="pull-right">
+                <input type="submit" class="btn btn-primary" value="Next >>" />
+            </div>
         </div>
 
     </form>

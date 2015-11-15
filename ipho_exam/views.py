@@ -10,6 +10,7 @@ from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 
 from copy import deepcopy
+from collections import OrderedDict
 
 from tempfile import mkdtemp
 import subprocess
@@ -453,12 +454,29 @@ def submission_exam(request, exam_id):
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
 
+    if request.POST:
+        print request.POST
+
+    assigned_student_language = OrderedDict()
+    for student in delegation.student_set.all():
+        stud_langs = OrderedDict()
+        for lang in [official_lang]:
+            stud_langs[lang] = False
+        for lang in languages:
+            stud_langs[lang] = False
+        assigned_student_language[student] = (stud_langs)
+
+    student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
+    for sl in student_languages:
+        assigned_student_language[sl.student][sl.language] = True
+
     return render(request, 'ipho_exam/submission.html', {
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,
                 'official_languages' : [official_lang],
                 'submission_status' : ex_submission.status,
+                'students_languages' : assigned_student_language,
             })
 
 
