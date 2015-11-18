@@ -64,6 +64,7 @@
     {% for ss in submissions %}
     <h4> {{ ss.student.first_name }} {{ ss.student.last_name }} ({{ ss.student.code }})
         <span class="label label-default">{{ ss.language.name }}</span>
+        {% if ss.with_answer %}<span class="label label-primary">with answer sheets</span>{% endif %}
         <a class="btn btn-xs btn-danger" data-confirm="delete" href="#" title="Delete language assignment"><i class="fa fa-trash-o fa-fw"></i></a>
 </h4>
     <table class="table">

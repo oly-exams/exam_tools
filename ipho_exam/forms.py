@@ -125,7 +125,7 @@ class SubmissionAssignForm(ModelForm):
 
     class Meta:
         model = StudentSubmission
-        fields = ['student','language']
+        fields = ['student','language', 'with_answer']
 
 class AdminBlockAttributeForm(forms.Form):
     key = forms.CharField()

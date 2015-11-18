@@ -142,8 +142,7 @@ class Feedback(models.Model):
 class ExamDelegationSubmission(models.Model):
     STATUS_CHOICES = (
         ('O', 'In progress'),
-        ('S', 'Translations submitted'),
-        ('A', 'Translations assigned'),
+        ('S', 'Submitted'),
     )
     exam       = models.ForeignKey(Exam)
     delegation = models.ForeignKey(Delegation)
@@ -157,6 +156,8 @@ class StudentSubmission(models.Model):
     student  = models.ForeignKey(Student)
     exam     = models.ForeignKey(Exam)
     language = models.ForeignKey(Language)
+    with_answer = models.BooleanField(default=False,  help_text='Deliver also answer sheet.')
+
     ## TODO: do we need a status? (in progress, submitted, printed)
 
     class Meta:
