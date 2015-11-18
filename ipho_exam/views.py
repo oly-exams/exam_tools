@@ -5,7 +5,8 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http40
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 
@@ -508,7 +509,9 @@ def admin_submission_assign(request, exam_id):
         form.fields['language'].queryset = Language.objects.filter(delegation=delegation) | Language.objects.filter(id=OFFICIAL_LANGUAGE)
         ## TODO: identify official languages by delegation
 
-        return HttpResponse(render_crispy_form(form, context=RequestContext(request)))
+        ctx = RequestContext(request)
+        ctx.update(csrf(request))
+        return HttpResponse(render_crispy_form(form, context=ctx))
 
 @permission_required('iphoperm.is_staff')
 def admin_submission_delete(request, submission_id):
