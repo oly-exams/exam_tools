@@ -480,6 +480,40 @@ def submission_exam(request, exam_id):
                 'students_languages' : assigned_student_language,
             })
 
+@login_required
+def submission_exam_confirm(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    delegation = Delegation.objects.get(members=request.user)
+    official_lang = Language.objects.get(id=OFFICIAL_LANGUAGE)
+    languages = Language.objects.filter(delegation=delegation)
+
+    ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
+
+    if request.POST:
+        print request.POST
+
+    assigned_student_language = OrderedDict()
+    for student in delegation.student_set.all():
+        stud_langs = OrderedDict()
+        for lang in [official_lang]:
+            stud_langs[lang] = False
+        for lang in languages:
+            stud_langs[lang] = False
+        assigned_student_language[student] = (stud_langs)
+
+    student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
+    for sl in student_languages:
+        assigned_student_language[sl.student][sl.language] = True
+
+    return render(request, 'ipho_exam/submission_confirm.html', {
+                'exam' : exam,
+                'delegation' : delegation,
+                'languages' : languages,
+                'official_languages' : [official_lang],
+                'submission_status' : ex_submission.status,
+                'students_languages' : assigned_student_language,
+            })
+
 
 @permission_required('iphoperm.is_staff')
 def admin_submission_list(request, exam_id):
