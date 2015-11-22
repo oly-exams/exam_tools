@@ -15,7 +15,7 @@ from collections import OrderedDict
 
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
-from ipho_exam import qml, tex, qquery
+from ipho_exam import qml, tex, pdf, qquery
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm
 
@@ -666,7 +666,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
 
 @login_required
-def pdf(request, question_id, lang_id, raw_tex=False):
+def compiled_question(request, question_id, lang_id, raw_tex=False):
     trans = qquery.latest_version(question_id, lang_id)
     trans_content, ext_resources = trans.qml.make_tex()
     context = {
@@ -674,8 +674,17 @@ def pdf(request, question_id, lang_id, raw_tex=False):
                 'extraheader' : trans.lang.extraheader,
                 'title'       : trans.question.name,
                 'document'    : trans_content,
-                'filename'    : u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name),
               }
+    body = render_to_string('ipho_exam/tex/exam_question.tex', context).encode("utf-8")
+
     if raw_tex:
-        return render(request, 'ipho_exam/tex/exam_question.tex', context, content_type='text/plain')
-    return tex.render_tex(request, 'ipho_exam/tex/exam_question.tex', context, ext_resources)
+        return HttpResponse(body, content_type="text/plain")
+    try:
+        filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
+        return pdf.cached_pdf_response(request, body, ext_resources, filename)
+    except pdf.TexCompileException as e:
+        return HttpResponse(e.log, content_type="text/plain")
+
+@login_required
+def pdf_exam_for_student(request, exam_id, student_id):
+    pass

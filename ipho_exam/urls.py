@@ -18,8 +18,9 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^editor/(?P<exam_id>\d+)/question/(?P<question_id>\d+)/orig_diff/(?P<orig_id>\d+)v(?P<orig_diff>\d+)$', 'editor', name='editor-origdiff'),
     url(r'^editor/(?P<exam_id>\d+)/question/(?P<question_id>\d+)/orig_diff/(?P<orig_id>\d+)v(?P<orig_diff>\d+)/lang/(?P<lang_id>\d+)?$', 'editor', name='editor-origdiff-lang'),
 
-    url(r'^pdf/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'pdf', name='pdf'),
-    url(r'^tex/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'pdf', {'raw_tex': True}, name='tex'),
+    url(r'^pdf/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'compiled_question', name='pdf'),
+    url(r'^tex/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'compiled_question', {'raw_tex': True}, name='tex'),
+    url(r'^pdf/exam/(?P<exam_id>\d+)/student/(?P<student_id>\d+)$', 'pdf_exam_for_student', name='pdf-exam-student'),
 
     url(r'^feedbacks/list/?$', 'feedbacks_list', name='feedbacks-list'),
     url(r'^feedbacks/add/(?P<exam_id>\d+)$', 'feedbacks_add', name='feedbacks-add'),

@@ -45,7 +45,7 @@ def html2tex(el):
         ## Underline
         elif sel.tag in ["u"]:
             result.append(u'\\underline{%s}' % (html2tex(sel)))
-        
+
         ## By default just append content
         else:
             result.append(html2tex(sel))
@@ -72,58 +72,3 @@ class StaticExport(object):
         pass
     def save(self, dirname):
         pass
-
-def render_tex(request, template, ctx={}, ext_resources=[]):
-    doc = template.rsplit('/', 1)[-1].rsplit('.', 1)[0]
- 
-    try:
-        body = get_template(template).render(Context(ctx)).encode("utf-8")
-    except TemplateDoesNotExist:
-        raise Http404()
- 
-    etag = md5(body).hexdigest()
-    if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
-        return HttpResponseNotModified()
- 
-    cache_key = "%s:%s:%s" % (CACHE_PREFIX, template, etag)
-    pdf = cache.get(cache_key)
-    if pdf is None:
-        if '\\nonstopmode' not in body:
-            raise ValueError("\\nonstopmode not present in document, cowardly refusing to process.")
- 
-        tmp = mkdtemp(prefix=TEMP_PREFIX)
-        try:
-            for res in ext_resources:
-                res.save(tmp)
-
-            with open("%s/%s.tex" % (tmp, doc), "w") as f:
-                f.write(body)
-            del body
- 
-            error = subprocess.Popen(
-                ["xelatex", "%s.tex" % doc],
-                cwd=tmp,
-                stdin=open(os.devnull, "r"),
-                stderr=open(os.devnull, "wb"),
-                stdout=open(os.devnull, "wb")
-            ).wait()
- 
-            if error:
-                if request.user.is_superuser:
-                    log = open("%s/%s.log" % (tmp, doc)).read()
-                    return HttpResponse(log, content_type="text/plain")
-                else:
-                    raise RuntimeError("pdflatex error (code %s) in %s/%s" % (error, tmp, doc))
-            
-            with open("%s/%s.pdf" % (tmp, doc)) as f:
-                pdf = f.read()
-        finally:
-            shutil.rmtree(tmp)
- 
-        if pdf:
-            cache.set(cache_key, pdf, CACHE_TIMEOUT)
- 
-    res = HttpResponse(pdf, content_type="application/pdf")
-    res['content-disposition'] = 'inline; filename="{}"'.format(ctx['filename'].encode('utf-8'))
-    res['ETag'] = etag
-    return res
