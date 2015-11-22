@@ -13,16 +13,9 @@ from django.template.loader import render_to_string
 from copy import deepcopy
 from collections import OrderedDict
 
-from tempfile import mkdtemp
-import subprocess
-import os
-import shutil
-from hashlib import md5
-
-
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
-from ipho_exam import qml, tex
+from ipho_exam import qml, tex, qquery
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm
 
@@ -674,23 +667,14 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
 @login_required
 def pdf(request, question_id, lang_id, raw_tex=False):
-    question = get_object_or_404(Question, id=question_id)
-
-    trans_lang = get_object_or_404(Language, id=lang_id)
-    if trans_lang.versioned:
-        trans_node = VersionNode.objects.filter(question=question, language=trans_lang, status='C').order_by('-version')[0]
-    else:
-        trans_node = get_object_or_404(TranslationNode, question=question, language=trans_lang)
-
-    trans_q = qml.QMLquestion(trans_node.text)
-    trans_content, ext_resources = trans_q.make_tex()
-
+    trans = qquery.latest_version(question_id, lang_id)
+    trans_content, ext_resources = trans.qml.make_tex()
     context = {
-                'polyglossia' : trans_lang.polyglossia,
-                'extraheader' : trans_lang.extraheader,
-                'title'       : question.name,
+                'polyglossia' : trans.lang.polyglossia,
+                'extraheader' : trans.lang.extraheader,
+                'title'       : trans.question.name,
                 'document'    : trans_content,
-                'filename'    : u'IPhO16 - {} Q{} - {}.pdf'.format(question.exam.name, question.position, trans_lang.name),
+                'filename'    : u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name),
               }
     if raw_tex:
         return render(request, 'ipho_exam/tex/exam_question.tex', context, content_type='text/plain')
