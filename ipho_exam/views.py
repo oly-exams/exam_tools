@@ -687,4 +687,32 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
 
 @login_required
 def pdf_exam_for_student(request, exam_id, student_id):
-    pass
+    exam = get_object_or_404(Exam, id=exam_id)
+    student = get_object_or_404(Student, id=student_id)
+
+    ## TODO: implement caching
+    all_pages = []
+
+    student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
+    for question in exam.question_set.all():
+        ## TODO: covert for each question
+        for sl in student_languages:
+            trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
+            trans_content, ext_resources = trans.qml.make_tex()
+            context = {
+                        'polyglossia' : trans.lang.polyglossia,
+                        'extraheader' : trans.lang.extraheader,
+                        'title'       : trans.question.name,
+                        'document'    : trans_content,
+                      }
+            body = render_to_string('ipho_exam/tex/exam_question.tex', context).encode("utf-8")
+            question_pdf = pdf.compile_tex(body, ext_resources)
+            ## TODO: in case of answer sheet, add barcodes
+            all_pages.append(question_pdf)
+
+    document = pdf.concatenate_documents(all_pages)
+    filename = u'IPhO16 - {} - {}.pdf'.format(exam.name, student.code)
+
+    res = HttpResponse(document, content_type="application/pdf")
+    res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
+    return res

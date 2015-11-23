@@ -65,7 +65,7 @@
           <tr>
               <td>
                   {{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})
-                  <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="#"><i class="fa fa-fw fa-file-pdf-o"></i> Preview</a>
+                  <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-student'  exam_id=exam.pk student_id=ss.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> Preview</a>
               </td>
               {% for lang,checked in stud_langs.items %}
                   <td class="text-center">

@@ -8,6 +8,9 @@ import os
 import shutil
 from hashlib import md5
 
+from PyPDF2 import PdfFileWriter, PdfFileReader
+from StringIO import StringIO
+
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
 CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
 CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 60)  # 1 min
@@ -64,6 +67,16 @@ def compile_tex(body, ext_resources=[]):
         if pdf:
             cache.set(cache_key, pdf, CACHE_TIMEOUT)
     return pdf
+
+def concatenate_documents(all_documents):
+    output = PdfFileWriter()
+    for doc in  all_documents:
+        pdfdoc = PdfFileReader(StringIO(doc))
+        for page in xrange(pdfdoc.getNumPages()):
+            output.addPage(pdfdoc.getPage(i))
+    output_pdf = StringIO()
+    output.write(output_pdf)
+    return output_pdf.getvalue()
 
 def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'):
     etag = md5(body).hexdigest()
