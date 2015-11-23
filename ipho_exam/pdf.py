@@ -72,7 +72,7 @@ def concatenate_documents(all_documents):
     output = PdfFileWriter()
     for doc in  all_documents:
         pdfdoc = PdfFileReader(StringIO(doc))
-        for page in xrange(pdfdoc.getNumPages()):
+        for i in xrange(pdfdoc.getNumPages()):
             output.addPage(pdfdoc.getPage(i))
     output_pdf = StringIO()
     output.write(output_pdf)
