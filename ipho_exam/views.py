@@ -700,9 +700,9 @@ def pdf_exam_for_student(request, exam_id, student_id):
             trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
             trans_content, ext_resources = trans.qml.make_tex()
             context = {
-                        'polyglossia' : trans.lang.polyglossia,
-                        'extraheader' : trans.lang.extraheader,
-                        'title'       : trans.question.name,
+                        'polyglossia' : sl.language.polyglossia,
+                        'extraheader' : sl.language.extraheader,
+                        'title'       : question.name,
                         'document'    : trans_content,
                       }
             body = render_to_string('ipho_exam/tex/exam_question.tex', context).encode("utf-8")
