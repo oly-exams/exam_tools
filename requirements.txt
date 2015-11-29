@@ -1,2 +1,4 @@
 Django == 1.8.*
 django-crispy-forms
+hg+https://bitbucket.org/whitie/python-barcode
+PyPDF2
