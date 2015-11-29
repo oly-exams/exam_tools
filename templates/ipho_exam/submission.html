@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block extra-head %}
+<link href="{% static "form_wizard_steps.css" %}" rel="stylesheet">
+
 <style>
 .asteriskField {
     display: none;
@@ -14,12 +16,41 @@
 <div class="container">
     <div class="page-header">
       <h1>Translations submission</h1>
-      <div class="progress text-center">
-          step 1 on two
-          <div class="progress-bar" style="width: 50%;">
-          </div>
-      </div>
+  </div>
 
+  <p class="lead">
+      In this interface you assign which languages should be delivered to your students.
+  </p>
+
+    <div class="wizard">
+        <div class="wizard-inner">
+            <div class="connecting-line"></div>
+            <ul class="nav nav-tabs">
+
+                <li class="active">
+                    <a href="#step2" title="Assign languages">
+                        <span class="round-tab">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </span>
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a href="#step3" title="Confirm">
+                        <span class="round-tab">
+                            <i class="glyphicon glyphicon-ok"></i>
+                        </span>
+                    </a>
+                </li>
+
+                <li class="disabled">
+                    <a href="#complete" title="Submitted">
+                        <span class="round-tab">
+                            <i class="fa fa-paper-plane-o fa-fw"></i>
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <div class="modal fade" id="submission-modal" tabindex="-1">
@@ -42,18 +73,9 @@
 
     <div id="alerts-container"></div>
 
-    <p class="lead">
-        In this interface you assign which languages should be delivered to your students.
-    </p>
 
     <p>Select the languages that you want to deliver to your students. For each student more than one language can be delivered.</p>
     <p>A final preview of the translation is available with the <i class="fa fa-file-pdf-o"></i> button. Be sure to check the final layout before proceeding.</p>
-
-    {% if submission_status == 'O' %}
-        <div class="alert alert-warning">
-            <strong>Warning:</strong> The translations are not yet submitted. (TODO: do not allow to continue if translations are not submitted)
-        </div>
-    {% endif %}
 
     <h2>{{ exam.name }}</h2>
 
@@ -142,6 +164,13 @@ $(function() {
         }
     });
 
+    $('.nav-tabs > li a[title]').tooltip();
+    $('.nav-tabs a').click(function (e) {
+        var $button = $(this);
+        if ($button.parent().hasClass('disabled')) {
+            e.preventDefault();
+        }
+    });
 
     $('#submission-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
