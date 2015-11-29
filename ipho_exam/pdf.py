@@ -68,6 +68,24 @@ def compile_tex(body, ext_resources=[]):
             cache.set(cache_key, pdf, CACHE_TIMEOUT)
     return pdf
 
+def add_barcode(doc, bgenerator):
+    pdfdoc = PdfFileReader(StringIO(doc))
+
+    output = PdfFileWriter()
+    for i in xrange(pdfdoc.getNumPages()):
+        barpdf = PdfFileReader(StringIO(bgenerator(i+1)))
+        watermark = barpdf.getPage(0)
+        wbox = watermark.artBox
+
+        page = pdfdoc.getPage(i)
+        pbox = page.artBox
+        page.mergeTranslatedPage(watermark, 10, pbox.upperLeft[1]-wbox.upperLeft[1]-10)
+        output.addPage(page)
+
+    output_pdf = StringIO()
+    output.write(output_pdf)
+    return output_pdf.getvalue()
+
 def concatenate_documents(all_documents):
     output = PdfFileWriter()
     for doc in  all_documents:

@@ -15,7 +15,7 @@ from collections import OrderedDict
 
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
-from ipho_exam import qml, tex, pdf, qquery
+from ipho_exam import qml, tex, pdf, iphocode, qquery
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm
 
@@ -711,6 +711,9 @@ def pdf_exam_for_student(request, exam_id, student_id):
             body = render_to_string('ipho_exam/tex/exam_question.tex', context).encode("utf-8")
             question_pdf = pdf.compile_tex(body, ext_resources)
             ## TODO: in case of answer sheet, add barcodes
+            if question.is_answer_sheet():
+                bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
+                question_pdf = pdf.add_barcode(question_pdf, bgenerator)
             all_pages.append(question_pdf)
 
     document = pdf.concatenate_documents(all_pages)
