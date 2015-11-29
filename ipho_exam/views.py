@@ -334,7 +334,7 @@ def admin_editor(request, exam_id, question_id):
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
-        node = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version')[0]
+        node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
