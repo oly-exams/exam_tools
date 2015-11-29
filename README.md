@@ -8,9 +8,10 @@ Base dependencies
 
 To compile exams
 * XeLaTeX, with TexLive 2014 (2015 not yet tested, but should also work)
-* Fonts, TODO provide list of required fonts.
-* CairoSVG
-
+* Fonts, TODO provide list of required fonts
+* CairoSVG (figure convert)
+* pyPDF2 (manipulation of PDF)
+* Barcode (generate barcodes)
 
 
 ## Install
