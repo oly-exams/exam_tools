@@ -697,6 +697,9 @@ def pdf_exam_for_student(request, exam_id, student_id):
     for question in exam.question_set.all():
         ## TODO: covert for each question
         for sl in student_languages:
+            if question.is_answer_sheet() and not sl.with_answer:
+                continue
+
             trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
             trans_content, ext_resources = trans.qml.make_tex()
             context = {

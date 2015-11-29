@@ -41,12 +41,22 @@ class Exam(models.Model):
 
 
 class Question(models.Model):
+    QUESTION_TYPES = (
+        ('Q', 'Question'),
+        ('A', 'Answer'),
+    )
+
     name = models.CharField(max_length=100)
     exam = models.ForeignKey(Exam)
     position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
+    type = models.CharField(max_length=1, choices=QUESTION_TYPES, default='Q')
+    ## TODO: add template field
 
     class Meta:
         ordering = ['position']
+
+    def is_answer_sheet(self):
+        return self.type == 'A'
 
     def exam_name(self):
         return self.exam.name
