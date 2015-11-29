@@ -344,7 +344,7 @@ def admin_editor(request, exam_id, question_id):
     context = {
         'exam' : exam,
         'question' : question,
-        'content_set' : q.children,
+        'content_set' : [q],
     }
     return render(request, 'ipho_exam/admin_editor.html', context)
 
