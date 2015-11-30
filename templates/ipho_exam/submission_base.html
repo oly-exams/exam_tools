@@ -28,14 +28,14 @@
             <ul class="nav nav-tabs">
 
                 <li class="{% block assign-classes %}disabled{% endblock %}">
-                    <a href="#step2" title="Assign languages">
+                    <a href="{% url 'exam:submission-exam-assign' exam_id=exam.pk %}" title="Assign languages">
                         <span class="round-tab">
                             <i class="glyphicon glyphicon-pencil"></i>
                         </span>
                     </a>
                 </li>
                 <li class="{% block confirm-classes %}disabled{% endblock %}">
-                    <a href="#step3" title="Confirm">
+                    <a href="{% url 'exam:submission-exam-confirm' exam_id=exam.pk %}" title="Confirm">
                         <span class="round-tab">
                             <i class="glyphicon glyphicon-ok"></i>
                         </span>
@@ -43,7 +43,7 @@
                 </li>
 
                 <li class="{% block submitted-classes %}disabled{% endblock %}">
-                    <a href="#complete" title="Submitted">
+                    <a href="{% url 'exam:submission-exam-submitted' exam_id=exam.pk %}" title="Submitted">
                         <span class="round-tab">
                             <i class="fa fa-paper-plane-o fa-fw"></i>
                         </span>

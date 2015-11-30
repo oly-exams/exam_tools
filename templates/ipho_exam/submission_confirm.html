@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block exam-content %}
-<form method="post">
+<form method="post" action="{% url 'exam:submission-exam-confirm' exam_id=exam.pk %}">
     {% csrf_token %}
     <table class="table table-striped">
         <tr>

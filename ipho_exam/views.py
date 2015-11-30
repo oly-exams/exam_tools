@@ -440,7 +440,7 @@ def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
             })
 
 @login_required
-def submission_exam(request, exam_id):
+def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
     official_lang = Language.objects.get(id=OFFICIAL_LANGUAGE)
@@ -450,6 +450,7 @@ def submission_exam(request, exam_id):
 
     if request.POST:
         print request.POST
+        return HttpResponseRedirect(reverse('exam:submission-exam-confirm', args=(exam.pk,)))
 
     assigned_student_language = OrderedDict()
     for student in delegation.student_set.all():
@@ -464,7 +465,7 @@ def submission_exam(request, exam_id):
     for sl in student_languages:
         assigned_student_language[sl.student][sl.language] = True
 
-    return render(request, 'ipho_exam/submission.html', {
+    return render(request, 'ipho_exam/submission_assign.html', {
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,
@@ -484,6 +485,8 @@ def submission_exam_confirm(request, exam_id):
 
     if request.POST:
         print request.POST
+        return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
+
 
     assigned_student_language = OrderedDict()
     for student in delegation.student_set.all():
@@ -499,6 +502,37 @@ def submission_exam_confirm(request, exam_id):
         assigned_student_language[sl.student][sl.language] = True
 
     return render(request, 'ipho_exam/submission_confirm.html', {
+                'exam' : exam,
+                'delegation' : delegation,
+                'languages' : languages,
+                'official_languages' : [official_lang],
+                'submission_status' : ex_submission.status,
+                'students_languages' : assigned_student_language,
+            })
+
+@login_required
+def submission_exam_submitted(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    delegation = Delegation.objects.get(members=request.user)
+    official_lang = Language.objects.get(id=OFFICIAL_LANGUAGE)
+    languages = Language.objects.filter(delegation=delegation)
+
+    ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
+
+    assigned_student_language = OrderedDict()
+    for student in delegation.student_set.all():
+        stud_langs = OrderedDict()
+        for lang in [official_lang]:
+            stud_langs[lang] = False
+        for lang in languages:
+            stud_langs[lang] = False
+        assigned_student_language[student] = (stud_langs)
+
+    student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
+    for sl in student_languages:
+        assigned_student_language[sl.student][sl.language] = True
+
+    return render(request, 'ipho_exam/submission_submitted.html', {
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,

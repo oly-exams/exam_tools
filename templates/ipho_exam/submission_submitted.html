@@ -1,0 +1,51 @@
+{% extends "ipho_exam/submission_base.html" %}
+{% load static %}
+
+{% block assign-classes %}disabled{% endblock %}
+{% block confirm-classes %}disabled{% endblock %}
+{% block submitted-classes %}active{% endblock %}
+
+{% block step-content %}
+<div class="alert alert-success">
+<strong>Submission completed!</strong>
+The submission of the following exam has been completed.
+</div>
+
+<p>
+The exams will shortly be printed by the IPhO 2016 staff @ Uni Zurich. Below you can see again the final version that has been submitted. To request scans of the final printed exams, please send a mail to <a href="mailto:request-exam@ipho2016.org?subject=Request scans for delegation {{ delegation.name }}">request-exam@ipho2016.org</a>.
+</p>
+
+{% endblock %}
+
+{% block exam-content %}
+    <table class="table table-striped">
+        <tr>
+            <th></th>
+            {% for lang in official_languages %}
+              <th class="text-center">{{ lang.name }}</th>
+            {% endfor %}
+          {% for lang in languages %}
+            <th class="text-center">{{ lang.name }}</th>
+          {% endfor %}
+        </tr>
+        <tbody>
+      {% for ss,stud_langs in students_languages.items %}
+      <tr>
+          <td>
+              {{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})
+              <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-student'  exam_id=exam.pk student_id=ss.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View</a>
+          </td>
+          {% for lang,checked in stud_langs.items %}
+              <td class="text-center">
+                  {% if checked %}
+                    <i class="fa fa-check"></i>
+                  {% else %}
+                    -
+                  {% endif %}
+              </td>
+          {% endfor %}
+      </tr>
+      {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
