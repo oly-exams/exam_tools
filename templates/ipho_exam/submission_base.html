@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra-head %}
+<link href="{% static "form_wizard_steps.css" %}" rel="stylesheet">
+
+<style>
+.asteriskField {
+    display: none;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+      <h1>Translations submission</h1>
+  </div>
+
+  <p class="lead">
+      In this interface you assign which languages should be delivered to your students.
+  </p>
+
+    <div class="wizard">
+        <div class="wizard-inner">
+            <div class="connecting-line"></div>
+            <ul class="nav nav-tabs">
+
+                <li class="{% block assign-classes %}disabled{% endblock %}">
+                    <a href="#step2" title="Assign languages">
+                        <span class="round-tab">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </span>
+                    </a>
+                </li>
+                <li class="{% block confirm-classes %}disabled{% endblock %}">
+                    <a href="#step3" title="Confirm">
+                        <span class="round-tab">
+                            <i class="glyphicon glyphicon-ok"></i>
+                        </span>
+                    </a>
+                </li>
+
+                <li class="{% block submitted-classes %}disabled{% endblock %}">
+                    <a href="#complete" title="Submitted">
+                        <span class="round-tab">
+                            <i class="fa fa-paper-plane-o fa-fw"></i>
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="alerts-container"></div>
+
+    {% block step-content %}{% endblock %}
+
+    <h2>{% block exam-header %}{{ exam.name }}{% endblock %}</h2>
+
+    {% block exam-content %}{% endblock %}
+
+</div> <!-- /container -->
+
+{% endblock %}
+
+{% block extra-script %}
+<script>
+$(function() {
+
+    $('.nav-tabs > li a[title]').tooltip();
+    $('.nav-tabs a').click(function (e) {
+        var $button = $(this);
+        if ($button.parent().hasClass('disabled')) {
+            e.preventDefault();
+        }
+    });
+
+});
+</script>
+{% endblock %}
