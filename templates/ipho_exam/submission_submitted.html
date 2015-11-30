@@ -18,6 +18,7 @@ The exams will shortly be printed by the IPhO 2016 staff @ Uni Zurich. Below you
 {% endblock %}
 
 {% block exam-content %}
+    <p><i class="fa fa-check"></i> translation selected for delivery, <i class="fa fa-check"></i><i class="fa fa-check"></i> translation selected for delivery with answer sheets.</p>
     <table class="table table-striped">
         <tr>
             <th></th>
@@ -37,8 +38,10 @@ The exams will shortly be printed by the IPhO 2016 staff @ Uni Zurich. Below you
           </td>
           {% for lang,checked in stud_langs.items %}
               <td class="text-center">
-                  {% if checked %}
+                  {% if checked == 'Q' %}
                     <i class="fa fa-check"></i>
+                  {% elif checked == 'A' %}
+                    <i class="fa fa-check"></i><i class="fa fa-check"></i>
                   {% else %}
                     -
                   {% endif %}

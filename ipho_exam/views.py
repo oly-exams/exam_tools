@@ -452,18 +452,24 @@ def submission_exam_assign(request, exam_id):
         print request.POST
         return HttpResponseRedirect(reverse('exam:submission-exam-confirm', args=(exam.pk,)))
 
+    class SS(object):
+        def __init__(self, lang_check, with_answer):
+            self.lang_check = lang_check
+            self.with_answer = with_answer
+
     assigned_student_language = OrderedDict()
     for student in delegation.student_set.all():
         stud_langs = OrderedDict()
         for lang in [official_lang]:
-            stud_langs[lang] = False
+            stud_langs[lang] = SS(False,False)
         for lang in languages:
-            stud_langs[lang] = False
+            stud_langs[lang] = SS(False,False)
         assigned_student_language[student] = (stud_langs)
 
     student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
     for sl in student_languages:
-        assigned_student_language[sl.student][sl.language] = True
+        assigned_student_language[sl.student][sl.language].lang_check = True
+        assigned_student_language[sl.student][sl.language].with_answer = sl.with_answer
 
     return render(request, 'ipho_exam/submission_assign.html', {
                 'exam' : exam,
@@ -499,7 +505,10 @@ def submission_exam_confirm(request, exam_id):
 
     student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
     for sl in student_languages:
-        assigned_student_language[sl.student][sl.language] = True
+        if sl.with_answer:
+            assigned_student_language[sl.student][sl.language] = 'A'
+        else:
+            assigned_student_language[sl.student][sl.language] = 'Q'
 
     return render(request, 'ipho_exam/submission_confirm.html', {
                 'exam' : exam,
@@ -530,7 +539,10 @@ def submission_exam_submitted(request, exam_id):
 
     student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
     for sl in student_languages:
-        assigned_student_language[sl.student][sl.language] = True
+        if sl.with_answer:
+            assigned_student_language[sl.student][sl.language] = 'A'
+        else:
+            assigned_student_language[sl.student][sl.language] = 'Q'
 
     return render(request, 'ipho_exam/submission_submitted.html', {
                 'exam' : exam,

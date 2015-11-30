@@ -11,6 +11,7 @@
 {% block exam-content %}
 <form method="post" action="{% url 'exam:submission-exam-confirm' exam_id=exam.pk %}">
     {% csrf_token %}
+    <p><i class="fa fa-check"></i> translation selected for delivery, <i class="fa fa-check"></i><i class="fa fa-check"></i> translation selected for delivery with answer sheets.</p>
     <table class="table table-striped">
         <tr>
             <th></th>
@@ -30,8 +31,10 @@
           </td>
           {% for lang,checked in stud_langs.items %}
               <td class="text-center">
-                  {% if checked %}
+                  {% if checked == 'Q' %}
                     <i class="fa fa-check"></i>
+                  {% elif checked == 'A' %}
+                    <i class="fa fa-check"></i><i class="fa fa-check"></i>
                   {% else %}
                     -
                   {% endif %}

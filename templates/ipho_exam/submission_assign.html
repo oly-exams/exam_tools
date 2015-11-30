@@ -31,11 +31,16 @@
               <td class="text-center">
                   <div class="checkbox">
                   <label>
-                      <input type="checkbox" autocomplete="off" name="assign-{{ ss.pk }}-{{ lang.pk }}" {% if checked %}checked{% endif %} />
+                      <input type="checkbox" autocomplete="off" name="assign-{{ ss.pk }}-{{ lang.pk }}" {% if checked.lang_check %}checked{% endif %} />
                       deliver
                   </label>
                 </div>
-                  <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="#"><i class="fa fa-fw fa-file-pdf-o"></i> Preview</a>
+                <div class="radio {% if not checked.lang_check %}disabled{% endif %}">
+                  <label>
+                    <input type="radio" name="assign-{{ ss.pk }}-answers" value="{{ lang.pk }}" {% if checked.with_answer %}checked{% endif %} {% if not checked.lang_check %}disabled{% endif %}/>
+                    with answer sheets
+                  </label>
+                </div>
               </td>
           {% endfor %}
       </tr>
