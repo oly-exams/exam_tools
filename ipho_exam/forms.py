@@ -127,6 +127,25 @@ class SubmissionAssignForm(ModelForm):
         model = StudentSubmission
         fields = ['student','language', 'with_answer']
 
+
+class AssignTranslationForm(forms.Form):
+    languages = forms.ModelMultipleChoiceField(queryset=Language.objects.none(),
+                                                widget=forms.widgets.CheckboxSelectMultiple)
+    def __init__(self, *args, **kwargs):
+        languages_queryset = kwargs.pop('languages_queryset')
+        super(AssignTranslationForm, self).__init__(*args, **kwargs)
+        self.fields['languages'].queryset = languages_queryset
+## ungly hack to propagate `languages_queryset` attribute to form construction
+BaseAssignTranslationFormSet = formset_factory(AssignTranslationForm)
+class AssignTranslationFormSet(BaseAssignTranslationFormSet):
+    def __init__(self, languages_queryset, *args, **kwargs):
+        self.languages_queryset = languages_queryset
+        super(AssignTranslationFormSet, self).__init__(*args, **kwargs)
+    def _construct_form(self, *args, **kwargs):
+        kwargs['languages_queryset'] = self.languages_queryset
+        return super(AssignTranslationFormSet, self)._construct_form(*args, **kwargs)
+
+
 class AdminBlockAttributeForm(forms.Form):
     key = forms.CharField()
     value = forms.CharField()

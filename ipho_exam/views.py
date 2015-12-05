@@ -17,7 +17,7 @@ from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
 from ipho_exam import qml, tex, pdf, iphocode, qquery
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
 
 OFFICIAL_LANGUAGE = 1
 
@@ -443,41 +443,33 @@ def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
 def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    official_lang = Language.objects.get(id=OFFICIAL_LANGUAGE)
-    languages = Language.objects.filter(delegation=delegation)
+    official_lang = Language.objects.filter(id=OFFICIAL_LANGUAGE)
+    delegation_languages = Language.objects.filter(delegation=delegation)
+    languages = delegation_languages
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
 
-    if request.POST:
+    submission_forms = []
+    all_valid = True
+    for stud in delegation.student_set.all():
+        stud_langs = StudentSubmission.objects.filter(student=stud, exam=exam).values_list('language', flat=True)
+        form = AssignTranslationForm(request.POST or None,
+                                     languages_queryset=languages,
+                                     prefix='stud-{}'.format(stud.pk),
+                                     initial=dict(languages=stud_langs))
+        all_valid = all_valid and form.is_valid()
+        submission_forms.append( (stud, form) )
+
+    if all_valid:
         print request.POST
         return HttpResponseRedirect(reverse('exam:submission-exam-confirm', args=(exam.pk,)))
-
-    class SS(object):
-        def __init__(self, lang_check, with_answer):
-            self.lang_check = lang_check
-            self.with_answer = with_answer
-
-    assigned_student_language = OrderedDict()
-    for student in delegation.student_set.all():
-        stud_langs = OrderedDict()
-        for lang in [official_lang]:
-            stud_langs[lang] = SS(False,False)
-        for lang in languages:
-            stud_langs[lang] = SS(False,False)
-        assigned_student_language[student] = (stud_langs)
-
-    student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
-    for sl in student_languages:
-        assigned_student_language[sl.student][sl.language].lang_check = True
-        assigned_student_language[sl.student][sl.language].with_answer = sl.with_answer
 
     return render(request, 'ipho_exam/submission_assign.html', {
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,
                 'official_languages' : [official_lang],
-                'submission_status' : ex_submission.status,
-                'students_languages' : assigned_student_language,
+                'submission_forms' : submission_forms,
             })
 
 @login_required

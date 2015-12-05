@@ -16,22 +16,19 @@
     <table class="table table-striped">
         <tr>
             <th></th>
-            {% for lang in official_languages %}
-              <th class="text-center">{{ lang.name }}</th>
-            {% endfor %}
           {% for lang in languages %}
             <th class="text-center">{{ lang.name }}</th>
           {% endfor %}
         </tr>
         <tbody>
-      {% for ss,stud_langs in students_languages.items %}
+      {% for ss,form in submission_forms %}
       <tr>
-          <td>{{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})</td>
-          {% for lang,checked in stud_langs.items %}
+          <td>{{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }}) {{ form.languages.errors }}</td>
+          {% for oid,oval in form.languages.field.choices %}
               <td class="text-center">
                   <div class="checkbox">
                   <label>
-                      <input type="checkbox" autocomplete="off" name="assign-{{ ss.pk }}-{{ lang.pk }}" {% if checked.lang_check %}checked{% endif %} />
+                      <input type="checkbox" autocomplete="off" name="{{ form.languages.html_name }}" value="{{ oid }}" {% if oid in form.languages.value %}checked{% endif %} />
                       deliver
                   </label>
                 </div>
