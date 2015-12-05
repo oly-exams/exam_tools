@@ -1,5 +1,6 @@
 {% extends "ipho_exam/submission_base.html" %}
 {% load static %}
+{% load exam_utils_tags %}
 
 {% block assign-classes %}active{% endblock %}
 {% block confirm-classes %}disabled{% endblock %}
@@ -28,7 +29,7 @@
               <td class="text-center">
                   <div class="checkbox">
                   <label>
-                      <input type="checkbox" autocomplete="off" name="{{ form.languages.html_name }}" value="{{ oid }}" {% if oid in form.languages.value %}checked{% endif %} />
+                      <input type="checkbox" autocomplete="off" name="{{ form.languages.html_name }}" value="{{ oid }}" {% if  oid in form.languages.value|intlist %}checked{% endif %} />
                       deliver
                   </label>
                 </div>
