@@ -445,7 +445,7 @@ def submission_exam_assign(request, exam_id):
     delegation = Delegation.objects.get(members=request.user)
     official_lang = Language.objects.filter(id=OFFICIAL_LANGUAGE)
     delegation_languages = Language.objects.filter(delegation=delegation)
-    languages = delegation_languages
+    languages = official_lang | delegation_languages
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
     if ex_submission.status == 'S':
@@ -491,7 +491,6 @@ def submission_exam_assign(request, exam_id):
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,
-                'official_languages' : [official_lang],
                 'submission_forms' : submission_forms,
                 'with_errors': with_errors,
             })
@@ -500,8 +499,9 @@ def submission_exam_assign(request, exam_id):
 def submission_exam_confirm(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    official_lang = Language.objects.get(id=OFFICIAL_LANGUAGE)
-    languages = Language.objects.filter(delegation=delegation)
+    official_lang = Language.objects.filter(id=OFFICIAL_LANGUAGE)
+    delegation_languages = Language.objects.filter(delegation=delegation)
+    languages = official_lang | delegation_languages
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
     if ex_submission.status == 'S':
@@ -517,8 +517,6 @@ def submission_exam_confirm(request, exam_id):
     assigned_student_language = OrderedDict()
     for student in delegation.student_set.all():
         stud_langs = OrderedDict()
-        for lang in [official_lang]:
-            stud_langs[lang] = False
         for lang in languages:
             stud_langs[lang] = False
         assigned_student_language[student] = (stud_langs)
@@ -534,7 +532,6 @@ def submission_exam_confirm(request, exam_id):
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,
-                'official_languages' : [official_lang],
                 'submission_status' : ex_submission.status,
                 'students_languages' : assigned_student_language,
             })
@@ -543,16 +540,15 @@ def submission_exam_confirm(request, exam_id):
 def submission_exam_submitted(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    official_lang = Language.objects.get(id=OFFICIAL_LANGUAGE)
-    languages = Language.objects.filter(delegation=delegation)
+    official_lang = Language.objects.filter(id=OFFICIAL_LANGUAGE)
+    delegation_languages = Language.objects.filter(delegation=delegation)
+    languages = official_lang | delegation_languages
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
 
     assigned_student_language = OrderedDict()
     for student in delegation.student_set.all():
         stud_langs = OrderedDict()
-        for lang in [official_lang]:
-            stud_langs[lang] = False
         for lang in languages:
             stud_langs[lang] = False
         assigned_student_language[student] = (stud_langs)
@@ -568,7 +564,6 @@ def submission_exam_submitted(request, exam_id):
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,
-                'official_languages' : [official_lang],
                 'submission_status' : ex_submission.status,
                 'students_languages' : assigned_student_language,
             })
