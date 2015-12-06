@@ -37,26 +37,7 @@
     <div id="alerts-container"></div>
 
     <p class="lead">
-        In this interface you assign which languages should be delivered to your students.
-    </p>
-
-    <p> Depending on the translation status, certain actions are allowed or they could be disabled. Refer to the following status description to know what are the allowed operations.
-        <dl class="dl-horizontal">
-            <dt>In progress</dt>
-            <dd>
-                The question is still being translated. The <i class="fa fa-pencil"></i> button will take you to the web editor. This status does not allow submission neither PDF preview.
-                The status can be upgraded to "locked" in the web editor.
-            </dd>
-            <dt>Locked</dt>
-            <dd>
-                The question has been locked. The <i class="fa fa-paper-plane-o"></i> button will take you to the final submission form. The preview PDF can be generated with the <i class="fa fa-file-pdf-o"></i> action.
-                The status can be reverted to "in progress" in the web editor.
-            </dd>
-            <dt>Submitted</dt>
-            <dd>
-                The question has been submitted to the organizers. Editing is no longer allowed. The final PDF is available with the <i class="fa fa-file-pdf-o"></i> button.
-            </dd>
-        </dl>
+        In this interface you assign which languages should be delivered to the students.
     </p>
 
     <a class="btn btn-default btn-sm" data-toggle="modal" data-target="#submission-modal" data-remote="false" href="{% url 'exam:admin-submission-assign' exam_id=exam.pk %}"><i class="fa fa-plus"></i> Assign language</a>
