@@ -54,7 +54,7 @@
     </div>
 
     <div>
-        <input type="button" class="btn btn-default" value="Back" />
+        <a class="btn btn-default" href="{% url 'exam:submission-exam-assign' exam_id=exam.pk %}">Back</a>
         <div class="pull-right">
             <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane-o fa-fw"></i> Submit</buton>
         </div>
