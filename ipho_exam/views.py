@@ -20,6 +20,7 @@ from ipho_exam import qml, tex, pdf, iphocode, qquery
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
 
 OFFICIAL_LANGUAGE = 1
+OFFICIAL_DELEGATION = 'OFF'
 
 @login_required
 @ensure_csrf_cookie
@@ -443,7 +444,7 @@ def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
 def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    official_lang = Language.objects.filter(id=OFFICIAL_LANGUAGE)
+    official_lang = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION)
     delegation_languages = Language.objects.filter(delegation=delegation)
     languages = official_lang | delegation_languages
 
@@ -499,7 +500,7 @@ def submission_exam_assign(request, exam_id):
 def submission_exam_confirm(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    official_lang = Language.objects.filter(id=OFFICIAL_LANGUAGE)
+    official_lang = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION)
     delegation_languages = Language.objects.filter(delegation=delegation)
     languages = official_lang | delegation_languages
 
@@ -540,7 +541,7 @@ def submission_exam_confirm(request, exam_id):
 def submission_exam_submitted(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    official_lang = Language.objects.filter(id=OFFICIAL_LANGUAGE)
+    official_lang = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION)
     delegation_languages = Language.objects.filter(delegation=delegation)
     languages = official_lang | delegation_languages
 
@@ -594,8 +595,7 @@ def admin_submission_assign(request, exam_id):
     else:
         form = SubmissionAssignForm()
         form.fields['student'].queryset = Student.objects.filter(delegation=delegation)
-        form.fields['language'].queryset = Language.objects.filter(delegation=delegation) | Language.objects.filter(id=OFFICIAL_LANGUAGE)
-        ## TODO: identify official languages by delegation
+        form.fields['language'].queryset = Language.objects.all()
 
         ctx = RequestContext(request)
         ctx.update(csrf(request))
