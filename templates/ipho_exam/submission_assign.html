@@ -25,11 +25,11 @@
       {% for ss,form in submission_forms %}
       <tr>
           <td>{{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }}) {{ form.languages.errors }}</td>
-          {% for oid,oval in form.languages.field.choices %}
+          {% for lang_id,oval in form.languages.field.choices %}
               <td class="text-center">
                   <div class="checkbox">
                   <label>
-                      <input type="checkbox" autocomplete="off" name="{{ form.languages.html_name }}" value="{{ oid }}" {% if  oid in form.languages.value|intlist %}checked{% endif %} />
+                      <input type="checkbox" autocomplete="off" name="{{ form.languages.html_name }}" value="{{ lang_id }}" {% if lang_id in form.languages.value|intlist %}checked{% endif %} />
                       deliver
                   </label>
                 </div>
