@@ -49,13 +49,13 @@
               <td class="text-center">
                   <div class="checkbox {% if form.languages.errors %}has-error{% endif %}">
                   <label>
-                      <input type="checkbox" autocomplete="off" name="{{ form.languages.html_name }}" value="{{ lang_id }}" {% if lang_id in form.languages.value|intlist %}checked{% endif %} />
+                      <input type="checkbox" autocomplete="off" id="{{ form.languages.html_name }}-val-{{ lang_id }}" name="{{ form.languages.html_name }}" value="{{ lang_id }}" {% if lang_id in form.languages.value|intlist %}checked{% endif %} />
                       deliver
                   </label>
                 </div>
                 <div class="radio {% if not lang_id in form.languages.value|intlist %}disabled{% endif %} {% if form.main_language.errors %}has-error{% endif %}">
                   <label>
-                    <input type="radio" name="{{ form.main_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.main_language.value|escape %}checked{% endif %} {% if not lang_id in form.languages.value|intlist %}disabled{% endif %}/>
+                    <input type="radio" id="{{ form.main_language.html_name }}-val-{{ lang_id }}" name="{{ form.main_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.main_language.value|escape %}checked{% endif %} {% if not lang_id in form.languages.value|intlist %}disabled{% endif %}/>
                     with answer sheets
                   </label>
                 </div>
@@ -73,4 +73,24 @@
     </div>
 
 </form>
+{% endblock %}
+
+{% block extra-script %}
+{{ block.super }}
+<script>
+$(function() {
+    $(':checkbox[name^="stud"]').change(function() {
+        $checkbox = $(this);
+        $radio = $('#'+$checkbox.attr('id').replace('languages','main_language'));
+        if ($checkbox.is(':checked')) {
+            $radio.removeAttr('disabled');
+            $radio.parents('div.radio').removeClass('disabled');
+        } else {
+            $radio.attr('disabled',true);
+            $radio.prop('checked',false);
+            $radio.parents('div.radio').addClass('disabled');
+        }
+    });
+});
+</script>
 {% endblock %}
