@@ -17,11 +17,14 @@ class Language(models.Model):
     polyglossia = models.CharField(max_length=100, default='english', choices=POLYGLOSSIA_CHOICES)
     extraheader = models.TextField(blank=True)
 
+    class Meta:
+        unique_together = (('name', 'delegation'),)
+
     def natural_key(self):
         return (self.name,)
 
     def __unicode__(self):
-        return u'%s' % (self.name)
+        return u'%s (%s)' % (self.name, self.delegation.country)
 
     def check_permission(self, user):
         if user.is_superuser:
