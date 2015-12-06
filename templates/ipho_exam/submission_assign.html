@@ -18,24 +18,25 @@
         <tr>
             <th></th>
           {% for lang in languages %}
-            <th class="text-center">{{ lang.name }}</th>
+            <th class="text-center">{{ lang.name }} {{ lang.pk }}</th>
           {% endfor %}
         </tr>
         <tbody>
       {% for ss,form in submission_forms %}
       <tr>
-          <td>{{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }}) {{ form.languages.errors }}</td>
+          <td>{{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }}) {{ form.languages.errors }} {{ form.main_language.errors }}</td>
           {% for lang_id,oval in form.languages.field.choices %}
               <td class="text-center">
+                  {{ lang_id }}
                   <div class="checkbox">
                   <label>
                       <input type="checkbox" autocomplete="off" name="{{ form.languages.html_name }}" value="{{ lang_id }}" {% if lang_id in form.languages.value|intlist %}checked{% endif %} />
                       deliver
                   </label>
                 </div>
-                <div class="radio {% if not checked.lang_check %}disabled{% endif %}">
+                <div class="radio {% if not lang_id in form.languages.value|intlist %}disabled{% endif %}">
                   <label>
-                    <input type="radio" name="assign-{{ ss.pk }}-answers" value="{{ lang.pk }}" {% if checked.with_answer %}checked{% endif %} {% if not checked.lang_check %}disabled{% endif %}/>
+                    <input type="radio" name="{{ form.main_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.main_language.value|escape %}checked{% endif %} {% if not lang_id in form.languages.value|intlist %}disabled{% endif %}/>
                     with answer sheets
                   </label>
                 </div>

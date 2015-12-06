@@ -453,10 +453,14 @@ def submission_exam_assign(request, exam_id):
     all_valid = True
     for stud in delegation.student_set.all():
         stud_langs = StudentSubmission.objects.filter(student=stud, exam=exam).values_list('language', flat=True)
-        form = AssignTranslationForm(request.POST or None,
+        try:
+            stud_main_lang_obj = StudentSubmission.objects.get(student=stud, exam=exam, with_answer=True)
+            stud_main_lang = stud_main_lang_obj.language
+        except StudentSubmission.DoesNotExist:
+            stud_main_lang = None
+        form = AssignTranslationForm(request.POST or None, prefix='stud-{}'.format(stud.pk),
                                      languages_queryset=languages,
-                                     prefix='stud-{}'.format(stud.pk),
-                                     initial=dict(languages=stud_langs))
+                                     initial=dict(languages=stud_langs, main_language=stud_main_lang))
         all_valid = all_valid and form.is_valid()
         submission_forms.append( (stud, form) )
 

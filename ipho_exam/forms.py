@@ -131,10 +131,13 @@ class SubmissionAssignForm(ModelForm):
 class AssignTranslationForm(forms.Form):
     languages = forms.ModelMultipleChoiceField(queryset=Language.objects.none(),
                                                 widget=forms.widgets.CheckboxSelectMultiple)
+    main_language = forms.ModelChoiceField(queryset=Language.objects.none(),
+                                           widget=forms.widgets.RadioSelect)
     def __init__(self, *args, **kwargs):
         languages_queryset = kwargs.pop('languages_queryset')
         super(AssignTranslationForm, self).__init__(*args, **kwargs)
         self.fields['languages'].queryset = languages_queryset
+        self.fields['main_language'].queryset = languages_queryset
 ## ungly hack to propagate `languages_queryset` attribute to form construction
 BaseAssignTranslationFormSet = formset_factory(AssignTranslationForm)
 class AssignTranslationFormSet(BaseAssignTranslationFormSet):
