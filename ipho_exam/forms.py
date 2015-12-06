@@ -142,7 +142,6 @@ class AssignTranslationForm(forms.Form):
         cleaned_data = super(AssignTranslationForm, self).clean()
         languages = cleaned_data.get("languages")
         main_language = cleaned_data.get("main_language")
-        print languages
         if languages and main_language and main_language not in languages:
             msg = "Answer language not enabled."
             self.add_error('languages', msg)
