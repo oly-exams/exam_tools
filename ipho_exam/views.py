@@ -467,7 +467,22 @@ def submission_exam_assign(request, exam_id):
         submission_forms.append( (stud, form) )
 
     if all_valid:
-        print request.POST
+        for stud, form in submission_forms:
+            current_langs = []
+            ## Modify the with_answer status and delete unused submissions
+            for ss in StudentSubmission.objects.filter(student=stud, exam=exam):
+                if ss.language in form.cleaned_data['languages']:
+                    ss.with_answer = (form.cleaned_data['main_language'] == ss.language)
+                    ss.save()
+                    current_langs.append(ss.language)
+                else:
+                    ss.delete()
+            ## Insert new submissions
+            for lang in form.cleaned_data['languages']:
+                if lang in current_langs: continue
+                with_answer = (form.cleaned_data['main_language'] == lang)
+                ss = StudentSubmission(student=stud, exam=exam, language=lang, with_answer=with_answer)
+                ss.save()
         return HttpResponseRedirect(reverse('exam:submission-exam-confirm', args=(exam.pk,)))
 
     return render(request, 'ipho_exam/submission_assign.html', {
