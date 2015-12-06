@@ -448,6 +448,8 @@ def submission_exam_assign(request, exam_id):
     languages = delegation_languages
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
+    if ex_submission.status == 'S':
+        return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
 
     submission_forms = []
     all_valid = True
@@ -502,9 +504,13 @@ def submission_exam_confirm(request, exam_id):
     languages = Language.objects.filter(delegation=delegation)
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
+    if ex_submission.status == 'S':
+        return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
 
     if request.POST:
-        print request.POST
+        if 'agree-submit' in request.POST:
+            ex_submission.status = 'S'
+            ex_submission.save()
         return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
 
 
