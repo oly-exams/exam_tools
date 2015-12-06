@@ -138,6 +138,14 @@ class AssignTranslationForm(forms.Form):
         super(AssignTranslationForm, self).__init__(*args, **kwargs)
         self.fields['languages'].queryset = languages_queryset
         self.fields['main_language'].queryset = languages_queryset
+    def clean(self):
+        cleaned_data = super(AssignTranslationForm, self).clean()
+        languages = cleaned_data.get("languages")
+        main_language = cleaned_data.get("main_language")
+        print languages
+        if languages and main_language and main_language not in languages:
+            msg = "Answer language not enabled."
+            self.add_error('languages', msg)
 ## ungly hack to propagate `languages_queryset` attribute to form construction
 BaseAssignTranslationFormSet = formset_factory(AssignTranslationForm)
 class AssignTranslationFormSet(BaseAssignTranslationFormSet):
