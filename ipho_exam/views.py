@@ -9,6 +9,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
+from django.db.models import Q
 
 from copy import deepcopy
 from collections import OrderedDict
@@ -39,13 +40,16 @@ def index(request):
 
     ## Exam section
     exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
-
+    exams_open = exam_list.filter(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
+    exams_closed = exam_list.exclude(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
 
     return render(request, 'ipho_exam/index.html',
             {
                 'own_lang'      : own_lang,
                 'other_lang'    : other_lang,
                 'exam_list'     : exam_list,
+                'exams_open'    : exams_open,
+                'exams_closed'  : exams_closed,
                 'success'       : success,
             })
 
