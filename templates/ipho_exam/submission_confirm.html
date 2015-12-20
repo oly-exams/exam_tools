@@ -45,8 +45,11 @@
         </tbody>
     </table>
 
-    <div class="alert alert-warning">
+    <div class="alert {% if form_error %}alert-danger{% else %}alert-warning{% endif %}">
         <div class="checkbox">
+            {% if form_error %}
+                <div class="help-block">{{ form_error|safe }}</div>
+            {% endif %}
           <label>
             <input type="checkbox" autocomplete="off" name="agree-submit"> I understand that this is the final submission of the exam translation. I will have no further possibility to change it.
           </label>

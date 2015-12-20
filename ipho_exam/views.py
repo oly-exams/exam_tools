@@ -507,6 +507,7 @@ def submission_exam_confirm(request, exam_id):
     official_lang = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION)
     delegation_languages = Language.objects.filter(delegation=delegation)
     languages = official_lang | delegation_languages
+    form_error = ''
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
     if ex_submission.status == 'S':
@@ -516,7 +517,9 @@ def submission_exam_confirm(request, exam_id):
         if 'agree-submit' in request.POST:
             ex_submission.status = 'S'
             ex_submission.save()
-        return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
+            return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
+        else:
+            form_error = '<strong>Error:</strong> You have to agree on the final submission before continuing.'
 
 
     assigned_student_language = OrderedDict()
@@ -539,6 +542,7 @@ def submission_exam_confirm(request, exam_id):
                 'languages' : languages,
                 'submission_status' : ex_submission.status,
                 'students_languages' : assigned_student_language,
+                'form_error' : form_error,
             })
 
 @login_required
