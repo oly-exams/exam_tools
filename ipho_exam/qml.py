@@ -452,7 +452,8 @@ class QMLlatex(QMLobject):
         query = {}
         for c in self.children:
             if c.tag == 'texparam':
-                content = content.replace('{{ %s }}' % c.attributes['name'], c.data.encode('utf-8'))
+                content = re.sub(r'({{ *%s *}})' % c.attributes['name'], c.data.encode('utf-8'), content)
+                content.replace('{{ %s }}' % c.attributes['name'], c.data.encode('utf-8'))
         return content, []
 
 class QMLlatexParam(QMLobject):
