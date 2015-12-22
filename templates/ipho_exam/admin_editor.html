@@ -86,6 +86,10 @@ body { margin-bottom: 70px; }
             <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             <h4 class="model-title">Are you sure?</h4>
           </div>
+          <div class="modal-body">
+              <p>The block and its content will be deleted.</p>
+              <p>If this was not officialized in a previous <emph>Confirmed</emph> version, this operation will be permanent.</p>
+          </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-danger" data-confirm="delete"><i class="fa fa-trash-o fa-fw"></i> Delete</button>
@@ -342,14 +346,29 @@ body { margin-bottom: 70px; }
                 evt.preventDefault();
                 var modal = $('#delete-modal');
 
-                // TODO: submit delete request
-                alert("You asked to delete "+modal.data('block-id')+".");
-                modal.modal('hide');
+                // TODO: disable button and show spinning wheel
+
+                $.ajax({
+                    url: modal.data('delete-href'),
+                    type: 'get',
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
+                        if (data['success']) {
+                            $('#'+modal.data('block-id')+'-container').remove();
+                        }
+                        modal.data('block-id', null);
+                        modal.data('delete-href', null);
+                        modal.modal('hide');
+                    }
+                });
             });
             $('#delete-modal').on('show.bs.modal', function (event) {
                 var modal = $(this);
                 var button = $(event.relatedTarget); // Button that triggered the modal
                 modal.data('block-id', button.data('block-id'));
+                modal.data('delete-href',button.attr('href'));
             });
 
         });

@@ -408,6 +408,35 @@ def admin_editor_block(request, exam_id, question_id, block_id):
             })
 
 @permission_required('iphoperm.is_staff')
+def admin_editor_delete_block(request, exam_id, question_id, block_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    lang_id = OFFICIAL_LANGUAGE
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    question = get_object_or_404(Question, id=question_id)
+
+    lang = get_object_or_404(Language, id=lang_id)
+    if lang.versioned:
+        node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
+    else:
+        node = get_object_or_404(TranslationNode, question=question, language=lang)
+
+    q = qml.QMLquestion(node.text)
+
+    block = q.delete(block_id)
+    node.text = qml.xml2string(q.make_xml())
+    if lang.versioned: ## make new version and increase version number
+        node.pk = None
+        node.version += 1
+        node.status = 'P'
+    node.save()
+
+    return JsonResponse({
+                'success' : True,
+            })
+
+@permission_required('iphoperm.is_staff')
 def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')

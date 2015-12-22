@@ -264,6 +264,11 @@ class QMLobject(object):
                 return cfind
         return None
 
+    def delete(self, search_id):
+        self.children = filter(lambda c: c.id != search_id, self.children)
+        for c in self.children:
+            c.delete(search_id)
+
     def __str__(self):
         ret = '<%s %s>\n' % (self.tag, self.id)
         for c in self.children:
