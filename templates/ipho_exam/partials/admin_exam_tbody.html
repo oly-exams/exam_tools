@@ -15,6 +15,7 @@
         <table class="table">
             <tr>
                 <th>Version <a class="btn btn-xs btn-default" href="{% url 'exam:admin-editor' exam_id=exam.pk question_id=question.pk %}" title="New Version"><i class="fa fa-plus fa-fw"></i> new</a></th>
+                <th>Status</th>
                 <th>Timestamp</th>
                 <th>Actions</th>
             </tr>
@@ -22,6 +23,8 @@
             <tr>
                 <td>
                     v{{ node.version }}
+                </td>
+                <td>
                     {% if node.status == 'C' %}
                         <span class="label label-info">Confirmed</span>
                     {% elif node.status == 'P' %}
