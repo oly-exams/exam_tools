@@ -52,12 +52,8 @@ def compile_tex(body, ext_resources=[]):
             ).wait()
 
             if error:
-                if request.user.is_superuser:
-                    log = open("%s/%s.log" % (tmp, doc)).read()
-                    raise TexCompileException(error, "%s/%s"%(tmp, doc), log)
-                    # return HttpResponse(log, content_type="text/plain")
-                else:
-                    raise RuntimeError("pdflatex error (code %s) in %s/%s" % (error, tmp, doc))
+                log = open("%s/%s.log" % (tmp, doc)).read()
+                raise TexCompileException(error, "%s/%s"%(tmp, doc), log)
 
             with open("%s/%s.pdf" % (tmp, doc)) as f:
                 pdf = f.read()
@@ -101,7 +97,13 @@ def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'
     if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
         return HttpResponseNotModified()
 
-    pdf = compile_tex(body, ext_resources)
+    try:
+        pdf = compile_tex(body, ext_resources)
+    except TexCompileException as e:
+        if request.user.is_superuser:
+            return HttpResponse(e.log, content_type="text/plain")
+        else:
+            raise RuntimeError("pdflatex error (code %s) in %s." % (e.code, e.doc_fname))
 
     res = HttpResponse(pdf, content_type="application/pdf")
     res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))

@@ -1,4 +1,5 @@
 from xml.etree import ElementTree as ET
+import re
 #import lxml.etree as lxmltree
 import tex
 import simplediff
@@ -434,6 +435,34 @@ class QMLlistitem(QMLobject):
 
     def tex_begin(self):
         return u'\\item '
+
+
+class QMLlatex(QMLobject):
+    abbr = "tx"
+    tag  = "texfield"
+    default_heading = None
+
+    has_text = False
+    has_children = True
+
+    def make_tex(self):
+        content = self.attributes['content'] + '\n\n'
+        content = content.replace('\\n','\n')
+
+        query = {}
+        for c in self.children:
+            if c.tag == 'texparam':
+                content = re.sub(r'({{ *%s *}})' % c.attributes['name'], c.data.encode('utf-8'), content)
+                content.replace('{{ %s }}' % c.attributes['name'], c.data.encode('utf-8'))
+        return content, []
+
+class QMLlatexParam(QMLobject):
+    abbr = "tp"
+    tag  = "texparam"
+    default_heading = None
+
+    has_text = True
+    has_children = False
 
 
 class QMLException(Exception):

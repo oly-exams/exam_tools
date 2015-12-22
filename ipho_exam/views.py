@@ -9,6 +9,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
+from django.db.models import Q
 
 from copy import deepcopy
 from collections import OrderedDict
@@ -17,9 +18,10 @@ from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
 from ipho_exam import qml, tex, pdf, iphocode, qquery
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
 
 OFFICIAL_LANGUAGE = 1
+OFFICIAL_DELEGATION = 'OFF'
 
 @login_required
 @ensure_csrf_cookie
@@ -38,13 +40,16 @@ def index(request):
 
     ## Exam section
     exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
-
+    exams_open = exam_list.filter(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
+    exams_closed = exam_list.exclude(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
 
     return render(request, 'ipho_exam/index.html',
             {
                 'own_lang'      : own_lang,
                 'other_lang'    : other_lang,
                 'exam_list'     : exam_list,
+                'exams_open'    : exams_open,
+                'exams_closed'  : exams_closed,
                 'success'       : success,
             })
 
@@ -334,7 +339,7 @@ def admin_editor(request, exam_id, question_id):
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
-        node = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version')[0]
+        node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
@@ -344,7 +349,7 @@ def admin_editor(request, exam_id, question_id):
     context = {
         'exam' : exam,
         'question' : question,
-        'content_set' : q.children,
+        'content_set' : [q],
     }
     return render(request, 'ipho_exam/admin_editor.html', context)
 
@@ -440,69 +445,134 @@ def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
             })
 
 @login_required
-def submission_exam(request, exam_id):
+def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    official_lang = Language.objects.get(id=OFFICIAL_LANGUAGE)
-    languages = Language.objects.filter(delegation=delegation)
+    official_lang = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION)
+    delegation_languages = Language.objects.filter(delegation=delegation)
+    languages = official_lang | delegation_languages
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
+    if ex_submission.status == 'S':
+        return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
 
-    if request.POST:
-        print request.POST
+    submission_forms = []
+    all_valid = True
+    with_errors = False
+    for stud in delegation.student_set.all():
+        stud_langs = StudentSubmission.objects.filter(student=stud, exam=exam).values_list('language', flat=True)
+        try:
+            stud_main_lang_obj = StudentSubmission.objects.get(student=stud, exam=exam, with_answer=True)
+            stud_main_lang = stud_main_lang_obj.language
+        except StudentSubmission.DoesNotExist:
+            stud_main_lang = None
+        form = AssignTranslationForm(request.POST or None, prefix='stud-{}'.format(stud.pk),
+                                     languages_queryset=languages,
+                                     initial=dict(languages=stud_langs, main_language=stud_main_lang))
+        all_valid = all_valid and form.is_valid()
+        with_errors = with_errors or form.errors
+        submission_forms.append( (stud, form) )
 
-    assigned_student_language = OrderedDict()
-    for student in delegation.student_set.all():
-        stud_langs = OrderedDict()
-        for lang in [official_lang]:
-            stud_langs[lang] = False
-        for lang in languages:
-            stud_langs[lang] = False
-        assigned_student_language[student] = (stud_langs)
+    if all_valid:
+        for stud, form in submission_forms:
+            current_langs = []
+            ## Modify the with_answer status and delete unused submissions
+            for ss in StudentSubmission.objects.filter(student=stud, exam=exam):
+                if ss.language in form.cleaned_data['languages']:
+                    ss.with_answer = (form.cleaned_data['main_language'] == ss.language)
+                    ss.save()
+                    current_langs.append(ss.language)
+                else:
+                    ss.delete()
+            ## Insert new submissions
+            for lang in form.cleaned_data['languages']:
+                if lang in current_langs: continue
+                with_answer = (form.cleaned_data['main_language'] == lang)
+                ss = StudentSubmission(student=stud, exam=exam, language=lang, with_answer=with_answer)
+                ss.save()
+        return HttpResponseRedirect(reverse('exam:submission-exam-confirm', args=(exam.pk,)))
 
-    student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
-    for sl in student_languages:
-        assigned_student_language[sl.student][sl.language] = True
-
-    return render(request, 'ipho_exam/submission.html', {
+    return render(request, 'ipho_exam/submission_assign.html', {
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,
-                'official_languages' : [official_lang],
-                'submission_status' : ex_submission.status,
-                'students_languages' : assigned_student_language,
+                'submission_forms' : submission_forms,
+                'with_errors': with_errors,
             })
 
 @login_required
 def submission_exam_confirm(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    official_lang = Language.objects.get(id=OFFICIAL_LANGUAGE)
-    languages = Language.objects.filter(delegation=delegation)
+    official_lang = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION)
+    delegation_languages = Language.objects.filter(delegation=delegation)
+    languages = official_lang | delegation_languages
+    form_error = ''
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
+    if ex_submission.status == 'S':
+        return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
 
     if request.POST:
-        print request.POST
+        if 'agree-submit' in request.POST:
+            ex_submission.status = 'S'
+            ex_submission.save()
+            return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
+        else:
+            form_error = '<strong>Error:</strong> You have to agree on the final submission before continuing.'
+
 
     assigned_student_language = OrderedDict()
     for student in delegation.student_set.all():
         stud_langs = OrderedDict()
-        for lang in [official_lang]:
-            stud_langs[lang] = False
         for lang in languages:
             stud_langs[lang] = False
         assigned_student_language[student] = (stud_langs)
 
     student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
     for sl in student_languages:
-        assigned_student_language[sl.student][sl.language] = True
+        if sl.with_answer:
+            assigned_student_language[sl.student][sl.language] = 'A'
+        else:
+            assigned_student_language[sl.student][sl.language] = 'Q'
 
     return render(request, 'ipho_exam/submission_confirm.html', {
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,
-                'official_languages' : [official_lang],
+                'submission_status' : ex_submission.status,
+                'students_languages' : assigned_student_language,
+                'form_error' : form_error,
+            })
+
+@login_required
+def submission_exam_submitted(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    delegation = Delegation.objects.get(members=request.user)
+    official_lang = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION)
+    delegation_languages = Language.objects.filter(delegation=delegation)
+    languages = official_lang | delegation_languages
+
+    ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
+
+    assigned_student_language = OrderedDict()
+    for student in delegation.student_set.all():
+        stud_langs = OrderedDict()
+        for lang in languages:
+            stud_langs[lang] = False
+        assigned_student_language[student] = (stud_langs)
+
+    student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
+    for sl in student_languages:
+        if sl.with_answer:
+            assigned_student_language[sl.student][sl.language] = 'A'
+        else:
+            assigned_student_language[sl.student][sl.language] = 'Q'
+
+    return render(request, 'ipho_exam/submission_submitted.html', {
+                'exam' : exam,
+                'delegation' : delegation,
+                'languages' : languages,
                 'submission_status' : ex_submission.status,
                 'students_languages' : assigned_student_language,
             })
@@ -533,8 +603,7 @@ def admin_submission_assign(request, exam_id):
     else:
         form = SubmissionAssignForm()
         form.fields['student'].queryset = Student.objects.filter(delegation=delegation)
-        form.fields['language'].queryset = Language.objects.filter(delegation=delegation) | Language.objects.filter(id=OFFICIAL_LANGUAGE)
-        ## TODO: identify official languages by delegation
+        form.fields['language'].queryset = Language.objects.all()
 
         ctx = RequestContext(request)
         ctx.update(csrf(request))

@@ -1,16 +1,23 @@
 {% extends "ipho_exam/submission_base.html" %}
 {% load static %}
 
-{% block assign-classes %}{% endblock %}
-{% block confirm-classes %}active{% endblock %}
-{% block submitted-classes %}disabled{% endblock %}
+{% block assign-classes %}disabled{% endblock %}
+{% block confirm-classes %}disabled{% endblock %}
+{% block submitted-classes %}active{% endblock %}
 
 {% block step-content %}
+<div class="alert alert-success">
+<strong>Submission completed!</strong>
+The submission of the following exam has been completed.
+</div>
+
+<p>
+The exams will shortly be printed by the IPhO 2016 staff @ Uni Zurich. Below you can see again the final version that has been submitted. To request scans of the final printed exams, please send a mail to <a href="mailto:request-exam@ipho2016.org?subject=Request scans for delegation {{ delegation.name }}">request-exam@ipho2016.org</a>.
+</p>
+
 {% endblock %}
 
 {% block exam-content %}
-<form method="post" action="{% url 'exam:submission-exam-confirm' exam_id=exam.pk %}">
-    {% csrf_token %}
     <p><i class="fa fa-check"></i> translation selected for delivery, <i class="fa fa-check"></i><i class="fa fa-check"></i> translation selected for delivery with answer sheets.</p>
     <table class="table table-striped">
         <tr>
@@ -27,7 +34,7 @@
       <tr>
           <td>
               {{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})
-              <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-student'  exam_id=exam.pk student_id=ss.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> Preview</a>
+              <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-student'  exam_id=exam.pk student_id=ss.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View</a>
           </td>
           {% for lang,checked in stud_langs.items %}
               <td class="text-center">
@@ -44,24 +51,4 @@
       {% endfor %}
         </tbody>
     </table>
-
-    <div class="alert {% if form_error %}alert-danger{% else %}alert-warning{% endif %}">
-        <div class="checkbox">
-            {% if form_error %}
-                <div class="help-block">{{ form_error|safe }}</div>
-            {% endif %}
-          <label>
-            <input type="checkbox" autocomplete="off" name="agree-submit"> I understand that this is the final submission of the exam translation. I will have no further possibility to change it.
-          </label>
-        </div>
-    </div>
-
-    <div>
-        <a class="btn btn-default" href="{% url 'exam:submission-exam-assign' exam_id=exam.pk %}">Back</a>
-        <div class="pull-right">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane-o fa-fw"></i> Submit</buton>
-        </div>
-    </div>
-
-</form>
 {% endblock %}

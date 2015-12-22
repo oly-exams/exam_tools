@@ -44,7 +44,7 @@ class FigureAdmin(admin.ModelAdmin):
     form = FigureAdminForm
 
 class StudentSubmissionAdmin(admin.ModelAdmin):
-    list_display = ('exam','student','language')
+    list_display = ('exam','student','language','with_answer')
 
 class ExamDelegationSubmissionAdmin(admin.ModelAdmin):
     list_display = ('exam','delegation','status','timestamp')
