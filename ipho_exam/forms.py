@@ -192,5 +192,6 @@ class AdminBlockForm(forms.Form):
         self.helper = FormHelper()
         self.helper.html5_required = True
         self.helper.form_show_labels = True
+        self.helper.disable_csrf = True
         self.form_tag = False
         self.disable_csrf = True
