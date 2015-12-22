@@ -83,6 +83,7 @@ class VersionNode(models.Model):
 
     class Meta:
         unique_together = (('question', 'language', 'version'),)
+        ordering = ['-version', '-timestamp']
 
     def question_name(self):
         return self.question.name
