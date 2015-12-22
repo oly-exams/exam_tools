@@ -25,14 +25,7 @@
     <h3>
         {{ ex.name }}
     </h3>
-    <table class="table table-striped">
-      <tr>
-          <th width="25px"></th>
-          <th>Question</th>
-          <th>Status</th>
-          <th>Actions</th>
-      </tr>
-      <tbody id="exam-tbody-{{ ex.pk }}"></tbody>
+    <div id="exam-tbody-{{ ex.pk }}" class="panel-group"></div>
     </table>
     {% endfor %}
 
@@ -76,6 +69,13 @@ $(function() {
         }
     });
 
+    function toggleChevron(e) {
+        $(e.target)
+            .prev('.panel-heading')
+            .find('span.glyphicon')
+            .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+    }
+
     function update_questions(tid) {
         $.ajax({
             method: "GET",
@@ -96,6 +96,8 @@ $(function() {
                     });
                 },
             }).disableSelection();
+            exam_tbody.find('.panel-collapse').on('hide.bs.collapse', toggleChevron);
+            exam_tbody.find('.panel-collapse').on('show.bs.collapse', toggleChevron);
         });
     }
 
