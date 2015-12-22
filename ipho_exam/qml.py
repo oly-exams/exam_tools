@@ -1,5 +1,6 @@
 from xml.etree import ElementTree as ET
 import re
+from copy import deepcopy
 #import lxml.etree as lxmltree
 import tex
 import simplediff
@@ -103,7 +104,9 @@ def all_subclasses(cls):
 
 
 class QMLobject(object):
+    default_attributes = {}
     _all_objects = None
+
     @staticmethod
     def all_objects():
         if QMLobject._all_objects is None:
@@ -114,6 +117,7 @@ class QMLobject(object):
         for obj in QMLobject.all_objects():
             if obj.tag == tag: return obj
         raise QMLException('Tag `%s` not found.' % tag)
+
 
     def __init__(self, xml, force_id=None):
         """
@@ -143,7 +147,8 @@ class QMLobject(object):
     def parse(self, root):
         assert(self.__class__.tag == root.tag)
 
-        self.attributes = root.attrib
+        self.attributes = deepcopy(self.__class__.default_attributes)
+        self.attributes.update(root.attrib)
 
         self.data = None
         if self.__class__.has_text:
@@ -292,6 +297,8 @@ class QMLsubquestion(QMLobject):
     has_text = False
     has_children = True
 
+    default_attributes = {'points': ''}
+
     def heading(self):
         return 'Subquestion, %spt' % self.attributes['points']
 
@@ -391,6 +398,8 @@ class QMLfigureText(QMLobject):
     has_text = True
     has_children = False
 
+    default_attributes = {'name': 'tba'}
+
     # def form_element(self):
     #     return forms.CharField(widget=forms.TextInput(attrs={'rel':'figparam', 'data-placeholder-name={}'.format(self.attributes['name'])}))
 
@@ -462,6 +471,8 @@ class QMLlatex(QMLobject):
     has_text = False
     has_children = True
 
+    default_attributes = {'content': ''}
+
     def make_tex(self):
         content = self.attributes['content'] + '\n\n'
         content = content.replace('\\n','\n')
@@ -480,6 +491,8 @@ class QMLlatexParam(QMLobject):
 
     has_text = True
     has_children = False
+
+    default_attributes = {'name': 'tba'}
 
 
 class QMLException(Exception):
