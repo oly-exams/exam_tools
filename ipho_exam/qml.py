@@ -69,6 +69,14 @@ def data2tex(data):
     cont_xml = ET.fromstring(cont_str.encode('utf-8'))
     return tex.html2tex(cont_xml)
 
+def canonical_name(qobj):
+    if qobj.default_heading is not None:
+        return qobj.default_heading
+    else:
+        name = qobj.__name__.replace('QML', '')
+        split_pattern = re.compile('(^[^A-Z]*|[A-Z][^A-Z]*)')
+        name = ' '.join([ ni.capitalize() for ni in split_pattern.findall(name) if ni is not None ])
+        return name
 
 class QMLForm(forms.Form):
     def __init__(self, root, initials, *args, **kwargs):
@@ -95,13 +103,15 @@ def all_subclasses(cls):
 
 
 class QMLobject(object):
-    all_objects = None
+    _all_objects = None
+    @staticmethod
+    def all_objects():
+        if QMLobject._all_objects is None:
+            QMLobject._all_objects = all_subclasses(QMLobject)
+        return QMLobject._all_objects
     @staticmethod
     def get_qml(tag):
-        if QMLobject.all_objects is None:
-            QMLobject.all_objects = all_subclasses(QMLobject)
-
-        for obj in QMLobject.all_objects:
+        for obj in QMLobject.all_objects():
             if obj.tag == tag: return obj
         raise QMLException('Tag `%s` not found.' % tag)
 

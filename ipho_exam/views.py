@@ -346,10 +346,12 @@ def admin_editor(request, exam_id, question_id):
     q = qml.QMLquestion(node.text)
     #content_set = qml.make_content(q)
 
+    qml_types = [(qobj.tag, qml.canonical_name(qobj)) for qobj in qml.QMLobject.all_objects()]
     context = {
         'exam' : exam,
         'question' : question,
         'content_set' : [q],
+        'qml_types' : qml_types,
     }
     return render(request, 'ipho_exam/admin_editor.html', context)
 
@@ -434,10 +436,12 @@ def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
         node.status = 'P'
     node.save()
 
+    qml_types = [(qobj.tag, qml.canonical_name(qobj)) for qobj in qml.QMLobject.all_objects()]
     ctx = {
         'fields_set': [newblock],
         'exam': exam,
         'question': question,
+        'qml_types' : qml_types,
     }
     return JsonResponse({
                 'new_block' : render_to_string('ipho_exam/admin_editor_field.html', ctx),
