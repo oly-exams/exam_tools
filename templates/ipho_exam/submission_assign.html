@@ -7,9 +7,11 @@
 {% block submitted-classes %}disabled{% endblock %}
 
 {% block step-content %}
-<p>Select the languages that you want to deliver to your students. For each student more than one language can be delivered.</p>
-<p>A final preview of the translation is available with the <i class="fa fa-file-pdf-o"></i> button. Be sure to check the final layout before proceeding.</p>
-
+<p>Select the languages that you want to deliver to your students.</p>
+<ul>
+    <li>For each student more than one language can be delivered.</li>
+    <li>The answer sheets will be provided <strong>only in one</strong> language.</li>
+</ul>
 
 {% if with_errors %}
 <div class="alert alert-danger">
