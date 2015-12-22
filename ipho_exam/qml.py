@@ -208,6 +208,8 @@ class QMLobject(object):
     def get_data(self):
         ret = {}
         if self.has_text:
+            if self.id in ret:
+                raise RuntimeError('id `%s` not unique in question QML.' % self.id)
             ret[self.id] = unescape_entities(self.data)
         for c in self.children:
             ret.update(c.get_data())
