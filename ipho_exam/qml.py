@@ -225,6 +225,13 @@ class QMLobject(object):
             ret.update(c.get_trans_extra_html())
         return ret
 
+    def flat_content_dict(self):
+        ret = {}
+        ret[self.id] = self.content_html()
+        for c in self.children:
+            ret.update(c.flat_content_dict())
+        return ret
+
     def content(self):
         if self.has_text:
             return self.data

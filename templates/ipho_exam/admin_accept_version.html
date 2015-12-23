@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% load static %}
+{% load editor_extras %}
+
+{% block extra-head %}
+<link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
+
+<style>
+.content-field-nested .field-content {
+    margin-left: 1em;
+    margin-right: 1em;
+}
+.field-content {
+    border: 1px solid #717171;
+    border-radius: 2px;
+    margin: 1em 0;
+    padding: 5px;
+}
+.cke_textarea_inline {
+/*    border:1px #000 solid;*/
+}
+
+.field-figure img {
+    max-height: 140px;
+}
+#figure-modal .modal-body img {
+    max-width: 100%;
+}
+
+.handle {
+    cursor: move;
+}
+
+ins {
+    color: #00f;
+    font-decoration: underline;
+    -moz-text-decoration-style: wavy;
+    -webkit-text-decoration-style: wavy;
+    text-decoration-style: wavy;
+}
+del {
+    color: #f00;
+    font-decoration: line-through;
+}
+
+body { margin-bottom: 70px; }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+
+    <div class="modal fade" id="figure-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          </div>
+              <div class="modal-body text-center"></div>
+        </div>
+      </div>
+    </div>
+
+{% if warning %}
+    <div class="alert alert-warning alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <strong>Warning:</strong> {{ warning }}
+    </div>
+{% endif %}
+
+<div class="page-header">
+  <h1>Exam admin editor</h1>
+</div>
+
+
+<form method="post" action="" charset="utf8">
+    {% csrf_token %}
+    <h3>{{ exam.name }} - {{ question.name }}</h3>
+
+    <div class="row">
+        <div class="col-xs-5">
+            <h4>Old: {{ lang.name }}
+            <span class="dropdown">
+              <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                <span class="badge">v{{ compare_node.version }}</span>
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                  {% for v in node_versions %}
+                      <li {% if compare_node.version == v %} class="active" {% endif %}>
+                          <a href="{% url 'exam:admin-accept-version-diff' exam_id=exam.pk question_id=question.pk version_num=node.version compare_version=v %}">v{{ v }}</a>
+                      </li>
+                  {% endfor %}
+              </ul>
+            </span>
+            </h4>
+        </div>
+
+        <div class="col-sm-2 text-center">
+        </div>
+
+        <div class="col-xs-5">
+            <h4>New: {{ lang.name }} <span class="badge">v{{ node.version }}</span></h4>
+        </div>
+    </div>
+
+
+    <div class="content-field-container">
+        {% include 'ipho_exam/admin_accept_version_field.html' with fields_set=fields_set %}
+    </div>
+
+    <div class="navbar navbar-default navbar-fixed-bottom">
+      <div class="container">
+          <div class="navbar-left">
+              <a class="btn btn-default navbar-btn" href="{% url 'exam:admin' %}" title="Back to versions list"><i class="fa fa-angle-double-left"></i> Back</a>
+          </div>
+        <div class="navbar-right">
+            <button type="submit" class="btn btn-primary navbar-btn"><i class="glyphicon glyphicon-ok"></i> Confirm</button>
+        </div>
+      </div>
+    </div>
+</form>
+</div> <!-- /container -->
+
+{% endblock %}
+
+
+
+{% block extra-script %}
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            showMathMenu: false,
+        });
+    </script>
+    <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+        function content2math() {
+            // convert equations for mathquill
+            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
+            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
+
+            // convert equations for mathjax
+            // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
+            var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
+            $(this).html(newtext);
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
+        }
+
+        $(function(){
+            $(".content-old").each(content2math);
+            $(".content-new").each(content2math);
+
+            // Figure preview
+            $('#figure-modal').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var button = $(event.relatedTarget); // Button that triggered the modal
+
+                var href = button.attr('href');
+                if (typeof href !== typeof undefined && href !== false) {
+                  modal.find('.modal-body').html('<img src="'+href+'" />');
+                } else {
+                  var img_url = button.data('base-url');
+                  var figparams = button.data('figparams');
+                  if (Object.keys(figparams).length > 0) {
+                    fig_query = new Object;
+                    for (k in figparams) {
+                      fig_query[k] = $('#id_'+figparams[k]).val();
+                    }
+                    img_url += '?' + $.param(fig_query);
+                  }
+                  modal.find('.modal-body').html('<img src="'+img_url+'" />');
+                }
+            });
+
+        });
+
+    </script>
+
+{% endblock %}

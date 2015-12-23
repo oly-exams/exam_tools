@@ -349,7 +349,60 @@ def admin_new_version(request, exam_id, question_id):
     return JsonResponse({'success' : True})
 
 @permission_required('iphoperm.is_staff')
-def admin_accept_version(request, exam_id, question_id, version_num):
+def admin_accept_version(request, exam_id, question_id, version_num, compare_version=None):
+    lang_id = OFFICIAL_LANGUAGE
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    question = get_object_or_404(Question, id=question_id)
+
+    lang = get_object_or_404(Language, id=lang_id)
+
+    if compare_version is None:
+        compare_node = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version')[0]
+        return HttpResponseRedirect(reverse('exam:admin-accept-version-diff',
+                                    kwargs=dict( exam_id=exam.pk, question_id=question.pk, version_num=int(version_num),
+                                                 compare_version=compare_node.version)))
+
+    if lang.versioned:
+        node = get_object_or_404(VersionNode, question=question, language=lang, status='P', version=version_num)
+        compare_node = get_object_or_404(VersionNode, question=question, language=lang, status='C', version=compare_version)
+    else:
+        ## TODO: add status check
+        node = get_object_or_404(TranslationNode, question=question, language=lang)
+        compare_node = get_object_or_404(TranslationNode, question=question, language=lang)
+
+    ## Save and redirect
+    if request.POST:
+        node.status = 'C'
+        node.save()
+        return HttpResponseRedirect(reverse('exam:admin'))
+
+    node_versions = []
+    if lang.versioned:
+        node_versions = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version').values_list('version', flat=True)
+
+    old_q = qml.QMLquestion(compare_node.text)
+    old_data = old_q.get_data()
+    new_q = qml.QMLquestion(node.text)
+    new_data = new_q.get_data()
+
+    old_q.diff_content_html(new_data)
+    new_q.diff_content_html(old_data)
+
+    old_flat_dict = old_q.flat_content_dict()
+
+    ctx = {}
+    ctx['exam'] = exam
+    ctx['question'] = question
+    ctx['lang'] = lang
+    ctx['node'] = node
+    ctx['compare_node'] = compare_node
+    ctx['node_versions'] = node_versions
+    ctx['fields_set'] = [new_q]
+    ctx['old_content'] = old_flat_dict
+    return render(request, 'ipho_exam/admin_accept_version.html', ctx)
+
+    # node, compare_node, node_versions, exam, question, lang
     pass
 
 @permission_required('iphoperm.is_staff')
