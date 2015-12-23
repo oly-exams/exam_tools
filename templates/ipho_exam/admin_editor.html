@@ -125,9 +125,8 @@ body { margin-bottom: 70px; }
         <div class="navbar-right">
             <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
             {# <button type="button" class="btn btn-default navbar-btn"><i class="fa fa-fw fa-unlock"></i> Lock</button>#}
-            <a type="submit" class="btn btn-primary navbar-btn" href="#" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> Accept</a>
+            <a type="submit" class="btn btn-primary navbar-btn" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node_version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> Accept</a>
         </div>
-
       </div>
     </div>
 </form>

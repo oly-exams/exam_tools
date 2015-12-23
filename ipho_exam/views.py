@@ -348,6 +348,9 @@ def admin_new_version(request, exam_id, question_id):
 
     return JsonResponse({'success' : True})
 
+@permission_required('iphoperm.is_staff')
+def admin_accept_version(request, exam_id, question_id, version_num):
+    pass
 
 @permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie

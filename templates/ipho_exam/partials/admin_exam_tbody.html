@@ -37,7 +37,7 @@
                       <a class="btn btn-xs btn-success" href="#" title="View PDF"><i class="fa fa-file-pdf-o fa-fw"></i> PDF</a>
                       {% if node.status == 'P' %}
                       <a class="btn btn-xs btn-default" href="{% url 'exam:admin-editor' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Edit version"><i class="fa fa-pencil fa-fw"></i> edit</a>
-                        <a class="btn btn-xs btn-primary" href="#" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> accept</a>
+                        <a class="btn btn-xs btn-primary" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> accept</a>
                       {% endif %}
                     </div>
 
