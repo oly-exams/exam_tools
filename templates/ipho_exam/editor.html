@@ -77,6 +77,29 @@ body { margin-bottom: 70px; }
     </div>
 {% endif %}
 
+<div class="modal fade" id="ipho_exam-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Do you want to save changes before leaving?</h3>
+      </div>
+      <div class="modal-body">
+        <p>Your changes will be lost if you don't save them.</p>
+      </div>
+      <div class="modal-footer">
+          <div class="pull-left">
+              <button type="button" class="btn btn-default" data-action="discard">Discard changes</button>
+          </div>
+          <div class="pull-right">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" data-action="save">Save changes</button>
+          </div>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <div class="page-header">
     <div class="dropdown pull-right">
       <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
@@ -120,8 +143,7 @@ body { margin-bottom: 70px; }
 </ul>
 
 {% if question %}
-
-    <form method="post" action="" charset="utf8">
+    <form method="post" action="" charset="utf8" id="ipho_exam-form">
         {% csrf_token %}
         <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
 
@@ -235,7 +257,8 @@ body { margin-bottom: 70px; }
     <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{% static "ckeditor/ckeditor.js" %}"></script>
     <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
-
+    <script src="{% static "jquery-dirtyforms/jquery.dirtyforms.min.js" %}"></script>
+    <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
 
@@ -295,7 +318,21 @@ body { margin-bottom: 70px; }
                 myid = $(this).parent().attr('id').replace('-translate', '');
                 // all_editors[myid] = CKEDITOR.replace(this);
                 all_editors[myid] = $(this).ckeditor().editor;
-            })
+                var textarea = $(this);
+                all_editors[myid].on('change', function() { this.updateElement(); textarea.change(); });
+            });
+
+            /// For custom dialog: https://github.com/NightOwl888/jquery.dirtyforms.dialogs.bootstrap.dist#example
+            // $.DirtyForms.dialog = {
+            //             dialogID: 'dirtyform-modal',
+            //             titleClass: 'custom-title',
+            //             messageClass: 'custom-message',
+            //             proceedButtonClass: 'custom-proceed',
+            //             stayButtonClass: 'custom-stay'
+            //         }
+            $.DirtyForms.title = "Do you want to save changes before leaving?"
+            $.DirtyForms.message = "Your changes will be lost if you don't save them."
+            $('#ipho_exam-form').dirtyForms();
 
             // Figure preview
             $('#figure-modal').on('show.bs.modal', function (event) {
