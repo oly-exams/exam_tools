@@ -1,3 +1,22 @@
 <h2>Final submit</h2>
-<p>Assign exams to students.</p>
-<p><a class="btn btn-default" href="#" role="button">Go &raquo;</a></p>
+<div class="panel panel-default">
+    <div class="panel-heading"><h3 class="panel-title">Open submissions</h3></div>
+      <div id="language-list" class="list-group">
+      {% for ex in exams_open %}
+          <a class="list-group-item" href="{% url 'exam:submission-exam-assign' exam_id=ex.pk %}">{{ ex.name }} <span class="pull-right"><i class="fa fa-angle-double-right"></i></span></a>
+      {% empty %}
+          <a class="list-group-item">No open exam.</a>
+      {% endfor %}
+      </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading"><h3 class="panel-title">Closed submissions</h3></div>
+      <div id="language-list" class="list-group">
+          {% for ex in exams_closed %}
+          <a class="list-group-item" href="{% url 'exam:submission-exam-submitted' exam_id=ex.pk %}">{{ ex.name }} <span class="pull-right"><i class="fa fa-angle-double-right"></i></span></a>
+      {% empty %}
+          <a class="list-group-item">No closed exam.</a>
+      {% endfor %}
+      </div>
+</div>

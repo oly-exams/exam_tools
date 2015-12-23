@@ -1,0 +1,5 @@
+Django >= 1.8, < 1.9
+django-crispy-forms
+#CairoSVG
+hg+https://bitbucket.org/whitie/python-barcode
+PyPDF2

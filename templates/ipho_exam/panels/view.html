@@ -1,7 +1,38 @@
 <h2>View exams</h2>
-<p>Theory exam:</p>
-<select>
-  <option>Select a language</option>
-  <option>-----</option>
-  <option>..populate..</option>
-</select>
+
+<div class="panel-group" id="view-accordion">
+{% for ex in exam_list %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <span class="glyphicon {% if forloop.first %}glyphicon-chevron-down{% else %}glyphicon-chevron-right{% endif %}"></span>
+        <a data-toggle="collapse" data-parent="#view-accordion" href="#view-collapse-{{ forloop.counter }}">
+          {{ ex.name }}
+        </a>
+      </h4>
+    </div>
+    <div id="view-collapse-{{ forloop.counter }}" class="panel-collapse collapse {% if forloop.first %}in{% endif %}">
+        <div class="list-group">
+        {% for q in ex.question_set.all %}
+            <div class="dropdown">
+            <a class="list-group-item dropdown-toggle" data-toggle="dropdown" href="#">
+                {{ q.name }} <span class="pull-right"><i class="fa fa-angle-double-right"></i></span>
+            </a>
+                <ul class="dropdown-menu">
+                    {% for l in own_lang %}
+                        <li><a href="{% url 'exam:pdf' question_id=q.pk lang_id=l.pk %}" target="_blank">{{ l.name }} <i class="fa fa-external-link" style="font-size:70%"></i></a></li>
+                    {% endfor %}
+                    {% if own_lang %}
+                        <li class="divider"></li>
+                    {% endif %}
+                    {% for l in other_lang %}
+                        <li><a href="{% url 'exam:pdf' question_id=q.pk lang_id=l.pk %}" target="_blank">{{ l.name }} ({{ l.delegation.country }}) <i class="fa fa-external-link" style="font-size:70%"></i></a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+        </div>
+    </div> <!-- ./panel-collapse -->
+  </div> <!-- ./panel -->
+{% endfor %}
+</div>

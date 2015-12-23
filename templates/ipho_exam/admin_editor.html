@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+{% load static %}
+{% load editor_extras %}
+
+{% block extra-head %}
+<link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
+
+<style>
+.content-field-nested .field-content {
+    margin-left: 1em;
+    margin-right: 1em;
+}
+.field-content {
+    border: 2px solid #717171;
+    border-radius: 5px;
+    margin: 1em 0;
+    padding: 5px;
+}
+.cke_textarea_inline {
+/*    border:1px #000 solid;*/
+}
+
+.field-figure img {
+    max-height: 140px;
+}
+#figure-modal .modal-body img {
+    max-width: 100%;
+}
+
+.handle {
+    cursor: move;
+}
+
+ins {
+    color: #00f;
+    font-decoration: underline;
+    -moz-text-decoration-style: wavy;
+    -webkit-text-decoration-style: wavy;
+    text-decoration-style: wavy;
+}
+del {
+    color: #f00;
+    font-decoration: line-through;
+}
+
+body { margin-bottom: 70px; }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+
+    <div class="modal fade" id="figure-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          </div>
+              <div class="modal-body text-center"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="block-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <form method="post" action="">
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+              </div>
+        </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="delete-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="model-title">Are you sure?</h4>
+          </div>
+          <div class="modal-body">
+              <p>The block and its content will be deleted.</p>
+              <p>If this was not officialized in a previous <emph>Confirmed</emph> version, this operation will be permanent.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" data-confirm="delete"><i class="fa fa-trash-o fa-fw"></i> Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% if warning %}
+    <div class="alert alert-warning alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <strong>Warning:</strong> {{ warning }}
+    </div>
+{% endif %}
+
+<div class="page-header">
+  <h1>Exam admin editor</h1>
+</div>
+
+
+<form method="post" action="" charset="utf8">
+    {% csrf_token %}
+    <h3>{{ exam.name }} - {{ question.name }}</h3>
+
+
+    <div class="content-field-container">
+        {% include 'ipho_exam/admin_editor_field.html' with fields_set=content_set %}
+    </div>
+
+
+    <div class="navbar navbar-default navbar-fixed-bottom">
+      <div class="container">
+        <div class="navbar-right">
+            <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
+            {# <button type="button" class="btn btn-default navbar-btn"><i class="fa fa-fw fa-unlock"></i> Lock</button>#}
+            <a type="submit" class="btn btn-primary navbar-btn" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node_version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> Accept</a>
+        </div>
+      </div>
+    </div>
+</form>
+</div> <!-- /container -->
+
+{% endblock %}
+
+
+
+{% block extra-script %}
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            showMathMenu: false,
+        });
+    </script>
+    <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="{% static "ckeditor/ckeditor.js" %}"></script>
+    <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
+
+    <script>
+        CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
+
+        CKEDITOR.config.toolbar = [
+                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
+            ];
+        CKEDITOR.config.forcePasteAsPlainText = true;
+        CKEDITOR.config.resize_enabled = false;
+        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax';
+        CKEDITOR.config.removePlugins = 'elementspath,contextmenu,tabletools,liststyle';
+        // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
+        CKEDITOR.config.width = '100%';
+        CKEDITOR.config.autoGrow_onStartup = true;
+        CKEDITOR.config.autoGrow_minHeight = 0;
+        CKEDITOR.config.autoGrow_bottomSpace = 10;
+        CKEDITOR.config.entities = false;
+        CKEDITOR.config.htmlEncodeOutput = false;
+        CKEDITOR.config.basicEntities = false;
+        CKEDITOR.config.entities_latin = false;
+        CKEDITOR.config.entities_greek = false;
+        CKEDITOR.config.disableNativeSpellChecker = false;
+        CKEDITOR.config.autoParagraph = false;
+        CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
+        CKEDITOR.config.jsvk_skin = "flat_gray";
+
+        all_editors = new Array();
+
+        function content2math() {
+            // convert equations for mathquill
+            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
+            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
+
+            // convert equations for mathjax
+            // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
+            var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
+            $(this).html(newtext);
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
+        }
+
+        $(function(){
+            // Get csrftoken
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            var csrftoken = getCookie('csrftoken');
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+
+            $(".translate-original").each(content2math);
+            $(".translate-foreign").each(content2math);
+
+            $(".translate-copy-button").click(function( event ) {
+                field_id =  $(this).attr('id').replace('-copy', '');
+                orig = '#' + $(this).attr('id').replace('-copy', '-original');
+                if (field_id in all_editors)
+                    all_editors[field_id].setData($(orig).data('original-text'));
+                else
+                    $('#'+field_id+'-translate input[type="text"]').val($(orig).data('original-text'));
+                event.preventDefault();
+            });
+
+
+            $('.translate-foreign textarea').each(function() {
+                myid = $(this).parent().attr('id').replace('-translate', '');
+                // all_editors[myid] = CKEDITOR.replace(this);
+                all_editors[myid] = $(this).ckeditor().ckeditorGet();
+            })
+
+            // Figure preview
+            $('#figure-modal').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var button = $(event.relatedTarget); // Button that triggered the modal
+
+                var href = button.attr('href');
+                if (typeof href !== typeof undefined && href !== false) {
+                  modal.find('.modal-body').html('<img src="'+href+'" />');
+                } else {
+                  var img_url = button.data('base-url');
+                  var figparams = button.data('figparams');
+                  if (Object.keys(figparams).length > 0) {
+                    fig_query = new Object;
+                    for (k in figparams) {
+                      fig_query[k] = $('#id_'+figparams[k]).val();
+                    }
+                    img_url += '?' + $.param(fig_query);
+                  }
+                  modal.find('.modal-body').html('<img src="'+img_url+'" />');
+                }
+            });
+
+            // Block add
+            $("a[data-action='add-block']").on('click', function (evt) {
+                evt.preventDefault();
+
+                var button = $(this);
+                var href = button.attr('href');
+                var block_id = button.data('block-id');
+
+                $.ajax({
+                    url: href,
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#'+block_id+'-children').append(data['new_block']);
+                    },
+                });
+            });
+
+            // Block edit
+            $('#block-modal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var href = button.attr('href');
+                var modal = $(this);
+                var block_id = button.data('block-id');
+
+                modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+                modal.find('.modal-body').html('');
+                $.ajax({
+                    url: href,
+                    dataType: 'json',
+                    success: function(data) {
+                        modal.data('block-id', block_id);
+                        modal.find('.modal-title').text(data['title']);
+                        modal.find('form').attr('action', href);
+                        modal.find('.modal-body').html(data['form']);
+                        modal.find('.block-content-editor').ckeditor();
+                        modal.find("[data-toggle=popover]").popover(); // activate popover
+                    },
+                });
+
+                // var modal = $(this);
+                // var button = $(event.relatedTarget); // Button that triggered the modal
+                // var block_id = button.data("block-id");
+                // var block_obj = $("#"+block_id+"-content")
+                //
+                // modal.find('.modal-body').html('<textarea class="block-editor">'+block_obj.data('content')+'</textarea>');
+                // modal.find('.block-editor').ckeditor();
+            });
+            // Submit
+            $(document).on('submit', '#block-modal form', function(evt) {
+                    var form = evt.target;
+                    var $form = $(form);
+                    evt.preventDefault();
+                    var modal = $('#block-modal');
+                    var block_id = modal.data("block-id");
+
+                    var data = new FormData($form.get(0));
+                    $.ajax({
+                        url: form.action,
+                        type: form.method,
+                        data: data,
+                        cache: false,
+                        processData: false,
+                        contentType: false,
+                        success: function(data) {
+                            if (!data['success']) {
+                                modal.find('.modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                                return;
+                            }
+                            $('#'+block_id+'-attributes').html(data['attributes']);
+                            if (data['content'] !== null) {
+                                $('#'+block_id+'-content').html(data['content']);
+                                $('#'+block_id+'-content').each(content2math);
+                            }
+
+                            modal.modal('hide');
+                            // $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+                        }
+                    });
+                });
+
+            // Delete
+            $(document).on('click', '#delete-modal button[data-confirm="delete"]', function(evt) {
+                evt.preventDefault();
+                var modal = $('#delete-modal');
+
+                // TODO: disable button and show spinning wheel
+
+                $.ajax({
+                    url: modal.data('delete-href'),
+                    type: 'get',
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
+                        if (data['success']) {
+                            $('#'+modal.data('block-id')+'-container').remove();
+                        }
+                        modal.data('block-id', null);
+                        modal.data('delete-href', null);
+                        modal.modal('hide');
+                    }
+                });
+            });
+            $('#delete-modal').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                modal.data('block-id', button.data('block-id'));
+                modal.data('delete-href',button.attr('href'));
+            });
+
+        });
+
+    </script>
+
+{% endblock %}

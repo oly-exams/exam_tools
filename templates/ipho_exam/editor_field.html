@@ -1,24 +1,23 @@
 {% for field in fields_set %}
+    {% if field.heading %}
     <div class="row">
         <div class="col-xs-12 translation-field-nested">
-            <h4>{{ field.heading }}</h4>
-
-            {% with field.children as fields_set %}
-                {% include 'ipho_exam/editor_field.html' %}
-            {% endwith %}
-
+            <h4>{{ field.heading }}
+            {% if field.description %} <br /> <span class="small">{{ field.description }}</span> {% endif %}
+            </h4>
         </div>
     </div>
-    
+    {% endif %}
+
     {% if field.original %}
         <div class="row">
             <div class="col-xs-5">
                 <div class="translate-original" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
-                    {{ field.original|safe }}
+                    {{ field.original_html|safe }}
                 </div>
             </div>
-        
-        {% if form %}
+
+        {% if form and form|lookup:field.id %}
           <div class="col-sm-2 text-center" style="display: table-cell; vertical-align: middle;">
             <button type="button" class="btn btn-sm btn-default translate-copy-button" id="{{ field.id }}-copy" aria-label="Copy original version" title="Copy original version">
               <span class="glyphicon glyphicon-arrow-right"></span>
@@ -31,6 +30,30 @@
                 </div>
         {% endif %}
         </div>
+    {% elif field.original_html %}
+        <div class="row">
+            <div class="col-xs-5">
+                <div>
+                    {{ field.original_html|safe }}
+                </div>
+            </div>
+            {% if trans_extra_html and trans_extra_html|lookup:field.id %}
+              <div class="col-sm-2"></div>
+              <div class="col-xs-5">
+                  <div>
+                      {{ trans_extra_html|lookup:field.id|safe }}
+                  </div>
+              </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if field.children %}
+    <div class="row">
+        <div class="col-xs-12 translation-field-nested">
+            {% include 'ipho_exam/editor_field.html' with fields_set=field.children %}
+        </div>
+    </div>
     {% endif %}
 
 {% endfor %}

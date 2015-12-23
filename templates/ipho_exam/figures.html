@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra-head %}
+<style>
+.asteriskField {
+    display: none;
+}
+#figure-list img {
+    display: block;
+/*    max-width:230px;*/
+    max-height:50px;
+    width: auto;
+    height: auto;
+}
+#preview-modal .modal-body img {
+    max-width:100%;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+      <h1>Exams Figures</h1>
+    </div>
+    
+    <div class="modal fade" id="figure-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <form method="post" action="" enctype="multipart/form-data">
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal fade" id="preview-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+              <div class="modal-body text-center"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="alerts-container">
+        {% if success %}
+        <div class="alert alert-success alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+          {{ success|safe }}
+        </div>
+        {% endif %}
+    </div>
+    
+    <a class="btn btn-success" data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{% url 'exam:figure-add' %}"><i class="fa fa-plus fa-fw"></i> Add Figure</a>
+    
+    <table id="figure-list" class="table table-striped">
+      <tr>
+          <th>Name</th>
+          <th>Parameters</th>
+          <th>Preview</th>
+          <th>Actions</th>
+      </tr>
+      {% for fig in figure_list %}
+          <tr>
+              <td>{{ fig.name }}</td>
+              <td>{{ fig.params }}</td>
+              <td><a data-toggle="modal" data-target="#preview-modal" data-remote="false" href="{% url 'exam:figure-export' fig_id=fig.pk %}"><img src="{% url 'exam:figure-export' fig_id=fig.pk %}" alt="{{ fig.name }}" /></a></td>
+              <td>
+                <div class="btn-toolbar">
+                  <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{% url 'exam:figure-edit' fig_id=fig.pk %}"><i class="fa fa-pencil fa-fw"></i></a>
+                  <button class="btn btn-sm btn-danger"><i class="fa fa-trash-o fa-fw"></i></button>
+                </div>
+              </td>
+          </tr>
+      {% endfor %}
+    </table>
+
+</div> <!-- /container -->
+
+{% endblock %}
+
+{% block extra-script %}
+<script>
+$(function() {
+    // Get csrftoken
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+    
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    
+    // Figure preview
+    $('#preview-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+        var title = $('td:first', button.parents('tr')).text();
+        
+        modal.find('.modal-title').text(title);
+        modal.find('.modal-body').html('<img src="'+href+'" alt="'+title+'" />');
+    });
+    
+    
+    // Figure modal
+    $(document).on('submit', '#figure-modal form', function(evt) {
+        var form = evt.target;
+        var $form = $(form);
+        evt.preventDefault();
+        
+        var data = new FormData($form.get(0));
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (!data['success']) {
+                    $('#figure-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    return;
+                }
+                
+                if (data['type'] == 'add') {
+                    var row = ''
+                    row += '<tr>';
+                    row += '<td>'+data['name']+'</td><td>'+data['params']+'</td><td><a data-toggle="modal" data-target="#preview-modal" data-remote="false" href="'+data['src']+'"><img src="'+data['src']+'" alt="'+data['name']+'" /></a></td>';
+                    row += '<td><div class="btn-toolbar"><a class="btn btn-sm btn-default" data-toggle="modal" data-target="#figure-modal" data-remote="false" href="'+data['edit-href']+'"><i class="fa fa-pencil fa-fw"></i></a><button class="btn btn-sm btn-danger"><i class="fa fa-trash-o fa-fw"></i></button></div></td>';
+                    row += '</tr>';
+                    $('#figure-list').append(row);
+                    // TODO: sort
+                }
+                if (data['type'] == 'edit') {
+                    $('#alerts-container').prepend('<div class="alert alert-warning alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>The figure list is not updated automatically. You have to manually refresh the page.</div>');
+                    
+                }
+                $('#figure-modal').modal('hide');
+                $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+            }
+        });
+    });
+    
+    $('#figure-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+        
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
+        
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('form').attr('action', href);
+                modal.find('.modal-body').html(data['form']);
+                modal.find('button[type="submit"]').text(data['submit']);
+                modal.find("[data-toggle=popover]").popover(); // activate popover
+            },
+        });
+    })
+    
+});
+</script>
+{% endblock %}
