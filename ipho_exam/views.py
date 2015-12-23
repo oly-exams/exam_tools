@@ -364,6 +364,8 @@ def admin_editor(request, exam_id, question_id, version_num):
     if lang.versioned:
         node = get_object_or_404(VersionNode, question=question, language=lang, version=version_num)
         node_version = node.version
+        if node.status != 'P':
+            raise RuntimeError('Can only edit questions with `Proposal` status.')
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
         node_version = 0
@@ -393,6 +395,8 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
         node = get_object_or_404(VersionNode, question=question, language=lang, version=version_num)
+        if node.status != 'P':
+            raise RuntimeError('Can only edit questions with `Proposal` status.')
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
@@ -441,6 +445,8 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
         node = get_object_or_404(VersionNode, question=question, language=lang, version=version_num)
+        if node.status != 'P':
+            raise RuntimeError('Can only edit questions with `Proposal` status.')
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
