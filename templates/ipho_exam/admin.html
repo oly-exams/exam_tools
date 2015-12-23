@@ -76,7 +76,7 @@ $(function() {
             .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
     }
 
-    function update_questions(tid) {
+    function update_questions(tid, active=false) {
         $.ajax({
             method: "GET",
             url: "{% url 'exam:admin' %}/",
@@ -84,7 +84,11 @@ $(function() {
             dataType: "json",
         }).done(function( data ) {
             var exam_tbody = $("#exam-tbody-"+tid);
-            exam_tbody.html(data['content']);
+            var content = $(data['content']);
+            if (active) {
+                content.find('.panel-collapse').addClass('in');
+            }
+            exam_tbody.html(content);
             exam_tbody.sortable({
                 handle: '.handle',
                 update: function(event, ui) {
@@ -96,6 +100,22 @@ $(function() {
                     });
                 },
             }).disableSelection();
+            exam_tbody.find('[data-action="new-version"]').on('click', function(evt) {
+                evt.preventDefault();
+                var button = $(this);
+                var href = button.data('action-url');
+                $.ajax({
+                    method: "GET",
+                    url: href,
+                    dataType: "json",
+                }).done(function( data ) {
+                    if (data['success']) {
+                        update_questions(tid, true);
+                    } else {
+                        alert('An error occured.');
+                    }
+                });
+            });
             exam_tbody.find('.panel-collapse').on('hide.bs.collapse', toggleChevron);
             exam_tbody.find('.panel-collapse').on('show.bs.collapse', toggleChevron);
         });

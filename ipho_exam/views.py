@@ -324,14 +324,11 @@ def admin_sort(request, exam_id):
         question.position = position
         question.save()
     return HttpResponse('')
-@permission_required('iphoperm.is_staff')
-def admin_props(request, exam_id, question_id):
-    pass
-
 
 @permission_required('iphoperm.is_staff')
-@ensure_csrf_cookie
-def admin_editor(request, exam_id, question_id):
+def admin_new_version(request, exam_id, question_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
     lang_id = OFFICIAL_LANGUAGE
 
     exam = get_object_or_404(Exam, id=exam_id)
@@ -343,6 +340,31 @@ def admin_editor(request, exam_id, question_id):
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
+    if lang.versioned: ## make new version and increase version number
+        node.pk = None
+        node.version += 1
+        node.status = 'P'
+    node.save()
+
+    return JsonResponse({'success' : True})
+
+
+@permission_required('iphoperm.is_staff')
+@ensure_csrf_cookie
+def admin_editor(request, exam_id, question_id, version_num):
+    lang_id = OFFICIAL_LANGUAGE
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    question = get_object_or_404(Question, id=question_id)
+
+    lang = get_object_or_404(Language, id=lang_id)
+    if lang.versioned:
+        node = get_object_or_404(VersionNode, question=question, language=lang, version=version_num)
+        node_version = node.version
+    else:
+        node = get_object_or_404(TranslationNode, question=question, language=lang)
+        node_version = 0
+
     q = qml.QMLquestion(node.text)
     #content_set = qml.make_content(q)
 
@@ -351,12 +373,13 @@ def admin_editor(request, exam_id, question_id):
         'exam' : exam,
         'question' : question,
         'content_set' : [q],
+        'node_version' : node_version,
         'qml_types' : qml_types,
     }
     return render(request, 'ipho_exam/admin_editor.html', context)
 
 @permission_required('iphoperm.is_staff')
-def admin_editor_block(request, exam_id, question_id, block_id):
+def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     lang_id = OFFICIAL_LANGUAGE
@@ -366,7 +389,7 @@ def admin_editor_block(request, exam_id, question_id, block_id):
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
-        node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
+        node = get_object_or_404(VersionNode, question=question, language=lang, version=version_num)
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
@@ -386,10 +409,6 @@ def admin_editor_block(request, exam_id, question_id, block_id):
             block.data_html = form.cleaned_data['block_content']
         block.attributes = dict([(ff.cleaned_data['key'],ff.cleaned_data['value']) for ff in attrs_form if ff.cleaned_data])
         node.text = qml.xml2string(q.make_xml())
-        if lang.versioned: ## make new version and increase version number
-            node.pk = None
-            node.version += 1
-            node.status = 'P'
         node.save()
 
         return JsonResponse({
@@ -408,7 +427,7 @@ def admin_editor_block(request, exam_id, question_id, block_id):
             })
 
 @permission_required('iphoperm.is_staff')
-def admin_editor_delete_block(request, exam_id, question_id, block_id):
+def admin_editor_delete_block(request, exam_id, question_id, version_num, block_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     lang_id = OFFICIAL_LANGUAGE
@@ -418,7 +437,7 @@ def admin_editor_delete_block(request, exam_id, question_id, block_id):
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
-        node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
+        node = get_object_or_404(VersionNode, question=question, language=lang, version=version_num)
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
@@ -426,10 +445,6 @@ def admin_editor_delete_block(request, exam_id, question_id, block_id):
 
     block = q.delete(block_id)
     node.text = qml.xml2string(q.make_xml())
-    if lang.versioned: ## make new version and increase version number
-        node.pk = None
-        node.version += 1
-        node.status = 'P'
     node.save()
 
     return JsonResponse({
@@ -437,7 +452,7 @@ def admin_editor_delete_block(request, exam_id, question_id, block_id):
             })
 
 @permission_required('iphoperm.is_staff')
-def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
+def admin_editor_add_block(request, exam_id, question_id, version_num, block_id, tag_name):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     lang_id = OFFICIAL_LANGUAGE
@@ -447,9 +462,11 @@ def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
-        node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
+        node = get_object_or_404(VersionNode, question=question, language=lang, version=version_num)
+        node_version = node.version
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
+        node_version = 0
 
     q = qml.QMLquestion(node.text)
 
@@ -459,16 +476,13 @@ def admin_editor_add_block(request, exam_id, question_id, block_id, tag_name):
 
     newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)))
     node.text = qml.xml2string(q.make_xml())
-    if lang.versioned: ## make new version and increase version number
-        node.pk = None
-        node.version += 1
-        node.status = 'P'
     node.save()
 
     qml_types = [(qobj.tag, qml.canonical_name(qobj)) for qobj in qml.QMLobject.all_objects()]
     ctx = {
         'fields_set': [newblock],
         'exam': exam,
+        'node_version': node_version,
         'question': question,
         'qml_types' : qml_types,
     }
