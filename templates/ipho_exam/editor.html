@@ -258,7 +258,6 @@ body { margin-bottom: 70px; }
     <script src="{% static "ckeditor/ckeditor.js" %}"></script>
     <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
     <script src="{% static "jquery-dirtyforms/jquery.dirtyforms.min.js" %}"></script>
-    <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.helpers.ckeditor.min.js" %}"></script>
     <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
@@ -319,7 +318,9 @@ body { margin-bottom: 70px; }
                 myid = $(this).parent().attr('id').replace('-translate', '');
                 // all_editors[myid] = CKEDITOR.replace(this);
                 all_editors[myid] = $(this).ckeditor().ckeditorGet();
-            })
+                var textarea = $(this);
+                all_editors[myid].on('change', function() { this.updateElement(); textarea.change(); });
+            });
 
             /// For custom dialog: https://github.com/NightOwl888/jquery.dirtyforms.dialogs.bootstrap.dist#example
             // $.DirtyForms.dialog = {
