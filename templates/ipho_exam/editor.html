@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load editor_extras %}
+{% load humanize %}
 
 {% block extra-head %}
 <link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
@@ -230,11 +231,13 @@ body { margin-bottom: 70px; }
         {% if form %}
         <div class="navbar navbar-default navbar-fixed-bottom">
           <div class="container">
+            <div class="navbar-left">
+              <span class="navbar-text" id="save-status">Last saved: {{ last_saved|naturaltime }}.</span>
+            </div>
             <div class="navbar-right">
                 <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
                 <button type="submit" class="btn btn-primary navbar-btn" data-toggle="tooltip" data-placement="top" title="ctrl + S"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
             </div>
-
           </div>
         </div>
         {% endif %}
