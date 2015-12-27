@@ -4,6 +4,7 @@
 
 {% block extra-head %}
 <link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
+<link href="{% static "bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" %}" rel="stylesheet">
 
 <style>
 span.dropdown {
@@ -231,6 +232,10 @@ body { margin-bottom: 70px; }
         <div class="navbar navbar-default navbar-fixed-bottom">
           <div class="container">
             <div class="navbar-left">
+                <label class="navbar-text" style="font-weight:normal;">
+                    <input type="checkbox" id="auto-save-checkbox" checked="checked" data-size="mini">
+                    Auto-save.
+                </label>
               <span class="navbar-text" id="save-status"></span>
             </div>
             <div class="navbar-right">
@@ -261,6 +266,7 @@ body { margin-bottom: 70px; }
     <script src="{% static "jquery-dirtyforms/jquery.dirtyforms.min.js" %}"></script>
     <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
     <script src="{% static "moment.min.js" %}"></script>
+    <script src="{% static "bootstrap-switch/js/bootstrap-switch.min.js" %}"></script>
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
 
@@ -411,7 +417,7 @@ body { margin-bottom: 70px; }
             //         }
             $.DirtyForms.title = "Do you want to save changes before leaving?"
             $.DirtyForms.message = "Your changes will be lost if you don't save them."
-            $('#question-form').dirtyForms();
+            $('#question-form').dirtyForms({ ignoreSelector: '#auto-save-checkbox' });
             $('#question-form').on('dirty.dirtyforms', function(evt) {
                 var $form = $(evt.target);
                 $form.find('button[type="submit"]').removeProp('disabled').tooltip();
@@ -424,6 +430,14 @@ body { margin-bottom: 70px; }
                 }
             }
             var autoSaveTimer = setInterval(autoSave, 20000);
+            $('#auto-save-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function(event, state) {
+                var $checkbox = $(this);
+                if (state) {
+                    autoSaveTimer = setInterval(autoSave, 20000);
+                } else {
+                    clearInterval(autoSaveTimer);
+                }
+            });
         });
 
     </script>
