@@ -145,7 +145,7 @@ body { margin-bottom: 70px; }
 {% if question %}
     <form method="post" action="" charset="utf8" id="ipho_exam-form">
         {% csrf_token %}
-        <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
+        <h3>{{ question.name }}</h3>
 
         <div class="row">
             <div class="col-xs-5">
@@ -232,7 +232,6 @@ body { margin-bottom: 70px; }
           <div class="container">
             <div class="navbar-right">
                 <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
-                <button type="button" class="btn btn-default navbar-btn"><i class="fa fa-fw fa-unlock"></i> Lock</button>
                 <button type="submit" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
             </div>
 
