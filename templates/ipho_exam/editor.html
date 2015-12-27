@@ -232,7 +232,7 @@ body { margin-bottom: 70px; }
           <div class="container">
             <div class="navbar-right">
                 <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
-                <button type="submit" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+                <button type="submit" class="btn btn-primary navbar-btn" data-toggle="tooltip" data-placement="top" title="ctrl + S"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
             </div>
 
           </div>
@@ -298,6 +298,11 @@ body { margin-bottom: 70px; }
         }
 
         $(function(){
+            $('[data-toggle="tooltip"]').each(function () {
+                if (navigator.platform.match("Mac")) {
+                    $(this).attr('title', $(this).attr('title').replace('ctrl', '⌘'));
+                }
+            }).tooltip();
 
             $(".translate-original").each(content2math);
             $(".translate-foreign").each(content2math);
@@ -353,6 +358,13 @@ body { margin-bottom: 70px; }
                   }
                   modal.find('.modal-body').html('<img src="'+img_url+'" />');
                 }
+            });
+
+            $(document).keypress(function(event) {
+                if (!(event.which == 115 && (navigator.platform.match("Mac") ? event.metaKey : event.ctrlKey)) && !(event.which == 19)) return true;
+                event.preventDefault();
+                alert('Saving..');
+                return false;
             });
 
         });
