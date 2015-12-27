@@ -235,7 +235,7 @@ body { margin-bottom: 70px; }
             </div>
             <div class="navbar-right">
                 <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
-                <button type="submit" class="btn btn-primary navbar-btn" data-toggle="tooltip" data-placement="top" title="ctrl + S"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+                <button type="submit" class="btn btn-primary navbar-btn" data-toggle="tooltip" data-placement="top" title="ctrl + S" disabled="disabled"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
             </div>
           </div>
         </div>
@@ -329,18 +329,6 @@ body { margin-bottom: 70px; }
                 all_editors[myid].on('change', function() { this.updateElement(); textarea.change(); });
             });
 
-            /// For custom dialog: https://github.com/NightOwl888/jquery.dirtyforms.dialogs.bootstrap.dist#example
-            // $.DirtyForms.dialog = {
-            //             dialogID: 'dirtyform-modal',
-            //             titleClass: 'custom-title',
-            //             messageClass: 'custom-message',
-            //             proceedButtonClass: 'custom-proceed',
-            //             stayButtonClass: 'custom-stay'
-            //         }
-            $.DirtyForms.title = "Do you want to save changes before leaving?"
-            $.DirtyForms.message = "Your changes will be lost if you don't save them."
-            $('#question-form').dirtyForms();
-
             // Figure preview
             $('#figure-modal').on('show.bs.modal', function (event) {
                 var modal = $(this);
@@ -363,10 +351,13 @@ body { margin-bottom: 70px; }
                 }
             });
 
+            /// Saving methods
             var last_saved = new Date("{{ last_saved.isoformat }}");
+            var saving = false;
             function updateDocumentStatus() {
+                var status_text = (saving) ? 'Saving...' : 'Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).fromNow()+'</abbr>.';
                 $('#save-status')
-                    .html('Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).fromNow()+'</abbr>.')
+                    .html(status_text)
                     .find('[data-toggle="tooltip"]').tooltip();
             }
             updateDocumentStatus();
@@ -378,8 +369,11 @@ body { margin-bottom: 70px; }
                 var $button = $form.find('button[type="submit"]');
                 evt.preventDefault();
 
+                saving = true;
                 $button.prop('disabled', true);
                 $button.tooltip('destroy');
+                $form.dirtyForms('setClean');
+                updateDocumentStatus();
 
                 var data = new FormData($form.get(0));
                 $.ajax({
@@ -390,10 +384,12 @@ body { margin-bottom: 70px; }
                     processData: false,
                     contentType: false,
                     success: function(data) {
-                        console.log('saved.');
+                        saving = false;
                         if (data['success']) {
                             last_saved = data['last_saved'];
-                            documentStatus();
+                            updateDocumentStatus();
+                        } else {
+                            console.log('Saving failed.');
                         }
                     }
                 });
@@ -405,6 +401,29 @@ body { margin-bottom: 70px; }
                 return false;
             });
 
+            /// For custom dialog: https://github.com/NightOwl888/jquery.dirtyforms.dialogs.bootstrap.dist#example
+            // $.DirtyForms.dialog = {
+            //             dialogID: 'dirtyform-modal',
+            //             titleClass: 'custom-title',
+            //             messageClass: 'custom-message',
+            //             proceedButtonClass: 'custom-proceed',
+            //             stayButtonClass: 'custom-stay'
+            //         }
+            $.DirtyForms.title = "Do you want to save changes before leaving?"
+            $.DirtyForms.message = "Your changes will be lost if you don't save them."
+            $('#question-form').dirtyForms();
+            $('#question-form').on('dirty.dirtyforms', function(evt) {
+                var $form = $(evt.target);
+                $form.find('button[type="submit"]').removeProp('disabled').tooltip();
+            });
+
+            function autoSave() {
+                $form = $('#question-form');
+                if (!saving && $form.dirtyForms('isDirty')) {
+                    $form.submit();
+                }
+            }
+            var autoSaveTimer = setInterval(autoSave, 20000);
         });
 
     </script>
