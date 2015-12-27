@@ -827,6 +827,14 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 q.update(form.cleaned_data, set_blanks=True)
                 trans_node.text = qml.xml2string(q.make_xml())
                 trans_node.save()
+
+                ## Respond via Ajax
+                if request.is_ajax:
+                    return JsonResponse({
+                                'last_saved' : trans_node.timestamp,
+                                'success'    : True,
+                            })
+
             last_saved = trans_node.timestamp
 
     # except:

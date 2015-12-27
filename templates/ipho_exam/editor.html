@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
 {% load editor_extras %}
-{% load humanize %}
 
 {% block extra-head %}
 <link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
@@ -232,7 +231,7 @@ body { margin-bottom: 70px; }
         <div class="navbar navbar-default navbar-fixed-bottom">
           <div class="container">
             <div class="navbar-left">
-              <span class="navbar-text" id="save-status">Last saved: {{ last_saved|naturaltime }}.</span>
+              <span class="navbar-text" id="save-status"></span>
             </div>
             <div class="navbar-right">
                 <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
@@ -261,6 +260,7 @@ body { margin-bottom: 70px; }
     <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
     <script src="{% static "jquery-dirtyforms/jquery.dirtyforms.min.js" %}"></script>
     <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
+    <script src="{% static "moment.min.js" %}"></script>
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
 
@@ -363,6 +363,15 @@ body { margin-bottom: 70px; }
                 }
             });
 
+            var last_saved = new Date("{{ last_saved.isoformat }}");
+            function updateDocumentStatus() {
+                $('#save-status')
+                    .html('Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).fromNow()+'</abbr>.')
+                    .find('[data-toggle="tooltip"]').tooltip();
+            }
+            updateDocumentStatus();
+            setInterval(updateDocumentStatus, 30000);
+
             $(document).on('submit', '#question-form', function(evt) {
                 var form = evt.target;
                 var $form = $(form);
@@ -382,7 +391,10 @@ body { margin-bottom: 70px; }
                     contentType: false,
                     success: function(data) {
                         console.log('saved.');
-
+                        if (data['success']) {
+                            last_saved = data['last_saved'];
+                            documentStatus();
+                        }
                     }
                 });
             });
