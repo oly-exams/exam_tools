@@ -336,7 +336,10 @@ def admin_new_version(request, exam_id, question_id):
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
-        node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
+        if VersionNode.objects.filter(question=question, language=lang).count() > 0:
+            node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
+        else:
+            node = VersionNode(question=question, language=lang, version=0, text='<question id="q{}" />'.format(question.pk))
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
