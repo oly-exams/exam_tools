@@ -1,4 +1,11 @@
 # Django settings for iphoadmin project.
+from settings_common import *
+
+# Printing paths for sanity's sake
+print "Settings directory:", SETTINGS_DIR
+print "Project root:", PROJECT_PATH
+print "Templates:", TEMPLATE_PATH
+print "Static:", STATIC_PATH
 
 
 DEBUG = True
@@ -27,4 +34,3 @@ DATABASES = {
 SECRET_KEY = '^t-a=sbo_05wq!*(x4mpv7kw&u_n=5js$lwadn_yx(bzx*fzjw'
 
 
-from settings_common import *

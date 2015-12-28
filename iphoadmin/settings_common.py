@@ -11,12 +11,6 @@ PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 TEMPLATE_PATH = os.path.join(PROJECT_PATH, 'templates')
 STATIC_PATH   = os.path.join(PROJECT_PATH, 'static')
 
-# Printing paths for sanity's sake
-print "Settings directory:", SETTINGS_DIR
-print "Project root:", PROJECT_PATH
-print "Templates:", TEMPLATE_PATH
-print "Static:", STATIC_PATH
-
 
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
@@ -156,7 +150,8 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+
+        },
     },
     'loggers': {
         'django.request': {
