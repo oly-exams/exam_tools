@@ -744,6 +744,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     trans_extra_html = None
     orig_lang = None
     trans_lang = None
+    last_saved = None
 
     if exam_id is not None:
         exam = get_object_or_404(Exam, id=exam_id)
@@ -827,6 +828,15 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 trans_node.text = qml.xml2string(q.make_xml())
                 trans_node.save()
 
+                ## Respond via Ajax
+                if request.is_ajax:
+                    return JsonResponse({
+                                'last_saved' : trans_node.timestamp,
+                                'success'    : True,
+                            })
+
+            last_saved = trans_node.timestamp
+
     # except:
     #     context['warning'] = 'This question does not have any content.'
     if context['orig_diff'] is not None: context['orig_diff'] = int(context['orig_diff'])
@@ -840,6 +850,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context['content_set']      = content_set
     context['form']             = form
     context['trans_extra_html'] = trans_extra_html
+    context['last_saved']       = last_saved
     return render(request, 'ipho_exam/editor.html', context)
 
 
