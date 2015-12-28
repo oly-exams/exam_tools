@@ -15,7 +15,7 @@
 
     <div class="row">
         <div class="col-sm-12">
-            {% if field.content_html %}
+            {% if field.has_text %}
             <div class="question-content" id="{{ field.id }}-content">
                 {{ field.content_html|safe }}
             </div>
