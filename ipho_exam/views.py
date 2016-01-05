@@ -209,7 +209,7 @@ def feedbacks_add(request, exam_id):
             })
 
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def figure_list(request):
     figure_list = Figure.objects.all()
@@ -222,7 +222,7 @@ def figure_list(request):
 import re
 figparam_placeholder = re.compile(r'%([\w-]+)%')
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def figure_add(request):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -255,7 +255,7 @@ def figure_add(request):
                 'success' : False,
             })
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def figure_edit(request, fig_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -300,7 +300,7 @@ def figure_export(request, fig_id, output_format='svg'):
         return HttpResponse(fig_pdf, content_type="application/pdf")
 
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def admin_list(request):
     if request.is_ajax and 'exam_id' in request.GET:
@@ -315,7 +315,7 @@ def admin_list(request):
                 {
                     'exam_list' : exam_list,
                 })
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def admin_sort(request, exam_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -325,7 +325,7 @@ def admin_sort(request, exam_id):
         question.save()
     return HttpResponse('')
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def admin_new_version(request, exam_id, question_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -351,7 +351,7 @@ def admin_new_version(request, exam_id, question_id):
 
     return JsonResponse({'success' : True})
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def admin_accept_version(request, exam_id, question_id, version_num, compare_version=None):
     lang_id = OFFICIAL_LANGUAGE
 
@@ -408,7 +408,7 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
     # node, compare_node, node_versions, exam, question, lang
     pass
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def admin_editor(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE
@@ -439,7 +439,7 @@ def admin_editor(request, exam_id, question_id, version_num):
     }
     return render(request, 'ipho_exam/admin_editor.html', context)
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -489,7 +489,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
                 'success' : False,
             })
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def admin_editor_delete_block(request, exam_id, question_id, version_num, block_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -516,7 +516,7 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
                 'success' : True,
             })
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def admin_editor_add_block(request, exam_id, question_id, version_num, block_id, tag_name):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -690,7 +690,7 @@ def submission_exam_submitted(request, exam_id):
             })
 
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def admin_submission_list(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
@@ -701,7 +701,7 @@ def admin_submission_list(request, exam_id):
                 'submissions' : submissions,
             })
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def admin_submission_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
@@ -721,7 +721,7 @@ def admin_submission_assign(request, exam_id):
         ctx.update(csrf(request))
         return HttpResponse(render_crispy_form(form, context=ctx))
 
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def admin_submission_delete(request, submission_id):
     pass
 
