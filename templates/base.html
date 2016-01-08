@@ -70,7 +70,7 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
-              <li class="navbar-text">{{ user.username }}, <strong>admin</strong></li>
+              <li class="navbar-text">{{ user.username }}, <strong>{% if user.is_superuser %}admin{% elif perms.ipho_core.is_staff %}staff{% elif perms.ipho_core.is_leader %}delegation{% endif %}</strong></li>
               <li><a href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
             {% else %}
               <li><a href="{% url 'django.contrib.auth.views.login' %}?next=/">Login</a></li>
