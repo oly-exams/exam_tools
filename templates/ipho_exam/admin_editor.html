@@ -250,7 +250,7 @@ body { margin-bottom: 70px; }
             });
 
             // Block add
-            $("a[data-action='add-block']").on('click', function (evt) {
+            $(document).on('click', 'a[data-action="add-block"]', function(evt) {
                 evt.preventDefault();
 
                 var button = $(this);
