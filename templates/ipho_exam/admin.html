@@ -76,7 +76,9 @@ $(function() {
             .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
     }
 
-    function update_questions(tid, active=false) {
+    function update_questions(tid, active) {
+        active = (typeof active !== 'undefined') ? active : false;
+
         $.ajax({
             method: "GET",
             url: "{% url 'exam:admin' %}/",
