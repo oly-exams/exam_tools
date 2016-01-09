@@ -4,7 +4,6 @@
 
 {% block extra-head %}
 <link href="{% static "mathquill_alpha/mathquill.css" %}" rel="stylesheet">
-<link href="{% static "mathquill_alpha/cke_mathquill.css" %}" rel="stylesheet">
 <link href="{% static "bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" %}" rel="stylesheet">
 
 <style>
@@ -270,7 +269,7 @@ body { margin-bottom: 70px; }
     <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{% static "ckeditor/ckeditor.js" %}"></script>
     <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
-    <script src="{% static "mathquill_alpha/mathquill.js" %}"></script>
+    <script src="{% static "mathquill_alpha/mathquill.min.js" %}"></script>
     <script src="{% static "jquery-dirtyforms/jquery.dirtyforms.min.js" %}"></script>
     <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
     <script src="{% static "moment.min.js" %}"></script>
@@ -299,6 +298,10 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.disableNativeSpellChecker = false;
         CKEDITOR.config.autoParagraph = false;
         CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
+        CKEDITOR.config.MathQuillLib = '{% static "mathquill_alpha/mathquill.min.js" %}';
+        CKEDITOR.config.MathQuillCss = '{% static "mathquill_alpha/mathquill.css" %}';
+        CKEDITOR.config.MathQuilljQuery = '{% static "jquery/js/jquery-1.11.2.min.js" %}';
+
         CKEDITOR.config.jsvk_skin = "flat_gray";
 
         all_editors = new Array();
