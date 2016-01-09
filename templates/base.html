@@ -43,15 +43,24 @@
           </div>
           <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-              <li><a href="{% url 'exam:index' %}">Exam</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Exam <span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a href="{% url 'exam:index' %}">Main</a></li>
+                  <li><a href="{% url 'exam:list' %}">Translations</a></li>
+                  <li><a href="{% url 'exam:feedbacks-list' %}">Feedbacks</a></li>
+                </ul>
+              </li>
+
               <li><a href="#">Voting</a></li>
               <li><a href="#">Results</a></li>
 
-              {% if perms.iphoperm.is_staff %}
+              {% if perms.ipho_core.is_staff %}
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin tools <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
-                  <li><a href="{% url 'exam:figures' %}">Exam Figures</a></li>
+                  <li><a href="{% url 'exam:admin' %}">Exam</a></li>
+                  <li><a href="{% url 'exam:figures' %}">Figures</a></li>
                   <li class="divider"></li>
                   <li><a href="{% url 'admin:index' %}">Admin interface</a></li>
                 </ul>
@@ -61,7 +70,7 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
-              <li class="navbar-text">{{ user.username }}, <strong>admin</strong></li>
+              <li class="navbar-text">{{ user.username }}, <strong>{% if user.is_superuser %}admin{% elif perms.ipho_core.is_staff %}staff{% elif perms.ipho_core.is_leader %}delegation{% endif %}</strong></li>
               <li><a href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
             {% else %}
               <li><a href="{% url 'django.contrib.auth.views.login' %}?next=/">Login</a></li>
@@ -77,6 +86,7 @@
 
     <script src="{% static "jquery/js/jquery-1.11.2.min.js" %}"></script>
     <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "bootstrap-ckeditor-modal-fix.js" %}"></script>
     {% block extra-script %}{% endblock %}
   </body>
 </html>

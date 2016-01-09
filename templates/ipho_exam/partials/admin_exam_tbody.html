@@ -1,0 +1,52 @@
+{% load static %}
+{% for question in exam.question_set.all %}
+<div class="panel panel-default" id="ex{{ exam.pk }}_q-{{ question.pk }}">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+        <span class="handle"><i class="fa fa-arrows"></i></span>
+        <a data-toggle="collapse" href="#ex{{ exam.pk }}_q-{{ question.pk }}-versions">
+            {{ question.name }}
+            <span class="glyphicon glyphicon-chevron-down"></span>
+        </a>
+        </h4>
+    </div>
+    <div id="ex{{ exam.pk }}_q-{{ question.pk }}-versions" class="panel-collapse collapse">
+
+        <table class="table">
+            <tr>
+                <th>Version <button class="btn btn-xs btn-default" data-action="new-version" data-action-url="{% url 'exam:admin-new-version' exam_id=exam.pk question_id=question.pk %}" title="New Version"><i class="fa fa-plus fa-fw"></i> new</button></th>
+                <th>Status</th>
+                <th>Timestamp</th>
+                <th>Actions</th>
+            </tr>
+            {% for node in question.versionnode_set.all %}
+            <tr>
+                <td>
+                    v{{ node.version }}
+                </td>
+                <td>
+                    {% if node.status == 'C' %}
+                        <span class="label label-info">Confirmed</span>
+                    {% elif node.status == 'P' %}
+                        <span class="label label-default">Proposal</span>
+                    {% endif %}
+                </td>
+                <td>{{ node.timestamp }}</td>
+                <td>
+                    <div class="btn-toolbar">
+                      {% if node.status == 'P' %}
+                        <a class="btn btn-xs btn-default" href="{% url 'exam:admin-editor' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Edit version"><i class="fa fa-pencil fa-fw"></i> edit</a>
+                      {% endif %}
+                      <a class="btn btn-xs btn-success" href="#" title="View PDF"><i class="fa fa-file-pdf-o fa-fw"></i> PDF</a>
+                      {% if node.status == 'P' %}
+                        <a class="btn btn-xs btn-primary" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> accept</a>
+                      {% endif %}
+                    </div>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endfor %}

@@ -1,4 +1,6 @@
 from xml.etree import ElementTree as ET
+import re
+from copy import deepcopy
 #import lxml.etree as lxmltree
 import tex
 import simplediff
@@ -27,6 +29,8 @@ def make_content_node(node):
         'heading'   : str or None
         'style'     : list of css classes
         'id'        : object id
+        'type       : object type (aka the tag)
+        'attrs      : dict of attributes
         'original'  : original language, as html content
         'translate' : translated language, as FormWidget # REMOVED
         'children'  : list of other nodes
@@ -37,6 +41,8 @@ def make_content_node(node):
     descr['heading'] = node.heading()
     descr['style']   = []
     descr['id']      = node.id
+    descr['type']    = node.tag
+    descr['attrs']    = node.attributes
     descr['original'] = node.content()
     descr['original_html'] = node.content_html()
     descr['description'] = node.attributes.get('description')
@@ -64,6 +70,14 @@ def data2tex(data):
     cont_xml = ET.fromstring(cont_str.encode('utf-8'))
     return tex.html2tex(cont_xml)
 
+def canonical_name(qobj):
+    if qobj.default_heading is not None:
+        return qobj.default_heading
+    else:
+        name = qobj.__name__.replace('QML', '')
+        split_pattern = re.compile('(^[^A-Z]*|[A-Z][^A-Z]*)')
+        name = ' '.join([ ni.capitalize() for ni in split_pattern.findall(name) if ni is not None ])
+        return name
 
 class QMLForm(forms.Form):
     def __init__(self, root, initials, *args, **kwargs):
@@ -90,15 +104,20 @@ def all_subclasses(cls):
 
 
 class QMLobject(object):
-    all_objects = None
+    default_attributes = {}
+    _all_objects = None
+
+    @staticmethod
+    def all_objects():
+        if QMLobject._all_objects is None:
+            QMLobject._all_objects = all_subclasses(QMLobject)
+        return QMLobject._all_objects
     @staticmethod
     def get_qml(tag):
-        if QMLobject.all_objects is None:
-            QMLobject.all_objects = all_subclasses(QMLobject)
-
-        for obj in QMLobject.all_objects:
+        for obj in QMLobject.all_objects():
             if obj.tag == tag: return obj
         raise QMLException('Tag `%s` not found.' % tag)
+
 
     def __init__(self, xml, force_id=None):
         """
@@ -121,13 +140,15 @@ class QMLobject(object):
         except KeyError:
             raise KeyError("`id` missing from QML element `%s`." % root.tag)
 
+        self.tag_counter = {}
         self.children = []
         self.parse(root)
 
     def parse(self, root):
         assert(self.__class__.tag == root.tag)
 
-        self.attributes = root.attrib
+        self.attributes = deepcopy(self.__class__.default_attributes)
+        self.attributes.update(root.attrib)
 
         self.data = None
         if self.__class__.has_text:
@@ -135,16 +156,24 @@ class QMLobject(object):
             self.data = unescape_entities(content)
         self.data_html = self.data
 
-        tag_counter = {}
         if self.__class__.has_children:
             for elem in root:
-                child_qml = QMLobject.get_qml(elem.tag)
-                child_id = None
-                if not 'id' in elem.attrib:
-                    if not child_qml.abbr in tag_counter: tag_counter[child_qml.abbr] = 0
-                    tag_counter[child_qml.abbr] += 1
-                    child_id = self.id + '_%s%s' % (child_qml.abbr, tag_counter[child_qml.abbr])
-                self.children.append( child_qml(elem, force_id=child_id) )
+                self.add_child(elem)
+
+    def add_child(self, elem):
+        child_qml = QMLobject.get_qml(elem.tag)
+        if not child_qml.abbr in self.tag_counter: self.tag_counter[child_qml.abbr] = 0
+        self.tag_counter[child_qml.abbr] += 1
+
+        child_id = None
+        if not 'id' in elem.attrib:
+            child_id = self.id + '_%s%s' % (child_qml.abbr, self.tag_counter[child_qml.abbr])
+            while self.find(child_id) is not None:
+                self.tag_counter[child_qml.abbr] += 1
+                child_id = self.id + '_%s%s' % (child_qml.abbr, self.tag_counter[child_qml.abbr])
+        child_node = child_qml(elem, force_id=child_id)
+        self.children.append(child_node)
+        return child_node
 
     def make_xml(self):
         assert('id' in self.attributes)
@@ -184,6 +213,8 @@ class QMLobject(object):
     def get_data(self):
         ret = {}
         if self.has_text:
+            if self.id in ret:
+                raise RuntimeError('id `%s` not unique in question QML.' % self.id)
             ret[self.id] = unescape_entities(self.data)
         for c in self.children:
             ret.update(c.get_data())
@@ -192,6 +223,13 @@ class QMLobject(object):
         ret = {}
         for c in self.children:
             ret.update(c.get_trans_extra_html())
+        return ret
+
+    def flat_content_dict(self):
+        ret = {}
+        ret[self.id] = self.content_html()
+        for c in self.children:
+            ret.update(c.flat_content_dict())
         return ret
 
     def content(self):
@@ -229,6 +267,20 @@ class QMLobject(object):
         for c in self.children:
             c.diff_content_html(other_data)
 
+    def find(self, search_id):
+        if self.id == search_id:
+            return self
+        for c in self.children:
+            cfind = c.find(search_id)
+            if cfind is not None:
+                return cfind
+        return None
+
+    def delete(self, search_id):
+        self.children = filter(lambda c: c.id != search_id, self.children)
+        for c in self.children:
+            c.delete(search_id)
+
     def __str__(self):
         ret = '<%s %s>\n' % (self.tag, self.id)
         for c in self.children:
@@ -251,6 +303,8 @@ class QMLsubquestion(QMLobject):
 
     has_text = False
     has_children = True
+
+    default_attributes = {'points': ''}
 
     def heading(self):
         return 'Subquestion, %spt' % self.attributes['points']
@@ -351,6 +405,8 @@ class QMLfigureText(QMLobject):
     has_text = True
     has_children = False
 
+    default_attributes = {'name': 'tba'}
+
     # def form_element(self):
     #     return forms.CharField(widget=forms.TextInput(attrs={'rel':'figparam', 'data-placeholder-name={}'.format(self.attributes['name'])}))
 
@@ -412,6 +468,38 @@ class QMLlistitem(QMLobject):
 
     def tex_begin(self):
         return u'\\item '
+
+
+class QMLlatex(QMLobject):
+    abbr = "tx"
+    tag  = "texfield"
+    default_heading = None
+
+    has_text = False
+    has_children = True
+
+    default_attributes = {'content': ''}
+
+    def make_tex(self):
+        content = self.attributes['content'] + '\n\n'
+        content = content.replace('\\n','\n')
+
+        query = {}
+        for c in self.children:
+            if c.tag == 'texparam':
+                content = re.sub(r'({{ *%s *}})' % c.attributes['name'], c.data.encode('utf-8'), content)
+                content.replace('{{ %s }}' % c.attributes['name'], c.data.encode('utf-8'))
+        return content, []
+
+class QMLlatexParam(QMLobject):
+    abbr = "tp"
+    tag  = "texparam"
+    default_heading = None
+
+    has_text = True
+    has_children = False
+
+    default_attributes = {'name': 'tba'}
 
 
 class QMLException(Exception):

@@ -17,11 +17,14 @@ class Language(models.Model):
     polyglossia = models.CharField(max_length=100, default='english', choices=POLYGLOSSIA_CHOICES)
     extraheader = models.TextField(blank=True)
 
+    class Meta:
+        unique_together = (('name', 'delegation'),)
+
     def natural_key(self):
         return (self.name,)
 
     def __unicode__(self):
-        return u'%s' % (self.name)
+        return u'%s (%s)' % (self.name, self.delegation.country)
 
     def check_permission(self, user):
         if user.is_superuser:
@@ -34,18 +37,29 @@ class Exam(models.Model):
     name   = models.CharField(max_length=100)
     active = models.BooleanField(default=True,  help_text='Only active exams are editable.')
     hidden = models.BooleanField(default=False, help_text='Is the exam hidden for the delegations?')
+    feedback_active = models.BooleanField(default=False, help_text='Are feedbacks allowed?')
 
     def __unicode__(self):
         return u'%s' % (self.name)
 
 
 class Question(models.Model):
+    QUESTION_TYPES = (
+        ('Q', 'Question'),
+        ('A', 'Answer'),
+    )
+
     name = models.CharField(max_length=100)
     exam = models.ForeignKey(Exam)
-    position = models.PositiveSmallIntegerField(help_text='Sortign index inside one exam')
+    position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
+    type = models.CharField(max_length=1, choices=QUESTION_TYPES, default='Q')
+    ## TODO: add template field
 
     class Meta:
         ordering = ['position']
+
+    def is_answer_sheet(self):
+        return self.type == 'A'
 
     def exam_name(self):
         return self.exam.name
@@ -56,8 +70,8 @@ class Question(models.Model):
 
 class VersionNode(models.Model):
     STATUS_CHOICES = (
-        ('P', 'proposal'),
-        ('C', 'confirmed'),
+        ('P', 'Proposal'),
+        ('C', 'Confirmed'),
     )
 
     text      = models.TextField()
@@ -69,6 +83,7 @@ class VersionNode(models.Model):
 
     class Meta:
         unique_together = (('question', 'language', 'version'),)
+        ordering = ['-version', '-timestamp']
 
     def question_name(self):
         return self.question.name
@@ -79,15 +94,15 @@ class VersionNode(models.Model):
 
 class TranslationNode(models.Model):
     STATUS_CHOICES = (
-        ('O', 'open'),
-        ('L', 'locked'),
-        ('S', 'submitted'),
+        ('O', 'In progress'),
+        ('L', 'Locked'),
+        ('S', 'Submitted'),
     )
 
-    text      = models.TextField()
+    text      = models.TextField(blank=True)
     question  = models.ForeignKey(Question)
     language  = models.ForeignKey(Language)
-    status    = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
     timestamp = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -123,3 +138,41 @@ class Figure(models.Model):
                     repl = repl.decode('utf-8')
                 fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
         return fig_svg
+
+
+class Feedback(models.Model):
+    STATUS_CHOICES = (
+        ('O', 'In progress'),
+        ('A', 'Accepted'),
+        ('R', 'Rejected'),
+    )
+
+    delegation = models.ForeignKey(Delegation)
+    question  = models.ForeignKey(Question)
+    comment   = models.TextField(blank=True)
+    status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
+    timestamp = models.DateTimeField(auto_now=True)
+
+class ExamDelegationSubmission(models.Model):
+    STATUS_CHOICES = (
+        ('O', 'In progress'),
+        ('S', 'Submitted'),
+    )
+    exam       = models.ForeignKey(Exam)
+    delegation = models.ForeignKey(Delegation)
+    status     = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
+    timestamp  = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (('exam', 'delegation'),)
+
+class StudentSubmission(models.Model):
+    student  = models.ForeignKey(Student)
+    exam     = models.ForeignKey(Exam)
+    language = models.ForeignKey(Language)
+    with_answer = models.BooleanField(default=False,  help_text='Deliver also answer sheet.')
+
+    ## TODO: do we need a status? (in progress, submitted, printed)
+
+    class Meta:
+        unique_together = (('student', 'exam', 'language'),)

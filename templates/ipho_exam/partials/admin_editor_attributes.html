@@ -1,0 +1,5 @@
+{% for k,v in attributes.items  %}
+    {% if k != "description" %}
+    <span class="label label-default">{{ k }} : {{ v }}</span>
+    {% endif %}
+{% endfor %}
