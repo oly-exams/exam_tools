@@ -3,7 +3,7 @@
 {% load editor_extras %}
 
 {% block extra-head %}
-<link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
+<link href="{% static "mathquill_alpha/mathquill.css" %}" rel="stylesheet">
 <link href="{% static "bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" %}" rel="stylesheet">
 
 <style>
@@ -32,6 +32,12 @@ span.dropdown {
 /*    border:1px #000 solid;*/
 }
 
+.mathquill-rendered-math .mathquill-editable {
+  min-width: 1cm;
+}
+.mathquill-editor {
+  width:6.5in;
+}
 .field-figure img {
     max-height: 80px;
 }
@@ -263,20 +269,22 @@ body { margin-bottom: 70px; }
     <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{% static "ckeditor/ckeditor.js" %}"></script>
     <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
+    <script src="{% static "mathquill_alpha/mathquill.min.js" %}"></script>
     <script src="{% static "jquery-dirtyforms/jquery.dirtyforms.min.js" %}"></script>
     <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
     <script src="{% static "moment.min.js" %}"></script>
     <script src="{% static "bootstrap-switch/js/bootstrap-switch.min.js" %}"></script>
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
+        CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
 
         CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
+                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax-mathquill', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
             ];
         CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
-        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax';
-        CKEDITOR.config.removePlugins = 'elementspath,contextmenu,tabletools,liststyle';
+        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax-mathquill';
+        CKEDITOR.config.removePlugins = 'mathjax,elementspath,contextmenu,tabletools,liststyle';
         // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
         CKEDITOR.config.width = '100%';
         CKEDITOR.config.autoGrow_onStartup = true;
@@ -290,6 +298,10 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.disableNativeSpellChecker = false;
         CKEDITOR.config.autoParagraph = false;
         CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
+        CKEDITOR.config.MathQuillLib = '{% static "mathquill_alpha/mathquill.min.js" %}';
+        CKEDITOR.config.MathQuillCss = '{% static "mathquill_alpha/mathquill.css" %}';
+        CKEDITOR.config.MathQuilljQuery = '{% static "jquery/js/jquery-1.11.2.min.js" %}';
+
         CKEDITOR.config.jsvk_skin = "flat_gray";
 
         all_editors = new Array();
