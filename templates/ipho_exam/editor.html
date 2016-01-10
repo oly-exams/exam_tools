@@ -45,6 +45,10 @@ span.dropdown {
     max-width: 100%;
 }
 
+.rtl {
+    direction: rtl;
+}
+
 ins {
     color: #00f;
     font-decoration: underline;
@@ -301,7 +305,9 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.MathQuillLib = '{% static "mathquill_alpha/mathquill.min.js" %}';
         CKEDITOR.config.MathQuillCss = '{% static "mathquill_alpha/mathquill.css" %}';
         CKEDITOR.config.MathQuilljQuery = '{% static "jquery/js/jquery-1.11.2.min.js" %}';
-
+        {% if trans_lang.direction == 'rtl' %}
+        CKEDITOR.config.contentsLangDirection = 'rtl';
+        {% endif %}
         CKEDITOR.config.jsvk_skin = "flat_gray";
 
         all_editors = new Array();
