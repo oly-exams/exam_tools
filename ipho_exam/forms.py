@@ -28,6 +28,7 @@ class LanguageForm(ModelForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(Field('name', placeholder='Name'),
+                                    Field('direction'),
                                     Field('polyglossia'),
                                     )
         self.helper.html5_required = True
@@ -40,7 +41,7 @@ class LanguageForm(ModelForm):
 
     class Meta:
         model = Language
-        fields = ['name','polyglossia']
+        fields = ['name','direction','polyglossia']
         labels = {
                    'polyglossia': 'Language style <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Select a lanugage similar to yours. This will improve the final typesetting, e.g. allowing correct hyphenation."><span class="glyphicon glyphicon-info-sign"></span></a>',
                }
