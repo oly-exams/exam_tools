@@ -55,6 +55,24 @@
       </div>
     </div>
 
+    <div class="modal fade" id="delete-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="model-title">Are you sure?</h4>
+          </div>
+          <div class="modal-body">
+              <p>The figure will be deleted permanently.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" data-confirm="delete"><i class="fa fa-trash-o fa-fw"></i> Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="alerts-container">
         {% if success %}
         <div class="alert alert-success alert-dismissible">
@@ -83,7 +101,7 @@
               <td>
                 <div class="btn-toolbar">
                   <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{% url 'exam:figure-edit' fig_id=fig.pk %}"><i class="fa fa-pencil fa-fw"></i></a>
-                  <a class="btn btn-sm btn-danger"><i class="fa fa-trash-o fa-fw"></i></a>
+                  <a class="btn btn-sm btn-danger" href="{% url 'exam:figure-delete' fig_id=fig.pk %}" data-figid="{{ fig.pk }}" data-toggle="modal" data-target="#delete-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a>
                 </div>
               </td>
           </tr>
@@ -161,7 +179,7 @@ $(function() {
 
                 var row_content = '';
                 row_content += '<td>'+data['figid']+'</td><td>'+data['name']+'</td><td>'+data['params']+'</td><td><a data-toggle="modal" data-target="#preview-modal" data-remote="false" href="'+data['src']+'"><img src="'+data['src']+'" alt="'+data['name']+'" /></a></td>';
-                row_content += '<td><div class="btn-toolbar"><a class="btn btn-sm btn-default" data-toggle="modal" data-target="#figure-modal" data-remote="false" href="'+data['edit-href']+'"><i class="fa fa-pencil fa-fw"></i></a><a class="btn btn-sm btn-danger"><i class="fa fa-trash-o fa-fw"></i></a></div></td>';
+                row_content += '<td><div class="btn-toolbar"><a class="btn btn-sm btn-default" data-toggle="modal" data-target="#figure-modal" data-remote="false" href="'+data['edit-href']+'"><i class="fa fa-pencil fa-fw"></i></a><a class="btn btn-sm btn-danger" href="'+data['delete-href']+'" data-figid="'+data['figid']+'"  data-toggle="modal" data-target="#delete-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a></div></td>';
 
                 if (data['type'] == 'add') {
                     var row = '<tr id="fig-'+data['figid']+'">'+row_content+'</tr>';
@@ -195,7 +213,36 @@ $(function() {
                 modal.find("[data-toggle=popover]").popover(); // activate popover
             },
         });
-    })
+    });
+
+    // Delete
+    $(document).on('click', '#delete-modal button[data-confirm="delete"]', function(evt) {
+        evt.preventDefault();
+        var modal = $('#delete-modal');
+
+        $.ajax({
+            url: modal.data('delete-href'),
+            type: 'get',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data['success']) {
+                    $('#fig-'+modal.data('figid')).remove();
+                }
+                modal.data('figid', null);
+                modal.data('delete-href', null);
+                modal.modal('hide');
+            }
+        });
+    });
+    $('#delete-modal').on('show.bs.modal', function (event) {
+        var modal = $(this);
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        modal.data('figid', button.data('figid'));
+        modal.data('delete-href',button.attr('href'));
+    });
+
 
 });
 </script>

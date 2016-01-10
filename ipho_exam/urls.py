@@ -32,6 +32,7 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^figures/?$', 'figure_list', name='figures'),
     url(r'^figure/add$', 'figure_add', name='figure-add'),
     url(r'^figure/(?P<fig_id>\d+)$', 'figure_edit', name='figure-edit'),
+    url(r'^figure/(?P<fig_id>\d+)/remove$', 'figure_delete', name='figure-delete'),
     url(r'^figure/(?P<fig_id>\d+)/export.svg$', 'figure_export', {'output_format': 'svg'}, name='figure-export'),
     url(r'^figure/(?P<fig_id>\d+)/export.pdf$', 'figure_export', {'output_format': 'pdf'}, name='figure-export-pdf'),
 

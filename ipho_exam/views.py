@@ -244,6 +244,7 @@ def figure_add(request):
                     'params'    : obj.params,
                     'src'       : reverse('exam:figure-export', args=[obj.pk]),
                     'edit-href' : reverse('exam:figure-edit', args=[obj.pk]),
+                    'delete-href' : reverse('exam:figure-delete', args=[obj.pk]),
                     'success'   : True,
                     'message'   : '<strong>Figure added!</strong> The new figure has successfully been created.',
                 })
@@ -278,6 +279,7 @@ def figure_edit(request, fig_id):
                     'params'    : obj.params,
                     'src'       : reverse('exam:figure-export', args=[obj.pk]),
                     'edit-href' : reverse('exam:figure-edit', args=[obj.pk]),
+                    'delete-href' : reverse('exam:figure-delete', args=[obj.pk]),
                     'success'   : True,
                     'message' : '<strong>Figure modified!</strong> The figure '+obj.name+' has successfully been modified.',
                 })
@@ -290,6 +292,16 @@ def figure_edit(request, fig_id):
                 'submit'  : 'Save',
                 'success' : False,
             })
+@permission_required('ipho_core.is_staff')
+def figure_delete(request, fig_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    obj = get_object_or_404(Figure, pk=fig_id)
+    obj.delete()
+    return JsonResponse({
+                'success' : True,
+            })
+
 
 @login_required
 def figure_export(request, fig_id, output_format='svg'):
