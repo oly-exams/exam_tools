@@ -239,6 +239,7 @@ def figure_add(request):
 
         return JsonResponse({
                     'type'      : 'add',
+                    'figid'     : obj.pk,
                     'name'      : obj.name,
                     'params'    : obj.params,
                     'src'       : reverse('exam:figure-export', args=[obj.pk]),
@@ -272,6 +273,7 @@ def figure_edit(request, fig_id):
 
         return JsonResponse({
                     'type'    : 'edit',
+                    'figid'     : obj.pk,
                     'name'      : obj.name,
                     'params'    : obj.params,
                     'src'       : reverse('exam:figure-export', args=[obj.pk]),
