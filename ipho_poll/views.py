@@ -12,18 +12,23 @@ from ipho_poll.models import Question, Choice, Vote
 
 @login_required
 @permission('iphoperm.is_staff')
-def AdminOverview():
+def adminOverview(request):
     drafted_questions_list = Question.objects.filter(status = 0)
     live_questions_list = Question.objects.filter(status = 1)
     closed_questions_list = Question.objects.filter(status = 2) 
-    pass
+    
 
+    return render(request, 'ipho_poll/adminOverview',
+            {
+                'drafted_questions_list'    : drafted_questions_list,
+                'live_question_list'        : live_question_list,
+                'closed_questions_list'     : closed_questions_list,
+            })
 
 @login_required
 @permission('iphoperm.is_leader')
-def DelegationOverwiev():
+def delegationOverwiev():
     live_questions_list = Question.objects.filter(status = 1)
-    pass
 
 
 
