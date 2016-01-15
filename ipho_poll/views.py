@@ -2,9 +2,9 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from ipho_poll.models import Question, Choice, Vote
-# What about staff ask Michele again
 
 
 
@@ -12,22 +12,25 @@ from ipho_poll.models import Question, Choice, Vote
 
 @login_required
 @permission_required('iphoperm.is_staff')
+@ensure_csrf_cookie
 def adminOverview(request):
     drafted_questions_list = Question.objects.filter(status = 0)
     live_questions_list = Question.objects.filter(status = 1)
     closed_questions_list = Question.objects.filter(status = 2) 
     
 
-    return render(request, 'ipho_poll/adminOverview',
+    return render(request, 'ipho_poll/adminOverview.html',
             {
                 'drafted_questions_list'    : drafted_questions_list,
-                'live_question_list'        : live_question_list,
+                'live_questions_list'       : live_questions_list,
                 'closed_questions_list'     : closed_questions_list,
-            })
+            }
+        )
 
 @login_required
 @permission_required('iphoperm.is_leader')
-def delegationOverwiev():
+@ensure_csrf_cookie
+def delegationOverview(request):
     live_questions_list = Question.objects.filter(status = 1)
 
 
