@@ -1,11 +1,10 @@
 from django.conf.urls import patterns, url
 
-from . import views
 
-urlpatterns = [
+urlpatterns = patterns('ipho_poll.views',
     #admin urls
-    url(r'^admin/$', 'views.AdminOverview', name='adminOverview'),
+    url(r'^admin/$', 'adminOverview', name='adminOverview'),
 
     #user urls
-    url(r'^$', 'views.DelegationOverview', name='DelegationOverview'),
-]
+    url(r'^$', 'delegationOverview', name='DelegationOverview'),
+)
