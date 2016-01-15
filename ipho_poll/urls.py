@@ -2,11 +2,10 @@ from django.conf.urls import patterns, url
 
 from . import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     #admin urls
-    url(r'^admin/$', views.AdminOverview, name='adminOverview'),
+    url(r'^admin/$', 'views.AdminOverview', name='adminOverview'),
 
     #user urls
-    url(r'^$', views.DelegationOverview, name='DelegationOverview'),
-
-)
+    url(r'^$', 'views.DelegationOverview', name='DelegationOverview'),
+]
