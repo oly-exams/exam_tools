@@ -1,7 +1,8 @@
-<!DOCTYPE html>
 
 {% extends "base.html" %}
 
+
+{% block content %}
 {% if drafted_questions_list %}
 	<ul>
 		{% for question in drafted_questions_list %}
@@ -10,4 +11,27 @@
 	</ul>
 {% else %}
 	<p>No drafted questions.</p>
+{% endif %}
 
+{% if live_questions_list %}
+	<ul>
+		{% for question in live_questions_list %}
+			<li> question <li>
+		{% endfor %}
+	</ul>
+{% else %}
+	<p>No live questions.</p>
+{% endif %}
+
+
+{% if closed_questions_list %}
+	<ul>
+		{% for question in closed_questions_list %}
+			<li> question <li>
+		{% endfor %}
+	</ul>
+{% else %}
+	<p>No closed questions.</p>
+{% endif %}
+
+{% endblock %}
