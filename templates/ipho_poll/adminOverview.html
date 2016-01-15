@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% if drafted_questions_list %}
+	<ul>
+		{% for question in drafted_questions_list %}
+			<li> question <li>
+		{% endfor %}
+	</ul>
+{% else %}
+	<p>No drafted questions.</p>
+
