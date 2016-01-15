@@ -11,7 +11,7 @@ from ipho_poll.models import Question, Choice, Vote
 
 
 @login_required
-@permission('iphoperm.is_staff')
+@permission_required('iphoperm.is_staff')
 def adminOverview(request):
     drafted_questions_list = Question.objects.filter(status = 0)
     live_questions_list = Question.objects.filter(status = 1)
@@ -26,7 +26,7 @@ def adminOverview(request):
             })
 
 @login_required
-@permission('iphoperm.is_leader')
+@permission_required('iphoperm.is_leader')
 def delegationOverwiev():
     live_questions_list = Question.objects.filter(status = 1)
 
