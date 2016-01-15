@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra-head %}
+<link href="{% static "jquery/css/smoothness/jquery-ui-1.9.1.min.css" %}" rel="stylesheet">
+<style>
+.asteriskField {
+    display: none;
+}
+.handle {
+    cursor: move;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+      <h1>Admin exam questions</h1>
+    </div>
+
+    <div id="alerts-container"></div>
+
+    {% for ex in exam_list %}
+    <h3>
+        {{ ex.name }}
+    </h3>
+    <div id="exam-tbody-{{ ex.pk }}" class="panel-group"></div>
+    </table>
+    {% endfor %}
+
+
+</div> <!-- /container -->
+
+{% endblock %}
+
+{% block extra-script %}
+<script src="{% static "jquery/js/jquery-ui-1.9.1.min.js" %}"></script>
+
+<script>
+$(function() {
+    // Get csrftoken
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+    function toggleChevron(e) {
+        $(e.target)
+            .prev('.panel-heading')
+            .find('span.glyphicon')
+            .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+    }
+
+    function update_questions(tid, active) {
+        active = (typeof active !== 'undefined') ? active : false;
+
+        $.ajax({
+            method: "GET",
+            url: "{% url 'exam:admin' %}/",
+            data:{exam_id:tid},
+            dataType: "json",
+        }).done(function( data ) {
+            var exam_tbody = $("#exam-tbody-"+tid);
+            var content = $(data['content']);
+            if (active) {
+                content.find('.panel-collapse').addClass('in');
+            }
+            exam_tbody.html(content);
+            exam_tbody.sortable({
+                handle: '.handle',
+                update: function(event, ui) {
+                    var serial = exam_tbody.sortable('serialize', {expression: /(.+)[-](.+)/});
+                    $.ajax({
+                        url: data['sort_url'],
+                        method: "POST",
+                        data: serial
+                    });
+                },
+            }).disableSelection();
+            exam_tbody.find('[data-action="new-version"]').on('click', function(evt) {
+                evt.preventDefault();
+                var button = $(this);
+                var href = button.data('action-url');
+                $.ajax({
+                    method: "GET",
+                    url: href,
+                    dataType: "json",
+                }).done(function( data ) {
+                    if (data['success']) {
+                        update_questions(tid, true);
+                    } else {
+                        alert('An error occured.');
+                    }
+                });
+            });
+            exam_tbody.find('.panel-collapse').on('hide.bs.collapse', toggleChevron);
+            exam_tbody.find('.panel-collapse').on('show.bs.collapse', toggleChevron);
+        });
+    }
+
+    {% for ex in exam_list %}
+    update_questions({{ ex.pk }});
+    {% endfor %}
+
+
+});
+</script>
+{% endblock %}

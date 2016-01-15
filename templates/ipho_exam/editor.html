@@ -3,7 +3,8 @@
 {% load editor_extras %}
 
 {% block extra-head %}
-<link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
+<link href="{% static "mathquill_alpha/mathquill.css" %}" rel="stylesheet">
+<link href="{% static "bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" %}" rel="stylesheet">
 
 <style>
 span.dropdown {
@@ -31,11 +32,21 @@ span.dropdown {
 /*    border:1px #000 solid;*/
 }
 
+.mathquill-rendered-math .mathquill-editable {
+  min-width: 1cm;
+}
+.mathquill-editor {
+  width:6.5in;
+}
 .field-figure img {
     max-height: 80px;
 }
 #figure-modal .modal-body img {
     max-width: 100%;
+}
+
+.rtl {
+    direction: rtl;
 }
 
 ins {
@@ -76,6 +87,29 @@ body { margin-bottom: 70px; }
       <strong>Warning:</strong> {{ warning }}
     </div>
 {% endif %}
+
+<div class="modal fade" id="ipho_exam-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Do you want to save changes before leaving?</h3>
+      </div>
+      <div class="modal-body">
+        <p>Your changes will be lost if you don't save them.</p>
+      </div>
+      <div class="modal-footer">
+          <div class="pull-left">
+              <button type="button" class="btn btn-default" data-action="discard">Discard changes</button>
+          </div>
+          <div class="pull-right">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" data-action="save">Save changes</button>
+          </div>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <div class="page-header">
     <div class="dropdown pull-right">
@@ -120,10 +154,9 @@ body { margin-bottom: 70px; }
 </ul>
 
 {% if question %}
-
-    <form method="post" action="" charset="utf8">
+    <form method="post" action="{{ request.path }}" charset="utf8" id="question-form">
         {% csrf_token %}
-        <h3>{{ question.name }} <small><i class="fa fa-fw fa-lg fa-unlock"></i></small></h3>
+        <h3>{{ question.name }}</h3>
 
         <div class="row">
             <div class="col-xs-5">
@@ -202,20 +235,23 @@ body { margin-bottom: 70px; }
 
 
         <div class="translation-field-container">
-        {% with content_set as fields_set %}
-            {% include 'ipho_exam/editor_field.html' %}
-        {% endwith %}
+            {% include 'ipho_exam/editor_field.html' with fields_set=content_set %}
         </div>
 
         {% if form %}
         <div class="navbar navbar-default navbar-fixed-bottom">
           <div class="container">
+            <div class="navbar-left">
+                <label class="navbar-text" style="font-weight:normal;">
+                    <input type="checkbox" id="auto-save-checkbox" checked="checked" data-size="mini">
+                    Auto-save.
+                </label>
+              <span class="navbar-text" id="save-status"></span>
+            </div>
             <div class="navbar-right">
                 <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
-                <button type="button" class="btn btn-default navbar-btn"><i class="fa fa-fw fa-unlock"></i> Lock</button>
-                <button type="submit" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+                <button type="submit" class="btn btn-primary navbar-btn" data-toggle="tooltip" data-placement="top" title="ctrl + S" disabled="disabled"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
             </div>
-
           </div>
         </div>
         {% endif %}
@@ -237,17 +273,22 @@ body { margin-bottom: 70px; }
     <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{% static "ckeditor/ckeditor.js" %}"></script>
     <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
-
+    <script src="{% static "mathquill_alpha/mathquill.min.js" %}"></script>
+    <script src="{% static "jquery-dirtyforms/jquery.dirtyforms.min.js" %}"></script>
+    <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
+    <script src="{% static "moment.min.js" %}"></script>
+    <script src="{% static "bootstrap-switch/js/bootstrap-switch.min.js" %}"></script>
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
+        CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
 
         CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
+                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax-mathquill', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
             ];
         CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
-        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax';
-        CKEDITOR.config.removePlugins = 'elementspath,contextmenu,tabletools,liststyle';
+        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax-mathquill';
+        CKEDITOR.config.removePlugins = 'mathjax,elementspath,contextmenu,tabletools,liststyle';
         // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
         CKEDITOR.config.width = '100%';
         CKEDITOR.config.autoGrow_onStartup = true;
@@ -261,6 +302,12 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.disableNativeSpellChecker = false;
         CKEDITOR.config.autoParagraph = false;
         CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
+        CKEDITOR.config.MathQuillLib = '{% static "mathquill_alpha/mathquill.min.js" %}';
+        CKEDITOR.config.MathQuillCss = '{% static "mathquill_alpha/mathquill.css" %}';
+        CKEDITOR.config.MathQuilljQuery = '{% static "jquery/js/jquery-1.11.2.min.js" %}';
+        {% if trans_lang.direction == 'rtl' %}
+        CKEDITOR.config.contentsLangDirection = 'rtl';
+        {% endif %}
         CKEDITOR.config.jsvk_skin = "flat_gray";
 
         all_editors = new Array();
@@ -278,6 +325,11 @@ body { margin-bottom: 70px; }
         }
 
         $(function(){
+            $('[data-toggle="tooltip"]').each(function () {
+                if (navigator.platform.match("Mac")) {
+                    $(this).attr('title', $(this).attr('title').replace('ctrl', '⌘'));
+                }
+            }).tooltip();
 
             $(".translate-original").each(content2math);
             $(".translate-foreign").each(content2math);
@@ -296,8 +348,10 @@ body { margin-bottom: 70px; }
             $('.translate-foreign textarea').each(function() {
                 myid = $(this).parent().attr('id').replace('-translate', '');
                 // all_editors[myid] = CKEDITOR.replace(this);
-                all_editors[myid] = $(this).ckeditor().ckeditorGet();
-            })
+                all_editors[myid] = $(this).ckeditor().editor;
+                var textarea = $(this);
+                all_editors[myid].on('change', function() { this.updateElement(); textarea.change(); });
+            });
 
             // Figure preview
             $('#figure-modal').on('show.bs.modal', function (event) {
@@ -321,6 +375,87 @@ body { margin-bottom: 70px; }
                 }
             });
 
+            /// Saving methods
+            var last_saved = new Date("{{ last_saved.isoformat }}");
+            var saving = false;
+            function updateDocumentStatus() {
+                var status_text = (saving) ? 'Saving...' : 'Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).fromNow()+'</abbr>.';
+                $('#save-status')
+                    .html(status_text)
+                    .find('[data-toggle="tooltip"]').tooltip();
+            }
+            updateDocumentStatus();
+            setInterval(updateDocumentStatus, 30000);
+
+            $(document).on('submit', '#question-form', function(evt) {
+                var form = evt.target;
+                var $form = $(form);
+                var $button = $form.find('button[type="submit"]');
+                evt.preventDefault();
+
+                saving = true;
+                $button.prop('disabled', true);
+                $button.tooltip('destroy');
+                $form.dirtyForms('setClean');
+                updateDocumentStatus();
+
+                var data = new FormData($form.get(0));
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: data,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
+                        saving = false;
+                        if (data['success']) {
+                            last_saved = data['last_saved'];
+                            updateDocumentStatus();
+                        } else {
+                            console.log('Saving failed.');
+                        }
+                    }
+                });
+            });
+            $(document).keypress(function(event) {
+                if (!(event.which == 115 && (navigator.platform.match("Mac") ? event.metaKey : event.ctrlKey)) && !(event.which == 19)) return true;
+                event.preventDefault();
+                $('#question-form').submit();
+                return false;
+            });
+
+            /// For custom dialog: https://github.com/NightOwl888/jquery.dirtyforms.dialogs.bootstrap.dist#example
+            // $.DirtyForms.dialog = {
+            //             dialogID: 'dirtyform-modal',
+            //             titleClass: 'custom-title',
+            //             messageClass: 'custom-message',
+            //             proceedButtonClass: 'custom-proceed',
+            //             stayButtonClass: 'custom-stay'
+            //         }
+            $.DirtyForms.title = "Do you want to save changes before leaving?"
+            $.DirtyForms.message = "Your changes will be lost if you don't save them."
+            $('#question-form').dirtyForms({ ignoreSelector: '#auto-save-checkbox' });
+            $('#question-form').on('dirty.dirtyforms', function(evt) {
+                var $form = $(evt.target);
+                $form.find('button[type="submit"]').removeProp('disabled').tooltip();
+            });
+
+            function autoSave() {
+                $form = $('#question-form');
+                if (!saving && $form.dirtyForms('isDirty')) {
+                    $form.submit();
+                }
+            }
+            var autoSaveTimer = setInterval(autoSave, 20000);
+            $('#auto-save-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function(event, state) {
+                var $checkbox = $(this);
+                if (state) {
+                    autoSaveTimer = setInterval(autoSave, 20000);
+                } else {
+                    clearInterval(autoSaveTimer);
+                }
+            });
         });
 
     </script>

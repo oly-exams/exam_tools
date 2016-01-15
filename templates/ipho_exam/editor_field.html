@@ -12,7 +12,7 @@
     {% if field.original %}
         <div class="row">
             <div class="col-xs-5">
-                <div class="translate-original" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
+                <div class="translate-original {% if orig_lang.direction == 'rtl' %}rtl{% endif %}" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
                     {{ field.original_html|safe }}
                 </div>
             </div>
@@ -24,7 +24,7 @@
             </button>
           </div>
                 <div class="col-xs-5">
-                    <div class="translate-foreign" id="{{ field.id }}-translate">
+                    <div class="translate-foreign {% if trans_lang.direction == 'rtl' %}rtl{% endif %}" id="{{ field.id }}-translate">
                         {{ form|lookup:field.id }}
                     </div>
                 </div>
@@ -33,7 +33,7 @@
     {% elif field.original_html %}
         <div class="row">
             <div class="col-xs-5">
-                <div>
+                <div class="{% if trans_lang.direction == 'rtl' %}rtl{% endif %}">
                     {{ field.original_html|safe }}
                 </div>
             </div>
@@ -51,9 +51,7 @@
     {% if field.children %}
     <div class="row">
         <div class="col-xs-12 translation-field-nested">
-            {% with field.children as fields_set %}
-                {% include 'ipho_exam/editor_field.html' %}
-            {% endwith %}
+            {% include 'ipho_exam/editor_field.html' with fields_set=field.children %}
         </div>
     </div>
     {% endif %}

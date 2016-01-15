@@ -1,0 +1,389 @@
+.cke_dialog .mathquill-editor .mathquill-editable,
+.cke_dialog .mathquill-editor .mathquill-embedded-latex .mathquill-editable {
+  display: -moz-inline-box;
+  display: inline-block;
+  border: 1px solid gray;
+  padding: 2px;
+}
+.cke_dialog .mathquill-editor .mathquill-embedded-latex .mathquill-editable {
+  margin: 1px;
+}
+.cke_dialog .mathquill-editor .mathquill-textbox {
+  overflow-x: auto;
+  overflow-y: hidden;
+  /*so IE8 won't show a vertical scrollbar*/
+}
+.cke_dialog .mathquill-editor .mathquill-editable.empty,
+.cke_dialog .mathquill-editor .mathquill-editable * {
+  cursor: text;
+}
+.cke_dialog .mathquill-editor .mathquill-editable .textarea {
+  position: relative;
+  display: inline;
+  /*so Firefox 3.6 (Gecko 1.9.2) won't wrap the box to 2 lines*/
+}
+.cke_dialog .mathquill-editor .mathquill-editable .textarea textarea {
+  position: absolute;
+  z-index: -1;
+  height: 1px;
+  width: 1px;
+  opacity: 0;
+  border: none;
+  outline: none;
+}
+.cke_dialog .mathquill-editor .mathquill-editable .cursor {
+  border-left: 1px solid black;
+  margin-right: -1px;
+  display: inline;
+  position: relative;
+  z-index: 1;
+}
+.cke_dialog .mathquill-editor .mathquill-editable .cursor.blink {
+  visibility: hidden;
+}
+.cke_dialog .mathquill-editor .mathquill-editable.empty:after,
+.cke_dialog .mathquill-editor .mathquill-textbox:after,
+.cke_dialog .mathquill-editor .mathquill-rendered-math .empty:after {
+  visibility: hidden;
+  content: 'c';
+}
+.cke_dialog .mathquill-editor .mathquill-editable .cursor:only-child:after,
+.cke_dialog .mathquill-editor .mathquill-editable .textarea + .cursor:last-child:after {
+  visibility: hidden;
+  content: 'c';
+}
+.cke_dialog .mathquill-editor .mathquill-editable .selection,
+.cke_dialog .mathquill-editor .mathquill-editable .selection .mathquill-rendered-math,
+.cke_dialog .mathquill-editor .mathquill-editable .selection sup,
+.cke_dialog .mathquill-editor .mathquill-editable .selection sub {
+  background: #B4D5FE;
+  background: Highlight;
+  color: HighlightText;
+  border-color: HighlightText;
+}
+.cke_dialog .mathquill-editor .mathquill-editable .selection.blur,
+.cke_dialog .mathquill-editor .mathquill-editable .selection.blur .mathquill-rendered-math,
+.cke_dialog .mathquill-editor .mathquill-editable .selection.blur sup,
+.cke_dialog .mathquill-editor .mathquill-editable .selection.blur sub {
+  background: #CCC;
+  background: rgba(0, 0, 0, 0.2);
+  color: black;
+  border-color: black;
+}
+.cke_dialog .mathquill-editor .mathquill-editable .selection .selection.blur,
+.cke_dialog .mathquill-editor .mathquill-editable .selection .selection.blur sup,
+.cke_dialog .mathquill-editor .mathquill-editable .selection .selection.blur sub {
+  background: #ABF;
+}
+.cke_dialog .mathquill-editor .mathquill-editable .selection.blur .selection.blur,
+.cke_dialog .mathquill-editor .mathquill-editable .selection.blur .selection.blur sup,
+.cke_dialog .mathquill-editor .mathquill-editable .selection.blur .selection.blur sub {
+  background: #AAA;
+  background: rgba(0, 0, 0, 0.2);
+}
+.cke_dialog .mathquill-editor .mathquill-textbox,
+.cke_dialog .mathquill-editor .mathquill-rendered-math {
+  white-space: pre-wrap;
+  font-family: Symbola, "Times New Roman", serif;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math {
+  font-variant: normal;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 115%;
+  line-height: 1;
+  display: -moz-inline-box;
+  display: inline-block;
+  -moz-user-select: none;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math var,
+.cke_dialog .mathquill-editor .mathquill-rendered-math .nonSymbola {
+  font-family: "Times New Roman", serif;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math * {
+  font-size: inherit;
+  line-height: inherit;
+  display: -moz-inline-box;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  border-color: black;
+}
+.cke_dialog .mathquill-editor .mathquill-editable.hasCursor,
+.cke_dialog .mathquill-editor .mathquill-rendered-math .latex-command-input.hasCursor {
+  border-color: ActiveBorder;
+}
+.cke_dialog .mathquill-editor .mathquill-editable.hasCursor,
+.cke_dialog .mathquill-editor .mathquill-editable .hasCursor {
+  -webkit-box-shadow: #68B4DF 0 0 3px 2px;
+  -moz-box-shadow: #68B4DF 0 0 3px 2px;
+  box-shadow: #68B4DF 0 0 3px 2px;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .empty {
+  background: #ccc;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math.empty {
+  background: transparent;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .text {
+  display: inline;
+  font-size: 87%;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math var {
+  /* variables, in case the user does something weird to their <var>'s */
+  font-style: italic;
+  font-weight: normal;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math var.florin {
+  /* florin looks so much better than italic f */
+  margin: 0 -0.1em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math big {
+  font-size: 125%;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup,
+.cke_dialog .mathquill-editor .mathquill-rendered-math sub {
+  position: relative;
+  font-size: 90%;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup {
+  vertical-align: .5em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sub {
+  vertical-align: -0.4em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup.nthroot {
+  margin-right: -0.6em;
+  margin-left: .2em;
+  min-width: .5em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup.limit,
+.cke_dialog .mathquill-editor .mathquill-rendered-math sub.limit,
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup.nthroot {
+  font-size: 80%;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup.limit,
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup.nthroot {
+  vertical-align: .8em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sub.limit {
+  vertical-align: -0.6em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .binary-operator {
+  padding: 0 .2em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .unary-operator {
+  padding-left: .2em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup .binary-operator,
+.cke_dialog .mathquill-editor .mathquill-rendered-math sub .binary-operator {
+  padding: 0 .1em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup .unary-operator,
+.cke_dialog .mathquill-editor .mathquill-rendered-math sub .unary-operator {
+  padding-left: .1em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .fraction {
+  font-size: 90%;
+  text-align: center !important;
+  vertical-align: -0.5em;
+  padding: 0 .1em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .fraction,
+.cke_dialog .mathquill-editor x:-moz-any-link {
+  /* Firefox 2 (and older?) only */
+  display: -moz-groupbox;
+  /* because display:inline-block is FUBAR in Gecko < 1.9.0 */
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .fraction,
+.cke_dialog .mathquill-editor x:-moz-any-link,
+.cke_dialog .mathquill-editor x:default {
+  /* Firefox 3+ (Gecko 1.9.0+) */
+  display: inline-block;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .numerator,
+.cke_dialog .mathquill-editor .mathquill-rendered-math .denominator {
+  display: block;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .numerator {
+  border-bottom: 1px solid;
+  /* black is too black, contrasts with antialised text */
+  padding: 0 .1em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .denominator {
+  border-top: 1px solid;
+  float: right;
+  /* take out of normal flow to manipulate baseline */
+  width: 100%;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup .fraction,
+.cke_dialog .mathquill-editor .mathquill-rendered-math sub .fraction {
+  font-size: 70%;
+  vertical-align: -0.4em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup .numerator,
+.cke_dialog .mathquill-editor .mathquill-rendered-math sub .numerator {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math sup .denominator,
+.cke_dialog .mathquill-editor .mathquill-rendered-math sub .denominator {
+  padding-top: 0;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .latex-command-input {
+  color: inherit;
+  font-family: "Courier New", monospace;
+  border: 1px solid gray;
+  padding-right: 1px;
+  margin-right: 1px;
+  margin-left: 2px;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .latex-command-input:before {
+  content: '\\';
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .latex-command-input.empty {
+  background: transparent;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .sqrt-prefix {
+  vertical-align: top;
+  position: relative;
+  top: 2px;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .sqrt-stem {
+  border-top: 1px solid;
+  margin-top: 1px;
+  padding-left: 2px;
+  padding-right: .2em;
+  margin-right: .1em;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .paren {
+  vertical-align: bottom;
+  position: relative;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .array {
+  vertical-align: middle;
+  text-align: center !important;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .array > span {
+  display: block;
+}
+.cke_dialog .mathquill-editor .mathquill-rendered-math .non-italicized-function {
+  padding-right: .2em;
+}
+.cke_dialog .mathquill-editor {
+    padding: 0 4px 10px;
+    width: 680px;
+    display: inline-block;
+    white-space: pre-wrap;
+    font-size: 16px;
+}
+.cke_dialog .mathquill-editor .mathquill-toolbar {
+  font-family: sans-serif, Arial, Verdana;
+  font-size: 1em;
+  margin: 0 -4px 10px;
+  position: relative;
+  overflow: hidden;
+  z-index: 101;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-bar {
+  padding: 8px 8px 2px 16px;
+  margin: 0 0 -2px;
+  line-height: 1.5;
+  font-size: 9pt;
+  list-style: none;
+  overflow: hidden;
+  display: block;
+  background: #aaa;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-bar li {
+  color: #555;
+  background: #ccc;
+  border-color: #999;
+  border-width: 1px 1px 0 1px;
+  border-style: solid;
+  -moz-border-radius-topright: 4px;
+  -moz-border-radius-topleft: 4px;
+  -webkit-border-radius-topright: 4px;
+  -webkit-border-radius-topleft: 4px;
+  border-top-right-radius: 4px;
+  border-top-left-radius: 4px;
+  margin: 0 4px 0 0;
+  float: left;
+  top: 1px;
+  height: 2em;
+  overflow: hidden;
+  position: relative;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-bar li.mathquill-tab-selected {
+  background: #e8e8e8;
+  border-color: #999;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-bar li a {
+  padding: 0 8px;
+  line-height: 2em;
+  color: #000;
+  text-decoration: none;
+  cursor: default;
+  display: block;
+}
+.cke_dialog .mathquill-editor *:first-child + html .mathquill-tab-bar li a {
+  /* IE7 only */
+  padding: 0 7px;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-bar a span {
+  padding: 0 6px 0 0;
+  line-height: inherit;
+  font-weight: bold;
+}
+.cke_dialog .mathquill-editor .mathquill-toolbar-panes {
+  border-top: 1px solid #999;
+  border-bottom: 1px solid #aaa;
+  background: #e8e8e8;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-pane {
+  margin: 0 -100% 0 0;
+  width: 100%;
+  visibility: hidden;
+  float: left;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-pane-selected {
+  visibility: visible;
+  margin: 0;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-pane ul {
+  margin: 0;
+  padding: 6px 12px;
+  overflow: hidden;
+  line-height: 1;
+  list-style: none;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-pane li {
+  overflow: hidden;
+  display: block;
+  float: left;
+  height: 1.5em;
+  margin: 0 -4px 3px;
+  padding: 4px 6px 0;
+  text-align: center;
+  background: #eee;
+  border-top: 1px solid #fff;
+  border-bottom: 1px solid #ccc;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-pane li.mathquill-button-spacer {
+  background: transparent;
+  border-color: transparent;
+  width: 10px;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-pane li a {
+  display: block;
+  font-size: 0.9em;
+  font-weight: bold;
+  width: 1.5em;
+  height: 1.4em;
+}
+.cke_dialog .mathquill-editor .mathquill-tab-pane li a:hover {
+  background-color: #adcddf;
+}
+.cke_dialog .mathquill-editor .mathquill-toolbar * {
+  cursor: default !important;
+}

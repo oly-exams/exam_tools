@@ -1,0 +1,98 @@
+{% extends "ipho_exam/submission_base.html" %}
+{% load static %}
+{% load exam_utils_tags %}
+
+{% block assign-classes %}active{% endblock %}
+{% block confirm-classes %}disabled{% endblock %}
+{% block submitted-classes %}disabled{% endblock %}
+
+{% block step-content %}
+<p>Select the languages that you want to deliver to your students.</p>
+<ul>
+    <li>For each student more than one language can be delivered.</li>
+    <li>The answer sheets will be provided <strong>only in one</strong> language.</li>
+</ul>
+
+{% if with_errors %}
+<div class="alert alert-danger">
+    <p><strong>Submission errors:</strong> Your submission has errors, see below for details.</p>
+{% for ss,form in submission_forms %}
+    {{ form.non_field_errors }}
+{% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block exam-content %}
+<form method="post" action="{% url 'exam:submission-exam-assign' exam_id=exam.pk %}">
+    {% csrf_token %}
+    <table class="table table-striped">
+        <tr>
+            <th></th>
+          {% for lang in languages %}
+            <th class="text-center">{{ lang.name }}</th>
+          {% endfor %}
+        </tr>
+        <tbody>
+      {% for ss,form in submission_forms %}
+      <tr class="{% if form.languages.errors or form.main_language.errors %}danger{% endif %}">
+          <td>{{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})
+              <ul style="margin:0; padding:0;">
+                {% for error in form.languages.errors %}
+                    <li class="help-block"><strong>Deliver:</strong> {{ error|escape }}</li>
+                {% endfor %}
+                {% for error in form.main_language.errors %}
+                    <li class="help-block"><strong>With answers:</strong> {{ error|escape }}</li>
+                {% endfor %}
+              </ul>
+           </td>
+          {% for lang_id,oval in form.languages.field.choices %}
+              <td class="text-center">
+                  <div class="checkbox {% if form.languages.errors %}has-error{% endif %}">
+                  <label>
+                      <input type="checkbox" autocomplete="off" id="{{ form.languages.html_name }}-val-{{ lang_id }}" name="{{ form.languages.html_name }}" value="{{ lang_id }}" {% if lang_id in form.languages.value|intlist %}checked{% endif %} />
+                      deliver
+                  </label>
+                </div>
+                <div class="radio {% if not lang_id in form.languages.value|intlist %}disabled{% endif %} {% if form.main_language.errors %}has-error{% endif %}">
+                  <label>
+                    <input type="radio" id="{{ form.main_language.html_name }}-val-{{ lang_id }}" name="{{ form.main_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.main_language.value|escape %}checked{% endif %} {% if not lang_id in form.languages.value|intlist %}disabled{% endif %}/>
+                    with answer sheets
+                  </label>
+                </div>
+              </td>
+          {% endfor %}
+      </tr>
+      {% endfor %}
+        </tbody>
+    </table>
+
+    <div>
+        <div class="pull-right">
+            <input type="submit" class="btn btn-primary" value="Next >>" />
+        </div>
+    </div>
+
+</form>
+{% endblock %}
+
+{% block extra-script %}
+{{ block.super }}
+<script>
+$(function() {
+    $(':checkbox[name^="stud"]').change(function() {
+        $checkbox = $(this);
+        $radio = $('#'+$checkbox.attr('id').replace('languages','main_language'));
+        if ($checkbox.is(':checked')) {
+            $radio.removeAttr('disabled');
+            $radio.parents('div.radio').removeClass('disabled');
+        } else {
+            $radio.attr('disabled',true);
+            $radio.prop('checked',false);
+            $radio.parents('div.radio').addClass('disabled');
+        }
+    });
+});
+</script>
+{% endblock %}
