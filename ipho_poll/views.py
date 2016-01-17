@@ -13,13 +13,13 @@ from ipho_poll.models import Question, Choice, Vote
 @login_required
 @permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie
-def adminOverview(request):
+def adminIndex(request):
     drafted_questions_list = Question.objects.filter(status = 0)
     live_questions_list = Question.objects.filter(status = 1)
     closed_questions_list = Question.objects.filter(status = 2) 
     
 
-    return render(request, 'ipho_poll/adminOverview.html',
+    return render(request, 'ipho_poll/adminIndex.html',
             {
                 'drafted_questions_list'    : drafted_questions_list,
                 'live_questions_list'       : live_questions_list,
@@ -27,10 +27,15 @@ def adminOverview(request):
             }
         )
 
+
+
+#delegation views
+
+
 @login_required
 @permission_required('iphoperm.is_leader')
 @ensure_csrf_cookie
-def delegationOverview(request):
+def delegationIndex(request):
     live_questions_list = Question.objects.filter(status = 1)
 
 
