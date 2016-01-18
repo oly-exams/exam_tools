@@ -4,9 +4,9 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from ipho_poll.models import Question, Choice, Vote
+from .models import Question, Choice, Vote
 
-
+from .forms import QuestionForm
 
 
 
@@ -26,6 +26,25 @@ def adminIndex(request):
                 'closed_questions_list'     : closed_questions_list,
             }
         )
+
+
+
+@login_required
+@permission_required('iphoperm.is_staff')
+@ensure_csrf_cookie
+def addQuestion(request):
+    questionForm = QuestionForm(request.POST or None)
+    if questionForm.is_valid():
+        question = questionForm.instance
+        question.save()
+        return JsonResponse({
+                    'success' : True,
+                    'message' : 'The question has successfully been added.',
+                })
+
+
+
+
 
 
 
