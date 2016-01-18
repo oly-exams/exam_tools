@@ -13,7 +13,7 @@ class Question(models.Model):
     )
     status = models.IntegerField(choices=STATUS_CHOICES, default=0) 
     def __str__(self):
-        return "Question Text: " + self.question_text + " / Status: " + self.status 
+        return self.question_text 
 
 class Choice(models.Model):
     question = models.ForeignKey(Question)
