@@ -2,8 +2,8 @@
 
 <h2>Drafted Questions</h2>
 
-{# what is this #}
-<div class="modal fade" id="language-modal" tabindex="-1">
+{# modal for creating a new question. #}
+<div class="modal fade" id="question-modal" tabindex="-1">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-header">
@@ -21,14 +21,17 @@
   </div>
 </div>
 
+
+{# list of drafted questions #}
 <div class="panel panel-default">
       <div id="language-list" class="list-group">
       {% for question in drafted_questions_list %}
-          <li> question </li>
+          <a class="list-group-item"> {{ question }} </a>
       {% empty %}
           <a class="list-group-item">No drafted questions.</a>
       {% endfor %}
       </div>
 </div>
 
-<a class="btn btn-default" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-add' %}"><i class="fa fa-plus fa-fw"></i> Create new</a>
+<a class="btn btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-plus fa-fw"></i> Create new</a>
+
