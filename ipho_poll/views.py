@@ -1,14 +1,15 @@
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie
+from crispy_forms.utils import render_crispy_form
 
 from .models import Question, Choice, Vote
 
 from .forms import QuestionForm
 
-
+#admin views
 
 @login_required
 @permission_required('iphoperm.is_staff')
@@ -16,8 +17,8 @@ from .forms import QuestionForm
 def adminIndex(request):
     drafted_questions_list = Question.objects.filter(status = 0)
     live_questions_list = Question.objects.filter(status = 1)
-    closed_questions_list = Question.objects.filter(status = 2) 
-    
+    closed_questions_list = Question.objects.filter(status = 2)
+
 
     return render(request, 'ipho_poll/adminIndex.html',
             {
@@ -33,14 +34,24 @@ def adminIndex(request):
 @permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie
 def addQuestion(request):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
     questionForm = QuestionForm(request.POST or None)
     if questionForm.is_valid():
-        question = questionForm.instance
-        question.save()
+        new_question = questionForm.save()
         return JsonResponse({
                     'success' : True,
                     'message' : 'The question has successfully been added.',
                 })
+    else:
+        form_html = render_crispy_form(questionForm)
+        return JsonResponse({
+                    'title' : 'Create New Question',
+                    'form' : form_html,
+                    'success' : False,
+                    'message' : 'The question could not be added.',
+                })
+
 
 
 
@@ -99,7 +110,7 @@ def delegationIndex(request):
 #        return Question.objects.filter(
 #            choice__gte=1, pub_date__lte=timezone.now()
 #        ).distinct()
-#       	
+#
 #
 #class ResultsView(generic.DetailView):
 #    model = Question
