@@ -3,14 +3,14 @@
 <h2>Drafted Questions</h2>
 
 {# modal for creating a new question. #}
-<div class="modal fade" id="question-modal" tabindex="-1">
+<div class="modal fade" id="question-modal" tabindex="-1" aria-labelledby="modalLabel">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-        <h4 class="modal-title"></h4>
+        <h4 class="modal-title" id="modalLabel"></h4>
       </div>
-      <form method="post" action="">
+      <form role="form" method="post" action="">
           <div class="modal-body"></div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -34,4 +34,3 @@
 </div>
 
 <a class="btn btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-plus fa-fw"></i> Create new</a>
-
