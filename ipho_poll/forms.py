@@ -14,18 +14,13 @@ from ipho_poll.models import Question
 
 class QuestionForm(ModelForm):
         def __init__(self, *args, **kwargs):
-            instance = getattr(self, 'instance', None)
             super(QuestionForm, self).__init__(*args, **kwargs)
             self.helper = FormHelper()
-            self.helper.layout = Layout(Field('question_text'),
-                                        Field('pub_date'),
-                                        Field('status'),
-                                        )   
+            self.helper.layout = Layout(Field('question_text', placeholder='Enter question text'))
             self.helper.html5_required = True
-            self.form_tag = False
-            self.helper.disable_csrf = False
-    
+            self.helper.form_show_labels = True
+
+
         class Meta:
             model = Question
-            fields = ['question_text','pub_date','status']
-
+            fields = ['question_text']
