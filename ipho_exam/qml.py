@@ -310,9 +310,9 @@ class QMLsubquestion(QMLobject):
         return 'Subquestion, %spt' % self.attributes['points']
 
     def tex_begin(self):
-        return u'\\subquestion{%s}{' % self.attributes['points']
+        return u'\\begin{QTF}{%s}' % self.attributes['points']
     def tex_end(self):
-        return '}\n\n'
+        return '\\end{QTF}\n\n'
 
 
 class QMLtitle(QMLobject):

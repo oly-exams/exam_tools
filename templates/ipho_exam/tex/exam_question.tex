@@ -1,6 +1,6 @@
 {% autoescape off %}
 
-\documentclass[a4paper]{article}
+\documentclass[11pt,a4paper]{ipho2016}
 
 
 % PDF search & cut'n'paste
@@ -37,28 +37,6 @@
 \nonstopmode
 
 
-\newcommand\subquestion[2]{
-\vspace{0.5em}
-\noindent
-  \framebox[\textwidth]{
-    \vspace{0.5em}
-    \parbox[t]{.1\textwidth}{
-      \hspace{1em}
-      X.Y
-    }
-    \parbox[t]{.8\textwidth}{
-      #2 % content here
-    }
-    \parbox{.1\textwidth}{
-      \flushright
-      #1 pt
-      \hspace{1em}
-    }
-    \vspace{0.5em}
-  }
-\vspace{0.5em}
-}
-
 
 {{ extraheader }}
 
@@ -67,7 +45,12 @@
 \date{}
 
 \begin{document}
-    \maketitle
+
+\begin{PR}{% templatetag openbrace %}{{ title }}}{% templatetag openbrace %}{{ points }}}
+
 {{ document }}
+
+\end{PR}
+
 \end{document}
 {% endautoescape %}

@@ -11,6 +11,7 @@ import shutil
 from hashlib import md5
 
 from ipho_exam.models import Figure
+from iphoadmin.settings import TEMPLATE_PATH
 
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
@@ -68,7 +69,12 @@ class FigureExport(object):
 #        cairosvg.svg2pdf(fig_svg.encode('utf8'), '%s/%s' % (dirname, self.figname))
 
 class StaticExport(object):
-    def __init__(self):
-        pass
+    def __init__(self, origin):
+        self.origin = origin
     def save(self, dirname):
-        pass
+        src = os.path.join(TEMPLATE_PATH, self.origin)
+        dst = os.path.join(dirname, os.path.basename(src))
+        if os.path.isdir(src):
+            shutil.copytree(src, dst)
+        else:
+            shutil.copy2(src, dst)

@@ -875,10 +875,12 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 def compiled_question(request, question_id, lang_id, raw_tex=False):
     trans = qquery.latest_version(question_id, lang_id)
     trans_content, ext_resources = trans.qml.make_tex()
+    ext_resources.append(tex.StaticExport('ipho_exam/tex_resources/ipho2016.cls'))
     context = {
                 'polyglossia' : trans.lang.polyglossia,
                 'extraheader' : trans.lang.extraheader,
                 'title'       : trans.question.name,
+                'points'      : 'TBA',
                 'document'    : trans_content,
               }
     body = render_to_string('ipho_exam/tex/exam_question.tex', context).encode("utf-8")
@@ -908,10 +910,12 @@ def pdf_exam_for_student(request, exam_id, student_id):
 
             trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
             trans_content, ext_resources = trans.qml.make_tex()
+            ext_resources.append(tex.StaticExport('ipho_exam/tex_resources/ipho2016.cls'))
             context = {
                         'polyglossia' : sl.language.polyglossia,
                         'extraheader' : sl.language.extraheader,
                         'title'       : question.name,
+                        'points'      : 'TBA',
                         'document'    : trans_content,
                       }
             body = render_to_string('ipho_exam/tex/exam_question.tex', context).encode("utf-8")
