@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, JsonResponse
 from django.core.urlresolvers import reverse
+from django.core import serializers
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from crispy_forms.utils import render_crispy_form
@@ -14,13 +15,13 @@ from .forms import QuestionForm
 @login_required
 @permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie
-def adminIndex(request):
+def staffIndex(request):
     drafted_questions_list = Question.objects.filter(status = 0)
     live_questions_list = Question.objects.filter(status = 1)
     closed_questions_list = Question.objects.filter(status = 2)
+    choices_list = Choice.objects.all()
 
-
-    return render(request, 'ipho_poll/adminIndex.html',
+    return render(request, 'ipho_poll/staffIndex.html',
             {
                 'drafted_questions_list'    : drafted_questions_list,
                 'live_questions_list'       : live_questions_list,
@@ -41,7 +42,8 @@ def addQuestion(request):
         new_question = questionForm.save()
         return JsonResponse({
                     'success' : True,
-                    'message' : 'The question has successfully been added.',
+                    'message' : '<strong> The question has successfully been added!</strong>',
+                    'new_question_text' : new_question.question_text,
                 })
     else:
         form_html = render_crispy_form(questionForm)
