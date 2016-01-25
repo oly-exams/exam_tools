@@ -5,10 +5,12 @@ from django.core import serializers
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from crispy_forms.utils import render_crispy_form
+from django.forms.formsets import formset_factory
+
 
 from .models import Question, Choice, Vote
 
-from .forms import QuestionForm
+from .forms import QuestionForm, ChoiceForm
 
 #admin views
 
@@ -26,6 +28,7 @@ def staffIndex(request):
                 'drafted_questions_list'    : drafted_questions_list,
                 'live_questions_list'       : live_questions_list,
                 'closed_questions_list'     : closed_questions_list,
+                'choices_list'              : choices_list,
             }
         )
 
@@ -35,23 +38,37 @@ def staffIndex(request):
 @permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie
 def addQuestion(request):
+    print("/br")
+    print(request.POST)
+    print("/br")
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    questionForm = QuestionForm(request.POST or None)
-    if questionForm.is_valid():
+    ChoiceFormset = formset_factory(ChoiceForm, extra=2)
+    if request.method == 'POST':
+        #here i need to differenciate
+        questionForm = QuestionForm(request.POST, prefix='question')
+        choiceFormset = ChoiceFormset(request.POST, prefix='choices')
+    else:
+        questionForm = QuestionForm(None, prefix='question')
+        choiceFormset = ChoiceFormset(None, prefix='choices')
+    if questionForm.is_valid() and choiceFormset.is_valid():
         new_question = questionForm.save()
+        for choiceForm in choiceFormset:
+            choiceForm.save()
         return JsonResponse({
                     'success' : True,
                     'message' : '<strong> The question has successfully been added!</strong>',
                     'new_question_text' : new_question.question_text,
+                    'new_question_pk'   : new_question.pk,
+                    'type'              : 'add',
                 })
     else:
-        form_html = render_crispy_form(questionForm)
+        form_html = render_crispy_form(questionForm) + render_crispy_form(choiceFormset)
         return JsonResponse({
-                    'title' : 'Create New Question',
-                    'form' : form_html,
-                    'success' : False,
-                    'message' : 'The question could not be added.',
+                    'title'         : 'Create New Question',
+                    'form'          : form_html,
+                    'success'       : False,
+                    'message'       : 'The question could not be added.',
                 })
 
 
