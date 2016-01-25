@@ -1,6 +1,5 @@
 from django import forms
 from django.forms import ModelForm, Form
-from django.forms.formsets import formset_factory
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, MultiField, Div
 from django.utils.safestring import mark_safe
