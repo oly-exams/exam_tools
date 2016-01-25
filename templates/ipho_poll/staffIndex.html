@@ -6,7 +6,7 @@
 {% block content %}
 <div class="container">
     <div class="page-header">
-      <h1>IPhO Votings</h1>
+      <h1 id="title">IPhO Votings</h1>
     </div>
 
     <div id="alerts-container">
@@ -19,14 +19,14 @@
     </div>
 
     <div class="row">
-       <div class="col-md-3">
-         {% include "ipho_poll/panels/drafted_questions.html" %}
+       <div class="col-md-12">
+         {% include "ipho_poll/tabels/drafted_questions.html" %}
 	     </div>
-	     <div class="col-md-3">
-	        {% include "ipho_poll/panels/live_questions.html" %}
+	     <div class="col-md-4">
+	        {% include "ipho_poll/tabels/live_questions.html" %}
 	     </div>
-	     <div class="col-md-3">
-	        {% include "ipho_poll/panels/closed_questions.html" %}
+	     <div class="col-md-12">
+	        {% include "ipho_poll/tabels/closed_questions.html" %}
 	     </div>
     </div>
 </div>
@@ -35,7 +35,7 @@
 
 {% block extra-script %}
 <script>
-//Fill Question modal with Form
+//Fill Question modal with Form when modal is shown
 $('document').ready(function(){
     $('#question-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
@@ -77,7 +77,27 @@ $(document).on('submit', '#question-modal form', function(event) {
                 return;
             }
             else {
-                $('#drafted-questions-list').append('<a class="list-group-item">' + data['new_question_text'] + '</a>');
+                // creates the row content of the question to be added or replaced
+                var row_content = '';
+                row_content += '<td>'+data['new_question_pk']+'</td>'+
+                    '<td id="question-'+data['new_question_pk']+'-question-text">'+data['new_question_text']+'</td>'+
+                    '<td>'+
+                        ' TODOadd choices. Need information from the JsonResponse' +
+                    '</td>';
+                row_content += '<td><div class="btn-toolbar">'+
+                    '<a class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-pencil fa-fw"></i></a>' +
+                    '<a class="btn btn-sm btn-danger" href=""  data-toggle="modal" data-target="#question-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a' +
+                    '</div></td>';
+
+                // adds or replaces the newly created row
+                if (data['type'] == 'add') {
+                    var row = '<tr id="question-'+data['new_question_pk']+'">'+row_content+'</tr>';
+                    $('#drafted-questions-table').append(row);
+                } else {
+                    $('#question-'+data['new_question_pk']).html(row_content);
+                }
+
+
                 $('#question-modal').modal('hide');
                 $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
             }
