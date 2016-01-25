@@ -1,15 +1,14 @@
 {% load crispy_forms_tags %}
 
-<h2>Live Questions</h2>
+<h2>Closed Votings</h2>
 
-{# list of live questions #}
+{# list of closed questions #}
 <div class="panel panel-default">
       <div id="language-list" class="list-group">
-      {% for question in live_questions_list %}
+      {% for question in closed_questions_list %}
           <li> question </li>
       {% empty %}
-          <a class="list-group-item">No live questions.</a>
+          <a class="list-group-item">No closed questions.</a>
       {% endfor %}
       </div>
 </div>
-

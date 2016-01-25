@@ -1,0 +1,54 @@
+{% load crispy_forms_tags %}
+
+<h2>Drafted Votings</h2>
+
+{# modal for creating a new question. #}
+<div class="modal fade" id="question-modal" tabindex="-1" aria-labelledby="modalLabel">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title" id="modalLabel"></h4>
+      </div>
+      <form role="form" method="post" action="">{% csrf_token %}
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<a class="btn btn-primary" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-plus fa-fw"></i> Create new</a>
+
+{# table of drafted questions #}
+<table id="drafted-questions-table" class="table table-striped">
+  <tr>
+      <th>#</th>
+      <th>Question Text</th>
+      <th>Choices</th>
+      <th>Actions</th>
+  </tr>
+  {% for question in drafted_questions_list %}
+      <tr id="question-{{ question.pk }}">
+          <td>{{ question.pk }}</td>
+          <td id="question-{{ question.pk }}-question-text">{{ question.question_text }}</td>
+          <td>
+              {% for choice in choices_list%}
+                  {% if choice.question == question%}
+                      {{ choice }}
+                  {% endif %}
+              {% endfor %}
+          </td>
+          <td>
+              <div class="btn-toolbar">
+                <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-pencil fa-fw"></i></a>
+                <a class="btn btn-sm btn-danger" href="{% url 'poll:addQuestion' %}"  data-toggle="modal" data-target="#question-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a>
+              </div>
+          </td>
+      </tr>
+  {% endfor %}
+</table>
