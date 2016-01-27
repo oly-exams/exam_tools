@@ -2,11 +2,12 @@ from django.conf.urls import patterns, url
 
 
 urlpatterns = patterns('ipho_poll.views',
-    # urls
+    # staff urls
     url(r'^staff/$', 'staffIndex', name='staffIndex'),
     url(r'^staff/question/add$', 'addQuestion', name='addQuestion'),
 
 
-    #user urls
+    #delegation urls
     url(r'^$', 'delegationIndex', name='delegationIndex'),
+    url(r'^vote/add$', 'addVote', name='addVote'),
 )
