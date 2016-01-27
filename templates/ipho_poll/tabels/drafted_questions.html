@@ -1,6 +1,6 @@
 {% load crispy_forms_tags %}
 
-<h2>Drafted Votings</h2>
+
 
 {# modal for creating a new question. #}
 <div class="modal fade" id="question-modal" tabindex="-1" aria-labelledby="modalLabel">
@@ -22,10 +22,13 @@
 </div>
 
 
-<a class="btn btn-primary" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-plus fa-fw"></i> Create new</a>
 
 {# table of drafted questions #}
 <div class='panel panel-default'>
+    <div class="panel-heading"><h2>Drafted Votings</h2></div>
+    <div class="panel-body">
+        <a class="btn btn-primary" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-plus fa-fw"></i> Create new</a>
+    </div>
     <table id="drafted-questions-table" class="table table-striped">
       <tr>
           <th>#</th>
@@ -39,8 +42,8 @@
               <td id="question-{{ question.pk }}-question-text">{{ question.question_text }}</td>
               <td>
                   <div class='list-group'>
-                      {% for choice in choices_list%}
-                          {% if choice.question == question%}
+                      {% for choice in choices_list %}
+                          {% if choice.question == question %}
                               <li class='list-group-item'>{{ choice }}</li>
                           {% endif %}
                       {% endfor %}
