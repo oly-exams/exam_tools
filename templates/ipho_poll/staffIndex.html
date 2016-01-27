@@ -6,7 +6,7 @@
 {% block content %}
 <div class="container">
     <div class="page-header">
-      <h1 id="title">IPhO Votings</h1>
+      <h1>IPhO Votings</h1>
     </div>
 
     <div id="alerts-container">
@@ -29,84 +29,113 @@
 	        {% include "ipho_poll/tabels/closed_questions.html" %}
 	     </div>
     </div>
-</div>
+</div> <!-- container -->
 {% endblock %}
 
 
 {% block extra-script %}
 <script>
-//Fill Question modal with Form when modal is shown
-$('document').ready(function(){
-    $('#question-modal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
-        var href = button.attr('href');
-        var modal = $(this);
-
-        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
-        modal.find('.modal-body').html('');
-
-        $.ajax({
-            url: href,
-            dataType: 'json',
-            success: function(data) {
-                modal.find('.modal-title').text(data['title']);
-                modal.find('form').attr('action', href);
-                modal.find('.modal-body').html(data['form']);
-                modal.find("[data-toggle=popover]").popover(); // activate popover
-            },
-        });
-    });
-});
-
-//Defines what happens when submit is pressed in the form modal
-$(document).on('submit', '#question-modal form', function(event) {
-    event.preventDefault();
-    var form = event.target;
-    var $form = $(form);
-    var data = new FormData($form.get(0));
-    $.ajax({
-        url: form.action,
-        type: form.method,
-        data: data,
-        cache: false,
-        processData: false,
-        contentType: false,
-        success: function(data) {
-            if (!data['success']) {
-                $('#question-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
-                return;
-            }
-            else {
-                // creates the row content of the question to be added or replaced
-                var row_content = '';
-                row_content += '<td>'+data['new_question_pk']+'</td>'+
-                    '<td id="question-'+data['new_question_pk']+'-question-text">'+data['new_question_text']+'</td>'+
-                    '<td>'+
-                        ' TODOadd choices. Need information from the JsonResponse' +
-                    '</td>';
-                row_content += '<td><div class="btn-toolbar">'+
-                    '<a class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-pencil fa-fw"></i></a>' +
-                    '<a class="btn btn-sm btn-danger" href=""  data-toggle="modal" data-target="#question-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a' +
-                    '</div></td>';
-
-                // adds or replaces the newly created row
-                if (data['type'] == 'add') {
-                    var row = '<tr id="question-'+data['new_question_pk']+'">'+row_content+'</tr>';
-                    $('#drafted-questions-table').append(row);
-                } else {
-                    $('#question-'+data['new_question_pk']).html(row_content);
+$(function() {
+    // Get csrftoken
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
 
-
-                $('#question-modal').modal('hide');
-                $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
         }
     });
+
+
+    //Fill Question modal with Form when modal is shown
+    $('document').ready(function(){
+        $('#question-modal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var href = button.attr('href');
+            var modal = $(this);
+
+            modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+            modal.find('.modal-body').html('');
+
+            $.ajax({
+                url: href,
+                dataType: 'json',
+                success: function(data) {
+                    modal.find('.modal-title').text(data['title']);
+                    modal.find('form').attr('action', href);
+                    modal.find('.modal-body').html(data['form']);
+                    modal.find("[data-toggle=popover]").popover(); // activate popover
+                },
+            });
+        });
+    });
+
+    //Defines what happens when submit is pressed in the form modal
+    $(document).on('submit', '#question-modal form', function(event) {
+        event.preventDefault();
+        var form = event.target;
+        var $form = $(form);
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: new FormData($form.get(0)),
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (!data['success']) {
+                    $('#question-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    return;
+                }
+                else {
+                    // creates the row content of the question to be added or replaced
+                    var row_content = '';
+                    row_content += '<td>'+data['new_question_pk']+'</td>'+
+                        '<td id="question-'+data['new_question_pk']+'-question-text">'+data['new_question_text']+'</td>'+
+                        '<td>'+
+                            ' TODOadd choices. Need information from the JsonResponse' +
+                        '</td>';
+                    row_content += '<td><div class="btn-toolbar">'+
+                        '<a class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-pencil fa-fw"></i></a>' +
+                        '<a class="btn btn-sm btn-danger" href=""  data-toggle="modal" data-target="#question-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a' +
+                        '</div></td>';
+
+                    // adds or replaces the newly created row
+                    if (data['type'] == 'add') {
+                        var row = '<tr id="question-'+data['new_question_pk']+'">'+row_content+'</tr>';
+                        $('#drafted-questions-table').append(row);
+                    } else {
+                        $('#question-'+data['new_question_pk']).html(row_content);
+                    }
+
+
+                    $('#question-modal').modal('hide');
+                    $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+                }
+            }
+        });
+    });
 });
-
-
-
 
 </script>
 {% endblock %}

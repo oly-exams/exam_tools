@@ -2,16 +2,19 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, JsonResponse
 from django.core.urlresolvers import reverse
 from django.core import serializers
+from django.core.context_processors import csrf
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from crispy_forms.utils import render_crispy_form
 from django.forms.formsets import formset_factory
+from django.template import RequestContext
+
 
 
 from .models import Question, Choice, Vote
 
-from .forms import QuestionForm, ChoiceForm
-
+from .forms import QuestionForm, ChoiceForm, VoteForm
+from .forms import ChoiceFormHelper
 #admin views
 
 @login_required
@@ -38,14 +41,10 @@ def staffIndex(request):
 @permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie
 def addQuestion(request):
-    print("/br")
-    print(request.POST)
-    print("/br")
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     ChoiceFormset = formset_factory(ChoiceForm, extra=2)
     if request.method == 'POST':
-        #here i need to differenciate
         questionForm = QuestionForm(request.POST, prefix='question')
         choiceFormset = ChoiceFormset(request.POST, prefix='choices')
     else:
@@ -54,18 +53,29 @@ def addQuestion(request):
     if questionForm.is_valid() and choiceFormset.is_valid():
         new_question = questionForm.save()
         for choiceForm in choiceFormset:
-            choiceForm.save()
+            new_choice = choiceForm.save(commit=False)
+            new_choice.question = new_question
+            new_choice.save()
         return JsonResponse({
-                    'success' : True,
-                    'message' : '<strong> The question has successfully been added!</strong>',
+                    'success'           : True,
+                    'message'           : '<strong> The question has successfully been added!</strong>',
                     'new_question_text' : new_question.question_text,
                     'new_question_pk'   : new_question.pk,
                     'type'              : 'add',
                 })
     else:
-        form_html = render_crispy_form(questionForm) + render_crispy_form(choiceFormset)
+        context = {}
+        context.update(csrf(request))
+        form_html = (
+                    render_crispy_form(questionForm, context=context) +
+                    render_crispy_form(
+                                        choiceFormset,
+                                        helper=ChoiceFormHelper,
+                                        context=context
+                                        )
+                    )
         return JsonResponse({
-                    'title'         : 'Create New Question',
+                    'title'         : 'Create New Voting',
                     'form'          : form_html,
                     'success'       : False,
                     'message'       : 'The question could not be added.',
@@ -86,7 +96,29 @@ def addQuestion(request):
 @ensure_csrf_cookie
 def delegationIndex(request):
     live_questions_list = Question.objects.filter(status = 1)
+    choices_list = Choice.objects.all()
+    form_html = render_crispy_form(VoteForm())
+    return render(request, 'ipho_poll/delegationIndex.html',
+                {
+                    'live_questions_list'       : live_questions_list,
+                    'choices_list'              : choices_list,
+                    'form'                      : form_html,
+                }
+            )
 
+
+@login_required
+@permission_required('iphoperm.is_leader')
+@ensure_csrf_cookie
+def addVote(request):
+    if request.method == 'POST':
+        voteForm = VoteForm(request.POST)
+        if voteForm.is_valid():
+            vote = voteForm.save(submit=False)
+            #hier koennte ein test fuer die anzahl votes kommen
+            return JsonResponse({
+                        'message'   : 'Thanks, your vote has been saved.'
+            })
 
 
 
