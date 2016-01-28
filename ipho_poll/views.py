@@ -52,15 +52,18 @@ def addQuestion(request):
         choiceFormset = ChoiceFormset(None, prefix='choices')
     if questionForm.is_valid() and choiceFormset.is_valid():
         new_question = questionForm.save()
+        choice_text_list = []
         for choiceForm in choiceFormset:
             new_choice = choiceForm.save(commit=False)
             new_choice.question = new_question
             new_choice.save()
+            choice_text_list.append(new_choice.choice_text)
         return JsonResponse({
                     'success'           : True,
                     'message'           : '<strong> The question has successfully been added!</strong>',
                     'new_question_text' : new_question.question_text,
                     'new_question_pk'   : new_question.pk,
+                    'choice_text_list'  : choice_text_list,
                     'type'              : 'add',
                 })
     else:
