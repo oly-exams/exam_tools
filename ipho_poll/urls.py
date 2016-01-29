@@ -4,10 +4,12 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns('ipho_poll.views',
     # staff urls
     url(r'^staff/$', 'staffIndex', name='staffIndex'),
-    url(r'^staff/question/add$', 'addQuestion', name='addQuestion'),
+
+    url(r'^question/add/$', 'addQuestion', name='addQuestion'),
+    url(r'^question/(?P<question_pk>\d+)/delete/$', 'deleteQuestion', name='deleteQuestion'),
 
 
     #delegation urls
-    url(r'^$', 'delegationIndex', name='delegationIndex'),
-    url(r'^vote/add$', 'addVote', name='addVote'),
+    url(r'^/$', 'delegationIndex', name='delegationIndex'),
+    url(r'^vote/add/$', 'addVote', name='addVote'),
 )
