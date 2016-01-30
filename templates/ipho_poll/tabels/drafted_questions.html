@@ -4,7 +4,7 @@
 
 {# modal for creating a new question. #}
 <div class="modal fade" id="question-modal" tabindex="-1" aria-labelledby="modalLabel">
-  <div class="modal-dialog modal-sm">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
@@ -21,41 +21,73 @@
   </div>
 </div>
 
+{# modal for deleting votings #}
+<div class="modal fade" id="delete-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="model-title">Are you sure?</h4>
+      </div>
+      <div class="modal-body"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" data-confirm="delete"><i class="fa fa-trash-o fa-fw"></i> Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 {# table of drafted questions #}
 <div class='panel panel-default'>
     <div class="panel-heading"><h2>Drafted Votings</h2></div>
     <div class="panel-body">
-        <a class="btn btn-primary" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-plus fa-fw"></i> Create new</a>
+        {% if not drafted_questions_list%}
+            <div class="alert alert-info alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                <strong>There are no drafted votings yet!</strong> Create one by clicking on "Create New".
+            </div>
+        {% endif %}
+        <button class="btn btn-primary" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-plus fa-fw"></i> Create new</button>
     </div>
     <table id="drafted-questions-table" class="table table-striped">
-      <tr>
-          <th>#</th>
-          <th>Question Text</th>
-          <th>Choices</th>
-          <th>Actions</th>
-      </tr>
-      {% for question in drafted_questions_list %}
-          <tr id="question-{{ question.pk }}">
-              <td>{{ question.pk }}</td>
-              <td id="question-{{ question.pk }}-question-text">{{ question.question_text }}</td>
-              <td>
-                  <div class='list-group'>
-                      {% for choice in choices_list %}
-                          {% if choice.question == question %}
-                              <li class='list-group-item'>{{ choice }}</li>
-                          {% endif %}
-                      {% endfor %}
-                  </div>
-              </td>
-              <td>
-                  <div class="btn-toolbar">
-                      <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-pencil fa-fw"></i></a>
-                      <a class="btn btn-sm btn-danger" href="{% url 'poll:addQuestion' %}"  data-toggle="modal" data-target="#question-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a>
-                  </div>
-              </td>
-          </tr>
-      {% endfor %}
+        <tr>
+            <th>#</th>
+            <th>Question Text</th>
+            <th>Choices</th>
+            <th>Actions</th>
+        </tr>
+        {% if drafted_questions_list %}
+            {% for question in drafted_questions_list %}
+                <tr id="question-{{ question.pk }}">
+                    <td class="col-md-1">{{ question.pk }}</td>
+                    <td class="col-md-6", id="question-{{ question.pk }}-question-text">
+                        {{ question.question_text }}
+                    </td>
+                    <td class="col-md-3">
+                        <div class='list-group'>
+                            {% for choice in choices_list %}
+                                {% if choice.question == question %}
+                                    <li class="list-group-item">{{ choice }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td class="col-md-2">
+                        <div class="btn-toolbar">
+                          <span class="parent">
+                            <button class="btn btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}" title="edit"><i class="fa fa-pencil fa-fw"></i></button>
+                          </span>
+                          <span class="parent">
+                            <button class="btn btn-danger" href="{% url 'poll:deleteQuestion' question_pk=question.pk %}" data-question-pk="{{ question.pk }}" data-toggle="modal" data-target="#delete-modal" data-remote="false" title="delete"><i class="fa fa-trash-o fa-fw"></i></button>
+                          </span>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
     </table>
 </div>

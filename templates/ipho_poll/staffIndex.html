@@ -35,7 +35,7 @@
 
 {% block extra-script %}
 <script>
-$(function() {
+$('document').ready(function(){
     // Get csrftoken
     function getCookie(name) {
         var cookieValue = null;
@@ -68,25 +68,22 @@ $(function() {
 
 
     //Fill Question modal with Form when modal is shown
-    $('document').ready(function(){
-        $('#question-modal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget); // Button that triggered the modal
-            var href = button.attr('href');
-            var modal = $(this);
+    $('#question-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
 
-            modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
-            modal.find('.modal-body').html('');
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
 
-            $.ajax({
-                url: href,
-                dataType: 'json',
-                success: function(data) {
-                    modal.find('.modal-title').text(data['title']);
-                    modal.find('form').attr('action', href);
-                    modal.find('.modal-body').html(data['form']);
-                    modal.find("[data-toggle=popover]").popover(); // activate popover
-                },
-            });
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('form').attr('action', href);
+                modal.find('.modal-body').html(data['form']);
+            },
         });
     });
 
@@ -104,7 +101,7 @@ $(function() {
             contentType: false,
             success: function(data) {
                 if (!data['success']) {
-                    $('#question-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    $('#question-modal .modal-body').html(data['form']);
                     return;
                 }
                 else {
@@ -139,7 +136,56 @@ $(function() {
             }
         });
     });
-});
+
+    // Gives the delete modal some attributes of the delete button in the table
+    $('#delete-modal').on('show.bs.modal', function (event) {
+        var modal = $(this);
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        modal.data('question-pk', button.data('question-pk'));
+        modal.data('delete-href', button.attr('href'));
+        modal.find('.modal-body').text(
+                                    'The voting #' + button.data('question-pk') +
+                                    ' will be deleted permanently.'
+                                    )
+    });
+
+    // Delete a question when delete button is clicked in the modal
+    $(document).on('click', '#delete-modal button[data-confirm="delete"]', function(event){
+        event.preventDefault();
+        var modal = $('#delete-modal');
+
+        $.ajax({
+            url: modal.data('delete-href'),
+            cache: false,
+            proccessData: false,
+            contentType: false,
+            success: function(data) {
+                if (data['success']) {
+                    $('#question-'+modal.data('question-pk')).remove();
+                    modal.data('question-pk', null);
+                    modal.data('delete-href', null);
+                    modal.modal('hide');
+                    $('#alerts-container').prepend('<div class="alert alert-warning alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+
+                }
+                // Todo: Implement success=false variant!!
+                else {
+                    modal.find('.modal-title').text("Ups");
+                    modal.find('.modal-body').text(data['message']);
+                }
+            }
+            // error: function(){
+            //     modal.find('.modal-body').text('error');
+            // }
+        })
+    });
+
+    // Gives all element of class .btn a tooltip if they have a title attribute
+    $('.btn').tooltip({containter: ".parent"});
+
+}); // $(document).ready()
+
+
 
 </script>
 {% endblock %}
