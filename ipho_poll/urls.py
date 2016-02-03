@@ -7,7 +7,7 @@ urlpatterns = patterns('ipho_poll.views',
 
     url(r'^question/add/$', 'addQuestion', name='addQuestion'),
     url(r'^question/(?P<question_pk>\d+)/delete/$', 'deleteQuestion', name='deleteQuestion'),
-
+    url(r'^question/(?P<question_pk>\d+)/edit/$', 'editQuestion', name='editQuestion'),
 
     #delegation urls
     url(r'^/$', 'delegationIndex', name='delegationIndex'),

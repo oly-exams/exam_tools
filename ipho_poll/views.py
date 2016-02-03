@@ -6,7 +6,7 @@ from django.core.context_processors import csrf
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from crispy_forms.utils import render_crispy_form
-from django.forms.formsets import formset_factory
+from django.forms import formset_factory, inlineformset_factory
 from django.template import RequestContext
 
 
@@ -84,6 +84,51 @@ def addQuestion(request):
                     'form'          : form_html,
                     'success'       : False,
                 })
+
+
+@login_required
+@permission_required('iphoperm.is_staff')
+@ensure_csrf_cookie
+def editQuestion(request, question_pk):
+    ChoiceFormset = inlineformset_factory(Question, Choice, form=ChoiceForm, extra=0, can_delete=True)
+    question = get_object_or_404(Question, pk=question_pk)
+    if request.method == 'POST':
+        questionForm = QuestionForm(request.POST, instance=question, prefix='question')
+        choiceFormset = ChoiceFormset(request.POST, instance=question, prefix='choices')
+    else:
+        questionForm = QuestionForm(instance=question, prefix='question')
+        choiceFormset = ChoiceFormset(instance=question, prefix='choices')
+    if questionForm.is_valid() and choiceFormset.is_valid():
+        question = questionForm.save()
+        choice_text_list = []
+        for choiceForm in choiceFormset:
+            choice = choiceForm.save()
+            choice_text_list.append(choice.choice_text)
+        return JsonResponse({
+                    'success'           : True,
+                    'message'           : '<strong> The voting has successfully been added!</strong>',
+                    'new_question_text' : question.question_text,
+                    'new_question_pk'   : question.pk,
+                    'choice_text_list'  : choice_text_list,
+                    'type'              : 'edit',
+                })
+    else:
+        context = {}
+        context.update(csrf(request))
+        form_html = (
+                    render_crispy_form(questionForm, context=context) +
+                    render_crispy_form(
+                                        choiceFormset,
+                                        helper=ChoiceFormHelper,
+                                        context=context
+                                        )
+                    )
+        return JsonResponse({
+                    'title'         : 'Edit voting',
+                    'form'          : form_html,
+                    'success'       : False,
+                })
+
 
 @login_required
 @permission_required('iphoperm.is_staff')

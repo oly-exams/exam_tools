@@ -79,7 +79,7 @@
                     <td class="col-md-2">
                         <div class="btn-toolbar">
                           <span class="parent">
-                            <button class="btn btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}" title="edit"><i class="fa fa-pencil fa-fw"></i></button>
+                            <button class="btn btn-default" href="{% url 'poll:editQuestion' question_pk=question.pk %}" data-toggle="modal" data-target="#question-modal" data-remote="false" title="edit"><i class="fa fa-pencil fa-fw"></i></button>
                           </span>
                           <span class="parent">
                             <button class="btn btn-danger" href="{% url 'poll:deleteQuestion' question_pk=question.pk %}" data-question-pk="{{ question.pk }}" data-toggle="modal" data-target="#delete-modal" data-remote="false" title="delete"><i class="fa fa-trash-o fa-fw"></i></button>
