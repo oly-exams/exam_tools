@@ -58,6 +58,7 @@ def compile_tex(body, ext_resources=[]):
             with open("%s/%s.pdf" % (tmp, doc)) as f:
                 pdf = f.read()
         finally:
+            # print 'Compiled in', tmp
             shutil.rmtree(tmp)
 
         if pdf:

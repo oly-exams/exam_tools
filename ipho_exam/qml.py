@@ -296,6 +296,21 @@ class QMLquestion(QMLobject):
     has_text = False
     has_children = True
 
+    def title(self):
+        tt = ''
+        for c in self.children:
+            if isinstance(c, QMLtitle):
+                print c.data
+                tt = data2tex(c.data)
+                print tt
+        return tt.strip()
+
+    def tex_begin(self):
+        return u'\\begin{PR}{%s}{TBA}' % self.title()
+    def tex_end(self):
+        return '\\end{PR}\n\n'
+
+
 class QMLsubquestion(QMLobject):
     abbr = "sq"
     tag  = "subquestion"
@@ -323,11 +338,8 @@ class QMLtitle(QMLobject):
     has_text = True
     has_children = False
 
-    def tex_begin(self):
-        return u'\\section{'
-    def tex_end(self):
-        return '}\n'
-
+    def make_tex(self):
+        return '',[]
 
 class QMLparagraph(QMLobject):
     abbr = "pa"
