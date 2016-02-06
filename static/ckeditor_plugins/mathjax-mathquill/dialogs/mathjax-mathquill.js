@@ -35,8 +35,7 @@ CKEDITOR.dialog.add( 'mathjax-mathquill', function( editor ) {
 					height: height + 'px',
 				} );
 
-				if (preview)
-					preview.setValue( '\\(' + texValue + '\\)' );
+				if (preview) preview(texValue, 'editor');
 			} );
 
 		iFrame.on( 'load', load );
@@ -114,23 +113,36 @@ CKEDITOR.dialog.add( 'mathjax-mathquill', function( editor ) {
 			getValue: function( ) {
 				return texValue;
 			},
-			setPreviewBox: function(box) {
-				preview = box;
+			setUpdatePreview: function(fn) {
+				preview = fn;
 			}
-
 		};
 	};
 
-	var preview,
+	var preview, preview_advanced,
 		lang = editor.lang.mathjax;
 	var mathquillEditor;
+	var simpleTextarea;
+
+	var updatePreview = function (texValue, mode) {
+		preview.setValue( '\\(' + texValue + '\\)' );
+		// preview_advanced.setValue( '\\(' + texValue + '\\)' );
+		if (mode == 'editor') {
+			simpleTextarea.setValue(texValue);
+		} else if (mode == 'advanced') {
+			mathquillEditor.setValue(texValue);
+		}
+	};
+
 	return {
 		title: lang.title,
 		minWidth: 350,
 		minHeight: 100,
 		contents: [
 			{
-				id: 'info',
+				id: 'editor',
+				label: 'Editor mode',
+				title: 'Editor mode',
 				elements: [
 					{
 						type: 'html',
@@ -146,7 +158,7 @@ CKEDITOR.dialog.add( 'mathjax-mathquill', function( editor ) {
 
 						setup: function( widget ) {
 							mathquillEditor.setValue( CKEDITOR.plugins.mathjax.trim(widget.data.math) );
-							mathquillEditor.setPreviewBox(preview);
+							mathquillEditor.setUpdatePreview(updatePreview);
 						},
 
 						commit: function( widget ) {
@@ -190,7 +202,92 @@ CKEDITOR.dialog.add( 'mathjax-mathquill', function( editor ) {
 						}
 					}
 				]
+			},
+			{
+				id: 'advanced',
+				label: 'Advanced mode',
+				title: 'Advanced mode',
+				elements: [
+					{
+						id: 'equation',
+						type: 'textarea',
+						label: lang.dialogInput,
+
+						onLoad: function() {
+							var that = this;
+							simpleTextarea = that.getInputElement();
+
+							if ( !( CKEDITOR.env.ie && CKEDITOR.env.version == 8 ) ) {
+								this.getInputElement().on( 'keyup', function() {
+									updatePreview(that.getInputElement().getValue(), 'advanced');
+								} );
+							}
+						},
+
+						setup: function( widget ) {
+							// Remove \( and \).
+							this.setValue( CKEDITOR.plugins.mathjax.trim( widget.data.math ) );
+						},
+					},
+					{
+						id: 'documentation',
+						type: 'html',
+						html:
+							'<div style="width:100%;text-align:right;margin:-8px 0 10px">' +
+								'<a class="cke_mathjax_doc" href="' + lang.docUrl + '" target="_black" style="cursor:pointer;color:#00B2CE;text-decoration:underline">' +
+									lang.docLabel +
+								'</a>' +
+							'</div>'
+					},
+					{
+						id: 'documentation',
+						type: 'html',
+						html:
+							'<div>' +
+								'Preview:' +
+							'</div>'
+					},
+					( !( CKEDITOR.env.ie && CKEDITOR.env.version == 8 ) ) && {
+						id: 'preview',
+						type: 'html',
+						html:
+							'<div style="width:100%;text-align:center;">' +
+								// '<iframe style="border:0;width:0;height:0;font-size:20px" scrolling="no" frameborder="0" allowTransparency="true" src="' + CKEDITOR.plugins.mathjax.fixSrc + '"></iframe>' +
+							'</div>',
+
+						onLoad: function() {
+							// console.log('doing onLoad!!!')
+							// var iFrame = CKEDITOR.document.getById( this.domId ).getChild( 0 );
+							// preview_advanced = new CKEDITOR.plugins.mathjax.frameWrapper( iFrame, editor );
+							// console.log(iFrame);
+						},
+
+						setup: function( widget ) {
+							// preview_advanced.setValue( widget.data.math );
+						}
+					}
+				]
 			}
-		]
+		],
+		onLoad : function()
+		{
+			// Act on tab switching
+			this.on('selectPage', function (e) {
+				console.log(e);
+				var currentPage = e.data.currentPage;
+				var destPage = e.data.page;
+				console.log('moving iframe');
+				var domId_old = this.getContentElement(currentPage, 'preview').domId;
+				var iFrame = CKEDITOR.document.getById( domId_old ).getChild( 0 );
+				var domId_new = this.getContentElement(destPage, 'preview').domId;
+				console.log(iFrame);
+				console.log(CKEDITOR.document.getById( domId_new ));
+				CKEDITOR.document.getById( domId_new ).$.appendChild( iFrame.$ );
+
+				// preview_advanced = new CKEDITOR.plugins.mathjax.frameWrapper( iFrame, editor );
+				// iFrame.load();
+				// console.log(preview_advanced);
+			});
+		}
 	};
 } );
