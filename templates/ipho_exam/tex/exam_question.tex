@@ -3,36 +3,16 @@
 \documentclass[11pt,a4paper]{ipho2016}
 
 
-% PDF search & cut'n'paste
-\usepackage{cmap}
-
 % PDF metadata
-\usepackage[pdfauthor={IPhO 2016},
-            pdftitle={IPhO 2016 - {{ title }}},
-            pdfproducer={XeLateX},
-            pdfcreator={Xelatex}]{hyperref}
+\hypersetup{pdftitle={IPhO 2016 - {{ title }}} }
 
-% Page options
-\usepackage{geometry}
-\geometry{left=2.5cm}
-\geometry{right=2.5cm}
-\geometry{top=1cm}
-\geometry{bottom=2cm}
 
-% Font settings
-\usepackage{fontspec}
-\usepackage{polyglossia}
 \setmainfont{Arial Unicode MS} %Calibri
 \setmainlanguage{% templatetag openbrace %}{{ polyglossia }}}
 \setotherlanguage{english}
 % Usage:
 % Start other language with \begin{English}, or \textenglish
 
-
-% Math
-\usepackage{amsmath}
-\usepackage[]{unicode-math}
-%\setmathfont{XITS Math}
 
 \nonstopmode
 
