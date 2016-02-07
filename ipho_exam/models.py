@@ -3,8 +3,8 @@ from ipho_core.models import Delegation, Student
 from django.shortcuts import get_object_or_404
 
 class LanguageManager(models.Manager):
-    def get_by_natural_key(self, name):
-        return self.get(name=name)
+    def get_by_natural_key(self, name, delegation):
+        return self.get(name=name, delegation=delegation)
 class Language(models.Model):
     objects = LanguageManager()
     DIRECTION_CHOICES = (('ltr', 'Left-to-right'), ('rtl', 'Right-to-left'))
@@ -22,7 +22,7 @@ class Language(models.Model):
         unique_together = (('name', 'delegation'),)
 
     def natural_key(self):
-        return (self.name,)
+        return (self.name,self.delegation)
 
     def __unicode__(self):
         return u'%s (%s)' % (self.name, self.delegation.country)
@@ -34,8 +34,13 @@ class Language(models.Model):
             return self.delegation.filter(members=user).exists()
 
 
+class ExamManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
 class Exam(models.Model):
-    name   = models.CharField(max_length=100)
+    objects = ExamManager()
+
+    name   = models.CharField(max_length=100, unique=True)
     active = models.BooleanField(default=True,  help_text='Only active exams are editable.')
     hidden = models.BooleanField(default=False, help_text='Is the exam hidden for the delegations?')
     feedback_active = models.BooleanField(default=False, help_text='Are feedbacks allowed?')
@@ -43,8 +48,15 @@ class Exam(models.Model):
     def __unicode__(self):
         return u'%s' % (self.name)
 
+    def natural_key(self):
+        return (self.name,)
 
+
+class QuestionManager(models.Manager):
+    def get_by_natural_key(self, name, exam):
+        return self.get(name=name, exam=exam)
 class Question(models.Model):
+    objects = QuestionManager()
     QUESTION_TYPES = (
         ('Q', 'Question'),
         ('A', 'Answer'),
@@ -67,6 +79,9 @@ class Question(models.Model):
 
     def __unicode__(self):
         return u'{} [#{} in {}]'.format(self.name, self.position, self.exam.name)
+
+    def natural_key(self):
+        return (self.name, self.exam)
 
 
 class VersionNode(models.Model):
@@ -92,6 +107,9 @@ class VersionNode(models.Model):
     def __unicode__(self):
         return u'vnode: {} [{}, v{}, {}] - {}'.format(self.question.name, self.language, self.version, self.timestamp, self.status)
 
+    def natural_key(self):
+        return self.question, self.language, self.version
+
 
 class TranslationNode(models.Model):
     STATUS_CHOICES = (
@@ -114,6 +132,9 @@ class TranslationNode(models.Model):
 
     def __unicode__(self):
         return u'node: {} [{}, {}] - {}'.format(self.question.name, self.language, self.timestamp, self.status)
+
+    def natural_key(self):
+        return self.question, self.language
 
 
 class Figure(models.Model):
