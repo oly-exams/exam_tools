@@ -22,7 +22,7 @@ class Language(models.Model):
         unique_together = (('name', 'delegation'),)
 
     def natural_key(self):
-        return (self.name,self.delegation)
+        return (self.name,) + self.delegation.natural_key()
 
     def __unicode__(self):
         return u'%s (%s)' % (self.name, self.delegation.country)
@@ -81,7 +81,8 @@ class Question(models.Model):
         return u'{} [#{} in {}]'.format(self.name, self.position, self.exam.name)
 
     def natural_key(self):
-        return (self.name, self.exam)
+        return (self.name,) + self.exam.natural_key()
+    natural_key.dependencies = ['ipho_exam.exam']
 
 
 class VersionNode(models.Model):
@@ -108,8 +109,8 @@ class VersionNode(models.Model):
         return u'vnode: {} [{}, v{}, {}] - {}'.format(self.question.name, self.language, self.version, self.timestamp, self.status)
 
     def natural_key(self):
-        return self.question, self.language, self.version
-
+        return (self.version,) + self.question.natural_key() + self.language.natural_key()
+    natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
 
 class TranslationNode(models.Model):
     STATUS_CHOICES = (
@@ -134,7 +135,8 @@ class TranslationNode(models.Model):
         return u'node: {} [{}, {}] - {}'.format(self.question.name, self.language, self.timestamp, self.status)
 
     def natural_key(self):
-        return self.question, self.language
+        return self.question.natural_key() + self.language.natural_key()
+    natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
 
 
 class Figure(models.Model):
