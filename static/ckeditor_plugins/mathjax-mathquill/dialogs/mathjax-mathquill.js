@@ -119,14 +119,13 @@ CKEDITOR.dialog.add( 'mathjax-mathquill', function( editor ) {
 		};
 	};
 
-	var preview, preview_advanced,
+	var preview,
 		lang = editor.lang.mathjax;
 	var mathquillEditor;
 	var simpleTextarea;
 
 	var updatePreview = function (texValue, mode) {
 		preview.setValue( '\\(' + texValue + '\\)' );
-		// preview_advanced.setValue( '\\(' + texValue + '\\)' );
 		if (mode == 'editor') {
 			simpleTextarea.setValue(texValue);
 		} else if (mode == 'advanced') {
@@ -252,19 +251,7 @@ CKEDITOR.dialog.add( 'mathjax-mathquill', function( editor ) {
 						type: 'html',
 						html:
 							'<div style="width:100%;text-align:center;">' +
-								// '<iframe style="border:0;width:0;height:0;font-size:20px" scrolling="no" frameborder="0" allowTransparency="true" src="' + CKEDITOR.plugins.mathjax.fixSrc + '"></iframe>' +
 							'</div>',
-
-						onLoad: function() {
-							// console.log('doing onLoad!!!')
-							// var iFrame = CKEDITOR.document.getById( this.domId ).getChild( 0 );
-							// preview_advanced = new CKEDITOR.plugins.mathjax.frameWrapper( iFrame, editor );
-							// console.log(iFrame);
-						},
-
-						setup: function( widget ) {
-							// preview_advanced.setValue( widget.data.math );
-						}
 					}
 				]
 			}
@@ -273,20 +260,14 @@ CKEDITOR.dialog.add( 'mathjax-mathquill', function( editor ) {
 		{
 			// Act on tab switching
 			this.on('selectPage', function (e) {
-				console.log(e);
 				var currentPage = e.data.currentPage;
 				var destPage = e.data.page;
-				console.log('moving iframe');
+
 				var domId_old = this.getContentElement(currentPage, 'preview').domId;
 				var iFrame = CKEDITOR.document.getById( domId_old ).getChild( 0 );
 				var domId_new = this.getContentElement(destPage, 'preview').domId;
-				console.log(iFrame);
-				console.log(CKEDITOR.document.getById( domId_new ));
-				CKEDITOR.document.getById( domId_new ).$.appendChild( iFrame.$ );
 
-				// preview_advanced = new CKEDITOR.plugins.mathjax.frameWrapper( iFrame, editor );
-				// iFrame.load();
-				// console.log(preview_advanced);
+				CKEDITOR.document.getById( domId_new ).$.appendChild( iFrame.$ );
 			});
 		}
 	};
