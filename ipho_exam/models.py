@@ -3,8 +3,8 @@ from ipho_core.models import Delegation, Student
 from django.shortcuts import get_object_or_404
 
 class LanguageManager(models.Manager):
-    def get_by_natural_key(self, name, delegation):
-        return self.get(name=name, delegation=delegation)
+    def get_by_natural_key(self, name, delegation_name):
+        return self.get(name=name, delegation=Delegation.objects.get_by_natural_key(delegation_name))
 class Language(models.Model):
     objects = LanguageManager()
     DIRECTION_CHOICES = (('ltr', 'Left-to-right'), ('rtl', 'Right-to-left'))
@@ -53,8 +53,8 @@ class Exam(models.Model):
 
 
 class QuestionManager(models.Manager):
-    def get_by_natural_key(self, name, exam):
-        return self.get(name=name, exam=exam)
+    def get_by_natural_key(self, name, exam_name):
+        return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam_name))
 class Question(models.Model):
     objects = QuestionManager()
     QUESTION_TYPES = (
