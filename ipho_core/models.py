@@ -15,7 +15,7 @@ class DelegationManager(models.Manager):
 class Delegation(models.Model):
     objects = DelegationManager()
 
-    name    = models.CharField(unique=True,max_length=3)
+    name    = models.CharField(unique=True,max_length=4)
     country = models.CharField(unique=True,max_length=100)
     members = models.ManyToManyField(User, blank=True)
 
