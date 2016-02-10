@@ -21,7 +21,7 @@ from ipho_exam import qml, tex, pdf, iphocode, qquery
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
 
 OFFICIAL_LANGUAGE = 1
-OFFICIAL_DELEGATION = 'OFF'
+OFFICIAL_DELEGATION = 'IPhO'
 
 @login_required
 @ensure_csrf_cookie
