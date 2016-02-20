@@ -886,7 +886,7 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
     body = render_to_string('ipho_exam/tex/exam_question.tex', context).encode("utf-8")
 
     if raw_tex:
-        return HttpResponse(body, content_type="text/plain")
+        return HttpResponse(body, content_type="text/plain; charset=utf-8", charset="utf-8")
     try:
         filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
         return pdf.cached_pdf_response(request, body, ext_resources, filename)
