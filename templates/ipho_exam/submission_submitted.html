@@ -1,8 +1,8 @@
 {% extends "ipho_exam/submission_base.html" %}
 {% load static %}
 
-{% block assign-classes %}disabled{% endblock %}
-{% block confirm-classes %}disabled{% endblock %}
+{% block assign-classes %}{{ DEMO_MODE|yesno:",disabled" }}{% endblock %}
+{% block confirm-classes %}{{ DEMO_MODE|yesno:",disabled" }}{% endblock %}
 {% block submitted-classes %}active{% endblock %}
 
 {% block step-content %}
@@ -10,6 +10,10 @@
 <strong>Submission completed!</strong>
 The submission of the following exam has been completed.
 </div>
+
+{% if DEMO_MODE %}
+<div class="alert alert-info" role="alert"><strong>DEMO VERSION.</strong> In the demo version you are still allowed to edit the exam. In the real case this will no longer be possible.</div>
+{% endif %}
 
 <p>
 The exams will shortly be printed by the IPhO 2016 staff @ Uni Zurich. Below you can see again the final version that has been submitted. To request scans of the final printed exams, please send a mail to <a href="mailto:request-exam@ipho2016.org?subject=Request scans for delegation {{ delegation.name }}">request-exam@ipho2016.org</a>.

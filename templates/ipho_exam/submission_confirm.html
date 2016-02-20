@@ -57,6 +57,10 @@
           </label>
         </div>
     </div>
+    {% if DEMO_MODE %}
+    <div class="alert alert-info" role="alert"><strong>DEMO VERSION.</strong> In the demo version you are still allowed to edit the exam after submitting this form. In the real case this will no longer be possible.</div>
+    {% endif %}
+
 
     <div>
         <a class="btn btn-default" href="{% url 'exam:submission-exam-assign' exam_id=exam.pk %}">Back</a>

@@ -14,6 +14,7 @@ from django.db.models import Q
 from copy import deepcopy
 from collections import OrderedDict
 
+from django.conf import settings
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
 from ipho_exam import qml, tex, pdf, iphocode, qquery
@@ -579,7 +580,7 @@ def submission_exam_assign(request, exam_id):
     languages = official_lang | delegation_languages
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
-    if ex_submission.status == 'S':
+    if ex_submission.status == 'S' and not settings.DEMO_MODE:
         return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
 
     submission_forms = []
@@ -636,7 +637,7 @@ def submission_exam_confirm(request, exam_id):
     form_error = ''
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
-    if ex_submission.status == 'S':
+    if ex_submission.status == 'S' and not settings.DEMO_MODE:
         return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
 
     if request.POST:
