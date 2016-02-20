@@ -12,6 +12,8 @@ TEMPLATE_PATH = os.path.join(PROJECT_PATH, 'templates')
 STATIC_PATH   = os.path.join(PROJECT_PATH, 'static')
 
 
+# Demo mode shows watermark and turns off some functionality
+DEMO_MODE = False
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -91,6 +93,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'iphoadmin.context_processors.demo_mode',
             ],
         },
     },

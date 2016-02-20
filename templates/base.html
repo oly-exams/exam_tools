@@ -28,7 +28,9 @@
 
   <body>
 
-
+      {% if DEMO_MODE %}
+      <div class="alert alert-info" role="alert"><div class="container"><strong>DEMO VERSION.</strong> This is a demo version of the IPhO 2016 Exam Tools.</div></div>
+      {% endif %}
       <!-- Static navbar -->
       <div class="navbar navbar-default" role="navigation">
         <div class="container">
