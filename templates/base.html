@@ -54,8 +54,10 @@
                 </ul>
               </li>
 
+              {% if not DEMO_MODE %}
               <li><a href="#">Voting</a></li>
               <li><a href="#">Results</a></li>
+              {% endif %}
 
               {% if perms.ipho_core.is_staff %}
               <li class="dropdown">
@@ -68,6 +70,8 @@
                 </ul>
               </li>
               {% endif %}
+
+              <li><a href="{{ DOCS_URL }}">Docs</a></li>
 
             </ul>
             <ul class="nav navbar-nav navbar-right">

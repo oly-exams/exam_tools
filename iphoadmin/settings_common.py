@@ -17,6 +17,9 @@ VERSION_DATE = 'in progress' #'2016-02-23'
 # Demo mode shows watermark and turns off some functionality
 DEMO_MODE = False
 
+# Url of documentation
+DOCS_URL = '/docs'
+
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []
@@ -95,8 +98,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'iphoadmin.context_processors.version',
-                'iphoadmin.context_processors.demo_mode',
+                'iphoadmin.context_processors.ipho_context',
             ],
         },
     },
