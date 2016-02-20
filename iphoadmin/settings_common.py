@@ -11,6 +11,8 @@ PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 TEMPLATE_PATH = os.path.join(PROJECT_PATH, 'templates')
 STATIC_PATH   = os.path.join(PROJECT_PATH, 'static')
 
+VERSION = '1.0.0b'
+VERSION_DATE = 'in progress' #'2016-02-23'
 
 # Demo mode shows watermark and turns off some functionality
 DEMO_MODE = False
@@ -93,6 +95,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'iphoadmin.context_processors.version',
                 'iphoadmin.context_processors.demo_mode',
             ],
         },
