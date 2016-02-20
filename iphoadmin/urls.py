@@ -10,14 +10,15 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'iphoadmin.views.home', name='home'),
     # url(r'^iphoadmin/', include('iphoadmin.foo.urls')),
-    
+
     url(r'^/?$', static_views.render_page, {'p' : 'pages/home.html'}, name='home'),
     url(r'^exam/', include('ipho_exam.urls', namespace='exam')),
-    
+
     (r'^accounts/login/?$', 'django.contrib.auth.views.login'),
     (r'^accounts/logout/?$', 'django.contrib.auth.views.logout', {'next_page':'/'}),
-    
-    
+    (r'^accounts/autologin/(?P<token>[0-9a-z\-]+)/?$', 'ipho_core.views.autologin'),
+
+
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
