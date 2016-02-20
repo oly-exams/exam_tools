@@ -23,6 +23,13 @@ python-virtualenv
 python-pip
 mercurial
 python-cairosvg
+texlive
+texlive-xetex
+texlive-lang-cjk
+texlive-lang-greek
+fonts-roboto
+ttf-mscorefonts-installer # this requires the multiverse packages in Ubuntu!!
+fonts-liberation
 ```
 
 Then using ```pip```:
