@@ -300,9 +300,7 @@ class QMLquestion(QMLobject):
         tt = ''
         for c in self.children:
             if isinstance(c, QMLtitle):
-                print c.data
                 tt = data2tex(c.data)
-                print tt
         return tt.strip()
 
     def tex_begin(self):
