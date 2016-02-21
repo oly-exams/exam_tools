@@ -304,7 +304,7 @@ class QMLquestion(QMLobject):
         return tt.strip()
 
     def tex_begin(self):
-        return u'\\begin{PR}{%s}{TBA}' % self.title()
+        return u'\\begin{PR}{%s}{TBA}\n' % self.title()
     def tex_end(self):
         return '\\end{PR}\n\n'
 
@@ -323,7 +323,7 @@ class QMLsubquestion(QMLobject):
         return 'Subquestion, %spt' % self.attributes['points']
 
     def tex_begin(self):
-        return u'\\begin{QTF}{%s}' % self.attributes['points']
+        return u'\\begin{QTF}{%s}\n' % self.attributes['points']
     def tex_end(self):
         return '\\end{QTF}\n\n'
 

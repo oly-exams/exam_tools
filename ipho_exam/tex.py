@@ -46,6 +46,9 @@ def html2tex(el):
         ## Underline
         elif sel.tag in ["u"]:
             result.append(u'\\underline{%s}' % (html2tex(sel)))
+        ## English in RTL
+        elif 'dir' in sel.attrib and sel.attrib['dir'] == 'ltr':
+            result.append(u'\\begin{english}\n%s\n\\end{english}' % (html2tex(sel)))
 
         ## By default just append content
         else:

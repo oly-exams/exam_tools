@@ -1,4 +1,4 @@
-\NeedsTeXFormat{LaTeX2e} 
+\NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{ipho2016}[2016/02/06 Template for IPhO 2016 problems]
 
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
@@ -32,6 +32,7 @@
 \RequirePackage{fontspec}
 \RequirePackage{polyglossia}
 \setmainfont{Arial Unicode MS} %Calibri
+\setotherlanguage{english}
 % Usage:
 % Start other language with \begin{English}, or \textenglish
 
@@ -47,13 +48,13 @@
 
 
 %Definitions
+\definecolor{color1}{rgb}{0,0,.7}
 \newcounter{qtnum}
 \newcounter{prnum}
 \newcounter{ptnum}
 \newcounter{epsnum}
 \setcounter{prnum}{1}
 \setcounter{epsnum}{0}
-\definecolor{color1}{rgb}{0,0,.7}
 
 
 \newcounter{qtnum2}
@@ -65,8 +66,8 @@
 \newenvironment{PR}[2]
       {\ifnum\value{prnum}<2{\setcounter{epsnum}0}\fi{\addtocounter{epsnum}{1}}
 %        \begin{framed}
-      {\noindent\sf\bfseries\fontsize{12pt}{16pt}\fontencoding{T1}\selectfont 
-      \textcolor{color1}{Problem \arabic{prnum} :  #1 {\fontshape{it}\selectfont(#2 points)}}}}
+      {\noindent\fontsize{12pt}{16pt} \fontshape{bf}
+      \textcolor{color1}{#1 \textenglish{\fontshape{it}(#2 points)}}}}
       {
 %        \end{framed}
       \addtocounter{prnum}{1}\setcounter{ptnum}{0}\setcounter{qtnum}{0}}
@@ -75,44 +76,50 @@
 
 %Part
 \newcommand{\PT}[2]{\vspace{0.3cm}\noindent\addtocounter{ptnum}{1}\setcounter{qtnum}{0}\setcounter{qtnum2}{1}
-	{\sf\fontseries{b}\selectfont \hspace*{-3pt}\textcolor{color1}{Part \Alph{ptnum}.~#1 {\fontshape{it}\selectfont(#2 points)}}}
+	{ \hspace*{-3pt}\textcolor{color1}{\textenglish{Part \Alph{ptnum}.}~#1 \textenglish{(#2 points)}}}
 	{\vspace{0.1cm}}
 	}
 
-	
+
 %Question
 \newcommand{\QT}[1]{\vspace{0.2cm}\noindent\addtocounter{qtnum}{1}{\bf\Alph{ptnum}\arabic{qtnum}.~(#1 \if#11{pt}\else{pts}\fi)}}
 
 
 \newenvironment{QTF}[1]
-      {\begin{framed}
-      {\noindent\bf \Alph{ptnum}\arabic{qtnum2} (#1 pt)}}
-      {
-        \end{framed}
-      \addtocounter{qtnum2}{1}}
-
-
-\newcommand\subquestion[2]{
-\vspace{0.5em}
-\noindent
-  \framebox[\textwidth]{
-    \vspace{0.5em}
-    \parbox[t]{.1\textwidth}{
-      \hspace{1em}
-      X.Y
-    }
-    \parbox[t]{.8\textwidth}{
-      #2 % content here
-    }
-    \parbox{.1\textwidth}{
-      \flushright
-      #1 pt
-      \hspace{1em}
-    }
-    \vspace{0.5em}
-  }
-\vspace{0.5em}
+{\def\QTFpoints{#1} %\vspace{0.5em}
+\begin{framed}
+   \noindent
+   \parbox[t]{.1\textwidth}{
+   \hspace{1em}
+    % \noindent\bf \Alph{ptnum}\arabic{qtnum2}
+    \begin{english}\noindent\bf \Alph{ptnum}.\arabic{qtnum2}\end{english}
+ }
+ \begin{minipage}[t]{.79\textwidth}}
+{
+\end{minipage}
+\parbox{.1\textwidth}{
+  \hspace{1em} \QTFpoints pt
 }
+% \vspace{0.5em}
+\end{framed}
+\addtocounter{qtnum2}{1}}
+
+
+% \newenvironment{QTF}[1]
+% {\def\QTFpoints{#1}
+% \tabularx{\textwidth}{|l|p{.8\textwidth}|r|} \hline
+%    \noindent
+%     % \noindent\bf \Alph{ptnum}\arabic{qtnum2}
+%     \begin{english}\noindent\bf \Alph{ptnum}.\arabic{qtnum2}\end{english}
+%     &
+%  }
+% { & \QTFpoints pt \tabularnewline
+% \hline
+% \endtabularx
+% \addtocounter{qtnum2}{1}}
+
+
+
 
 % \newcommand{\unit}[1]{\,\mathrm{#1}}
 % \newcommand{\e}[1]{\cdot 10^{#1}}
