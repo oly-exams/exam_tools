@@ -3,7 +3,7 @@
 
 During this year edition we will use for the first time an entirely web-based management of the exams. Exam feedbacks, translations, printing, voting, corrections and ranking are among the features of this new tool.
 
-During the registration process you will need to confirm that your delegation will join with at least one supported notebook, and that you were successfully able to translate the test exams. Note that the organizers will not provide any notebooks or workstations to the delegations (except with prior arrangement).
+During the registration process you will need to confirm that your delegation will join with at least one supported notebook computer, and that you were successfully able to translate the test exams. Note that the organizers will not provide any notebooks or workstations to the delegations (except with prior arrangement).
 
 
 ## Try it now!
