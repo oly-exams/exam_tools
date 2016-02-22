@@ -1,0 +1,14 @@
+site_name: Exam Tools Documentation
+theme: readthedocs
+copyright: Copyright 2016, IPhO 2016
+site_dir: _docs_html
+pages:
+  - "Home": index.md
+  - "Language settings": language_settings.md
+  - "Exam editor": exam_editor.md
+  - "Exam editor - FAQ": exam_editor_faq.md
+  - "Exam feedbacks": exam_feedbacks.md
+  - "Assign exams and submit": assign_exams.md
+  - voting.md
+  - "Results and grading": results_grading.md
+  - "Tool feedbacks": tool_feedbacks.md
