@@ -9,15 +9,13 @@
     <meta name="author" content="Michele Dolfi, IPhO 2016">
     {# <link rel="icon" href="../../favicon.ico"> #}
 
-    <title>{% block head-title %}IPhO Admin Tools{% endblock %}</title>
+    <title>{% block head-title %}IPhO Exam Tools{% endblock %}</title>
 
     <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
     <link href="{% static "font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
 
     {% block extra-head %}{% endblock %}
 
-    <!-- Custom styles for this template -->
-    <!-- <link href="navbar.css" rel="stylesheet"> -->
     <style>
     body {
       padding-top: 20px;
@@ -41,7 +39,7 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{% url 'home' %}">IPhO 2016</a>
+            <a class="navbar-brand" href="{% url 'home' %}">IPhO 2016 - Exam Tools</a>
           </div>
           <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
@@ -89,6 +87,12 @@
 
       {% block content %}{% endblock %}
 
+      <div class="footer">
+          <hr />
+          <div class="container">
+              <p class="text-muted">Copyright © 2016 <a href="http://www.ipho2016.org">IPhO 2016</a>. Version {{ VERSION }} - {{ VERSION_DATE }}.</p>
+          </div>
+      </div>
 
     <script src="{% static "jquery/js/jquery-1.11.2.min.js" %}"></script>
     <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
