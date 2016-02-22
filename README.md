@@ -5,6 +5,7 @@ Base dependencies
 * Python 2.7
 * Django 1.8.x
 * django-crispy-forms
+* mkdocs (for building the docs)
 
 To compile exams
 * XeLaTeX, with TexLive 2014 (2015 not yet tested, but should also work)
@@ -67,4 +68,15 @@ TODO... # loaddata test_xx_name fixtures.
 For the local server, simply execute
 ```bash
 python manage.py runserver
+```
+
+## Building the docs
+For development it is suggested to serve the docs locally
+```bash
+mkdocs serve
+```
+
+For building the static docs
+```bash
+mkdocs build
 ```
