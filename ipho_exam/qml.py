@@ -304,7 +304,7 @@ class QMLquestion(QMLobject):
         return tt.strip()
 
     def tex_begin(self):
-        return u'\\begin{PR}{%s}{TBA}\n' % self.title()
+        return u'\\begin{PR}{%s}{TBA}\n\n' % self.title()
     def tex_end(self):
         return '\\end{PR}\n\n'
 
