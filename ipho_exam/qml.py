@@ -339,6 +339,33 @@ class QMLtitle(QMLobject):
     def make_tex(self):
         return '',[]
 
+class QMLsection(QMLobject):
+    abbr = "sc"
+    tag  = "section"
+    default_heading = "Section"
+
+    has_text = True
+    has_children = False
+
+    def tex_begin(self):
+        return u'\\subsection*{'
+    def tex_end(self):
+        return '}\n\n'
+
+class QMLpart(QMLobject):
+    abbr = "pt"
+    tag  = "part"
+    default_heading = "Part"
+    default_attributes = {'points': ''}
+
+    has_text = True
+    has_children = False
+
+    def tex_begin(self):
+        return u'\\PT{'
+    def tex_end(self):
+        return '}{%s}\n\n' % self.attributes['points']
+
 class QMLparagraph(QMLobject):
     abbr = "pa"
     tag  = "paragraph"
