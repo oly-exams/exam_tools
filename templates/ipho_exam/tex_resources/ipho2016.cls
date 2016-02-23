@@ -31,8 +31,9 @@
 % Font settings
 \RequirePackage{fontspec}
 \RequirePackage{polyglossia}
-\setmainfont{Arial Unicode MS} %Calibri
+%\setmainfont{Arial Unicode MS} %Calibri
 \setotherlanguage{english}
+\newfontfamily\englishfont{Arial Unicode MS}
 % Usage:
 % Start other language with \begin{English}, or \textenglish
 
