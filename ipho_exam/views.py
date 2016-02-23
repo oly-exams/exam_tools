@@ -879,6 +879,7 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
     ext_resources.append(tex.StaticExport('ipho_exam/tex_resources/ipho2016.cls'))
     context = {
                 'polyglossia' : trans.lang.polyglossia,
+                'font'        : trans.lang.font,
                 'extraheader' : trans.lang.extraheader,
                 'title'       : trans.question.name,
                 'points'      : 'TBA',
@@ -914,6 +915,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
             ext_resources.append(tex.StaticExport('ipho_exam/tex_resources/ipho2016.cls'))
             context = {
                         'polyglossia' : sl.language.polyglossia,
+                        'font'        : sl.language.font,
                         'extraheader' : sl.language.extraheader,
                         'title'       : question.name,
                         'points'      : 'TBA',
