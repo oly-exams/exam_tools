@@ -99,12 +99,15 @@ body { margin-bottom: 70px; }
       </div>
     </div>
 
-{% if warning %}
-    <div class="alert alert-warning alert-dismissible" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <strong>Warning:</strong> {{ warning }}
+
+    <div id="alerts-container">
+        {% if warning %}
+            <div class="alert alert-warning alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <strong>Warning:</strong> {{ warning }}
+            </div>
+        {% endif %}
     </div>
-{% endif %}
 
 <div class="modal fade" id="ipho_exam-modal">
   <div class="modal-dialog">
