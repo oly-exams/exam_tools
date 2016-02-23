@@ -81,6 +81,24 @@ body { margin-bottom: 70px; }
       </div>
     </div>
 
+    <div class="modal fade" id="language-modal" tabindex="-1">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <form method="post" action="">
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
 {% if warning %}
     <div class="alert alert-warning alert-dismissible" role="alert">
       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -229,6 +247,7 @@ body { margin-bottom: 70px; }
                       {% endfor %}
                   </ul>
                 </span>
+                <button class="btn btn-default" title="Language settings" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-edit' lang_id=trans_lang.pk %}"><i class="fa fa-cog"></i></button>
                 </h4>
             </div>
         </div>
@@ -374,6 +393,51 @@ body { margin-bottom: 70px; }
                   modal.find('.modal-body').html('<img src="'+img_url+'" />');
                 }
             });
+
+            /// Language modal
+
+            // Language modal
+            $(document).on('submit', '#language-modal form', function(evt) {
+                var form = evt.target;
+                var $form = $(form);
+                evt.preventDefault();
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: $form.serialize(),
+                    success: function(data) {
+                        if (!data['success']) {
+                            $('#language-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                            return;
+                        }
+
+                        $('#language-modal').modal('hide');
+                        $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+                    }
+                });
+            });
+
+            $('#language-modal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var href = button.attr('href');
+                var modal = $(this);
+
+                modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+                modal.find('.modal-body').html('');
+
+                $.ajax({
+                    url: href,
+                    dataType: 'json',
+                    success: function(data) {
+                        modal.find('.modal-title').text(data['title']);
+                        modal.find('form').attr('action', href);
+                        modal.find('.modal-body').html(data['form']);
+                        modal.find('button[type="submit"]').text(data['submit']);
+                        modal.find("[data-toggle=popover]").popover(); // activate popover
+                    },
+                });
+            })
+
 
             /// Saving methods
             var last_saved = new Date("{{ last_saved.isoformat }}");
