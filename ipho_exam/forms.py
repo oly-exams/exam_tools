@@ -30,6 +30,7 @@ class LanguageForm(ModelForm):
         self.helper.layout = Layout(Field('name', placeholder='Name'),
                                     Field('direction'),
                                     Field('polyglossia'),
+                                    Field('font'),
                                     )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
@@ -41,9 +42,10 @@ class LanguageForm(ModelForm):
 
     class Meta:
         model = Language
-        fields = ['name','direction','polyglossia']
+        fields = ['name','direction','polyglossia','font']
         labels = {
                    'polyglossia': 'Language style <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Select a lanugage similar to yours. This will improve the final typesetting, e.g. allowing correct hyphenation."><span class="glyphicon glyphicon-info-sign"></span></a>',
+                   'font': 'Font in PDF <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="For most languages choose <emph>Arial</emph>. More fonts can be added on request."><span class="glyphicon glyphicon-info-sign"></span></a>',
                }
 
 class FigureForm(ModelForm):
