@@ -206,7 +206,7 @@ body { margin-bottom: 70px; }
                                   </a></li>
                           {% endfor %}
                       {% else %}
-                          {% for l in all_lang %}
+                          {% for l in question_langs %}
                               <li {% if orig_lang == l %} class="active" {% endif %}><a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=question.pk orig_id=l.pk %}">{{ l.name }}</a></li>
                           {% endfor %}
                       {% endif %}
