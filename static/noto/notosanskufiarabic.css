@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Kufi Arabic (Arabic) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Kufi Arabic';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosanskufiarabic/v2/NotoSansKufiArabic-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosanskufiarabic/v2/NotoSansKufiArabic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanskufiarabic/v2/NotoSansKufiArabic-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanskufiarabic/v2/NotoSansKufiArabic-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanskufiarabic/v2/NotoSansKufiArabic-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Kufi Arabic';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notosanskufiarabic/v2/NotoSansKufiArabic-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notosanskufiarabic/v2/NotoSansKufiArabic-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanskufiarabic/v2/NotoSansKufiArabic-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanskufiarabic/v2/NotoSansKufiArabic-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanskufiarabic/v2/NotoSansKufiArabic-Bold.ttf) format('truetype');
+}

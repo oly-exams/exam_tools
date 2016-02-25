@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Armenian (Armenian) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Armenian';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosansarmenian/v3/NotoSansArmenian-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosansarmenian/v3/NotoSansArmenian-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansarmenian/v3/NotoSansArmenian-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansarmenian/v3/NotoSansArmenian-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansarmenian/v3/NotoSansArmenian-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Armenian';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notosansarmenian/v3/NotoSansArmenian-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notosansarmenian/v3/NotoSansArmenian-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansarmenian/v3/NotoSansArmenian-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansarmenian/v3/NotoSansArmenian-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansarmenian/v3/NotoSansArmenian-Bold.ttf) format('truetype');
+}

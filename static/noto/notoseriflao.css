@@ -1,0 +1,23 @@
+/*
+ * Noto Serif Lao (Lao) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Serif Lao';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notoseriflao/v3/NotoSerifLao-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notoseriflao/v3/NotoSerifLao-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notoseriflao/v3/NotoSerifLao-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notoseriflao/v3/NotoSerifLao-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notoseriflao/v3/NotoSerifLao-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Serif Lao';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notoseriflao/v3/NotoSerifLao-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notoseriflao/v3/NotoSerifLao-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notoseriflao/v3/NotoSerifLao-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notoseriflao/v3/NotoSerifLao-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notoseriflao/v3/NotoSerifLao-Bold.ttf) format('truetype');
+}

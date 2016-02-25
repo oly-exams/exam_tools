@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Syriac Eastern (Syriac Eastern) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Syriac Eastern';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosanssyriaceastern/v1/NotoSansSyriacEastern-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosanssyriaceastern/v1/NotoSansSyriacEastern-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanssyriaceastern/v1/NotoSansSyriacEastern-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanssyriaceastern/v1/NotoSansSyriacEastern-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanssyriaceastern/v1/NotoSansSyriacEastern-Regular.ttf) format('truetype');
+}

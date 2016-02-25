@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Bengali (Bengali) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Bengali';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosansbengali/v3/NotoSansBengali-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosansbengali/v3/NotoSansBengali-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansbengali/v3/NotoSansBengali-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansbengali/v3/NotoSansBengali-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansbengali/v3/NotoSansBengali-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Bengali';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notosansbengali/v3/NotoSansBengali-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notosansbengali/v3/NotoSansBengali-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansbengali/v3/NotoSansBengali-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansbengali/v3/NotoSansBengali-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansbengali/v3/NotoSansBengali-Bold.ttf) format('truetype');
+}

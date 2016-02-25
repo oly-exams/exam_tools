@@ -1,0 +1,23 @@
+/*
+ * Noto Serif Georgian (Georgian) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Serif Georgian';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notoserifgeorgian/v3/NotoSerifGeorgian-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notoserifgeorgian/v3/NotoSerifGeorgian-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notoserifgeorgian/v3/NotoSerifGeorgian-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notoserifgeorgian/v3/NotoSerifGeorgian-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notoserifgeorgian/v3/NotoSerifGeorgian-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Serif Georgian';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notoserifgeorgian/v3/NotoSerifGeorgian-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notoserifgeorgian/v3/NotoSerifGeorgian-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notoserifgeorgian/v3/NotoSerifGeorgian-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notoserifgeorgian/v3/NotoSerifGeorgian-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notoserifgeorgian/v3/NotoSerifGeorgian-Bold.ttf) format('truetype');
+}

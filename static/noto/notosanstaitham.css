@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Tai Tham (Tai Tham) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Tai Tham';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosanstaitham/v1/NotoSansTaiTham-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosanstaitham/v1/NotoSansTaiTham-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanstaitham/v1/NotoSansTaiTham-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanstaitham/v1/NotoSansTaiTham-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanstaitham/v1/NotoSansTaiTham-Regular.ttf) format('truetype');
+}

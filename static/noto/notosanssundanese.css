@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Sundanese (Sundanese) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Sundanese';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosanssundanese/v1/NotoSansSundanese-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosanssundanese/v1/NotoSansSundanese-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanssundanese/v1/NotoSansSundanese-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanssundanese/v1/NotoSansSundanese-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanssundanese/v1/NotoSansSundanese-Regular.ttf) format('truetype');
+}

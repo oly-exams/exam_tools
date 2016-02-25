@@ -1,0 +1,23 @@
+/* 
+ * Noto Sans Gujarati (Gujarati) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Gujarati';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosansgujarati/v1/NotoSansGujarati-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosansgujarati/v1/NotoSansGujarati-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansgujarati/v1/NotoSansGujarati-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansgujarati/v1/NotoSansGujarati-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansgujarati/v1/NotoSansGujarati-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Gujarati';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notosansgujarati/v1/NotoSansGujarati-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notosansgujarati/v1/NotoSansGujarati-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansgujarati/v1/NotoSansGujarati-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansgujarati/v1/NotoSansGujarati-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansgujarati/v1/NotoSansGujarati-Bold.ttf) format('truetype');
+}

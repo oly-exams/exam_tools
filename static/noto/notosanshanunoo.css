@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Hanunoo (Hanunoo) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Hanunoo';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosanshanunoo/v1/NotoSansHanunoo-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosanshanunoo/v1/NotoSansHanunoo-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanshanunoo/v1/NotoSansHanunoo-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanshanunoo/v1/NotoSansHanunoo-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanshanunoo/v1/NotoSansHanunoo-Regular.ttf) format('truetype');
+}

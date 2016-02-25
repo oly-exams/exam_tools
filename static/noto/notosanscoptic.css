@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Coptic (Coptic) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Coptic';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosanscoptic/v1/NotoSansCoptic-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosanscoptic/v1/NotoSansCoptic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanscoptic/v1/NotoSansCoptic-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanscoptic/v1/NotoSansCoptic-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanscoptic/v1/NotoSansCoptic-Regular.ttf) format('truetype');
+}

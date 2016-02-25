@@ -1,0 +1,23 @@
+/*
+ * Noto Naskh Arabic UI (Arabic) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Naskh Arabic UI';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notonaskharabicui/v1/NotoNaskhArabicUI-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notonaskharabicui/v1/NotoNaskhArabicUI-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notonaskharabicui/v1/NotoNaskhArabicUI-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notonaskharabicui/v1/NotoNaskhArabicUI-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notonaskharabicui/v1/NotoNaskhArabicUI-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Naskh Arabic UI';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notonaskharabicui/v1/NotoNaskhArabicUI-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notonaskharabicui/v1/NotoNaskhArabicUI-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notonaskharabicui/v1/NotoNaskhArabicUI-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notonaskharabicui/v1/NotoNaskhArabicUI-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notonaskharabicui/v1/NotoNaskhArabicUI-Bold.ttf) format('truetype');
+}

@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Lepcha (Lepcha) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Lepcha';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosanslepcha/v1/NotoSansLepcha-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosanslepcha/v1/NotoSansLepcha-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanslepcha/v1/NotoSansLepcha-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanslepcha/v1/NotoSansLepcha-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanslepcha/v1/NotoSansLepcha-Regular.ttf) format('truetype');
+}

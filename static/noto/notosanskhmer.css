@@ -1,0 +1,23 @@
+/* 
+ * Noto Sans Khmer (Khmer) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Khmer';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosanskhmer/v2/NotoSansKhmer-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosanskhmer/v2/NotoSansKhmer-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanskhmer/v2/NotoSansKhmer-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanskhmer/v2/NotoSansKhmer-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanskhmer/v2/NotoSansKhmer-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Khmer';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notosanskhmer/v2/NotoSansKhmer-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notosanskhmer/v2/NotoSansKhmer-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanskhmer/v2/NotoSansKhmer-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanskhmer/v2/NotoSansKhmer-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanskhmer/v2/NotoSansKhmer-Bold.ttf) format('truetype');
+}

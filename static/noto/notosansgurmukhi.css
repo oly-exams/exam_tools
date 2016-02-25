@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Gurmukhi (Gurmukhi) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Gurmukhi';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosansgurmukhi/v1/NotoSansGurmukhi-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosansgurmukhi/v1/NotoSansGurmukhi-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansgurmukhi/v1/NotoSansGurmukhi-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansgurmukhi/v1/NotoSansGurmukhi-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansgurmukhi/v1/NotoSansGurmukhi-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Gurmukhi';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notosansgurmukhi/v1/NotoSansGurmukhi-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notosansgurmukhi/v1/NotoSansGurmukhi-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansgurmukhi/v1/NotoSansGurmukhi-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansgurmukhi/v1/NotoSansGurmukhi-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansgurmukhi/v1/NotoSansGurmukhi-Bold.ttf) format('truetype');
+}

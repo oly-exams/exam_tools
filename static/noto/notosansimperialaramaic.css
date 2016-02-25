@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Imperial Aramaic (Imperial Aramaic) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Imperial Aramaic';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosansimperialaramaic/v1/NotoSansImperialAramaic-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosansimperialaramaic/v1/NotoSansImperialAramaic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansimperialaramaic/v1/NotoSansImperialAramaic-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansimperialaramaic/v1/NotoSansImperialAramaic-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansimperialaramaic/v1/NotoSansImperialAramaic-Regular.ttf) format('truetype');
+}

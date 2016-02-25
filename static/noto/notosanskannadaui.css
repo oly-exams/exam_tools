@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Kannada UI (Kannada) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Kannada UI';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosanskannadaui/v1/NotoSansKannadaUI-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosanskannadaui/v1/NotoSansKannadaUI-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanskannadaui/v1/NotoSansKannadaUI-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanskannadaui/v1/NotoSansKannadaUI-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanskannadaui/v1/NotoSansKannadaUI-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Kannada UI';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notosanskannadaui/v1/NotoSansKannadaUI-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notosanskannadaui/v1/NotoSansKannadaUI-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanskannadaui/v1/NotoSansKannadaUI-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanskannadaui/v1/NotoSansKannadaUI-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanskannadaui/v1/NotoSansKannadaUI-Bold.ttf) format('truetype');
+}

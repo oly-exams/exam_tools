@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Shavian (Shavian) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Shavian';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosansshavian/v1/NotoSansShavian-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosansshavian/v1/NotoSansShavian-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansshavian/v1/NotoSansShavian-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansshavian/v1/NotoSansShavian-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansshavian/v1/NotoSansShavian-Regular.ttf) format('truetype');
+}

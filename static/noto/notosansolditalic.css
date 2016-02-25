@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Old Italic (Old Italic) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Old Italic';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosansolditalic/v1/NotoSansOldItalic-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosansolditalic/v1/NotoSansOldItalic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansolditalic/v1/NotoSansOldItalic-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansolditalic/v1/NotoSansOldItalic-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansolditalic/v1/NotoSansOldItalic-Regular.ttf) format('truetype');
+}

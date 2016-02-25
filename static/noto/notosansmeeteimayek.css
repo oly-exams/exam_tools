@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Meetei Mayek (Meetei Mayek) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Meetei Mayek';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosansmeeteimayek/v1/NotoSansMeeteiMayek-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosansmeeteimayek/v1/NotoSansMeeteiMayek-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansmeeteimayek/v1/NotoSansMeeteiMayek-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansmeeteimayek/v1/NotoSansMeeteiMayek-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansmeeteimayek/v1/NotoSansMeeteiMayek-Regular.ttf) format('truetype');
+}

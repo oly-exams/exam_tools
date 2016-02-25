@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Devanagari UI (Devanagari) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Devanagari UI';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosansdevanagariui/v3/NotoSansDevanagariUI-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosansdevanagariui/v3/NotoSansDevanagariUI-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansdevanagariui/v3/NotoSansDevanagariUI-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansdevanagariui/v3/NotoSansDevanagariUI-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansdevanagariui/v3/NotoSansDevanagariUI-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Devanagari UI';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notosansdevanagariui/v3/NotoSansDevanagariUI-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notosansdevanagariui/v3/NotoSansDevanagariUI-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosansdevanagariui/v3/NotoSansDevanagariUI-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosansdevanagariui/v3/NotoSansDevanagariUI-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosansdevanagariui/v3/NotoSansDevanagariUI-Bold.ttf) format('truetype');
+}

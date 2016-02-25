@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Khmer UI (Khmer) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Khmer UI';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//fonts.gstatic.com/ea/notosanskhmerui/v2/NotoSansKhmerUI-Regular.eot);
+  src: url(//fonts.gstatic.com/ea/notosanskhmerui/v2/NotoSansKhmerUI-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanskhmerui/v2/NotoSansKhmerUI-Regular.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanskhmerui/v2/NotoSansKhmerUI-Regular.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanskhmerui/v2/NotoSansKhmerUI-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Khmer UI';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//fonts.gstatic.com/ea/notosanskhmerui/v2/NotoSansKhmerUI-Bold.eot);
+  src: url(//fonts.gstatic.com/ea/notosanskhmerui/v2/NotoSansKhmerUI-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//fonts.gstatic.com/ea/notosanskhmerui/v2/NotoSansKhmerUI-Bold.woff2) format('woff2'),
+       url(//fonts.gstatic.com/ea/notosanskhmerui/v2/NotoSansKhmerUI-Bold.woff) format('woff'),
+       url(//fonts.gstatic.com/ea/notosanskhmerui/v2/NotoSansKhmerUI-Bold.ttf) format('truetype');
+}
