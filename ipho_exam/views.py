@@ -798,13 +798,23 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
 
         question_langs = []
-        ## TODO: improve this loop. maybe with annotate?
-        for vn in VersionNode.objects.filter(question=question, status='C').order_by('-version'):
-            if not vn.language in question_langs:
-                question_langs.append(vn.language)
-                question_langs[-1].version = vn.version
-        question_langs += Language.objects.filter(translationnode__question=question)
-
+        ## officials
+        official_list = []
+        for vn in VersionNode.objects.filter(question=question, status='C', language__delegation__name=OFFICIAL_DELEGATION).order_by('-version'):
+            if not vn.language in official_list:
+                official_list.append(vn.language)
+                official_list[-1].version = vn.version
+        # official_list += list(Language.objects.filter(translationnode__question=question, delegation__name=OFFICIAL_DELEGATION))
+        question_langs.append({'name': 'official', 'order':0, 'list': official_list})
+        ## own
+        if delegation.count() > 0:
+            question_langs.append({'name': 'own', 'order':1,
+                'list':  Language.objects.filter(translationnode__question=question, delegation=delegation)
+                })
+        ## others
+        question_langs.append({'name': 'others', 'order':2,
+            'list': Language.objects.filter(translationnode__question=question).exclude(delegation=delegation).exclude(delegation__name=OFFICIAL_DELEGATION)
+            })
 
         orig_q = qml.QMLquestion(orig_node.text)
 

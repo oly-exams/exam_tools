@@ -197,19 +197,20 @@ body { margin-bottom: 70px; }
                     <span class="caret"></span>
                   </a>
                   <ul class="dropdown-menu">
-                      {% if trans_lang %}
-                          {% for l in question_langs %}
+                      {% for lang_group in question_langs|dictsort:"order" %}
+                          {% for l in lang_group.list %}
                               <li {% if orig_lang == l %} class="active" {% endif %}>
+                                  {% if trans_lang %}
                                   <a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=question.pk orig_id=l.pk lang_id=trans_lang.pk %}">
+                                  {% else %}
+                                  <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=question.pk orig_id=l.pk %}">
+                                  {% endif %}
                                       {{ l.name }}
                                       {% if l.versioned %}<span class="badge">v{{ l.version }}</span>{% endif %}
                                   </a></li>
                           {% endfor %}
-                      {% else %}
-                          {% for l in question_langs %}
-                              <li {% if orig_lang == l %} class="active" {% endif %}><a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=question.pk orig_id=l.pk %}">{{ l.name }}</a></li>
-                          {% endfor %}
-                      {% endif %}
+                          {% if not forloop.last %}<li class="divider"></li>{% endif %}
+                     {% endfor %}
                   </ul>
                 </span>
 
