@@ -258,7 +258,9 @@ body { margin-bottom: 70px; }
                       {% endfor %}
                   </ul>
                 </span>
+                {% if trans_lang %}
                 <button class="btn btn-default" title="Language settings" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-edit' lang_id=trans_lang.pk %}"><i class="fa fa-cog"></i></button>
+                {% endif %}
                 </h4>
             </div>
         </div>
