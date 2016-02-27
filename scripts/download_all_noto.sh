@@ -14,4 +14,4 @@ cat *.css | grep url | sed 's/url(/http:/g' | sed -e 's/).*//g' | xargs -n1 curl
 for ll in `ls *iefix`; do mv "$ll" "$(echo $ll | sed 's/?#iefix//g')"; done
 
 ## Rename filename in .css
-sed -i "" 's,//fonts.gstatic.com/ea/notosansvai/v1/,/static/noto/,g' *.css
+sed -i "" -e 's,//fonts\.gstatic\.com.*Noto,/static/noto/Noto,g' *.css

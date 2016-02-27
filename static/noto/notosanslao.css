@@ -5,19 +5,19 @@
   font-family: 'Noto Sans Lao';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosanslao/v3/NotoSansLao-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosanslao/v3/NotoSansLao-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanslao/v3/NotoSansLao-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanslao/v3/NotoSansLao-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanslao/v3/NotoSansLao-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansLao-Regular.eot);
+  src: url(/static/noto/NotoSansLao-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansLao-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansLao-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansLao-Regular.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Noto Sans Lao';
   font-style: normal;
   font-weight: 700;
-  src: url(//fonts.gstatic.com/ea/notosanslao/v3/NotoSansLao-Bold.eot);
-  src: url(//fonts.gstatic.com/ea/notosanslao/v3/NotoSansLao-Bold.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanslao/v3/NotoSansLao-Bold.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanslao/v3/NotoSansLao-Bold.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanslao/v3/NotoSansLao-Bold.ttf) format('truetype');
+  src: url(/static/noto/NotoSansLao-Bold.eot);
+  src: url(/static/noto/NotoSansLao-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansLao-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansLao-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansLao-Bold.ttf) format('truetype');
 }

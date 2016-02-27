@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Lisu';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosanslisu/v1/NotoSansLisu-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosanslisu/v1/NotoSansLisu-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanslisu/v1/NotoSansLisu-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanslisu/v1/NotoSansLisu-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanslisu/v1/NotoSansLisu-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansLisu-Regular.eot);
+  src: url(/static/noto/NotoSansLisu-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansLisu-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansLisu-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansLisu-Regular.ttf) format('truetype');
 }

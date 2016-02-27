@@ -5,19 +5,19 @@
   font-family: 'Noto Sans Thai';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansthai/v3/NotoSansThai-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansthai/v3/NotoSansThai-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansthai/v3/NotoSansThai-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansthai/v3/NotoSansThai-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansthai/v3/NotoSansThai-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansThai-Regular.eot);
+  src: url(/static/noto/NotoSansThai-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansThai-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansThai-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansThai-Regular.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Noto Sans Thai';
   font-style: normal;
   font-weight: 700;
-  src: url(//fonts.gstatic.com/ea/notosansthai/v3/NotoSansThai-Bold.eot);
-  src: url(//fonts.gstatic.com/ea/notosansthai/v3/NotoSansThai-Bold.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansthai/v3/NotoSansThai-Bold.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansthai/v3/NotoSansThai-Bold.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansthai/v3/NotoSansThai-Bold.ttf) format('truetype');
+  src: url(/static/noto/NotoSansThai-Bold.eot);
+  src: url(/static/noto/NotoSansThai-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansThai-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansThai-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansThai-Bold.ttf) format('truetype');
 }

@@ -5,19 +5,19 @@
   font-family: 'Noto Sans Oriya UI';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansoriyaui/v1/NotoSansOriyaUI-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansoriyaui/v1/NotoSansOriyaUI-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansoriyaui/v1/NotoSansOriyaUI-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansoriyaui/v1/NotoSansOriyaUI-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansoriyaui/v1/NotoSansOriyaUI-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansOriyaUI-Regular.eot);
+  src: url(/static/noto/NotoSansOriyaUI-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansOriyaUI-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansOriyaUI-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansOriyaUI-Regular.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Noto Sans Oriya UI';
   font-style: normal;
   font-weight: 700;
-  src: url(//fonts.gstatic.com/ea/notosansoriyaui/v1/NotoSansOriyaUI-Bold.eot);
-  src: url(//fonts.gstatic.com/ea/notosansoriyaui/v1/NotoSansOriyaUI-Bold.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansoriyaui/v1/NotoSansOriyaUI-Bold.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansoriyaui/v1/NotoSansOriyaUI-Bold.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansoriyaui/v1/NotoSansOriyaUI-Bold.ttf) format('truetype');
+  src: url(/static/noto/NotoSansOriyaUI-Bold.eot);
+  src: url(/static/noto/NotoSansOriyaUI-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansOriyaUI-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansOriyaUI-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansOriyaUI-Bold.ttf) format('truetype');
 }

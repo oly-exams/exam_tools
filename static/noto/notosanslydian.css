@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Lydian';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosanslydian/v1/NotoSansLydian-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosanslydian/v1/NotoSansLydian-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanslydian/v1/NotoSansLydian-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanslydian/v1/NotoSansLydian-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanslydian/v1/NotoSansLydian-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansLydian-Regular.eot);
+  src: url(/static/noto/NotoSansLydian-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansLydian-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansLydian-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansLydian-Regular.ttf) format('truetype');
 }

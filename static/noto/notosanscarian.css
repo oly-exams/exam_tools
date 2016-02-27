@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Carian';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosanscarian/v1/NotoSansCarian-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosanscarian/v1/NotoSansCarian-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanscarian/v1/NotoSansCarian-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanscarian/v1/NotoSansCarian-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanscarian/v1/NotoSansCarian-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansCarian-Regular.eot);
+  src: url(/static/noto/NotoSansCarian-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansCarian-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansCarian-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansCarian-Regular.ttf) format('truetype');
 }

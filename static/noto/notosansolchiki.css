@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Ol Chiki';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansolchiki/v1/NotoSansOlChiki-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansolchiki/v1/NotoSansOlChiki-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansolchiki/v1/NotoSansOlChiki-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansolchiki/v1/NotoSansOlChiki-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansolchiki/v1/NotoSansOlChiki-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansOlChiki-Regular.eot);
+  src: url(/static/noto/NotoSansOlChiki-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansOlChiki-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansOlChiki-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansOlChiki-Regular.ttf) format('truetype');
 }

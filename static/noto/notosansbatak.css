@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Batak';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansbatak/v1/NotoSansBatak-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansbatak/v1/NotoSansBatak-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansbatak/v1/NotoSansBatak-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansbatak/v1/NotoSansBatak-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansbatak/v1/NotoSansBatak-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansBatak-Regular.eot);
+  src: url(/static/noto/NotoSansBatak-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansBatak-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansBatak-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansBatak-Regular.ttf) format('truetype');
 }

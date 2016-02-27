@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Brahmi';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansbrahmi/v1/NotoSansBrahmi-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansbrahmi/v1/NotoSansBrahmi-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansbrahmi/v1/NotoSansBrahmi-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansbrahmi/v1/NotoSansBrahmi-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansbrahmi/v1/NotoSansBrahmi-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansBrahmi-Regular.eot);
+  src: url(/static/noto/NotoSansBrahmi-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansBrahmi-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansBrahmi-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansBrahmi-Regular.ttf) format('truetype');
 }

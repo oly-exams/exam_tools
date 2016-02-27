@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Cypriot';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosanscypriot/v1/NotoSansCypriot-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosanscypriot/v1/NotoSansCypriot-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanscypriot/v1/NotoSansCypriot-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanscypriot/v1/NotoSansCypriot-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanscypriot/v1/NotoSansCypriot-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansCypriot-Regular.eot);
+  src: url(/static/noto/NotoSansCypriot-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansCypriot-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansCypriot-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansCypriot-Regular.ttf) format('truetype');
 }

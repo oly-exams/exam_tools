@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Sundanese';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosanssundanese/v1/NotoSansSundanese-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosanssundanese/v1/NotoSansSundanese-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanssundanese/v1/NotoSansSundanese-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanssundanese/v1/NotoSansSundanese-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanssundanese/v1/NotoSansSundanese-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansSundanese-Regular.eot);
+  src: url(/static/noto/NotoSansSundanese-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansSundanese-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansSundanese-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansSundanese-Regular.ttf) format('truetype');
 }

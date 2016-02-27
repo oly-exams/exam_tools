@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Tagbanwa';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosanstagbanwa/v1/NotoSansTagbanwa-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosanstagbanwa/v1/NotoSansTagbanwa-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanstagbanwa/v1/NotoSansTagbanwa-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanstagbanwa/v1/NotoSansTagbanwa-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanstagbanwa/v1/NotoSansTagbanwa-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansTagbanwa-Regular.eot);
+  src: url(/static/noto/NotoSansTagbanwa-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansTagbanwa-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansTagbanwa-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansTagbanwa-Regular.ttf) format('truetype');
 }

@@ -5,19 +5,19 @@
   font-family: 'Noto Sans Cham';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosanscham/v1/NotoSansCham-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosanscham/v1/NotoSansCham-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanscham/v1/NotoSansCham-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanscham/v1/NotoSansCham-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanscham/v1/NotoSansCham-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansCham-Regular.eot);
+  src: url(/static/noto/NotoSansCham-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansCham-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansCham-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansCham-Regular.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Noto Sans Cham';
   font-style: normal;
   font-weight: 700;
-  src: url(//fonts.gstatic.com/ea/notosanscham/v1/NotoSansCham-Bold.eot);
-  src: url(//fonts.gstatic.com/ea/notosanscham/v1/NotoSansCham-Bold.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanscham/v1/NotoSansCham-Bold.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanscham/v1/NotoSansCham-Bold.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanscham/v1/NotoSansCham-Bold.ttf) format('truetype');
+  src: url(/static/noto/NotoSansCham-Bold.eot);
+  src: url(/static/noto/NotoSansCham-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansCham-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansCham-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansCham-Bold.ttf) format('truetype');
 }

@@ -5,19 +5,19 @@
   font-family: 'Noto Sans Bengali UI';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansbengaliui/v1/NotoSansBengaliUI-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansbengaliui/v1/NotoSansBengaliUI-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansbengaliui/v1/NotoSansBengaliUI-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansbengaliui/v1/NotoSansBengaliUI-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansbengaliui/v1/NotoSansBengaliUI-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansBengaliUI-Regular.eot);
+  src: url(/static/noto/NotoSansBengaliUI-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansBengaliUI-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansBengaliUI-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansBengaliUI-Regular.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Noto Sans Bengali UI';
   font-style: normal;
   font-weight: 700;
-  src: url(//fonts.gstatic.com/ea/notosansbengaliui/v1/NotoSansBengaliUI-Bold.eot);
-  src: url(//fonts.gstatic.com/ea/notosansbengaliui/v1/NotoSansBengaliUI-Bold.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansbengaliui/v1/NotoSansBengaliUI-Bold.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansbengaliui/v1/NotoSansBengaliUI-Bold.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansbengaliui/v1/NotoSansBengaliUI-Bold.ttf) format('truetype');
+  src: url(/static/noto/NotoSansBengaliUI-Bold.eot);
+  src: url(/static/noto/NotoSansBengaliUI-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansBengaliUI-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansBengaliUI-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansBengaliUI-Bold.ttf) format('truetype');
 }

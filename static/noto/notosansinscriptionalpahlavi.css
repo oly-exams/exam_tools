@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Inscriptional Pahlavi';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansinscriptionalpahlavi/v1/NotoSansInscriptionalPahlavi-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansinscriptionalpahlavi/v1/NotoSansInscriptionalPahlavi-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansinscriptionalpahlavi/v1/NotoSansInscriptionalPahlavi-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansinscriptionalpahlavi/v1/NotoSansInscriptionalPahlavi-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansinscriptionalpahlavi/v1/NotoSansInscriptionalPahlavi-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansInscriptionalPahlavi-Regular.eot);
+  src: url(/static/noto/NotoSansInscriptionalPahlavi-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansInscriptionalPahlavi-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansInscriptionalPahlavi-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansInscriptionalPahlavi-Regular.ttf) format('truetype');
 }

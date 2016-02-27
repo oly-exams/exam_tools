@@ -5,19 +5,19 @@
   font-family: 'Noto Sans Malayalam UI';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansmalayalamui/v1/NotoSansMalayalamUI-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansmalayalamui/v1/NotoSansMalayalamUI-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansmalayalamui/v1/NotoSansMalayalamUI-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansmalayalamui/v1/NotoSansMalayalamUI-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansmalayalamui/v1/NotoSansMalayalamUI-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansMalayalamUI-Regular.eot);
+  src: url(/static/noto/NotoSansMalayalamUI-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansMalayalamUI-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansMalayalamUI-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansMalayalamUI-Regular.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Noto Sans Malayalam UI';
   font-style: normal;
   font-weight: 700;
-  src: url(//fonts.gstatic.com/ea/notosansmalayalamui/v1/NotoSansMalayalamUI-Bold.eot);
-  src: url(//fonts.gstatic.com/ea/notosansmalayalamui/v1/NotoSansMalayalamUI-Bold.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansmalayalamui/v1/NotoSansMalayalamUI-Bold.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansmalayalamui/v1/NotoSansMalayalamUI-Bold.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansmalayalamui/v1/NotoSansMalayalamUI-Bold.ttf) format('truetype');
+  src: url(/static/noto/NotoSansMalayalamUI-Bold.eot);
+  src: url(/static/noto/NotoSansMalayalamUI-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansMalayalamUI-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansMalayalamUI-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansMalayalamUI-Bold.ttf) format('truetype');
 }

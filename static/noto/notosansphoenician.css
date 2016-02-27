@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Phoenician';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansphoenician/v1/NotoSansPhoenician-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansphoenician/v1/NotoSansPhoenician-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansphoenician/v1/NotoSansPhoenician-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansphoenician/v1/NotoSansPhoenician-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansphoenician/v1/NotoSansPhoenician-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansPhoenician-Regular.eot);
+  src: url(/static/noto/NotoSansPhoenician-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansPhoenician-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansPhoenician-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansPhoenician-Regular.ttf) format('truetype');
 }

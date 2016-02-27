@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Rejang';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansrejang/v1/NotoSansRejang-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansrejang/v1/NotoSansRejang-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansrejang/v1/NotoSansRejang-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansrejang/v1/NotoSansRejang-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansrejang/v1/NotoSansRejang-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansRejang-Regular.eot);
+  src: url(/static/noto/NotoSansRejang-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansRejang-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansRejang-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansRejang-Regular.ttf) format('truetype');
 }

@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Mongolian';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansmongolian/v1/NotoSansMongolian-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansmongolian/v1/NotoSansMongolian-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansmongolian/v1/NotoSansMongolian-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansmongolian/v1/NotoSansMongolian-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansmongolian/v1/NotoSansMongolian-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansMongolian-Regular.eot);
+  src: url(/static/noto/NotoSansMongolian-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansMongolian-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansMongolian-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansMongolian-Regular.ttf) format('truetype');
 }

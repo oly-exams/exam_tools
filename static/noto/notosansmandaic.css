@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Mandaic';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansmandaic/v1/NotoSansMandaic-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansmandaic/v1/NotoSansMandaic-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansmandaic/v1/NotoSansMandaic-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansmandaic/v1/NotoSansMandaic-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansmandaic/v1/NotoSansMandaic-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansMandaic-Regular.eot);
+  src: url(/static/noto/NotoSansMandaic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansMandaic-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansMandaic-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansMandaic-Regular.ttf) format('truetype');
 }

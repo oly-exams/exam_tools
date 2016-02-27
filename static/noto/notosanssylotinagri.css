@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Syloti Nagri';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosanssylotinagri/v1/NotoSansSylotiNagri-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosanssylotinagri/v1/NotoSansSylotiNagri-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanssylotinagri/v1/NotoSansSylotiNagri-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanssylotinagri/v1/NotoSansSylotiNagri-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanssylotinagri/v1/NotoSansSylotiNagri-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansSylotiNagri-Regular.eot);
+  src: url(/static/noto/NotoSansSylotiNagri-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansSylotiNagri-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansSylotiNagri-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansSylotiNagri-Regular.ttf) format('truetype');
 }

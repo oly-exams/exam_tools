@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Phags Pa';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansphagspa/v1/NotoSansPhagsPa-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansphagspa/v1/NotoSansPhagsPa-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansphagspa/v1/NotoSansPhagsPa-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansphagspa/v1/NotoSansPhagsPa-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansphagspa/v1/NotoSansPhagsPa-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansPhagsPa-Regular.eot);
+  src: url(/static/noto/NotoSansPhagsPa-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansPhagsPa-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansPhagsPa-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansPhagsPa-Regular.ttf) format('truetype');
 }

@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Linear B';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosanslinearb/v1/NotoSansLinearB-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosanslinearb/v1/NotoSansLinearB-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanslinearb/v1/NotoSansLinearB-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanslinearb/v1/NotoSansLinearB-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanslinearb/v1/NotoSansLinearB-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansLinearB-Regular.eot);
+  src: url(/static/noto/NotoSansLinearB-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansLinearB-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansLinearB-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansLinearB-Regular.ttf) format('truetype');
 }

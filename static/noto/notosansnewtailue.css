@@ -5,9 +5,9 @@
   font-family: 'Noto Sans New Tai Lue';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansnewtailue/v1/NotoSansNewTaiLue-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansnewtailue/v1/NotoSansNewTaiLue-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansnewtailue/v1/NotoSansNewTaiLue-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansnewtailue/v1/NotoSansNewTaiLue-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansnewtailue/v1/NotoSansNewTaiLue-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansNewTaiLue-Regular.eot);
+  src: url(/static/noto/NotoSansNewTaiLue-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansNewTaiLue-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansNewTaiLue-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansNewTaiLue-Regular.ttf) format('truetype');
 }

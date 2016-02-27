@@ -5,9 +5,9 @@
   font-family: 'Noto Nastaliq Urdu Draft';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notonastaliqurdudraft/v4/NotoNastaliqUrduDraft.eot);
-  src: url(//fonts.gstatic.com/ea/notonastaliqurdudraft/v4/NotoNastaliqUrduDraft.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notonastaliqurdudraft/v4/NotoNastaliqUrduDraft.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notonastaliqurdudraft/v4/NotoNastaliqUrduDraft.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notonastaliqurdudraft/v4/NotoNastaliqUrduDraft.ttf) format('truetype');
+  src: url(/static/noto/NotoNastaliqUrduDraft.eot);
+  src: url(/static/noto/NotoNastaliqUrduDraft.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoNastaliqUrduDraft.woff2) format('woff2'),
+       url(/static/noto/NotoNastaliqUrduDraft.woff) format('woff'),
+       url(/static/noto/NotoNastaliqUrduDraft.ttf) format('truetype');
 }

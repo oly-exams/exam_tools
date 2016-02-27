@@ -5,19 +5,19 @@
   font-family: 'Noto Sans Ethiopic';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosansethiopic/v1/NotoSansEthiopic-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosansethiopic/v1/NotoSansEthiopic-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansethiopic/v1/NotoSansEthiopic-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansethiopic/v1/NotoSansEthiopic-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansethiopic/v1/NotoSansEthiopic-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansEthiopic-Regular.eot);
+  src: url(/static/noto/NotoSansEthiopic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansEthiopic-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansEthiopic-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansEthiopic-Regular.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Noto Sans Ethiopic';
   font-style: normal;
   font-weight: 700;
-  src: url(//fonts.gstatic.com/ea/notosansethiopic/v1/NotoSansEthiopic-Bold.eot);
-  src: url(//fonts.gstatic.com/ea/notosansethiopic/v1/NotoSansEthiopic-Bold.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosansethiopic/v1/NotoSansEthiopic-Bold.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosansethiopic/v1/NotoSansEthiopic-Bold.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosansethiopic/v1/NotoSansEthiopic-Bold.ttf) format('truetype');
+  src: url(/static/noto/NotoSansEthiopic-Bold.eot);
+  src: url(/static/noto/NotoSansEthiopic-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansEthiopic-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansEthiopic-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansEthiopic-Bold.ttf) format('truetype');
 }

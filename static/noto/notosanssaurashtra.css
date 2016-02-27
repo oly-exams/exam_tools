@@ -5,9 +5,9 @@
   font-family: 'Noto Sans Saurashtra';
   font-style: normal;
   font-weight: 400;
-  src: url(//fonts.gstatic.com/ea/notosanssaurashtra/v1/NotoSansSaurashtra-Regular.eot);
-  src: url(//fonts.gstatic.com/ea/notosanssaurashtra/v1/NotoSansSaurashtra-Regular.eot?#iefix) format('embedded-opentype'),
-       url(//fonts.gstatic.com/ea/notosanssaurashtra/v1/NotoSansSaurashtra-Regular.woff2) format('woff2'),
-       url(//fonts.gstatic.com/ea/notosanssaurashtra/v1/NotoSansSaurashtra-Regular.woff) format('woff'),
-       url(//fonts.gstatic.com/ea/notosanssaurashtra/v1/NotoSansSaurashtra-Regular.ttf) format('truetype');
+  src: url(/static/noto/NotoSansSaurashtra-Regular.eot);
+  src: url(/static/noto/NotoSansSaurashtra-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansSaurashtra-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansSaurashtra-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansSaurashtra-Regular.ttf) format('truetype');
 }
