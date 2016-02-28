@@ -6,4 +6,5 @@ def ipho_context(request):
         'VERSION': settings.VERSION,
         'VERSION_DATE': settings.VERSION_DATE,
         'DOCS_URL': settings.DOCS_URL,
+        'STATIC_PATH': settings.STATIC_PATH,
     }

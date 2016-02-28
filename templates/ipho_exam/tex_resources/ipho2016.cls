@@ -33,7 +33,7 @@
 \RequirePackage{polyglossia}
 %\setmainfont{Arial Unicode MS} %Calibri
 \setotherlanguage{english}
-\newfontfamily\englishfont{Arial Unicode MS}
+\newfontfamily\englishfont{Noto Sans}
 % Usage:
 % Start other language with \begin{English}, or \textenglish
 

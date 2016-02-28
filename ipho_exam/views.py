@@ -17,7 +17,7 @@ from collections import OrderedDict
 from django.conf import settings
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
-from ipho_exam import qml, tex, pdf, iphocode, qquery
+from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
 
@@ -889,13 +889,13 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
     ext_resources.append(tex.StaticExport('ipho_exam/tex_resources/ipho2016.cls'))
     context = {
                 'polyglossia' : trans.lang.polyglossia,
-                'font'        : trans.lang.font,
+                'font'        : fonts.noto[trans.lang.font],
                 'extraheader' : trans.lang.extraheader,
                 'title'       : trans.question.name,
                 'points'      : 'TBA',
                 'document'    : trans_content,
               }
-    body = render_to_string('ipho_exam/tex/exam_question.tex', context).encode("utf-8")
+    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request,context)).encode("utf-8")
 
     if raw_tex:
         return HttpResponse(body, content_type="text/plain; charset=utf-8", charset="utf-8")
@@ -925,13 +925,13 @@ def pdf_exam_for_student(request, exam_id, student_id):
             ext_resources.append(tex.StaticExport('ipho_exam/tex_resources/ipho2016.cls'))
             context = {
                         'polyglossia' : sl.language.polyglossia,
-                        'font'        : sl.language.font,
+                        'font'        : fonts.noto[sl.language.font],
                         'extraheader' : sl.language.extraheader,
                         'title'       : question.name,
                         'points'      : 'TBA',
                         'document'    : trans_content,
                       }
-            body = render_to_string('ipho_exam/tex/exam_question.tex', context).encode("utf-8")
+            body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request,context)).encode("utf-8")
             question_pdf = pdf.compile_tex(body, ext_resources)
             ## TODO: in case of answer sheet, add barcodes
             if question.is_answer_sheet():
