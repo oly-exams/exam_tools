@@ -878,6 +878,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context['form']             = form
     context['trans_extra_html'] = trans_extra_html
     context['last_saved']       = last_saved
+    if context['orig_lang']: context['orig_font'] = fonts.noto[context['orig_lang'].font]
+    if context['trans_lang']: context['trans_font'] = fonts.noto[context['trans_lang'].font]
     return render(request, 'ipho_exam/editor.html', context)
 
 

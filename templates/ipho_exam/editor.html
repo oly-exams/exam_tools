@@ -5,6 +5,13 @@
 {% block extra-head %}
 <link href="{% static "mathquill_alpha/mathquill.css" %}" rel="stylesheet">
 <link href="{% static "bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" %}" rel="stylesheet">
+<link href="{% static "noto/notosans.css" %}" rel="stylesheet">
+{% if orig_font %}
+<link href="{% static "noto/" %}{{ orig_font.css }}" rel="stylesheet">
+{% endif %}
+{% if trans_font %}
+<link href="{% static "noto/" %}{{ trans_font.css }}" rel="stylesheet">
+{% endif %}
 
 <style>
 span.dropdown {
@@ -21,6 +28,13 @@ span.dropdown {
 }
 .title-dropdown .dropdown-menu {
     font-size: 20px;
+}
+
+.translate-original {
+    font-family: "{{ orig_font.font }}";
+}
+.translate-foreign {
+    font-family: "{{ trans_font.font }}";
 }
 
 .translation-field-nested .row {
@@ -342,6 +356,8 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.contentsLangDirection = 'rtl';
         {% endif %}
         CKEDITOR.config.jsvk_skin = "flat_gray";
+        CKEDITOR.config.contentsCss = [ CKEDITOR.getUrl( 'contents.css' ), '{% static "noto/notosans.css" %}', '{% static "noto/" %}{{ trans_font.css }}' ];
+        CKEDITOR.addCss("body{font-family:{{ trans_font.font }}, Noto Sans;}");
 
         all_editors = new Array();
 
