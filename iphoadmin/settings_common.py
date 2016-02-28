@@ -11,7 +11,7 @@ PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 TEMPLATE_PATH = os.path.join(PROJECT_PATH, 'templates')
 STATIC_PATH   = os.path.join(PROJECT_PATH, 'static')
 
-VERSION = '1.0.0b'
+VERSION = '0.1b'
 VERSION_DATE = 'in progress' #'2016-02-23'
 
 # Demo mode shows watermark and turns off some functionality
