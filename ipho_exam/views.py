@@ -155,7 +155,6 @@ def edit_language(request, lang_id):
                     'message' : '<strong>Language modified!</strong> The language '+lang.name+' has successfully been modified.',
                 })
 
-
     form_html = render_crispy_form(language_form)
     return JsonResponse({
                 'title'   : 'Edit language',
