@@ -10,6 +10,8 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^language/add$', 'add_language', name='language-add'),
     url(r'^language/edit/(?P<lang_id>\d+)$', 'edit_language', name='language-edit'),
 
+    url(r'^time$', 'time_response', name='time'),
+
     url(r'^editor/?$', 'editor'),
     url(r'^editor/(?P<exam_id>\d+)$', 'editor', name='editor-exam'),
     url(r'^editor/(?P<exam_id>\d+)/question/(?P<question_id>\d+)$', 'editor', name='editor-question'),

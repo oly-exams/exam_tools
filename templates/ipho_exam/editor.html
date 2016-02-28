@@ -500,10 +500,18 @@ body { margin-bottom: 70px; }
 
 
             /// Saving methods
+            var server_date;
+            var server_offset = 0;
+            $.get("{% url 'exam:time' %}", function(data){
+               server_date = data;
+               server_offset = moment(server_date).diff(new Date());
+               console.log("Server time difference: "+server_offset);
+            });
+
             var last_saved = new Date("{{ last_saved.isoformat }}");
             var saving = false;
             function updateDocumentStatus() {
-                var status_text = (saving) ? 'Saving...' : 'Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).fromNow()+'</abbr>.';
+                var status_text = (saving) ? 'Saving...' : 'Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).from(moment()+server_offset)+'</abbr>.';
                 $('#save-status')
                     .html(status_text)
                     .find('[data-toggle="tooltip"]').tooltip();

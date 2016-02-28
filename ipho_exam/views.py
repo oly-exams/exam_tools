@@ -13,6 +13,7 @@ from django.db.models import Q
 
 from copy import deepcopy
 from collections import OrderedDict
+from django.utils import timezone
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
@@ -53,6 +54,9 @@ def index(request):
                 'exams_closed'  : exams_closed,
                 'success'       : success,
             })
+
+def time_response(request):
+    return HttpResponse(timezone.now().isoformat(), content_type="text/plain")
 
 
 @login_required
