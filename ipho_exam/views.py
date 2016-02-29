@@ -585,6 +585,18 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
                 'success'    : True,
             })
 
+
+@login_required
+def submission_exam_list(request):
+    delegation = Delegation.objects.filter(members=request.user)
+
+    ## Exam section
+    exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
+    exams_open = exam_list.filter(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
+    exams_closed = exam_list.exclude(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
+
+    return render(request, 'ipho_exam/submission_list.html', {'exams_open': exams_open, 'exams_closed': exams_closed})
+
 @login_required
 def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
