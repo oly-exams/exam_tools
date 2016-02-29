@@ -45,14 +45,17 @@ def compile_tex(body, ext_resources=[]):
             del body
 
             error = subprocess.Popen(
-                [TEXBIN+"/xelatex", "%s.tex" % doc],
+                ["xelatex", "%s.tex" % doc],
                 cwd=tmp,
+                env={'PATH':'{}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(TEXBIN)},
                 stdin=open(os.devnull, "r"),
                 stderr=open(os.devnull, "wb"),
                 stdout=open(os.devnull, "wb")
             ).wait()
 
             if error:
+                if not os.path.exists("%s/%s.log" % (tmp, doc))
+                raise RuntimeError('Error in PDF. Errocode {}. Log does not exists.'.format(error))
                 log = open("%s/%s.log" % (tmp, doc)).read()
                 raise TexCompileException(error, "%s/%s"%(tmp, doc), log)
 
