@@ -14,6 +14,7 @@ from StringIO import StringIO
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
 CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
 CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 300)  # 1 min
+TEXBIN = getattr(settings, 'TEXBIN', '/usr/bin')
 
 
 class TexCompileException(Exception):
@@ -44,7 +45,7 @@ def compile_tex(body, ext_resources=[]):
             del body
 
             error = subprocess.Popen(
-                ["xelatex", "%s.tex" % doc],
+                [settings.TEXBIN+"/xelatex", "%s.tex" % doc],
                 cwd=tmp,
                 stdin=open(os.devnull, "r"),
                 stderr=open(os.devnull, "wb"),

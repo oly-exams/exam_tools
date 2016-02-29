@@ -20,6 +20,9 @@ DEMO_MODE = False
 # Url of documentation
 DOCS_URL = '/docs'
 
+# Path to tex binaries
+TEXBIN = '/opt/texbin'
+
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []
