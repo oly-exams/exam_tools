@@ -112,6 +112,13 @@ def add_translation(request, exam_id):
 
 
 @login_required
+@ensure_csrf_cookie
+def list_language(request):
+    delegation = Delegation.objects.filter(members=request.user)
+    languages = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
+    return render(request, 'ipho_exam/languages.html', {'languages': languages})
+
+@login_required
 def add_language(request):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -123,10 +130,12 @@ def add_language(request):
         lang = language_form.instance.delegation = delegation
         lang = language_form.save()
 
+        languages = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
         return JsonResponse({
                     'type'    : 'add',
                     'name'    : lang.name,
                     'href'    : reverse('exam:language-edit', args=[lang.pk]),
+                    'tbody'   : render_to_string('ipho_exam/partials/languages_tbody.html', {'languages': languages}),
                     'success' : True,
                     'message' : '<strong>Language created!</strong> The new languages has successfully been created.',
                 })
@@ -151,10 +160,12 @@ def edit_language(request, lang_id):
     if language_form.is_valid():
         lang = language_form.save()
 
+        languages = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
         return JsonResponse({
                     'type'    : 'edit',
                     'name'    : lang.name,
                     'href'    : reverse('exam:language-edit', args=[lang.pk]),
+                    'tbody'   : render_to_string('ipho_exam/partials/languages_tbody.html', {'languages': languages}),
                     'success' : True,
                     'message' : '<strong>Language modified!</strong> The language '+lang.name+' has successfully been modified.',
                 })

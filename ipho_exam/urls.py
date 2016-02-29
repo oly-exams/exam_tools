@@ -7,8 +7,9 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^translation/list/?$', 'list', name='list'),
     url(r'^translation/add/(?P<exam_id>\d+)$', 'add_translation', name='add-translation'),
 
-    url(r'^language/add$', 'add_language', name='language-add'),
-    url(r'^language/edit/(?P<lang_id>\d+)$', 'edit_language', name='language-edit'),
+    url(r'^languages/?$', 'list_language', name='language-list'),
+    url(r'^languages/add$', 'add_language', name='language-add'),
+    url(r'^languages/edit/(?P<lang_id>\d+)$', 'edit_language', name='language-edit'),
 
     url(r'^time$', 'time_response', name='time'),
 

@@ -1,0 +1,11 @@
+{% for lang in languages %}
+    <tr>
+        <td>{{ lang.name }}</td>
+        <td>{{ lang.get_polyglossia_display }}</td>
+        <td>{{ lang.get_direction_display }}</td>
+        <td>{{ lang.get_font_display }}</td>
+        <td>
+            <a class="btn btn-default btn-sm" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-edit' lang_id=lang.pk %}"><i class="fa fa-pencil"></i> edit</a>
+        </td>
+    </tr>
+{% endfor %}
