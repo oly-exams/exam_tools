@@ -71,11 +71,11 @@ class FigureForm(ModelForm):
         model = Figure
         fields = ['name']
 
-class TranslationForm(ModelForm):
+class TranslationForm(forms.Form):
+    language = forms.ModelChoiceField(queryset=Language.objects.none())
+
     def __init__(self, *args, **kwargs):
         super(TranslationForm, self).__init__(*args, **kwargs)
-        self.fields['question'].label_from_instance = lambda obj: obj.name
-
         self.helper = FormHelper()
         # self.helper.layout = Layout(Field('name', placeholder='Name'),
         #                             Field('polyglossia'),
@@ -89,8 +89,7 @@ class TranslationForm(ModelForm):
         # self.helper.add_input(Submit('submit', 'Create'))
 
     class Meta:
-        model = TranslationNode
-        fields = ['question','language']
+        fields = ['language']
         labels = {
                    'language': 'Language <a href="#" onclick="return false;" data-toggle="popover" data-trigger="hover" data-container="body" data-content="More languages can be created from the Exam > Languages interface."><span class="glyphicon glyphicon-info-sign"></span></a>',
                }

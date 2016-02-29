@@ -88,12 +88,11 @@ def add_translation(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
 
     translation_form = TranslationForm(request.POST or None)
-    translation_form.fields['question'].queryset = Question.objects.filter(exam=exam)
-    translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation)
+    translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation).exclude(translationnode__question__exam=exam) # TODO: still allow for languages that are not created for all questions
     if translation_form.is_valid():
-        translation_form.cleaned_data['status'] = 'O'
-        translation_form.data['status'] = 'O'
-        translation_form.save()
+        for question in exam.question_set.exclude(translationnode__language=translation_form.cleaned_data['language']):
+            node = TranslationNode(language=translation_form.cleaned_data['language'], question=question, status='O')
+            node.save()
 
         return JsonResponse({
                     'success' : True,
