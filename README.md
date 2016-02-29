@@ -8,7 +8,7 @@ Base dependencies
 * mkdocs (for building the docs)
 
 To compile exams
-* XeLaTeX, with TexLive 2014 (2015 not yet tested, but should also work)
+* XeLaTeX, with TexLive 2015 (2013 does not work with Noto Fonts and CJK). See [texlive/install.md](texlive/install.md) for installation details.
 * Fonts, TODO provide list of required fonts
 * CairoSVG (figure convert)
 * pyPDF2 (manipulation of PDF)
