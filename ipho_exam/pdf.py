@@ -45,7 +45,7 @@ def compile_tex(body, ext_resources=[]):
             del body
 
             error = subprocess.Popen(
-                [settings.TEXBIN+"/xelatex", "%s.tex" % doc],
+                [TEXBIN+"/xelatex", "%s.tex" % doc],
                 cwd=tmp,
                 stdin=open(os.devnull, "r"),
                 stderr=open(os.devnull, "wb"),
