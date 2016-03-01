@@ -3,7 +3,9 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('ipho_exam.views',
 
-    url(r'^$', 'index', name='index'),
+    url(r'^wizard$', 'wizard', name='wizard'),
+    url(r'^main$', 'index', name='index'),
+
     url(r'^translation/list/?$', 'list', name='list'),
     url(r'^translation/add/(?P<exam_id>\d+)$', 'add_translation', name='add-translation'),
 

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+      <h1>Exams wizard</h1>
+    </div>
+
+    <p class="lead">
+        The following steps will guide you through the translation process. Feel free to come back using the top navigation <code>Exam &gt; Wizard</code>.
+    </p>
+
+    <div class="row">
+        <div class="col-sm-3">
+            {% if own_languages %}
+            <p class="text-center text-success"><i class="fa fa-check-square-o fa-4x"></i></p>
+            <p>There are {{ own_languages|length }} languages associated with your delegation.</p>
+            <p class="text-center"><a class="btn btn-default" href="{% url 'exam:language-list' %}">View all <i class="fa fa-angle-double-right"></i></a></p>
+            {% else %}
+            <p>No languages.</p>
+            <p class="text-center"><a class="btn btn-primary" href="{% url 'exam:language-list' %}"><i class="fa fa-plus fa-fw"></i> Create new</a></p>
+            {% endif %}
+        </div>
+        <div class="col-sm-9">
+            <h2>1. Languages</h2>
+            <p>Define a language for all translations....</p>
+            <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+            <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-sm-3">
+            {% if translations %}
+            <p class="text-center text-success"><i class="fa fa-check-square-o fa-4x"></i></p>
+            <p>There are {{ translations|length }} translations associated with your delegation.</p>
+            <p class="text-center"><a class="btn btn-default" href="{% url 'exam:list' %}">View all <i class="fa fa-angle-double-right"></i></a></p>
+            {% else %}
+            <p>No translations.</p>
+            <p class="text-center"><a class="btn btn-primary" href="{% url 'exam:list' %}"><i class="fa fa-plus fa-fw"></i> Create new</a></p>
+            {% endif %}
+        </div>
+        <div class="col-sm-9">
+            <h2>2. Translations</h2>
+            <p>Define a language for all translations....</p>
+            <p>More text here....</p>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-9">
+            <h2>3. Generate PDF of the exam</h2>
+            <p>Define a language for all translations....</p>
+            <p>More text here....</p>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-sm-3">
+            {% if exam_list|length == exams_closed|length %}
+            <p class="text-center text-success"><i class="fa fa-check-square-o fa-4x"></i></p>
+            <p>You submitted all {{ exam_list|length }} exams.</p>
+            <p class="text-center"><a class="btn btn-default" href="{% url 'exam:submission-exam-list' %}">View all <i class="fa fa-angle-double-right"></i></a></p>
+            {% elif exams_closed %}
+            <p>There are {{ exams_open|yesno:'still,' }} {{ exams_open|length }} on {{ exam_list|length }} exams open for submissions.</p>
+            <p class="text-center"><a class="btn btn-primary" href="{% url 'exam:submission-exam-list' %}"><i class="fa fa-plus fa-fw"></i> Add new</a></p>
+            {% else %}
+            Currently no submissions.
+            <p class="text-center"><a class="btn btn-primary" href="{% url 'exam:submission-exam-list' %}"><i class="fa fa-plus fa-fw"></i> Add new</a></p>
+            {% endif %}
+        </div>
+        <div class="col-sm-9">
+            <h2>4. Submit for printing</h2>
+            <p>Define a language for all translations....</p>
+            <p>More text here....</p>
+        </div>
+    </div>
+</div> <!-- /container -->
+
+{% endblock %}

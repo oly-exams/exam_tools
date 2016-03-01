@@ -58,6 +58,27 @@ def index(request):
 def time_response(request):
     return HttpResponse(timezone.now().isoformat(), content_type="text/plain")
 
+@login_required
+def wizard(request):
+    delegation = Delegation.objects.filter(members=request.user)
+
+    own_languages = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
+    ## Exam section
+    exam_list = Exam.objects.filter(hidden=False)
+    exams_open = exam_list.filter(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
+    exams_closed = exam_list.exclude(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
+    # Translations
+    translations = TranslationNode.objects.filter(language=own_languages, question__exam=exam_list)
+
+
+    return render(request, 'ipho_exam/wizard.html',
+            {
+                'own_languages' : own_languages,
+                'exam_list'     : exam_list,
+                'exams_open'    : exams_open,
+                'exams_closed'  : exams_closed,
+                'translations'  : translations,
+            })
 
 @login_required
 @ensure_csrf_cookie
