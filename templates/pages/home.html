@@ -42,11 +42,11 @@
 
           <ol>
               <li>Enter the exam wizard. <a href="{% url 'exam:wizard' %}">Go <i class="fa fa-angle-double-right"></i></a></li>
-              <li>Define a new language. <a href="{{ DOCS_URL }}/new_language">Docs <i class="fa fa-angle-double-right"></i></a> <a href="{% url 'exam:language-list' %}">Go <i class="fa fa-angle-double-right"></i></a></li>
-              <li>Start the translation. <a href="{{ DOCS_URL }}/exam_editor">Docs <i class="fa fa-angle-double-right"></i></a> <a href="{% url 'exam:list' %}">Go <i class="fa fa-angle-double-right"></i></a></li>
-              <li>Generate the question PDF. <a href="{{ DOCS_URL }}/generate_pdf">Docs <i class="fa fa-angle-double-right"></i></a> <a href="{% url 'exam:list' %}">Go <i class="fa fa-angle-double-right"></i></a></li>
+              <li>Define a new language. <a href="{% url 'exam:language-list' %}">Go <i class="fa fa-angle-double-right"></i></a> <span class="small">(view <a href="{{ DOCS_URL }}/new_language">docs <i class="fa fa-angle-double-right"></i></a>)</span></li>
+              <li>Start the translation. <a href="{% url 'exam:list' %}">Go <i class="fa fa-angle-double-right"></i></a> <span class="small">(view <a href="{{ DOCS_URL }}/exam_editor">docs <i class="fa fa-angle-double-right"></i></a>)</li>
+              <li>Generate the question PDF. <a href="{% url 'exam:list' %}">Go <i class="fa fa-angle-double-right"></i></a> <span class="small">(view <a href="{{ DOCS_URL }}/generate_pdf">docs <i class="fa fa-angle-double-right"></i></a>)</span></li>
               <li>Repeat if translation in more languages is needed.</li>
-              <li>Assign the languages to the students and submit. <a href="{{ DOCS_URL }}/exam_submission">Docs <i class="fa fa-angle-double-right"></i></a> <a href="{% url 'exam:submission-exam-list' %}">Go <i class="fa fa-angle-double-right"></i></a></li>
+              <li>Assign the languages to the students and submit. <a href="{% url 'exam:submission-exam-list' %}">Go <i class="fa fa-angle-double-right"></i></a> <span class="small">(view <a href="{{ DOCS_URL }}/exam_submission">docs <i class="fa fa-angle-double-right"></i></a>)</span></li>
           </ol>
 
 
