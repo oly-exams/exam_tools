@@ -219,7 +219,7 @@ body { margin-bottom: 70px; }
                                   {% else %}
                                   <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=question.pk orig_id=l.pk %}">
                                   {% endif %}
-                                      {{ l.name }}
+                                      {{ l.name }} {% if lang_group.name != 'own' %}({{ l.delegation.country }}){% endif %}
                                       {% if l.versioned %}<span class="badge">v{{ l.version }}</span>{% endif %}
                                   </a></li>
                           {% endfor %}
