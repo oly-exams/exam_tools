@@ -44,6 +44,8 @@ class LanguageForm(ModelForm):
         model = Language
         fields = ['name','direction','polyglossia','font']
         labels = {
+                   'name': 'Name of the language version (e.g. Swiss German)',
+                   'direction': ' Writing Direction',
                    'polyglossia': 'Language style <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="Select a lanugage similar to yours or leave <emph>english</emph>. This will improve the final typesetting, e.g. allowing correct hyphenation."><span class="glyphicon glyphicon-info-sign"></span></a>',
                    'font': 'Font in PDF <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="For most languages choose <emph>Noto Sans</emph>. Preview of Noto fonts is available <a href=\'https://www.google.com/get/noto\' target=\'_blank\'>here</a>. More fonts can be added on request."><span class="glyphicon glyphicon-info-sign"></span></a>',
                }
