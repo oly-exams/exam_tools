@@ -46,18 +46,20 @@
         <p>
             <a class="btn btn-primary" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-add' %}"><i class="fa fa-plus fa-fw"></i> Add new language</a>
         </p>
-        <table class="table table-striped">
-          <tr>
-              <th>Name</th>
-              <th>Style</th>
-              <th>Direction</th>
-              <th>Font</th>
-              <th>Actions</th>
-          </tr>
-          <tbody id="languages-tbody">
-              {% include 'ipho_exam/partials/languages_tbody.html' %}
-          </tbody>
-        </table>
+        </div class="panel panel-default"
+            <table class="table table-striped">
+              <tr>
+                  <th>Name</th>
+                  <th>Style</th>
+                  <th>Direction</th>
+                  <th>Font</th>
+                  <th>Actions</th>
+              </tr>
+              <tbody id="languages-tbody">
+                  {% include 'ipho_exam/partials/languages_tbody.html' %}
+              </tbody>
+            </table>
+        </div>
         </div>
     </div>
 
