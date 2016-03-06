@@ -67,6 +67,7 @@ class Question(models.Model):
     name = models.CharField(max_length=100)
     exam = models.ForeignKey(Exam)
     position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
+    points = models.PositiveSmallIntegerField(default=20)
     type = models.CharField(max_length=1, choices=QUESTION_TYPES, default='Q')
     ## TODO: add template field
 
