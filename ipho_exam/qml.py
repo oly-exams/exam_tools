@@ -292,6 +292,7 @@ class QMLquestion(QMLobject):
     abbr = "q"
     tag  = "question"
     default_heading = None
+    default_attributes = {'points': ''}
 
     has_text = False
     has_children = True
@@ -304,7 +305,10 @@ class QMLquestion(QMLobject):
         return tt.strip()
 
     def tex_begin(self):
-        return u'\\begin{PR}{%s}{TBA}\n\n' % self.title()
+        points = ''
+        if 'points' in self.attributes:
+            points = self.attributes['points']
+        return u'\\begin{PR}{%s}{%s}\n\n' % self.title(),points
     def tex_end(self):
         return '\\end{PR}\n\n'
 
