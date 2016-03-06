@@ -6,11 +6,6 @@
 
 \LoadClass[a4paper,11pt]{article}
 
-\addtolength{\hoffset}{-1.2cm}
-\addtolength{\textwidth}{2.8cm}
-\addtolength{\voffset}{-1.7cm}
-\addtolength{\textheight}{4.0cm}
-
 
 % Packages
 
@@ -22,11 +17,17 @@
                 pdfcreator={Xelatex}]{hyperref}
 
 % Page options
-% \RequirePackage{geometry}
-% \geometry{left=2.5cm}
-% \geometry{right=2.5cm}
-% \geometry{top=1cm}
-% \geometry{bottom=2cm}
+\RequirePackage{geometry}
+\geometry{left=3cm}
+\geometry{right=3cm}
+\geometry{top=3cm}
+\geometry{bottom=2.5cm}
+
+% Headers
+\RequirePackage{fancyhdr}
+\renewcommand{\headrulewidth}{2pt}
+\pagestyle{fancy}
+\fancyhf[FC]{\thepage}
 
 % Font settings
 \RequirePackage{fontspec}

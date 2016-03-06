@@ -308,7 +308,7 @@ class QMLquestion(QMLobject):
         points = ''
         if 'points' in self.attributes:
             points = self.attributes['points']
-        return u'\\begin{PR}{%s}{%s}\n\n' % self.title(),points
+        return u'\\begin{PR}{%s}{%s}\n\n' % (self.title(),points)
     def tex_end(self):
         return '\\end{PR}\n\n'
 

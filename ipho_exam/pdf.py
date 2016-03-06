@@ -77,10 +77,13 @@ def add_barcode(doc, bgenerator):
         barpdf = PdfFileReader(StringIO(bgenerator(i+1)))
         watermark = barpdf.getPage(0)
         wbox = watermark.artBox
+        wwidth = (wbox.upperRight[0] - wbox.upperLeft[0])
 
         page = pdfdoc.getPage(i)
         pbox = page.artBox
-        page.mergeTranslatedPage(watermark, 10, pbox.upperLeft[1]-wbox.upperLeft[1]-10)
+        pwidth = (pbox.upperRight[0] - pbox.upperLeft[0])
+        x = float(pbox.upperLeft[0]) + float(pwidth-wwidth) / 2.
+        page.mergeTranslatedPage(watermark, x, pbox.upperLeft[1]-wbox.upperLeft[1]-30)
         output.addPage(page)
 
     output_pdf = StringIO()
