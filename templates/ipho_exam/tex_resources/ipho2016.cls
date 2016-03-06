@@ -66,20 +66,18 @@
 %Problem
 \newenvironment{PR}[2]
       {\ifnum\value{prnum}<2{\setcounter{epsnum}0}\fi{\addtocounter{epsnum}{1}}
-%        \begin{framed}
       {\noindent\fontsize{12pt}{16pt} \fontshape{bf}
       \textcolor{color1}{#1 \textenglish{\fontshape{it}(#2 points)}}}}
       {
-%        \end{framed}
       \addtocounter{prnum}{1}\setcounter{ptnum}{0}\setcounter{qtnum}{0}}
 
 
 
 %Part
 \newcommand{\PT}[2]{\vspace{0.3cm}\noindent\addtocounter{ptnum}{1}\setcounter{qtnum}{0}\setcounter{qtnum2}{1}
-	{ \hspace*{-3pt}\textcolor{color1}{\textenglish{Part \Alph{ptnum}.}~#1 \textenglish{(#2 points)}}}
-	{\vspace{0.1cm}}
-	}
+    { \hspace*{-3pt}\textcolor{color1}{\textbf{\textenglish{Part \Alph{ptnum}.}~#1 \textenglish{(#2 points)}}}}
+    {\vspace{0.1cm}}
+    }
 
 
 %Question
