@@ -31,7 +31,7 @@
         <tr>
             <th></th>
           {% for lang in languages %}
-            <th class="text-center">{{ lang.name }}</th>
+            <th class="text-center">{{ lang.name }} ({{ lang.delegation.country }})</th>
           {% endfor %}
         </tr>
         <tbody>

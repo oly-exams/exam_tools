@@ -27,10 +27,10 @@ The exams will shortly be printed by the IPhO 2016 staff @ Uni Zurich. Below you
         <tr>
             <th></th>
             {% for lang in official_languages %}
-              <th class="text-center">{{ lang.name }}</th>
+              <th class="text-center">{{ lang.name }} ({{ lang.delegation.country }})</th>
             {% endfor %}
           {% for lang in languages %}
-            <th class="text-center">{{ lang.name }}</th>
+            <th class="text-center">{{ lang.name }} ({{ lang.delegation.country }})</th>
           {% endfor %}
         </tr>
         <tbody>
