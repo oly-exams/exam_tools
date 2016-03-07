@@ -26,6 +26,10 @@ OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = 'IPhO'
 
 @login_required
+def index(request):
+    return render(request, 'ipho_exam/index.html')
+
+@login_required
 @ensure_csrf_cookie
 def main(request):
     success = None

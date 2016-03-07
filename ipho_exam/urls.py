@@ -3,6 +3,7 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('ipho_exam.views',
 
+    url(r'^/?$', 'index', name='index'),
     url(r'^wizard$', 'wizard', name='wizard'),
     url(r'^main$', 'main', name='main'),
 
