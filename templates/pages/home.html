@@ -35,20 +35,8 @@
               During the registration process you will need to confirm that your delegation will join with at least one supported notebook computer, and that you were successfully able to translate the test exams. Note that the organizers will not provide any notebooks or workstations to the delegations (except with prior arrangement).
           </p>
 
-          <h3>Try it now!</h3>
-          <p>
-              Within this demo version you can perfom the translation and submission of previous years IPhO exams.
-          </p>
-
-          <ol>
-              <li>Enter the exam wizard. <a href="{% url 'exam:wizard' %}">Go <i class="fa fa-angle-double-right"></i></a></li>
-              <li>Define a new language. <a href="{% url 'exam:language-list' %}">Go <i class="fa fa-angle-double-right"></i></a> <span class="small">(view <a href="{{ DOCS_URL }}/new_language">docs <i class="fa fa-angle-double-right"></i></a>)</span></li>
-              <li>Start the translation. <a href="{% url 'exam:list' %}">Go <i class="fa fa-angle-double-right"></i></a> <span class="small">(view <a href="{{ DOCS_URL }}/exam_editor">docs <i class="fa fa-angle-double-right"></i></a>)</li>
-              <li>Generate the question PDF. <a href="{% url 'exam:list' %}">Go <i class="fa fa-angle-double-right"></i></a> <span class="small">(view <a href="{{ DOCS_URL }}/generate_pdf">docs <i class="fa fa-angle-double-right"></i></a>)</span></li>
-              <li>Repeat if translation in more languages is needed.</li>
-              <li>Assign the languages to the students and submit. <a href="{% url 'exam:submission-exam-list' %}">Go <i class="fa fa-angle-double-right"></i></a> <span class="small">(view <a href="{{ DOCS_URL }}/exam_submission">docs <i class="fa fa-angle-double-right"></i></a>)</span></li>
-          </ol>
-
+          <p class="text-center"><a class="btn btn-primary btn-lg" href="{% url 'exam:wizard' %}">Try it now!</a></p>
+          <p>Within this demo version you can perfom the translation and submission of previous years IPhO exams.</p>
 
         </div>
         <div class="col-md-3">
