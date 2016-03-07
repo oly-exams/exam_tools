@@ -43,10 +43,9 @@
 
     <div id="have-languages-container" class="row {{ languages|yesno:'show,hide' }}">
         <div class="col-sm-12">
-        <p>
-            <a class="btn btn-primary" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-add' %}"><i class="fa fa-plus fa-fw"></i> Add new language</a>
-        </p>
-        <div class="panel panel-default">
+            <p>
+                <a class="btn btn-primary" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-add' %}"><i class="fa fa-plus fa-fw"></i> Add new language</a>
+            </p>
             <table class="table table-striped">
               <tr>
                   <th>Name</th>
@@ -59,7 +58,6 @@
                   {% include 'ipho_exam/partials/languages_tbody.html' %}
               </tbody>
             </table>
-        </div>
         </div>
     </div>
 
