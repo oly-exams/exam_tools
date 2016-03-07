@@ -22,6 +22,18 @@
 </div>
 {% endif %}
 
+{% if empty_languages %}
+<div class="alert alert-warning">
+    <p><strong>Empty languages:</strong> The following languages do not have a translation for all questions in the exam and cannot be chosen in the submission process.</p>
+    <ul>
+        {% for lang in empty_languages %}
+            <li>{{ lang.name }} ({{ lang.delegation.name }})</li>
+        {% endfor %}
+    </ul>
+    <p>If one of the above languages is needed, go to the <a href="{% url 'exam:list' %}">translation section <i class="fa fa-angle-double-right"></i></a>.</p>
+</div>
+{% endif %}
+
 {% endblock %}
 
 {% block exam-content %}
