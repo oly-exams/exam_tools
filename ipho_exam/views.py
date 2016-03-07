@@ -27,7 +27,7 @@ OFFICIAL_DELEGATION = 'IPhO'
 
 @login_required
 @ensure_csrf_cookie
-def index(request):
+def main(request):
     success = None
 
     delegation = Delegation.objects.filter(members=request.user)
@@ -45,7 +45,7 @@ def index(request):
     exams_open = exam_list.filter(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
     exams_closed = exam_list.exclude(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
 
-    return render(request, 'ipho_exam/index.html',
+    return render(request, 'ipho_exam/main.html',
             {
                 'own_lang'      : own_lang,
                 'other_lang'    : other_lang,

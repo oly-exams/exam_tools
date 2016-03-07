@@ -37,7 +37,7 @@ class LanguageForm(ModelForm):
         self.form_tag = False
         self.helper.disable_csrf = True
         # self.helper.form_method = 'post'
-        # self.helper.form_action = 'exam:index'
+        # self.helper.form_action = 'exam:main'
         # self.helper.add_input(Submit('submit', 'Create'))
 
     class Meta:
