@@ -939,8 +939,9 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
                 'polyglossia' : trans.lang.polyglossia,
                 'font'        : fonts.noto[trans.lang.font],
                 'extraheader' : trans.lang.extraheader,
-                'title'       : trans.question.name,
-                'points'      : 'TBA',
+                'lang_name'   : u'{} ({})'.format(trans.lang.name, trans.lang.delegation.country),
+                'title'       : u'{} - {}'.format(trans.question.exam.name, trans.question.name),
+                'is_answer'   : trans.question.is_answer_sheet(),
                 'document'    : trans_content,
               }
     body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request,context)).encode("utf-8")
@@ -968,6 +969,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
             if question.is_answer_sheet() and not sl.with_answer:
                 continue
 
+            print 'Prepare', question, 'in', sl.language
             trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
             trans_content, ext_resources = trans.qml.make_tex()
             ext_resources.append(tex.StaticExport('ipho_exam/tex_resources/ipho2016.cls'))
@@ -975,8 +977,9 @@ def pdf_exam_for_student(request, exam_id, student_id):
                         'polyglossia' : sl.language.polyglossia,
                         'font'        : fonts.noto[sl.language.font],
                         'extraheader' : sl.language.extraheader,
-                        'title'       : question.name,
-                        'points'      : 'TBA',
+                        'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
+                        'title'       : u'{} - {}'.format(question.exam.name, question.name),
+                        'is_answer'   : question.is_answer_sheet(),
                         'document'    : trans_content,
                       }
             body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request,context)).encode("utf-8")

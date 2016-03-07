@@ -87,7 +87,13 @@ class Question(models.Model):
     natural_key.dependencies = ['ipho_exam.exam']
 
 
+class VersionNodeManager(models.Manager):
+    def get_by_natural_key(self, version, question_name, exam_name, lang_name, delegation_name):
+        return self.get(version=version,
+                        language=Language.objects.get_by_natural_key(lang_name, delegation_name),
+                        question=Question.objects.get_by_natural_key(question_name, exam_name))
 class VersionNode(models.Model):
+    objects = VersionNodeManager()
     STATUS_CHOICES = (
         ('P', 'Proposal'),
         ('C', 'Confirmed'),
@@ -114,7 +120,12 @@ class VersionNode(models.Model):
         return (self.version,) + self.question.natural_key() + self.language.natural_key()
     natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
 
+class TranslationNodeManager(models.Manager):
+    def get_by_natural_key(self, question_name, exam_name, lang_name, delegation_name):
+        return self.get(language=Language.objects.get_by_natural_key(lang_name, delegation_name),
+                        question=Question.objects.get_by_natural_key(question_name, exam_name))
 class TranslationNode(models.Model):
+    objects = TranslationNodeManager()
     STATUS_CHOICES = (
         ('O', 'In progress'),
         ('L', 'Locked'),
@@ -141,7 +152,12 @@ class TranslationNode(models.Model):
     natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
 
 
+class FigureManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
 class Figure(models.Model):
+    objects = FigureManager()
+
     name    = models.CharField(max_length=100)
     content = models.TextField(blank=True)
     params  = models.TextField(blank=True)
@@ -164,6 +180,9 @@ class Figure(models.Model):
                     repl = repl.decode('utf-8')
                 fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
         return fig_svg
+
+    def natural_key(self):
+        return self.name
 
 
 class Feedback(models.Model):

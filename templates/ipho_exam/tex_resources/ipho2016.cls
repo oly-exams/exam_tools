@@ -6,11 +6,6 @@
 
 \LoadClass[a4paper,11pt]{article}
 
-\addtolength{\hoffset}{-1.2cm}
-\addtolength{\textwidth}{2.8cm}
-\addtolength{\voffset}{-1.7cm}
-\addtolength{\textheight}{4.0cm}
-
 
 % Packages
 
@@ -22,11 +17,17 @@
                 pdfcreator={Xelatex}]{hyperref}
 
 % Page options
-% \RequirePackage{geometry}
-% \geometry{left=2.5cm}
-% \geometry{right=2.5cm}
-% \geometry{top=1cm}
-% \geometry{bottom=2cm}
+\RequirePackage{geometry}
+\geometry{left=3cm}
+\geometry{right=3cm}
+\geometry{top=3cm}
+\geometry{bottom=2.5cm}
+
+% Headers
+\RequirePackage{fancyhdr}
+\renewcommand{\headrulewidth}{2pt}
+\pagestyle{fancy}
+\fancyhf[FC]{\thepage}
 
 % Font settings
 \RequirePackage{fontspec}
@@ -66,20 +67,18 @@
 %Problem
 \newenvironment{PR}[2]
       {\ifnum\value{prnum}<2{\setcounter{epsnum}0}\fi{\addtocounter{epsnum}{1}}
-%        \begin{framed}
-      {\noindent\fontsize{12pt}{16pt} \fontshape{bf}
-      \textcolor{color1}{#1 \textenglish{\fontshape{it}(#2 points)}}}}
+      {\noindent\fontsize{18pt}{16pt}\fontshape{bf}
+      \textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}(#2 points)}}}}}
       {
-%        \end{framed}
       \addtocounter{prnum}{1}\setcounter{ptnum}{0}\setcounter{qtnum}{0}}
 
 
 
 %Part
 \newcommand{\PT}[2]{\vspace{0.3cm}\noindent\addtocounter{ptnum}{1}\setcounter{qtnum}{0}\setcounter{qtnum2}{1}
-	{ \hspace*{-3pt}\textcolor{color1}{\textenglish{Part \Alph{ptnum}.}~#1 \textenglish{(#2 points)}}}
-	{\vspace{0.1cm}}
-	}
+    { \hspace*{-3pt}\fontsize{12pt}{14pt}\textcolor{color1}{\textbf{\textenglish{Part \Alph{ptnum}.}~#1 \textenglish{(#2 points)}}}}
+    {\vspace{0.1cm}}
+    }
 
 
 %Question
