@@ -26,7 +26,7 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-7 col-md-offset-1">
+        <div class="col-md-9">
           <h2>Welcome</h2>
           <p>
               During this year's edition we will use for the first time an entirely web-based management of the exams. Exam feedbacks, translations, printing, voting, corrections and ranking are among the features of this new tool.
@@ -35,8 +35,144 @@
               During the registration process you will need to confirm that your delegation will join with at least one supported notebook computer, and that you were successfully able to translate the test exams. Note that the organizers will not provide any notebooks or workstations to the delegations (except with prior arrangement).
           </p>
 
-          <p class="text-center"><a class="btn btn-primary btn-lg" href="{% url 'exam:wizard' %}">Try it now!</a></p>
           <p>Within this demo version you can perfom the translation and submission of previous years IPhO exams.</p>
+
+          <h3>Step-by-step guide</h3>
+          <p>To guide you through the translation process, we prepared a step-by-step guide which explains the basic steps needed for testing the your notebook.</p>
+          <p class="text-center"><a class="btn btn-primary btn-lg" href="{% url 'exam:wizard' %}">Try it now!</a></p>
+
+          <hr />
+
+          <p><strong>Navigation:</strong> Below you find a summary of the exams tools structure. The same navigation is available in the upper bar on all pages.</p>
+
+          <div class="row">
+              <div class="col-sm-4">
+                  <h3>Exam</h3>
+                  <ul>
+                      <li>
+                          <h4>Step-by-step guide</h4>
+                          <ul>
+                              <li>
+                                <a href="{% url 'exam:wizard' %}">Get started!</a>
+                              </li>
+                          </ul>
+                      </li>
+
+                      <li>
+                          <h4>Translations</h4>
+                          <ul>
+                              <li>
+                                  <a href="{% url 'exam:language-list' %}">
+                                      Define languages
+                                  </a>
+                              </li>
+                              <li>
+                                  <a href="{% url 'exam:list' %}">
+                                      Your translations
+                                  </a>
+                              </li>
+                              <li>
+                                  <a href="{% url 'exam:submission-exam-list' %}">
+                                      Final submission
+                                  </a>
+                              </li>
+                          </ul>
+                      </li>
+
+                      <li>
+                          <h4>Exam feedbacks</h4>
+                          <ul>
+                              <li>
+                                  <a href="{% url 'exam:feedbacks-list' %}">
+                                      Submit feedbacks
+                                  </a>
+                              </li>
+                          </ul>
+                      </li>
+
+                  </ul>
+
+              </div>
+
+              <div class="col-sm-4">
+                  <h3>Voting</h3>
+                  <p>Work in progress</p>
+              </div>
+
+              <div class="col-sm-4">
+                  <h3>Results</h3>
+                  <p>Work in progress</p>
+              </div>
+
+          </div>
+
+          <hr />
+
+          <div class="row">
+              <div class="col-sm-4">
+                  <div class="panel panel-default">
+                      <div class="panel-heading"><h3 class="panel-title">Step-by-step</h3></div>
+                      <div class="list-group">
+                          <a class="list-group-item" href="{% url 'exam:wizard' %}">
+                              Get started!
+                              <span class="pull-right"><i class="fa fa-angle-double-right"></i></span>
+                          </a>
+                      </div>
+                  </div>
+
+                  <div class="panel panel-default">
+                      <div class="panel-heading"><h3 class="panel-title">Translations</h3></div>
+                      <div class="list-group">
+                          <a class="list-group-item" href="{% url 'exam:language-list' %}">
+                              Define languages
+                              <span class="pull-right"><i class="fa fa-angle-double-right"></i></span>
+                          </a>
+                      </div>
+                      <div class="list-group">
+                          <a class="list-group-item" href="{% url 'exam:list' %}">
+                              Your translations
+                              <span class="pull-right"><i class="fa fa-angle-double-right"></i></span>
+                          </a>
+                      </div>
+                      <div class="list-group">
+                          <a class="list-group-item" href="{% url 'exam:submission-exam-list' %}">
+                              Final submission
+                              <span class="pull-right"><i class="fa fa-angle-double-right"></i></span>
+                          </a>
+                      </div>
+                  </div>
+
+                  <div class="panel panel-default">
+                      <div class="panel-heading"><h3 class="panel-title">Exam feedbacks</h3></div>
+                      <div class="list-group">
+                          <a class="list-group-item" href="{% url 'exam:feedbacks-list' %}">
+                              Submit feedbacks
+                              <span class="pull-right"><i class="fa fa-angle-double-right"></i></span>
+                          </a>
+                      </div>
+                  </div>
+
+              </div>
+
+              <div class="col-sm-4">
+                  <div class="panel panel-default">
+                      <div class="panel-heading"><h3 class="panel-title">Voting</h3></div>
+                      <div class="list-group">
+                          <div class="list-group-item">Work in progress.</div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="col-sm-4">
+                  <div class="panel panel-default">
+                      <div class="panel-heading"><h3 class="panel-title">Results</h3></div>
+                      <div class="list-group">
+                          <div class="list-group-item">Work in progress.</div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
 
         </div>
         <div class="col-md-3">

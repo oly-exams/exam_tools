@@ -46,15 +46,16 @@
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Exam <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
-                  <li><a href="{% url 'exam:index' %}">Index</a></li>
+                  <li class="dropdown-header">Step-by-step guide</li>
+                  <li><a href="{% url 'exam:wizard' %}">Get started!</a></li>
                   <li class="divider"></li>
-                  <li><a href="{% url 'exam:wizard' %}">Wizard</a></li>
+                  <li class="dropdown-header">Translations</li>
+                  <li><a href="{% url 'exam:language-list' %}">Define languages</a></li>
+                  <li><a href="{% url 'exam:list' %}">Your translations</a></li>
+                  <li><a href="{% url 'exam:submission-exam-list' %}">Final submission</a></li>
                   <li class="divider"></li>
-                  <li><a href="{% url 'exam:language-list' %}">Languages</a></li>
-                  <li><a href="{% url 'exam:list' %}">Translations</a></li>
-                  <li><a href="{% url 'exam:feedbacks-list' %}">Feedbacks</a></li>
-                  <li class="divider"></li>
-                  <li><a href="{% url 'exam:submission-exam-list' %}">Submission</a></li>
+                  <li class="dropdown-header">Exam feedbacks</li>
+                  <li><a href="{% url 'exam:feedbacks-list' %}">Submit feedbacks</a></li>
                 </ul>
               </li>
 
