@@ -187,15 +187,15 @@ class Figure(models.Model):
 
 class Feedback(models.Model):
     STATUS_CHOICES = (
-        ('O', 'In progress'),
-        ('A', 'Accepted'),
-        ('R', 'Rejected'),
+        ('S', 'Submitted'),
+        ('P', 'In progress'),
+        ('R', 'Resolved'),
     )
 
     delegation = models.ForeignKey(Delegation)
     question  = models.ForeignKey(Question)
     comment   = models.TextField(blank=True)
-    status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
+    status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='S')
     timestamp = models.DateTimeField(auto_now=True)
 
 class ExamDelegationSubmission(models.Model):
