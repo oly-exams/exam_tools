@@ -36,7 +36,7 @@
 
 {% endblock %}
 
-{% block exam-content %}
+{% block exam-submission-content %}
 <form method="post" action="{% url 'exam:submission-exam-assign' exam_id=exam.pk %}">
     {% csrf_token %}
     <table class="table table-striped">

@@ -1,12 +1,13 @@
-{% extends "base.html" %}
+{% extends "ipho_exam/base.html" %}
 {% load static %}
 
-{% block content %}
-<div class="container">
-    <div class="page-header">
-      <h1>Exams wizard</h1>
-    </div>
+{% block breadcrumb %}
+<li class="active">Exams wizard</li>
+{% endblock %}
 
+{% block pageheader %}<h1>Exams wizard</h1>{% endblock %}
+
+{% block exam-content %}
     <p class="lead">
         The following steps will guide you through the translation process. Feel free to come back using the top navigation <code>Exam &gt; Wizard</code>.
     </p>
@@ -85,6 +86,5 @@
             <p>In the confirmation process you can review a printable version for the last time. In this final version you will notice that the answer sheets got provisioned with a unique barcode.</p>
         </div>
     </div>
-</div> <!-- /container -->
 
 {% endblock %}

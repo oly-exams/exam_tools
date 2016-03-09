@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <ol class="breadcrumb">
+      <li><a href="{% url 'home' %}">Home</a></li>
+      <li>Exam</li>
+      {% block breadcrumb %}{% endblock %}
+    </ol>
+
+    <div class="page-header">
+      {% block pageheader %}{% endblock %}
+    </div>
+
+    {% block exam-content %}{% endblock %}
+</div> <!-- /container -->
+
+{% endblock %}

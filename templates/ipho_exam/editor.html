@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "ipho_exam/base.html" %}
 {% load static %}
 {% load editor_extras %}
 
@@ -81,9 +81,31 @@ body { margin-bottom: 70px; }
 {% endblock %}
 
 
-{% block content %}
-<div class="container">
+{% block breadcrumb %}
+<li><a href="{% url 'exam:list' %}">Your translations</a></li>
+<li class="active">Editor</li>
+{% endblock %}
 
+{% block pageheader %}
+<div class="dropdown pull-right">
+  <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+{% if exam %}
+    {{ exam.name }}
+{% else %}
+    Select exam
+{% endif %}
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu">
+{% for ex in exam_list %}
+    <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:editor-exam' exam_id=ex.pk %}">{{ ex.name }}</a></li>
+{% endfor %}
+  </ul>
+</div>
+<h1>Exam editor</h1>
+{% endblock %}
+
+{% block exam-content %}
     <div class="modal fade" id="figure-modal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -145,25 +167,6 @@ body { margin-bottom: 70px; }
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-
-<div class="page-header">
-    <div class="dropdown pull-right">
-      <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
-{% if exam %}
-        {{ exam.name }}
-{% else %}
-        Select exam
-{% endif %}
-        <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-    {% for ex in exam_list %}
-        <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:editor-exam' exam_id=ex.pk %}">{{ ex.name }}</a></li>
-    {% endfor %}
-      </ul>
-    </div>
-  <h1>Exam editor</h1>
-</div>
 
 <!-- <div class="page-header">
   <h2>Exam editor :
@@ -304,7 +307,6 @@ body { margin-bottom: 70px; }
         {% endif %}
     </form>
 {% endif %}
-</div> <!-- /container -->
 
 {% endblock %}
 

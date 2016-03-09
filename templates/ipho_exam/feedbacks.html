@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "ipho_exam/base.html" %}
 {% load static %}
 
 {% block extra-head %}
@@ -10,12 +10,13 @@
 </style>
 {% endblock %}
 
-{% block content %}
-<div class="container">
-    <div class="page-header">
-      <h1>Exam feedbacks</h1>
-    </div>
+{% block breadcrumb %}
+<li class="active">Exam feedbacks</li>
+{% endblock %}
 
+{% block pageheader %}<h1>Exam feedbacks</h1>{% endblock %}
+
+{% block exam-content %}
     <p class="lead">
         Use the exam feedbacks to submit any comment you want to report to the organizers.
     </p>
@@ -61,9 +62,6 @@
       <tbody id="exam-tbody-{{ ex.pk }}"></tbody>
     </table>
     {% endfor %}
-
-
-</div> <!-- /container -->
 
 {% endblock %}
 
