@@ -1,5 +1,6 @@
 {
   "afrikaans": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -8,6 +9,7 @@
     "polyglossia": null
   }, 
   "albanian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -16,6 +18,7 @@
     "polyglossia": "albanian"
   }, 
   "amharic": {
+    "direction": "ltr", 
     "fonts": [
       "notosansethiopic"
     ], 
@@ -23,6 +26,7 @@
     "polyglossia": "amharic"
   }, 
   "arabic": {
+    "direction": "rtl", 
     "fonts": [
       "notokufiarabic", 
       "notonaskharabic", 
@@ -35,6 +39,7 @@
     "polyglossia": "arabic"
   }, 
   "armenian": {
+    "direction": "ltr", 
     "fonts": [
       "notosansarmenian", 
       "notoserifarmenian"
@@ -43,6 +48,7 @@
     "polyglossia": "armenian"
   }, 
   "asturian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -51,6 +57,7 @@
     "polyglossia": "asturian"
   }, 
   "azerbaijani": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -61,6 +68,7 @@
     "polyglossia": null
   }, 
   "basque": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -69,6 +77,7 @@
     "polyglossia": "basque"
   }, 
   "belarusian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -77,6 +86,7 @@
     "polyglossia": null
   }, 
   "bengali": {
+    "direction": "ltr", 
     "fonts": [
       "notosansbengali"
     ], 
@@ -84,6 +94,7 @@
     "polyglossia": "bengali"
   }, 
   "bosnian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -92,6 +103,7 @@
     "polyglossia": null
   }, 
   "breton": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -100,6 +112,7 @@
     "polyglossia": "breton"
   }, 
   "bulgarian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -108,6 +121,7 @@
     "polyglossia": "bulgarian"
   }, 
   "burmese": {
+    "direction": "ltr", 
     "fonts": [
       "notosansmyanmar"
     ], 
@@ -115,6 +129,7 @@
     "polyglossia": null
   }, 
   "cantonese": {
+    "direction": "ltr", 
     "fonts": [
       "notosanstc", 
       "notosanssc"
@@ -123,6 +138,7 @@
     "polyglossia": null
   }, 
   "catalan": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -131,6 +147,7 @@
     "polyglossia": "catalan"
   }, 
   "chinese": {
+    "direction": "ltr", 
     "fonts": [
       "notosanstc", 
       "notosanssc"
@@ -139,6 +156,7 @@
     "polyglossia": null
   }, 
   "coptic": {
+    "direction": "ltr", 
     "fonts": [
       "notosanscoptic", 
       "notokufiarabic", 
@@ -148,6 +166,7 @@
     "polyglossia": "coptic"
   }, 
   "croatian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -156,6 +175,7 @@
     "polyglossia": "croatian"
   }, 
   "czech": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -164,6 +184,7 @@
     "polyglossia": "czech"
   }, 
   "danish": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -172,6 +193,7 @@
     "polyglossia": "danish"
   }, 
   "divehi": {
+    "direction": "ltr", 
     "fonts": [
       "notosansthaana"
     ], 
@@ -179,6 +201,7 @@
     "polyglossia": "divehi"
   }, 
   "dutch": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -187,6 +210,7 @@
     "polyglossia": "dutch"
   }, 
   "english": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -195,6 +219,7 @@
     "polyglossia": "english"
   }, 
   "esperanto": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -203,6 +228,7 @@
     "polyglossia": "estonian"
   }, 
   "filipino": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -212,6 +238,7 @@
     "polyglossia": null
   }, 
   "finnish": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -220,6 +247,7 @@
     "polyglossia": "finnish"
   }, 
   "french": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -228,6 +256,7 @@
     "polyglossia": "french"
   }, 
   "friulian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -236,6 +265,7 @@
     "polyglossia": "friulan"
   }, 
   "galician": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -244,6 +274,7 @@
     "polyglossia": "galician"
   }, 
   "georgian": {
+    "direction": "ltr", 
     "fonts": [
       "notosansgeorgian", 
       "notoserifgeorgian"
@@ -252,6 +283,7 @@
     "polyglossia": null
   }, 
   "german": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -260,6 +292,7 @@
     "polyglossia": "german"
   }, 
   "greek": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -268,6 +301,7 @@
     "polyglossia": "greek"
   }, 
   "hebrew": {
+    "direction": "rtl", 
     "fonts": [
       "notosanshebrew"
     ], 
@@ -275,6 +309,7 @@
     "polyglossia": "hebrew"
   }, 
   "hindi": {
+    "direction": "ltr", 
     "fonts": [
       "notosansdevanagari"
     ], 
@@ -282,6 +317,7 @@
     "polyglossia": "hindi"
   }, 
   "hungarian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -290,6 +326,7 @@
     "polyglossia": null
   }, 
   "icelandic": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -298,6 +335,7 @@
     "polyglossia": "icelandic"
   }, 
   "indonesian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -308,6 +346,7 @@
     "polyglossia": null
   }, 
   "interlingua": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -316,6 +355,7 @@
     "polyglossia": "interlingua"
   }, 
   "irish": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -325,6 +365,7 @@
     "polyglossia": "irish"
   }, 
   "italian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -333,6 +374,7 @@
     "polyglossia": "italian"
   }, 
   "japanese": {
+    "direction": "ltr", 
     "fonts": [
       "notosansjp"
     ], 
@@ -340,6 +382,7 @@
     "polyglossia": null
   }, 
   "kannada": {
+    "direction": "ltr", 
     "fonts": [
       "notosanskannada"
     ], 
@@ -347,6 +390,7 @@
     "polyglossia": "kannada"
   }, 
   "kazakh": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -357,6 +401,7 @@
     "polyglossia": null
   }, 
   "khmer": {
+    "direction": "ltr", 
     "fonts": [
       "notosanskhmer"
     ], 
@@ -364,6 +409,7 @@
     "polyglossia": null
   }, 
   "korean": {
+    "direction": "ltr", 
     "fonts": [
       "notosanskr"
     ], 
@@ -371,6 +417,7 @@
     "polyglossia": null
   }, 
   "kurdish": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -381,6 +428,7 @@
     "polyglossia": null
   }, 
   "kyrgyz": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -391,6 +439,7 @@
     "polyglossia": null
   }, 
   "lao": {
+    "direction": "ltr", 
     "fonts": [
       "notosanslao", 
       "notoseriflao"
@@ -399,6 +448,7 @@
     "polyglossia": "lao"
   }, 
   "latin": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -407,6 +457,7 @@
     "polyglossia": "latin"
   }, 
   "latvian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -415,6 +466,7 @@
     "polyglossia": "latvian"
   }, 
   "lithuanian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -423,6 +475,7 @@
     "polyglossia": "lithuanian"
   }, 
   "luxembourgish": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -431,6 +484,7 @@
     "polyglossia": null
   }, 
   "macedonian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -439,6 +493,7 @@
     "polyglossia": null
   }, 
   "magyar": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -447,6 +502,7 @@
     "polyglossia": "magyar"
   }, 
   "malay": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -457,6 +513,7 @@
     "polyglossia": null
   }, 
   "malayalam": {
+    "direction": "ltr", 
     "fonts": [
       "notosansmalayalam"
     ], 
@@ -464,6 +521,7 @@
     "polyglossia": "malayalam"
   }, 
   "malaysian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -472,6 +530,7 @@
     "polyglossia": null
   }, 
   "mandarin": {
+    "direction": "ltr", 
     "fonts": [
       ""
     ], 
@@ -479,6 +538,7 @@
     "polyglossia": null
   }, 
   "marathi": {
+    "direction": "ltr", 
     "fonts": [
       "notosansdevanagari"
     ], 
@@ -486,6 +546,7 @@
     "polyglossia": "marathi"
   }, 
   "mongolian": {
+    "direction": "ltr", 
     "fonts": [
       "notosansmongolian", 
       "notosans", 
@@ -496,6 +557,7 @@
     "polyglossia": null
   }, 
   "montenegrin": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -504,6 +566,7 @@
     "polyglossia": null
   }, 
   "nepali": {
+    "direction": "ltr", 
     "fonts": [
       "notosansdevanagari"
     ], 
@@ -511,6 +574,7 @@
     "polyglossia": null
   }, 
   "northern sotho": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -519,6 +583,7 @@
     "polyglossia": null
   }, 
   "norwegian bokm\\u00e5l": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -527,6 +592,7 @@
     "polyglossia": "norsk"
   }, 
   "norwegian nynorsk": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -535,6 +601,7 @@
     "polyglossia": "nynorsk"
   }, 
   "occitan": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -543,6 +610,7 @@
     "polyglossia": "occitan"
   }, 
   "persian": {
+    "direction": "ltr", 
     "fonts": [
       "notokufiarabic", 
       "notonaskharabic", 
@@ -552,6 +620,7 @@
     "polyglossia": null
   }, 
   "piedmontese": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -560,6 +629,7 @@
     "polyglossia": "piedmontese"
   }, 
   "polish": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -568,6 +638,7 @@
     "polyglossia": "polish"
   }, 
   "portuguese": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -576,6 +647,7 @@
     "polyglossia": "portuges"
   }, 
   "romanian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -584,6 +656,7 @@
     "polyglossia": "romanian"
   }, 
   "romansh": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -592,6 +665,7 @@
     "polyglossia": "romansh"
   }, 
   "russian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -600,6 +674,7 @@
     "polyglossia": "russian"
   }, 
   "sanskrit": {
+    "direction": "ltr", 
     "fonts": [
       "notosansdevanagari", 
       "notosanssinhala"
@@ -608,6 +683,7 @@
     "polyglossia": "sanskrit"
   }, 
   "scottish": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -616,6 +692,7 @@
     "polyglossia": "scottish"
   }, 
   "serbian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -624,6 +701,7 @@
     "polyglossia": "serbian"
   }, 
   "sinhalese": {
+    "direction": "ltr", 
     "fonts": [
       "notosanssinhala"
     ], 
@@ -631,6 +709,7 @@
     "polyglossia": null
   }, 
   "slovak": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -639,6 +718,7 @@
     "polyglossia": "slovak"
   }, 
   "slovenian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -647,6 +727,7 @@
     "polyglossia": "slovenian"
   }, 
   "southern ndebele": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -655,6 +736,7 @@
     "polyglossia": null
   }, 
   "southern sotho": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -663,6 +745,7 @@
     "polyglossia": null
   }, 
   "spanish": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -671,6 +754,7 @@
     "polyglossia": "Spanish"
   }, 
   "swedish": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -679,6 +763,7 @@
     "polyglossia": "swedish"
   }, 
   "syriac": {
+    "direction": "rtl", 
     "fonts": [
       "notosanssyriaceastern", 
       "notosanssyriacestrangela", 
@@ -688,6 +773,7 @@
     "polyglossia": "syriac"
   }, 
   "tajik": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -698,6 +784,7 @@
     "polyglossia": null
   }, 
   "tamil": {
+    "direction": "ltr", 
     "fonts": [
       "notosanstamil"
     ], 
@@ -705,6 +792,7 @@
     "polyglossia": "tamil"
   }, 
   "telugu": {
+    "direction": "ltr", 
     "fonts": [
       "notosanstelugu"
     ], 
@@ -712,6 +800,7 @@
     "polyglossia": "telugu"
   }, 
   "thai": {
+    "direction": "ltr", 
     "fonts": [
       "notosansthai", 
       "notoserifthai"
@@ -720,6 +809,7 @@
     "polyglossia": "thai"
   }, 
   "tibetan": {
+    "direction": "ltr", 
     "fonts": [
       "notosanstibetan"
     ], 
@@ -727,6 +817,7 @@
     "polyglossia": "tibetan"
   }, 
   "tsonga": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -735,6 +826,7 @@
     "polyglossia": null
   }, 
   "tswana": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -743,6 +835,7 @@
     "polyglossia": null
   }, 
   "turkish": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -753,6 +846,7 @@
     "polyglossia": "turkish"
   }, 
   "turkmen": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -763,6 +857,7 @@
     "polyglossia": "turkmen"
   }, 
   "ukrainian": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -771,6 +866,7 @@
     "polyglossia": "ukrainian"
   }, 
   "urdu": {
+    "direction": "ltr", 
     "fonts": [
       "notonaskharabic", 
       "notonastaliqurdu"
@@ -779,6 +875,7 @@
     "polyglossia": "urdu"
   }, 
   "uzbek": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif", 
@@ -789,6 +886,7 @@
     "polyglossia": null
   }, 
   "venda": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -797,6 +895,7 @@
     "polyglossia": null
   }, 
   "vietnamese": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -805,6 +904,7 @@
     "polyglossia": "vietnamese"
   }, 
   "welsh": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -813,6 +913,7 @@
     "polyglossia": "welsh"
   }, 
   "xhosa": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
@@ -821,6 +922,7 @@
     "polyglossia": null
   }, 
   "zulu": {
+    "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
