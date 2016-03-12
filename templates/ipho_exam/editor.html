@@ -458,6 +458,25 @@ body { margin-bottom: 70px; }
 
             /// Language modal
 
+            var ipho_languages = null;
+            $.ajax({
+                url: '{% static 'languages.json' %}',
+                type: 'GET',
+            }).done(function (data) {
+                ipho_languages = data;
+            });
+            $(document).on('change', 'select[name="style"]', function(evt) {
+                if (ipho_languages !== null) {
+                    var style = $('select[name="style"]').val();
+                    if (style in ipho_languages) {
+                        var polyglossia = ipho_languages[style]['polyglossia'];
+                        if (polyglossia == null) polyglossia = 'english';
+                        $('select[name="polyglossia"]').val(polyglossia);
+                        $('select[name="font"]').val(ipho_languages[style]['fonts'][0]);
+                    }
+                }
+            });
+
             // Language modal
             $(document).on('submit', '#language-modal form', function(evt) {
                 var form = evt.target;
