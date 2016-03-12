@@ -13,3 +13,16 @@
     </td>
 </tr>
 {% endfor %}
+{% for node in official_nodes %}
+<tr>
+    <td>{{ node.question.name }}</td>
+    <td>{{ node.language.name }} (Official)</td>
+    <td>{{ node.timestamp }}</td>
+    <td></td>
+    <td>
+      <div class="btn-toolbar">
+        <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+      </div>
+    </td>
+</tr>
+{% endfor %}

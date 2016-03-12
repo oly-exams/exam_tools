@@ -92,11 +92,19 @@ def list(request):
     # if request.is_ajax and 'exam_id' in request.GET:
     if 'exam_id' in request.GET:
         exam = get_object_or_404(Exam, id=request.GET['exam_id'])
-        node_list = TranslationNode.objects.filter(question__exam=exam, language__delegation=delegation)
+        node_list = TranslationNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
+        official_translations = VersionNode.objects.filter(question__exam=exam, language__delegation__name=OFFICIAL_DELEGATION, status='C').order_by('-version')
+        official_nodes = []
+        qdone = set()
+        for node in official_translations:
+            if node.question not in qdone:
+                official_nodes.append(node)
+                qdone.add(node.question)
         return render(request, 'ipho_exam/partials/list_exam_tbody.html',
                 {
                     'exam'      : exam,
                     'node_list' : node_list,
+                    'official_nodes': official_nodes,
                 })
     else:
         exam_list = Exam.objects.filter(hidden=False)
