@@ -14,6 +14,8 @@ STATIC_PATH   = os.path.join(PROJECT_PATH, 'static')
 VERSION = '0.1b'
 VERSION_DATE = 'in progress' #'2016-02-23'
 
+OFFICIAL_DELEGATION = 'IPhO'
+
 # Demo mode shows watermark and turns off some functionality
 DEMO_MODE = False
 

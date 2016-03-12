@@ -23,7 +23,7 @@ from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
 
 OFFICIAL_LANGUAGE = 1
-OFFICIAL_DELEGATION = 'IPhO'
+OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 @login_required
 def index(request):

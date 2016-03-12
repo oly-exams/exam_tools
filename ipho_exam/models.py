@@ -1,7 +1,10 @@
 from django.db import models
+from django.conf import settings
 from ipho_core.models import Delegation, Student
 from django.shortcuts import get_object_or_404
 from ipho_exam import fonts
+
+OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 class LanguageManager(models.Manager):
     def get_by_natural_key(self, name, delegation_name):
@@ -34,6 +37,8 @@ class Language(models.Model):
             return True
         else:
             return self.delegation.filter(members=user).exists()
+    def is_official(self):
+        return self.delegation.name == OFFICIAL_DELEGATION
 
 
 class ExamManager(models.Manager):
