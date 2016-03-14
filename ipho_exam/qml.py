@@ -67,6 +67,8 @@ def content2string(node):
 
 def data2tex(data):
     cont_str = '<content>'+unescape_entities(data)+'</content>'
+    mathtex_pattern = re.compile(r'<span class="math-tex">(([^<]|<[^/])+)</span>')
+    cont_str = mathtex_pattern.sub(lambda m: u'<span class="math-tex">{}</span>'.format(escape(m.group(1))), cont_str)
     cont_xml = ET.fromstring(cont_str.encode('utf-8'))
     return tex.html2tex(cont_xml)
 

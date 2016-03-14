@@ -3,6 +3,7 @@ from django.template import TemplateDoesNotExist, Context
 from django.http import HttpResponse, Http404, HttpResponseNotModified
 from django.core.cache import cache
 from django.conf import settings
+from django.utils.text import unescape_entities
 
 from tempfile import mkdtemp
 import subprocess
@@ -33,7 +34,8 @@ def html2tex(el):
                     elif 'font-weight:bold' in sel.attrib[att]:
                         result.append(u'\\textbf{%s}' % (html2tex(sel)))
                 elif att =='class' and 'math-tex' in sel.attrib[att]:
-                        result.append( html2tex(sel) )
+                    sel.tail = unescape_entities(sel.tail)
+                    result.append( html2tex(sel) )
         ## Bold
         elif sel.tag in ["b","strong"]:
             result.append(u'\\textbf{%s}' % (html2tex(sel)))
