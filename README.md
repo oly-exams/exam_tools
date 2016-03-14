@@ -23,6 +23,7 @@ python-psycopg2 # only if using PostgreSQL DB
 python-virtualenv
 python-pip
 mercurial
+libffi-dev
 python-cairosvg
 texlive
 texlive-xetex
