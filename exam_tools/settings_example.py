@@ -1,4 +1,4 @@
-# Django settings for iphoadmin project.
+# Django settings for exam_tools project.
 from settings_common import *
 
 # Printing paths for sanity's sake

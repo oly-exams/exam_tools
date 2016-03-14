@@ -8,8 +8,8 @@ import static_views
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'iphoadmin.views.home', name='home'),
-    # url(r'^iphoadmin/', include('iphoadmin.foo.urls')),
+    # url(r'^$', 'exam_tools.views.home', name='home'),
+    # url(r'^exam_tools/', include('exam_tools.foo.urls')),
 
     url(r'^/?$', static_views.render_page, {'p' : 'pages/home.html'}, name='home'),
     url(r'^exam/', include('ipho_exam.urls', namespace='exam')),

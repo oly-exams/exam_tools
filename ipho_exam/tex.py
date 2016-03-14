@@ -11,7 +11,7 @@ import shutil
 from hashlib import md5
 
 from ipho_exam.models import Figure
-from iphoadmin.settings import TEMPLATE_PATH
+from exam_tools.settings import TEMPLATE_PATH
 
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')

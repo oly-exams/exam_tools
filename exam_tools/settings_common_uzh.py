@@ -1,4 +1,4 @@
-# Django settings for iphoadmin project.
+# Django settings for exam_tools project.
 
 
 # Import the OS module and work out our project's paths
@@ -113,10 +113,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'iphoadmin.urls'
+ROOT_URLCONF = 'exam_tools.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'iphoadmin.wsgi.application'
+WSGI_APPLICATION = 'exam_tools.wsgi.application'
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -162,7 +162,7 @@ LOGGING = {
         # Log to a text file that can be rotated by logrotate
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': '/var/log/django/iphoadmin.log'
+            'filename': '/var/log/django/exam_tools.log'
         },
     },
     'loggers': {
@@ -178,7 +178,7 @@ LOGGING = {
             'propagate': False,
         },
         # Your own app - this assumes all your logger names start with "myapp."
-        'iphoadmin': {
+        'exam_tools': {
             'handlers': ['logfile'],
             'level': 'DEBUG', # Or maybe INFO or DEBUG
             'propagate': False

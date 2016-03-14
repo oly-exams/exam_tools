@@ -44,9 +44,9 @@ The project [ipho2016/deploy](/ipho2016/deploy) provides scripts to deploy a tes
 
 
 ## Install
-1. Create iphoadmin/settings.py, for a simple installation simply copy iphoadmin/settings_example.py
+1. Create exam_tools/settings.py, for a simple installation simply copy exam_tools/settings_example.py
 ```bash
-cp iphoadmin/settings_example.py iphoadmin/settings.py
+cp exam_tools/settings_example.py exam_tools/settings.py
 ```
 
 1. Initialize DB

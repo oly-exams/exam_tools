@@ -1,4 +1,4 @@
-# Django settings for iphoadmin project.
+# Django settings for exam_tools project.
 
 
 # Import the OS module and work out our project's paths
@@ -103,7 +103,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'iphoadmin.context_processors.ipho_context',
+                'exam_tools.context_processors.ipho_context',
             ],
         },
     },
@@ -124,10 +124,10 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-ROOT_URLCONF = 'iphoadmin.urls'
+ROOT_URLCONF = 'exam_tools.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'iphoadmin.wsgi.application'
+WSGI_APPLICATION = 'exam_tools.wsgi.application'
 
 INSTALLED_APPS = (
     'django.contrib.auth',
