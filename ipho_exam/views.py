@@ -14,6 +14,7 @@ from django.db.models import Q, Count
 from copy import deepcopy
 from collections import OrderedDict
 from django.utils import timezone
+from tempfile import mkdtemp
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
@@ -357,9 +358,10 @@ def figure_export(request, fig_id, output_format='svg', lang_id=None):
     if output_format == 'svg':
         return HttpResponse(fig_svg, content_type="image/svg+xml")
     if output_format == 'pdf':
-        import cairosvg
-        fig_pdf = cairosvg.svg2pdf(fig_svg.encode('utf8'))
-        return HttpResponse(fig_pdf, content_type="application/pdf")
+        tmpdir = mkdtemp()
+        tmpfile = tmpdir+'/fig.pdf'
+        Figure.to_pdf(fig_svg, tmpfile)
+        return HttpResponse(open(tmpfile), content_type="application/pdf")
 
 
 @permission_required('ipho_core.is_staff')
