@@ -23,11 +23,6 @@
 \geometry{top=3cm}
 \geometry{bottom=2.5cm}
 
-% Headers
-\RequirePackage{fancyhdr}
-\renewcommand{\headrulewidth}{2pt}
-\pagestyle{fancy}
-\fancyhf[FC]{\thepage}
 
 % Font settings
 \RequirePackage{fontspec}
@@ -37,6 +32,12 @@
 \newfontfamily\englishfont{Noto Sans}
 % Usage:
 % Start other language with \begin{English}, or \textenglish
+
+% Headers
+\RequirePackage{fancyhdr}
+\renewcommand{\headrulewidth}{2pt}
+\pagestyle{fancy}
+\fancyhf[FC]{\textenglish{\thepage}}
 
 % Math
 \RequirePackage{amsmath}
