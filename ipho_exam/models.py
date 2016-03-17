@@ -176,10 +176,20 @@ class Figure(models.Model):
         return u'%s' % (self.name)
 
     @staticmethod
-    def get_fig_query(fig_id, query):
+    def get_fig_query(fig_id, query, lang=None):
         fig = get_object_or_404(Figure, pk=fig_id)
         placeholders = fig.params.split(',')
         fig_svg = fig.content
+        fonts_repl = '@import url({host}/static/noto/notosans.css);'.format(host='http://127.0.0.1:8000')
+        font_name = 'Noto Sans'
+        text_direction = 'ltr'
+        if lang is not None:
+            font_name = fonts.noto[lang.font].font
+            text_direction = lang.direction
+            fonts_repl += '\n@import url({host}/static/noto/{font_css});'.format(host='http://127.0.0.1:8000', font_css=fonts.noto[lang.font].css)
+        fig_svg = fig_svg.replace('%font-faces%', fonts_repl)
+        fig_svg = fig_svg.replace('%font-family%', font_name)
+        fig_svg = fig_svg.replace('%text-direction%', text_direction)
         for pl in placeholders:
             if pl in query:
                 repl = query[pl]

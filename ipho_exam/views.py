@@ -351,8 +351,9 @@ def figure_delete(request, fig_id):
 
 
 @login_required
-def figure_export(request, fig_id, output_format='svg'):
-    fig_svg = Figure.get_fig_query(fig_id, request.GET)
+def figure_export(request, fig_id, output_format='svg', lang_id=None):
+    lang = get_object_or_404(Lang, pk=lang_id) if lang_id is not None else None
+    fig_svg = Figure.get_fig_query(fig_id, request.GET, lang)
     if output_format == 'svg':
         return HttpResponse(fig_svg, content_type="image/svg+xml")
     if output_format == 'pdf':
@@ -943,6 +944,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 def compiled_question(request, question_id, lang_id, raw_tex=False):
     trans = qquery.latest_version(question_id, lang_id)
     trans_content, ext_resources = trans.qml.make_tex()
+    for r in ext_resources:
+        if isinstance(r, tex.FigureExport):
+            r.lang = trans.lang
     ext_resources.append(tex.StaticExport('ipho_exam/tex_resources/ipho2016.cls'))
     context = {
                 'polyglossia' : trans.lang.polyglossia,
@@ -981,6 +985,9 @@ def pdf_exam_for_student(request, exam_id, student_id):
             print 'Prepare', question, 'in', sl.language
             trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
             trans_content, ext_resources = trans.qml.make_tex()
+            for r in ext_resources:
+                if isinstance(r, tex.FigureExport):
+                    r.lang = sl.language
             ext_resources.append(tex.StaticExport('ipho_exam/tex_resources/ipho2016.cls'))
             context = {
                         'polyglossia' : sl.language.polyglossia,

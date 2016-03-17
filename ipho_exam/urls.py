@@ -42,6 +42,8 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^figure/(?P<fig_id>\d+)/remove$', 'figure_delete', name='figure-delete'),
     url(r'^figure/(?P<fig_id>\d+)/export.svg$', 'figure_export', {'output_format': 'svg'}, name='figure-export'),
     url(r'^figure/(?P<fig_id>\d+)/export.pdf$', 'figure_export', {'output_format': 'pdf'}, name='figure-export-pdf'),
+    url(r'^figure/(?P<fig_id>\d+)/(?P<lang_id>\d+)/export.svg$', 'figure_export', {'output_format': 'svg'}, name='figure-lang-export'),
+    url(r'^figure/(?P<fig_id>\d+)/(?P<lang_id>\d+)/export.pdf$', 'figure_export', {'output_format': 'pdf'}, name='figure-lang-export-pdf'),
 
     url(r'^admin/?$', 'admin_list', name='admin'),
     url(r'^admin/(?P<exam_id>\d+)/sort$', 'admin_sort', name='admin-sort'),

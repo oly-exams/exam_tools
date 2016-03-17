@@ -61,12 +61,13 @@ def html2tex(el):
 
 
 class FigureExport(object):
-    def __init__(self, figname, figid, query):
+    def __init__(self, figname, figid, query, lang=None):
         self.figname = figname
         self.figid = figid
         self.query = query
+        self.lang = lang
     def save(self, dirname):
-        fig_svg = Figure.get_fig_query(self.figid, self.query)
+        fig_svg = Figure.get_fig_query(self.figid, self.query, self.lang)
         import cairosvg
         with open('%s/%s' % (dirname, self.figname), 'w') as fp:
             fig_pdf = cairosvg.svg2pdf(fig_svg.encode('utf8'))
