@@ -951,7 +951,7 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
             r.lang = trans.lang
-    ext_resources.append(tex.StaticExport('ipho_exam/tex_resources/ipho2016.cls'))
+    ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
     context = {
                 'polyglossia' : trans.lang.polyglossia,
                 'font'        : fonts.noto[trans.lang.font],
@@ -992,7 +992,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
             for r in ext_resources:
                 if isinstance(r, tex.FigureExport):
                     r.lang = sl.language
-            ext_resources.append(tex.StaticExport('ipho_exam/tex_resources/ipho2016.cls'))
+            ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
             context = {
                         'polyglossia' : sl.language.polyglossia,
                         'font'        : fonts.noto[sl.language.font],

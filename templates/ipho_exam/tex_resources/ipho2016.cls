@@ -29,7 +29,7 @@
 \RequirePackage{polyglossia}
 %\setmainfont{Arial Unicode MS} %Calibri
 \setotherlanguage{english}
-\newfontfamily\englishfont{Noto Sans}
+\newfontfamily\englishfont[ Path = {{ STATIC_PATH }}/noto/,BoldFont=Noto-Sans-Bold.ttf, ItalicFont=Noto-Sans-italic.ttf, BoldItalicFont=Noto-Sans-bolditalic.ttf, ]{Noto-Sans-regular.ttf}
 % Usage:
 % Start other language with \begin{English}, or \textenglish
 

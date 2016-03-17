@@ -1,4 +1,4 @@
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 from django.template import TemplateDoesNotExist, Context
 from django.http import HttpResponse, Http404, HttpResponseNotModified
 from django.core.cache import cache
@@ -80,3 +80,13 @@ class StaticExport(object):
             shutil.copytree(src, dst)
         else:
             shutil.copy2(src, dst)
+
+class TemplateExport(object):
+    def __init__(self, origin):
+        self.origin = origin
+    def save(self, dirname):
+        src = os.path.join(TEMPLATE_PATH, self.origin)
+        dst = os.path.join(dirname, os.path.basename(src))
+        with open(dst, 'w') as fp:
+            STATIC_PATH = getattr(settings, 'STATIC_PATH')
+            fp.write(render_to_string(src, {'STATIC_PATH': STATIC_PATH}))
