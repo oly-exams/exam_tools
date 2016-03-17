@@ -177,6 +177,11 @@ class QMLobject(object):
         self.children.append(child_node)
         return child_node
 
+    def set_lang(self, lang):
+        self.lang = lang
+        for c in self.children:
+            c.set_lang(lang)
+
     def make_xml(self):
         assert('id' in self.attributes)
         elem = ET.Element(self.tag, self.attributes)
@@ -391,6 +396,7 @@ class QMLfigure(QMLobject):
 
     has_text = False
     has_children = True
+    lang = None
 
     def fig_query(self):
         query = {}
@@ -400,9 +406,15 @@ class QMLfigure(QMLobject):
         return query
     def fig_url(self, output_format='svg'):
         if output_format == 'svg':
-            img_src = reverse('exam:figure-export', args=[self.attributes['figid']])
+            if self.lang is None:
+                img_src = reverse('exam:figure-export', args=[self.attributes['figid']])
+            else:
+                img_src = reverse('exam:figure-lang-export', args=[self.attributes['figid'], self.lang.pk])
         else:
-            img_src = reverse('exam:figure-export-pdf', args=[self.attributes['figid']])
+            if self.lang is None:
+                img_src = reverse('exam:figure-export-pdf', args=[self.attributes['figid']])
+            else:
+                img_src = reverse('exam:figure-lang-export-pdf', args=[self.attributes['figid'], self.lang.pk])
 
         query = self.fig_query()
         if len(query) > 0: img_src += '?' + urllib.urlencode(query)
@@ -415,7 +427,10 @@ class QMLfigure(QMLobject):
 
     def get_trans_extra_html(self):
         figid = self.attributes['figid']
-        img_src = reverse('exam:figure-export', args=[figid])
+        if self.lang is None:
+            img_src = reverse('exam:figure-export', args=[figid])
+        else:
+            img_src = reverse('exam:figure-lang-export', args=[figid, self.lang.pk])
         param_ids = dict([(c.attributes['name'], c.id) for c in self.children if c.tag == 'param'])
         ret = u'<div class="field-figure text-center"><button type="button" class="btn btn-link" data-toggle="modal" data-target="#figure-modal" data-remote="false" data-figparams=\'{0}\' data-base-url="{1}"><img src="{1}" /></button></div>'.format(json.dumps(param_ids),img_src)
         return {self.id: ret}
@@ -435,7 +450,7 @@ class QMLfigure(QMLobject):
         if len(fig_caption) > 0: texout += u'\\caption{%s}\n' % fig_caption
         texout += u'\\end{figure}\n\n'
 
-        externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query())]
+        externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
 
         return texout, externals
 

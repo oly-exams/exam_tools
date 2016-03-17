@@ -875,6 +875,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             })
 
         orig_q = qml.QMLquestion(orig_node.text)
+        orig_q.set_lang(orig_lang)
 
         if orig_diff is not None:
             if not orig_lang.versioned:
@@ -897,6 +898,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             trans_node, created = TranslationNode.objects.get_or_create(question=question, language_id=lang_id, defaults={'text': '', 'status' : 'O'}) ## TODO: check permissions for this.
             if len(trans_node.text) > 0:
                 trans_q    = qml.QMLquestion(trans_node.text)
+                trans_q.set_lang(trans_lang)
                 trans_content = trans_q.get_data()
                 trans_extra_html = trans_q.get_trans_extra_html()
 
