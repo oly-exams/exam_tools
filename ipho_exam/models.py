@@ -189,7 +189,8 @@ class Figure(models.Model):
             fonts_repl += '\n@import url({host}/static/noto/{font_css});'.format(host='http://127.0.0.1:8000', font_css=fonts.noto[lang.font]['css'])
         fig_svg = fig_svg.replace('%font-faces%', fonts_repl)
         fig_svg = fig_svg.replace('%font-family%', font_name)
-        fig_svg = fig_svg.replace('%text-direction%', text_direction)
+        # fig_svg = fig_svg.replace('%text-direction%', text_direction)
+        fig_svg = fig_svg.replace('%text-direction%', '')
         for pl in placeholders:
             if pl in query:
                 repl = query[pl]
