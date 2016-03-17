@@ -68,11 +68,7 @@ class FigureExport(object):
         self.lang = lang
     def save(self, dirname):
         fig_svg = Figure.get_fig_query(self.figid, self.query, self.lang)
-        import cairosvg
-        with open('%s/%s' % (dirname, self.figname), 'w') as fp:
-            fig_pdf = cairosvg.svg2pdf(fig_svg.encode('utf8'))
-            fp.write(fig_pdf)
-#        cairosvg.svg2pdf(fig_svg.encode('utf8'), '%s/%s' % (dirname, self.figname))
+        Figure.to_pdf(fig_svg, '%s/%s' % (dirname, self.figname))
 
 class StaticExport(object):
     def __init__(self, origin):

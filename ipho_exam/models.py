@@ -4,7 +4,11 @@ from ipho_core.models import Delegation, Student
 from django.shortcuts import get_object_or_404
 from ipho_exam import fonts
 
+import os
+import subprocess
+
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
+INKSCAPE_BIN = getattr(settings, 'INKSCAPE_BIN', 'inkscape')
 
 class LanguageManager(models.Manager):
     def get_by_natural_key(self, name, delegation_name):
@@ -198,6 +202,23 @@ class Figure(models.Model):
                     repl = repl.decode('utf-8')
                 fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
         return fig_svg
+    @staticmethod
+    def to_pdf(fig_svg, fig_name):
+        with open('%s.svg' % (fig_name), 'w') as fp:
+            fp.write(fig_svg.encode('utf8'))
+        error = subprocess.Popen(
+            [INKSCAPE_BIN,
+             '--without-gui',
+             '%s.svg' % (fig_name),
+             '--export-pdf=%s' % (fig_name)],
+            stdin=open(os.devnull, "r"),
+            stderr=open(os.devnull, "wb"),
+            stdout=open(os.devnull, "wb")
+        ).wait()
+        if error:
+            print 'Got error', error
+            raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
+
 
     def natural_key(self):
         return self.name
