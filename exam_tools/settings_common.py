@@ -11,6 +11,8 @@ PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 TEMPLATE_PATH = os.path.join(PROJECT_PATH, 'templates')
 STATIC_PATH   = os.path.join(PROJECT_PATH, 'static')
 
+SITE_URL = 'http://127.0.0.1:8000'
+
 VERSION = '0.1b'
 VERSION_DATE = 'in progress' #'2016-02-23'
 

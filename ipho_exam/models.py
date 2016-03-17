@@ -8,6 +8,7 @@ import os
 import subprocess
 
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
+SITE_URL = getattr(settings, 'SITE_URL')
 INKSCAPE_BIN = getattr(settings, 'INKSCAPE_BIN', 'inkscape')
 
 class LanguageManager(models.Manager):
@@ -184,13 +185,13 @@ class Figure(models.Model):
         fig = get_object_or_404(Figure, pk=fig_id)
         placeholders = fig.params.split(',')
         fig_svg = fig.content
-        fonts_repl = u'@import url({host}/static/noto/notosans.css);'.format(host='http://127.0.0.1:8000')
+        fonts_repl = u'@import url({host}/static/noto/notosans.css);'.format(host=SITE_URL)
         font_name = u'Noto Sans'
         text_direction = u'ltr'
         if lang is not None:
             font_name = fonts.noto[lang.font]['font']
             text_direction = lang.direction
-            fonts_repl += '\n@import url({host}/static/noto/{font_css});'.format(host='http://127.0.0.1:8000', font_css=fonts.noto[lang.font]['css'])
+            fonts_repl += '\n@import url({host}/static/noto/{font_css});'.format(host=SITE_URL, font_css=fonts.noto[lang.font]['css'])
         fig_svg = fig_svg.replace('%font-faces%', fonts_repl)
         fig_svg = fig_svg.replace('%font-family%', font_name)
         # fig_svg = fig_svg.replace('%text-direction%', text_direction)
