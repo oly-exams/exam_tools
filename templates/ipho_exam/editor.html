@@ -332,11 +332,11 @@ body { margin-bottom: 70px; }
         CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
 
         CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax-mathquill', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
+                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax-mathquill', '-', 'Styles', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
             ];
         CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
-        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax-mathquill';
+        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,stylescombo,mathjax-mathquill';
         CKEDITOR.config.removePlugins = 'mathjax,elementspath,contextmenu,tabletools,liststyle';
         // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
         CKEDITOR.config.width = '100%';
@@ -360,6 +360,12 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.jsvk_skin = "flat_gray";
         CKEDITOR.config.contentsCss = [ CKEDITOR.getUrl( 'contents.css' ), '{% static "noto/notosans.css" %}', '{% static "noto/" %}{{ trans_font.css }}' ];
         CKEDITOR.addCss("body{font-family:{{ trans_font.font }}, Noto Sans;}");
+        CKEDITOR.stylesSet.add( 'my_styles', [
+            { name: 'Language: LTR', element: 'span', attributes: { 'class': 'lang-ltr' } },
+            { name: 'Language: RTL', element: 'span', attributes: { 'class': 'lang-rtl' } },
+        ] );
+        CKEDITOR.config.stylesSet = 'my_styles';
+
 
         all_editors = new Array();
 

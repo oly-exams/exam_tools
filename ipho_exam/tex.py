@@ -36,6 +36,8 @@ def html2tex(el):
                 elif att =='class' and 'math-tex' in sel.attrib[att]:
                     sel.tail = unescape_entities(sel.tail)
                     result.append( html2tex(sel) )
+                elif att =='class' and 'lang-ltr' in sel.attrib[att]:
+                    result.append(u'\\textenglish{%s}' % (html2tex(sel)))
         ## Bold
         elif sel.tag in ["b","strong"]:
             result.append(u'\\textbf{%s}' % (html2tex(sel)))
