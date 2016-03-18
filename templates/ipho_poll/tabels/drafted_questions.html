@@ -1,8 +1,7 @@
 {% load crispy_forms_tags %}
 
 
-
-{# modal for creating a new question. #}
+{# modal for creating a new question and editing questions. #}
 <div class="modal fade" id="question-modal" tabindex="-1" aria-labelledby="modalLabel">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -83,6 +82,9 @@
                           </span>
                           <span class="parent">
                             <button class="btn btn-danger" href="{% url 'poll:deleteQuestion' question_pk=question.pk %}" data-question-pk="{{ question.pk }}" data-toggle="modal" data-target="#delete-modal" data-remote="false" title="delete"><i class="fa fa-trash-o fa-fw"></i></button>
+                          </span>
+                          <span class="parent">
+                            <button class="btn btn-success" href="{% url 'poll:changeQuestionStatus' question_pk=question.pk status=1 %}" data-toggle="modal" data-target="#question-modal" data-remote="false" title="Get live"><i class="fa fa-level-up fa-fw"></i></button>
                           </span>
                         </div>
                     </td>
