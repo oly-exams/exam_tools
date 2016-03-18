@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.core.urlresolvers import reverse
 from django.core import serializers
 from django.core.context_processors import csrf
@@ -13,7 +13,7 @@ from django.template import RequestContext
 
 from .models import Question, Choice, Vote
 
-from .forms import QuestionForm, ChoiceForm, VoteForm
+from .forms import QuestionForm, ChoiceForm, VoteForm, StatusForm
 from .forms import ChoiceFormHelper
 
 
@@ -150,10 +150,45 @@ def deleteQuestion(request, question_pk):
     return JsonResponse({
                 'success'   : True,
                 'message'   : "<strong>The voting #" + question_pk + " has been deleted successfully.</strong>"
-    })
+                })
 
 
 
+@login_required
+@permission_required('iphoperm.is_staff')
+@ensure_csrf_cookie
+def changeQuestionStatus(request, question_pk, status):
+    question = get_object_or_404(Question, pk=question_pk)
+    if request.method == 'POST':
+        statusForm = StatusForm(request.POST, instance=question)
+    else:
+        statusForm = StatusForm(instance=question)
+    if statusForm.is_valid():
+        question = statusForm.save(commit=False)
+        question.status = status
+        question.save()
+        choice_text_list = []
+        for choice in Choice.objects.filter(question=question):
+            choice_text_list.append(choice.choice_text)
+        return JsonResponse({
+                        'success'           : True,
+                        'message'           : '<strong> The voting is now live!</strong>',
+                        'new_question_text' : question.question_text,
+                        'new_question_pk'   : question.pk,
+                        'choice_text_list'  : choice_text_list,
+                        'type'              : 'changeStatus',
+        })
+    else:
+        if question.status == 0 and status == '1':
+            context = {}
+            context.update(csrf(request))
+            form_html = render_crispy_form(statusForm, context=context)
+            return JsonResponse({
+                        'title'         : 'Get your voting live.',
+                        'form'          : form_html,
+            })
+        else:
+            raise Http404("Action not allowed")
 
 
 
