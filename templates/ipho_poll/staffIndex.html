@@ -19,7 +19,7 @@
        <div class="col-md-12">
          {% include "ipho_poll/tabels/drafted_questions.html" %}
 	     </div>
-	     <div class="col-md-4">
+	     <div class="col-md-12">
 	        {% include "ipho_poll/tabels/live_questions.html" %}
 	     </div>
 	     <div class="col-md-12">
@@ -81,11 +81,17 @@ $('document').ready(function(){
             success: function(data) {
                 modal.find('.modal-title').text(data['title']);
                 modal.find('form').attr('action', href);
-                modal.find('.modal-body').html(data['form']);
+                if (data['modal_body_text']) {
+                  var modal_body_text = "<div><p>" + data['modal_body_text'] + "</p></div>";
+                  modal.find('.modal-body').append(modal_body_text);
+                }
+                modal.find('.modal-body').append(data['form']);
                 $('#modal-datetimepicker').datetimepicker({
                     format: "MM/DD/YYYY HH:mm",
-                    // inline: true, oprtion inline is not recognised
+                    inline: true,
                     sideBySide: true,
+                    defaultDate: moment().add(1, 'hour'),
+                    minDate: moment().add(30, 'minutes'),
                 });
             },
         });
