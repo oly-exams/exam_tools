@@ -20,7 +20,7 @@
   </div>
 </div>
 
-{# modal for deleting votings #}
+{# modal for deleting questions #}
 <div class="modal fade" id="delete-modal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -47,7 +47,7 @@
         {% if not drafted_questions_list%}
             <div class="alert alert-info alert-dismissible">
                 <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-                <strong>There are no drafted votings yet!</strong> Create one by clicking on "Create New".
+                <strong>There are no drafted votings at the moment!</strong> Create one by clicking on "Create New".
             </div>
         {% endif %}
         <button class="btn btn-primary" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:addQuestion' %}"><i class="fa fa-plus fa-fw"></i> Create new</button>
