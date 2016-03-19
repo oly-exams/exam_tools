@@ -42,7 +42,7 @@ class StatusForm(ModelForm):
         model = Question
         fields = ['end_date', 'status']
         localized_fields = ['end_date',]
-        widgets={'status': HiddenInput(), }
+        widgets={'status': HiddenInput(), 'end_date': HiddenInput()}
 
 
 class ChoiceForm(ModelForm):
