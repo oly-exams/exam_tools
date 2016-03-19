@@ -184,8 +184,9 @@ def changeQuestionStatus(request, question_pk, status):
             context.update(csrf(request))
             form_html = render_crispy_form(statusForm, context=context)
             return JsonResponse({
-                        'title'         : 'Get your voting live.',
-                        'form'          : form_html,
+                        'title'             : 'Open Vote',
+                        'form'              : form_html,
+                        'modal_body_text'   : "Select the deadline for the voting.",
             })
         else:
             raise Http404("Action not allowed")
