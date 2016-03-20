@@ -24,14 +24,14 @@ from .forms import ChoiceFormHelper
 @ensure_csrf_cookie
 def staffIndex(request):
     drafted_questions_list = Question.objects.filter(status = 0)
-    live_questions_list = Question.objects.filter(status = 1)
+    open_questions_list = Question.objects.filter(status = 1)
     closed_questions_list = Question.objects.filter(status = 2)
     choices_list = Choice.objects.all()
 
     return render(request, 'ipho_poll/staffIndex.html',
             {
                 'drafted_questions_list'    : drafted_questions_list,
-                'live_questions_list'       : live_questions_list,
+                'open_questions_list'       : open_questions_list,
                 'closed_questions_list'     : closed_questions_list,
                 'choices_list'              : choices_list,
             }
@@ -172,7 +172,7 @@ def changeQuestionStatus(request, question_pk, status):
             choice_text_list.append(choice.choice_text)
         return JsonResponse({
                         'success'           : True,
-                        'message'           : '<strong> The voting is now live!</strong>',
+                        'message'           : '<strong> The voting is now open!</strong>',
                         'new_question_text' : question.question_text,
                         'new_question_pk'   : question.pk,
                         'choice_text_list'  : choice_text_list,
@@ -201,12 +201,12 @@ def changeQuestionStatus(request, question_pk, status):
 @permission_required('iphoperm.is_leader')
 @ensure_csrf_cookie
 def delegationIndex(request):
-    live_questions_list = Question.objects.filter(status = 1)
+    open_questions_list = Question.objects.filter(status = 1)
     choices_list = Choice.objects.all()
     form_html = render_crispy_form(VoteForm())
     return render(request, 'ipho_poll/delegationIndex.html',
                 {
-                    'live_questions_list'       : live_questions_list,
+                    'open_questions_list'       : open_questions_list,
                     'choices_list'              : choices_list,
                     'form'                      : form_html,
                 }
