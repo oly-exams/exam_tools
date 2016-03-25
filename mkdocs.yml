@@ -4,11 +4,15 @@ copyright: Copyright 2016, IPhO 2016
 site_dir: _docs_html
 pages:
   - "Home": index.md
-  - "Language settings": language_settings.md
-  - "Exam editor": exam_editor.md
-  - "Exam editor - FAQ": exam_editor_faq.md
-  - "Exam feedbacks": exam_feedbacks.md
-  - "Assign exams and submit": assign_exams.md
+  - Exam translation:
+    - "Step-by-step guide": step_by_step.md
+    - "Language settings": language_settings.md
+    - "Translations":
+      - "Your translations": translations.md
+      - "Exam editor": exam_editor.md
+      - "Exam editor - FAQ": exam_editor_faq.md
+    - "Assign exams and submit": assign_exams.md
+    - "Exam feedbacks": exam_feedbacks.md
   - voting.md
   - "Results and grading": results_grading.md
   - "Tool feedbacks": tool_feedbacks.md

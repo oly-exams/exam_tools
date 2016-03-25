@@ -17,6 +17,7 @@ The testing we require for the registration is basically composed by these steps
 1. Repeat if translation in more languages is needed
 1. [Assign the languages to the students and submit](assign_exams.md)
 
+To guide you through this process we prepared a [**step-by-step**](step_by_step.md) guide which reports the tasks that you already completed and explains how to perfom the next steps.
 
 ## Components
 
