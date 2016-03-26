@@ -24,6 +24,7 @@ To guide you through this process we prepared a [**step-by-step**](step_by_step.
 Jump directly to the documentation of the individual components:
 
 * Exam discussion and translation
+    * [Step-by-step guide](step_by_step.md)
     * [Language settings](language_settings.md)
     * [Exam editor](exam_editor.md)
     * [Exam feedbacks](exam_feedbacks.md)
