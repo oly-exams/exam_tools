@@ -13,7 +13,7 @@ The testing we require for the registration is basically composed by these steps
 1. Enter the exam section
 1. [Define a new language](language_settings.md)
 1. [Start the translation](exam_editor.md)
-1. [Generate the question PDF](compile_pdf.md)
+1. Generate the printable version
 1. Repeat if translation in more languages is needed
 1. [Assign the languages to the students and submit](assign_exams.md)
 
