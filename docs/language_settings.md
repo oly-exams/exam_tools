@@ -1,5 +1,12 @@
 # Language settings
 
+<style>
+figure {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+</style>
+
 <figure>
   <p align="center">
       <img src="/img/menu_exam_language.png" alt="Language settings menu" />

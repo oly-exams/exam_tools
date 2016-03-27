@@ -1,5 +1,12 @@
 # Exam feedbacks
 
+<style>
+figure {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+</style>
+
 <figure>
   <p align="center">
     <img src="/img/menu_exam_feedbacks.png" alt="Exam feedbacks menu" />

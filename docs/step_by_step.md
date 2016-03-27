@@ -1,5 +1,12 @@
 # Step-by-step guide
 
+<style>
+figure {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+</style>
+
 The step-by-step guide reports the tasks that you already completed and explains how to perfom the next steps in the translation process.
 
 <figure>
