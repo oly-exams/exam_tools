@@ -13,7 +13,7 @@ from django.template import RequestContext
 
 from .models import Question, Choice, Vote
 
-from .forms import QuestionForm, ChoiceForm, VoteForm, StatusForm
+from .forms import QuestionForm, ChoiceForm, VoteForm, EndDateForm
 from .forms import ChoiceFormHelper
 
 
@@ -23,9 +23,9 @@ from .forms import ChoiceFormHelper
 @permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie
 def staffIndex(request):
-    drafted_questions_list = Question.objects.filter(status = 0)
-    open_questions_list = Question.objects.filter(status = 1)
-    closed_questions_list = Question.objects.filter(status = 2)
+    drafted_questions_list = Question.objects.is_draft()
+    open_questions_list = Question.objects.is_open()
+    closed_questions_list = Question.objects.is_closed()
     choices_list = Choice.objects.all()
 
     return render(request, 'ipho_poll/staffIndex.html',
@@ -157,16 +157,14 @@ def deleteQuestion(request, question_pk):
 @login_required
 @permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie
-def changeQuestionStatus(request, question_pk, status):
+def setEndDate(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
     if request.method == 'POST':
-        statusForm = StatusForm(request.POST, instance=question)
+        endDateForm = EndDateForm(request.POST, instance=question)
     else:
-        statusForm = StatusForm(instance=question)
-    if statusForm.is_valid():
-        question = statusForm.save(commit=False)
-        question.status = status
-        question.save()
+        endDateForm = EndDateForm(instance=question)
+    if endDateForm.is_valid():
+        question = endDateForm.save()
         choice_text_list = []
         for choice in Choice.objects.filter(question=question):
             choice_text_list.append(choice.choice_text)
@@ -176,13 +174,12 @@ def changeQuestionStatus(request, question_pk, status):
                         'new_question_text' : question.question_text,
                         'new_question_pk'   : question.pk,
                         'choice_text_list'  : choice_text_list,
-                        'type'              : 'changeStatus',
         })
     else:
-        if question.status == 0 and status == '1':
+        if not question.is_closed():
             context = {}
             context.update(csrf(request))
-            form_html = render_crispy_form(statusForm, context=context)
+            form_html = render_crispy_form(endDateForm, context=context)
             return JsonResponse({
                         'title'             : 'Open Vote',
                         'form'              : form_html,
@@ -201,7 +198,7 @@ def changeQuestionStatus(request, question_pk, status):
 @permission_required('iphoperm.is_leader')
 @ensure_csrf_cookie
 def delegationIndex(request):
-    open_questions_list = Question.objects.filter(status = 1)
+    open_questions_list = Question.objects.is_open()
     choices_list = Choice.objects.all()
     form_html = render_crispy_form(VoteForm())
     return render(request, 'ipho_poll/delegationIndex.html',

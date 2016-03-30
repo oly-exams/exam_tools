@@ -84,7 +84,7 @@
                             <button class="btn btn-danger" href="{% url 'poll:deleteQuestion' question_pk=question.pk %}" data-question-pk="{{ question.pk }}" data-toggle="modal" data-target="#delete-modal" data-remote="false" title="delete"><i class="fa fa-trash-o fa-fw"></i></button>
                           </span>
                           <span class="parent">
-                            <button class="btn btn-success" href="{% url 'poll:changeQuestionStatus' question_pk=question.pk status=1 %}" data-toggle="modal" data-target="#question-modal" data-remote="false" title="Open vote"><i class="fa fa-level-up fa-fw"></i></button>
+                            <button class="btn btn-success" href="{% url 'poll:setEndDate' question_pk=question.pk %}" data-toggle="modal" data-target="#question-modal" data-remote="false" title="Open vote"><i class="fa fa-level-up fa-fw"></i></button>
                           </span>
                         </div>
                     </td>

@@ -8,7 +8,7 @@ urlpatterns = patterns('ipho_poll.views',
     url(r'^question/add/$', 'addQuestion', name='addQuestion'),
     url(r'^question/(?P<question_pk>\d+)/delete/$', 'deleteQuestion', name='deleteQuestion'),
     url(r'^question/(?P<question_pk>\d+)/edit/$', 'editQuestion', name='editQuestion'),
-    url(r'^question/(?P<question_pk>\d+)/(?P<status>[0-2])/$', 'changeQuestionStatus', name='changeQuestionStatus'),
+    url(r'^question/(?P<question_pk>\d+)/$', 'setEndDate', name='setEndDate'),
 
     #delegation urls
     url(r'^/$', 'delegationIndex', name='delegationIndex'),
