@@ -20,7 +20,7 @@
          {% include "ipho_poll/tabels/drafted_questions.html" %}
 	     </div>
 	     <div class="col-md-12">
-	        {% include "ipho_poll/tabels/live_questions.html" %}
+	        {% include "ipho_poll/tabels/open_questions.html" %}
 	     </div>
 	     <div class="col-md-12">
 	        {% include "ipho_poll/tabels/closed_questions.html" %}
@@ -33,6 +33,8 @@
 {% block extra-script %}
 <script src="{% static "moment.min.js" %}"></script>
 <script src="{% static "bootstrap/js/bootstrap-datetimepicker.js" %}"></script>
+<script src="{% static "jquery.countdown.js" %}"></script>
+
 <script>
 $('document').ready(function(){
     // Get csrftoken
@@ -90,8 +92,8 @@ $('document').ready(function(){
                     format: "MM/DD/YYYY HH:mm",
                     inline: true,
                     sideBySide: true,
-                    defaultDate: moment().add(1, 'hour'),
-                    minDate: moment().add(30, 'minutes'),
+                    defaultDate: moment().add(10, 'seconds'),
+                    minDate: moment().add(0, 'minutes'),
                 });
             },
         });
@@ -192,6 +194,18 @@ $('document').ready(function(){
 
     // Gives all element of class .btn a tooltip if they have a title attribute
     $('.btn').tooltip({containter: ".parent"});
+
+
+    // Activate countdowns
+    $('.countdown').each(function(i) {
+        var end_date = $(this).attr('data-end-date');
+        $(this).html(new Date(Date.parse(end_date));
+        $(this).append(end_date);
+        // $(this).countdown({
+        //     date: new Date(end_date),
+        //   });
+    });
+
 
 }); // $(document).ready()
 

@@ -24,7 +24,7 @@
             {% for question in open_questions_list %}
                 <tr id="question-{{ question.pk }}">
                     <td class="col-md-1">{{ question.pk }}</td>
-                    <td class="col-md-1 countdown" data-end-date="{{ question.end_date }}"></td>
+                    <td class="col-md-1 countdown" data-end-date="{{ question.end_date.isoformat }}"></td>
                     <td class="col-md-5", id="question-{{ question.pk }}-question-text">
                         {{ question.question_text }}
                     </td>
