@@ -1,3 +1,35 @@
+
+
+
+
+
+
+
+
+
+
+# These Test are all useless as they were designed for another projects.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import datetime
 
 from django.utils import timezone
@@ -87,13 +119,13 @@ class QuestionViewIndexTests(TestCase):
         response = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(
             response.context['latest_question_list'],
-            ['<Question: Past question.>']    
+            ['<Question: Past question.>']
         )
 
 
     def test_index_view_with_a_future_question(self):
         """
-        Questions with a pub_date in the future should not be displayed on the 
+        Questions with a pub_date in the future should not be displayed on the
         index page.
         """
         create_question(question_text="Future question.", days=30)
@@ -141,7 +173,7 @@ class QuestionViewIndexTests(TestCase):
         create_choice(choice_text="Choice", question_id=1)
         response = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(
-            response.context['latest_question_list'], 
+            response.context['latest_question_list'],
             ['<Question: One choice question.>']
         )
 
@@ -166,7 +198,7 @@ class QuestionViewIndexTests(TestCase):
         """
         create_question(question_text="No choice question.", days=-30)
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, "No polls are available." , status_code=200) 
+        self.assertContains(response, "No polls are available." , status_code=200)
         self.assertQuerysetEqual(response.context['latest_question_list'], [])
 
 
@@ -188,7 +220,7 @@ class QuestionViewDetailTests(TestCase):
 
         def test_detail_view_with_a_past_question(self):
             """
-            The detail view of question with a pub_date in the past should  display the 
+            The detail view of question with a pub_date in the past should  display the
             question's text.
             """
             past_question = create_question(question_text="Past Question.", days=-5)
@@ -212,7 +244,7 @@ class QuestionViewDetailTests(TestCase):
             )
             self.assertContains(
                 response, choice.choice_text, status_code=200
-            )           
+            )
 ##########################################################
 ###########Fehlerhaft
 #        def test_detail_view_with_a_question_with_two_choices(self):
@@ -233,8 +265,8 @@ class QuestionViewDetailTests(TestCase):
 #            except(MultipleObjectsReturned):
 #                pass
 ##################################################################
-         
-            
+
+
 
         def test_detail_view_with_a_question_without_a_choice(self):
             """
@@ -249,7 +281,7 @@ class QuestionViewDetailTests(TestCase):
             self.assertEqual(response.status_code, 404)
 
 
- 
+
 
 
 class QuestionViewResultsTests(TestCase):
@@ -274,7 +306,3 @@ class QuestionViewResultsTests(TestCase):
                 reverse('polls:results', args=(past_question.id,))
             )
             self.assertContains(response, past_question.question_text, status_code=200)
-            
-
-
-
