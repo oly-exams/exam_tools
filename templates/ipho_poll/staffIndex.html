@@ -199,11 +199,39 @@ $('document').ready(function(){
     // Activate countdowns
     $('.countdown').each(function(i) {
         var end_date = $(this).attr('data-end-date');
-        $(this).html(new Date(Date.parse(end_date));
-        $(this).append(end_date);
-        // $(this).countdown({
-        //     date: new Date(end_date),
-        //   });
+        end_date = new Date(end_date);
+        $(this).countdown({
+            date: end_date,
+            offset: end_date.getTimezoneOffset()*60*1000, //This is needed in order to make sure that there is no error in timezone offsets.
+            render: function (date) {
+              var countdown = "";
+              if (date.days != 0) {
+                if (date.days == 1) {
+                  countdown += date.days  + " day, ";
+                }
+                else {
+                  countdown += date.days  + " days, ";
+                }
+              }
+              if (date.hours != 0 || date.days !=0) {
+                if (date.hours == 1) {
+                  countdown += this.leadingZeros(date.hours) + " hour, ";
+                }
+                else {
+                  countdown += this.leadingZeros(date.hours) + " hours, ";
+                }
+              }
+              if (date.min != 0 || date.hours !=0 || date.days !=0){
+                countdown += this.leadingZeros(date.min) + " min and ";
+              }
+              countdown += this.leadingZeros(date.sec) + " sec";
+              this.el.innerHTML = countdown;
+            },
+            onEnd: function() {
+              // location.reload(forceGet=true);
+              return;
+            }
+        });
     });
 
 
