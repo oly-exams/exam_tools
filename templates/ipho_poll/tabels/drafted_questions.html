@@ -68,10 +68,8 @@
                     </td>
                     <td class="col-md-3">
                         <div class='list-group'>
-                            {% for choice in choices_list %}
-                                {% if choice.question == question %}
-                                    <li class="list-group-item">{{ choice }}</li>
-                                {% endif %}
+                            {% for choice in question.choice_set.all %}
+                                <li class="list-group-item">{{ choice }}</li>
                             {% endfor %}
                         </div>
                     </td>
