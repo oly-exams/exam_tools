@@ -45,7 +45,7 @@ def staffIndex(request):
 def addQuestion(request):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    ChoiceFormset = formset_factory(ChoiceForm, extra=2)
+    ChoiceFormset = inlineformset_factory(Question, Choice, form=ChoiceForm, extra=0, can_delete=False, min_num=2, validate_min=True)
     if request.method == 'POST':
         questionForm = QuestionForm(request.POST, prefix='question')
         choiceFormset = ChoiceFormset(request.POST, prefix='choices')
@@ -54,12 +54,13 @@ def addQuestion(request):
         choiceFormset = ChoiceFormset(None, prefix='choices')
     if questionForm.is_valid() and choiceFormset.is_valid():
         new_question = questionForm.save()
+        choiceFormset.instance = new_question
+        choice_list = choiceFormset.save(commit=False)
         choice_text_list = []
-        for choiceForm in choiceFormset:
-            new_choice = choiceForm.save(commit=False)
-            new_choice.question = new_question
-            new_choice.save()
-            choice_text_list.append(new_choice.choice_text)
+        for choice in choice_list:
+            choice.question = new_question
+            choice.save()
+            choice_text_list.append(choice.choice_text)
         return JsonResponse({
                     'success'           : True,
                     'message'           : '<strong> The voting has successfully been added!</strong>',
@@ -90,7 +91,7 @@ def addQuestion(request):
 @permission_required('iphoperm.is_staff')
 @ensure_csrf_cookie
 def editQuestion(request, question_pk):
-    ChoiceFormset = inlineformset_factory(Question, Choice, form=ChoiceForm, extra=0, can_delete=True)
+    ChoiceFormset = inlineformset_factory(Question, Choice, form=ChoiceForm, extra=2, can_delete=True)
     question = get_object_or_404(Question, pk=question_pk)
     if request.method == 'POST':
         questionForm = QuestionForm(request.POST, instance=question, prefix='question')
@@ -100,9 +101,9 @@ def editQuestion(request, question_pk):
         choiceFormset = ChoiceFormset(instance=question, prefix='choices')
     if questionForm.is_valid() and choiceFormset.is_valid():
         question = questionForm.save()
+        choices = choiceFormset.save()
         choice_text_list = []
-        for choiceForm in choiceFormset:
-            choice = choiceForm.save()
+        for choice in choices:
             choice_text_list.append(choice.choice_text)
         return JsonResponse({
                     'success'           : True,
