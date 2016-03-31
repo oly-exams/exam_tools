@@ -200,12 +200,14 @@ def setEndDate(request, question_pk):
 def delegationIndex(request):
     open_questions_list = Question.objects.is_open()
     choices_list = Choice.objects.all()
-    form_html = render_crispy_form(VoteForm())
+    # form_html_list = []
+    # for question in open_questions_list:
+    #      form_html_list.append(render_crispy_form(VoteForm(instance=question))
     return render(request, 'ipho_poll/delegationIndex.html',
                 {
                     'open_questions_list'       : open_questions_list,
                     'choices_list'              : choices_list,
-                    'form'                      : form_html,
+                    # 'form_list'               : form_html_list,
                 }
             )
 
@@ -216,9 +218,12 @@ def delegationIndex(request):
 def addVote(request):
     if request.method == 'POST':
         voteForm = VoteForm(request.POST)
-        if voteForm.is_valid():
-            vote = voteForm.save(submit=False)
-            #hier koennte ein test fuer die anzahl votes kommen
-            return JsonResponse({
-                        'message'   : 'Thanks, your vote has been saved.'
-            })
+    else:
+        voteForm = VoteForm()
+
+    if voteForm.is_valid():
+        vote = voteForm.save(submit=False)
+        #hier koennte ein test fuer die anzahl votes kommen
+        return JsonResponse({
+                    'message'   : 'Thanks, your vote has been saved.'
+        })

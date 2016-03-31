@@ -58,7 +58,7 @@ class ChoiceFormHelper(FormHelper):
                             )
                         )
         self.form_show_labels = True
-        self.html5_required = True
+        self.html5_required = False
         self.form_tag = False
         self.disable_csrf = True
 

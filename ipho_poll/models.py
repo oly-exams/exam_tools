@@ -33,5 +33,6 @@ class Choice(models.Model):
         return self.choice_text
 
 class Vote(models.Model):
+    question = models.ForeignKey(Question, default="")
     choice = models.ForeignKey(Choice)
     delegation = models.ForeignKey(Delegation)
