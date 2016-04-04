@@ -28,6 +28,9 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^tex/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'compiled_question', {'raw_tex': True}, name='tex'),
     url(r'^pdf/exam/(?P<exam_id>\d+)/student/(?P<student_id>\d+)$', 'pdf_exam_for_student', name='pdf-exam-student'),
 
+    url(r'^pdf-task/(?P<token>[0-9a-z\-]+)$', 'pdf_task', name='pdf-task'),
+    url(r'^pdf-task/(?P<token>[0-9a-z\-]+)/status$', 'pdf_task_status', name='pdf-task-status'),
+
     url(r'^feedbacks/list/?$', 'feedbacks_list', name='feedbacks-list'),
     url(r'^feedbacks/add/(?P<exam_id>\d+)$', 'feedbacks_add', name='feedbacks-add'),
 

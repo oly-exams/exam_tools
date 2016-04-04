@@ -19,9 +19,11 @@ from tempfile import mkdtemp
 from django.conf import settings
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
-from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts
+from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
+
+from celery.result import AsyncResult
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
@@ -967,7 +969,12 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
         return HttpResponse(body, content_type="text/plain; charset=utf-8", charset="utf-8")
     try:
         filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
-        return pdf.cached_pdf_response(request, body, ext_resources, filename)
+        # print 'Trying to spawn task'
+        # job = tasks.pdf_response.delay(request, body, ext_resources, filename)
+        # if not job.ready():
+        #     return HttpResponse('Computing...')
+        # return job.get()
+        return cached_responses.compile_tex(request, body, ext_resources, filename)
     except pdf.TexCompileException as e:
         return HttpResponse(e.log, content_type="text/plain")
 
@@ -1016,3 +1023,29 @@ def pdf_exam_for_student(request, exam_id, student_id):
     res = HttpResponse(document, content_type="application/pdf")
     res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
     return res
+
+@login_required
+def pdf_task_status(request, token):
+    task = AsyncResult(token)
+    return JsonResponse({'status': task.status, 'ready': task.ready()})
+
+@login_required
+def pdf_task(request, token):
+    task = AsyncResult(token)
+    try:
+        print 'Job id is', task.id
+        print task
+        print task.ready()
+        if task.ready():
+            filename, pdf, etag = task.get()
+            res = HttpResponse(pdf, content_type="application/pdf")
+            res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
+            res['ETag'] = etag
+            return res
+        else:
+            return render(request, 'ipho_exam/pdf_task.html', {'task': task})
+    except pdf.TexCompileException as e:
+        if request.user.is_superuser:
+            return HttpResponse(e.log, content_type="text/plain")
+        else:
+            raise RuntimeError("pdflatex error (code %s) in %s." % (e.code, e.doc_fname))

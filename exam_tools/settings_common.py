@@ -145,6 +145,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django.contrib.humanize',
     'crispy_forms',
+    'djcelery',
     'ipho_core',
     'ipho_exam',
     # 'django_extensions', # Some useful utils, e.g. graph models

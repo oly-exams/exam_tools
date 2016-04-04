@@ -106,6 +106,12 @@ def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'
         return HttpResponseNotModified()
 
     try:
+        # print 'Trying to spawn task'
+        # job = tasks.compile_tex.delay(body, ext_resources)
+        # if not job.ready():
+        #     return HttpResponse('Computing...')
+        # pdf = job.get()
+        #
         pdf = compile_tex(body, ext_resources)
     except TexCompileException as e:
         if request.user.is_superuser:
