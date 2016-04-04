@@ -969,11 +969,6 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
         return HttpResponse(body, content_type="text/plain; charset=utf-8", charset="utf-8")
     try:
         filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
-        # print 'Trying to spawn task'
-        # job = tasks.pdf_response.delay(request, body, ext_resources, filename)
-        # if not job.ready():
-        #     return HttpResponse('Computing...')
-        # return job.get()
         return cached_responses.compile_tex(request, body, ext_resources, filename)
     except pdf.TexCompileException as e:
         return HttpResponse(e.log, content_type="text/plain")
@@ -1033,9 +1028,6 @@ def pdf_task_status(request, token):
 def pdf_task(request, token):
     task = AsyncResult(token)
     try:
-        print 'Job id is', task.id
-        print task
-        print task.ready()
         if task.ready():
             filename, pdf, etag = task.get()
             res = HttpResponse(pdf, content_type="application/pdf")

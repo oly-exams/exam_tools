@@ -10,7 +10,5 @@ def compile_tex(request, body, ext_resources=[], filename='question.pdf'):
     if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
         return HttpResponseNotModified()
 
-    print 'Trying to spawn task'
     job = tasks.compile_tex.delay(body, ext_resources, filename, etag)
-    print 'Job id is', job.id
     return HttpResponseRedirect(reverse('exam:pdf-task', args=[job.id]))
