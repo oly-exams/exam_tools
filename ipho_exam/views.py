@@ -1028,6 +1028,9 @@ def pdf_task_status(request, token):
 
 @login_required
 def pdf_task(request, token):
+    if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
+        return HttpResponseNotModified()
+
     task = AsyncResult(token)
     try:
         if task.ready():
