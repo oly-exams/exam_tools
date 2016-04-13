@@ -28,6 +28,10 @@ DOCS_URL = '/docs'
 TEXBIN = '/opt/texbin'
 INKSCAPE_BIN = 'inkscape'
 
+# Celery SETTINGS_DIR
+CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
+CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend'
+
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []
