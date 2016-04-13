@@ -23,6 +23,9 @@ from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
 
+import ipho_exam
+from ipho_exam import tasks
+import celery
 from celery.result import AsyncResult
 
 OFFICIAL_LANGUAGE = 1
@@ -979,7 +982,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
     student = get_object_or_404(Student, id=student_id)
 
     ## TODO: implement caching
-    all_pages = []
+    all_tasks = []
 
     student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
     for question in exam.question_set.all():
@@ -1005,19 +1008,18 @@ def pdf_exam_for_student(request, exam_id, student_id):
                         'document'    : trans_content,
                       }
             body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request,context)).encode("utf-8")
-            question_pdf = pdf.compile_tex(body, ext_resources)
-            ## TODO: in case of answer sheet, add barcodes
+            compile_task = tasks.compile_tex.s(body, ext_resources)
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
-                question_pdf = pdf.add_barcode(question_pdf, bgenerator)
-            all_pages.append(question_pdf)
+                barcode_task = tasks.add_barcode.s(bgenerator)
+                all_tasks.append( celery.chain(compile_task, barcode_task) )
+            else:
+                all_tasks.append(compile_task)
 
-    document = pdf.concatenate_documents(all_pages)
     filename = u'IPhO16 - {} - {}.pdf'.format(exam.name, student.code)
+    chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
+    return HttpResponseRedirect(reverse('exam:pdf-task', args=[chord_task.id]))
 
-    res = HttpResponse(document, content_type="application/pdf")
-    res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
-    return res
 
 @login_required
 def pdf_task_status(request, token):
@@ -1036,7 +1038,7 @@ def pdf_task(request, token):
             return res
         else:
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})
-    except pdf.TexCompileException as e:
+    except ipho_exam.pdf.TexCompileException as e:
         if request.user.is_superuser:
             return HttpResponse(e.log, content_type="text/plain")
         else:
