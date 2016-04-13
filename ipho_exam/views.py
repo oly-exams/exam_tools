@@ -1,6 +1,6 @@
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404
 
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
@@ -1028,13 +1028,13 @@ def pdf_task_status(request, token):
 
 @login_required
 def pdf_task(request, token):
-    if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
-        return HttpResponseNotModified()
-
     task = AsyncResult(token)
     try:
         if task.ready():
             filename, pdf, etag = task.get()
+            if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
+                return HttpResponseNotModified()
+
             res = HttpResponse(pdf, content_type="application/pdf")
             res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
             res['ETag'] = etag
