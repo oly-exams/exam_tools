@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Question, Choice
+from .models import Question, Choice, Vote, VotingRight
 
 class ChoiceInline(admin.TabularInline):
     model = Choice
@@ -17,4 +17,19 @@ class QuestionAdmin(admin.ModelAdmin):
     list_filter = ['pub_date', 'end_date']
     search_fields = ['question_text']
 
+class VoteAdmin(admin.ModelAdmin):
+    fieldsets = [
+        ('Vote Information',                {'fields': ['question', 'choice', 'voting_right']}),
+    ]
+    list_display = ('question', 'choice', 'voting_right')
+
+class VotingRightAdmin(admin.ModelAdmin):
+    fieldsets = [
+        ('VotingRight Information',          {'fields': ['user', 'name']})
+    ]
+    list_display = ('user', 'name')
+
+
 admin.site.register(Question, QuestionAdmin)
+admin.site.register(Vote, VoteAdmin)
+admin.site.register(VotingRight, VotingRightAdmin)
