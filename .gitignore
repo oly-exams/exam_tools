@@ -1,3 +1,5 @@
 iphoadmin.esproj
 iphoadmin/settings.py
 *.pyc
+ipho_poll/migrations
+.gitignore
