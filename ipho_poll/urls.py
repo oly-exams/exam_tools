@@ -11,6 +11,6 @@ urlpatterns = patterns('ipho_poll.views',
     url(r'^question/(?P<question_pk>\d+)/$', 'setEndDate', name='setEndDate'),
 
     #delegation urls
-    url(r'^$', 'delegationIndex', name='delegationIndex'),
+    url(r'^$', 'voterIndex', name='voterIndex'),
     url(r'^vote/add/$', 'addVote', name='addVote'),
 )

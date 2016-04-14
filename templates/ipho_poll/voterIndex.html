@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+<div class="container">
+    <div class="page-header">
+        <h1>IPhO Votings</h1>
+    </div>
+
+    <div id="alerts-container"></div>
+    {% if not unvoted_questions_list%}
+        <div class="alert alert-danger">
+            <strong>Sorry but there are no votings at the moment.</strong>
+        </div>
+
+    {% else %}
+      <div class="containter">
+        {% for question in unvoted_questions_list %}
+            <div class="col-md-12">
+              <div class="panel panel-default">
+                <div class="panel-heading"><h3 class="panel-title"> {{ question }}</h3></div>
+                <div class="panel-body">
+                  <form action="" method="post">{% csrf_token %}
+                    {% for key, formset in formset_list.items %}
+                        {% if key == question.pk %}
+                            {{ formset }}
+                        {% endif %}
+                    {% endfor %}
+                    <input type="submit" class="btn btn-primary" data-toggle="modal" value="Vote" />
+
+                  </form>
+                </div>
+              </div>
+            </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+</div> <!-- container -->
+
+
+
+
+{% endblock %}
+
+{% block extra-script %}
+<script>
+$('document').ready(function(){
+
+
+});
+</script>
+{% endblock %}

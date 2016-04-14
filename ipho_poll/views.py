@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect, JsonResponse, Http404
+from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponseForbidden
 from django.core.urlresolvers import reverse
 from django.core import serializers
 from django.core.context_processors import csrf
@@ -11,10 +11,10 @@ from django.template import RequestContext
 
 
 
-from .models import Question, Choice, Vote
+from .models import Question, Choice, VotingRight, Vote
 
 from .forms import QuestionForm, ChoiceForm, VoteForm, EndDateForm
-from .forms import ChoiceFormHelper
+from .forms import ChoiceFormHelper, VoteFormHelper
 
 
 #staff views
@@ -196,25 +196,36 @@ def setEndDate(request, question_pk):
 
 
 @login_required
-@permission_required('iphoperm.is_leader')
+
 @ensure_csrf_cookie
-def delegationIndex(request):
-    open_questions_list = Question.objects.is_open()
-    choices_list = Choice.objects.all()
-    # form_html_list = []
-    # for question in open_questions_list:
-    #      form_html_list.append(render_crispy_form(VoteForm(instance=question))
-    return render(request, 'ipho_poll/delegationIndex.html',
+def voterIndex(request):
+    user = request.user
+    if len(user.votingright_set.all()) <= 0:
+        return HttpResponseForbidden("Sorry, but you have no voting Rights")
+    unvoted_questions_list = Question.objects.not_voted_upon_by(user)
+    formset_html_dict = {}
+    for question in unvoted_questions_list:
+        voting_rights = user.votingright_set.all()
+        VoteFormset = inlineformset_factory(Question, Vote, form=VoteForm, extra = len(voting_rights), can_delete = False)
+        voteFormset = VoteFormset(request.POST or None, prefix='q{}'.format(question.pk), instance = question, initial=[{'voting_right': vt} for vt in voting_rights])
+        for voteForm in voteFormset:
+            voteForm.fields['choice'].queryset = question.choice_set.all()
+        if voteFormset.is_valid():
+            print 'Done!!!'
+            voteFormset.save()
+        else:
+            formset_html_dict[question.pk] = render_crispy_form(voteFormset, helper=VoteFormHelper)
+
+    return render(request, 'ipho_poll/voterIndex.html',
                 {
-                    'open_questions_list'       : open_questions_list,
-                    'choices_list'              : choices_list,
-                    # 'form_list'               : form_html_list,
+                    'unvoted_questions_list'    : unvoted_questions_list,
+                    'formset_list'              : formset_html_dict,
                 }
             )
 
 
 @login_required
-@permission_required('iphoperm.is_leader')
+
 @ensure_csrf_cookie
 def addVote(request):
     if request.method == 'POST':

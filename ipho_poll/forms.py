@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import ModelForm, Form, HiddenInput, DateInput
+from django.forms import ModelForm, Form, HiddenInput, DateInput, RadioSelect
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, MultiField, Div, HTML
 from django.utils.safestring import mark_safe
@@ -66,6 +66,23 @@ class ChoiceFormHelper(FormHelper):
 
 
 class VoteForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(VoteForm, self).__init__(*args, **kwargs)
+        self.fields['choice'].empty_label = None
+        self.fields['choice'].label = self.initial['voting_right']
+
     class Meta:
         model = Vote
-        fields = ['choice']
+        fields = ['choice', 'question', 'voting_right']
+        widgets={'choice': RadioSelect(), 'voting_right': HiddenInput()}
+class VoteFormHelper(FormHelper):
+    def __init__(self, *args, **kwargs):
+        super(VoteFormHelper, self).__init__(*args, **kwargs)
+        self.layout = Layout(
+                        Div(Field('choice')),
+                        Div(Field('question'))
+        )
+        self.form_show_labels = True
+        self.html5_required = False
+        self.form_tag = False
+        self.disable_csrf = False
