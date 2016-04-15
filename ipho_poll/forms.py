@@ -69,7 +69,10 @@ class VoteForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(VoteForm, self).__init__(*args, **kwargs)
         self.fields['choice'].empty_label = None
-        self.fields['choice'].label = self.initial['voting_right']
+        if self.instance.pk is not None:
+            self.fields['choice'].label = self.instance.voting_right
+        else:
+            self.fields['choice'].label = self.initial['voting_right']
 
     class Meta:
         model = Vote
