@@ -16,9 +16,10 @@ class QuestionManager(models.Manager):
         return queryset
     def not_voted_upon_by(self, user):
         open_questions_list = Question.objects.is_open()
+        user_tot_votes = user.votingright_set.all().count()
         unvoted_questions_list = []
         for question in open_questions_list:
-            if len(user.votingright_set.all()) > len(question.vote_set.all()):
+            if user_tot_votes > Vote.objects.filter(question=question, voting_right__user=user).count():
                 unvoted_questions_list.append(question)
         return unvoted_questions_list
 
