@@ -52,7 +52,7 @@
                 </ul>
               </li>
 
-              <li><a href="#">Voting</a></li>
+              <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
               <li><a href="#">Results</a></li>
 
               {% if perms.ipho_core.is_staff %}
