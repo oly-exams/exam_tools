@@ -2,6 +2,8 @@ from django.utils import timezone
 from django.db import models
 from ipho_core.models import Delegation
 from django.contrib.auth.models import User
+from django.db.models import Q, Count
+from itertools import chain
 
 
 class QuestionManager(models.Manager):
@@ -15,13 +17,10 @@ class QuestionManager(models.Manager):
         queryset = Question.objects.filter(end_date__lte = timezone.now)
         return queryset
     def not_voted_upon_by(self, user):
-        open_questions_list = Question.objects.is_open()
         user_tot_votes = user.votingright_set.all().count()
-        unvoted_questions_list = []
-        for question in open_questions_list:
-            if user_tot_votes > Vote.objects.filter(question=question, voting_right__user=user).count():
-                unvoted_questions_list.append(question)
-        return unvoted_questions_list
+        qNotFull = Question.objects.is_open().filter(vote__voting_right__user=user).annotate(user_votes=Count('vote')).filter(user_votes__lt=user_tot_votes)
+        qNoVotes = Question.objects.is_open().exclude(vote__voting_right__user=user)
+        return list(chain(qNotFull, qNoVotes))
 
 class Question(models.Model):
     question_text = models.TextField(max_length=200)
