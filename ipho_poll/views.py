@@ -208,7 +208,10 @@ def voterIndex(request):
         # gather voting_rights that could still be used
         voting_rights = user.votingright_set.exclude(vote__question=question)
         VoteFormsetFactory = inlineformset_factory(Question, Vote, form=VoteForm, extra = len(voting_rights), can_delete = False)
-        voteFormset = VoteFormsetFactory(request.POST or None, prefix='q{}'.format(question.pk), instance = question, queryset=Vote.objects.filter(voting_right__user=user), initial=[{'voting_right': vt} for vt in voting_rights])
+        postReqest = None
+        if request.POST is not None and 'q{}-TOTAL_FORMS'.format(question.pk) in request.POST:
+            postReqest = request.POST
+        voteFormset = VoteFormsetFactory(postReqest, prefix='q{}'.format(question.pk), instance = question, queryset=Vote.objects.filter(voting_right__user=user), initial=[{'voting_right': vt} for vt in voting_rights])
         for voteForm in voteFormset:
             voteForm.fields['choice'].queryset = question.choice_set.all()
         if voteFormset.is_valid():
