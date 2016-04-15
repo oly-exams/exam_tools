@@ -217,8 +217,7 @@ def voterIndex(request):
         if voteFormset.is_valid():
             print 'Done!!!'
             voteFormset.save()
-        else:
-            formset_html_dict[question.pk] = render_crispy_form(voteFormset, helper=VoteFormHelper)
+        formset_html_dict[question.pk] = render_crispy_form(voteFormset, helper=VoteFormHelper)
 
     return render(request, 'ipho_poll/voterIndex.html',
                 {
