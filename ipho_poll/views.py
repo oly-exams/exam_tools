@@ -207,8 +207,8 @@ def voterIndex(request):
     for question in unvoted_questions_list:
         # gather voting_rights that could still be used
         voting_rights = user.votingright_set.exclude(vote__question=question)
-        VoteFormset = inlineformset_factory(Question, Vote, form=VoteForm, extra = len(voting_rights), can_delete = False)
-        voteFormset = VoteFormset(request.POST or None, prefix='q{}'.format(question.pk), instance = question, initial=[{'voting_right': vt} for vt in voting_rights])
+        VoteFormsetFactory = inlineformset_factory(Question, Vote, form=VoteForm, extra = len(voting_rights), can_delete = False)
+        voteFormset = VoteFormsetFactory(request.POST or None, prefix='q{}'.format(question.pk), instance = question, queryset=Vote.objects.filter(voting_right__user=user), initial=[{'voting_right': vt} for vt in voting_rights])
         for voteForm in voteFormset:
             voteForm.fields['choice'].queryset = question.choice_set.all()
         if voteFormset.is_valid():
