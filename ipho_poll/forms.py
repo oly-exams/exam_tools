@@ -71,9 +71,9 @@ class VoteForm(ModelForm):
         self.fields['choice'].empty_label = None
         if self.instance.pk is not None:
             self.fields['choice'].label = self.instance.voting_right
-        else:
+        elif not self.is_bound:
             self.fields['choice'].label = self.initial['voting_right']
-
+        ## Note: in the case of a bound form the label will still be "Choice". Unfortunately I didn't find a workaround
     class Meta:
         model = Vote
         fields = ['choice', 'question', 'voting_right']
