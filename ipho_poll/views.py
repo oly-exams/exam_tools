@@ -205,7 +205,8 @@ def voterIndex(request):
     unvoted_questions_list = Question.objects.not_voted_upon_by(user)
     formset_html_dict = {}
     for question in unvoted_questions_list:
-        voting_rights = user.votingright_set.all()
+        # gather voting_rights that could still be used
+        voting_rights = user.votingright_set.exclude(vote__question=question)
         VoteFormset = inlineformset_factory(Question, Vote, form=VoteForm, extra = len(voting_rights), can_delete = False)
         voteFormset = VoteFormset(request.POST or None, prefix='q{}'.format(question.pk), instance = question, initial=[{'voting_right': vt} for vt in voting_rights])
         for voteForm in voteFormset:
