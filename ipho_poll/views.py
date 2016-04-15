@@ -226,19 +226,3 @@ def voterIndex(request):
                 }
             )
 
-
-@login_required
-
-@ensure_csrf_cookie
-def addVote(request):
-    if request.method == 'POST':
-        voteForm = VoteForm(request.POST)
-    else:
-        voteForm = VoteForm()
-
-    if voteForm.is_valid():
-        vote = voteForm.save(submit=False)
-        #hier koennte ein test fuer die anzahl votes kommen
-        return JsonResponse({
-                    'message'   : 'Thanks, your vote has been saved.'
-        })
