@@ -27,6 +27,6 @@ def latest_version(question_id, lang_id):
     else:
         q.node = get_object_or_404(TranslationNode, question=q.question, language=q.lang)
 
-    q.qml = qml.QMLquestion(q.node.text)
+    q.qml = qml.QMLquestion(q.node.text if '<question' in q.node.text else '<question id="" />')
 
     return q

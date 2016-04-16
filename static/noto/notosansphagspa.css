@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Phags Pa (Phags-pa) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Phags Pa';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansPhagsPa-Regular.eot);
+  src: url(/static/noto/NotoSansPhagsPa-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansPhagsPa-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansPhagsPa-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansPhagsPa-Regular.ttf) format('truetype');
+}

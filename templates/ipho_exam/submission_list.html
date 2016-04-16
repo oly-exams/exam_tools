@@ -1,0 +1,41 @@
+{% extends "ipho_exam/base.html" %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="active">Translations submission</li>
+{% endblock %}
+
+{% block pageheader %}<h1>Translations submission for printing</h1>{% endblock %}
+
+{% block exam-content %}
+    <div class="row">
+        <div class="col-sm-5">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h3 class="panel-title">Open submissions</h3></div>
+                  <div id="language-list" class="list-group">
+                  {% for ex in exams_open %}
+                      <a class="list-group-item" href="{% url 'exam:submission-exam-assign' exam_id=ex.pk %}">{{ ex.name }} <span class="pull-right"><i class="fa fa-angle-double-right"></i></span></a>
+                  {% empty %}
+                      <a class="list-group-item">No open exam.</a>
+                  {% endfor %}
+                  </div>
+            </div>
+        </div>
+
+        <div class="col-sm-1"></div>
+
+        <div class="col-sm-5">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h3 class="panel-title">Closed submissions</h3></div>
+                  <div id="language-list" class="list-group">
+                      {% for ex in exams_closed %}
+                      <a class="list-group-item" href="{% url 'exam:submission-exam-submitted' exam_id=ex.pk %}">{{ ex.name }} <span class="pull-right"><i class="fa fa-angle-double-right"></i></span></a>
+                  {% empty %}
+                      <a class="list-group-item">No closed exam.</a>
+                  {% endfor %}
+                  </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

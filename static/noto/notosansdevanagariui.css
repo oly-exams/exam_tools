@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Devanagari UI (Devanagari) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Devanagari UI';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansDevanagariUI-Regular.eot);
+  src: url(/static/noto/NotoSansDevanagariUI-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansDevanagariUI-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansDevanagariUI-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansDevanagariUI-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Devanagari UI';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansDevanagariUI-Bold.eot);
+  src: url(/static/noto/NotoSansDevanagariUI-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansDevanagariUI-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansDevanagariUI-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansDevanagariUI-Bold.ttf) format('truetype');
+}

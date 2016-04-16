@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Gujarati UI (Gujarati) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Gujarati UI';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansGujaratiUI-Regular.eot);
+  src: url(/static/noto/NotoSansGujaratiUI-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansGujaratiUI-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansGujaratiUI-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansGujaratiUI-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Gujarati UI';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansGujaratiUI-Bold.eot);
+  src: url(/static/noto/NotoSansGujaratiUI-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansGujaratiUI-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansGujaratiUI-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansGujaratiUI-Bold.ttf) format('truetype');
+}

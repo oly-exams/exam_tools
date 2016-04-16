@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Gurmukhi (Gurmukhi) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Gurmukhi';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansGurmukhi-Regular.eot);
+  src: url(/static/noto/NotoSansGurmukhi-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansGurmukhi-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansGurmukhi-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansGurmukhi-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Gurmukhi';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansGurmukhi-Bold.eot);
+  src: url(/static/noto/NotoSansGurmukhi-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansGurmukhi-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansGurmukhi-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansGurmukhi-Bold.ttf) format('truetype');
+}

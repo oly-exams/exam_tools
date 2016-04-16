@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Yi (Yi) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Yi';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansYi-Regular.eot);
+  src: url(/static/noto/NotoSansYi-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansYi-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansYi-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansYi-Regular.ttf) format('truetype');
+}

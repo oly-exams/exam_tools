@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Syloti Nagri (Syloti Nagri) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Syloti Nagri';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansSylotiNagri-Regular.eot);
+  src: url(/static/noto/NotoSansSylotiNagri-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansSylotiNagri-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansSylotiNagri-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansSylotiNagri-Regular.ttf) format('truetype');
+}

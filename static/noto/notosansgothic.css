@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Gothic (Gothic) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Gothic';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansGothic-Regular.eot);
+  src: url(/static/noto/NotoSansGothic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansGothic-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansGothic-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansGothic-Regular.ttf) format('truetype');
+}

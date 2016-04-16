@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Lisu (Lisu) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Lisu';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansLisu-Regular.eot);
+  src: url(/static/noto/NotoSansLisu-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansLisu-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansLisu-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansLisu-Regular.ttf) format('truetype');
+}

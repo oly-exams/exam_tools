@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Tamil (Tamil) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Tamil';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansTamil-Regular.eot);
+  src: url(/static/noto/NotoSansTamil-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansTamil-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansTamil-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansTamil-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Tamil';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansTamil-Bold.eot);
+  src: url(/static/noto/NotoSansTamil-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansTamil-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansTamil-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansTamil-Bold.ttf) format('truetype');
+}

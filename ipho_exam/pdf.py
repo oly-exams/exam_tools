@@ -14,6 +14,7 @@ from StringIO import StringIO
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
 CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
 CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 300)  # 1 min
+TEXBIN = getattr(settings, 'TEXBIN', '/usr/bin')
 
 
 class TexCompileException(Exception):
@@ -46,18 +47,22 @@ def compile_tex(body, ext_resources=[]):
             error = subprocess.Popen(
                 ["xelatex", "%s.tex" % doc],
                 cwd=tmp,
+                env={'PATH':'{}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(TEXBIN)},
                 stdin=open(os.devnull, "r"),
                 stderr=open(os.devnull, "wb"),
                 stdout=open(os.devnull, "wb")
             ).wait()
 
             if error:
+                if not os.path.exists("%s/%s.log" % (tmp, doc)):
+                    raise RuntimeError('Error in PDF. Errocode {}. Log does not exists.'.format(error))
                 log = open("%s/%s.log" % (tmp, doc)).read()
                 raise TexCompileException(error, "%s/%s"%(tmp, doc), log)
 
             with open("%s/%s.pdf" % (tmp, doc)) as f:
                 pdf = f.read()
         finally:
+            # print 'Compiled in', tmp
             shutil.rmtree(tmp)
 
         if pdf:
@@ -72,10 +77,13 @@ def add_barcode(doc, bgenerator):
         barpdf = PdfFileReader(StringIO(bgenerator(i+1)))
         watermark = barpdf.getPage(0)
         wbox = watermark.artBox
+        wwidth = (wbox.upperRight[0] - wbox.upperLeft[0])
 
         page = pdfdoc.getPage(i)
         pbox = page.artBox
-        page.mergeTranslatedPage(watermark, 10, pbox.upperLeft[1]-wbox.upperLeft[1]-10)
+        pwidth = (pbox.upperRight[0] - pbox.upperLeft[0])
+        x = float(pbox.upperLeft[0]) + float(pwidth-wwidth) / 2.
+        page.mergeTranslatedPage(watermark, x, pbox.upperLeft[1]-wbox.upperLeft[1]-30)
         output.addPage(page)
 
     output_pdf = StringIO()

@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Armenian (Armenian) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Armenian';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansArmenian-Regular.eot);
+  src: url(/static/noto/NotoSansArmenian-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansArmenian-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansArmenian-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansArmenian-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Armenian';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansArmenian-Bold.eot);
+  src: url(/static/noto/NotoSansArmenian-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansArmenian-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansArmenian-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansArmenian-Bold.ttf) format('truetype');
+}

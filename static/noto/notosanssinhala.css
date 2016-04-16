@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Sinhala (Sinhala) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Sinhala';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansSinhala-Regular.eot);
+  src: url(/static/noto/NotoSansSinhala-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansSinhala-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansSinhala-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansSinhala-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Sinhala';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansSinhala-Bold.eot);
+  src: url(/static/noto/NotoSansSinhala-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansSinhala-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansSinhala-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansSinhala-Bold.ttf) format('truetype');
+}

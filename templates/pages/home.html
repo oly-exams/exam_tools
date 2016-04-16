@@ -4,11 +4,12 @@
 {% block content %}
     <style>
     #front-box {
-    	background: #eee url('{% static "ipho_logo.png" %}') center right no-repeat;
+    	background: #eee url('{% static "ipho16_blue.png" %}') center right no-repeat;
     	-webkit-background-clip: padding-box;
     	background-clip: padding-box;
-    	background-origin: padding-box;
-    	-webkit-background-origin: padding-box;
+    	background-origin: content-box;
+    	-webkit-background-origin: content-box;
+        background-size: 205px 200px;
 /*    	width: 100%;
     	height: 100%;*/
     }
@@ -16,32 +17,109 @@
 
 <div class="container">
   <div class="jumbotron" id="front-box">
-    <h1>IPhO 2016</h1>
-    <p>
-        Main page of the IPhO 2016 admin tools.
-    </p>
+      <h1>Exam Tools</h1>
+      <p>
+          Supporting the academic work of the IPhO 2016.
+      </p>
   </div>
 </div> <!-- /container -->
 
 <div class="container">
     <div class="row">
-        <div class="col-md-4">
-          <h2>Exam editing</h2>
+        <div class="col-md-9">
+          <h2>Welcome</h2>
           <p>
-              Exam1...
+              During this year's edition we will use for the first time an entirely web-based management of the exams. Exam feedbacks, translations, printing, voting, corrections and ranking are among the features of this new tool.
           </p>
-          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+          <p>
+              During the registration process you will need to confirm that your delegation will join with at least one supported notebook computer, and that you were successfully able to translate the test exams. Note that the organizers will not provide any notebooks or workstations to the delegations (except with prior arrangement).
+          </p>
+
+          <p>Within this demo version you can perfom the translation and submission of previous years IPhO exams.</p>
+
+          <h3>Step-by-step guide</h3>
+          <p>To guide you through the translation process, we prepared a step-by-step guide which explains the basic steps needed for testing the your notebook.</p>
+          <p class="text-center"><a class="btn btn-primary btn-lg" href="{% url 'exam:wizard' %}">Try it now!</a></p>
+
+          <hr />
+
+          <p><strong>Navigation:</strong> Below you find a summary of the exams tools structure. The same navigation is available in the upper bar on all pages.</p>
+
+          <div class="row">
+              <div class="col-sm-4">
+                  <h3>Exam</h3>
+                  <ul>
+                      <li>
+                          <h4>Step-by-step guide</h4>
+                          <ul>
+                              <li>
+                                <a href="{% url 'exam:wizard' %}">Get started!</a>
+                              </li>
+                          </ul>
+                      </li>
+
+                      <li>
+                          <h4>Translations</h4>
+                          <ul>
+                              <li>
+                                  <a href="{% url 'exam:language-list' %}">
+                                      Define languages
+                                  </a>
+                              </li>
+                              <li>
+                                  <a href="{% url 'exam:list' %}">
+                                      Your translations
+                                  </a>
+                              </li>
+                              <li>
+                                  <a href="{% url 'exam:submission-exam-list' %}">
+                                      Final submission
+                                  </a>
+                              </li>
+                          </ul>
+                      </li>
+
+                      <li>
+                          <h4>Exam feedbacks</h4>
+                          <ul>
+                              <li>
+                                  <a href="{% url 'exam:feedbacks-list' %}">
+                                      Submit feedbacks
+                                  </a>
+                              </li>
+                          </ul>
+                      </li>
+
+                  </ul>
+
+              </div>
+
+              <div class="col-sm-4">
+                  <h3>Voting</h3>
+                  <p>Work in progress</p>
+              </div>
+
+              <div class="col-sm-4">
+                  <h3>Results</h3>
+                  <p>Work in progress</p>
+              </div>
+
+          </div>
+
+
         </div>
-        <div class="col-md-4">
-          <h2>Voting</h2>
-          <p>No open voting at this time.</p>
-          <p><a class="btn btn-default" href="#" role="button">See all &raquo;</a></p>
-       </div>
-        <div class="col-md-4">
-          <h2>Results</h2>
-          <p>No results available.</p>
+        <div class="col-md-3">
+          <h2>Feedbacks</h2>
+          <p>For feedback or bug reports, please contact us at<br />
+              <a href="mailto:exam-tools@ipho2016.org"><i class="fa fa-envelope-o"></i> exam-tools@ipho2016.org</a>.</p>
+
+          <h2>User guide</h2>
+          <p>Please refer to the documentation section for a detailed user guide which explains the exam tools and how to perfom a test exam translation required by the registration process.</p>
+          <p><a class="btn btn-default" href="{{ DOCS_URL }}">View the docs <i class="fa fa-angle-double-right"></i></a></p>
+
         </div>
     </div>
+
 </div> <!-- /container -->
 
 

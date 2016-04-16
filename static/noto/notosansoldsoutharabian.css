@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Old South Arabian (Old South Arabian) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Old South Arabian';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansOldSouthArabian-Regular.eot);
+  src: url(/static/noto/NotoSansOldSouthArabian-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansOldSouthArabian-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansOldSouthArabian-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansOldSouthArabian-Regular.ttf) format('truetype');
+}

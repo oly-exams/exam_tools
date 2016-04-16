@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Inscriptional Pahlavi (Inscriptional Pahlavi) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Inscriptional Pahlavi';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansInscriptionalPahlavi-Regular.eot);
+  src: url(/static/noto/NotoSansInscriptionalPahlavi-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansInscriptionalPahlavi-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansInscriptionalPahlavi-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansInscriptionalPahlavi-Regular.ttf) format('truetype');
+}

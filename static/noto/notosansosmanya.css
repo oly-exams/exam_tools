@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Osmanya (Osmanya) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Osmanya';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansOsmanya-Regular.eot);
+  src: url(/static/noto/NotoSansOsmanya-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansOsmanya-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansOsmanya-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansOsmanya-Regular.ttf) format('truetype');
+}

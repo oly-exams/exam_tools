@@ -67,6 +67,8 @@ def content2string(node):
 
 def data2tex(data):
     cont_str = '<content>'+unescape_entities(data)+'</content>'
+    mathtex_pattern = re.compile(r'<span class="math-tex">(([^<]|<[^/])+)</span>')
+    cont_str = mathtex_pattern.sub(lambda m: u'<span class="math-tex">{}</span>'.format(escape(m.group(1))), cont_str)
     cont_xml = ET.fromstring(cont_str.encode('utf-8'))
     return tex.html2tex(cont_xml)
 
@@ -174,6 +176,11 @@ class QMLobject(object):
         child_node = child_qml(elem, force_id=child_id)
         self.children.append(child_node)
         return child_node
+
+    def set_lang(self, lang):
+        self.lang = lang
+        for c in self.children:
+            c.set_lang(lang)
 
     def make_xml(self):
         assert('id' in self.attributes)
@@ -292,9 +299,26 @@ class QMLquestion(QMLobject):
     abbr = "q"
     tag  = "question"
     default_heading = None
+    default_attributes = {'points': ''}
 
     has_text = False
     has_children = True
+
+    def title(self):
+        tt = ''
+        for c in self.children:
+            if isinstance(c, QMLtitle):
+                tt = data2tex(c.data)
+        return tt.strip()
+
+    def tex_begin(self):
+        points = ''
+        if 'points' in self.attributes:
+            points = self.attributes['points']
+        return u'\\begin{PR}{%s}{%s}\n\n' % (self.title(),points)
+    def tex_end(self):
+        return '\\end{PR}\n\n'
+
 
 class QMLsubquestion(QMLobject):
     abbr = "sq"
@@ -310,9 +334,9 @@ class QMLsubquestion(QMLobject):
         return 'Subquestion, %spt' % self.attributes['points']
 
     def tex_begin(self):
-        return u'\\subquestion{%s}{' % self.attributes['points']
+        return u'\\begin{QTF}{%s}\n' % self.attributes['points']
     def tex_end(self):
-        return '}\n\n'
+        return '\\end{QTF}\n\n'
 
 
 class QMLtitle(QMLobject):
@@ -323,11 +347,35 @@ class QMLtitle(QMLobject):
     has_text = True
     has_children = False
 
-    def tex_begin(self):
-        return u'\\section{'
-    def tex_end(self):
-        return '}\n'
+    def make_tex(self):
+        return '',[]
 
+class QMLsection(QMLobject):
+    abbr = "sc"
+    tag  = "section"
+    default_heading = "Section"
+
+    has_text = True
+    has_children = False
+
+    def tex_begin(self):
+        return u'\\subsubsection*{'
+    def tex_end(self):
+        return '}\n\n'
+
+class QMLpart(QMLobject):
+    abbr = "pt"
+    tag  = "part"
+    default_heading = "Part"
+    default_attributes = {'points': ''}
+
+    has_text = True
+    has_children = False
+
+    def tex_begin(self):
+        return u'\\PT{'
+    def tex_end(self):
+        return '}{%s}\n\n' % self.attributes['points']
 
 class QMLparagraph(QMLobject):
     abbr = "pa"
@@ -348,6 +396,7 @@ class QMLfigure(QMLobject):
 
     has_text = False
     has_children = True
+    lang = None
 
     def fig_query(self):
         query = {}
@@ -357,9 +406,15 @@ class QMLfigure(QMLobject):
         return query
     def fig_url(self, output_format='svg'):
         if output_format == 'svg':
-            img_src = reverse('exam:figure-export', args=[self.attributes['figid']])
+            if self.lang is None:
+                img_src = reverse('exam:figure-export', args=[self.attributes['figid']])
+            else:
+                img_src = reverse('exam:figure-lang-export', args=[self.attributes['figid'], self.lang.pk])
         else:
-            img_src = reverse('exam:figure-export-pdf', args=[self.attributes['figid']])
+            if self.lang is None:
+                img_src = reverse('exam:figure-export-pdf', args=[self.attributes['figid']])
+            else:
+                img_src = reverse('exam:figure-lang-export-pdf', args=[self.attributes['figid'], self.lang.pk])
 
         query = self.fig_query()
         if len(query) > 0: img_src += '?' + urllib.urlencode(query)
@@ -372,7 +427,10 @@ class QMLfigure(QMLobject):
 
     def get_trans_extra_html(self):
         figid = self.attributes['figid']
-        img_src = reverse('exam:figure-export', args=[figid])
+        if self.lang is None:
+            img_src = reverse('exam:figure-export', args=[figid])
+        else:
+            img_src = reverse('exam:figure-lang-export', args=[figid, self.lang.pk])
         param_ids = dict([(c.attributes['name'], c.id) for c in self.children if c.tag == 'param'])
         ret = u'<div class="field-figure text-center"><button type="button" class="btn btn-link" data-toggle="modal" data-target="#figure-modal" data-remote="false" data-figparams=\'{0}\' data-base-url="{1}"><img src="{1}" /></button></div>'.format(json.dumps(param_ids),img_src)
         return {self.id: ret}
@@ -388,11 +446,11 @@ class QMLfigure(QMLobject):
         texout = u''
         texout += u'\\begin{figure}[h]\n'
         texout += u'\\centering\n'
-        texout += u'\\includegraphics[width=.6\\textwidth]{%s}\n' % figname
+        texout += u'\\includegraphics[width=.9\\textwidth]{%s}\n' % figname
         if len(fig_caption) > 0: texout += u'\\caption{%s}\n' % fig_caption
         texout += u'\\end{figure}\n\n'
 
-        externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query())]
+        externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
 
         return texout, externals
 

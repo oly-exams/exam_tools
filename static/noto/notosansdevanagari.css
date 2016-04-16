@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Devanagari (Devanagari) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Devanagari';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansDevanagari-Regular.eot);
+  src: url(/static/noto/NotoSansDevanagari-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansDevanagari-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansDevanagari-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansDevanagari-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Devanagari';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansDevanagari-Bold.eot);
+  src: url(/static/noto/NotoSansDevanagari-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansDevanagari-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansDevanagari-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansDevanagari-Bold.ttf) format('truetype');
+}

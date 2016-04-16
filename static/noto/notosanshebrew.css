@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Hebrew (Hebrew) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Hebrew';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansHebrew-Regular.eot);
+  src: url(/static/noto/NotoSansHebrew-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansHebrew-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansHebrew-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansHebrew-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Hebrew';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansHebrew-Bold.eot);
+  src: url(/static/noto/NotoSansHebrew-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansHebrew-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansHebrew-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansHebrew-Bold.ttf) format('truetype');
+}
