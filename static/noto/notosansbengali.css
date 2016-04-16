@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Bengali (Bengali) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Bengali';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansBengali-Regular.eot);
+  src: url(/static/noto/NotoSansBengali-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansBengali-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansBengali-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansBengali-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Bengali';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansBengali-Bold.eot);
+  src: url(/static/noto/NotoSansBengali-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansBengali-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansBengali-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansBengali-Bold.ttf) format('truetype');
+}

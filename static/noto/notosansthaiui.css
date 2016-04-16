@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Thai UI (Thai) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Thai UI';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansThaiUI-Regular.eot);
+  src: url(/static/noto/NotoSansThaiUI-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansThaiUI-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansThaiUI-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansThaiUI-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Thai UI';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansThaiUI-Bold.eot);
+  src: url(/static/noto/NotoSansThaiUI-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansThaiUI-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansThaiUI-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansThaiUI-Bold.ttf) format('truetype');
+}

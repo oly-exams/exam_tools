@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Tifinagh (Tifinagh) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Tifinagh';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansTifinagh-Regular.eot);
+  src: url(/static/noto/NotoSansTifinagh-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansTifinagh-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansTifinagh-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansTifinagh-Regular.ttf) format('truetype');
+}

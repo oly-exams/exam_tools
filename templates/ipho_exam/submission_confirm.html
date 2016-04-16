@@ -10,7 +10,7 @@
 
 {% endblock %}
 
-{% block exam-content %}
+{% block exam-submission-content %}
 <form method="post" action="{% url 'exam:submission-exam-confirm' exam_id=exam.pk %}">
     {% csrf_token %}
     <p><i class="fa fa-check"></i> translation selected for delivery, <i class="fa fa-check"></i><i class="fa fa-check"></i> translation selected for delivery with answer sheets.</p>
@@ -18,10 +18,10 @@
         <tr>
             <th></th>
             {% for lang in official_languages %}
-              <th class="text-center">{{ lang.name }}</th>
+              <th class="text-center">{{ lang.name }} ({{ lang.delegation.country }})</th>
             {% endfor %}
           {% for lang in languages %}
-            <th class="text-center">{{ lang.name }}</th>
+            <th class="text-center">{{ lang.name }} ({{ lang.delegation.country }})</th>
           {% endfor %}
         </tr>
         <tbody>
@@ -57,6 +57,10 @@
           </label>
         </div>
     </div>
+    {% if DEMO_MODE %}
+    <div class="alert alert-info" role="alert"><strong>DEMO VERSION.</strong> In the demo version you are still allowed to edit the exam after submitting this form. In the real case this will no longer be possible.</div>
+    {% endif %}
+
 
     <div>
         <a class="btn btn-default" href="{% url 'exam:submission-exam-assign' exam_id=exam.pk %}">Back</a>

@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Saurashtra (Saurashtra) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Saurashtra';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansSaurashtra-Regular.eot);
+  src: url(/static/noto/NotoSansSaurashtra-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansSaurashtra-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansSaurashtra-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansSaurashtra-Regular.ttf) format('truetype');
+}

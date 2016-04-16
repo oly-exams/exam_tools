@@ -1,0 +1,168 @@
+{% extends "ipho_exam/base.html" %}
+{% load static %}
+
+{% block extra-head %}
+<style>
+.asteriskField {
+    display: none;
+}
+
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="active">Your languages</li>
+{% endblock %}
+
+{% block pageheader %}<h1>Your Languages</h1>{% endblock %}
+
+{% block exam-content %}
+    <div class="modal fade" id="language-modal" tabindex="-1">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <form method="post" action="">
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="alerts-container"></div>
+
+    <div id="no-languages-container" class="jumbotron {{ languages|yesno:'hide,show' }}">
+        <p>Still no languages for your delegation. Create one with the button below.</p>
+        <p><a class="btn btn-primary btn-lg" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-add' %}"><i class="fa fa-plus fa-fw"></i> Add new language</a></p>
+    </div>
+
+    <div id="have-languages-container" class="row {{ languages|yesno:'show,hide' }}">
+        <div class="col-sm-12">
+            <p>
+                <a class="btn btn-primary" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-add' %}"><i class="fa fa-plus fa-fw"></i> Add new language</a>
+            </p>
+            <table class="table table-striped">
+              <tr>
+                  <th>Name</th>
+                  <th>Style</th>
+                  <th>Direction</th>
+                  <th>Font</th>
+                  <th>Actions</th>
+              </tr>
+              <tbody id="languages-tbody">
+                  {% include 'ipho_exam/partials/languages_tbody.html' %}
+              </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra-script %}
+<script>
+$(function() {
+    // Get csrftoken
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+    var ipho_languages = null;
+    $.ajax({
+        url: '{% static 'languages.json' %}',
+        type: 'GET',
+    }).done(function (data) {
+        ipho_languages = data;
+    });
+    $(document).on('change', 'select[name="style"]', function(evt) {
+        if (ipho_languages !== null) {
+            var style = $('select[name="style"]').val();
+            if (style in ipho_languages) {
+                var polyglossia = ipho_languages[style]['polyglossia'];
+                if (polyglossia == null) polyglossia = 'english';
+                $('select[name="direction"]').val(ipho_languages[style]['direction']);
+                $('select[name="polyglossia"]').val(polyglossia);
+                $('select[name="font"]').val(ipho_languages[style]['fonts'][0]);
+            }
+        }
+    });
+
+    // Language modal
+    $(document).on('submit', '#language-modal form', function(evt) {
+        var form = evt.target;
+        var $form = $(form);
+        evt.preventDefault();
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: $form.serialize(),
+            success: function(data) {
+                if (!data['success']) {
+                    $('#language-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    return;
+                }
+
+                $('#languages-tbody').html(data['tbody']);
+                if (data['type'] == 'add') {
+                    $('#no-languages-container').addClass('hide').removeClass('show');
+                    $('#have-languages-container').addClass('show').removeClass('hide');
+                }
+                $('#language-modal').modal('hide');
+                // $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+            }
+        });
+    });
+
+    $('#language-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
+
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('form').attr('action', href);
+                modal.find('.modal-body').html(data['form']);
+                modal.find('button[type="submit"]').text(data['submit']);
+                modal.find("[data-toggle=popover]").popover(); // activate popover
+            },
+        });
+    })
+});
+</script>
+{% endblock %}

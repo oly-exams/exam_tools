@@ -3,12 +3,18 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('ipho_exam.views',
 
-    url(r'^$', 'index', name='index'),
+    url(r'^/?$', 'index', name='index'),
+    url(r'^wizard$', 'wizard', name='wizard'),
+    url(r'^main$', 'main', name='main'),
+
     url(r'^translation/list/?$', 'list', name='list'),
     url(r'^translation/add/(?P<exam_id>\d+)$', 'add_translation', name='add-translation'),
 
-    url(r'^language/add$', 'add_language', name='language-add'),
-    url(r'^language/edit/(?P<lang_id>\d+)$', 'edit_language', name='language-edit'),
+    url(r'^languages/?$', 'list_language', name='language-list'),
+    url(r'^languages/add$', 'add_language', name='language-add'),
+    url(r'^languages/edit/(?P<lang_id>\d+)$', 'edit_language', name='language-edit'),
+
+    url(r'^time$', 'time_response', name='time'),
 
     url(r'^editor/?$', 'editor'),
     url(r'^editor/(?P<exam_id>\d+)$', 'editor', name='editor-exam'),
@@ -25,6 +31,7 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^feedbacks/list/?$', 'feedbacks_list', name='feedbacks-list'),
     url(r'^feedbacks/add/(?P<exam_id>\d+)$', 'feedbacks_add', name='feedbacks-add'),
 
+    url(r'^submission/list$', 'submission_exam_list', name='submission-exam-list'),
     url(r'^submission/(?P<exam_id>\d+)/assign$', 'submission_exam_assign', name='submission-exam-assign'),
     url(r'^submission/(?P<exam_id>\d+)/confirm$', 'submission_exam_confirm', name='submission-exam-confirm'),
     url(r'^submission/(?P<exam_id>\d+)/submitted$', 'submission_exam_submitted', name='submission-exam-submitted'),
@@ -35,6 +42,8 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^figure/(?P<fig_id>\d+)/remove$', 'figure_delete', name='figure-delete'),
     url(r'^figure/(?P<fig_id>\d+)/export.svg$', 'figure_export', {'output_format': 'svg'}, name='figure-export'),
     url(r'^figure/(?P<fig_id>\d+)/export.pdf$', 'figure_export', {'output_format': 'pdf'}, name='figure-export-pdf'),
+    url(r'^figure/(?P<fig_id>\d+)/(?P<lang_id>\d+)/export.svg$', 'figure_export', {'output_format': 'svg'}, name='figure-lang-export'),
+    url(r'^figure/(?P<fig_id>\d+)/(?P<lang_id>\d+)/export.pdf$', 'figure_export', {'output_format': 'pdf'}, name='figure-lang-export-pdf'),
 
     url(r'^admin/?$', 'admin_list', name='admin'),
     url(r'^admin/(?P<exam_id>\d+)/sort$', 'admin_sort', name='admin-sort'),

@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Tibetan (Tibetan) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Tibetan';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansTibetan-Regular.eot);
+  src: url(/static/noto/NotoSansTibetan-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansTibetan-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansTibetan-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansTibetan-Regular.ttf) format('truetype');
+}

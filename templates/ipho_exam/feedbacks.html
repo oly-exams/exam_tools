@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "ipho_exam/base.html" %}
 {% load static %}
 
 {% block extra-head %}
@@ -10,11 +10,21 @@
 </style>
 {% endblock %}
 
-{% block content %}
-<div class="container">
-    <div class="page-header">
-      <h1>Exam feedbacks</h1>
-    </div>
+{% block breadcrumb %}
+<li class="active">Exam feedbacks</li>
+{% endblock %}
+
+{% block pageheader %}<h1>Exam feedbacks</h1>{% endblock %}
+
+{% block exam-content %}
+    <p class="lead">
+        Use the exam feedbacks to submit any comment you want to report to the organizers.
+    </p>
+    <ul>
+        <li>Exams fedbacks are available only for a limited time, after the official presentation and before the final discussion.</li>
+        <li>Feebacks are shown to all delegations.</li>
+        <li>The first column shows the status of your report. It will change from <mark>Submitted</mark> to <mark>In progress</mark> and finally to <mark>Resolved</mark>, then the organizers take care of it.</li>
+    </ul>
 
     <div class="modal fade" id="feedback-modal" tabindex="-1">
       <div class="modal-dialog">
@@ -52,9 +62,6 @@
       <tbody id="exam-tbody-{{ ex.pk }}"></tbody>
     </table>
     {% endfor %}
-
-
-</div> <!-- /container -->
 
 {% endblock %}
 

@@ -1,0 +1,23 @@
+/*
+ * Noto Naskh Arabic (Arabic) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Naskh Arabic';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoNaskhArabic-Regular.eot);
+  src: url(/static/noto/NotoNaskhArabic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoNaskhArabic-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoNaskhArabic-Regular.woff) format('woff'),
+       url(/static/noto/NotoNaskhArabic-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Naskh Arabic';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoNaskhArabic-Bold.eot);
+  src: url(/static/noto/NotoNaskhArabic-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoNaskhArabic-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoNaskhArabic-Bold.woff) format('woff'),
+       url(/static/noto/NotoNaskhArabic-Bold.ttf) format('truetype');
+}

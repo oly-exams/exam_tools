@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Egyptian Hieroglyphs (Egyptian Hieroglyphs) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Egyptian Hieroglyphs';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansEgyptianHieroglyphs-Regular.eot);
+  src: url(/static/noto/NotoSansEgyptianHieroglyphs-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansEgyptianHieroglyphs-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansEgyptianHieroglyphs-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansEgyptianHieroglyphs-Regular.ttf) format('truetype');
+}

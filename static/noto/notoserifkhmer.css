@@ -1,0 +1,23 @@
+/* 
+ * Noto Serif Khmer (Khmer) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Serif Khmer';
+  font-style: normal;
+  font-weight: 300;
+  src: url(/static/noto/NotoSerifKhmer-Regular.eot);
+  src: url(/static/noto/NotoSerifKhmer-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSerifKhmer-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSerifKhmer-Regular.woff) format('woff'),
+       url(/static/noto/NotoSerifKhmer-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Serif Khmer';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSerifKhmer-Bold.eot);
+  src: url(/static/noto/NotoSerifKhmer-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSerifKhmer-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSerifKhmer-Bold.woff) format('woff'),
+       url(/static/noto/NotoSerifKhmer-Bold.ttf) format('truetype');
+}

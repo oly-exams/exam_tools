@@ -3,6 +3,7 @@ from django.forms import ModelForm, Form
 from django.forms.formsets import formset_factory
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, MultiField, Div
+from crispy_forms.bootstrap import Accordion, AccordionGroup
 from django.utils.safestring import mark_safe
 
 from django.core.exceptions import ValidationError
@@ -28,22 +29,33 @@ class LanguageForm(ModelForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(Field('name', placeholder='Name'),
-                                    Field('direction'),
-                                    Field('polyglossia'),
+                                    Field('style'),
+                                    Accordion(
+                                        AccordionGroup('Advanced settings',
+                                            Field('direction'),
+                                            Field('polyglossia'),
+                                            Field('font'),
+                                            active=False,
+                                        ),
+                                    ),
                                     )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.form_tag = False
         self.helper.disable_csrf = True
         # self.helper.form_method = 'post'
-        # self.helper.form_action = 'exam:index'
+        # self.helper.form_action = 'exam:main'
         # self.helper.add_input(Submit('submit', 'Create'))
 
     class Meta:
         model = Language
-        fields = ['name','direction','polyglossia']
+        fields = ['name','style','direction','polyglossia','font']
         labels = {
-                   'polyglossia': 'Language style <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Select a lanugage similar to yours. This will improve the final typesetting, e.g. allowing correct hyphenation."><span class="glyphicon glyphicon-info-sign"></span></a>',
+                   'name': 'Name of the language version (e.g. Swiss German)',
+                   'direction': ' Writing Direction',
+                   'style': 'Language style <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="Select a language similar to yours or leave <emph>english</emph>. This will preset the advanced settings."><span class="glyphicon glyphicon-info-sign"></span></a>',
+                   'polyglossia': 'Polyglossia style <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="Select a language similar to yours or leave <emph>english</emph>. This will improve the final typesetting, e.g. allowing correct hyphenation."><span class="glyphicon glyphicon-info-sign"></span></a>',
+                   'font': 'Font in PDF <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="For most languages choose <emph>Noto Sans</emph>. Preview of Noto fonts is available <a href=\'https://www.google.com/get/noto\' target=\'_blank\'>here</a>. More fonts can be added on request."><span class="glyphicon glyphicon-info-sign"></span></a>',
                }
 
 class FigureForm(ModelForm):
@@ -69,11 +81,11 @@ class FigureForm(ModelForm):
         model = Figure
         fields = ['name']
 
-class TranslationForm(ModelForm):
+class TranslationForm(forms.Form):
+    language = forms.ModelChoiceField(queryset=Language.objects.none())
+
     def __init__(self, *args, **kwargs):
         super(TranslationForm, self).__init__(*args, **kwargs)
-        self.fields['question'].label_from_instance = lambda obj: obj.name
-
         self.helper = FormHelper()
         # self.helper.layout = Layout(Field('name', placeholder='Name'),
         #                             Field('polyglossia'),
@@ -87,8 +99,7 @@ class TranslationForm(ModelForm):
         # self.helper.add_input(Submit('submit', 'Create'))
 
     class Meta:
-        model = TranslationNode
-        fields = ['question','language']
+        fields = ['language']
         labels = {
                    'language': 'Language <a href="#" onclick="return false;" data-toggle="popover" data-trigger="hover" data-container="body" data-content="More languages can be created from the Exam > Languages interface."><span class="glyphicon glyphicon-info-sign"></span></a>',
                }

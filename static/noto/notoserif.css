@@ -1,0 +1,56 @@
+@font-face {
+  font-family: 'Noto Serif';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/noto/Noto-Serif-regular.eot');
+  src: url('/static/noto/Noto-Serif-regular.eot?#iefix') format('embedded-opentype'),
+       local('Noto Serif'),
+       local('Noto-Serif-regular'),
+       url('/static/noto/Noto-Serif-regular.woff2') format('woff2'),
+       url('/static/noto/Noto-Serif-regular.woff') format('woff'),
+       url('/static/noto/Noto-Serif-regular.ttf') format('truetype'),
+       url('/static/noto/Noto-Serif-regular.svg#NotoSerif') format('svg');
+}
+
+@font-face {
+  font-family: 'Noto Serif';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/noto/Noto-Serif-Bold.eot');
+  src: url('/static/noto/Noto-Serif-Bold.eot?#iefix') format('embedded-opentype'),
+       local('Noto Serif Bold'),
+       local('Noto-Serif-700'),
+       url('/static/noto/Noto-Serif-Bold.woff2') format('woff2'),
+       url('/static/noto/Noto-Serif-Bold.woff') format('woff'),
+       url('/static/noto/Noto-Serif-Bold.ttf') format('truetype'),
+       url('/static/noto/Noto-Serif-Bold.svg#NotoSerif') format('svg');
+}
+
+@font-face {
+  font-family: 'Noto Serif';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/noto/Noto-Serif-italic.eot');
+  src: url('/static/noto/Noto-Serif-italic.eot?#iefix') format('embedded-opentype'),
+       local('Noto Serif Italic'),
+       local('Noto-Serif-italic'),
+       url('/static/noto/Noto-Serif-italic.woff2') format('woff2'),
+       url('/static/noto/Noto-Serif-italic.woff') format('woff'),
+       url('/static/noto/Noto-Serif-italic.ttf') format('truetype'),
+       url('/static/noto/Noto-Serif-italic.svg#NotoSerif') format('svg');
+}
+
+@font-face {
+  font-family: 'Noto Serif';
+  font-weight: 700;
+  font-style: italic;
+  src: url('/static/noto/Noto-Serif-bolditalic.eot');
+  src: url('/static/noto/Noto-Serif-bolditalic.eot?#iefix') format('embedded-opentype'),
+       local('Noto Serif Bold Italic'),
+       local('Noto-Serif-bolditalic'),
+       url('/static/noto/Noto-Serif-bolditalic.woff2') format('woff2'),
+       url('/static/noto/Noto-Serif-bolditalic.woff') format('woff'),
+       url('/static/noto/Noto-Serif-bolditalic.ttf') format('truetype'),
+       url('/static/noto/Noto-Serif-bolditalic.svg#NotoSerif') format('svg');
+}
+

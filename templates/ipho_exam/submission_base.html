@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "ipho_exam/base.html" %}
 {% load static %}
 
 {% block extra-head %}
@@ -12,14 +12,16 @@
 </style>
 {% endblock %}
 
-{% block content %}
-<div class="container">
-    <div class="page-header">
-      <h1>Translations submission</h1>
-  </div>
+{% block breadcrumb %}
+<li><a href="{% url 'exam:submission-exam-list' %}">Translations submission</a></li>
+<li class="active">Translations submission</li>
+{% endblock %}
 
+{% block pageheader %}<h1>Translations submission for printing</h1>{% endblock %}
+
+{% block exam-content %}
   <p class="lead">
-      In this interface you assign which languages should be delivered to your students.
+      In this interface you assign which languages should be delivered to which student.
   </p>
 
     <div class="wizard">
@@ -59,9 +61,7 @@
 
     <h2>{% block exam-header %}{{ exam.name }}{% endblock %}</h2>
 
-    {% block exam-content %}{% endblock %}
-
-</div> <!-- /container -->
+    {% block exam-submission-content %}{% endblock %}
 
 {% endblock %}
 

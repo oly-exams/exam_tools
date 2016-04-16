@@ -1,0 +1,56 @@
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/noto/Noto-Sans-regular.eot');
+  src: url('/static/noto/Noto-Sans-regular.eot?#iefix') format('embedded-opentype'),
+       local('Noto Sans'),
+       local('Noto-Sans-regular'),
+       url('/static/noto/Noto-Sans-regular.woff2') format('woff2'),
+       url('/static/noto/Noto-Sans-regular.woff') format('woff'),
+       url('/static/noto/Noto-Sans-regular.ttf') format('truetype'),
+       url('/static/noto/Noto-Sans-regular.svg#NotoSans') format('svg');
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/noto/Noto-Sans-Bold.eot');
+  src: url('/static/noto/Noto-Sans-Bold.eot?#iefix') format('embedded-opentype'),
+       local('Noto Sans Bold'),
+       local('Noto-Sans-700'),
+       url('/static/noto/Noto-Sans-Bold.woff2') format('woff2'),
+       url('/static/noto/Noto-Sans-Bold.woff') format('woff'),
+       url('/static/noto/Noto-Sans-Bold.ttf') format('truetype'),
+       url('/static/noto/Noto-Sans-Bold.svg#NotoSans') format('svg');
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/noto/Noto-Sans-italic.eot');
+  src: url('/static/noto/Noto-Sans-italic.eot?#iefix') format('embedded-opentype'),
+       local('Noto Sans Italic'),
+       local('Noto-Sans-italic'),
+       url('/static/noto/Noto-Sans-italic.woff2') format('woff2'),
+       url('/static/noto/Noto-Sans-italic.woff') format('woff'),
+       url('/static/noto/Noto-Sans-italic.ttf') format('truetype'),
+       url('/static/noto/Noto-Sans-italic.svg#NotoSans') format('svg');
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: 700;
+  font-style: italic;
+  src: url('/static/noto/Noto-Sans-bolditalic.eot');
+  src: url('/static/noto/Noto-Sans-bolditalic.eot?#iefix') format('embedded-opentype'),
+       local('Noto Sans Bold Italic'),
+       local('Noto-Sans-bolditalic'),
+       url('/static/noto/Noto-Sans-bolditalic.woff2') format('woff2'),
+       url('/static/noto/Noto-Sans-bolditalic.woff') format('woff'),
+       url('/static/noto/Noto-Sans-bolditalic.ttf') format('truetype'),
+       url('/static/noto/Noto-Sans-bolditalic.svg#NotoSans') format('svg');
+}
+

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
+import uuid
 
 class IphoPerm(models.Model):
     pass
@@ -9,13 +10,28 @@ class IphoPerm(models.Model):
                 ('is_staff', 'Is an organizer'),
             )
 
+class AutoLoginManager(models.Manager):
+    def get_by_natural_key(self, username):
+        return self.get(user=User.objects.get_by_natural_key(username))
+class AutoLogin(models.Model):
+    objects = AutoLoginManager()
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    token = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
+
+    def __unicode__(self):
+        return unicode(self.token)
+
+    def natural_key(self):
+        return self.user.natural_key()
+
 class DelegationManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
 class Delegation(models.Model):
     objects = DelegationManager()
 
-    name    = models.CharField(unique=True,max_length=3)
+    name    = models.CharField(unique=True,max_length=4)
     country = models.CharField(unique=True,max_length=100)
     members = models.ManyToManyField(User, blank=True)
 

@@ -1,10 +1,17 @@
-{% extends "base.html" %}
+{% extends "ipho_exam/base.html" %}
 {% load static %}
 {% load editor_extras %}
 
 {% block extra-head %}
 <link href="{% static "mathquill_alpha/mathquill.css" %}" rel="stylesheet">
 <link href="{% static "bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" %}" rel="stylesheet">
+<link href="{% static "noto/notosans.css" %}" rel="stylesheet">
+{% if orig_font %}
+<link href="{% static "noto/" %}{{ orig_font.css }}" rel="stylesheet">
+{% endif %}
+{% if trans_font %}
+<link href="{% static "noto/" %}{{ trans_font.css }}" rel="stylesheet">
+{% endif %}
 
 <style>
 span.dropdown {
@@ -21,6 +28,13 @@ span.dropdown {
 }
 .title-dropdown .dropdown-menu {
     font-size: 20px;
+}
+
+.translate-original {
+    font-family: "{{ orig_font.font }}";
+}
+.translate-foreign {
+    font-family: "{{ trans_font.font }}";
 }
 
 .translation-field-nested .row {
@@ -67,9 +81,31 @@ body { margin-bottom: 70px; }
 {% endblock %}
 
 
-{% block content %}
-<div class="container">
+{% block breadcrumb %}
+<li><a href="{% url 'exam:list' %}">Your translations</a></li>
+<li class="active">Editor</li>
+{% endblock %}
 
+{% block pageheader %}
+<div class="dropdown pull-right">
+  <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+{% if exam %}
+    {{ exam.name }}
+{% else %}
+    Select exam
+{% endif %}
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu">
+{% for ex in exam_list %}
+    <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:editor-exam' exam_id=ex.pk %}">{{ ex.name }}</a></li>
+{% endfor %}
+  </ul>
+</div>
+<h1>Exam editor</h1>
+{% endblock %}
+
+{% block exam-content %}
     <div class="modal fade" id="figure-modal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -81,12 +117,33 @@ body { margin-bottom: 70px; }
       </div>
     </div>
 
-{% if warning %}
-    <div class="alert alert-warning alert-dismissible" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <strong>Warning:</strong> {{ warning }}
+    <div class="modal fade" id="language-modal" tabindex="-1">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <form method="post" action="">
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+          </form>
+        </div>
+      </div>
     </div>
-{% endif %}
+
+
+    <div id="alerts-container">
+        {% if warning %}
+            <div class="alert alert-warning alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <strong>Warning:</strong> {{ warning }}
+            </div>
+        {% endif %}
+    </div>
 
 <div class="modal fade" id="ipho_exam-modal">
   <div class="modal-dialog">
@@ -111,25 +168,6 @@ body { margin-bottom: 70px; }
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<div class="page-header">
-    <div class="dropdown pull-right">
-      <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
-{% if exam %}
-        {{ exam.name }}
-{% else %}
-        Select exam
-{% endif %}
-        <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-    {% for ex in exam_list %}
-        <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:editor-exam' exam_id=ex.pk %}">{{ ex.name }}</a></li>
-    {% endfor %}
-      </ul>
-    </div>
-  <h1>Exam editor</h1>
-</div>
-
 <!-- <div class="page-header">
   <h2>Exam editor :
 
@@ -149,7 +187,15 @@ body { margin-bottom: 70px; }
 
 <ul class="nav nav-tabs">
     {% for q in exam.question_set.all %}
-        <li {% if question == q %} class="active" {% endif %}><a href="{% url 'exam:editor-question' exam_id=exam.pk question_id=q.pk %}">{{ q.name }}</a></li>
+        <li {% if question == q %} class="active" {% endif %}>
+            {% if orig_lang and trans_lang %}
+                <a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk lang_id=trans_lang.pk %}">{{ q.name }}</a>
+            {% elif orig_lang %}
+                <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk %}">{{ q.name }}</a>
+            {% else %}
+                <a href="{% url 'exam:editor-question' exam_id=exam.pk question_id=q.pk %}">{{ q.name }}</a>
+            {% endif %}
+        </li>
     {% endfor %}
 </ul>
 
@@ -168,19 +214,20 @@ body { margin-bottom: 70px; }
                     <span class="caret"></span>
                   </a>
                   <ul class="dropdown-menu">
-                      {% if trans_lang %}
-                          {% for l in question_langs %}
+                      {% for lang_group in question_langs|dictsort:"order" %}
+                          {% for l in lang_group.list %}
                               <li {% if orig_lang == l %} class="active" {% endif %}>
+                                  {% if trans_lang %}
                                   <a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=question.pk orig_id=l.pk lang_id=trans_lang.pk %}">
-                                      {{ l.name }}
+                                  {% else %}
+                                  <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=question.pk orig_id=l.pk %}">
+                                  {% endif %}
+                                      {{ l.name }} {% if lang_group.name != 'own' %}({{ l.delegation.country }}){% endif %}
                                       {% if l.versioned %}<span class="badge">v{{ l.version }}</span>{% endif %}
                                   </a></li>
                           {% endfor %}
-                      {% else %}
-                          {% for l in all_lang %}
-                              <li {% if orig_lang == l %} class="active" {% endif %}><a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=question.pk orig_id=l.pk %}">{{ l.name }}</a></li>
-                          {% endfor %}
-                      {% endif %}
+                          {% if not forloop.last %}<li class="divider"></li>{% endif %}
+                     {% endfor %}
                   </ul>
                 </span>
 
@@ -229,6 +276,9 @@ body { margin-bottom: 70px; }
                       {% endfor %}
                   </ul>
                 </span>
+                {% if trans_lang %}
+                <button class="btn btn-default" title="Language settings" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-edit' lang_id=trans_lang.pk %}"><i class="fa fa-cog"></i></button>
+                {% endif %}
                 </h4>
             </div>
         </div>
@@ -257,7 +307,6 @@ body { margin-bottom: 70px; }
         {% endif %}
     </form>
 {% endif %}
-</div> <!-- /container -->
 
 {% endblock %}
 
@@ -283,11 +332,11 @@ body { margin-bottom: 70px; }
         CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
 
         CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax-mathquill', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
+                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax-mathquill', '-', 'Styles', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
             ];
         CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
-        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax-mathquill';
+        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,stylescombo,mathjax-mathquill';
         CKEDITOR.config.removePlugins = 'mathjax,elementspath,contextmenu,tabletools,liststyle';
         // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
         CKEDITOR.config.width = '100%';
@@ -309,6 +358,14 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.contentsLangDirection = 'rtl';
         {% endif %}
         CKEDITOR.config.jsvk_skin = "flat_gray";
+        CKEDITOR.config.contentsCss = [ CKEDITOR.getUrl( 'contents.css' ), '{% static "noto/notosans.css" %}', '{% static "noto/" %}{{ trans_font.css }}' ];
+        CKEDITOR.addCss("body{font-family:{{ trans_font.font }}, Noto Sans;}");
+        CKEDITOR.stylesSet.add( 'my_styles', [
+            { name: 'Language: LTR', element: 'span', attributes: { 'class': 'lang-ltr' } },
+            { name: 'Language: RTL', element: 'span', attributes: { 'class': 'lang-rtl' } },
+        ] );
+        CKEDITOR.config.stylesSet = 'my_styles';
+
 
         all_editors = new Array();
 
@@ -325,6 +382,36 @@ body { margin-bottom: 70px; }
         }
 
         $(function(){
+            // Get csrftoken
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            var csrftoken = getCookie('csrftoken');
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
             $('[data-toggle="tooltip"]').each(function () {
                 if (navigator.platform.match("Mac")) {
                     $(this).attr('title', $(this).attr('title').replace('ctrl', '⌘'));
@@ -375,11 +462,84 @@ body { margin-bottom: 70px; }
                 }
             });
 
+            /// Language modal
+
+            var ipho_languages = null;
+            $.ajax({
+                url: '{% static 'languages.json' %}',
+                type: 'GET',
+            }).done(function (data) {
+                ipho_languages = data;
+            });
+            $(document).on('change', 'select[name="style"]', function(evt) {
+                if (ipho_languages !== null) {
+                    var style = $('select[name="style"]').val();
+                    if (style in ipho_languages) {
+                        var polyglossia = ipho_languages[style]['polyglossia'];
+                        if (polyglossia == null) polyglossia = 'english';
+                        $('select[name="direction"]').val(ipho_languages[style]['direction']);
+                        $('select[name="polyglossia"]').val(polyglossia);
+                        $('select[name="font"]').val(ipho_languages[style]['fonts'][0]);
+                    }
+                }
+            });
+
+            // Language modal
+            $(document).on('submit', '#language-modal form', function(evt) {
+                var form = evt.target;
+                var $form = $(form);
+                evt.preventDefault();
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: $form.serialize(),
+                    success: function(data) {
+                        if (!data['success']) {
+                            $('#language-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                            return;
+                        }
+
+                        $('#language-modal').modal('hide');
+                        $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+                    }
+                });
+            });
+
+            $('#language-modal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var href = button.attr('href');
+                var modal = $(this);
+
+                modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+                modal.find('.modal-body').html('');
+
+                $.ajax({
+                    url: href,
+                    dataType: 'json',
+                    success: function(data) {
+                        modal.find('.modal-title').text(data['title']);
+                        modal.find('form').attr('action', href);
+                        modal.find('.modal-body').html(data['form']);
+                        modal.find('button[type="submit"]').text(data['submit']);
+                        modal.find("[data-toggle=popover]").popover(); // activate popover
+                    },
+                });
+            })
+
+
             /// Saving methods
+            var server_date;
+            var server_offset = 0;
+            $.get("{% url 'exam:time' %}", function(data){
+               server_date = data;
+               server_offset = moment(server_date).diff(new Date());
+               console.log("Server time difference: "+server_offset);
+            });
+
             var last_saved = new Date("{{ last_saved.isoformat }}");
             var saving = false;
             function updateDocumentStatus() {
-                var status_text = (saving) ? 'Saving...' : 'Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).fromNow()+'</abbr>.';
+                var status_text = (saving) ? 'Saving...' : 'Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).from(moment()+server_offset)+'</abbr>.';
                 $('#save-status')
                     .html(status_text)
                     .find('[data-toggle="tooltip"]').tooltip();

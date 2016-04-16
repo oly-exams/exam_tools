@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Javanese (Javanese) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Javanese';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansJavanese-Regular.eot);
+  src: url(/static/noto/NotoSansJavanese-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansJavanese-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansJavanese-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansJavanese-Regular.ttf) format('truetype');
+}

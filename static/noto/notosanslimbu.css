@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Limbu (Limbu) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Limbu';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansLimbu-Regular.eot);
+  src: url(/static/noto/NotoSansLimbu-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansLimbu-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansLimbu-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansLimbu-Regular.ttf) format('truetype');
+}

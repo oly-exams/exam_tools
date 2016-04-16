@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Thaana (Thaana) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Thaana';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansThaana-Regular.eot);
+  src: url(/static/noto/NotoSansThaana-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansThaana-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansThaana-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansThaana-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Thaana';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansThaana-Bold.eot);
+  src: url(/static/noto/NotoSansThaana-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansThaana-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansThaana-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansThaana-Bold.ttf) format('truetype');
+}

@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Cuneiform (Cuneiform) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Cuneiform';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansCuneiform-Regular.eot);
+  src: url(/static/noto/NotoSansCuneiform-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansCuneiform-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansCuneiform-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansCuneiform-Regular.ttf) format('truetype');
+}

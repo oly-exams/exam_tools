@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Avestan (Avestan) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Avestan';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansAvestan-Regular.eot);
+  src: url(/static/noto/NotoSansAvestan-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansAvestan-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansAvestan-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansAvestan-Regular.ttf) format('truetype');
+}

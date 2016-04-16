@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Runic (Runic) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Runic';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansRunic-Regular.eot);
+  src: url(/static/noto/NotoSansRunic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansRunic-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansRunic-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansRunic-Regular.ttf) format('truetype');
+}

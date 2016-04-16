@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Khmer UI (Khmer) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Khmer UI';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansKhmerUI-Regular.eot);
+  src: url(/static/noto/NotoSansKhmerUI-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansKhmerUI-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansKhmerUI-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansKhmerUI-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Khmer UI';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansKhmerUI-Bold.eot);
+  src: url(/static/noto/NotoSansKhmerUI-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansKhmerUI-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansKhmerUI-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansKhmerUI-Bold.ttf) format('truetype');
+}

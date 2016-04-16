@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Vai (Vai) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Vai';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansVai-Regular.eot);
+  src: url(/static/noto/NotoSansVai-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansVai-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansVai-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansVai-Regular.ttf) format('truetype');
+}

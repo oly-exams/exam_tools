@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Telugu (Telugu) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Telugu';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansTelugu-Regular.eot);
+  src: url(/static/noto/NotoSansTelugu-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansTelugu-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansTelugu-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansTelugu-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Telugu';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansTelugu-Bold.eot);
+  src: url(/static/noto/NotoSansTelugu-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansTelugu-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansTelugu-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansTelugu-Bold.ttf) format('truetype');
+}

@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Old Turkic (Old Turkic) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Old Turkic';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansOldTurkic-Regular.eot);
+  src: url(/static/noto/NotoSansOldTurkic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansOldTurkic-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansOldTurkic-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansOldTurkic-Regular.ttf) format('truetype');
+}

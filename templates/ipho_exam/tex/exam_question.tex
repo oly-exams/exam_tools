@@ -1,63 +1,29 @@
 {% autoescape off %}
 
-\documentclass[a4paper]{article}
+\documentclass[11pt,a4paper]{ipho2016}
 
-
-% PDF search & cut'n'paste
-\usepackage{cmap}
 
 % PDF metadata
-\usepackage[pdfauthor={IPhO 2016},
-            pdftitle={IPhO 2016 - {{ title }}},
-            pdfproducer={XeLateX},
-            pdfcreator={Xelatex}]{hyperref}
+\hypersetup{pdftitle={IPhO 2016 - {{ title }}} }
 
-% Page options
-\usepackage{geometry}
-\geometry{left=2.5cm}
-\geometry{right=2.5cm}
-\geometry{top=1cm}
-\geometry{bottom=2cm}
-
-% Font settings
-\usepackage{fontspec}
-\usepackage{polyglossia}
-\setmainfont{Arial Unicode MS} %Calibri
+\setmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %}]{% templatetag openbrace %}{{ font.font_regular }}} %Calibri
 \setmainlanguage{% templatetag openbrace %}{{ polyglossia }}}
-\setotherlanguage{english}
+{% if font.cjk %}
+\usepackage{xeCJK}
+\setCJKmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %}]{% templatetag openbrace %}{{ font.font_regular }}}
+{% endif %}
+
+%\setotherlanguage{english}
 % Usage:
 % Start other language with \begin{English}, or \textenglish
 
-
-% Math
-\usepackage{amsmath}
-\usepackage[]{unicode-math}
-%\setmathfont{XITS Math}
+{% if is_answer %}\geometry{top=5cm}{% endif %}
+\fancyhf[HL]{\textenglish{IPhO - Exam Tools}}
+\fancyhf[HC]{\textenglish{ {{ title }} }}
+\fancyhf[HR]{\textenglish{ {{ lang_name }} }}
 
 \nonstopmode
 
-
-\newcommand\subquestion[2]{
-\vspace{0.5em}
-\noindent
-  \framebox[\textwidth]{
-    \vspace{0.5em}
-    \parbox[t]{.1\textwidth}{
-      \hspace{1em}
-      X.Y
-    }
-    \parbox[t]{.8\textwidth}{
-      #2 % content here
-    }
-    \parbox{.1\textwidth}{
-      \flushright
-      #1 pt
-      \hspace{1em}
-    }
-    \vspace{0.5em}
-  }
-\vspace{0.5em}
-}
 
 
 {{ extraheader }}
@@ -67,7 +33,8 @@
 \date{}
 
 \begin{document}
-    \maketitle
+
 {{ document }}
+
 \end{document}
 {% endautoescape %}

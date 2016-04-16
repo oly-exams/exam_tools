@@ -1,0 +1,23 @@
+/*
+ * Noto Serif Lao (Lao) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Serif Lao';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSerifLao-Regular.eot);
+  src: url(/static/noto/NotoSerifLao-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSerifLao-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSerifLao-Regular.woff) format('woff'),
+       url(/static/noto/NotoSerifLao-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Serif Lao';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSerifLao-Bold.eot);
+  src: url(/static/noto/NotoSerifLao-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSerifLao-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSerifLao-Bold.woff) format('woff'),
+       url(/static/noto/NotoSerifLao-Bold.ttf) format('truetype');
+}

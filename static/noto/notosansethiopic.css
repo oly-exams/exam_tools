@@ -1,0 +1,23 @@
+/*
+ * Noto Sans Ethiopic (Ethiopic) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Ethiopic';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansEthiopic-Regular.eot);
+  src: url(/static/noto/NotoSansEthiopic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansEthiopic-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansEthiopic-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansEthiopic-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Sans Ethiopic';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/static/noto/NotoSansEthiopic-Bold.eot);
+  src: url(/static/noto/NotoSansEthiopic-Bold.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansEthiopic-Bold.woff2) format('woff2'),
+       url(/static/noto/NotoSansEthiopic-Bold.woff) format('woff'),
+       url(/static/noto/NotoSansEthiopic-Bold.ttf) format('truetype');
+}

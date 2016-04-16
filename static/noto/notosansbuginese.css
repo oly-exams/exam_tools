@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Buginese (Buginese) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Buginese';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansBuginese-Regular.eot);
+  src: url(/static/noto/NotoSansBuginese-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansBuginese-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansBuginese-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansBuginese-Regular.ttf) format('truetype');
+}

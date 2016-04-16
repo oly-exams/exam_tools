@@ -1,0 +1,13 @@
+/*
+ * Noto Sans Tai Le (Tai Le) http://www.google.com/fonts/earlyaccess
+ */
+@font-face {
+  font-family: 'Noto Sans Tai Le';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/noto/NotoSansTaiLe-Regular.eot);
+  src: url(/static/noto/NotoSansTaiLe-Regular.eot?#iefix) format('embedded-opentype'),
+       url(/static/noto/NotoSansTaiLe-Regular.woff2) format('woff2'),
+       url(/static/noto/NotoSansTaiLe-Regular.woff) format('woff'),
+       url(/static/noto/NotoSansTaiLe-Regular.ttf) format('truetype');
+}
