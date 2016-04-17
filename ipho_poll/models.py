@@ -23,12 +23,13 @@ class QuestionManager(models.Manager):
         return list(chain(qNotFull, qNoVotes))
 
 class Question(models.Model):
-    question_text = models.TextField(max_length=200)
+    title = models.CharField(max_length=200)
+    content = models.TextField(blank=True, null=True)
     pub_date = models.DateTimeField('date published', default=timezone.now)
     end_date = models.DateTimeField('end date', blank=True, null=True)
     objects = QuestionManager()
     def __str__(self):
-        return self.question_text
+        return self.title
     def is_closed(self):
         if self.end_date:
             return self.end_date <= timezone.now()

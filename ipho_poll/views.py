@@ -64,7 +64,7 @@ def addQuestion(request):
         return JsonResponse({
                     'success'           : True,
                     'message'           : '<strong> The voting has successfully been added!</strong>',
-                    'new_question_text' : new_question.question_text,
+                    'new_title' : new_question.title,
                     'new_question_pk'   : new_question.pk,
                     'choice_text_list'  : choice_text_list,
                     'type'              : 'add',
@@ -108,7 +108,7 @@ def editQuestion(request, question_pk):
         return JsonResponse({
                     'success'           : True,
                     'message'           : '<strong> The voting has successfully been added!</strong>',
-                    'new_question_text' : question.question_text,
+                    'new_title' : question.title,
                     'new_question_pk'   : question.pk,
                     'choice_text_list'  : choice_text_list,
                     'type'              : 'edit',
@@ -172,7 +172,7 @@ def setEndDate(request, question_pk):
         return JsonResponse({
                         'success'           : True,
                         'message'           : '<strong> The voting is now open!</strong>',
-                        'new_question_text' : question.question_text,
+                        'new_title' : question.title,
                         'new_question_pk'   : question.pk,
                         'choice_text_list'  : choice_text_list,
         })

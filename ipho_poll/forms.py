@@ -14,7 +14,7 @@ class QuestionForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(QuestionForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(Field('question_text', placeholder='Enter question text'))
+        self.helper.layout = Layout(Field('title', placeholder='Enter question text'))
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.helper.form_tag = False
@@ -22,7 +22,7 @@ class QuestionForm(ModelForm):
 
     class Meta:
         model = Question
-        fields = ['question_text']
+        fields = ['title']
 
 
 class EndDateForm(ModelForm):

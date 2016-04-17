@@ -44,14 +44,14 @@ from .models import Question, Choice
 #-------------
 
 
-def create_question(question_text, days):
+def create_question(title, days):
     """
-    Creates a question with the given 'question_text' published the given number
+    Creates a question with the given 'title' published the given number
     of 'days' offset to now (negative for questions published in the past, positive
     for questions that have yet to be published).
     """
     time = timezone.now() + datetime.timedelta(days=days)
-    return Question.objects.create(question_text=question_text, pub_date=time)
+    return Question.objects.create(title=title, pub_date=time)
 
 
 def create_choice(choice_text, question_id):
@@ -75,7 +75,7 @@ class QuestionMethodTests(TestCase):
         was_published_recently() should return False for questions whose pub_date
         is older than 1 day.
         """
-        old_question = create_question(question_text="Old Question.", days=-30)
+        old_question = create_question(title="Old Question.", days=-30)
         self.assertEqual(old_question.was_published_recently(), False)
 
 
@@ -84,7 +84,7 @@ class QuestionMethodTests(TestCase):
         was_published_recently() should return False for questions whose pub_date
         is in the future.
         """
-        future_question = create_question(question_text="Future Question.", days=30)
+        future_question = create_question(title="Future Question.", days=30)
         self.assertEqual(future_question.was_published_recently(), False)
 
 
@@ -93,7 +93,7 @@ class QuestionMethodTests(TestCase):
         was_published_recently() should return True for questions whose pub_date
         is within the last day.
         """
-        recent_question = create_question(question_text="Recent Question.", days=-1/24)
+        recent_question = create_question(title="Recent Question.", days=-1/24)
         self.assertEqual(recent_question.was_published_recently(), True)
 
 
@@ -114,7 +114,7 @@ class QuestionViewIndexTests(TestCase):
         """
         Questions with a pub_date in the past should be displayed on the index page.
         """
-        create_question(question_text="Past question.", days=-30)
+        create_question(title="Past question.", days=-30)
         create_choice(choice_text="Past choice.", question_id=1)
         response = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(
@@ -128,7 +128,7 @@ class QuestionViewIndexTests(TestCase):
         Questions with a pub_date in the future should not be displayed on the
         index page.
         """
-        create_question(question_text="Future question.", days=30)
+        create_question(title="Future question.", days=30)
         response = self.client.get(reverse('polls:index'))
         self.assertContains(response, "No polls are available.",
                             status_code=200)
@@ -140,9 +140,9 @@ class QuestionViewIndexTests(TestCase):
         Even if both past and future questions exist, only past questions should
         be displayed.
         """
-        create_question(question_text="Past question.", days=-30)
+        create_question(title="Past question.", days=-30)
         create_choice(choice_text="Past choice.", question_id=1)
-        create_question(question_text="Future question.", days=30)
+        create_question(title="Future question.", days=30)
         response = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(
             response.context['latest_question_list'],
@@ -154,9 +154,9 @@ class QuestionViewIndexTests(TestCase):
         """
         The question index page may display multiple questions.
         """
-        create_question(question_text="Past question 1.", days=-30)
+        create_question(title="Past question 1.", days=-30)
         create_choice(choice_text="Past choice 1.", question_id=1)
-        create_question(question_text="Past question 2.", days=-5)
+        create_question(title="Past question 2.", days=-5)
         create_choice(choice_text="Past choice 2.", question_id=2)
         response = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(
@@ -169,7 +169,7 @@ class QuestionViewIndexTests(TestCase):
         """
         The question index should display question witch have at least one choice.
         """
-        create_question(question_text="One choice question.", days=-30)
+        create_question(title="One choice question.", days=-30)
         create_choice(choice_text="Choice", question_id=1)
         response = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(
@@ -182,7 +182,7 @@ class QuestionViewIndexTests(TestCase):
         """
         The question index should display a question with mutiple choices only once.
         """
-        create_question(question_text="Two choices question.", days=-30)
+        create_question(title="Two choices question.", days=-30)
         create_choice(choice_text="Choice 1.", question_id=1)
         create_choice(choice_text="choice 2.", question_id=1)
         response = self.client.get(reverse('polls:index'))
@@ -196,7 +196,7 @@ class QuestionViewIndexTests(TestCase):
         """
         The question index should not display questions with no choices.
         """
-        create_question(question_text="No choice question.", days=-30)
+        create_question(title="No choice question.", days=-30)
         response = self.client.get(reverse('polls:index'))
         self.assertContains(response, "No polls are available." , status_code=200)
         self.assertQuerysetEqual(response.context['latest_question_list'], [])
@@ -210,7 +210,7 @@ class QuestionViewDetailTests(TestCase):
             The detail view of a question with a pub_date in the future should return
             a 404 not found.
             """
-            future_question = create_question(question_text='Future question.', days=5)
+            future_question = create_question(title='Future question.', days=5)
             create_choice(choice_text="Future choice.", question_id=1)
             response = self.client.get(
                 reverse('polls:detail', args=(future_question.id,))
@@ -223,21 +223,21 @@ class QuestionViewDetailTests(TestCase):
             The detail view of question with a pub_date in the past should  display the
             question's text.
             """
-            past_question = create_question(question_text="Past Question.", days=-5)
+            past_question = create_question(title="Past Question.", days=-5)
             create_choice(choice_text="Past choice.", question_id=1)
             response = self.client.get(
                 reverse('polls:detail', args=(past_question.id,))
             )
-            self.assertContains(response, past_question.question_text, status_code=200)
+            self.assertContains(response, past_question.title, status_code=200)
 
 
         def test_detail_view_with_a_question_with_one_choice(self):
             """
             The detail view of a question with one choice should be displayed with the
-            question_text and the choice.
+            title and the choice.
             """
             one_choice_question = create_question(
-                question_text="One choice question.", days=-30)
+                title="One choice question.", days=-30)
             choice = create_choice(choice_text="Choice.", question_id=1)
             response = self.client.get(
                 reverse('polls:detail', args=(one_choice_question.id,))
@@ -253,7 +253,7 @@ class QuestionViewDetailTests(TestCase):
 #            one question and display both choices.
 #            """
 #            two_choices_question = create_question(
-#                question_text="Two choices question.", days=-30)
+#                title="Two choices question.", days=-30)
 #            choice_1 = create_choice(choice_text="Choice 1.", question_id=1)
 #            choice_2 = create_choice(choice_text="Choice 2.", question_id=1)
 #            try:
@@ -274,7 +274,7 @@ class QuestionViewDetailTests(TestCase):
             a 404 not found.
             """
             no_choice_question = create_question(
-                question_text='No choice question.', days=-30)
+                title='No choice question.', days=-30)
             response = self.client.get(
                 reverse('polls:detail', args=(no_choice_question.id,))
             )
@@ -290,7 +290,7 @@ class QuestionViewResultsTests(TestCase):
             The results view of a question with a pub_date in the future should return
             a 404 not found.
             """
-            future_question = create_question(question_text="Future question.", days=5)
+            future_question = create_question(title="Future question.", days=5)
             response = self.client.get(
                 reverse('polls:results', args=(future_question.id,))
             )
@@ -301,8 +301,8 @@ class QuestionViewResultsTests(TestCase):
             The results view of a question with a pub_date in the past should display
             the question's text.
             """
-            past_question = create_question(question_text="Past question.", days=-5)
+            past_question = create_question(title="Past question.", days=-5)
             response = self.client.get(
                 reverse('polls:results', args=(past_question.id,))
             )
-            self.assertContains(response, past_question.question_text, status_code=200)
+            self.assertContains(response, past_question.title, status_code=200)
