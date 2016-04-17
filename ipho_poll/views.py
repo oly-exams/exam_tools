@@ -8,6 +8,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from crispy_forms.utils import render_crispy_form
 from django.forms import formset_factory, inlineformset_factory
 from django.template import RequestContext
+from django.core.exceptions import PermissionDenied
+
 
 
 from ipho_core.models import User
@@ -233,7 +235,7 @@ def setEndDate(request, question_pk):
 def voterIndex(request):
     user = request.user
     if len(user.votingright_set.all()) <= 0:
-        return HttpResponseForbidden("Sorry, but you have no voting Rights")
+        raise PermissionDenied
     unvoted_questions_list = Question.objects.not_voted_upon_by(user)
     formset_html_dict = {}
     for question in unvoted_questions_list:
@@ -257,4 +259,3 @@ def voterIndex(request):
                     'formset_list'              : formset_html_dict,
                 }
             )
-
