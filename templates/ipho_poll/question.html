@@ -21,14 +21,14 @@
         <div class="panel-heading"><h2>Choices Legend</h2></div>
         <table id="drafted-questions-table" class="table table-striped">
             <tr>
-                <th>Alias</th>
+                <th></th>
                 <th>Choice Text</th>
                 <th>Total Votes</th>
             </tr>
 
                 {% for choice in choices %}
                     <tr id="choice-{{ choice.pk }}">
-                        <td class="col-md-1">{{ choice_dict.choice }}</td>
+                        <td class="col-md-1"><strong>{{ choice.label }}</strong></td>
                         <td class="col-md-6", id="choice-{{ choice.pk }}-choice-text">
                             {{ choice.choice_text }}
                         </td>
@@ -61,7 +61,7 @@
                                         <div class="col-md-3">
                                             {% for vote in votes %}
                                                 {% if vote.voting_right.user == user%}
-                                                    {{ vote }} |
+                                                    {{ vote.choice.label }}
                                                 {% endif %}
                                             {% endfor %}
                                         </div>

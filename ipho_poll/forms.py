@@ -47,7 +47,11 @@ class EndDateForm(ModelForm):
 class ChoiceForm(ModelForm):
     class Meta:
         model = Choice
-        fields = ['choice_text']
+        fields = ['label', 'choice_text']
+        widgets = {
+            'label': forms.TextInput(attrs={'size':3, 'maxlength':3}),
+        }
+        
 class ChoiceFormHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super(ChoiceFormHelper, self).__init__(*args, **kwargs)
