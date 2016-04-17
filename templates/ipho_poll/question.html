@@ -1,0 +1,94 @@
+
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra-head %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="page-header">
+      <h1>{{ question }}</h1>
+    </div>
+    <p>Status: {{ status }}</p>
+    <div class="parent">
+        <button id="reload" title="Refresh Results" type="button" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><h2>Choices Legend</h2></div>
+        <table id="drafted-questions-table" class="table table-striped">
+            <tr>
+                <th>Alias</th>
+                <th>Choice Text</th>
+                <th>Total Votes</th>
+            </tr>
+
+                {% for choice in choices %}
+                    <tr id="choice-{{ choice.pk }}">
+                        <td class="col-md-1">{{ choice_dict.choice }}</td>
+                        <td class="col-md-6", id="choice-{{ choice.pk }}-choice-text">
+                            {{ choice.choice_text }}
+                        </td>
+                        <td class="col-md-2">
+                            {{ choice.votes }}
+                        </td>
+                    </tr>
+                {% endfor %}
+
+          </table>
+    </div>
+
+
+
+    {% if not votes %}
+        <div class="alert alert-info">There are no votes yet.</div>
+
+    {% else %}
+        <div class="panel panel-default">
+            <div class="panel-heading"><h2>Votes</h2></div>
+            <div class="panel-body">
+                <div class="list-group">
+                    {% for user in users %}
+
+                                <div class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            {{ user }}
+                                        </div>
+                                        <div class="col-md-3">
+                                            {% for vote in votes %}
+                                                {% if vote.voting_right.user == user%}
+                                                    {{ vote }} |
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script>
+$('document').ready(function(){
+    $(document).on('click', '#reload', function(event){
+        location.reload(true);
+    });
+
+    $('.btn').tooltip({containter: ".parent"});
+
+
+}); // $(document).ready()
+</script>
+{% endblock %}
