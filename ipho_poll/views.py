@@ -10,6 +10,7 @@ from django.forms import formset_factory, inlineformset_factory
 from django.template import RequestContext
 
 
+from ipho_core.models import User
 
 from .models import Question, Choice, VotingRight, Vote
 
@@ -37,6 +38,37 @@ def staffIndex(request):
             }
         )
 
+
+@login_required
+@permission_required('iphoperm.is_staff')
+@ensure_csrf_cookie
+def question(request, question_pk):
+    question = get_object_or_404(Question, pk=question_pk)
+    choices = question.choice_set.all()
+    voting_rights = VotingRight.objects.all()
+    users = User.objects.filter(votingright = voting_rights).distinct()
+    votes = Vote.objects.filter(choice__question=question)
+    choice_dict = question.choice_dict()
+    if question.is_draft():
+        status = 'draft'
+    elif question.is_open():
+        status = 'open'
+    else:
+        status = 'closed'
+
+
+
+    return render(request, 'ipho_poll/question.html',
+            {
+                'question'      : question,
+                'choices'       : choices,
+                'voting_rights' : voting_rights,
+                'users'         : users,
+                'votes'         : votes,
+                'status'        : status,
+                'choice_dict'   : choice_dict,
+            }
+    )
 
 
 @login_required

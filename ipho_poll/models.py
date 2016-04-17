@@ -22,6 +22,8 @@ class QuestionManager(models.Manager):
         qNoVotes = Question.objects.is_open().exclude(vote__voting_right__user=user)
         return list(chain(qNotFull, qNoVotes))
 
+
+
 class Question(models.Model):
     question_text = models.TextField(max_length=200)
     pub_date = models.DateTimeField('date published', default=timezone.now)
@@ -29,11 +31,34 @@ class Question(models.Model):
     objects = QuestionManager()
     def __str__(self):
         return self.question_text
+
+    def is_draft(self):
+        if not self.end_date:
+            return True
+        else:
+            return False
+
+    def is_open(self):
+        if not self.is_draft() and not self.is_closed():
+            return True
+        else:
+            return False
+
     def is_closed(self):
         if self.end_date:
             return self.end_date <= timezone.now()
         else:
             return False
+
+    def choice_dict(self):
+        choice_set = self.choice_set.all()
+        choice_dict = {}
+        for i,choice in enumerate(choice_set)   :
+            choice_dict[choice] = chr(ord('A')+i)
+        return choice_dict
+
+
+
 
 class Choice(models.Model):
     question = models.ForeignKey(Question)
@@ -41,14 +66,21 @@ class Choice(models.Model):
     def __str__(self):
         return self.choice_text
 
+    def calculateVotes(self):
+        return Vote.objects.filter(choice = self).count()
+    votes = property(calculateVotes)
+
 class VotingRight(models.Model):
     user = models.ForeignKey(User)
     name = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.name   
+        return self.name
 
 class Vote(models.Model):
     question = models.ForeignKey(Question, default="")
     choice = models.ForeignKey(Choice)
     voting_right = models.ForeignKey(VotingRight, default="")
+
+    def __str__(self):
+        return self.choice.__str__()
