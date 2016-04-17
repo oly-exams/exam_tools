@@ -6,7 +6,7 @@
 <div class="panel panel-default">
       <div id="language-list" class="list-group">
       {% for question in closed_questions_list %}
-          <li> question </li>
+          <li> {{ question.title }} </li>
       {% empty %}
           <a class="list-group-item">No closed questions.</a>
       {% endfor %}
