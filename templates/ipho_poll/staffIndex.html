@@ -5,6 +5,7 @@
 
 {% block extra-head %}
     <link href="{% static "bootstrap/css/bootstrap-datetimepicker.css" %}" rel="stylesheet"/>
+    <link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -34,6 +35,52 @@
 <script src="{% static "moment.min.js" %}"></script>
 <script src="{% static "bootstrap/js/bootstrap-datetimepicker.js" %}"></script>
 <script src="{% static "jquery.countdown.js" %}"></script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        showMathMenu: false,
+    });
+</script>
+<script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="{% static "ckeditor/ckeditor.js" %}"></script>
+<script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
+
+<script>
+    CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
+
+    CKEDITOR.config.toolbar = [
+    	{ name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
+    	{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ], items: [ 'Scayt' ] },
+    	{ name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
+    	{ name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
+    	{ name: 'tools', items: [ 'Maximize' ] },
+    	{ name: 'document', groups: [ 'mode', 'document', 'doctools' ], items: [ 'Source' ] },
+    	{ name: 'others', items: [ '-' ] },
+    	'/',
+    	{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat' ] },
+    	{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] },
+    	{ name: 'styles', items: [ 'Styles', 'Format' ] }
+    ];
+
+    CKEDITOR.config.forcePasteAsPlainText = true;
+    CKEDITOR.config.resize_enabled = false;
+    CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax';
+    CKEDITOR.config.removePlugins = 'elementspath,contextmenu,tabletools,liststyle';
+    // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
+    CKEDITOR.config.width = '100%';
+    CKEDITOR.config.autoGrow_onStartup = true;
+    CKEDITOR.config.autoGrow_minHeight = 0;
+    CKEDITOR.config.autoGrow_bottomSpace = 10;
+    CKEDITOR.config.entities = false;
+    CKEDITOR.config.htmlEncodeOutput = false;
+    CKEDITOR.config.basicEntities = false;
+    CKEDITOR.config.entities_latin = false;
+    CKEDITOR.config.entities_greek = false;
+    CKEDITOR.config.disableNativeSpellChecker = false;
+    CKEDITOR.config.autoParagraph = false;
+    CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
+    CKEDITOR.config.jsvk_skin = "flat_gray";
+</script>
 
 <script>
 $('document').ready(function(){
@@ -88,6 +135,7 @@ $('document').ready(function(){
                   modal.find('.modal-body').append(modal_body_text);
                 }
                 modal.find('.modal-body').append(data['form']);
+                modal.find('.modal-body textarea').ckeditor();
                 $('#modal-datetimepicker').datetimepicker({
                     format: "MM/DD/YYYY HH:mm",
                     inline: true,
