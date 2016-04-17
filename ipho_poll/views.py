@@ -9,6 +9,7 @@ from crispy_forms.utils import render_crispy_form
 from django.forms import formset_factory, inlineformset_factory
 from django.template import RequestContext
 from django.core.exceptions import PermissionDenied
+from django.utils import timezone
 
 
 
@@ -249,7 +250,8 @@ def voterIndex(request):
         for voteForm in voteFormset:
             voteForm.fields['choice'].queryset = question.choice_set.all()
         if voteFormset.is_valid():
-            voteFormset.save()
+            if timezone.now() < question.end_date:
+                voteFormset.save()
         formset_html_dict[question.pk] = render_crispy_form(voteFormset, helper=VoteFormHelper)
 
     return render(request, 'ipho_poll/voterIndex.html',
