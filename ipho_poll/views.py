@@ -249,7 +249,6 @@ def voterIndex(request):
         for voteForm in voteFormset:
             voteForm.fields['choice'].queryset = question.choice_set.all()
         if voteFormset.is_valid():
-            print 'Done!!!'
             voteFormset.save()
         formset_html_dict[question.pk] = render_crispy_form(voteFormset, helper=VoteFormHelper)
 
