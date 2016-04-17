@@ -57,6 +57,7 @@ class ChoiceFormHelper(FormHelper):
         super(ChoiceFormHelper, self).__init__(*args, **kwargs)
         self.layout =   Layout(
                             Div(
+                                Div(Field('label'), css_class='form-group'),
                                 Div(Field('choice_text', placeholder='Enter choice text'), css_class='form-group'),
                                 Div(Field('DELETE')),
                                 css_class='form-inline'
