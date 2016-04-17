@@ -66,7 +66,7 @@ class Choice(models.Model):
     label = models.CharField(max_length=3, blank=True, null=True)
     choice_text = models.CharField(max_length=200)
     def __str__(self):
-        return self.choice_text
+        return '{}. {}'.format( self.label,self.choice_text)
 
     def calculateVotes(self):
         return Vote.objects.filter(choice = self).count()
