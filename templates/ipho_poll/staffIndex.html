@@ -246,11 +246,10 @@ $('document').ready(function(){
 
     // Activate countdowns
     $('.countdown').each(function(i) {
-        var end_date = $(this).attr('data-end-date');
+        var end_date = $(this).data('end-date');
         end_date = new Date(end_date);
         $(this).countdown({
             date: end_date,
-            offset: end_date.getTimezoneOffset()*60*1000, //This is needed in order to make sure that there is no error in timezone offsets.
             render: function (date) {
               var countdown = "";
               if (date.days != 0) {
@@ -277,7 +276,7 @@ $('document').ready(function(){
             },
             onEnd: function() {
               // A nicer reload function would be good.
-              location.reload(forceGet=true);
+              location.reload();
               return;
             }
         });
