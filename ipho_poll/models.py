@@ -80,9 +80,9 @@ class VotingRight(models.Model):
         return self.name
 
 class Vote(models.Model):
-    question = models.ForeignKey(Question, default="")
+    question = models.ForeignKey(Question)
     choice = models.ForeignKey(Choice)
-    voting_right = models.ForeignKey(VotingRight, default="")
+    voting_right = models.ForeignKey(VotingRight)
 
     def __str__(self):
         return self.choice.__str__()
