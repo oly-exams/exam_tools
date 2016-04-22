@@ -49,16 +49,18 @@ def question(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
     choices = question.choice_set.all()
     voting_rights = VotingRight.objects.all()
-    users = User.objects.filter(votingright = voting_rights).distinct()
+    users = User.objects.filter(votingright = voting_rights).distinct().order_by('username')
     votes = Vote.objects.filter(choice__question=question)
-    choice_dict = question.choice_dict()
     if question.is_draft():
         status = 'draft'
     elif question.is_open():
         status = 'open'
     else:
         status = 'closed'
-
+    ncols = 3
+    num_users = len(users)
+    col_step = max(1, int(num_users/ncols))
+    cols = [users[i:i+col_step] for i in xrange(0, num_users, col_step)]
 
 
     return render(request, 'ipho_poll/question.html',
@@ -66,10 +68,9 @@ def question(request, question_pk):
                 'question'      : question,
                 'choices'       : choices,
                 'voting_rights' : voting_rights,
-                'users'         : users,
+                'cols'          : cols,
                 'votes'         : votes,
                 'status'        : status,
-                'choice_dict'   : choice_dict,
             }
     )
 
