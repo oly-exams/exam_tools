@@ -147,6 +147,7 @@ INSTALLED_APPS = (
     'crispy_forms',
     'ipho_core',
     'ipho_exam',
+    'ipho_marking',
     # 'django_extensions', # Some useful utils, e.g. graph models
 
 )
