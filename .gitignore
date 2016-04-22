@@ -3,5 +3,3 @@ iphoadmin/settings.py
 exam_tools/settings.py
 *.pyc
 ipho.db
-ipho_poll/migrations/
-ipho_marking/migrations/
