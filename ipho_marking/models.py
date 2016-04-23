@@ -5,7 +5,7 @@ from ipho_core.models import Student
 
 from ipho_exam.models import Exam, Question
 
-class QuestionPoints(models.Model):
+class MarkingMeta(models.Model):
     question = models.ForeignKey(Question)
     name = models.CharField(max_length=2)
     max_points = models.FloatField()
@@ -14,7 +14,7 @@ class QuestionPoints(models.Model):
 
 
 class Marking(models.Model):
-    question_points = models.ForeignKey(QuestionPoints)
+    marking_meta = models.ForeignKey(MarkingMeta)
     student = models.ForeignKey(Student)
     points = models.FloatField()
     comment = models.TextField()
@@ -26,4 +26,4 @@ class Marking(models.Model):
     version = models.CharField(max_length=1, choices=MARKING_VERSIONS)
 
     def __unicode__(self):
-        return u'{} [{} / {}]'.format(self.question_points.name, self.points, self.question_points.max_points)
+        return u'{} [{} / {}]'.format(self.question_points.name, self.points, self.marking_meta.max_points)
