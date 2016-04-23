@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block content %}
+<div class="container" style="">
+    <p class="lead">Your PDF document is being prepared.</p>
+
+    <p>This page will refresh automatically when the job completed.</p>
+
+    <div class="progress" style="width: 60%; margin: 0 auto;">
+      <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%">
+          Preparing PDF...
+      </div>
+    </div>
+
+    <hr style="width=80%" />
+
+    <p class="small text-muted">Job status is <span id="task-status">{{ task.status }}</span>. Id {{ task.id }}. Last check <span id="time-lastcheck"></span>.</p>
+
+</div>
+{% endblock %}
+
+{% block extra-script %}
+<script src="{% static "moment.min.js" %}"></script>
+<script>
+$(function() {
+
+    var last_check = new Date();
+    var taskStatus = 'PENDING';
+    var taskReady = false;
+    function updateStatus() {
+        $.ajax({
+            url: '{% url 'exam:pdf-task-status' token=task.id %}',
+            dataType: 'json',
+            success: function(data) {
+                taskReady = data['ready'];
+                taskStatus = data['status'];
+                last_check = new Date();
+
+                var status_text = '<abbr data-toggle="tooltip" title="'+last_check.toString()+'" >'+moment(last_check).fromNow()+'</abbr>';
+                $('#time-lastcheck')
+                    .html(status_text)
+                    .find('[data-toggle="tooltip"]').tooltip();
+                $('#task-status').html(taskStatus);
+
+                if (taskReady) {
+                    location.reload();
+                }
+            },
+        });
+    }
+    updateStatus();
+    setInterval(updateStatus, 10000);
+
+});
+</script>
+{% endblock %}
