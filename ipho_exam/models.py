@@ -24,6 +24,7 @@ class Language(models.Model):
     delegation  = models.ForeignKey(Delegation, blank=True, null=True)
     hidden      = models.BooleanField(default=False)
     versioned   = models.BooleanField(default=False)
+    is_pdf      = models.BooleanField(default=False)
     style       = models.CharField(max_length=200, blank=True, null=True, choices=STYLES_CHOICES)
     direction   = models.CharField(max_length=3, default='ltr', choices=DIRECTION_CHOICES)
     polyglossia = models.CharField(max_length=100, default='english', choices=POLYGLOSSIA_CHOICES)
@@ -163,6 +164,36 @@ class TranslationNode(models.Model):
         return self.question.natural_key() + self.language.natural_key()
     natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
 
+class PDFNodeManager(models.Manager):
+    def get_by_natural_key(self, question_name, exam_name, lang_name, delegation_name):
+        return self.get(language=Language.objects.get_by_natural_key(lang_name, delegation_name),
+                        question=Question.objects.get_by_natural_key(question_name, exam_name))
+class PDFNode(models.Model):
+    objects = PDFNodeManager()
+    STATUS_CHOICES = (
+        ('O', 'In progress'),
+        ('L', 'Locked'),
+        ('S', 'Submitted'),
+    )
+
+    pdf       = models.FileField(blank=True)
+    question  = models.ForeignKey(Question)
+    language  = models.ForeignKey(Language)
+    status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
+    timestamp = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (('question', 'language'),)
+
+    def question_name(self):
+        return self.question.name
+
+    def __unicode__(self):
+        return u'pdfNode: {} [{}, {}] - {}'.format(self.question.name, self.language, self.timestamp, self.status)
+
+    def natural_key(self):
+        return self.question.natural_key() + self.language.natural_key()
+    natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
 
 class FigureManager(models.Manager):
     def get_by_natural_key(self, name):
