@@ -647,7 +647,7 @@ def submission_exam_list(request):
 def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.annotate(num_questions=Count('translationnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())))
+    languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
     if ex_submission.status == 'S' and not settings.DEMO_MODE:
@@ -689,7 +689,7 @@ def submission_exam_assign(request, exam_id):
                 ss.save()
         return HttpResponseRedirect(reverse('exam:submission-exam-confirm', args=(exam.pk,)))
 
-    empty_languages = Language.objects.filter(delegation=delegation).annotate(num_questions=Count('translationnode__question')).exclude(num_questions=exam.question_set.count())
+    empty_languages = Language.objects.filter(delegation=delegation).annotate(num_questions=Count('translationnode__question'),num_pdf_questions=Count('pdfnode__question')).exclude( Q(num_questions=exam.question_set.count()) | Q(num_pdf_questions=exam.question_set.count()) )
 
     return render(request, 'ipho_exam/submission_assign.html', {
                 'exam' : exam,
@@ -704,7 +704,7 @@ def submission_exam_assign(request, exam_id):
 def submission_exam_confirm(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.annotate(num_questions=Count('translationnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())))
+    languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
     form_error = ''
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
@@ -747,7 +747,7 @@ def submission_exam_confirm(request, exam_id):
 def submission_exam_submitted(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.annotate(num_questions=Count('translationnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())))
+    languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
 
