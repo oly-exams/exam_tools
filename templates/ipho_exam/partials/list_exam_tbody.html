@@ -7,7 +7,11 @@
     <td>{{ node.get_status_display }}</td>
     <td>
       <div class="btn-toolbar">
+        {% if node.language.is_pdf %}
+        <a class="btn btn-xs btn-default" href="#" title="Upload"><i class="fa fa-upload fa-fw"></i> upload</a>
+        {% else %}
         <a class="btn btn-xs btn-default" href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=node.question.pk orig_id=1 lang_id=node.language.pk %}" title="Edit question"><i class="fa fa-pencil fa-fw"></i> edit</a>
+        {% endif %}
         <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
       </div>
     </td>

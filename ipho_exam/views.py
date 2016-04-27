@@ -18,7 +18,7 @@ from tempfile import mkdtemp
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
@@ -98,7 +98,9 @@ def translations_list(request):
     # if request.is_ajax and 'exam_id' in request.GET:
     if 'exam_id' in request.GET:
         exam = get_object_or_404(Exam, id=request.GET['exam_id'])
-        node_list = TranslationNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
+        trans_list = TranslationNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
+        pdf_list = PDFNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
+        node_list = list(trans_list) + list(pdf_list)
         official_translations = VersionNode.objects.filter(question__exam=exam, language__delegation__name=OFFICIAL_DELEGATION, status='C').order_by('-version')
         official_nodes = []
         qdone = set()
@@ -127,11 +129,15 @@ def add_translation(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
 
     translation_form = TranslationForm(request.POST or None)
-    translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation).exclude(translationnode__question__exam=exam) # TODO: still allow for languages that are not created for all questions
+    translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation).exclude(translationnode__question__exam=exam).exclude(pdfnode__question__exam=exam) # TODO: still allow for languages that are not created for all questions
     if translation_form.is_valid():
         for question in exam.question_set.exclude(translationnode__language=translation_form.cleaned_data['language']):
-            node = TranslationNode(language=translation_form.cleaned_data['language'], question=question, status='O')
-            node.save()
+            if translation_form.cleaned_data['language'].is_pdf:
+                node = PDFNode(language=translation_form.cleaned_data['language'], question=question, status='O')
+                node.save()
+            else:
+                node = TranslationNode(language=translation_form.cleaned_data['language'], question=question, status='O')
+                node.save()
 
         return JsonResponse({
                     'success' : True,
