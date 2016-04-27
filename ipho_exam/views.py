@@ -15,6 +15,7 @@ from copy import deepcopy
 from collections import OrderedDict
 from django.utils import timezone
 from tempfile import mkdtemp
+from hashlib import md5
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
@@ -958,6 +959,17 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 @login_required
 def compiled_question(request, question_id, lang_id, raw_tex=False):
     trans = qquery.latest_version(question_id, lang_id)
+    filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
+
+    if trans.lang.is_pdf:
+        # etag = md5(trans.node.pdf).hexdigest()
+        # if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
+        #     return HttpResponseNotModified()
+        res = HttpResponse(trans.node.pdf, content_type="application/pdf")
+        res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
+        # res['ETag'] = etag
+        return res
+
     trans_content, ext_resources = trans.qml.make_tex()
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
@@ -977,7 +989,6 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
     if raw_tex:
         return HttpResponse(body, content_type="text/plain; charset=utf-8", charset="utf-8")
     try:
-        filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
         return cached_responses.compile_tex(request, body, ext_resources, filename)
     except pdf.TexCompileException as e:
         return HttpResponse(e.log, content_type="text/plain")
@@ -999,22 +1010,25 @@ def pdf_exam_for_student(request, exam_id, student_id):
 
             print 'Prepare', question, 'in', sl.language
             trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
-            trans_content, ext_resources = trans.qml.make_tex()
-            for r in ext_resources:
-                if isinstance(r, tex.FigureExport):
-                    r.lang = sl.language
-            ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
-            context = {
-                        'polyglossia' : sl.language.polyglossia,
-                        'font'        : fonts.noto[sl.language.font],
-                        'extraheader' : sl.language.extraheader,
-                        'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
-                        'title'       : u'{} - {}'.format(question.exam.name, question.name),
-                        'is_answer'   : question.is_answer_sheet(),
-                        'document'    : trans_content,
-                      }
-            body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request,context)).encode("utf-8")
-            compile_task = tasks.compile_tex.s(body, ext_resources)
+            if not trans.lang.is_pdf:
+                trans_content, ext_resources = trans.qml.make_tex()
+                for r in ext_resources:
+                    if isinstance(r, tex.FigureExport):
+                        r.lang = sl.language
+                ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
+                context = {
+                            'polyglossia' : sl.language.polyglossia,
+                            'font'        : fonts.noto[sl.language.font],
+                            'extraheader' : sl.language.extraheader,
+                            'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
+                            'title'       : u'{} - {}'.format(question.exam.name, question.name),
+                            'is_answer'   : question.is_answer_sheet(),
+                            'document'    : trans_content,
+                          }
+                body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request,context)).encode("utf-8")
+                compile_task = tasks.compile_tex.s(body, ext_resources)
+            else:
+                compile_task = tasks.serve_pdfnode.s(trans.node.pdf.read())
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
                 barcode_task = tasks.add_barcode.s(bgenerator)
