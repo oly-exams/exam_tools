@@ -4,7 +4,7 @@ from ipho_core.models import Delegation, Student
 from django.shortcuts import get_object_or_404
 from ipho_exam import fonts
 
-import os
+import os, uuid
 import subprocess
 
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
@@ -168,6 +168,11 @@ class PDFNodeManager(models.Manager):
     def get_by_natural_key(self, question_name, exam_name, lang_name, delegation_name):
         return self.get(language=Language.objects.get_by_natural_key(lang_name, delegation_name),
                         question=Question.objects.get_by_natural_key(question_name, exam_name))
+
+def get_file_path(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
+    return os.path.join('pdfnodes/Lang{}Q{}'.format(instance.question.pk, instance.language.pk), filename)
 class PDFNode(models.Model):
     objects = PDFNodeManager()
     STATUS_CHOICES = (
@@ -176,7 +181,7 @@ class PDFNode(models.Model):
         ('S', 'Submitted'),
     )
 
-    pdf       = models.FileField(blank=True)
+    pdf       = models.FileField(upload_to=get_file_path, blank=True)
     question  = models.ForeignKey(Question)
     language  = models.ForeignKey(Language)
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
