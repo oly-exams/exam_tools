@@ -92,7 +92,7 @@ def wizard(request):
 
 @login_required
 @ensure_csrf_cookie
-def list(request):
+def translations_list(request):
     delegation = Delegation.objects.filter(members=request.user)
 
     # if request.is_ajax and 'exam_id' in request.GET:
