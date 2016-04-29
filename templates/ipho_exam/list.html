@@ -34,6 +34,23 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="upload-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <form method="post" action="">
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <div id="alerts-container"></div>
 
@@ -156,6 +173,72 @@ $(function() {
     {% for ex in exam_list %}
     update_questions({{ ex.pk }});
     {% endfor %}
+
+
+    /// Upload modal
+    function updateProgress( evt ) {
+        if ( evt.lengthComputable ) {
+            var percentComplete = evt.loaded / evt.total * 100;
+            $('#upload-progress').width(percentComplete+'%').text(Math.round(percentComplete)+'%');
+        } else {
+            $('#upload-progress').width('100%').text('loading...');
+        }
+    }
+
+    $(document).on('submit', '#upload-modal form', function(evt) {
+        var form = evt.target;
+        var $form = $(form);
+        evt.preventDefault();
+
+        var data = new FormData($form.get(0));
+        $(this).find('button').prop("disabled",true);
+        $(this).find('.modal-body').children().hide();
+        $(this).find('.modal-body').append('<div class="progress"><div id="upload-progress" class="progress-bar" style="width: 0%;">0%</div></div>');
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            xhr: function() {
+                myXhr = $.ajaxSettings.xhr();
+                myXhr.upload.onprogress = updateProgress;
+                // myXhr.addEventListener( "progress" , updateProgress , false );
+                return myXhr;
+            },
+            success: function(data) {
+                if (!data['success']) {
+                    $('#upload-modal .modal-body').html(data['form']);
+                    $('#upload-modal .modal-body button').prop("disabled",false);
+                    return;
+                }
+                $('#upload-modal').modal('hide');
+                $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+            }
+        });
+    });
+
+    $('#upload-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
+
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('form').attr('action', href);
+                modal.find('.modal-body').html(data['form']);
+                modal.find('button').prop("disabled",false);
+                modal.find('button[type="submit"]').text(data['submit']);
+            },
+        });
+    });
 
 });
 </script>

@@ -11,6 +11,11 @@ def compile_tex(body, ext_resources, filename='question.pdf', etag=None):
     return filename, pdf.compile_tex(body, ext_resources), etag
 
 @shared_task
+def serve_pdfnode(question_pdf, filename='question.pdf'):
+    etag = md5(question_pdf).hexdigest()
+    return filename, question_pdf, etag
+
+@shared_task
 def add_barcode(compiled_pdf, bgenerator):
     filename, question_pdf, etag = compiled_pdf
     return filename, pdf.add_barcode(question_pdf, bgenerator), etag

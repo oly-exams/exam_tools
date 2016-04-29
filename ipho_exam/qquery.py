@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
 from ipho_exam import qml
 
 
@@ -21,6 +21,10 @@ def latest_version(question_id, lang_id):
 
     q.question = get_object_or_404(Question, id=question_id)
     q.lang = get_object_or_404(Language, id=lang_id)
+
+    if q.lang.is_pdf:
+        q.node = get_object_or_404(PDFNode, question=q.question, language=q.lang)
+        return q
 
     if q.lang.versioned:
         q.node = VersionNode.objects.filter(question=q.question, language=q.lang, status='C').order_by('-version')[0]
