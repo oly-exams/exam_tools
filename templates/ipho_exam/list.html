@@ -176,12 +176,24 @@ $(function() {
 
 
     /// Upload modal
+    function updateProgress( evt ) {
+        if ( evt.lengthComputable ) {
+            var percentComplete = evt.loaded / evt.total * 100;
+            $('#upload-progress').width(percentComplete+'%').text(Math.round(percentComplete)+'%');
+        } else {
+            $('#upload-progress').width('100%').text('loading...');
+        }
+    }
+
     $(document).on('submit', '#upload-modal form', function(evt) {
         var form = evt.target;
         var $form = $(form);
         evt.preventDefault();
 
         var data = new FormData($form.get(0));
+        $(this).find('button').prop("disabled",true);
+        $(this).find('.modal-body').children().hide();
+        $(this).find('.modal-body').append('<div class="progress"><div id="upload-progress" class="progress-bar" style="width: 0%;">0%</div></div>');
         $.ajax({
             url: form.action,
             type: form.method,
@@ -189,9 +201,16 @@ $(function() {
             cache: false,
             processData: false,
             contentType: false,
+            xhr: function() {
+                myXhr = $.ajaxSettings.xhr();
+                myXhr.upload.onprogress = updateProgress;
+                // myXhr.addEventListener( "progress" , updateProgress , false );
+                return myXhr;
+            },
             success: function(data) {
                 if (!data['success']) {
                     $('#upload-modal .modal-body').html(data['form']);
+                    $('#upload-modal .modal-body button').prop("disabled",false);
                     return;
                 }
                 $('#upload-modal').modal('hide');
@@ -215,6 +234,7 @@ $(function() {
                 modal.find('.modal-title').text(data['title']);
                 modal.find('form').attr('action', href);
                 modal.find('.modal-body').html(data['form']);
+                modal.find('button').prop("disabled",false);
                 modal.find('button[type="submit"]').text(data['submit']);
             },
         });
