@@ -22,7 +22,7 @@ from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -155,6 +155,34 @@ def add_translation(request, exam_id):
                 'success'     : False,
             })
 
+@login_required
+def add_pdf_node(request, question_id, lang_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    delegation = Delegation.objects.get(members=request.user)
+    question = get_object_or_404(Question, id=question_id)
+    lang = get_object_or_404(Language, id=lang_id)
+    ## TODO: check permissions
+
+    node = get_object_or_404(PDFNode, question=question, language=lang)
+    ## Language section
+    node_form = PDFNodeForm(request.POST or None, request.FILES or None, instance=node)
+    if node_form.is_valid():
+        node_form.save()
+
+        return JsonResponse({
+                    'success' : True,
+                    'message' : '<strong>PDF uploaded!</strong> The translation of {} in <emph>{}</emph> has been updated.'.format(question.name, lang.name),
+                })
+
+
+    form_html = render_crispy_form(node_form)
+    return JsonResponse({
+                'title'   : 'Upload new version',
+                'form'    : form_html,
+                'submit'  : 'Upload',
+                'success' : False,
+            })
 
 @login_required
 @ensure_csrf_cookie
