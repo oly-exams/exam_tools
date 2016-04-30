@@ -3,7 +3,7 @@
 
 {% block content %}
     <style>
-    #front-box {
+    .with-logo {
     	background: #eee url('{% static "ipho16_blue.png" %}') center right no-repeat;
     	-webkit-background-clip: padding-box;
     	background-clip: padding-box;
@@ -16,7 +16,13 @@
     </style>
 
 <div class="container">
-  <div class="jumbotron" id="front-box">
+  <div class="jumbotron with-logo hidden-sm hidden-xs">
+      <h1>Exam Tools</h1>
+      <p>
+          Supporting the academic work of the IPhO 2016.
+      </p>
+  </div>
+  <div class="jumbotron hidden-lg hidden-md">
       <h1>Exam Tools</h1>
       <p>
           Supporting the academic work of the IPhO 2016.
