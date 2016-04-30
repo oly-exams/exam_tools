@@ -7,8 +7,9 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^wizard$', 'wizard', name='wizard'),
     url(r'^main$', 'main', name='main'),
 
-    url(r'^translation/list/?$', 'list', name='list'),
+    url(r'^translation/list/?$', 'translations_list', name='list'),
     url(r'^translation/add/(?P<exam_id>\d+)$', 'add_translation', name='add-translation'),
+    url(r'^translation/upload/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)$', 'add_pdf_node', name='upload-translation'),
 
     url(r'^languages/?$', 'list_language', name='language-list'),
     url(r'^languages/add$', 'add_language', name='language-add'),
@@ -27,6 +28,9 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^pdf/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'compiled_question', name='pdf'),
     url(r'^tex/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'compiled_question', {'raw_tex': True}, name='tex'),
     url(r'^pdf/exam/(?P<exam_id>\d+)/student/(?P<student_id>\d+)$', 'pdf_exam_for_student', name='pdf-exam-student'),
+
+    url(r'^pdf-task/(?P<token>[0-9a-z\-]+)$', 'pdf_task', name='pdf-task'),
+    url(r'^pdf-task/(?P<token>[0-9a-z\-]+)/status$', 'pdf_task_status', name='pdf-task-status'),
 
     url(r'^feedbacks/list/?$', 'feedbacks_list', name='feedbacks-list'),
     url(r'^feedbacks/add/(?P<exam_id>\d+)$', 'feedbacks_add', name='feedbacks-add'),

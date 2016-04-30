@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
+from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
 from ipho_exam.widgets import AceWidget
 
 # Register your models here.
@@ -37,6 +37,9 @@ class VersionNodeAdmin(admin.ModelAdmin):
 class TranslationNodeAdmin(admin.ModelAdmin):
     list_display = ('question', 'language', 'status', 'timestamp')
 
+class PDFNodeAdmin(admin.ModelAdmin):
+    list_display = ('question', 'language', 'status', 'timestamp')
+
 class FeedbackAdmin(admin.ModelAdmin):
     list_display = ('question', 'delegation', 'comment', 'status', 'timestamp')
 
@@ -55,6 +58,7 @@ admin.site.register(Exam, ExamAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(VersionNode, VersionNodeAdmin)
 admin.site.register(TranslationNode, TranslationNodeAdmin)
+admin.site.register(PDFNode, PDFNodeAdmin)
 admin.site.register(Figure, FigureAdmin)
 admin.site.register(ExamDelegationSubmission, ExamDelegationSubmissionAdmin)
 admin.site.register(StudentSubmission, StudentSubmissionAdmin)

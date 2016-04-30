@@ -4,3 +4,6 @@ CairoSVG
 hg+https://bitbucket.org/whitie/python-barcode
 PyPDF2
 mkdocs
+Celery
+django-celery
+flower
