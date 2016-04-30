@@ -67,7 +67,7 @@ def export(request):
     title_row = ['Student', 'Delegation', 'Version']
     mmeta = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
     for m in mmeta:
-        title_row.append( '{} - {}'.format(m.question.name, m.name) )
+        title_row.append( '{} - {} ({})'.format(m.question.name, m.name, m.max_points) )
     writer.writerow(title_row)
 
     for student in Student.objects.all():
