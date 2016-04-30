@@ -19,7 +19,7 @@ class MarkingMeta(models.Model):
 class Marking(models.Model):
     marking_meta = models.ForeignKey(MarkingMeta)
     student = models.ForeignKey(Student)
-    points = models.FloatField(default=0.)
+    points = models.FloatField(null=True, blank=True)
     comment = models.TextField(null=True, blank=True)
     MARKING_VERSIONS = (
         ('O', 'Organizers'),
@@ -30,7 +30,7 @@ class Marking(models.Model):
 
     def exam_question(self):
         return self.marking_meta.questiom
-    
+
     def __unicode__(self):
         return u'{} [{} / {}]'.format(self.marking_meta.name, self.points, self.marking_meta.max_points)
 
