@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, render_to_response, render
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
@@ -55,4 +56,26 @@ def summary(request):
 
 @permission_required('ipho_core.is_staff')
 def export(request):
-    pass
+    versions = request.GET.get('v', 'O,D,F').split(',')
+    exam_id = request.GET.get('exam', False)
+
+    import csv
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="markings.csv"'
+
+    writer = csv.writer(response)
+    title_row = ['Student', 'Delegation', 'Version']
+    mmeta = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
+    for m in mmeta:
+        title_row.append( '{} - {}'.format(m.question.name, m.name) )
+    writer.writerow(title_row)
+
+    for student in Student.objects.all():
+        for version in versions:
+            row = [student.code, student.delegation.name, version]
+            markings = Marking.objects.filter(student=student, version=version).order_by('marking_meta__question__exam', 'marking_meta__question__position', 'marking_meta__position').values_list('points', flat=True)
+            row += markings
+            row = map(lambda v: '-' if v is None else v, row)
+            writer.writerow(row)
+
+    return response
