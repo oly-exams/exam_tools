@@ -1,23 +1,26 @@
 from django.db import models
 
-
 from ipho_core.models import Student
-
 from ipho_exam.models import Exam, Question
 
 class MarkingMeta(models.Model):
     question = models.ForeignKey(Question)
-    name = models.CharField(max_length=2)
+    name = models.CharField(max_length=10)
     max_points = models.FloatField()
-    position = models.PositiveSmallIntegerField(help_text='Sorting index inside one question')
+    position = models.PositiveSmallIntegerField(default=10, help_text='Sorting index inside one question')
 
+    def __unicode__(self):
+        return u'{} [{}] {} points'.format(self.name, self.question.name, self.max_points)
 
+    class Meta:
+        ordering = ['position']
+        unique_together = (('question', 'name'),)
 
 class Marking(models.Model):
     marking_meta = models.ForeignKey(MarkingMeta)
     student = models.ForeignKey(Student)
-    points = models.FloatField()
-    comment = models.TextField()
+    points = models.FloatField(default=0.)
+    comment = models.TextField(null=True, blank=True)
     MARKING_VERSIONS = (
         ('O', 'Organizers'),
         ('D', 'Delegation'),
@@ -25,5 +28,11 @@ class Marking(models.Model):
     )
     version = models.CharField(max_length=1, choices=MARKING_VERSIONS)
 
+    def exam_question(self):
+        return self.marking_meta.questiom
+    
     def __unicode__(self):
-        return u'{} [{} / {}]'.format(self.question_points.name, self.points, self.marking_meta.max_points)
+        return u'{} [{} / {}]'.format(self.marking_meta.name, self.points, self.marking_meta.max_points)
+
+    class Meta:
+        unique_together = (('marking_meta', 'student', 'version'),)
