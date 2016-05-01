@@ -2,3 +2,6 @@ iphoadmin.esproj
 iphoadmin/settings.py
 exam_tools/settings.py
 *.pyc
+ipho_poll/migrations
+.gitignore
+ipho.db

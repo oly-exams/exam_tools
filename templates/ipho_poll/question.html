@@ -1,0 +1,143 @@
+
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra-head %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="page-header">
+      <h1>{{ question }}</h1>
+    </div>
+
+    <p>Status: {{ status }}</p>
+    <p>Content:</p>
+    <div>{{ question.content|safe }}</div>
+    {% if status == 'open' %}
+        <p>Remaining Time: <span class="countdown" data-end-date="{{ question.end_date.isoformat }}"></span></p>
+    {% endif %}
+    <div class="parent">
+        <button id="reload" title="Refresh Results" type="button" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><h2>Choices Legend</h2></div>
+        <table id="drafted-questions-table" class="table table-striped">
+            <tr>
+                <th></th>
+                <th>Choice Text</th>
+                <th>Total Votes</th>
+            </tr>
+
+                {% for choice in choices %}
+                    <tr id="choice-{{ choice.pk }}">
+                        <td class="col-md-1"><strong>{{ choice.label }}</strong></td>
+                        <td class="col-md-6", id="choice-{{ choice.pk }}-choice-text">
+                            {{ choice.choice_text }}
+                        </td>
+                        <td class="col-md-2">
+                            {{ choice.votes }}
+                        </td>
+                    </tr>
+                {% endfor %}
+
+          </table>
+    </div>
+
+
+
+    {% if not votes %}
+        <div class="alert alert-info">There are no votes yet.</div>
+
+    {% else %}
+        <div class="panel panel-default">
+            <div class="panel-heading"><h2>Votes</h2></div>
+            <div class="panel-body">
+                <div class="row">
+                {% for col_users in cols %}
+                    <div class="list-group col-md-4 col-sm-6">
+                    {% for user in col_users %}
+                        <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    {{ user }}
+                                </div>
+                                <div class="col-xs-6">
+                                    {% for vote in votes %}
+                                        {% if vote.voting_right.user == user%}
+                                            {{ vote.choice.label }} |
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script src="{% static "jquery.countdown.js" %}"></script>
+
+<script>
+$('document').ready(function(){
+    $(document).on('click', '#reload', function(event){
+        location.reload();
+    });
+
+    // Activates tooltipls
+    $('.btn').tooltip({containter: ".parent"});
+
+    // Activate countdowns
+    $('.countdown').each(function(i) {
+        var end_date = $(this).data('end-date');
+        end_date = new Date(end_date);
+        $(this).countdown({
+            date: end_date,
+            render: function (date) {
+              var countdown = "";
+              if (date.days != 0) {
+                if (date.days == 1) {
+                  countdown += date.days  + " day, ";
+                }
+                else {
+                  countdown += date.days  + " days, ";
+                }
+              }
+              if (date.hours != 0 || date.days !=0) {
+                if (date.hours == 1) {
+                  countdown += this.leadingZeros(date.hours) + " hour, ";
+                }
+                else {
+                  countdown += this.leadingZeros(date.hours) + " hours, ";
+                }
+              }
+              if (date.min != 0 || date.hours !=0 || date.days !=0){
+                countdown += this.leadingZeros(date.min) + " min and ";
+              }
+              countdown += this.leadingZeros(date.sec) + " sec";
+              this.el.innerHTML = countdown;
+            },
+            onEnd: function() {
+              // A nicer reload function would be good.
+              location.reload();
+              return;
+            }
+        });
+    });
+
+
+}); // $(document).ready()
+</script>
+{% endblock %}

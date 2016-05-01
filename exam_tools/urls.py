@@ -13,6 +13,7 @@ urlpatterns = patterns('',
 
     url(r'^/?$', static_views.render_page, {'p' : 'pages/home.html'}, name='home'),
     url(r'^exam/', include('ipho_exam.urls', namespace='exam')),
+    url(r'^poll/', include('ipho_poll.urls', namespace='poll')),
 
     (r'^accounts/login/?$', 'django.contrib.auth.views.login'),
     (r'^accounts/logout/?$', 'django.contrib.auth.views.logout', {'next_page':'/'}),
