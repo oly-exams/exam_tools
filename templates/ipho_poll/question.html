@@ -14,7 +14,8 @@
     </div>
 
     <p>Status: {{ status }}</p>
-    <p>Content: {{ question.content }}
+    <p>Content:</p>
+    <div>{{ question.content|safe }}</div>
     {% if status == 'open' %}
         <p>Remaining Time: <span class="countdown" data-end-date="{{ question.end_date.isoformat }}"></span></p>
     {% endif %}
