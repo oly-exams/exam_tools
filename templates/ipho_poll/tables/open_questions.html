@@ -1,0 +1,53 @@
+{% load crispy_forms_tags %}
+
+
+{# table of open questions #}
+<div class='panel panel-default'>
+    <div class="panel-heading"><h2>Open Votings</h2></div>
+    <div class="panel-body">
+        {% if not open_questions_list%}
+            <div class="alert alert-info alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                <strong>There are no open votings at the moment!</strong> Click the green "open vote" button on a drafted voting to open a vote.
+            </div>
+        {% endif %}
+    </div>
+    <table id="open-questions-table" class="table table-striped">
+        <tr>
+            <th>#</th>
+            <th>Remaining Time</th>
+            <th>Question Title</th>
+            <th>Choices</th>
+            <th>Actions</th>
+        </tr>
+        {% if open_questions_list %}
+            {% for question in open_questions_list %}
+                <tr id="question-{{ question.pk }}">
+                    <td class="col-md-1">{{ question.pk }}</td>
+                    <td class="col-md-1 countdown" data-end-date="{{ question.end_date.isoformat }}"></td>
+                    <td class="col-md-4", id="question-{{ question.pk }}-question-text">
+                        {{ question.title }}
+                    </td>
+                    <td class="col-md-3">
+                        <div class='list-group'>
+                            {% for choice in choices_list %}
+                                {% if choice.question == question %}
+                                    <li class="list-group-item">{{ choice }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td class="col-md-3">
+                        <div class="btn-toolbar">
+                          <span class="parent">
+                            <a class="btn btn-default" href="{% url 'poll:question' question_pk=question.pk %}" title="details"><i class="fa fa-info fa-fw"></i></a >
+                          </span>
+
+
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </table>
+</div>

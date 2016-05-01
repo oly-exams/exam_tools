@@ -2,4 +2,5 @@ iphoadmin.esproj
 iphoadmin/settings.py
 exam_tools/settings.py
 *.pyc
+.gitignore
 ipho.db

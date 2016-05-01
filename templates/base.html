@@ -59,8 +59,8 @@
                 </ul>
               </li>
 
+              <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
               {% if not DEMO_MODE %}
-              <li><a href="#">Voting</a></li>
               <li><a href="#">Results</a></li>
               {% endif %}
 
@@ -71,6 +71,9 @@
                   <li class="dropdown-header">Exam</li>
                   <li><a href="{% url 'exam:admin' %}">Exam management</a></li>
                   <li><a href="{% url 'exam:figures' %}">Figures management</a></li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header">Voting</li>
+                  <li><a href="{% url 'poll:staffIndex' %}">Voting management</a></li>
                   <li class="divider"></li>
                   <li class="dropdown-header">Marking</li>
                   <li><a href="{% url 'marking:import-exam' %}">Import exam</a></li>
