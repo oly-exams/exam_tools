@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
 
-from ipho_exam.models import Language, Figure, TranslationNode, Feedback, StudentSubmission
+from ipho_exam.models import Language, Figure, TranslationNode, PDFNode, Feedback, StudentSubmission
 
 def validate_file_extension(value):
     import os
@@ -103,6 +103,22 @@ class TranslationForm(forms.Form):
         labels = {
                    'language': 'Language <a href="#" onclick="return false;" data-toggle="popover" data-trigger="hover" data-container="body" data-content="More languages can be created from the Exam > Languages interface."><span class="glyphicon glyphicon-info-sign"></span></a>',
                }
+
+class PDFNodeForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(PDFNodeForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.helper.disable_csrf = True
+
+    class Meta:
+        model = PDFNode
+        fields = ['pdf',]
+        labels = {'pdf': 'Select new file to upload'}
+        widgets = {'pdf': forms.FileInput()}
 
 class FeedbackForm(ModelForm):
     def __init__(self, *args, **kwargs):

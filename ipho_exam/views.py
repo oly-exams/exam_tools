@@ -1,6 +1,6 @@
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404
 
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
@@ -15,13 +15,19 @@ from copy import deepcopy
 from collections import OrderedDict
 from django.utils import timezone
 from tempfile import mkdtemp
+from hashlib import md5
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
-from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
+from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
+
+import ipho_exam
+from ipho_exam import tasks
+import celery
+from celery.result import AsyncResult
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
@@ -87,13 +93,15 @@ def wizard(request):
 
 @login_required
 @ensure_csrf_cookie
-def list(request):
+def translations_list(request):
     delegation = Delegation.objects.filter(members=request.user)
 
     # if request.is_ajax and 'exam_id' in request.GET:
     if 'exam_id' in request.GET:
         exam = get_object_or_404(Exam, id=request.GET['exam_id'])
-        node_list = TranslationNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
+        trans_list = TranslationNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
+        pdf_list = PDFNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
+        node_list = list(trans_list) + list(pdf_list)
         official_translations = VersionNode.objects.filter(question__exam=exam, language__delegation__name=OFFICIAL_DELEGATION, status='C').order_by('-version')
         official_nodes = []
         qdone = set()
@@ -122,11 +130,15 @@ def add_translation(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
 
     translation_form = TranslationForm(request.POST or None)
-    translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation).exclude(translationnode__question__exam=exam) # TODO: still allow for languages that are not created for all questions
+    translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation).exclude(translationnode__question__exam=exam).exclude(pdfnode__question__exam=exam) # TODO: still allow for languages that are not created for all questions
     if translation_form.is_valid():
         for question in exam.question_set.exclude(translationnode__language=translation_form.cleaned_data['language']):
-            node = TranslationNode(language=translation_form.cleaned_data['language'], question=question, status='O')
-            node.save()
+            if translation_form.cleaned_data['language'].is_pdf:
+                node = PDFNode(language=translation_form.cleaned_data['language'], question=question, status='O')
+                node.save()
+            else:
+                node = TranslationNode(language=translation_form.cleaned_data['language'], question=question, status='O')
+                node.save()
 
         return JsonResponse({
                     'success' : True,
@@ -143,6 +155,34 @@ def add_translation(request, exam_id):
                 'success'     : False,
             })
 
+@login_required
+def add_pdf_node(request, question_id, lang_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    delegation = Delegation.objects.get(members=request.user)
+    question = get_object_or_404(Question, id=question_id)
+    lang = get_object_or_404(Language, id=lang_id)
+    ## TODO: check permissions
+
+    node = get_object_or_404(PDFNode, question=question, language=lang)
+    ## Language section
+    node_form = PDFNodeForm(request.POST or None, request.FILES or None, instance=node)
+    if node_form.is_valid():
+        node_form.save()
+
+        return JsonResponse({
+                    'success' : True,
+                    'message' : '<strong>PDF uploaded!</strong> The translation of {} in <emph>{}</emph> has been updated.'.format(question.name, lang.name),
+                })
+
+
+    form_html = render_crispy_form(node_form)
+    return JsonResponse({
+                'title'   : 'Upload new version',
+                'form'    : form_html,
+                'submit'  : 'Upload',
+                'success' : False,
+            })
 
 @login_required
 @ensure_csrf_cookie
@@ -636,7 +676,7 @@ def submission_exam_list(request):
 def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.annotate(num_questions=Count('translationnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())))
+    languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
     if ex_submission.status == 'S' and not settings.DEMO_MODE:
@@ -678,7 +718,7 @@ def submission_exam_assign(request, exam_id):
                 ss.save()
         return HttpResponseRedirect(reverse('exam:submission-exam-confirm', args=(exam.pk,)))
 
-    empty_languages = Language.objects.filter(delegation=delegation).annotate(num_questions=Count('translationnode__question')).exclude(num_questions=exam.question_set.count())
+    empty_languages = Language.objects.filter(delegation=delegation).annotate(num_questions=Count('translationnode__question'),num_pdf_questions=Count('pdfnode__question')).exclude( Q(num_questions=exam.question_set.count()) | Q(num_pdf_questions=exam.question_set.count()) )
 
     return render(request, 'ipho_exam/submission_assign.html', {
                 'exam' : exam,
@@ -693,7 +733,7 @@ def submission_exam_assign(request, exam_id):
 def submission_exam_confirm(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.annotate(num_questions=Count('translationnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())))
+    languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
     form_error = ''
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
@@ -736,7 +776,7 @@ def submission_exam_confirm(request, exam_id):
 def submission_exam_submitted(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.annotate(num_questions=Count('translationnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())))
+    languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
 
     ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
 
@@ -947,6 +987,17 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 @login_required
 def compiled_question(request, question_id, lang_id, raw_tex=False):
     trans = qquery.latest_version(question_id, lang_id)
+    filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
+
+    if trans.lang.is_pdf:
+        # etag = md5(trans.node.pdf).hexdigest()
+        # if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
+        #     return HttpResponseNotModified()
+        res = HttpResponse(trans.node.pdf, content_type="application/pdf")
+        res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
+        # res['ETag'] = etag
+        return res
+
     trans_content, ext_resources = trans.qml.make_tex()
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
@@ -966,8 +1017,7 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
     if raw_tex:
         return HttpResponse(body, content_type="text/plain; charset=utf-8", charset="utf-8")
     try:
-        filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
-        return pdf.cached_pdf_response(request, body, ext_resources, filename)
+        return cached_responses.compile_tex(request, body, ext_resources, filename)
     except pdf.TexCompileException as e:
         return HttpResponse(e.log, content_type="text/plain")
 
@@ -977,7 +1027,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
     student = get_object_or_404(Student, id=student_id)
 
     ## TODO: implement caching
-    all_pages = []
+    all_tasks = []
 
     student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
     for question in exam.question_set.all():
@@ -988,31 +1038,59 @@ def pdf_exam_for_student(request, exam_id, student_id):
 
             print 'Prepare', question, 'in', sl.language
             trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
-            trans_content, ext_resources = trans.qml.make_tex()
-            for r in ext_resources:
-                if isinstance(r, tex.FigureExport):
-                    r.lang = sl.language
-            ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
-            context = {
-                        'polyglossia' : sl.language.polyglossia,
-                        'font'        : fonts.noto[sl.language.font],
-                        'extraheader' : sl.language.extraheader,
-                        'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
-                        'title'       : u'{} - {}'.format(question.exam.name, question.name),
-                        'is_answer'   : question.is_answer_sheet(),
-                        'document'    : trans_content,
-                      }
-            body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request,context)).encode("utf-8")
-            question_pdf = pdf.compile_tex(body, ext_resources)
-            ## TODO: in case of answer sheet, add barcodes
+            if not trans.lang.is_pdf:
+                trans_content, ext_resources = trans.qml.make_tex()
+                for r in ext_resources:
+                    if isinstance(r, tex.FigureExport):
+                        r.lang = sl.language
+                ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
+                context = {
+                            'polyglossia' : sl.language.polyglossia,
+                            'font'        : fonts.noto[sl.language.font],
+                            'extraheader' : sl.language.extraheader,
+                            'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
+                            'title'       : u'{} - {}'.format(question.exam.name, question.name),
+                            'is_answer'   : question.is_answer_sheet(),
+                            'document'    : trans_content,
+                          }
+                body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request,context)).encode("utf-8")
+                compile_task = tasks.compile_tex.s(body, ext_resources)
+            else:
+                compile_task = tasks.serve_pdfnode.s(trans.node.pdf.read())
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
-                question_pdf = pdf.add_barcode(question_pdf, bgenerator)
-            all_pages.append(question_pdf)
+                barcode_task = tasks.add_barcode.s(bgenerator)
+                all_tasks.append( celery.chain(compile_task, barcode_task) )
+            else:
+                all_tasks.append(compile_task)
 
-    document = pdf.concatenate_documents(all_pages)
     filename = u'IPhO16 - {} - {}.pdf'.format(exam.name, student.code)
+    chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
+    return HttpResponseRedirect(reverse('exam:pdf-task', args=[chord_task.id]))
 
-    res = HttpResponse(document, content_type="application/pdf")
-    res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
-    return res
+
+@login_required
+def pdf_task_status(request, token):
+    task = AsyncResult(token)
+    return JsonResponse({'status': task.status, 'ready': task.ready()})
+
+@login_required
+def pdf_task(request, token):
+    task = AsyncResult(token)
+    try:
+        if task.ready():
+            filename, pdf, etag = task.get()
+            if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
+                return HttpResponseNotModified()
+
+            res = HttpResponse(pdf, content_type="application/pdf")
+            res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
+            res['ETag'] = etag
+            return res
+        else:
+            return render(request, 'ipho_exam/pdf_task.html', {'task': task})
+    except ipho_exam.pdf.TexCompileException as e:
+        if request.user.is_superuser:
+            return HttpResponse(e.log, content_type="text/plain")
+        else:
+            raise RuntimeError("pdflatex error (code %s) in %s." % (e.code, e.doc_fname))
