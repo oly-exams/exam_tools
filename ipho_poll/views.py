@@ -196,10 +196,7 @@ def deleteQuestion(request, question_pk):
 @ensure_csrf_cookie
 def setEndDate(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
-    if request.method == 'POST':
-        endDateForm = EndDateForm(request.POST, instance=question)
-    else:
-        endDateForm = EndDateForm(instance=question)
+    endDateForm = EndDateForm(request.POST or None, instance=question)
     if endDateForm.is_valid():
         question = endDateForm.save()
         choice_text_list = []
@@ -218,6 +215,7 @@ def setEndDate(request, question_pk):
             context.update(csrf(request))
             form_html = render_crispy_form(endDateForm, context=context)
             return JsonResponse({
+                        'success'           : False,
                         'title'             : 'Open Vote',
                         'form'              : form_html,
                         'modal_body_text'   : "Select the deadline for the voting.",

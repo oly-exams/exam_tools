@@ -163,6 +163,14 @@ $('document').ready(function(){
             success: function(data) {
                 if (!data['success']) {
                     $('#question-modal .modal-body').html(data['form']);
+                    $('#question-modal .modal-body textarea').ckeditor();
+                    $('#modal-datetimepicker').datetimepicker({
+                        format: "MM/DD/YYYY HH:mm",
+                        inline: true,
+                        sideBySide: true,
+                        defaultDate: moment().add(10, 'seconds'),
+                        minDate: moment().add(0, 'minutes'),
+                    });
                     return;
                 }
                 else {
