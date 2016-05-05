@@ -61,7 +61,7 @@
 
               <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
               {% if not DEMO_MODE %}
-              <li><a href="#">Results</a></li>
+              <li><a href="{% url 'marking:delegation-summary' %}">Results</a></li>
               {% endif %}
 
               {% if perms.ipho_core.is_staff %}

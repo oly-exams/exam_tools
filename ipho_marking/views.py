@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render_to_response, render
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, HttpResponseForbidden, JsonResponse, Http404
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
@@ -79,3 +79,25 @@ def export(request):
             writer.writerow(row)
 
     return response
+
+@login_required
+def delegation_summary(request):
+    delegation = Delegation.objects.get(members=request.user)
+    return HttpResponse()
+
+@login_required
+def delegation_stud_detail(request, student_id, exam_id, question_id):
+    delegation = Delegation.objects.get(members=request.user)
+    student = get_object_or_404(Student, id=student_id)
+    if student.delegation != delegation:
+        return HttpResponseForbidden('You do not have permission to access this student.')
+
+    question = get_object_or_404(Question, id=question_id)
+
+    return HttpResponse()
+
+@login_required
+def delegation_confirm(request, exam_id):
+    delegation = Delegation.objects.get(members=request.user)
+    exam = get_object_or_404(Exam, id=exam_id)
+    return HttpResponse()
