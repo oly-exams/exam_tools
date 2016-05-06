@@ -8,6 +8,8 @@ from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 
+import itertools
+
 from django.conf import settings
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, ExamAction
@@ -102,5 +104,25 @@ def delegation_stud_detail(request, student_id, exam_id, question_id):
 @login_required
 def delegation_confirm(request, exam_id):
     delegation = Delegation.objects.get(members=request.user)
-    exam = get_object_or_404(Exam, id=exam_id)
-    return HttpResponse()
+    exam = get_object_or_404(Exam, id=exam_id, active=True)
+    form_error = ''
+
+    points_submissions,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.POINTS)
+    if points_submissions.status == ExamAction.SUBMITTED:
+        return HttpResponseRedirect(reverse('marking:delegation-summary'))
+
+    if request.POST:
+        if 'agree-submit' in request.POST:
+            points_submissions.status = ExamAction.SUBMITTED
+            points_submissions.save()
+            return HttpResponseRedirect(reverse('marking:delegation-summary'))
+        else:
+            form_error = '<strong>Error:</strong> You have to confirm the marking before continuing.'
+
+    questions = Question.objects.filter(exam=exam, type='A')
+    metas_query = MarkingMeta.objects.filter(question=questions)
+    markings_query = Marking.objects.filter(student__delegation=delegation, marking_meta=metas_query, version='D').order_by('student','marking_meta__position')
+    metas = {k: list(g) for k,g in itertools.groupby(metas_query, key=lambda m: m.question.pk)}
+    markings = {k: list(g) for k,g in itertools.groupby(markings_query, key=lambda m: m.marking_meta.question.pk)}
+    ctx = {'exam': exam, 'questions': questions, 'markings': markings, 'metas': metas, 'form_error': form_error}
+    return render(request, 'ipho_marking/delegation_confirm.html', ctx)
