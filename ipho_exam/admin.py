@@ -51,6 +51,7 @@ class StudentSubmissionAdmin(admin.ModelAdmin):
 
 class ExamActionAdmin(admin.ModelAdmin):
     list_display = ('exam','delegation','action','status','timestamp')
+    list_filter = ('action','exam','delegation')
 
 admin.site.register(Language)
 admin.site.register(Feedback, FeedbackAdmin)
