@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode
+from ipho_exam.models import Exam, Question, VersionNode, ExamAction
 from ipho_exam import qquery as qwquery
 from ipho_exam import qml
 
@@ -83,7 +83,10 @@ def export(request):
 @login_required
 def delegation_summary(request):
     delegation = Delegation.objects.get(members=request.user)
-    return HttpResponse()
+    points_submissions = ExamAction.objects.filter(delegation=delegation, action=ExamAction.POINTS, exam__active=True).order_by('exam')
+    students = Student.objects.filter(delegation=delegation)
+    ctx = {'students': students, 'points_submissions': points_submissions, 'OPEN_STATUS': ExamAction.OPEN, 'SUBMITTED_STATUS': ExamAction.SUBMITTED, }
+    return render(request, 'ipho_marking/delegation_summary.html', ctx)
 
 @login_required
 def delegation_stud_detail(request, student_id, exam_id, question_id):

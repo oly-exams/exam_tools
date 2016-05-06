@@ -1,0 +1,50 @@
+{% extends "ipho_marking/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block extra-head %}
+{% endblock %}
+
+{% block pageheader %}<h1>Results</h1>{% endblock %}
+
+{% block page-content %}
+
+    {% for psubs in points_submissions %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2 class="panel-title">{{ psubs.exam.name }}</h2>
+      </div>
+      <table class="table table-strided">
+          <tr>
+              <th>Student</th>
+              {% for question in psubs.exam.question_set.all %}
+                  {% if question.type == 'A' %}
+                  <th>{{ question.name }}</th>
+                  {% endif %}
+              {% endfor %}
+          </tr>
+          {% for student in students %}
+          <tr>
+              <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
+              {% for question in psubs.exam.question_set.all %}
+                  {% if question.type == 'A' %}
+                      {% if psubs.status == OPEN_STATUS %}
+                      <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> edit</a></td>
+                      {% else %}
+                      <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> view</a></td>
+                      {% endif %}
+                  {% endif %}
+              {% endfor %}
+          </tr>
+          {% endfor %}
+      </table>
+      {% if psubs.status == OPEN_STATUS %}
+      <div class="panel-footer"><a class="btn btn-primary btn-sm" href="{% url 'marking:delegation-confirm' psubs.exam.pk %}">Confirm marking <i class="fa fa-angle-double-right"></i></a></div>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+{% endblock %}
+
+{% block extra-script %}
+{% endblock %}
