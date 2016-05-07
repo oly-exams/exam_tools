@@ -126,3 +126,19 @@ def delegation_confirm(request, exam_id):
     markings = {k: list(g) for k,g in itertools.groupby(markings_query, key=lambda m: m.marking_meta.question.pk)}
     ctx = {'exam': exam, 'questions': questions, 'markings': markings, 'metas': metas, 'form_error': form_error}
     return render(request, 'ipho_marking/delegation_confirm.html', ctx)
+
+
+@permission_required('ipho_core.is_staff')
+def moderation_index(request, question_id=None):
+    questions = Question.objects.filter(exam__hidden=False, type='A')
+    question = None if question_id is None else get_object_or_404(Question, id=question_id)
+    delegations = Delegation.objects.all()
+    ctx={'questions': questions, 'question': question, 'delegations': delegations}
+    return render(request, 'ipho_marking/moderation_index.html', ctx)
+
+@permission_required('ipho_core.is_staff')
+def moderation_detail(request, question_id, delegation_id):
+    question = get_object_or_404(Question, id=question_id)
+    delegation = get_object_or_404(Delegation, id=delegation_id)
+    return HttpResponse()
+    # return render(request, 'ipho_marking/moderation_detail.html', ctx)
