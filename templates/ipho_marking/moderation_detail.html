@@ -26,7 +26,7 @@
         <tr>
           <th></th>
           {% for item in metas %}
-            <th>{{ item.name }}</th>
+            <th>{{ item.name }} ({{ item.max_points }})</th>
           {% endfor %}
         </tr>
 
@@ -47,7 +47,7 @@
         <tr>
           <th>Moderation</th>
           {% for form in forms %}
-            <td>{{ form.id }}{{ form.points|default_if_none:"-" }}</td>
+            <td>{{ form.id }}<div class="{{ form.errors|yesno:"has-error," }}">{{ form.points }}</div></td>
           {% endfor %}
         </tr>
 

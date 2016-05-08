@@ -26,7 +26,7 @@ class PointsForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(PointsForm, self).__init__(*args, **kwargs)
         self.fields['points'].label = self.instance.marking_meta.name
-        self.fields['points'].widget.attrs={'style': 'width:50px'}
+        self.fields['points'].required = True
 
         self.helper = FormHelper()
         self.helper.html5_required = True
@@ -37,3 +37,4 @@ class PointsForm(ModelForm):
     class Meta:
         model = Marking
         fields = ['points',]
+        widgets = {'points': forms.TextInput(attrs={'style': 'width:50px', 'class': 'form-control'})}
