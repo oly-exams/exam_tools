@@ -31,7 +31,7 @@
         </tr>
 
         <tr>
-          <th>Official</th>
+          <th>Official <button class="btn btn-default btn-xs" data-action="copy" data-student="{{ student.pk }}" title="Copy from official"><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i><i class="fa fa-arrow-right" aria-hidden="true"></i><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i></button></th>
           {% for item in markings_official %}
             <td>{{ item.points|default_if_none:"-" }}</td>
           {% endfor %}
@@ -50,7 +50,6 @@
             <td>{{ form.id }}<div class="{{ form.errors|yesno:"has-error," }}">{{ form.points }}</div></td>
           {% endfor %}
         </tr>
-
       </table>
     </div>
   {% endfor %}
@@ -64,4 +63,22 @@
 {% endblock %}
 
 {% block extra-script %}
+
+<script>
+$(function () {
+
+  results_official = new Array();
+  {% for student,markings_official,markings_delegation,forms in student_forms %}
+  results_official[{{ student.pk }}] = [ {% for item in markings_official %}{{ item.points|default_if_none:"0" }},{% endfor %} ];
+  {% endfor %}
+
+  $('button[data-action="copy"]').click(function (evt) {
+    evt.preventDefault();
+    var stud_id = $(this).data('student');
+    for (k in results_official[stud_id]) {
+      $('#id_Stud-'+stud_id+'-'+k+'-points').val(results_official[stud_id][k]);
+    }
+  });
+});
+</script>
 {% endblock %}
