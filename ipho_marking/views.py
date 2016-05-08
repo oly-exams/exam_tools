@@ -8,6 +8,8 @@ from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 
+from django.forms import modelformset_factory, inlineformset_factory
+
 import itertools
 
 from django.conf import settings
@@ -17,7 +19,7 @@ from ipho_exam import qquery as qwquery
 from ipho_exam import qml
 
 from .models import MarkingMeta, Marking
-from .forms import ImportForm
+from .forms import ImportForm, PointsForm, PointsFormSet
 
 OFFICIAL_LANGUAGE = getattr(settings, 'OFFICIAL_LANGUAGE', 1)
 
@@ -140,5 +142,19 @@ def moderation_index(request, question_id=None):
 def moderation_detail(request, question_id, delegation_id):
     question = get_object_or_404(Question, id=question_id)
     delegation = get_object_or_404(Delegation, id=delegation_id)
-    return HttpResponse()
-    # return render(request, 'ipho_marking/moderation_detail.html', ctx)
+    student = delegation.student_set.all()[0]
+
+    metas = MarkingMeta.objects.filter(question=question)
+
+    student_forms = []
+    for student in delegation.student_set.all():
+        markings_official = Marking.objects.filter(student=student, marking_meta=metas, version='O').order_by('marking_meta__position')
+        markings_delegation = Marking.objects.filter(student=student, marking_meta=metas, version='D').order_by('marking_meta__position')
+
+        FormSet = modelformset_factory(Marking, form=PointsForm, extra=0, can_delete=False, can_order=False)
+        forms = FormSet(request.POST or None, prefix='Stud-{}-'.format(student.pk), queryset=Marking.objects.filter(marking_meta=metas, student=student, version='F'))
+
+        student_forms.append((student, markings_official, markings_delegation, forms))
+
+    ctx = {'metas': metas, 'question': question, 'delegation': delegation, 'student_forms': student_forms}
+    return render(request, 'ipho_marking/moderation_detail.html', ctx)

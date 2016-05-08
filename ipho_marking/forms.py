@@ -1,6 +1,8 @@
 from django import forms
 from django.forms import ModelForm, Form
 from django.forms.formsets import formset_factory
+from django.forms.models import BaseInlineFormSet, inlineformset_factory
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, MultiField, Div
 from crispy_forms.bootstrap import Accordion, AccordionGroup
@@ -19,3 +21,18 @@ class ImportForm(Form):
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.form_tag = True
+
+class PointsForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(PointsForm, self).__init__(*args, **kwargs)
+        self.fields['points'].label = self.instance.marking_meta.name
+
+        self.helper = FormHelper()
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        # self.helper.disable_csrf = False
+        # self.disable_csrf = False
+        self.helper.form_tag = False
+    class Meta:
+        model = Marking
+        fields = ['points',]
