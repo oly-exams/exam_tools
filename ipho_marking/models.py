@@ -29,7 +29,7 @@ class Marking(models.Model):
     version = models.CharField(max_length=1, choices=MARKING_VERSIONS)
 
     def exam_question(self):
-        return self.marking_meta.questiom
+        return self.marking_meta.question
 
     def __unicode__(self):
         return u'{} [{} / {}]'.format(self.marking_meta.name, self.points, self.marking_meta.max_points)

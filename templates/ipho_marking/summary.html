@@ -1,0 +1,33 @@
+{% extends "ipho_marking/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+
+{% block extra-head %}
+{% endblock %}
+
+{% block pageheader %}<h1>Marking Summary</h1>{% endblock %}
+
+
+
+{% block page-content %}
+
+<div class="dropdown">
+  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownVersion" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+    Select version
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownVersion">
+    <li><a href="#">Organizers</a></li>
+    <li><a href="#">Delegation</a></li>
+    <li><a href="#">Final</a></li>
+  </ul>
+</div>
+
+
+<p>Version: {{ version }}</p>
+
+
+<p>{{ markings }}</p>
+{% endblock %}

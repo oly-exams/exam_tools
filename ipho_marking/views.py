@@ -56,7 +56,10 @@ def import_exam(request):
 
 @permission_required('ipho_core.is_staff')
 def summary(request):
-    pass
+    version = 'O';
+    markings = Marking.objects.all().filter(version=version).order_by('student', 'marking_meta__question', 'marking_meta__question__position', 'marking_meta__position')
+    context = {'version': version, 'marking': markings, }
+    return render(request, 'ipho_marking/summary.html', context)
 
 @permission_required('ipho_core.is_staff')
 def export(request):
