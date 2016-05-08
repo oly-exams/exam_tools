@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^moderate/?$', views.moderation_index, name='moderation-index'),
     url(r'^moderate/question/(?P<question_id>\d+)$', views.moderation_index, name='moderation-index-question'),
     url(r'^moderate/question/(?P<question_id>\d+)/delegation/(?P<delegation_id>\d+)$', views.moderation_detail, name='moderation-detail'),
+    url(r'^moderate/question/(?P<question_id>\d+)/delegation/(?P<delegation_id>\d+)/confirmed$', views.moderation_confirmed, name='moderation-confirmed'),
 
 ##  staff views
     url(r'^import/?$', views.import_exam, name='import-exam'),

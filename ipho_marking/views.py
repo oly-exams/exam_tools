@@ -7,6 +7,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
+from django.db.models import Sum
 
 from django.forms import modelformset_factory, inlineformset_factory
 
@@ -142,19 +143,39 @@ def moderation_index(request, question_id=None):
 def moderation_detail(request, question_id, delegation_id):
     question = get_object_or_404(Question, id=question_id)
     delegation = get_object_or_404(Delegation, id=delegation_id)
-    student = delegation.student_set.all()[0]
 
     metas = MarkingMeta.objects.filter(question=question)
 
     student_forms = []
+    all_valid = True
+    with_errors = False
     for student in delegation.student_set.all():
         markings_official = Marking.objects.filter(student=student, marking_meta=metas, version='O').order_by('marking_meta__position')
         markings_delegation = Marking.objects.filter(student=student, marking_meta=metas, version='D').order_by('marking_meta__position')
 
-        FormSet = modelformset_factory(Marking, form=PointsForm, extra=0, can_delete=False, can_order=False)
-        forms = FormSet(request.POST or None, prefix='Stud-{}-'.format(student.pk), queryset=Marking.objects.filter(marking_meta=metas, student=student, version='F'))
+        FormSet = modelformset_factory(Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False)
+        form = FormSet(request.POST or None, prefix='Stud-{}'.format(student.pk), queryset=Marking.objects.filter(marking_meta=metas, student=student, version='F'))
 
-        student_forms.append((student, markings_official, markings_delegation, forms))
+        # TODO: accept only submission without None
+        all_valid = all_valid and form.is_valid()
+        with_errors = with_errors or form.errors
 
+        student_forms.append((student, markings_official, markings_delegation, form))
+
+    if all_valid:
+        for _, _, _, form in student_forms:
+            form.save()
+        return HttpResponseRedirect(reverse('marking:moderation-confirmed', kwargs={'question_id':question.pk, 'delegation_id':delegation.pk}))
+    # TODO: display errors
     ctx = {'metas': metas, 'question': question, 'delegation': delegation, 'student_forms': student_forms}
     return render(request, 'ipho_marking/moderation_detail.html', ctx)
+
+@permission_required('ipho_core.is_staff')
+def moderation_confirmed(request, question_id, delegation_id):
+    question = get_object_or_404(Question, id=question_id)
+    delegation = get_object_or_404(Delegation, id=delegation_id)
+
+    markings = Marking.objects.filter( marking_meta__question=question, version='F', student__delegation=delegation).values('student').annotate(total=Sum('points')).order_by('student').values('student__first_name', 'student__last_name', 'student__code', 'total')
+
+    ctx = {'question': question, 'delegation': delegation, 'markings': markings}
+    return render(request, 'ipho_marking/moderation_confirmed.html', ctx)
