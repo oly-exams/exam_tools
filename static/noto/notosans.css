@@ -8,7 +8,7 @@
        local('NotoSans-Regular'),
        url('/static/noto/NotoSans-Regular.woff2') format('woff2'),
        url('/static/noto/NotoSans-Regular.woff') format('woff'),
-       url('/static/noto/NotoSans-Regular.ttf') format('truetype'),
+       url('/static/noto/NotoSans-Regular.ttf') format('truetype');
 }
 
 @font-face {
@@ -22,7 +22,7 @@
        local('NotoSans-Bold'),
        url('/static/noto/NotoSans-Bold.woff2') format('woff2'),
        url('/static/noto/NotoSans-Bold.woff') format('woff'),
-       url('/static/noto/NotoSans-Bold.ttf') format('truetype'),
+       url('/static/noto/NotoSans-Bold.ttf') format('truetype');
 }
 
 @font-face {
@@ -35,7 +35,7 @@
        local('NotoSans-Italic'),
        url('/static/noto/NotoSans-Italic.woff2') format('woff2'),
        url('/static/noto/NotoSans-Italic.woff') format('woff'),
-       url('/static/noto/NotoSans-Italic.ttf') format('truetype'),
+       url('/static/noto/NotoSans-Italic.ttf') format('truetype');
 }
 
 @font-face {
@@ -48,6 +48,6 @@
        local('NotoSans-BoldItalic'),
        url('/static/noto/NotoSans-BoldItalic.woff2') format('woff2'),
        url('/static/noto/NotoSans-BoldItalic.woff') format('woff'),
-       url('/static/noto/NotoSans-BoldItalic.ttf') format('truetype'),
+       url('/static/noto/NotoSans-BoldItalic.ttf') format('truetype');
 }
 
