@@ -13,21 +13,63 @@
 
 {% block page-content %}
 
+<p>Version: {{ version }}</p>
+
 <div class="dropdown">
   <button class="btn btn-default dropdown-toggle" type="button" id="dropdownVersion" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
     Select version
     <span class="caret"></span>
   </button>
   <ul class="dropdown-menu" aria-labelledby="dropdownVersion">
-    <li><a href="#">Organizers</a></li>
-    <li><a href="#">Delegation</a></li>
-    <li><a href="#">Final</a></li>
+    <li><a href="{% url 'marking:summary' %}?version=O">Organizers</a></li>
+    <li><a href="{% url 'marking:summary' %}?version=D">Delegation</a></li>
+    <li><a href="{% url 'marking:summary' %}?version=F">Final</a></li>
   </ul>
 </div>
 
 
-<p>Version: {{ version }}</p>
+
+{# tables of markings grouped by exam and students #}
+
+{% for exam in exams %}
+<div class='panel panel-default'>
+    <div class="panel-heading"><h2>Exam: {{ exam }}</h2></div>
+    <div class="panel-body">
+        {% if not markings %}
+            <div class="alert alert-info alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                <strong>There are no markings at the moment!</strong> Create empty markings with <a href="{% url 'marking:import-exam' %}"></a>.
+            </div>
+        {% endif %}
+    </div>
+
+    <table id="markings-table-exam-{{ exam.pk }}" class="table table-striped">
+        <tr>
+            <th>Student</th>
+            {% for  mm in marking_metas %}
+                {% if mm.question.exam == exam %}
+                    <th>{{ mm.name }}</th>
+                {% endif %}
+            {% endfor %}
+        </tr>
+
+        {% for student in students %}
+        <tr id="exam-{{ exam.pk }}-student-{{ student.pk }}">
+            <td>{{ student }}</td>
+            {% for  mm in marking_metas %}
+                {% if mm.question.exam == exam %}
+                    {% for marking in markings %}
+                        {% if marking.marking_meta == mm and marking.student == student %}
+                            <td>{{ marking.points }} / {{ mm.points }}</td>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endfor %}
 
 
-<p>{{ markings }}</p>
 {% endblock %}
