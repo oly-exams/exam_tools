@@ -57,7 +57,22 @@ def import_exam(request):
 
 @permission_required('ipho_core.is_staff')
 def summary(request):
-    pass
+    if request.method == 'GET':
+        version = request.GET.get('version', 'O')
+    else:
+        version = 'O';
+    students = Student.objects.all()
+    exams = Exam.objects.all()
+    marking_metas = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
+    markings = Marking.objects.all().filter(version=version).order_by('marking_meta__question__exam', 'marking_meta__question__position', 'marking_meta__position')
+
+    # get the human readable version
+    version = dict(Marking._meta.get_field('version').choices)[version]
+    context = {
+        'version': version, 'students': students, 'exams': exams,
+        'marking_metas': marking_metas, 'markings': markings,
+    }
+    return render(request, 'ipho_marking/summary.html', context)
 
 @permission_required('ipho_core.is_staff')
 def export(request):
