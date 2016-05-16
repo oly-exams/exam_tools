@@ -1,11 +1,13 @@
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404
+from django.http.request import QueryDict
 
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
@@ -121,6 +123,69 @@ def translations_list(request):
                 {
                     'exam_list' : exam_list,
                 })
+
+@login_required
+@ensure_csrf_cookie
+def list_all_translations(request):
+    exams = Exam.objects.filter(hidden=False)
+    delegations = Delegation.objects.all()
+
+    def get_or_none(model, *args, **kwargs):
+        try:
+            return model.objects.get(*args, **kwargs)
+        except model.DoesNotExist:
+            return None
+
+    filter_ex = exams
+    exam = get_or_none(Exam, id=request.GET.get('ex', None))
+    if exam is not None:
+        filter_ex = exam
+    filter_dg = delegations
+    delegation = get_or_none(Delegation, id=request.GET.get('dg', None))
+    if delegation is not None:
+        filter_dg = delegation
+
+    trans_list = TranslationNode.objects.filter(question__exam=filter_ex, language__delegation=filter_dg).order_by('language__delegation', 'question')
+    pdf_list = PDFNode.objects.filter(question__exam=filter_ex, language__delegation=filter_dg).order_by('language__delegation', 'question')
+    all_nodes = list(trans_list) + list(pdf_list)
+
+    paginator = Paginator(all_nodes, 25) # Show 25 contacts per page
+
+    page = request.GET.get('page')
+    try:
+        node_list = paginator.page(page)
+    except PageNotAnInteger:
+        node_list = paginator.page(1)
+    except EmptyPage:
+        node_list = paginator.page(paginator.num_pages)
+
+    class url_builder(object):
+        def __init__(self, base_url, get={}):
+            self.url = base_url
+            self.get = get
+        def __call__(self, **kwargs):
+            qdict = QueryDict('', mutable=True)
+            for k,v in self.get.iteritems():
+                qdict[k] = v
+            for k,v in kwargs.iteritems():
+                if v is None:
+                    if k in qdict: del qdict[k]
+                else:
+                    qdict[k] = v
+            url = self.url + '?' + qdict.urlencode()
+            return url
+
+    return render(request, 'ipho_exam/list_all.html',
+            {
+                'exams'       : exams,
+                'exam'        : exam,
+                'delegations' : delegations,
+                'delegation'  : delegation,
+                'node_list'   : node_list,
+                'all_pages'   : range(1,paginator.num_pages+1),
+                'this_url_builder'    : url_builder(reverse('exam:list-all'), request.GET),
+            })
+
 
 @login_required
 def add_translation(request, exam_id):
