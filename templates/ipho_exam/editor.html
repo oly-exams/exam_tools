@@ -135,6 +135,27 @@ body { margin-bottom: 70px; }
       </div>
     </div>
 
+    <div class="modal fade" id="copy-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+ Copy all</h4>
+          </div>
+              <div class="modal-body">
+                <p class="alert alert-warning">
+                  By copying the original version you erease all your changes.<br />
+                  This operation cannot be undone, <strong>are you sure?</strong>
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning">Confirm</button>
+              </div>
+        </div>
+      </div>
+    </div>
 
     <div id="alerts-container">
         {% if warning %}
@@ -279,6 +300,12 @@ body { margin-bottom: 70px; }
                 {% if trans_lang %}
                 <button class="btn btn-default" title="Language settings" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-edit' lang_id=trans_lang.pk %}"><i class="fa fa-cog"></i></button>
                 {% endif %}
+                <button type="button" class="btn btn-sm btn-default" title="Copy all blocks from the original version" data-toggle="modal" data-target="#copy-modal">
+                  <i class="fa fa-clipboard" aria-hidden="true"></i>
+                  <span class="glyphicon glyphicon-arrow-right"></span>
+                  <i class="fa fa-clipboard" aria-hidden="true"></i>
+                </button>
+
                 </h4>
             </div>
         </div>
@@ -431,6 +458,11 @@ body { margin-bottom: 70px; }
                 event.preventDefault();
             });
 
+            $('#copy-modal .btn-warning').on('click', function (evt){
+              evt.preventDefault();
+              $(".translate-copy-button").click();
+              $('#copy-modal').modal('hide');
+            });
 
             $('.translate-foreign textarea').each(function() {
                 myid = $(this).parent().attr('id').replace('-translate', '');
