@@ -1232,4 +1232,4 @@ def pdf_task(request, token):
         if request.user.is_superuser:
             return HttpResponse(e.log, content_type="text/plain")
         else:
-            raise RuntimeError("pdflatex error (code %s) in %s." % (e.code, e.doc_fname))
+            return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id});

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+  <div class="container text-center">
+    <h1>PDF Error</h1>
+    <p>
+      An error occured when generating the PDF document. Please verify that you do not have errors in the Latex formulae.
+    </p>
+    <p>
+      If the error persist, please contact the exam tools team at <a href="mailto:exam-tools@ipho2016.org"><i class="fa fa-envelope-o"></i> exam-tools@ipho2016.org</a>.
+    </p>
+    <p class="text-left text-muted">
+      Error code: {{ error_code }}. Task id: {{ task_id }}.
+    </p>
+  </div>
+</div>
+
+{% endblock %}
