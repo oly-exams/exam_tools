@@ -21,10 +21,10 @@ from hashlib import md5
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission, TranslationImportTmp
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -254,7 +254,7 @@ def translation_export(request, question_id, lang_id):
     trans = qquery.latest_version(question_id, lang_id)
 
     content = qml.xml2string(trans.qml.make_xml())
-    content = qml.unescape_entities(content)
+    # content = qml.unescape_entities(content)
 
     res = HttpResponse(content, content_type="application/ipho+qml+xml")
     res['content-disposition'] = 'attachment; filename="{}"'.format('iphoexport_q{}_l{}.xml'.format(question_id, lang_id))
@@ -262,7 +262,65 @@ def translation_export(request, question_id, lang_id):
 @login_required
 def translation_import(request, question_id, lang_id):
     delegation = Delegation.objects.get(members=request.user)
-    pass
+    language = get_object_or_404(Language, id=lang_id)
+    question = get_object_or_404(Question, id=question_id)
+    if not language.check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to edit this language.')
+
+    form = TranslationImportForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        obj = form.save(commit=False)
+        obj.content = request.FILES['file'].read()
+        obj.question = question
+        obj.language = language
+        obj.save()
+        return HttpResponseRedirect(reverse('exam:import-translation-confirm', args=(str(obj.slug),)))
+
+    form_html = render_crispy_form(form)
+    return JsonResponse({
+                'title'   : 'Import question',
+                'form'    : form_html,
+                'submit'  : 'Upload',
+                'success' : False,
+            })
+@login_required
+@csrf_protect
+def translation_import_confirm(request, slug):
+    trans_import = get_object_or_404(TranslationImportTmp, slug=slug)
+    trans = qquery.latest_version(trans_import.question.pk, trans_import.language.pk)
+
+    if request.POST:
+        trans.node.text = trans_import.content
+        trans.node.save()
+        trans_import.delete()
+
+        return JsonResponse({
+                    'success' : True,
+                    'message' : '<strong>Question imported!</strong> The translation of {} in <emph>{}</emph> has been updated.'.format(trans.question.name, trans.lang.name),
+                })
+
+    old_q = trans.qml
+    old_data = old_q.get_data()
+    new_q = qml.QMLquestion(trans_import.content)
+    new_data = new_q.get_data()
+
+    old_q.diff_content_html(new_data)
+    new_q.diff_content_html(old_data)
+
+    old_flat_dict = old_q.flat_content_dict()
+
+    ctx = RequestContext(request)
+    ctx.update(csrf(request))
+    ctx['fields_set'] = [new_q]
+    ctx['old_content'] = old_flat_dict
+    form_html = render_to_string('ipho_exam/partials/qml_diff.html', ctx),
+    return JsonResponse({
+                'title'   : 'Review the changes before accepting the new version',
+                'form'    : form_html,
+                'submit'  : 'Confirm',
+                'href'    : reverse('exam:import-translation-confirm', args=(slug,)),
+                'success' : False,
+            })
 
 
 @login_required

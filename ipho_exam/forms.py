@@ -9,14 +9,16 @@ from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
 
-from ipho_exam.models import Language, Figure, TranslationNode, PDFNode, Feedback, StudentSubmission
+from ipho_exam.models import Language, Figure, TranslationNode, PDFNode, Feedback, StudentSubmission, TranslationImportTmp
 
-def validate_file_extension(value):
-    import os
-    ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
-    valid_extensions = ['.svg', '.svgz']
-    if not ext in valid_extensions:
-        raise ValidationError(u'Unsupported file extension.')
+def build_extension_validator(valid_extensions):
+    def validate_file_extension(value):
+        import os
+        ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
+        # valid_extensions = ['.svg', '.svgz']
+        if not ext in valid_extensions:
+            raise ValidationError(u'Unsupported file extension.')
+    return validate_file_extension
 
 
 class LanguageForm(ModelForm):
@@ -59,7 +61,7 @@ class LanguageForm(ModelForm):
                }
 
 class FigureForm(ModelForm):
-    file = forms.FileField(validators=[validate_file_extension], label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: *.svg, *.svgz"><span class="glyphicon glyphicon-info-sign"></span></a>')
+    file = forms.FileField(validators=[build_extension_validator(['.svg', '.svgz'])], label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: *.svg, *.svgz"><span class="glyphicon glyphicon-info-sign"></span></a>')
 
     def __init__(self, *args, **kwargs):
         super(FigureForm, self).__init__(*args, **kwargs)
@@ -119,6 +121,22 @@ class PDFNodeForm(ModelForm):
         fields = ['pdf',]
         labels = {'pdf': 'Select new file to upload'}
         widgets = {'pdf': forms.FileInput()}
+
+
+class TranslationImportForm(ModelForm):
+    file = forms.FileField(validators=[build_extension_validator(['.xml','.qml'])], label='Question file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: *.xml"><span class="glyphicon glyphicon-info-sign"></span></a>')
+
+    def __init__(self, *args, **kwargs):
+        super(TranslationImportForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.helper.disable_csrf = True
+
+    class Meta:
+        model = TranslationImportTmp
+        fields = []
 
 class FeedbackForm(ModelForm):
     def __init__(self, *args, **kwargs):

@@ -200,6 +200,16 @@ class PDFNode(models.Model):
         return self.question.natural_key() + self.language.natural_key()
     natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
 
+class TranslationImportTmp(models.Model):
+    slug = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
+    question = models.ForeignKey(Question)
+    language = models.ForeignKey(Language)
+    content = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return u'%s - %s, %s' % (self.slug, self.question, self.language)
+
+
 class FigureManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
