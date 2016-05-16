@@ -59,8 +59,8 @@
                 </ul>
               </li>
 
-              <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
               {% if not DEMO_MODE %}
+              <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
               <li><a href="#">Results</a></li>
               {% endif %}
 
