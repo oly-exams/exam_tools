@@ -426,11 +426,11 @@ noto = {
   },
   "notosans": {
     "cjk": 0,
-    "font_bold": "Noto-Sans-Bold.ttf",
+    "font_bold": "NotoSans-Bold.ttf",
     "name": "notosans",
-    "font_regular": "Noto-Sans-regular.ttf",
-    "font_bolditalic": "Noto-Sans-bolditalic.ttf",
-    "font_italic": "Noto-Sans-italic.ttf",
+    "font_regular": "NotoSans-Regular.ttf",
+    "font_bolditalic": "NotoSans-BoldItalic.ttf",
+    "font_italic": "NotoSans-Italic.ttf",
     "font": "Noto Sans",
     "css": "notosans.css"
   },

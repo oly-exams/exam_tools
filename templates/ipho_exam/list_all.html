@@ -1,0 +1,129 @@
+{% extends "ipho_exam/base.html" %}
+{% load static %}
+{% load exam_utils_tags %}
+
+{% block extra-head %}
+<style>
+.asteriskField {
+    display: none;
+}
+
+.div-inline{
+    display:inline-block;
+}
+
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="active">All translations</li>
+{% endblock %}
+
+{% block pageheader %}<h1>All Translations</h1>{% endblock %}
+
+{% block exam-content %}
+
+  <div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if exam %}
+          {{ exam.name }}
+      {% else %}
+          Filter exam
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url ex=None page=1 %}">-- None --</a></li>
+      {% for ex in exams %}
+          <li {% if exam == ex %} class="active" {% endif %}><a href="{% this_url ex=ex.pk page=1 %}">{{ ex.name }}</a></li>
+      {% endfor %}
+        </ul>
+      </div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if delegation %}
+          {{ delegation.name }}
+      {% else %}
+          Filter delegation
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url dg=None page=1 %}">-- None --</a></li>
+      {% for dg in delegations %}
+          <li {% if delegation == dg %} class="active" {% endif %}><a href="{% this_url dg=dg.pk page=1 %}">{{ dg.country }} ({{ dg.name }})</a></li>
+      {% endfor %}
+        </ul>
+      </div>
+
+  </div>
+
+    <table class="table table-striped">
+      <tr>
+        <th>Exam</th>
+          <th>Question</th>
+          <th>Delegation</th>
+          <th>Language</th>
+          <th>Last modified</th>
+          <th></th>
+      </tr>
+      <tbody>
+        {% for node in node_list %}
+          <tr>
+            <td>{{ node.question.exam }}</td>
+            <td>{{ node.question }}</td>
+            <td>{{ node.language.delegation.country }} ({{ node.language.delegation.name }})</td>
+            <td>{{ node.language.name }}</td>
+            <td>{{ node.timestamp }}</td>
+            <td>
+              <div class="btn-toolbar">
+                <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+    <div class="text-center">
+      <ul class="pagination">
+        {% if node_list.has_previous %}
+        <li>
+          <a href="{% this_url page=node_list.previous_page_number %}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="disabled">
+          <a href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {% endif %}
+        {% for page in all_pages %}
+        <li class="{% if page == node_list.number %}active{% endif %}"><a href="{% this_url page=page %}">{{ page }}</a></li>
+        {% endfor %}
+        {% if node_list.has_next %}
+        <li>
+          <a href="{% this_url page=node_list.next_page_number %}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="disabled">
+          <a href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+
+{% endblock %}
+
+{% block extra-script %}
+{% endblock %}

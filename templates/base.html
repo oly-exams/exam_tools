@@ -54,14 +54,17 @@
                   <li><a href="{% url 'exam:list' %}">Your translations</a></li>
                   <li><a href="{% url 'exam:submission-exam-list' %}">Final submission</a></li>
                   <li class="divider"></li>
+                  <li class="dropdown-header">All translations</li>
+                  <li><a href="{% url 'exam:list-all' %}">View all translations</a></li>
+                  <li class="divider"></li>
                   <li class="dropdown-header">Exam feedbacks</li>
                   <li><a href="{% url 'exam:feedbacks-list' %}">Submit feedbacks</a></li>
                 </ul>
               </li>
 
-              <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
               {% if not DEMO_MODE %}
               <li><a href="{% url 'marking:delegation-summary' %}">Results</a></li>
+              <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
               {% endif %}
 
               {% if perms.ipho_core.is_staff %}

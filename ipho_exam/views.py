@@ -1,11 +1,13 @@
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
+from django.http.request import QueryDict
 
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
@@ -19,10 +21,10 @@ from hashlib import md5
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -125,6 +127,69 @@ def translations_list(request):
                 })
 
 @login_required
+@ensure_csrf_cookie
+def list_all_translations(request):
+    exams = Exam.objects.filter(hidden=False)
+    delegations = Delegation.objects.all()
+
+    def get_or_none(model, *args, **kwargs):
+        try:
+            return model.objects.get(*args, **kwargs)
+        except model.DoesNotExist:
+            return None
+
+    filter_ex = exams
+    exam = get_or_none(Exam, id=request.GET.get('ex', None))
+    if exam is not None:
+        filter_ex = exam
+    filter_dg = delegations
+    delegation = get_or_none(Delegation, id=request.GET.get('dg', None))
+    if delegation is not None:
+        filter_dg = delegation
+
+    trans_list = TranslationNode.objects.filter(question__exam=filter_ex, language__delegation=filter_dg).order_by('language__delegation', 'question')
+    pdf_list = PDFNode.objects.filter(question__exam=filter_ex, language__delegation=filter_dg).order_by('language__delegation', 'question')
+    all_nodes = list(trans_list) + list(pdf_list)
+
+    paginator = Paginator(all_nodes, 25) # Show 25 contacts per page
+
+    page = request.GET.get('page')
+    try:
+        node_list = paginator.page(page)
+    except PageNotAnInteger:
+        node_list = paginator.page(1)
+    except EmptyPage:
+        node_list = paginator.page(paginator.num_pages)
+
+    class url_builder(object):
+        def __init__(self, base_url, get={}):
+            self.url = base_url
+            self.get = get
+        def __call__(self, **kwargs):
+            qdict = QueryDict('', mutable=True)
+            for k,v in self.get.iteritems():
+                qdict[k] = v
+            for k,v in kwargs.iteritems():
+                if v is None:
+                    if k in qdict: del qdict[k]
+                else:
+                    qdict[k] = v
+            url = self.url + '?' + qdict.urlencode()
+            return url
+
+    return render(request, 'ipho_exam/list_all.html',
+            {
+                'exams'       : exams,
+                'exam'        : exam,
+                'delegations' : delegations,
+                'delegation'  : delegation,
+                'node_list'   : node_list,
+                'all_pages'   : range(1,paginator.num_pages+1),
+                'this_url_builder'    : url_builder(reverse('exam:list-all'), request.GET),
+            })
+
+
+@login_required
 def add_translation(request, exam_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -185,6 +250,82 @@ def add_pdf_node(request, question_id, lang_id):
                 'submit'  : 'Upload',
                 'success' : False,
             })
+
+@login_required
+def translation_export(request, question_id, lang_id):
+    trans = qquery.latest_version(question_id, lang_id)
+
+    content = qml.xml2string(trans.qml.make_xml())
+    content = qml.unescape_entities(content)
+
+    res = HttpResponse(content, content_type="application/ipho+qml+xml")
+    res['content-disposition'] = 'attachment; filename="{}"'.format('iphoexport_q{}_l{}.xml'.format(question_id, lang_id))
+    return res
+@login_required
+def translation_import(request, question_id, lang_id):
+    delegation = Delegation.objects.get(members=request.user)
+    language = get_object_or_404(Language, id=lang_id)
+    question = get_object_or_404(Question, id=question_id)
+    if not language.check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to edit this language.')
+
+    form = TranslationImportForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        obj = form.save(commit=False)
+        txt = request.FILES['file'].read()
+        txt = txt.decode('utf8')
+        obj.content = qml.escape_equations(txt)
+        obj.question = question
+        obj.language = language
+        obj.save()
+        return HttpResponseRedirect(reverse('exam:import-translation-confirm', args=(str(obj.slug),)))
+
+    form_html = render_crispy_form(form)
+    return JsonResponse({
+                'title'   : 'Import question',
+                'form'    : form_html,
+                'submit'  : 'Upload',
+                'success' : False,
+            })
+@login_required
+@csrf_protect
+def translation_import_confirm(request, slug):
+    trans_import = get_object_or_404(TranslationImportTmp, slug=slug)
+    trans = qquery.latest_version(trans_import.question.pk, trans_import.language.pk)
+
+    if request.POST:
+        trans.node.text = trans_import.content
+        trans.node.save()
+        trans_import.delete()
+
+        return JsonResponse({
+                    'success' : True,
+                    'message' : '<strong>Question imported!</strong> The translation of {} in <emph>{}</emph> has been updated.'.format(trans.question.name, trans.lang.name),
+                })
+
+    old_q = trans.qml
+    old_data = old_q.get_data()
+    new_q = qml.QMLquestion(trans_import.content)
+    new_data = new_q.get_data()
+
+    old_q.diff_content_html(new_data)
+    new_q.diff_content_html(old_data)
+
+    old_flat_dict = old_q.flat_content_dict()
+
+    ctx = RequestContext(request)
+    ctx.update(csrf(request))
+    ctx['fields_set'] = [new_q]
+    ctx['old_content'] = old_flat_dict
+    form_html = render_to_string('ipho_exam/partials/qml_diff.html', ctx),
+    return JsonResponse({
+                'title'   : 'Review the changes before accepting the new version',
+                'form'    : form_html,
+                'submit'  : 'Confirm',
+                'href'    : reverse('exam:import-translation-confirm', args=(slug,)),
+                'success' : False,
+            })
+
 
 @login_required
 @ensure_csrf_cookie
@@ -1099,4 +1240,4 @@ def pdf_task(request, token):
         if request.user.is_superuser:
             return HttpResponse(e.log, content_type="text/plain")
         else:
-            raise RuntimeError("pdflatex error (code %s) in %s." % (e.code, e.doc_fname))
+            return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)

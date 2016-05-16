@@ -7,6 +7,35 @@
     display: none;
 }
 
+content-field-nested .field-content {
+    margin-left: 1em;
+    margin-right: 1em;
+}
+.field-content {
+    border: 1px solid #717171;
+    border-radius: 2px;
+    margin: 1em 0;
+    padding: 5px;
+}
+.cke_textarea_inline {
+/*    border:1px #000 solid;*/
+}
+
+.field-figure img {
+    max-height: 140px;
+}
+ins {
+    color: #00f;
+    font-decoration: underline;
+    -moz-text-decoration-style: wavy;
+    -webkit-text-decoration-style: wavy;
+    text-decoration-style: wavy;
+}
+del {
+    color: #f00;
+    font-decoration: line-through;
+}
+
 </style>
 {% endblock %}
 
@@ -51,6 +80,23 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="import-modal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <form method="post" action="">
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <div id="alerts-container"></div>
 
@@ -76,6 +122,13 @@
 {% endblock %}
 
 {% block extra-script %}
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        showMathMenu: false,
+    });
+</script>
+<script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+
 <script>
 $(function() {
     // Get csrftoken
@@ -144,6 +197,7 @@ $(function() {
 
         modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
         modal.find('.modal-body').html('');
+        modal.find('.modal-footer').addClass('hide');
 
         $.ajax({
             url: href,
@@ -152,6 +206,7 @@ $(function() {
                 modal.find('.modal-title').text(data['title']);
                 modal.find('form').attr('action', href);
                 modal.find('.modal-body').html(data['form']);
+                modal.find('.modal-footer').removeClass('hide');
                 modal.find('button[type="submit"]').text(data['submit_text']);
                 modal.find("[data-toggle=popover]").popover(); // activate popover
             },
@@ -236,6 +291,74 @@ $(function() {
                 modal.find('.modal-body').html(data['form']);
                 modal.find('button').prop("disabled",false);
                 modal.find('button[type="submit"]').text(data['submit']);
+            },
+        });
+    });
+
+
+    function content2math() {
+        // convert equations for mathquill
+        // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
+        // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
+
+        // convert equations for mathjax
+        // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
+        var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
+        $(this).html(newtext);
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
+    }
+
+    $(document).on('submit', '#import-modal form', function(evt) {
+      var form = evt.target;
+      var $form = $(form);
+      evt.preventDefault();
+
+      var data = new FormData($form.get(0));
+      $.ajax({
+          url: form.action,
+          type: form.method,
+          data: data,
+          cache: false,
+          processData: false,
+          contentType: false,
+          success: function(data) {
+            var modal = $('#import-modal');
+            if (!data['success']) {
+              modal.find('.modal-title').text(data['title']);
+              modal.find('form').attr('action', data['href']);
+              modal.find('.modal-body').html(data['form']);
+              modal.find('button').prop("disabled",false);
+              modal.find('button[type="submit"]').text(data['submit']);
+              modal.find('.modal-footer').removeClass('hide');
+              modal.find(".content-old").each(content2math);
+              modal.find(".content-new").each(content2math);
+              return;
+            }
+            modal.modal('hide');
+            $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+            }
+        });
+    });
+
+    $('#import-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
+        modal.find('.modal-footer').addClass('hide');
+
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('form').attr('action', href);
+                modal.find('.modal-body').html(data['form']);
+                modal.find('button').prop("disabled",false);
+                modal.find('button[type="submit"]').text(data['submit']);
+                modal.find('.modal-footer').removeClass('hide');
             },
         });
     });

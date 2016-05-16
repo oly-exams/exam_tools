@@ -3,4 +3,5 @@ iphoadmin/settings.py
 exam_tools/settings.py
 *.pyc
 .gitignore
+venv
 ipho.db

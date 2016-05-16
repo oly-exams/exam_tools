@@ -1,0 +1,26 @@
+{% load static %}
+{% load editor_extras %}
+
+<div class="container-fluid">
+
+    {% csrf_token %}
+
+    <div class="row">
+        <div class="col-xs-5">
+            <h4>Old</h4>
+        </div>
+
+        <div class="col-sm-2 text-center">
+        </div>
+
+        <div class="col-xs-5">
+            <h4>New</h4>
+        </div>
+    </div>
+
+
+    <div class="content-field-container">
+        {% include 'ipho_exam/partials/qml_diff_field.html' with fields_set=fields_set %}
+    </div>
+
+</div> <!-- /container -->

@@ -1,4 +1,5 @@
 from xml.etree import ElementTree as ET
+from xml.etree.ElementTree import ParseError
 import re
 from copy import deepcopy
 #import lxml.etree as lxmltree
@@ -65,11 +66,23 @@ def content2string(node):
     # filter removes possible Nones in texts and tails
     return ''.join(filter(None, parts))
 
+mathtex_pattern = re.compile(r'<span class="math-tex">(([^<]|<[^/])+)</span>')
+def escape_equations(txt):
+    return mathtex_pattern.sub(lambda m: u'<span class="math-tex">{}</span>'.format(escape(m.group(1))), txt)
+
 def data2tex(data):
     cont_str = '<content>'+unescape_entities(data)+'</content>'
-    mathtex_pattern = re.compile(r'<span class="math-tex">(([^<]|<[^/])+)</span>')
-    cont_str = mathtex_pattern.sub(lambda m: u'<span class="math-tex">{}</span>'.format(escape(m.group(1))), cont_str)
-    cont_xml = ET.fromstring(cont_str.encode('utf-8'))
+    cont_str = escape_equations(cont_str)
+    try:
+        cont_xml = ET.fromstring(cont_str.encode('utf-8'))
+    except ParseError as e:
+        my_string = cont_str.encode('utf-8')
+        formatted_e = str(e)
+        line = int(formatted_e[formatted_e.find("line ") + 5: formatted_e.find(",")])
+        column = int(formatted_e[formatted_e.find("column ") + 7:])
+        split_str = my_string.split("\n")
+        print "{}\n{}^".format(split_str[line - 1], len(split_str[line - 1][0:column])*"-")
+        raise e
     return tex.html2tex(cont_xml)
 
 def canonical_name(qobj):

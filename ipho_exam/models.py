@@ -46,7 +46,7 @@ class Language(models.Model):
         if user.is_superuser:
             return True
         else:
-            return self.delegation.filter(members=user).exists()
+            return user.delegation_set.filter(id=self.delegation.pk).exists()
     def is_official(self):
         return self.delegation.name == OFFICIAL_DELEGATION
 
@@ -201,6 +201,16 @@ class PDFNode(models.Model):
     def natural_key(self):
         return self.question.natural_key() + self.language.natural_key()
     natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
+
+class TranslationImportTmp(models.Model):
+    slug = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
+    question = models.ForeignKey(Question)
+    language = models.ForeignKey(Language)
+    content = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return u'%s - %s, %s' % (self.slug, self.question, self.language)
+
 
 class FigureManager(models.Manager):
     def get_by_natural_key(self, name):

@@ -18,7 +18,7 @@ TEXBIN = getattr(settings, 'TEXBIN', '/usr/bin')
 
 
 class TexCompileException(Exception):
-    def __init__(self, code, doc_fname, log):
+    def __init__(self, code, doc_fname='', log=''):
         self.log = log
         self.code = code
         self.doc_fname = doc_fname
