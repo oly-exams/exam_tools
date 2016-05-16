@@ -122,6 +122,13 @@ del {
 {% endblock %}
 
 {% block extra-script %}
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        showMathMenu: false,
+    });
+</script>
+<script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+
 <script>
 $(function() {
     // Get csrftoken
