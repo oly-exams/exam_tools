@@ -254,7 +254,7 @@ def translation_export(request, question_id, lang_id):
     trans = qquery.latest_version(question_id, lang_id)
 
     content = qml.xml2string(trans.qml.make_xml())
-    # content = qml.unescape_entities(content)
+    content = qml.unescape_entities(content)
 
     res = HttpResponse(content, content_type="application/ipho+qml+xml")
     res['content-disposition'] = 'attachment; filename="{}"'.format('iphoexport_q{}_l{}.xml'.format(question_id, lang_id))
