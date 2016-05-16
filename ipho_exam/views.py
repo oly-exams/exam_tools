@@ -250,6 +250,22 @@ def add_pdf_node(request, question_id, lang_id):
             })
 
 @login_required
+def translation_export(request, question_id, lang_id):
+    trans = qquery.latest_version(question_id, lang_id)
+
+    content = qml.xml2string(trans.qml.make_xml())
+    content = qml.unescape_entities(content)
+
+    res = HttpResponse(content, content_type="application/ipho+qml+xml")
+    res['content-disposition'] = 'attachment; filename="{}"'.format('iphoexport_q{}_l{}.xml'.format(question_id, lang_id))
+    return res
+@login_required
+def translation_import(request, question_id, lang_id):
+    delegation = Delegation.objects.get(members=request.user)
+    pass
+
+
+@login_required
 @ensure_csrf_cookie
 def list_language(request):
     delegation = Delegation.objects.filter(members=request.user)

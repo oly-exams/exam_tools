@@ -10,6 +10,8 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^translation/list/?$', 'translations_list', name='list'),
     url(r'^translation/add/(?P<exam_id>\d+)$', 'add_translation', name='add-translation'),
     url(r'^translation/upload/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)$', 'add_pdf_node', name='upload-translation'),
+    url(r'^translation/export/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)$', 'translation_export', name='export-translation'),
+    url(r'^translation/import/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)$', 'translation_import', name='import-translation'),
     url(r'^translation/all/?$', 'list_all_translations', name='list-all'),
 
     url(r'^languages/?$', 'list_language', name='language-list'),
