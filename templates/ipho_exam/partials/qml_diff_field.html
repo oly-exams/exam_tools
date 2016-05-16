@@ -1,0 +1,41 @@
+{% for field in fields_set %}
+    <div class="content-field">
+        {% if field.heading %}
+        <div class="row">
+            <div class="col-xs-12">
+                <h4>{{ field.heading }}
+                {% if field.description %} <br /> <span class="small">{{ field.description }}</span> {% endif %}
+                </h4>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-xs-5">
+                {% if field.id in old_content and old_content|lookup:field.id %}
+                    <div class="content-old">
+                        {{ old_content|lookup:field.id|safe }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-sm-2 text-center"></div>
+
+            <div class="col-xs-5">
+                {% if field.content_html %}
+                <div class="content-new">
+                    {{ field.content_html|safe }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if field.children %}
+        <div class="row">
+            <div class="col-xs-12 content-field-nested">
+                {% include 'ipho_exam/admin_accept_version_field.html' with fields_set=field.children %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% endfor %}
