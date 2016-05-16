@@ -1,6 +1,6 @@
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
 from django.http.request import QueryDict
 
 from django.template import RequestContext

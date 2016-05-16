@@ -44,7 +44,7 @@ class Language(models.Model):
         if user.is_superuser:
             return True
         else:
-            return self.delegation.filter(members=user).exists()
+            return user.delegation_set.filter(id=self.delegation.pk).exists()
     def is_official(self):
         return self.delegation.name == OFFICIAL_DELEGATION
 
