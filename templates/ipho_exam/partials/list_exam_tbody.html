@@ -8,14 +8,27 @@
     <td>
       <div class="btn-toolbar">
         {% if node.language.is_pdf %}
-        <a class="btn btn-xs btn-default" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="{% url 'exam:upload-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Upload"><i class="fa fa-upload fa-fw"></i> upload</a>
+        <div class="btn-group">
+          <a class="btn btn-xs btn-default" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="{% url 'exam:upload-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Upload"><i class="fa fa-upload fa-fw"></i> upload</a>
+        </div>
         {% else %}
-        <a class="btn btn-xs btn-default" href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=node.question.pk orig_id=1 lang_id=node.language.pk %}" title="Edit question"><i class="fa fa-pencil fa-fw"></i> edit</a>
+        <div class="btn-group">
+          <a class="btn btn-xs btn-default" href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=node.question.pk orig_id=1 lang_id=node.language.pk %}" title="Edit question"><i class="fa fa-pencil fa-fw"></i> edit</a>
+        </div>
         {% endif %}
-        <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+        <div class="btn-group">
+          <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+        </div>
         {% if not node.language.is_pdf %}
-        <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:export-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question"><i class="fa fa-fw fa-download"></i> export</a>
-        <a class="btn btn-xs btn-default" data-toggle="modal" data-target="#import-modal" data-remote="false" href="{% url 'exam:import-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Import question"><i class="fa fa-fw fa-upload"></i> import</a>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+            advanced <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a target="_blank" href="{% url 'exam:export-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question"><i class="fa fa-fw fa-download"></i> export</a></li>
+            <li><a data-toggle="modal" data-target="#import-modal" data-remote="false" href="{% url 'exam:import-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Import question"><i class="fa fa-fw fa-upload"></i> import</a></li>
+          </ul>
+        </div>
         {% endif %}
       </div>
     </td>
