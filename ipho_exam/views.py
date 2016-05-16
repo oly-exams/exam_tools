@@ -270,7 +270,9 @@ def translation_import(request, question_id, lang_id):
     form = TranslationImportForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         obj = form.save(commit=False)
-        obj.content = request.FILES['file'].read()
+        txt = request.FILES['file'].read()
+        txt = txt.decode('utf8')
+        obj.content = qml.escape_equations(txt)
         obj.question = question
         obj.language = language
         obj.save()
