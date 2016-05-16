@@ -144,6 +144,7 @@ $(function() {
 
         modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
         modal.find('.modal-body').html('');
+        modal.find('.modal-footer').addClass('hide');
 
         $.ajax({
             url: href,
@@ -152,6 +153,7 @@ $(function() {
                 modal.find('.modal-title').text(data['title']);
                 modal.find('form').attr('action', href);
                 modal.find('.modal-body').html(data['form']);
+                modal.find('.modal-footer').removeClass('hide');
                 modal.find('button[type="submit"]').text(data['submit_text']);
                 modal.find("[data-toggle=popover]").popover(); // activate popover
             },
