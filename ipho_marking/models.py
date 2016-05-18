@@ -2,6 +2,7 @@ from django.db import models
 
 from ipho_core.models import Student
 from ipho_exam.models import Exam, Question
+from collections import OrderedDict
 
 class MarkingMeta(models.Model):
     question = models.ForeignKey(Question)
@@ -21,12 +22,12 @@ class Marking(models.Model):
     student = models.ForeignKey(Student)
     points = models.FloatField(null=True, blank=True)
     comment = models.TextField(null=True, blank=True)
-    MARKING_VERSIONS = (
+    MARKING_VERSIONS = OrderedDict([
         ('O', 'Organizers'),
         ('D', 'Delegation'),
         ('F', 'Final'),
-    )
-    version = models.CharField(max_length=1, choices=MARKING_VERSIONS)
+    ])
+    version = models.CharField(max_length=1, choices=MARKING_VERSIONS.iteritems())
 
     def exam_question(self):
         return self.marking_meta.question

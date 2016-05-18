@@ -18,7 +18,9 @@ urlpatterns = [
     url(r'^moderate/question/(?P<question_id>\d+)/delegation/(?P<delegation_id>\d+)/confirmed$', views.moderation_confirmed, name='moderation-confirmed'),
 
 ##  staff views
-    url(r'^import/?$', views.import_exam, name='import-exam'),
-    url(r'^all/?$', views.summary, name='summary'),
+    url(r'^staff/import/?$', views.import_exam, name='import-exam'),
+    url(r'^staff/?$', views.summary, name='summary'),
+    url(r'^staff/v(?P<version>\w)/student/(?P<stud_id>\d+)/question/(?P<question_id>\d+)/edit$', views.staff_stud_detail, name='staff-stud-detail'),
+
     url(r'^all/export.csv$', views.export, name='export'),
 ]

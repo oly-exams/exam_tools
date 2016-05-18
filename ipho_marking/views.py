@@ -57,22 +57,49 @@ def import_exam(request):
 
 @permission_required('ipho_core.is_staff')
 def summary(request):
-    if request.method == 'GET':
-        version = request.GET.get('version', 'O')
-    else:
-        version = 'O';
-    students = Student.objects.all()
-    exams = Exam.objects.all()
-    marking_metas = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
-    markings = Marking.objects.all().filter(version=version).order_by('marking_meta__question__exam', 'marking_meta__question__position', 'marking_meta__position')
+    vid = request.GET.get('version', 'O')
 
+    points_per_student = []
+    students = Student.objects.all().values('id', 'code')
+    for student in students:
+        stud_points_list = Marking.objects.filter(
+            version=vid, student=student['id']
+        ).values(
+            'marking_meta__question'
+        ).annotate(
+            question_points=Sum('points')
+        ).values_list(
+            'marking_meta__question',
+            'question_points',
+        ).order_by('marking_meta__question__exam','marking_meta__question__position')
+        points_per_student.append( (student, stud_points_list) )
+
+    questions = MarkingMeta.objects.all().values(
+        'question'
+    ).annotate(
+        question_points=Sum('max_points')
+    ).values(
+        'question__exam__name',
+        'question__name',
+        'question_points'
+    ).order_by(
+        'question__exam',
+        'question__position'
+    ).distinct()
     # get the human readable version
-    version = dict(Marking._meta.get_field('version').choices)[version]
+    version = dict(Marking._meta.get_field('version').choices)[vid]
     context = {
-        'version': version, 'students': students, 'exams': exams,
-        'marking_metas': marking_metas, 'markings': markings,
+        'vid': vid,
+        'version': Marking.MARKING_VERSIONS[vid],
+        'all_versions': Marking.MARKING_VERSIONS,
+        'questions': questions,
+        'points_per_student': points_per_student,
     }
     return render(request, 'ipho_marking/summary.html', context)
+
+@permission_required('ipho_core.is_staff')
+def staff_stud_detail(request, version, stud_id, question_id):
+    pass
 
 @permission_required('ipho_core.is_staff')
 def export(request):

@@ -13,63 +13,41 @@
 
 {% block page-content %}
 
-<p>Version: {{ version }}</p>
-
 <div class="dropdown">
-  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownVersion" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-    Select version
+  Version:
+  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownVersion" data-toggle="dropdown">
+    {{ version }}
     <span class="caret"></span>
   </button>
-  <ul class="dropdown-menu" aria-labelledby="dropdownVersion">
-    <li><a href="{% url 'marking:summary' %}?version=O">Organizers</a></li>
-    <li><a href="{% url 'marking:summary' %}?version=D">Delegation</a></li>
-    <li><a href="{% url 'marking:summary' %}?version=F">Final</a></li>
+  <ul class="dropdown-menu">
+    {% for vvid, vvname in all_versions.items %}
+    <li><a href="{% url 'marking:summary' %}?version={{ vvid }}">{{ vvname }}</a></li>
+    {% endfor %}
   </ul>
 </div>
 
-
-
-{# tables of markings grouped by exam and students #}
-
-{% for exam in exams %}
-<div class='panel panel-default'>
-    <div class="panel-heading"><h2>Exam: {{ exam }}</h2></div>
-    <div class="panel-body">
-        {% if not markings %}
-            <div class="alert alert-info alert-dismissible">
-                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-                <strong>There are no markings at the moment!</strong> Create empty markings with <a href="{% url 'marking:import-exam' %}"></a>.
-            </div>
-        {% endif %}
-    </div>
-
-    <table id="markings-table-exam-{{ exam.pk }}" class="table table-striped">
+    <table class="table table-striped">
         <tr>
             <th>Student</th>
-            {% for  mm in marking_metas %}
-                {% if mm.question.exam == exam %}
-                    <th>{{ mm.name }}</th>
-                {% endif %}
+            {% for q in questions %}
+            <th>{{ q.question__exam__name }}<br />{{ q.question__name }}<br />{{ q.question_points }}</th>
             {% endfor %}
         </tr>
 
-        {% for student in students %}
-        <tr id="exam-{{ exam.pk }}-student-{{ student.pk }}">
-            <td>{{ student }}</td>
-            {% for  mm in marking_metas %}
-                {% if mm.question.exam == exam %}
-                    {% for marking in markings %}
-                        {% if marking.marking_meta == mm and marking.student == student %}
-                            <td>{{ marking.points }} / {{ mm.points }}</td>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
+        {% for student, points in points_per_student %}
+        <tr>
+            <td>{{ student.code }}</td>
+            {% for qid,pp in points %}
+            <td>
+              {{ pp }}
+              <a class="btn btn-default btn-xs" href="{% url 'marking:staff-stud-detail' question_id=qid version=vid stud_id=student.id %}">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+              </a>
+            </td>
             {% endfor %}
         </tr>
         {% endfor %}
     </table>
 </div>
-{% endfor %}
-
 
 {% endblock %}
