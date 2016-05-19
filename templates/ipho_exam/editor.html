@@ -579,6 +579,17 @@ body { margin-bottom: 70px; }
             updateDocumentStatus();
             setInterval(updateDocumentStatus, 30000);
 
+            var checkHTML = function(html) {
+              var doc = document.createElement('div');
+              doc.innerHTML = html;
+              return ( doc.innerHTML === html );
+            }
+            function validate_blocks() {
+              for (k in all_editors) {
+                if (!checkHTML(all_editors[k].data()))
+                  alert('Problem with block '+k+'. The saving process has been stopped.');
+              }
+            }
             $(document).on('submit', '#question-form', function(evt) {
                 var form = evt.target;
                 var $form = $(form);
