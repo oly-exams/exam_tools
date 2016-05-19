@@ -454,7 +454,9 @@ class QMLfigure(QMLobject):
         fig_caption = ''
         for c in self.children:
             if c.tag == 'caption':
-                fig_caption += data2tex(c.data)
+                caption_text = data2tex(c.data)
+                caption_text = caption_text.replace('\n','\\newline\n')
+                fig_caption += caption_text
 
         texout = u''
         texout += u'\\begin{figure}[h]\n'
