@@ -99,7 +99,26 @@ def summary(request):
 
 @permission_required('ipho_core.is_staff')
 def staff_stud_detail(request, version, stud_id, question_id):
-    pass
+    ctx = RequestContext(request)
+    ctx['msg'] = []
+
+    question = get_object_or_404(Question, id=question_id)
+    student = get_object_or_404(Student, id=stud_id)
+
+    metas = MarkingMeta.objects.filter(question=question)
+    FormSet = modelformset_factory(Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False)
+    form = FormSet(request.POST or None, queryset=Marking.objects.filter(marking_meta=metas, student=student, version=version))
+    if form.is_valid():
+        form.save()
+        ctx['msg'].append( ('alert-success', '<strong>Succses.</strong> Points have been saved. <a href="{}" class="btn btn-default btn-xs">back to summary</a>'.format(reverse('marking:summary'))) )
+
+    ctx['version'] = version
+    ctx['version_display'] = Marking.MARKING_VERSIONS[version]
+    ctx['student'] = student
+    ctx['question'] = question
+    ctx['exam'] = question.exam
+    ctx['form'] = form
+    return render(request, 'ipho_marking/staff_edit.html', ctx)
 
 @permission_required('ipho_core.is_staff')
 def export(request):

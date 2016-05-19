@@ -25,7 +25,7 @@ class ImportForm(Form):
 class PointsForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(PointsForm, self).__init__(*args, **kwargs)
-        self.fields['points'].label = self.instance.marking_meta.name
+        self.fields['points'].label = '{} ({})'.format(self.instance.marking_meta.name, self.instance.marking_meta.max_points)
         self.fields['points'].required = True
 
         self.helper = FormHelper()
