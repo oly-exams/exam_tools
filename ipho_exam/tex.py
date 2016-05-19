@@ -34,7 +34,7 @@ def html2tex(el):
                     elif 'font-weight:bold' in sel.attrib[att]:
                         result.append(u'\\textbf{%s}' % (html2tex(sel)))
                 elif att =='class' and 'math-tex' in sel.attrib[att]:
-                    if sel.text[:2] == '\(':
+                    if sel.text is not None and sel.text[:2] == '\(':
                         sel.text = unescape_entities(sel.text)
                         if sel.tail is not None:
                             sel.tail = unescape_entities(sel.tail)
