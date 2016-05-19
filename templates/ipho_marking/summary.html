@@ -39,7 +39,7 @@
             <td>{{ student.code }}</td>
             {% for qid,pp in points %}
             <td>
-              {{ pp }}
+              {{ pp|default:'-' }}
               <a class="btn btn-default btn-xs" href="{% url 'marking:staff-stud-detail' question_id=qid version=vid stud_id=student.id %}">
                 <i class="fa fa-pencil" aria-hidden="true"></i>
               </a>
