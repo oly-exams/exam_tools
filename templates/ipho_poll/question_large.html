@@ -1,0 +1,108 @@
+
+{% extends "ipho_poll/question_large_base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra-head %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="jumbotron with-logo">
+        <h1>{{ question }}</h1>
+        <p>
+            {{ question.content }}
+        </p>
+    </div>
+
+    <!-- <p>Status: {{ status }}</p> -->
+
+
+    <div class="parent">
+        <button id="reload" title="Refresh" type="button" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><h2>Choices Legend</h2></div>
+        <table id="drafted-questions-table" class="table table-striped">
+            <tr>
+                <th></th>
+                <th>Choice Text</th>
+                <th>Total Votes</th>
+            </tr>
+
+                {% for choice in choices %}
+                    <tr id="choice-{{ choice.pk }}">
+                        <td class="col-md-1"><strong>{{ choice.label }}</strong></td>
+                        <td class="col-md-6", id="choice-{{ choice.pk }}-choice-text">
+                            {{ choice.choice_text }}
+                        </td>
+                        <td class="col-md-2">
+                            {{ choice.votes }}
+                        </td>
+                    </tr>
+                {% endfor %}
+
+          </table>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script src="{% static "jquery.countdown.js" %}"></script>
+
+<script>
+$('document').ready(function(){
+    $(document).on('click', '#reload', function(event){
+        location.reload();
+    });
+
+    // Activates tooltipls
+    $('.btn').tooltip({containter: ".parent"});
+
+    // Activate countdowns
+    $('.countdown').each(function(i) {
+        var end_date = $(this).data('end-date');
+        end_date = new Date(end_date);
+        $(this).countdown({
+            date: end_date,
+            render: function (date) {
+              var countdown = "";
+              if (date.days != 0) {
+                if (date.days == 1) {
+                  countdown += date.days  + " day, ";
+                }
+                else {
+                  countdown += date.days  + " days, ";
+                }
+              }
+              if (date.hours != 0 || date.days !=0) {
+                if (date.hours == 1) {
+                  countdown += this.leadingZeros(date.hours) + " hour, ";
+                }
+                else {
+                  countdown += this.leadingZeros(date.hours) + " hours, ";
+                }
+              }
+              if (date.min != 0 || date.hours !=0 || date.days !=0){
+                countdown += this.leadingZeros(date.min) + " min and ";
+              }
+              countdown += this.leadingZeros(date.sec) + " sec";
+              this.el.innerHTML = countdown;
+            },
+            onEnd: function() {
+              // A nicer reload function would be good.
+              location.reload();
+              return;
+            }
+        });
+    });
+
+
+}); // $(document).ready()
+</script>
+{% endblock %}

@@ -74,6 +74,28 @@ def question(request, question_pk):
             }
     )
 
+@login_required
+@permission_required('iphoperm.is_staff')
+@ensure_csrf_cookie
+def question_large(request, question_pk):
+    question = get_object_or_404(Question, pk=question_pk)
+    choices = question.choice_set.all()
+    if question.is_draft():
+        status = 'draft'
+    elif question.is_open():
+        status = 'open'
+    else:
+        status = 'closed'
+
+
+    return render(request, 'ipho_poll/question_large.html',
+            {
+                'question'      : question,
+                'choices'       : choices,
+                'status'        : status,
+            }
+    )
+
 
 @login_required
 @permission_required('iphoperm.is_staff')

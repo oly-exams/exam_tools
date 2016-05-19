@@ -72,7 +72,20 @@ def summary(request):
             'marking_meta__question',
             'question_points',
         ).order_by('marking_meta__question__exam','marking_meta__question__position')
-        points_per_student.append( (student, stud_points_list) )
+
+        stud_exam_points_list = Marking.objects.filter(
+            version=vid, student=student['id']
+        ).values(
+            'marking_meta__question__exam'
+        ).annotate(
+            exam_points=Sum('points')
+        ).values(
+            'exam_points'
+        ).order_by(
+            'marking_meta__question__exam'
+        )
+
+        points_per_student.append( (student, stud_points_list, stud_exam_points_list) )
 
     questions = MarkingMeta.objects.all().values(
         'question'
@@ -86,14 +99,25 @@ def summary(request):
         'question__exam',
         'question__position'
     ).distinct()
-    # get the human readable version
-    version = dict(Marking._meta.get_field('version').choices)[vid]
+
+    exams = MarkingMeta.objects.all().values(
+        'question__exam'
+    ).annotate(
+        exam_points=Sum('max_points')
+    ).values(
+        'question__exam__name',
+        'exam_points'
+    ).order_by(
+        'question__exam',
+    ).distinct()
+
     context = {
         'vid': vid,
         'version': Marking.MARKING_VERSIONS[vid],
         'all_versions': Marking.MARKING_VERSIONS,
         'questions': questions,
         'points_per_student': points_per_student,
+        'exams': exams,
     }
     return render(request, 'ipho_marking/summary.html', context)
 

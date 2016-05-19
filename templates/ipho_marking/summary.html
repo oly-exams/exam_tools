@@ -32,9 +32,12 @@
             {% for q in questions %}
             <th>{{ q.question__exam__name }}<br />{{ q.question__name }}<br />{{ q.question_points }}</th>
             {% endfor %}
+            {% for e in exams %}
+            <th>Total<br />{{ e.question__exam__name }}<br />{{ e.exam_points }}</th>
+            {% endfor %}
         </tr>
 
-        {% for student, points in points_per_student %}
+        {% for student, points, exam_points in points_per_student %}
         <tr>
             <td>{{ student.code }}</td>
             {% for qid,pp in points %}
@@ -43,6 +46,11 @@
               <a class="btn btn-default btn-xs" href="{% url 'marking:staff-stud-detail' question_id=qid version=vid stud_id=student.id %}">
                 <i class="fa fa-pencil" aria-hidden="true"></i>
               </a>
+            </td>
+            {% endfor %}
+            {% for ep in exam_points %}
+            <td>
+              {{ ep.exam_points|default:'-' }}
             </td>
             {% endfor %}
         </tr>
