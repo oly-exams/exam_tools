@@ -45,7 +45,7 @@ def import_exam(request):
                 num_tot += 1
 
                 for student in Student.objects.all():
-                    for version_id, version_name in Marking.MARKING_VERSIONS:
+                    for version_id, version_name in Marking.MARKING_VERSIONS.iteritems():
                         marking, created = Marking.objects.get_or_create(marking_meta=mmeta, student=student, version=version_id)
                         num_marking_created += created
                         num_marking_tot += 1
