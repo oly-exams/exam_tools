@@ -179,15 +179,71 @@ def delegation_summary(request):
     return render(request, 'ipho_marking/delegation_summary.html', ctx)
 
 @login_required
-def delegation_stud_detail(request, student_id, exam_id, question_id):
+def delegation_stud_edit(request, stud_id, question_id):
     delegation = Delegation.objects.get(members=request.user)
-    student = get_object_or_404(Student, id=student_id)
+    student = get_object_or_404(Student, id=stud_id)
     if student.delegation != delegation:
         return HttpResponseForbidden('You do not have permission to access this student.')
 
     question = get_object_or_404(Question, id=question_id)
+    version = 'D'
 
-    return HttpResponse()
+    ctx = RequestContext(request)
+    ctx['msg'] = []
+    ctx['student'] = student
+    ctx['question'] = question
+    ctx['exam'] = question.exam
+
+    points_submissions,_ = ExamAction.objects.get_or_create(exam=question.exam, delegation=delegation, action=ExamAction.POINTS)
+    if points_submissions.status == ExamAction.SUBMITTED:
+        ctx['msg'].append( (('alert-info'), '<strong>Note:</strong> The points have been submitted, you can no longer edit them.') )
+        return render(request, 'ipho_marking/delegation_detail.html', ctx)
+
+    metas = MarkingMeta.objects.filter(question=question)
+    FormSet = modelformset_factory(Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False)
+    form = FormSet(request.POST or None, queryset=Marking.objects.filter(marking_meta=metas, student=student, version=version))
+    if form.is_valid():
+        form.save()
+        ctx['msg'].append( ('alert-success', '<strong>Success.</strong> Points have been saved. <a href="{}" class="btn btn-default btn-xs">back to summary</a>'.format(reverse('marking:delegation-summary'))) )
+
+    ctx['form'] = form
+    return render(request, 'ipho_marking/delegation_detail.html', ctx)
+
+@login_required
+def delegation_stud_view(request, stud_id, question_id):
+    delegation = Delegation.objects.get(members=request.user)
+    student = get_object_or_404(Student, id=stud_id)
+    if student.delegation != delegation:
+        return HttpResponseForbidden('You do not have permission to access this student.')
+
+    question = get_object_or_404(Question, id=question_id)
+    versions = ['O', 'D']
+    versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
+
+    ctx = RequestContext(request)
+    ctx['msg'] = []
+    ctx['student'] = student
+    ctx['question'] = question
+    ctx['exam'] = question.exam
+    ctx['versions_display'] = versions_display
+
+    points_submissions,_ = ExamAction.objects.get_or_create(exam=question.exam, delegation=delegation, action=ExamAction.POINTS)
+    if points_submissions.status == ExamAction.OPEN:
+        ctx['msg'].append( (('alert-info'), '<strong>Note:</strong> You can see the official points only when you confirmed your markings.') )
+        return render(request, 'ipho_marking/delegation_detail.html', ctx)
+
+    metas = MarkingMeta.objects.filter(question=question)
+    markings = Marking.objects.filter(marking_meta=metas, student=student, version__in=versions).order_by('marking_meta')
+    grouped_markings = [
+        (
+            k,
+            {kk: list(gg) for kk,gg in itertools.groupby(g, key=lambda m: m.version)}
+        )
+        for k,g in itertools.groupby(markings, key=lambda m: m.marking_meta)
+    ]
+
+    ctx['markings'] = grouped_markings
+    return render(request, 'ipho_marking/delegation_detail.html', ctx)
 
 @login_required
 def delegation_confirm(request, exam_id):
