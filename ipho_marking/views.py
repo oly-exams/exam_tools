@@ -86,8 +86,6 @@ def summary(request):
         'question__exam',
         'question__position'
     ).distinct()
-    # get the human readable version
-    version = dict(Marking._meta.get_field('version').choices)[vid]
     context = {
         'vid': vid,
         'version': Marking.MARKING_VERSIONS[vid],
