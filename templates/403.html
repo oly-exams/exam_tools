@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+  <div class="container text-center">
+    <h1>Permission Denied</h1>
+    <p>
+      Your account is not allowed to perfom this action. To change user, please logout and login again.
+    </p>
+    <p class="text-center">
+      <a href="{% url 'django.contrib.auth.views.logout' %}" class="btn btn-default btn-lg"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
+    </p>
+  </div>
+</div>
+
+{% endblock %}
