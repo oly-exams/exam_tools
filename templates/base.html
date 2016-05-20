@@ -63,18 +63,28 @@
               </li>
 
               {% if not DEMO_MODE %}
+              <li><a href="{% url 'marking:delegation-summary' %}">Results</a></li>
               <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
-              <li><a href="#">Results</a></li>
               {% endif %}
 
               {% if perms.ipho_core.is_staff %}
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin tools <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
-                  <li><a href="{% url 'exam:admin' %}">Exam</a></li>
-                  <li><a href="{% url 'exam:figures' %}">Figures</a></li>
-                  <li><a href="{% url 'poll:staffIndex' %}">Voting</a></li>
+                  <li class="dropdown-header">Exam</li>
+                  <li><a href="{% url 'exam:admin' %}">Exam management</a></li>
+                  <li><a href="{% url 'exam:figures' %}">Figures management</a></li>
                   <li class="divider"></li>
+                  <li class="dropdown-header">Voting</li>
+                  <li><a href="{% url 'poll:staffIndex' %}">Voting management</a></li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header">Marking</li>
+                  <li><a href="{% url 'marking:import-exam' %}">Import exam</a></li>
+                  <li><a href="{% url 'marking:summary' %}">Summary</a></li>
+                  <li><a href="{% url 'marking:moderation-index' %}">Moderation</a></li>
+                  <li><a href="{% url 'marking:export' %}">Export markings</a></li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header">Django admin</li>
                   <li><a href="{% url 'admin:index' %}">Admin interface</a></li>
                 </ul>
               </li>

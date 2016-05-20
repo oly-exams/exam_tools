@@ -1,0 +1,61 @@
+{% extends "ipho_marking/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+
+{% block extra-head %}
+{% endblock %}
+
+{% block pageheader %}<h1>Marking Summary</h1>{% endblock %}
+
+
+
+{% block page-content %}
+
+<div class="dropdown">
+  Version:
+  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownVersion" data-toggle="dropdown">
+    {{ version }}
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    {% for vvid, vvname in all_versions.items %}
+    <li><a href="{% url 'marking:summary' %}?version={{ vvid }}">{{ vvname }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+
+    <table class="table table-striped">
+        <tr>
+            <th>Student</th>
+            {% for q in questions %}
+            <th>{{ q.question__exam__name }}<br />{{ q.question__name }}<br />{{ q.question_points }}</th>
+            {% endfor %}
+            {% for e in exams %}
+            <th>Total<br />{{ e.question__exam__name }}<br />{{ e.exam_points }}</th>
+            {% endfor %}
+        </tr>
+
+        {% for student, points, exam_points in points_per_student %}
+        <tr>
+            <td>{{ student.code }}</td>
+            {% for qid,pp in points %}
+            <td>
+              {{ pp|default:'-' }}
+              <a class="btn btn-default btn-xs" href="{% url 'marking:staff-stud-detail' question_id=qid version=vid stud_id=student.id %}">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+              </a>
+            </td>
+            {% endfor %}
+            {% for ep in exam_points %}
+            <td>
+              {{ ep.exam_points|default:'-' }}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

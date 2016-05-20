@@ -21,7 +21,7 @@ from hashlib import md5
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamDelegationSubmission, TranslationImportTmp
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm
@@ -55,9 +55,10 @@ def main(request):
 
     ## Exam section
     exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
-    exams_open = exam_list.filter(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
-    exams_closed = exam_list.exclude(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
-
+    exams_open = ExamAction.objects.filter(delegation=delegation, exam=exam_list, exam__active=True,
+        action=ExamAction.TRANSLATION, status=ExamAction.OPEN).values('exam__pk','exam__name')
+    exams_closed = ExamAction.objects.filter(delegation=delegation, exam=exam_list,
+        action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED).values('exam__pk','exam__name')
     return render(request, 'ipho_exam/main.html',
             {
                 'own_lang'      : own_lang,
@@ -78,8 +79,9 @@ def wizard(request):
     own_languages = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
     ## Exam section
     exam_list = Exam.objects.filter(hidden=False)
-    exams_open = exam_list.filter(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
-    exams_closed = exam_list.exclude(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
+    open_submissions = ExamAction.objects.filter(exam=exam_list, exam__active=True,
+     delegation=delegation, action=ExamAction.TRANSLATION, status=ExamAction.OPEN)
+    closed_submissions = ExamAction.objects.filter(exam=exam_list, delegation=delegation, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED)
     # Translations
     translations = TranslationNode.objects.filter(language=own_languages, question__exam=exam_list)
 
@@ -88,8 +90,8 @@ def wizard(request):
             {
                 'own_languages' : own_languages,
                 'exam_list'     : exam_list,
-                'exams_open'    : exams_open,
-                'exams_closed'  : exams_closed,
+                'exams_open'    : open_submissions,
+                'exams_closed'  : closed_submissions,
                 'translations'  : translations,
             })
 
@@ -808,8 +810,12 @@ def submission_exam_list(request):
 
     ## Exam section
     exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
-    exams_open = exam_list.filter(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
-    exams_closed = exam_list.exclude(Q(examdelegationsubmission__status='O') | Q(examdelegationsubmission__isnull=True), active=True)
+    pk_exams_open = ExamAction.objects.filter(delegation=delegation, exam=exam_list, exam__active=True,
+        action=ExamAction.TRANSLATION, status=ExamAction.OPEN).values_list('exam', flat=True)
+    pk_exams_closed = ExamAction.objects.filter(delegation=delegation, exam=exam_list,
+        action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED).values_list('exam', flat=True)
+    exams_open = Exam.objects.filter(pk=pk_exams_open)
+    exams_closed = Exam.objects.filter(pk=pk_exams_closed)
 
     return render(request, 'ipho_exam/submission_list.html', {'exams_open': exams_open, 'exams_closed': exams_closed})
 
@@ -819,8 +825,8 @@ def submission_exam_assign(request, exam_id):
     delegation = Delegation.objects.get(members=request.user)
     languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
 
-    ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
-    if ex_submission.status == 'S' and not settings.DEMO_MODE:
+    ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
+    if ex_submission.status == ExamAction.SUBMITTED and not settings.DEMO_MODE:
         return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
 
     submission_forms = []
@@ -877,13 +883,13 @@ def submission_exam_confirm(request, exam_id):
     languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
     form_error = ''
 
-    ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
-    if ex_submission.status == 'S' and not settings.DEMO_MODE:
+    ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
+    if ex_submission.status == ExamAction.SUBMITTED and not settings.DEMO_MODE:
         return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
 
     if request.POST:
         if 'agree-submit' in request.POST:
-            ex_submission.status = 'S'
+            ex_submission.status = ExamAction.SUBMITTED
             ex_submission.save()
             return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
         else:
@@ -919,7 +925,7 @@ def submission_exam_submitted(request, exam_id):
     delegation = Delegation.objects.get(members=request.user)
     languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
 
-    ex_submission, _ = ExamDelegationSubmission.objects.get_or_create(exam=exam, delegation=delegation)
+    ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
 
     assigned_student_language = OrderedDict()
     for student in delegation.student_set.all():

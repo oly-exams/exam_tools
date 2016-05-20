@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.conf import settings
 from ipho_core.models import Delegation, Student
 from django.shortcuts import get_object_or_404
@@ -284,18 +286,45 @@ class Feedback(models.Model):
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='S')
     timestamp = models.DateTimeField(auto_now=True)
 
-class ExamDelegationSubmission(models.Model):
+class ExamAction(models.Model):
+    OPEN = 'O'
+    SUBMITTED = 'S'
     STATUS_CHOICES = (
-        ('O', 'In progress'),
-        ('S', 'Submitted'),
+        (OPEN, 'In progress'),
+        (SUBMITTED, 'Submitted'),
     )
-    exam       = models.ForeignKey(Exam)
-    delegation = models.ForeignKey(Delegation)
+    TRANSLATION = 'T'
+    POINTS = 'P'
+    ACTION_CHOICES = (
+        (TRANSLATION, 'Translation submission'),
+        (POINTS, 'Points submission'),
+    )
+    exam       = models.ForeignKey(Exam, related_name='delegation_status')
+    delegation = models.ForeignKey(Delegation, related_name='exam_status')
+    action     = models.CharField(max_length=2, choices=ACTION_CHOICES)
     status     = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
     timestamp  = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = (('exam', 'delegation'),)
+        unique_together = (('exam', 'delegation', 'action'),)
+
+@receiver(post_save, sender=Exam, dispatch_uid='create_actions_on_exam_creation')
+def create_actions_on_exam_creation(instance, created, raw, **kwargs):
+    # Ignore fixtures and saves for existing courses.
+    if not created or raw:
+        return
+    for delegation in Delegation.objects.all():
+        for action,_ in ExamAction.ACTION_CHOICES:
+            exam_action, _ = ExamAction.objects.get_or_create(exam=instance, delegation=delegation, action=action)
+@receiver(post_save, sender=Delegation, dispatch_uid='create_actions_on_delegation_creation')
+def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
+    # Ignore fixtures and saves for existing courses.
+    if not created or raw:
+        return
+    for exam in Exam.objects.all():
+        for action,_ in ExamAction.ACTION_CHOICES:
+            exam_action, _ = ExamAction.objects.get_or_create(exam=exam, delegation=instance, action=action)
+
 
 class StudentSubmission(models.Model):
     student  = models.ForeignKey(Student)
