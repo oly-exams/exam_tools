@@ -264,10 +264,10 @@ def delegation_confirm(request, exam_id):
             form_error = '<strong>Error:</strong> You have to confirm the marking before continuing.'
 
     questions = Question.objects.filter(exam=exam, type='A')
-    metas_query = MarkingMeta.objects.filter(question=questions)
-    markings_query = Marking.objects.filter(student__delegation=delegation, marking_meta=metas_query, version='D').order_by('student','marking_meta__position')
+    metas_query = MarkingMeta.objects.filter(question=questions).order_by('question','position')
+    markings_query = Marking.objects.filter(student__delegation=delegation, marking_meta=metas_query, version='D').order_by('marking_meta__question', 'marking_meta__position','student')
     metas = {k: list(g) for k,g in itertools.groupby(metas_query, key=lambda m: m.question.pk)}
-    markings = {k: list(g) for k,g in itertools.groupby(markings_query, key=lambda m: m.marking_meta.question.pk)}
+    markings = {k: list(sorted(g, key=lambda m: m.student.pk)) for k,g in itertools.groupby(markings_query, key=lambda m: m.marking_meta.question.pk)}
     ctx = {'exam': exam, 'questions': questions, 'markings': markings, 'metas': metas, 'form_error': form_error}
     return render(request, 'ipho_marking/delegation_confirm.html', ctx)
 
