@@ -32,6 +32,9 @@ INKSCAPE_BIN = 'inkscape'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend'
 
+# Printing system
+PRINTER_QUEUES = []
+
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []
@@ -154,6 +157,7 @@ INSTALLED_APPS = (
     'ipho_exam',
     'ipho_poll',
     'ipho_marking',
+    'ipho_print',
     # 'django_extensions', # Some useful utils, e.g. graph models
 
 )
