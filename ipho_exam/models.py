@@ -336,3 +336,28 @@ class StudentSubmission(models.Model):
 
     class Meta:
         unique_together = (('student', 'exam', 'language'),)
+
+class Document(models.Model):
+    STATUS_CHOICES = (
+        ('O', 'In progress'),
+        ('L', 'Locked'),
+        ('S', 'Submitted'),
+    )
+
+    exam      = models.ForeignKey(Exam)
+    student   = models.ForeignKey(Student)
+    position  = models.IntegerField()
+    file      = models.FileField(blank=True)
+    num_pages = models.IntegerField(default=0)
+    barcode_num_pages = models.IntegerField(default=0)
+    barcode_base      = models.CharField(max_length=20)
+    scan_file = models.FileField(blank=True)
+
+    class Meta:
+        unique_together = (('exam', 'student', 'position'),)
+
+    def question_name(self):
+        return self.question.name
+
+    def __unicode__(self):
+        return u'Document: {} #{} [{}]'.format(self.exam.name, self.position, self.student.code)
