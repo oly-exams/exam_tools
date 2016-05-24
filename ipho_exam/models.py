@@ -74,22 +74,25 @@ class QuestionManager(models.Manager):
         return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam_name))
 class Question(models.Model):
     objects = QuestionManager()
+
+    QUESTION = 0
+    ANSWER   = 1
     QUESTION_TYPES = (
-        ('Q', 'Question'),
-        ('A', 'Answer'),
+        (QUESTION, 'Question'),
+        (ANSWER, 'Answer'),
     )
 
     name = models.CharField(max_length=100)
     exam = models.ForeignKey(Exam)
     position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
-    type = models.CharField(max_length=1, choices=QUESTION_TYPES, default='Q')
+    type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, default=QUESTION)
     ## TODO: add template field
 
     class Meta:
         ordering = ['position']
 
     def is_answer_sheet(self):
-        return self.type == 'A'
+        return self.type == self.ANSWER
 
     def exam_name(self):
         return self.exam.name
