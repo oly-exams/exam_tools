@@ -337,15 +337,21 @@ class StudentSubmission(models.Model):
     class Meta:
         unique_together = (('student', 'exam', 'language'),)
 
+def exam_prints_filename(fname, obj):
+    basestr='exams-docs/{}/print/exam-{}-{}.pdf'
+    return basestr.format(obj.student.code,obj.exam.id,obj.position)
+def exam_scans_filename(fname, obj):
+    basestr='exams-docs/{}/scan/exam-{}-{}.pdf'
+    return basestr.format(obj.student.code,obj.exam.id,obj.position)
 class Document(models.Model):
     exam      = models.ForeignKey(Exam)
     student   = models.ForeignKey(Student)
     position  = models.IntegerField()
-    file      = models.FileField(blank=True, upload_to=lambda obj,fname: 'exams-docs/{}/print/exam-{}-{}.pdf'.format(obj.student.code,obj.exam.id,obj.position))
+    file      = models.FileField(blank=True, upload_to=exam_prints_filename)
     num_pages = models.IntegerField(default=0)
     barcode_num_pages = models.IntegerField(default=0)
     barcode_base      = models.CharField(max_length=20)
-    scan_file = models.FileField(blank=True, upload_to=lambda obj,fname: 'exams-docs/{}/scan/exam-{}-{}.pdf'.format(obj.student.code,obj.exam.id,obj.position))
+    scan_file = models.FileField(blank=True, upload_to=exam_scans_filename)
 
     class Meta:
         unique_together = (('exam', 'student', 'position'),)
