@@ -347,11 +347,11 @@ class Document(models.Model):
     exam      = models.ForeignKey(Exam)
     student   = models.ForeignKey(Student)
     position  = models.IntegerField()
-    file      = models.FileField(blank=True)
+    file      = models.FileField(blank=True, upload_to=lambda obj,fname: 'exams-docs/{}/print/exam-{}-{}.pdf'.format(obj.student.code,obj.exam.id,obj.position))
     num_pages = models.IntegerField(default=0)
     barcode_num_pages = models.IntegerField(default=0)
     barcode_base      = models.CharField(max_length=20)
-    scan_file = models.FileField(blank=True)
+    scan_file = models.FileField(blank=True, upload_to=lambda obj,fname: 'exams-docs/{}/scan/exam-{}-{}.pdf'.format(obj.student.code,obj.exam.id,obj.position))
 
     class Meta:
         unique_together = (('exam', 'student', 'position'),)
