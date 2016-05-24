@@ -338,12 +338,6 @@ class StudentSubmission(models.Model):
         unique_together = (('student', 'exam', 'language'),)
 
 class Document(models.Model):
-    STATUS_CHOICES = (
-        ('O', 'In progress'),
-        ('L', 'Locked'),
-        ('S', 'Submitted'),
-    )
-
     exam      = models.ForeignKey(Exam)
     student   = models.ForeignKey(Student)
     position  = models.IntegerField()
