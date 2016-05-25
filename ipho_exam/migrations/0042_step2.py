@@ -7,13 +7,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipho_exam', '0039_auto_20160524_2155'),
+        ('ipho_exam', '0041_step1'),
     ]
 
     operations = [
-        migrations.AddField(
+        migrations.RemoveField(
             model_name='question',
-            name='type_num',
-            field=models.PositiveSmallIntegerField(default=0, choices=[(0, b'Question'), (1, b'Answer')]),
+            name='type',
+        ),
+        migrations.RenameField(
+            model_name='question',
+            old_name='type_num',
+            new_name='type',
         ),
     ]
