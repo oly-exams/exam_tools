@@ -18,11 +18,12 @@ from collections import OrderedDict
 from django.utils import timezone
 from tempfile import mkdtemp
 from hashlib import md5
+import itertools
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp
-from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses
+from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm
 
@@ -1177,40 +1178,15 @@ def pdf_exam_for_student(request, exam_id, student_id):
     all_tasks = []
 
     student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
-    for question in exam.question_set.all():
-        ## TODO: covert for each question
-        for sl in student_languages:
-            if question.is_answer_sheet() and not sl.with_answer:
-                continue
-
-            print 'Prepare', question, 'in', sl.language
-            trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
-            if not trans.lang.is_pdf:
-                trans_content, ext_resources = trans.qml.make_tex()
-                for r in ext_resources:
-                    if isinstance(r, tex.FigureExport):
-                        r.lang = sl.language
-                ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
-                context = {
-                            'polyglossia' : sl.language.polyglossia,
-                            'font'        : fonts.noto[sl.language.font],
-                            'extraheader' : sl.language.extraheader,
-                            'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
-                            'title'       : u'{} - {}'.format(question.exam.name, question.name),
-                            'is_answer'   : question.is_answer_sheet(),
-                            'document'    : trans_content,
-                          }
-                body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request,context)).encode("utf-8")
-                compile_task = tasks.compile_tex.s(body, ext_resources)
-            else:
-                compile_task = tasks.serve_pdfnode.s(trans.node.pdf.read())
-            if question.is_answer_sheet():
-                bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
-                barcode_task = tasks.add_barcode.s(bgenerator)
-                all_tasks.append( celery.chain(compile_task, barcode_task) )
-            else:
-                all_tasks.append(compile_task)
-
+    questions = exam.question_set.all()
+    grouped_questions = {k: list(g) for k,g in itertools.groupby(questions, key=lambda q: q.position) }
+    for k,g in grouped_questions.iteritems():
+        print k
+        print g
+    grouped_questions = OrderedDict(sorted(grouped_questions.iteritems()))
+    for position, qgroup in grouped_questions.iteritems():
+        chord_task = question_utils.compile_stud_exam_question(qgroup, student_languages)
+        all_tasks.append(chord_task)
     filename = u'IPhO16 - {} - {}.pdf'.format(exam.name, student.code)
     chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
     return HttpResponseRedirect(reverse('exam:pdf-task', args=[chord_task.id]))
