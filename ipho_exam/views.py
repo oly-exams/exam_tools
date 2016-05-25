@@ -1179,16 +1179,19 @@ def pdf_exam_for_student(request, exam_id, student_id):
 
     student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
     questions = exam.question_set.all()
+    print questions
     grouped_questions = {k: list(g) for k,g in itertools.groupby(questions, key=lambda q: q.position) }
     for k,g in grouped_questions.iteritems():
         print k
         print g
     grouped_questions = OrderedDict(sorted(grouped_questions.iteritems()))
     for position, qgroup in grouped_questions.iteritems():
-        chord_task = question_utils.compile_stud_exam_question(qgroup, student_languages)
-        all_tasks.append(chord_task)
+        question_task = question_utils.compile_stud_exam_question(qgroup, student_languages)
+        all_tasks.append(question_task)
+        print 'Group', position, 'done.'
     filename = u'IPhO16 - {} - {}.pdf'.format(exam.name, student.code)
-    chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
+    chord_task = tasks.wait_and_contatenate.delay(all_tasks, filename)
+    #chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
     return HttpResponseRedirect(reverse('exam:pdf-task', args=[chord_task.id]))
 
 

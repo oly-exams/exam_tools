@@ -24,3 +24,12 @@ def add_barcode(compiled_pdf, bgenerator):
 def concatenate_documents(all_pages, filename='exam.pdf'):
     etag = md5(''.join([etag for filename, question_pdf, etag in all_pages])).hexdigest()
     return filename, pdf.concatenate_documents([question_pdf for filename, question_pdf, etag in all_pages]), etag
+
+@shared_task(bind=True)
+def wait_and_contatenate(self, all_tasks, filename='exam.pdf'):
+    for t in all_tasks:
+        if not t.ready():
+            self.retry()
+    all_pages = [t.get() for t in all_tasks]
+    etag = md5(''.join([etag for filename, question_pdf, etag in all_pages])).hexdigest()
+    return filename, pdf.concatenate_documents([question_pdf for filename, question_pdf, etag in all_pages]), etag
