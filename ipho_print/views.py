@@ -18,7 +18,8 @@ def main(request):
     # TODO: check permissions and select printers accordingly
     ctx = RequestContext(request)
     messages = []
-    form = PrintForm(request.POST or None, request.FILES or None, queue_list=['irchel-1', 'irchel-2'])
+    print printer.allowed_choices(request.user)
+    form = PrintForm(request.POST or None, request.FILES or None, queue_list=printer.allowed_choices(request.user))
     if form.is_valid():
         #txt = request.FILES['file'].read()
         status = printer.send2queue(request.FILES['file'], form.cleaned_data['queue'], user=request.user)
@@ -26,7 +27,7 @@ def main(request):
             messages.append(('alert-success', '<strong>Success</strong> Print job submitted. Please pickup your document at the printing station.'))
         else:
             messages.append(('alert-danger', '<strong>Error</strong> The document was uploaded successfully, but an error occured while communicating with the print server. Please try again or report the problem to the IPhO staff.'))
-            
+
         form = PrintForm(queue_list=['irchel-1', 'irchel-2'])
 
     form_html = render_crispy_form(form, context=csrf(request))

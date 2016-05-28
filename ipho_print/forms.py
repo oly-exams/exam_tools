@@ -26,7 +26,7 @@ class PrintForm(forms.Form):
         queue_list = kwargs.pop('queue_list')
         super(PrintForm, self).__init__(*args, **kwargs)
 
-        self.fields['queue'].choices = [(q,q) for q in queue_list]
+        self.fields['queue'].choices = queue_list
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
