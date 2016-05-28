@@ -16,7 +16,6 @@ def allowed_choices(user):
 
 def send2queue(file, queue, user=None):
   url = 'http://{host}/print/{queue}'.format(**PRINTER_QUEUES[queue])
-  # files = {'file': (os.path.basename(file.name), open(file.temporary_file_path(), 'rb'), 'application/pdf')}
   files = {'file': (os.path.basename(file.name), file, 'application/pdf')}
   headers = {'Authorization': 'IPhOToken {auth_token}'.format(**PRINTER_QUEUES[queue])}
   r = requests.post(url, files=files, headers=headers)
