@@ -19,16 +19,15 @@ def main(request):
     ctx = RequestContext(request)
     messages = []
     print printer.allowed_choices(request.user)
-    form = PrintForm(request.POST or None, request.FILES or None, queue_list=printer.allowed_choices(request.user))
+    queue_list = printer.allowed_choices(request.user)
+    form = PrintForm(request.POST or None, request.FILES or None, queue_list=queue_list)
     if form.is_valid():
-        #txt = request.FILES['file'].read()
-        status = printer.send2queue(request.FILES['file'], form.cleaned_data['queue'], user=request.user)
-        if status == printer.SUCCESS:
-            messages.append(('alert-success', '<strong>Success</strong> Print job submitted. Please pickup your document at the printing station.'))
-        else:
-            messages.append(('alert-danger', '<strong>Error</strong> The document was uploaded successfully, but an error occured while communicating with the print server. Please try again or report the problem to the IPhO staff.'))
-
-        form = PrintForm(queue_list=['irchel-1', 'irchel-2'])
+        try:
+          status = printer.send2queue(form.cleaned_data['file'], form.cleaned_data['queue'], user=request.user)
+          messages.append(('alert-success', '<strong>Success</strong> Print job submitted. Please pickup your document at the printing station.'))
+        except printer.PrinterError as e:
+            messages.append(('alert-danger', '<strong>Error</strong> The document was uploaded successfully, but an error occured while communicating with the print server. Please try again or report the problem to the IPhO staff.<br /> Error was: '+e.msg))
+        form = PrintForm(queue_list=queue_list)
 
     form_html = render_crispy_form(form, context=csrf(request))
     if request.is_ajax():
