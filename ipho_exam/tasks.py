@@ -42,13 +42,16 @@ def commit_compiled_exam(self, compile_job):
     if len(compile_job) == 1 and len(compile_job[0]) == 3:
         compile_job = compile_job[0]
     filename, pdf_doc, etag = compile_job
-    doc_task = models.DocumentTask.objects.get(task_id=self.request.id)
-    doc = doc_task.document
-    contentfile = ContentFile(pdf_doc)
-    contentfile.name = filename
-    doc.file = contentfile
-    doc.save()
-    doc_task.delete()
+    try:
+        doc_task = models.DocumentTask.objects.get(task_id=self.request.id)
+        doc = doc_task.document
+        contentfile = ContentFile(pdf_doc)
+        contentfile.name = filename
+        doc.file = contentfile
+        doc.save()
+        doc_task.delete()
+    except DocumentTask.DoesNotExist:
+        pass
 
 @shared_task(bind=True)
 def identity_args(self, prev_task):
