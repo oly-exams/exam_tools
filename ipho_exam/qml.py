@@ -474,12 +474,14 @@ class QMLfigure(QMLobject):
                 caption_text = caption_text.replace('\n','\\newline\n')
                 fig_caption += caption_text
 
+        width = self.attributes.get('width', 0.9) # 0.9 is the default value
+
         texout = u''
-        texout += u'\\begin{figure}[h]\n'
-        texout += u'\\centering\n'
-        texout += u'\\includegraphics[width=.9\\textwidth]{%s}\n' % figname
-        if len(fig_caption) > 0: texout += u'\\caption{%s}\n' % fig_caption
-        texout += u'\\end{figure}\n\n'
+        texout += u'\\begin{center}\n'
+        texout += u'\\includegraphics[width={}\\textwidth]{{{}}}\n'.format(width, figname)
+        if len(fig_caption) > 0: 
+            texout += u'\\newline %s\n' % fig_caption
+        texout += u'\end{center}\n\n'
 
         externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
 
