@@ -22,7 +22,7 @@ import itertools
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm
@@ -848,6 +848,7 @@ def submission_exam_assign(request, exam_id):
         submission_forms.append( (stud, form) )
 
     if all_valid:
+        ## Save form
         for stud, form in submission_forms:
             current_langs = []
             ## Modify the with_answer status and delete unused submissions
@@ -864,6 +865,24 @@ def submission_exam_assign(request, exam_id):
                 with_answer = (form.cleaned_data['main_language'] == lang)
                 ss = StudentSubmission(student=stud, exam=exam, language=lang, with_answer=with_answer)
                 ss.save()
+
+        ## Generate PDF compilation
+        for student in delegation.student_set.all():
+            all_tasks = []
+            student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
+            questions = exam.question_set.all()
+            grouped_questions = {k: list(g) for k,g in itertools.groupby(questions, key=lambda q: q.position) }
+            for position, qgroup in grouped_questions.iteritems():
+                # TODO: get or create?
+                doc = Document(exam=exam, student=student, position=position)
+                doc.save()
+                question_task = question_utils.compile_stud_exam_question(qgroup, student_languages, commit=True)
+                question_task.freeze()
+                doc_task = DocumentTask(document=doc, task_id=question_task.id)
+                doc_task.save()
+                question_task.delay()
+
+        ## Return
         return HttpResponseRedirect(reverse('exam:submission-exam-confirm', args=(exam.pk,)))
 
     empty_languages = Language.objects.filter(delegation=delegation).annotate(num_questions=Count('translationnode__question'),num_pdf_questions=Count('pdfnode__question')).exclude( Q(num_questions=exam.question_set.count()) | Q(num_pdf_questions=exam.question_set.count()) )
@@ -1183,7 +1202,8 @@ def pdf_exam_for_student(request, exam_id, student_id):
     grouped_questions = OrderedDict(sorted(grouped_questions.iteritems()))
     for position, qgroup in grouped_questions.iteritems():
         question_task = question_utils.compile_stud_exam_question(qgroup, student_languages)
-        all_tasks.append(question_task)
+        result = question_task.delay()
+        all_tasks.append(result)
         print 'Group', position, 'done.'
     filename = u'IPhO16 - {} - {}.pdf'.format(exam.name, student.code)
     chord_task = tasks.wait_and_contatenate.delay(all_tasks, filename)
@@ -1192,7 +1212,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
 
 
 @login_required
-def pdf_task_status(request, token):
+def task_status(request, token):
     task = AsyncResult(token)
     return JsonResponse({'status': task.status, 'ready': task.ready()})
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document
+from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask
 from ipho_exam.widgets import AceWidget
 
 # Register your models here.
@@ -69,3 +69,4 @@ admin.site.register(Figure, FigureAdmin)
 admin.site.register(ExamAction, ExamActionAdmin)
 admin.site.register(StudentSubmission, StudentSubmissionAdmin)
 admin.site.register(Document, DocumentAdmin)
+admin.site.register(DocumentTask)

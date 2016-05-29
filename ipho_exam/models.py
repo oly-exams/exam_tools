@@ -340,10 +340,10 @@ class StudentSubmission(models.Model):
     class Meta:
         unique_together = (('student', 'exam', 'language'),)
 
-def exam_prints_filename(fname, obj):
+def exam_prints_filename(obj, fname):
     basestr='exams-docs/{}/print/exam-{}-{}.pdf'
     return basestr.format(obj.student.code,obj.exam.id,obj.position)
-def exam_scans_filename(fname, obj):
+def exam_scans_filename(obj, fname):
     basestr='exams-docs/{}/scan/exam-{}-{}.pdf'
     return basestr.format(obj.student.code,obj.exam.id,obj.position)
 class Document(models.Model):
@@ -364,3 +364,9 @@ class Document(models.Model):
 
     def __unicode__(self):
         return u'Document: {} #{} [{}]'.format(self.exam.name, self.position, self.student.code)
+
+class DocumentTask(models.Model):
+    task_id = models.CharField(unique=True, max_length=255)
+    document = models.ForeignKey(Document)
+    def __unicode__(self):
+        return u'{} --> {}'.format(self.task_id, self.document)

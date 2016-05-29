@@ -22,7 +22,7 @@ OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 
-def compile_stud_exam_question(questions, student_languages):
+def compile_stud_exam_question(questions, student_languages, commit=False):
     all_tasks = []
     for question in questions:
         for sl in student_languages:
@@ -60,5 +60,14 @@ def compile_stud_exam_question(questions, student_languages):
         position = question.position
 
     filename = u'{}_EXAM-{}-{}.pdf'.format(sl.student.code, exam_id, position)
-    chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
-    return chord_task
+    chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename))
+    if commit:
+        final_task = celery.chain(
+            chord_task,
+            tasks.identity_args.s(),
+            tasks.commit_compiled_exam.s()
+        )
+        task = final_task
+    else:
+        task = chord_task
+    return task
