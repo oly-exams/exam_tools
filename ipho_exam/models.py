@@ -367,6 +367,6 @@ class Document(models.Model):
 
 class DocumentTask(models.Model):
     task_id = models.CharField(unique=True, max_length=255)
-    document = models.ForeignKey(Document)
+    document = models.OneToOneField(Document)
     def __unicode__(self):
         return u'{} --> {}'.format(self.task_id, self.document)
