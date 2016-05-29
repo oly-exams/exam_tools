@@ -22,8 +22,14 @@ OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 
-def compile_stud_exam_question(questions, student_languages, commit=False):
+def compile_stud_exam_question(questions, student_languages, cover=None, commit=False):
     all_tasks = []
+
+    if cover is not None:
+        body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover)).encode("utf-8")
+        compile_task = tasks.compile_tex.s(body, [])
+        all_tasks.append(compile_task)
+
     for question in questions:
         for sl in student_languages:
             if question.is_answer_sheet() and not sl.with_answer:

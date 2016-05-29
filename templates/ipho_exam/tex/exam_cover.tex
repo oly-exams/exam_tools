@@ -1,0 +1,22 @@
+\documentclass[a4paper,foldmarks=false]{scrlttr2}
+
+\setkomavar{date}{}
+\nonstopmode
+
+\begin{document}
+
+\begin{letter}{\textbf{% templatetag openbrace %}{{ exam.name }} - {{ question.name }}}\\ {{ student.code }}}
+\opening{}
+
+\begin{center}
+{\bf \Huge {{ exam.name }} - {{ question.name }}}
+\vspace{1em}\\
+{\bf \Large Cover sheet}
+\end{center}
+
+\vspace{4cm}
+Please return this covert sheet together with all the related question sheets.
+
+\end{letter}
+
+\end{document}
