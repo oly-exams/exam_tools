@@ -873,9 +873,7 @@ def submission_exam_assign(request, exam_id):
             questions = exam.question_set.all()
             grouped_questions = {k: list(g) for k,g in itertools.groupby(questions, key=lambda q: q.position) }
             for position, qgroup in grouped_questions.iteritems():
-                # TODO: get or create?
-                doc = Document(exam=exam, student=student, position=position)
-                doc.save()
+                doc,_ = Document.objects.get_or_create(exam=exam, student=student, position=position)
                 question_task = question_utils.compile_stud_exam_question(qgroup, student_languages, commit=True)
                 question_task.freeze()
                 doc_task = DocumentTask(document=doc, task_id=question_task.id)
