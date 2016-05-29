@@ -7,3 +7,4 @@ mkdocs
 Celery
 django-celery
 flower
+requests

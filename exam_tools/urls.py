@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     url(r'^exam/', include('ipho_exam.urls', namespace='exam')),
     url(r'^poll/', include('ipho_poll.urls', namespace='poll')),
     url(r'^marking/', include('ipho_marking.urls', namespace='marking')),
+    url(r'^print/', include('ipho_print.urls', namespace='print')),
 
     (r'^accounts/login/?$', 'django.contrib.auth.views.login'),
     (r'^accounts/logout/?$', 'django.contrib.auth.views.logout', {'next_page':'/'}),

@@ -8,6 +8,8 @@ class IphoPerm(models.Model):
             permissions = (
                 ('is_leader', 'Is a leader'),
                 ('is_staff', 'Is an organizer'),
+                ('print_technopark', 'Can print in Technopark'),
+                ('print_irchel', 'Can print in Irchel'),
             )
 
 class AutoLoginManager(models.Manager):

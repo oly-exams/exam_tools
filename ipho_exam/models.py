@@ -74,22 +74,25 @@ class QuestionManager(models.Manager):
         return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam_name))
 class Question(models.Model):
     objects = QuestionManager()
+
+    QUESTION = 0
+    ANSWER   = 1
     QUESTION_TYPES = (
-        ('Q', 'Question'),
-        ('A', 'Answer'),
+        (QUESTION, 'Question'),
+        (ANSWER, 'Answer'),
     )
 
     name = models.CharField(max_length=100)
     exam = models.ForeignKey(Exam)
     position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
-    type = models.CharField(max_length=1, choices=QUESTION_TYPES, default='Q')
+    type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, default=QUESTION)
     ## TODO: add template field
 
     class Meta:
-        ordering = ['position']
+        ordering = ['position', 'type']
 
     def is_answer_sheet(self):
-        return self.type == 'A'
+        return self.type == self.ANSWER
 
     def exam_name(self):
         return self.exam.name
@@ -336,3 +339,34 @@ class StudentSubmission(models.Model):
 
     class Meta:
         unique_together = (('student', 'exam', 'language'),)
+
+def exam_prints_filename(obj, fname):
+    basestr='exams-docs/{}/print/exam-{}-{}.pdf'
+    return basestr.format(obj.student.code,obj.exam.id,obj.position)
+def exam_scans_filename(obj, fname):
+    basestr='exams-docs/{}/scan/exam-{}-{}.pdf'
+    return basestr.format(obj.student.code,obj.exam.id,obj.position)
+class Document(models.Model):
+    exam      = models.ForeignKey(Exam)
+    student   = models.ForeignKey(Student)
+    position  = models.IntegerField()
+    file      = models.FileField(blank=True, upload_to=exam_prints_filename)
+    num_pages = models.IntegerField(default=0)
+    barcode_num_pages = models.IntegerField(default=0)
+    barcode_base      = models.CharField(max_length=20)
+    scan_file = models.FileField(blank=True, upload_to=exam_scans_filename)
+
+    class Meta:
+        unique_together = (('exam', 'student', 'position'),)
+
+    def question_name(self):
+        return self.question.name
+
+    def __unicode__(self):
+        return u'Document: {} #{} [{}]'.format(self.exam.name, self.position, self.student.code)
+
+class DocumentTask(models.Model):
+    task_id = models.CharField(unique=True, max_length=255)
+    document = models.OneToOneField(Document)
+    def __unicode__(self):
+        return u'{} --> {}'.format(self.task_id, self.document)

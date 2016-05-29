@@ -1,12 +1,17 @@
 {% extends "ipho_exam/submission_base.html" %}
 {% load static %}
+{% load editor_extras %}
 
 {% block assign-classes %}{% endblock %}
 {% block confirm-classes %}active{% endblock %}
 {% block submitted-classes %}disabled{% endblock %}
 
 {% block step-content %}
-<p>A final preview of the translation is available with the <span class="btn btn-xs btn-default"><i class="fa fa-file-pdf-o"></i> Preview</span> button. Be sure to check the final layout before proceeding.</p>
+<p>You have to wait A final preview of the translation is available with the <span class="btn btn-xs btn-default"><i class="fa fa-file-pdf-o"></i></span> button. Be sure to check the final layout before proceeding.</p>
+
+<div class="alert alert-info hide-on-finished {{ all_finished|yesno:'hide,' }}">
+The final documents are being prepared. You have to wait until all documents are successfully generated before proceeding.
+</div>
 
 {% endblock %}
 
@@ -29,7 +34,9 @@
       <tr>
           <td>
               {{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})
-              <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-student'  exam_id=exam.pk student_id=ss.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> Preview</a>
+              {% for doc in stud_documents|lookup:ss.pk %}
+              <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-pos-student'  exam_id=exam.pk student_id=ss.pk position=doc.position %}" data-doc-status="loading"><i class="fa fa-spinner fa-spin"></i> #{{ doc.position }}</a>
+              {% endfor %}
           </td>
           {% for lang,checked in stud_langs.items %}
               <td class="text-center">
@@ -47,7 +54,7 @@
         </tbody>
     </table>
 
-    <div class="alert {% if form_error %}alert-danger{% else %}alert-warning{% endif %}">
+    <div class="alert {% if form_error %}alert-danger{% else %}alert-warning{% endif %} show-on-finished {{ all_finished|yesno:',hide' }}">
         <div class="checkbox">
             {% if form_error %}
                 <div class="help-block">{{ form_error|safe }}</div>
@@ -65,9 +72,49 @@
     <div>
         <a class="btn btn-default" href="{% url 'exam:submission-exam-assign' exam_id=exam.pk %}">Back</a>
         <div class="pull-right">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane-o fa-fw"></i> Submit</buton>
+            <button type="submit" class="btn btn-primary show-on-finished {{ all_finished|yesno:',hide' }}"><i class="fa fa-paper-plane-o fa-fw"></i> Submit</buton>
         </div>
     </div>
 
 </form>
+{% endblock %}
+
+{% block extra-script %}
+{{ block.super }}
+<script>
+$(function() {
+
+  var num_finished = 0;
+  var tot_num = $('a[data-doc-status="loading"]').length;
+  function check_doc_status($btn) {
+    var href = $btn.attr('href');
+    $.ajax({
+      url: href+'/status',
+      dataType: 'json',
+      success: function(data) {
+        taskReady = data['ready'];
+        taskStatus = data['status'];
+        taskFailed = data['failed'];
+
+        if (taskFailed) {
+          $btn.find('i').attr('class', 'fa fa-exclamation-triangle');
+        } else if (taskReady) {
+          $btn.find('i').attr('class', 'fa fa-file-pdf-o');
+          num_finished += 1;
+          if (num_finished >= tot_num) {
+            $('.show-on-finished').removeClass('hide');
+            $('.hide-on-finished').addClass('hide');
+          }
+        } else {
+          setTimeout(check_doc_status, 20000, $btn);
+        }
+      },
+    });
+  }
+  $('a[data-doc-status="loading"]').each(function(i) {
+    check_doc_status($(this));
+  });
+
+});
+</script>
 {% endblock %}

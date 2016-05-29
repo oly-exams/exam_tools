@@ -1,26 +1,91 @@
 from __future__ import absolute_import
 
+from django.core.files.base import ContentFile
 from celery import shared_task
-from ipho_exam import pdf
+from ipho_exam import pdf, models
 from hashlib import md5
 
 @shared_task
 def compile_tex(body, ext_resources, filename='question.pdf', etag=None):
     if etag is None:
         etag = md5(body).hexdigest()
-    return filename, pdf.compile_tex(body, ext_resources), etag
+    doc_pdf = pdf.compile_tex(body, ext_resources)
+    meta = {
+        'etag': etag,
+        'filename': filename,
+        'num_pages': pdf.get_num_pages(doc_pdf),
+        'barcode_num_pages': 0,
+        'barcode_base': None,
+    }
+    return doc_pdf, meta
 
 @shared_task
 def serve_pdfnode(question_pdf, filename='question.pdf'):
     etag = md5(question_pdf).hexdigest()
-    return filename, question_pdf, etag
+    meta = {
+        'etag': etag,
+        'filename': filename,
+        'num_pages': pdf.get_num_pages(question_pdf),
+        'barcode_num_pages': 0,
+        'barcode_base': None,
+    }
+    return question_pdf, meta
 
 @shared_task
 def add_barcode(compiled_pdf, bgenerator):
-    filename, question_pdf, etag = compiled_pdf
-    return filename, pdf.add_barcode(question_pdf, bgenerator), etag
+    question_pdf, meta = compiled_pdf
+    doc_pdf = pdf.add_barcode(question_pdf, bgenerator)
+    meta['barcode_num_pages'] = meta['num_pages']
+    meta['barcode_base'] = bgenerator.base
+    return doc_pdf, meta
 
 @shared_task
 def concatenate_documents(all_pages, filename='exam.pdf'):
-    etag = md5(''.join([etag for filename, question_pdf, etag in all_pages])).hexdigest()
-    return filename, pdf.concatenate_documents([question_pdf for filename, question_pdf, etag in all_pages]), etag
+    doc_pdf = pdf.concatenate_documents([question_pdf for question_pdf,_ in all_pages])
+    meta = {}
+    meta['filename'] = filename
+    meta['etag'] = md5(''.join([meta['etag'] for _,meta in all_pages])).hexdigest()
+    meta['num_pages'] = sum([meta['num_pages'] for _,meta in all_pages])
+    meta['barcode_num_pages'] = sum([meta['barcode_num_pages'] for _,meta in all_pages])
+    meta['barcode_base'] = ','.join([meta['barcode_base'] for _,meta in all_pages if meta['barcode_base'] is not None])
+    return doc_pdf, meta
+
+@shared_task(bind=True)
+def wait_and_contatenate(self, all_tasks, filename='exam.pdf'):
+    for t in all_tasks:
+        if not t.ready():
+            self.retry(countdown=1)
+        elif t.failed():
+            raise r.result
+    all_pages = [t.result for t in all_tasks]
+
+    meta = {}
+    meta['filename'] = filename
+    meta['etag'] = md5(''.join([meta['etag'] for _,meta in all_pages])).hexdigest()
+    meta['num_pages'] = sum([meta['num_pages'] for _,meta in all_pages])
+    meta['barcode_num_pages'] = sum([meta['barcode_num_pages'] for _,meta in all_pages])
+    meta['barcode_base'] = ','.join([meta['barcode_base'] for _,meta in all_pages if meta['barcode_base'] is not None])
+    return doc_pdf, meta
+
+@shared_task(bind=True)
+def commit_compiled_exam(self, compile_job):
+    if len(compile_job) == 1 and len(compile_job[0]) == 3:
+        compile_job = compile_job[0]
+    doc_pdf, meta = compile_job
+    try:
+        doc_task = models.DocumentTask.objects.get(task_id=self.request.id)
+        doc = doc_task.document
+        contentfile = ContentFile(doc_pdf)
+        contentfile.name = meta['filename']
+        doc.file = contentfile
+        doc.num_pages = meta['num_pages']
+        doc.barcode_num_pages = meta['barcode_num_pages']
+        doc.barcode_base = meta['barcode_base']
+        doc.save()
+        doc_task.delete()
+    except DocumentTask.DoesNotExist:
+        pass
+
+@shared_task(bind=True)
+def identity_args(self, prev_task):
+    return prev_task

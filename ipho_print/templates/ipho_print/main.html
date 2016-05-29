@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+      <h1>Printing system</h1>
+    </div>
+
+<div id="alerts-container">
+{% for class, msg in messages %}
+<div class="alert {{ class }} alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>{{ msg }}</div>
+{% endfor %}
+</div>
+
+<div id="print-form">
+    {{ form }}
+</div>
+<div id="progress-container" class="hide progress"><div id="upload-progress" class="progress-bar" style="width: 0%;">0%</div></div>
+
+</div> <!-- /container -->
+
+{% endblock %}
+
+{% block extra-script %}
+<script>
+$(function() {
+    /// Upload modal
+    function updateProgress( evt ) {
+        if ( evt.lengthComputable ) {
+            var percentComplete = evt.loaded / evt.total * 100;
+            $('#upload-progress').width(percentComplete+'%').text(Math.round(percentComplete)+'%');
+        } else {
+            $('#upload-progress').width('100%').text('loading...');
+        }
+    }
+
+    $(document).on('submit', '#print-form form', function(evt) {
+        var form = evt.target;
+        var $form = $(form);
+        var $formContainer = $('#print-form')
+        var $progressContainer = $('#progress-container');
+        evt.preventDefault();
+
+        var data = new FormData($form.get(0));
+        $formContainer.addClass('hide');
+        $progressContainer.removeClass('hide');
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            xhr: function() {
+                myXhr = $.ajaxSettings.xhr();
+                myXhr.upload.onprogress = updateProgress;
+                // myXhr.addEventListener( "progress" , updateProgress , false );
+                return myXhr;
+            },
+            success: function(data) {
+              $formContainer.html(data['form']);
+              formContainer.removeClass('hide');
+              $progressContainer.addClass('hide');
+              for (k in data['messages']) {
+                  $('#alerts-container').prepend('<div class="alert '+data['messages'][k][0]+' alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['messages'][k][1]+'</div>');
+              }
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                $('#alerts-container').prepend('<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button><strong>'+textStatus+'</strong> '+errorThrown+'</div>');
+                $formContainer.removeClass('hide');
+                $progressContainer.addClass('hide');
+            }
+        });
+    });
+
+
+});
+</script>
+{% endblock %}

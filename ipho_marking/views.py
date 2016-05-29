@@ -35,7 +35,7 @@ def import_exam(request):
         num_created = 0
         num_marking_tot = 0
         num_marking_created = 0
-        for question in exam.question_set.filter(type='A'):
+        for question in exam.question_set.filter(type=Question.ANSWER):
             qw = qwquery.latest_version(question_id=question.pk, lang_id=OFFICIAL_LANGUAGE)
             question_points,_,_ = qml.question_points(qw.qml)
             for i,(name, points) in enumerate(question_points):
@@ -263,7 +263,7 @@ def delegation_confirm(request, exam_id):
         else:
             form_error = '<strong>Error:</strong> You have to confirm the marking before continuing.'
 
-    questions = Question.objects.filter(exam=exam, type='A')
+    questions = Question.objects.filter(exam=exam, type=Question.ANSWER)
     metas_query = MarkingMeta.objects.filter(question=questions).order_by('question','position')
     markings_query = Marking.objects.filter(student__delegation=delegation, marking_meta=metas_query, version='D').order_by('marking_meta__question', 'marking_meta__position','student')
     metas = {k: list(g) for k,g in itertools.groupby(metas_query, key=lambda m: m.question.pk)}
@@ -274,7 +274,7 @@ def delegation_confirm(request, exam_id):
 
 @permission_required('ipho_core.is_staff')
 def moderation_index(request, question_id=None):
-    questions = Question.objects.filter(exam__hidden=False, type='A')
+    questions = Question.objects.filter(exam__hidden=False, type=Question.ANSWER)
     question = None if question_id is None else get_object_or_404(Question, id=question_id)
     delegations = Delegation.objects.all()
     ctx={'questions': questions, 'question': question, 'delegations': delegations}
