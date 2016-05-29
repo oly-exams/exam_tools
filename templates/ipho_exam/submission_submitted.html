@@ -1,5 +1,6 @@
 {% extends "ipho_exam/submission_base.html" %}
 {% load static %}
+{% load editor_extras %}
 
 {% block assign-classes %}{{ DEMO_MODE|yesno:",disabled" }}{% endblock %}
 {% block confirm-classes %}{{ DEMO_MODE|yesno:",disabled" }}{% endblock %}
@@ -38,7 +39,9 @@ The exams will shortly be printed by the IPhO 2016 staff @ Uni Zurich. Below you
       <tr>
           <td>
               {{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})
-              <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-student'  exam_id=exam.pk student_id=ss.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View</a>
+              {% for doc in stud_documents|lookup:ss.pk %}
+              <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-pos-student'  exam_id=exam.pk student_id=ss.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> #{{ doc.position }}</a>
+              {% endfor %}
           </td>
           {% for lang,checked in stud_langs.items %}
               <td class="text-center">

@@ -904,7 +904,10 @@ def submission_exam_confirm(request, exam_id):
     if ex_submission.status == ExamAction.SUBMITTED and not settings.DEMO_MODE:
         return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
 
-    if request.POST:
+    documents = Document.objects.filter(exam=exam, student__delegation=delegation).order_by('student','position')
+    all_finished = all([ not hasattr(doc, 'documenttask') for doc in documents ])
+
+    if request.POST and all_finished:
         if 'agree-submit' in request.POST:
             ex_submission.status = ExamAction.SUBMITTED
             ex_submission.save()
@@ -912,6 +915,7 @@ def submission_exam_confirm(request, exam_id):
         else:
             form_error = '<strong>Error:</strong> You have to agree on the final submission before continuing.'
 
+    stud_documents = {k:list(g) for k,g in itertools.groupby(documents, key=lambda d: d.student.pk)}
 
     assigned_student_language = OrderedDict()
     for student in delegation.student_set.all():
@@ -931,6 +935,7 @@ def submission_exam_confirm(request, exam_id):
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,
+                'stud_documents': stud_documents,
                 'submission_status' : ex_submission.status,
                 'students_languages' : assigned_student_language,
                 'form_error' : form_error,
@@ -958,10 +963,14 @@ def submission_exam_submitted(request, exam_id):
         else:
             assigned_student_language[sl.student][sl.language] = 'Q'
 
+    documents = Document.objects.filter(exam=exam, student__delegation=delegation).order_by('student','position')
+    stud_documents = {k:list(g) for k,g in itertools.groupby(documents, key=lambda d: d.student.pk)}
+
     return render(request, 'ipho_exam/submission_submitted.html', {
                 'exam' : exam,
                 'delegation' : delegation,
                 'languages' : languages,
+                'stud_documents': stud_documents,
                 'submission_status' : ex_submission.status,
                 'students_languages' : assigned_student_language,
             })
@@ -1206,6 +1215,32 @@ def pdf_exam_for_student(request, exam_id, student_id):
     chord_task = tasks.wait_and_contatenate.delay(all_tasks, filename)
     #chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
     return HttpResponseRedirect(reverse('exam:pdf-task', args=[chord_task.id]))
+
+@login_required
+def pdf_exam_pos_student(request, exam_id, position, student_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    student = get_object_or_404(Student, id=student_id)
+
+    doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
+    if hasattr(doc, 'documenttask'):
+        task = AsyncResult(doc.documenttask.task_id)
+        return render(request, 'ipho_exam/pdf_task.html', {'task': task})
+    if doc.file:
+        response = HttpResponse(doc.file, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=%s' % doc.file.name
+        return response
+
+@login_required
+def pdf_exam_pos_student_status(request, exam_id, position, student_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    student = get_object_or_404(Student, id=student_id)
+
+    doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
+    if not hasattr(doc, 'documenttask'):
+        return JsonResponse({'status': 'COMPLETED', 'ready': True, 'failed': False})
+    else:
+        task = AsyncResult(doc.documenttask.task_id)
+        return JsonResponse({'status': task.status, 'ready': task.ready(), 'failed': task.failed()})
 
 
 @login_required
