@@ -936,6 +936,7 @@ def submission_exam_confirm(request, exam_id):
                 'delegation' : delegation,
                 'languages' : languages,
                 'stud_documents': stud_documents,
+                'all_finished': all_finished,
                 'submission_status' : ex_submission.status,
                 'students_languages' : assigned_student_language,
                 'form_error' : form_error,
