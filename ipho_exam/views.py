@@ -1254,13 +1254,13 @@ def pdf_task(request, token):
     task = AsyncResult(token)
     try:
         if task.ready():
-            filename, pdf, etag = task.get()
-            if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
+            doc_pdf, meta = task.get()
+            if request.META.get('HTTP_IF_NONE_MATCH', '') == meta['etag']:
                 return HttpResponseNotModified()
 
-            res = HttpResponse(pdf, content_type="application/pdf")
-            res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
-            res['ETag'] = etag
+            res = HttpResponse(doc_pdf, content_type="application/pdf")
+            res['content-disposition'] = 'inline; filename="{}"'.format(meta['filename'].encode('utf-8'))
+            res['ETag'] = meta['etag']
             return res
         else:
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})

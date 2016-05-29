@@ -90,6 +90,10 @@ def add_barcode(doc, bgenerator):
     output.write(output_pdf)
     return output_pdf.getvalue()
 
+def get_num_pages(doc):
+    pdfdoc = PdfFileReader(StringIO(doc))
+    return pdfdoc.getNumPages()
+
 def concatenate_documents(all_documents):
     output = PdfFileWriter()
     for doc in  all_documents:
