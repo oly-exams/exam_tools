@@ -876,8 +876,7 @@ def submission_exam_assign(request, exam_id):
                 doc,_ = Document.objects.get_or_create(exam=exam, student=student, position=position)
                 question_task = question_utils.compile_stud_exam_question(qgroup, student_languages, commit=True)
                 question_task.freeze()
-                doc_task = DocumentTask(document=doc, task_id=question_task.id)
-                doc_task.save()
+                doc_task,_ = DocumentTask.objects.update_or_create(document=doc, defaults={'task_id':question_task.id})
                 question_task.delay()
 
         ## Return
