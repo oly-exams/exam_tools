@@ -145,6 +145,7 @@ class FeedbackForm(ModelForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(Field('question'),
+                                    Field('part'),
                                     Field('comment', placeholder='Comment'),
                                     )
         self.helper.html5_required = True
@@ -154,7 +155,8 @@ class FeedbackForm(ModelForm):
 
     class Meta:
         model = Feedback
-        fields = ['question','comment']
+        fields = ['question','part','comment']
+        labels = {'part': 'Question part (e.g. Caption Fig 1)'}
 
 class SubmissionAssignForm(ModelForm):
     def __init__(self, *args, **kwargs):

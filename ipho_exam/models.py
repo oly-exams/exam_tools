@@ -285,6 +285,7 @@ class Feedback(models.Model):
 
     delegation = models.ForeignKey(Delegation)
     question  = models.ForeignKey(Question)
+    part = models.CharField(max_length=100)
     comment   = models.TextField(blank=True)
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='S')
     timestamp = models.DateTimeField(auto_now=True)
