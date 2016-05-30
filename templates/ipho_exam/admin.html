@@ -150,6 +150,7 @@ $(function() {
       var $form = $(form);
       evt.preventDefault();
       var exid = $('#import-modal').data('exid');
+      console.log();
 
       var data = new FormData($form.get(0));
       $.ajax({

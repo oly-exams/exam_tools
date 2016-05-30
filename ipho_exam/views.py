@@ -626,6 +626,7 @@ def admin_import_version(request, question_id):
             node.status = 'P'
         node.content = qml.escape_equations(txt)
         node.save()
+        return JsonResponse({'success': True})
 
     form_html = render_crispy_form(form)
     return JsonResponse({

@@ -14,7 +14,7 @@
 
         <table class="table">
             <tr>
-                <th>Version <button class="btn btn-xs btn-default" data-action="new-version" data-action-url="{% url 'exam:admin-new-version' exam_id=exam.pk question_id=question.pk %}" title="New Version"><i class="fa fa-plus fa-fw"></i> new</button> <button class="btn btn-xs btn-default" data-toggle="modal" data-target="#import-modal" data-remote="false" href="{% url 'exam:admin-import-version' question_id=question.pk %}" title="Import new version"><i class="fa fa-fw fa-upload"></i> import</button></th>
+                <th>Version <button class="btn btn-xs btn-default" data-action="new-version" data-action-url="{% url 'exam:admin-new-version' exam_id=exam.pk question_id=question.pk %}" title="New Version"><i class="fa fa-plus fa-fw"></i> new</button> <button class="btn btn-xs btn-default" data-toggle="modal" data-target="#import-modal" data-remote="false" href="{% url 'exam:admin-import-version' question_id=question.pk %}" data-exid="{{ exam.pk }}" title="Import new version"><i class="fa fa-fw fa-upload"></i> import</button></th>
                 <th>Status</th>
                 <th>Timestamp</th>
                 <th>Actions</th>
