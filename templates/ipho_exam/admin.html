@@ -14,6 +14,24 @@
 {% endblock %}
 
 {% block content %}
+    <div class="modal fade" id="import-modal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <form method="post" action="">
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
 <div class="container">
     <div class="page-header">
       <h1>Admin exam questions</h1>
@@ -126,6 +144,63 @@ $(function() {
     update_questions({{ ex.pk }});
     {% endfor %}
 
+
+     $(document).on('submit', '#import-modal form', function(evt) {
+      var form = evt.target;
+      var $form = $(form);
+      evt.preventDefault();
+      var exid = $('#import-modal').data('exid');
+      console.log();
+
+      var data = new FormData($form.get(0));
+      $.ajax({
+          url: form.action,
+          type: form.method,
+          data: data,
+          cache: false,
+          processData: false,
+          contentType: false,
+          success: function(data) {
+            var modal = $('#import-modal');
+            if (!data['success']) {
+              modal.find('.modal-title').text(data['title']);
+              modal.find('form').attr('action', data['href']);
+              modal.find('.modal-body').html(data['form']);
+              modal.find('button').prop("disabled",false);
+              modal.find('button[type="submit"]').text(data['submit']);
+              modal.find('.modal-footer').removeClass('hide');
+              return;
+            }
+            update_questions(exid, true);
+            modal.modal('hide');
+            }
+        });
+    });
+
+    $('#import-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+        var exid = button.data('exid');
+        modal.data('exid', exid);
+
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
+        modal.find('.modal-footer').addClass('hide');
+
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('form').attr('action', href);
+                modal.find('.modal-body').html(data['form']);
+                modal.find('button').prop("disabled",false);
+                modal.find('button[type="submit"]').text(data['submit']);
+                modal.find('.modal-footer').removeClass('hide');
+            },
+        });
+    });
 
 });
 </script>

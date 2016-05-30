@@ -25,7 +25,7 @@ from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -253,8 +253,11 @@ def add_pdf_node(request, question_id, lang_id):
             })
 
 @login_required
-def translation_export(request, question_id, lang_id):
-    trans = qquery.latest_version(question_id, lang_id)
+def translation_export(request, question_id, lang_id, version_num=None):
+    if version_num is None:
+        trans = qquery.latest_version(question_id, lang_id)
+    else:
+        trans = qquery.get_version(question_id, lang_id, version_num)
 
     content = qml.xml2string(trans.qml.make_xml())
     content = qml.unescape_entities(content)
@@ -598,6 +601,41 @@ def admin_new_version(request, exam_id, question_id):
     node.save()
 
     return JsonResponse({'success' : True})
+
+@permission_required('ipho_core.is_staff')
+def admin_import_version(request, question_id):
+    language = get_object_or_404(Language, id=OFFICIAL_LANGUAGE)
+    question = get_object_or_404(Question, id=question_id)
+
+    form = AdminImportForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        txt = request.FILES['file'].read()
+        txt = txt.decode('utf8')
+        if language.versioned:
+            if VersionNode.objects.filter(question=question, language=language).exists():
+                node = VersionNode.objects.filter(question=question, language=language).order_by('-version')[0]
+            else:
+                node = VersionNode(question=question, language=language, version=0,
+                                   text='<question id="q{}" />'.format(question.pk))
+        else:
+            node = get_object_or_404(TranslationNode, question=question, language=language)
+
+        if language.versioned:  ## make new version and increase version number
+            node.pk = None
+            node.version += 1
+            node.status = 'P'
+        node.content = qml.escape_equations(txt)
+        node.save()
+        return JsonResponse({'success': True})
+
+    form_html = render_crispy_form(form)
+    return JsonResponse({
+                'title'   : 'Import question',
+                'form'    : form_html,
+                'submit'  : 'Upload',
+                'success' : False,
+            })
+
 
 @permission_required('ipho_core.is_staff')
 def admin_accept_version(request, exam_id, question_id, version_num, compare_version=None):

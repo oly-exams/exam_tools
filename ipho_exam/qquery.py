@@ -34,3 +34,14 @@ def latest_version(question_id, lang_id):
     q.qml = qml.QMLquestion(q.node.text if '<question' in q.node.text else '<question id="" />')
 
     return q
+
+def get_version(question_id, lang_id, version_num):
+    q = Qwrapper()
+
+    q.question = get_object_or_404(Question, id=question_id)
+    q.lang = get_object_or_404(Language, id=lang_id)
+    q.node = get_object_or_404(VersionNode, question=q.question, language=q.lang, version=version_num)
+
+    q.qml = qml.QMLquestion(q.node.text if '<question' in q.node.text else '<question id="" />')
+
+    return q
