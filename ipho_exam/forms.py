@@ -202,6 +202,17 @@ class AssignTranslationFormSet(BaseAssignTranslationFormSet):
         return super(AssignTranslationFormSet, self)._construct_form(*args, **kwargs)
 
 
+class AdminImportForm(forms.Form):
+    file = forms.FileField(validators=[build_extension_validator(['.xml','.qml'])], label='Question file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: *.xml"><span class="glyphicon glyphicon-info-sign"></span></a>')
+
+    def __init__(self, *args, **kwargs):
+        super(AdminImportForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.helper.disable_csrf = True
+
 class AdminBlockAttributeForm(forms.Form):
     key = forms.CharField()
     value = forms.CharField()

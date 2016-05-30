@@ -14,7 +14,7 @@
 
         <table class="table">
             <tr>
-                <th>Version <button class="btn btn-xs btn-default" data-action="new-version" data-action-url="{% url 'exam:admin-new-version' exam_id=exam.pk question_id=question.pk %}" title="New Version"><i class="fa fa-plus fa-fw"></i> new</button></th>
+                <th>Version <button class="btn btn-xs btn-default" data-action="new-version" data-action-url="{% url 'exam:admin-new-version' exam_id=exam.pk question_id=question.pk %}" title="New Version"><i class="fa fa-plus fa-fw"></i> new</button> <button class="btn btn-xs btn-default" data-toggle="modal" data-target="#import-modal" data-remote="false" href="{% url 'exam:admin-import-version' question_id=question.pk %}" title="Import new version"><i class="fa fa-fw fa-upload"></i> import</button></th>
                 <th>Status</th>
                 <th>Timestamp</th>
                 <th>Actions</th>
@@ -38,6 +38,15 @@
                         <a class="btn btn-xs btn-default" href="{% url 'exam:admin-editor' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Edit version"><i class="fa fa-pencil fa-fw"></i> edit</a>
                       {% endif %}
                       <a class="btn btn-xs btn-success" href="#" title="View PDF"><i class="fa fa-file-pdf-o fa-fw"></i> PDF</a>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+            advanced <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a target="_blank" href="{% url 'exam:export-translation-version' question_id=node.question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question"><i class="fa fa-fw fa-download"></i> export</a></li>
+                                <li><a target="_blank" href="#" title="Export TeX"><i class="fa fa-fw fa-download"></i> TeX</a></li>
+                            </ul>
+                        </div>
                       {% if node.status == 'P' %}
                         <a class="btn btn-xs btn-primary" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> accept</a>
                       {% endif %}
