@@ -41,7 +41,7 @@ class PDFNodeAdmin(admin.ModelAdmin):
     list_display = ('question', 'language', 'status', 'timestamp')
 
 class FeedbackAdmin(admin.ModelAdmin):
-    list_display = ('question', 'delegation', 'comment', 'status', 'timestamp')
+    list_display = ('question', 'part', 'delegation', 'comment', 'status', 'timestamp')
 
 class FigureAdmin(admin.ModelAdmin):
     form = FigureAdminForm
