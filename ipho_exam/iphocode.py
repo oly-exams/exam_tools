@@ -5,7 +5,7 @@ import cairosvg
 class QuestionBarcodeGen(object):
     def __init__(self, exam, question, student):
         self.base = u'{stud} {ex}-{qpos} {qcode}'.format(stud=student.code, ex=exam.code, qpos=question.pk, qcode=question.code)
-        self.text = self.base + u'-{{pg}}'
+        self.text = self.base + u'-{pg}'
 
     def __call__(self, pg):
         bcode = barcode.codex.Code128(code=self.text.format(pg=pg), writer=SVGWriter())
