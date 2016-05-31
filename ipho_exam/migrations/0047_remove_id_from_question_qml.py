@@ -11,7 +11,7 @@ def forwards_func(apps, schema_editor):
         NodeType = apps.get_model("ipho_exam", node_name)
         for node in NodeType.objects.using(db_alias).all():
             node.text = qpattern.sub('id="q0_', node.text)
-        	node.save()
+            node.save()
 
 
 class Migration(migrations.Migration):
