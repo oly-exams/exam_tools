@@ -51,13 +51,14 @@ def concatenate_documents(all_pages, filename='exam.pdf'):
     return doc_pdf, meta
 
 @shared_task(bind=True)
-def wait_and_contatenate(self, all_tasks, filename='exam.pdf'):
+def wait_and_concatenate(self, all_tasks, filename='exam.pdf'):
     for t in all_tasks:
         if not t.ready():
             self.retry(countdown=1)
         elif t.failed():
-            raise r.result
+            raise t.result
     all_pages = [t.result for t in all_tasks]
+    doc_pdf = pdf.concatenate_documents([question_pdf for question_pdf,_ in all_pages])
 
     meta = {}
     meta['filename'] = filename
@@ -83,7 +84,7 @@ def commit_compiled_exam(self, compile_job):
         doc.barcode_base = meta['barcode_base']
         doc.save()
         doc_task.delete()
-    except DocumentTask.DoesNotExist:
+    except models.DocumentTask.DoesNotExist:
         pass
 
 @shared_task(bind=True)
