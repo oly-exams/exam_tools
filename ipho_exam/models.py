@@ -57,6 +57,7 @@ class ExamManager(models.Manager):
 class Exam(models.Model):
     objects = ExamManager()
 
+    code   = models.CharField(max_length=8)
     name   = models.CharField(max_length=100, unique=True)
     active = models.BooleanField(default=True,  help_text='Only active exams are editable.')
     hidden = models.BooleanField(default=False, help_text='Is the exam hidden for the delegations?')
@@ -82,6 +83,7 @@ class Question(models.Model):
         (ANSWER, 'Answer'),
     )
 
+    code = models.CharField(max_length=8)
     name = models.CharField(max_length=100)
     exam = models.ForeignKey(Exam)
     position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
