@@ -592,6 +592,50 @@ class QMLlatexParam(QMLobject):
 
     default_attributes = {'name': 'tba'}
 
+class QMLtable(QMLobject):
+    abbr = "tb"
+    tag = "table"
+    default_heading = None
+    
+    has_text = False
+    has_children = True
+    
+    default_attributes = {'width': ''}
+    
+    def tex_begin(self):
+        return (
+            u'\\begin{tabular}{|' + 
+            u'|'.join([u'l' * int(self.attributes['width'])]) +
+            u'|}\\hline\n'
+        )
+        
+    def tex_end(self):
+        return u'\\end{tabular}'
+    
+class QMLtableRow(QMLobject):
+    abbr = "rw"
+    tag = "row"
+    default_heading = None
+    
+    has_text = False
+    has_children = True
+    
+    def make_tex(self):
+        texout = u''
+        texout += u' & '.join(data2tex(c) for c in self.children)
+        texout += u'\\\\\\hline\n'
+        return texout
+        
+class QMLtableCell(QMLobject):
+    abbr = "ce"
+    tag = "cell"
+    default_heading = None
+    
+    has_text = True
+    has_children = False
+    
+    def form_element(self):
+        return forms.CharField(widget=forms.Textarea)
 
 class QMLException(Exception):
     pass
