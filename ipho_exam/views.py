@@ -1252,7 +1252,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
         all_tasks.append(result)
         print 'Group', position, 'done.'
     filename = u'IPhO16 - {} - {}.pdf'.format(exam.name, student.code)
-    chord_task = tasks.wait_and_contatenate.delay(all_tasks, filename)
+    chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
     #chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
     return HttpResponseRedirect(reverse('exam:pdf-task', args=[chord_task.id]))
 
