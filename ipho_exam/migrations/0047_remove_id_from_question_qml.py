@@ -15,6 +15,9 @@ def forwards_func(apps, schema_editor):
             node.text = qpattern2.sub('id="q0"', node.text)
             node.save()
 
+def backwards_func(apps, schema_editor):
+    pass
+
 
 class Migration(migrations.Migration):
 
@@ -23,5 +26,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(forwards_func),
+        migrations.RunPython(forwards_func, backwards_func),
     ]
