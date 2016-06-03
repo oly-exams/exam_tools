@@ -8,3 +8,4 @@ Celery
 django-celery
 flower
 requests
+appy
