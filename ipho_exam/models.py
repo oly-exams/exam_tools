@@ -283,6 +283,7 @@ class Feedback(models.Model):
         ('S', 'Submitted'),
         ('P', 'In progress'),
         ('R', 'Resolved'),
+        ('I', 'Irrelevant')
     )
 
     delegation = models.ForeignKey(Delegation)
