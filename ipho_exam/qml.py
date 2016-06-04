@@ -85,6 +85,11 @@ def data2tex(data):
         raise e
     return tex.html2tex(cont_xml)
 
+def data2xhtml(data):
+    xhtmlout = unescape_entities(data)
+    xhtmlout = escape_equations(xhtmlout)
+    return xhtmlout
+
 def canonical_name(qobj):
     if qobj.default_heading is not None:
         return qobj.default_heading
@@ -240,6 +245,24 @@ class QMLobject(object):
         texout += self.tex_end()
         return texout, externals
 
+    def xhtml_begin(self):
+        return ''
+    def xhtml_end(self):
+        return ''
+    def make_xhtml(self):
+        externals = []
+        xhtmlout = self.xhtml_begin()
+        if self.__class__.has_text:
+            xhtmlout += data2xhtml(self.data)
+        for c in self.children:
+            (xhtmlchild, extchild) = c.make_tex()
+            externals += extchild
+            xhtmlout  += xhtmlchild
+
+        xhtmlout += self.xhtml_end()
+        return xhtmlout, externals
+
+
     def heading(self):
         return self.attributes['heading'] if 'heading' in self.attributes else self.default_heading
 
@@ -366,6 +389,8 @@ class QMLsubquestion(QMLobject):
         return u'\\begin{QTF}{%s}\n' % self.attributes['points']
     def tex_end(self):
         return '\\end{QTF}\n\n'
+    def xhtml_begin(self):
+        return u'Subquestion ({} pt)'.format(self.attributes['points'])
 
 
 class QMLtitle(QMLobject):
@@ -379,6 +404,10 @@ class QMLtitle(QMLobject):
     def make_tex(self):
         return '',[]
 
+    def make_xhtml(self):
+        return u'<h1>{}</h1>'.format(data2xhtml(self.data)), []
+
+
 class QMLsection(QMLobject):
     abbr = "sc"
     tag  = "section"
@@ -391,6 +420,9 @@ class QMLsection(QMLobject):
         return u'\\subsubsection*{'
     def tex_end(self):
         return '}\n\n'
+
+    def make_xhtml(self):
+        return u'<h3>{}</h3>'.format(data2xhtml(self.data)), []
 
 class QMLpart(QMLobject):
     abbr = "pt"
@@ -406,6 +438,9 @@ class QMLpart(QMLobject):
     def tex_end(self):
         return '}{%s}\n\n' % self.attributes['points']
 
+    def make_xhtml(self):
+        return u'<h2>{} ({} points)</h2>'.format(data2xhtml(self.data), self.attributes['points']), []
+
 class QMLparagraph(QMLobject):
     abbr = "pa"
     tag  = "paragraph"
@@ -417,6 +452,10 @@ class QMLparagraph(QMLobject):
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
 
+    def xhtml_begin(self):
+        return u'<p>'
+    def xhtml_end(self):
+        return u'</p>'
 
 class QMLfigure(QMLobject):
     abbr = "fi"
@@ -487,6 +526,8 @@ class QMLfigure(QMLobject):
 
         return texout, externals
 
+    def make_xhtml(self):
+        return 'FIGURE', [] #TODO
 
 class QMLfigureText(QMLobject):
     abbr = "pq"
@@ -542,6 +583,11 @@ class QMLlist(QMLobject):
     def tex_end(self):
         return u'\\end{itemize}\n\n'
 
+    def xhtml_begin(self):
+        return u'<ul>'
+    def xhtml_end(self):
+        return u'</ul>'
+
 
 class QMLlistitem(QMLobject):
     abbr = "li"
@@ -559,6 +605,9 @@ class QMLlistitem(QMLobject):
 
     def tex_begin(self):
         return u'\\item '
+
+    def make_xhtml(self):
+        return u'<li>{}</li>'.format(data2xhtml(self.data)), []
 
 
 class QMLlatex(QMLobject):
