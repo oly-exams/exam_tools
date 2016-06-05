@@ -300,7 +300,7 @@ class Like(models.Model):
     )
     status = models.CharField(max_length=1, choices=CHOICES, default='N');
     delegation = models.ForeignKey(Delegation);
-    Feedback = models.ForeignKey(Feedback);
+    feedback = models.ForeignKey(Feedback);
 
 class ExamAction(models.Model):
     OPEN = 'O'
