@@ -8,7 +8,13 @@
     <td>{{ fb.comment }}</td>
     <td>{{ fb.timestamp }}</td>
     <td>
-      <a href="" class="btn btn-default"><i class="fa fa-ban" aria-hidden="true">Irrelevant</i></a>
+      <div class="btn-toolbar">
+        <a href="{% url 'feedback_like' feedback_id=fb.pk %}" class="btn btn-default">
+          <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+        </a>
+        <a href="{% url 'feedback_unlike' feedback_id=fb.pk %}" class="btn ban-default">
+          <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
+        </a> <!-- btn-toolbar -->
     </td>
 </tr>
 {% endfor %}
