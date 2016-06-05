@@ -1238,7 +1238,7 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
 @login_required
 def compiled_question_odt(request, question_id, lang_id, raw_tex=False):
     trans = qquery.latest_version(question_id, lang_id)
-    filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
+    filename = u'IPhO16 - {} Q{} - {}.odt'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
 
     trans_content, ext_resources = trans.qml.make_xhtml()
     for r in ext_resources:
