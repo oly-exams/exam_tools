@@ -1,5 +1,5 @@
 # coding=utf-8
-from django.shortcuts import get_object_or_404, render_to_response, render
+from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
 from django.http.request import QueryDict
 
@@ -22,7 +22,7 @@ import itertools
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm
@@ -427,7 +427,9 @@ def feedbacks_add(request, exam_id):
     form.fields['question'].queryset = Question.objects.filter(exam=exam)
     if form.is_valid():
         form.instance.delegation = delegation
-        form.save()
+        feedback = form.save()
+        for delegation in Delegation.objects.all():
+            Like.objects.create(feedback=feedback, delegation=delegation)
 
         return JsonResponse({
                     'success' : True,
@@ -442,6 +444,31 @@ def feedbacks_add(request, exam_id):
                 'submit'  : 'Submit',
                 'success' : False,
             })
+
+@login_required
+def feedback_like(request, feedback_id):
+    feedback = Feedback.objects.get(pk=feedback_id)
+    delegation = Delegation.objects.get(members=request.user)
+    like = Like.objects.get(feedback=feedback, delegation=delegation)
+    if like.status == 'N':
+        like.status = 'L'
+        like.save()
+    else:
+        pass
+    return redirect('exam:feedbacks-list')
+
+@login_required
+def feedback_unlike(request, feedback_id):
+    feedback = Feedback.objects.get(pk=feedback_id)
+    delegation = Delegation.objects.get(members=request.user)
+    like = Like.objects.get(feedback=feedback, delegation=delegation)
+    if like.status == 'N':
+        like.status = 'U'
+        like.save()
+    else:
+        pass
+    return redirect('exam:feedbacks-list')
+
 
 
 @permission_required('ipho_core.is_staff')
