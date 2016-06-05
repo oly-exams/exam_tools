@@ -255,7 +255,7 @@ class QMLobject(object):
         if self.__class__.has_text:
             xhtmlout += data2xhtml(self.data)
         for c in self.children:
-            (xhtmlchild, extchild) = c.make_tex()
+            (xhtmlchild, extchild) = c.make_xhtml()
             externals += extchild
             xhtmlout  += xhtmlchild
 
@@ -518,7 +518,7 @@ class QMLfigure(QMLobject):
         texout = u''
         texout += u'\\begin{center}\n'
         texout += u'\\includegraphics[width={}\\textwidth]{{{}}}\n'.format(width, figname)
-        if len(fig_caption) > 0: 
+        if len(fig_caption) > 0:
             texout += u'\\newline %s\n' % fig_caption
         texout += u'\end{center}\n\n'
 
