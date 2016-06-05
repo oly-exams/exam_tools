@@ -446,29 +446,16 @@ def feedbacks_add(request, exam_id):
             })
 
 @login_required
-def feedback_like(request, feedback_id):
+def feedback_like(request, status, feedback_id):
     feedback = Feedback.objects.get(pk=feedback_id)
     delegation = Delegation.objects.get(members=request.user)
     like = Like.objects.get(feedback=feedback, delegation=delegation)
     if like.status == 'N':
-        like.status = 'L'
+        like.status = status
         like.save()
     else:
         pass
     return redirect('exam:feedbacks-list')
-
-@login_required
-def feedback_unlike(request, feedback_id):
-    feedback = Feedback.objects.get(pk=feedback_id)
-    delegation = Delegation.objects.get(members=request.user)
-    like = Like.objects.get(feedback=feedback, delegation=delegation)
-    if like.status == 'N':
-        like.status = 'U'
-        like.save()
-    else:
-        pass
-    return redirect('exam:feedbacks-list')
-
 
 
 @permission_required('ipho_core.is_staff')

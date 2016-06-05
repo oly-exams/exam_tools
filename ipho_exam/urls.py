@@ -41,8 +41,7 @@ urlpatterns = patterns('ipho_exam.views',
 
     url(r'^feedbacks/list/?$', 'feedbacks_list', name='feedbacks-list'),
     url(r'^feedbacks/add/(?P<exam_id>\d+)$', 'feedbacks_add', name='feedbacks-add'),
-    url(r'^feedbacks/like/(?P<feedback_id>\d+)$', 'feedback_like', name='feedback-like'),
-    url(r'^feedbacks/unlike/(?P<feedback_id>\d+)$', 'feedback_unlike', name='feedback-unlike'),
+    url(r'^feedbacks/(?P<status>(U|L))/(?P<feedback_id>\d+)$', 'feedback_like', name='feedback-like'),
 
     url(r'^submission/list$', 'submission_exam_list', name='submission-exam-list'),
     url(r'^submission/(?P<exam_id>\d+)/assign$', 'submission_exam_assign', name='submission-exam-assign'),

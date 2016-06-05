@@ -9,10 +9,10 @@
     <td>{{ fb.timestamp }}</td>
     <td>
       <div class="btn-toolbar">
-        <a href="{% url 'exam:feedback-like' feedback_id=fb.pk %}" class="btn btn-info">
+        <a href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="btn btn-info">
           <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
         </a>
-        <a href="{% url 'exam:feedback-unlike' feedback_id=fb.pk %}" class="btn btn-warning">
+        <a href="{% url 'exam:feedback-like' status='U' feedback_id=fb.pk %}" class="btn btn-warning">
           <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
         </a> <!-- btn-toolbar -->
     </td>
