@@ -427,9 +427,7 @@ def feedbacks_add(request, exam_id):
     form.fields['question'].queryset = Question.objects.filter(exam=exam)
     if form.is_valid():
         form.instance.delegation = delegation
-        feedback = form.save()
-        for delegation in Delegation.objects.all():
-            Like.objects.create(feedback=feedback, delegation=delegation)
+        form.save()
 
         return JsonResponse({
                     'success' : True,
@@ -449,12 +447,10 @@ def feedbacks_add(request, exam_id):
 def feedback_like(request, status, feedback_id):
     feedback = Feedback.objects.get(pk=feedback_id)
     delegation = Delegation.objects.get(members=request.user)
-    like = Like.objects.get(feedback=feedback, delegation=delegation)
-    if like.status == 'N':
-        like.status = status
-        like.save()
-    else:
-        pass
+    try:
+        like = Like.objects.get(feedback=feedback, delegation=delegation)
+    except (Like.DoesNotExist):
+        like = Like.objects.create(feedback=feedback, delegation=delegation, status=status)
     return redirect('exam:feedbacks-list')
 
 
