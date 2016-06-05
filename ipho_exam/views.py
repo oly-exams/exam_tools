@@ -1249,7 +1249,7 @@ def compiled_question_odt(request, question_id, lang_id, raw_tex=False):
                 'title'       : u'{} - {}'.format(trans.question.exam.name, trans.question.name),
                 'document'    : trans_content,
               }
-    return render_odt_response('ipho_exam/odt/exam_question.odt', RequestContext(request,context), filename)
+    return render_odt_response('ipho_exam/odt/exam_question.odt', RequestContext(request,context), filename, ext_resources)
 
 @login_required
 def pdf_exam_for_student(request, exam_id, student_id):

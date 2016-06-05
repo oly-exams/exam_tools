@@ -527,7 +527,22 @@ class QMLfigure(QMLobject):
         return texout, externals
 
     def make_xhtml(self):
-        return 'FIGURE', [] #TODO
+        figname = 'fig_{}.png'.format(self.id)
+
+        fig_caption = ''
+        for c in self.children:
+            if c.tag == 'caption':
+                caption_text = data2xhtml(c.data)
+                fig_caption += caption_text
+
+        width = self.attributes.get('width', 0.9) # 0.9 is the default value
+
+        xhtmlout = u'<img src="{}" />\n'.format(figname)
+        if len(fig_caption) > 0:
+            xhtmlout += u'<div>{}</div>\n'.format(fig_caption)
+
+        externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
+        return xhtmlout, externals
 
 class QMLfigureText(QMLobject):
     abbr = "pq"

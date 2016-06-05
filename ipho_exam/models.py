@@ -273,6 +273,24 @@ class Figure(models.Model):
             print 'Got error', error
             raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
 
+    @staticmethod
+    def to_png(fig_svg, fig_name):
+        with open('%s.svg' % (fig_name), 'w') as fp:
+            fp.write(fig_svg.encode('utf8'))
+        error = subprocess.Popen(
+            [INKSCAPE_BIN,
+             '--without-gui',
+             '%s.svg' % (fig_name),
+             '--export-png=%s' % (fig_name),
+             '--export-dpi=180'],
+            stdin=open(os.devnull, "r"),
+            stderr=open(os.devnull, "wb"),
+            stdout=open(os.devnull, "wb")
+        ).wait()
+        if error:
+            print 'Got error', error
+            raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
+
 
     def natural_key(self):
         return self.name
