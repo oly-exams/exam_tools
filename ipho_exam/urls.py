@@ -32,6 +32,7 @@ urlpatterns = patterns('ipho_exam.views',
 
     url(r'^pdf/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'compiled_question', name='pdf'),
     url(r'^tex/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'compiled_question', {'raw_tex': True}, name='tex'),
+    url(r'^odt/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'compiled_question_odt', name='odt'),
     url(r'^pdf/exam/(?P<exam_id>\d+)/student/(?P<student_id>\d+)$', 'pdf_exam_for_student', name='pdf-exam-student'),
     url(r'^pdf/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)$', 'pdf_exam_pos_student', name='pdf-exam-pos-student'),
     url(r'^pdf/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)/status$', 'pdf_exam_pos_student_status', name='pdf-exam-pos-student-status'),
