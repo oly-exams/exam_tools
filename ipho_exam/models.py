@@ -292,6 +292,16 @@ class Feedback(models.Model):
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='S')
     timestamp = models.DateTimeField(auto_now=True)
 
+class Like(models.Model):
+    CHOICES = (
+        ('N', 'None'),
+        ('L', 'Liked'),
+        ('U', 'Unliked'),
+    )
+    status = models.CharField(max_length=1, choices=CHOICES, default='N');
+    delegation = models.ForeignKey(Delegation);
+    Feedback = models.ForeignKey(Feedback);
+
 class ExamAction(models.Model):
     OPEN = 'O'
     SUBMITTED = 'S'
