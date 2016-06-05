@@ -390,7 +390,7 @@ class QMLsubquestion(QMLobject):
     def tex_end(self):
         return '\\end{QTF}\n\n'
     def xhtml_begin(self):
-        return u'Subquestion ({} pt)'.format(self.attributes['points'])
+        return u'<h4>Subquestion ({} pt)</h4>'.format(self.attributes['points'])
 
 
 class QMLtitle(QMLobject):
