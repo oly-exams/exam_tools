@@ -301,6 +301,9 @@ class Like(models.Model):
     delegation = models.ForeignKey(Delegation);
     feedback = models.ForeignKey(Feedback);
 
+    class Meta:
+        unique_together = ('delegation', 'feedback')
+
 class ExamAction(models.Model):
     OPEN = 'O'
     SUBMITTED = 'S'
