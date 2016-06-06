@@ -84,7 +84,7 @@
               </div>
               {% if user.is_superuser %}
               <div class="btn-group">
-                <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="View ODT"><i class="fa fa-fw fa-file-pdf-o"></i> ODT</a>
+                <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="View ODT"><i class="fa fa-fw fa-file-text-o"></i> ODT</a>
               </div>
               {% endif %}
 

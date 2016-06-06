@@ -21,7 +21,7 @@
         </div>
         {% if user.is_superuser %}
         <div class="btn-group">
-          <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="View ODT"><i class="fa fa-fw fa-file-pdf-o"></i> ODT</a>
+          <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="View ODT"><i class="fa fa-fw fa-file-text-o"></i> ODT</a>
         </div>
         {% endif %}
         {% if not node.language.is_pdf %}
@@ -49,7 +49,7 @@
       <div class="btn-toolbar">
         <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
         {% if user.is_superuser %}
-        <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="View ODT"><i class="fa fa-fw fa-file-pdf-o"></i> ODT</a>
+        <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="View ODT"><i class="fa fa-fw fa-file-text-o"></i> ODT</a>
         {% endif %}
       </div>
     </td>
