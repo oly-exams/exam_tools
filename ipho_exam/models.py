@@ -294,7 +294,6 @@ class Feedback(models.Model):
 
 class Like(models.Model):
     CHOICES = (
-        ('N', 'None'),
         ('L', 'Liked'),
         ('U', 'Unliked'),
     )
