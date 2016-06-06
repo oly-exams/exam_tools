@@ -24,6 +24,7 @@ from django.conf import settings
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
+from ipho_exam.response import render_odt_response
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm
 
@@ -1233,6 +1234,22 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
         return cached_responses.compile_tex(request, body, ext_resources, filename)
     except pdf.TexCompileException as e:
         return HttpResponse(e.log, content_type="text/plain")
+
+@login_required
+def compiled_question_odt(request, question_id, lang_id, raw_tex=False):
+    trans = qquery.latest_version(question_id, lang_id)
+    filename = u'IPhO16 - {} Q{} - {}.odt'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
+
+    trans_content, ext_resources = trans.qml.make_xhtml()
+    for r in ext_resources:
+        if isinstance(r, tex.FigureExport):
+            r.lang = trans.lang
+    context = {
+                'lang_name'   : u'{} ({})'.format(trans.lang.name, trans.lang.delegation.country),
+                'title'       : u'{} - {}'.format(trans.question.exam.name, trans.question.name),
+                'document'    : trans_content,
+              }
+    return render_odt_response('ipho_exam/odt/exam_question.odt', RequestContext(request,context), filename, ext_resources)
 
 @login_required
 def pdf_exam_for_student(request, exam_id, student_id):
