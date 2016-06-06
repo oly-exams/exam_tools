@@ -1,9 +1,9 @@
 {% load static %}
 {% for fb in feedbacks %}
 <tr>
-    <td>{{ fb.get_status_display }}</td>
-    <td>{{ fb.delegation.name }}</td>
-    <td>{{ fb.question.name }}</td>
+    <td>{{ fb.status_display }}</td>
+    <td>{{ fb.delegation__name }}</td>
+    <td>{{ fb.question__name }}</td>
     <td>{{ fb.part }}</td>
     <td>{{ fb.comment }}</td>
     <td>{{ fb.timestamp }}</td>
@@ -11,9 +11,15 @@
       <div class="btn-toolbar">
         <a href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="btn btn-info">
           <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+          {% if fb.num_likes %}
+          <span class="badge">{{ fb.num_likes }}</span>
+          {% endif %}
         </a>
         <a href="{% url 'exam:feedback-like' status='U' feedback_id=fb.pk %}" class="btn btn-warning">
           <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
+          {% if fb.num_unlikes %}
+          <span class="badge">{{ fb.num_unlikes }}</span>
+          {% endif %}
         </a> <!-- btn-toolbar -->
     </td>
 </tr>

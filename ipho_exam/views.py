@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum, Case, When, IntegerField
 
 from copy import deepcopy
 from collections import OrderedDict
@@ -405,7 +405,32 @@ def feedbacks_list(request):
 
     if 'exam_id' in request.GET:
         exam = get_object_or_404(Exam, id=request.GET['exam_id'], feedback_active=True)
-        feedbacks = Feedback.objects.filter(question__exam=request.GET['exam_id']).order_by('-timestamp')
+        feedbacks = Feedback.objects.filter(
+            question__exam=request.GET['exam_id']
+        ).annotate(
+             num_likes=Sum(
+                 Case(When(like__status='L', then=1),
+                      output_field=IntegerField())
+             ),
+             num_unlikes=Sum(
+                 Case(When(like__status='U', then=1),
+                      output_field=IntegerField())
+             )
+        ).values(
+            'num_likes',
+            'num_unlikes',
+            'pk',
+            'question__name',
+            'delegation__name',
+            'delegation__country',
+            'status',
+            'timestamp',
+            'part',
+            'comment'
+        ).order_by('-timestamp')
+        choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
+        for fb in feedbacks:
+            fb['status_display'] = choices[fb['status']]
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
                     'feedbacks' : feedbacks,
