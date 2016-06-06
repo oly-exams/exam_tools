@@ -472,10 +472,7 @@ def feedbacks_add(request, exam_id):
 def feedback_like(request, status, feedback_id):
     feedback = get_object_or_404(Feedback, pk=feedback_id, question__exam__feedback_active=True)
     delegation = Delegation.objects.get(members=request.user)
-    try:
-        like = Like.objects.get(feedback=feedback, delegation=delegation)
-    except (Like.DoesNotExist):
-        like = Like.objects.create(feedback=feedback, delegation=delegation, status=status)
+    objects.get_or_create(feedback=feedback, delegation=delegation, defaults={'status': status})
     return redirect('exam:feedbacks-list')
 
 
