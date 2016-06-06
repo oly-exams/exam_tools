@@ -297,7 +297,7 @@ class Like(models.Model):
         ('L', 'Liked'),
         ('U', 'Unliked'),
     )
-    status = models.CharField(max_length=1, choices=CHOICES, default='N');
+    status = models.CharField(max_length=1, choices=CHOICES);
     delegation = models.ForeignKey(Delegation);
     feedback = models.ForeignKey(Feedback);
 
