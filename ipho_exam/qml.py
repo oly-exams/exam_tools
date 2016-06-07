@@ -595,18 +595,29 @@ class QMLlatexParam(QMLobject):
 class QMLtable(QMLobject):
     abbr = "tb"
     tag = "table"
-    default_heading = None
+    default_heading = 'Table'
     
     has_text = False
     has_children = True
     
-    default_attributes = {'width': ''}
+    default_attributes = {
+        'width': '', 
+        'top_line': '1', 
+        'left_line': '1', 
+        'right_line': '1',
+        'grid_lines': '1',
+    }
+    
+    
     
     def tex_begin(self):
         return (
-            u'\\begin{tabular}{|' + 
-            u'|'.join([u'l' * int(self.attributes['width'])]) +
-            u'|}\\hline\n'
+            u'\\begin{tabular}{' + u'|' * int(self.attributes['left_line']) +
+            (int(self.attributes['grid_lines']) * u'|').join(
+                [u'l'] * int(self.attributes['width'])
+            ) +
+            u'|' * int(self.attributes['right_line']) + u'}' +
+            int(self.attributes['top_line']) * u'\\hline' + u'\n'
         )
         
     def tex_end(self):
@@ -615,16 +626,18 @@ class QMLtable(QMLobject):
 class QMLtableRow(QMLobject):
     abbr = "rw"
     tag = "row"
-    default_heading = None
+    default_heading = 'Row'
     
     has_text = False
     has_children = True
     
+    default_attributes = {'bottom_line': '1'}
+    
     def make_tex(self):
         texout = u''
-        texout += u' & '.join(data2tex(c) for c in self.children)
-        texout += u'\\\\\\hline\n'
-        return texout
+        texout += u' & '.join(data2tex(c.data) for c in self.children)
+        texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
+        return texout, []
         
 class QMLtableCell(QMLobject):
     abbr = "ce"
