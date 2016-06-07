@@ -57,8 +57,8 @@
 
 %Problem (QMLquestion)
 \newenvironment{PR}[2]
-      {\noindent\fontsize{18pt}{16pt}\fontshape{bf}
-      \textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}(#2 points)}}}}
+      {{\noindent\fontsize{18pt}{16pt}\fontshape{bf}
+      \textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}(#2 points)}}}}}
 
 
 
@@ -81,7 +81,7 @@
    \parbox[t]{.1\textwidth}{
    \hspace{1em}
     % \noindent\bf \Alph{ptnum}\arabic{qtnum2}
-    \begin{english}\noindent\bf \Alph#2.\arabic#3\end{english}
+    \begin{english}\noindent\bf #2.#3\end{english}
  }
  \begin{minipage}[t]{.79\textwidth}}
 {

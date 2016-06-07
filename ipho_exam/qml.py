@@ -386,7 +386,11 @@ class QMLsubquestion(QMLobject):
         return 'Subquestion, %spt' % self.attributes['points']
 
     def tex_begin(self):
-        return u'\\begin{QTF}{%s}{%s}{%s}\n' % self.attributes['points'], self.attributes['part_nr'], self.attributes['question_nr']
+        return u'\\begin{QTF}{%s}{%s}{%s}\n' % (
+            self.attributes['points'], 
+            self.attributes['part_nr'], 
+            self.attributes['question_nr']
+        )
     def tex_end(self):
         return '\\end{QTF}\n\n'
     def xhtml_begin(self):
@@ -465,6 +469,8 @@ class QMLfigure(QMLobject):
     has_text = False
     has_children = True
     lang = None
+
+    default_attributes = {'figid': ''}
 
     def fig_query(self):
         query = {}
