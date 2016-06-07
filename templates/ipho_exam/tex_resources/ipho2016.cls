@@ -55,7 +55,7 @@
 
 %Commands
 
-%Problem
+%Problem (QMLquestion)
 \newenvironment{PR}[2]
       {\noindent\fontsize{18pt}{16pt}\fontshape{bf}
       \textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}(#2 points)}}}}
@@ -69,10 +69,11 @@
 
 
 
-%Question
+%Question -- no longer used
 \newcommand{\QT}[3]{\vspace{0.2cm}\noindent{\bf\Alph#2\arabic#3.~(#1 \if#11{pt}\else{pts}\fi)}}
 
 
+%Question (QMLsubquestion)
 \newenvironment{QTF}[3]
 {\def\QTFpoints{#1} %\vspace{0.5em}
 \begin{framed}
