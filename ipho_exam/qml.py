@@ -380,13 +380,13 @@ class QMLsubquestion(QMLobject):
     has_text = False
     has_children = True
 
-    default_attributes = {'points': ''}
+    default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
 
     def heading(self):
         return 'Subquestion, %spt' % self.attributes['points']
 
     def tex_begin(self):
-        return u'\\begin{QTF}{%s}\n' % self.attributes['points']
+        return u'\\begin{QTF}{%s}{%s}{%s}\n' % self.attributes['points'], self.attributes['part_nr'], self.attributes['question_nr']
     def tex_end(self):
         return '\\end{QTF}\n\n'
     def xhtml_begin(self):
