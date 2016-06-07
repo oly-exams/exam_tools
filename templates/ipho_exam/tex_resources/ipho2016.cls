@@ -58,7 +58,7 @@
 %Problem
 \newenvironment{PR}[2]
       {\noindent\fontsize{18pt}{16pt}\fontshape{bf}
-      \textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}(#2 points)}}}}}
+      \textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}(#2 points)}}}}
 
 
 
@@ -66,7 +66,7 @@
 \newcommand{\PT}[2]{\vspace{0.3cm}\noindent
     { \hspace*{-3pt}\fontsize{12pt}{14pt}\textcolor{color1}{#1 \textenglish{(#2 points)}}}}
     {\vspace{0.1cm}}
-    }
+
 
 
 %Question
@@ -90,7 +90,7 @@
 }
 % \vspace{0.5em}
 \end{framed}
-
+}
 
 % \newenvironment{QTF}[1]
 % {\def\QTFpoints{#1}
