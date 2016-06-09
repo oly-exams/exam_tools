@@ -5,28 +5,31 @@ from django.db import migrations, models
 from ipho_exam import qml
 
 def question_points(root, part_num=-1, subq_num=0):
-    ## This function is not too geenric, but it should fit our needs
-    ret = []
     part_code = lambda num: chr(65+num)
     for obj in root.children:
-        if isinstance(obj, QMLpart):
+        if isinstance(obj, qml.QMLpart):
             part_num += 1
             subq_num = 0
-        if isinstance(obj, QMLsubquestion):
+            obj.data = 'Part {}: '.format(part_code(part_num)) + obj.data
+        if isinstance(obj, qml.QMLsubquestion):
             subq_num += 1
-            points = float(obj.attributes['points']) if 'points' in obj.attributes else 0.
-            ret.append(( '{}.{}'.format(part_code(part_num), subq_num), points ))
-        child_points, part_num, subq_num = question_points(obj, part_num, subq_num)
-        ret += child_points
-    return ret, part_num, subq_num
+            obj.attributes['part_nr'] = part_code(part_num)
+            obj.attributes['question_nr'] = str(subq_num)
+        part_num, subq_num = question_points(obj, part_num, subq_num)
+    return part_num, subq_num
 
 def forwards_func(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     for node_name in ['VersionNode', 'TranslationNode']:
         NodeType = apps.get_model("ipho_exam", node_name)
         for node in NodeType.objects.using(db_alias).all():
-            q = qml.QMLquestion(node.content)
+            q = qml.QMLquestion(node.text)
+            question_points(q)
+            node.text = qml.xml2string(q.make_xml())
+            node.save()
 
+def backwards_func(*args, **kwargs):
+    pass
 
 class Migration(migrations.Migration):
 
@@ -35,5 +38,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-            migrations.RunPython(forwards_func),
+            migrations.RunPython(forwards_func, backwards_func),
     ]
