@@ -10,11 +10,13 @@ def question_points(root, part_num=-1, subq_num=0):
         if isinstance(obj, qml.QMLpart):
             part_num += 1
             subq_num = 0
-            obj.data = 'Part {}: '.format(part_code(part_num)) + obj.data
+            if not 'Part' in obj.data:
+                obj.data = 'Part {}: '.format(part_code(part_num)) + obj.data
         if isinstance(obj, qml.QMLsubquestion):
             subq_num += 1
-            obj.attributes['part_nr'] = part_code(part_num)
-            obj.attributes['question_nr'] = str(subq_num)
+            if not 'part_nr' in obj.attributes:
+                obj.attributes['part_nr'] = part_code(part_num)
+                obj.attributes['question_nr'] = str(subq_num)
         part_num, subq_num = question_points(obj, part_num, subq_num)
     return part_num, subq_num
 
