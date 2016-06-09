@@ -25,6 +25,7 @@ from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 from ipho_exam.response import render_odt_response
+from ipho_print import printer
 
 from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm
 
@@ -1325,3 +1326,95 @@ def pdf_task(request, token):
             return HttpResponse(e.log, content_type="text/plain")
         else:
             return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)
+
+
+@permission_required('ipho_core.is_staff')
+def bulk_print(request):
+    messages = []
+
+    exams = Exam.objects.filter(hidden=False)
+    delegations = Delegation.objects.all()
+
+    def get_or_none(model, *args, **kwargs):
+        try:
+            return model.objects.get(*args, **kwargs)
+        except model.DoesNotExist:
+            return None
+
+    filter_ex = exams
+    exam = get_or_none(Exam, id=request.GET.get('ex', None))
+    if exam is not None:
+        filter_ex = exam
+    filter_dg = delegations
+    delegation = get_or_none(Delegation, id=request.GET.get('dg', None))
+    if delegation is not None:
+        filter_dg = delegation
+
+    queue_list = printer.allowed_choices(request.user)
+    # form = PrintForm(request.POST or None, request.FILES or None, queue_list=queue_list)
+    # if form.is_valid():
+    #     try:
+    #       status = printer.send2queue(form.cleaned_data['file'], form.cleaned_data['queue'], user=request.user)
+    #       messages.append(('alert-success', '<strong>Success</strong> Print job submitted. Please pickup your document at the printing station.'))
+    #     except printer.PrinterError as e:
+    #         messages.append(('alert-danger', '<strong>Error</strong> The document was uploaded successfully, but an error occured while communicating with the print server. Please try again or report the problem to the IPhO staff.<br /> Error was: '+e.msg))
+    #     form = PrintForm(queue_list=queue_list)
+    #
+    # form_html = render_crispy_form(form, context=csrf(request))
+    # if request.is_ajax():
+    #     return JsonResponse({
+    #             'form'     : form_html,
+    #             'messages' : messages,
+    #         })
+
+    all_docs = Document.objects.filter(
+        student__delegation=filter_dg,
+        exam=filter_ex
+    ).values(
+        'pk',
+        'exam__name',
+        'position',
+        'student__delegation__name',
+        'student__code',
+        'num_pages',
+        'barcode_base',
+        'barcode_num_pages'
+    )
+
+    paginator = Paginator(all_docs, 25) # Show 25 contacts per page
+
+    page = request.GET.get('page')
+    try:
+        docs_list = paginator.page(page)
+    except PageNotAnInteger:
+        docs_list = paginator.page(1)
+    except EmptyPage:
+        docs_list = paginator.page(paginator.num_pages)
+
+    class url_builder(object):
+        def __init__(self, base_url, get={}):
+            self.url = base_url
+            self.get = get
+        def __call__(self, **kwargs):
+            qdict = QueryDict('', mutable=True)
+            for k,v in self.get.iteritems():
+                qdict[k] = v
+            for k,v in kwargs.iteritems():
+                if v is None:
+                    if k in qdict: del qdict[k]
+                else:
+                    qdict[k] = v
+            url = self.url + '?' + qdict.urlencode()
+            return url
+
+    return render(request, 'ipho_exam/bulk_print.html',
+            {
+                'exams'       : exams,
+                'exam'        : exam,
+                'delegations' : delegations,
+                'delegation'  : delegation,
+                'queue_list'  : queue_list,
+                'docs_list'   : docs_list,
+                'all_pages'   : range(1,paginator.num_pages+1),
+                'this_url_builder'    : url_builder(reverse('exam:bulk-print'), request.GET),
+            })

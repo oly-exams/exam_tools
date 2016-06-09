@@ -72,6 +72,8 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^admin/submissions/assign/(?P<exam_id>\d+)$', 'admin_submission_assign', name='admin-submission-assign'),
     url(r'^admin/submissions/(?P<submission_id>\d+)/delete$', 'admin_submission_delete', name='admin-submission-delete'),
 
+    url(r'^admin/bulk-print/?$', 'bulk_print', name='bulk-print'),
+
     url(r'^test/', include('ipho_exam.urls_test', namespace='test')),
 
     # url(r'^(?P<rep_id>\d+)/submit/?$', 'submit'),
