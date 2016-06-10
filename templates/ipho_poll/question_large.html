@@ -4,6 +4,17 @@
 {% load static %}
 
 {% block extra-head %}
+<style>
+  th{
+    font-family: Arial;
+    font-size: 25pt;
+  }
+  td{
+    font-family: Arial;
+    font-size: 25pt;
+  }
+
+</style>
 {% endblock %}
 
 {% block content %}
@@ -12,20 +23,20 @@
 
     <div class="jumbotron with-logo">
         <h1>{{ question }}</h1>
-        <p>
+        <p style="font-size: 20pt">
             {{ question.content }}
         </p>
     </div>
 
-    <!-- <p>Status: {{ status }}</p> -->
 
 
-    <div class="parent">
+    <!-- <div class="parent">
         <button id="reload" title="Refresh" type="button" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-    </div>
+    </div> -->
+
 
     <div class="panel panel-default">
-        <div class="panel-heading"><h2>Choices Legend</h2></div>
+        <div class="panel-heading"><h2 style="font-size: 30pt">Choices Legend</h2></div>
         <table id="drafted-questions-table" class="table table-striped">
             <tr>
                 <th></th>
