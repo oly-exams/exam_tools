@@ -21,7 +21,7 @@
 
 <div class="container">
 
-    <div class="jumbotron with-logo">
+    <div class="jumbotron">
         <h1>{{ question }}</h1>
         <p style="font-size: 20pt">
             {{ question.content|safe }}
@@ -36,12 +36,11 @@
 
 
     <div class="panel panel-default">
-        <div class="panel-heading"><h2 style="font-size: 30pt">Choices Legend</h2></div>
         <table id="drafted-questions-table" class="table table-striped">
             <tr>
                 <th></th>
-                <th>Choice Text</th>
-                <th>Total Votes</th>
+                <th>Choice</th>
+                <th>Votes</th>
             </tr>
 
                 {% for choice in choices %}
