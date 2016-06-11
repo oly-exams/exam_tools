@@ -193,6 +193,7 @@ INSTALLED_APPS = (
     'ipho_exam',
     'ipho_poll',
     'ipho_marking',
+    'ipho_download',
     'ipho_print',
     # 'django_extensions', # Some useful utils, e.g. graph models
 
