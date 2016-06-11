@@ -40,7 +40,7 @@
             <tr>
                 <th></th>
                 <th>Choice</th>
-                <th>Votes</th>
+                <th>{% if status == 'closed' %}Votes{% endif %}</th>
             </tr>
 
                 {% for choice in choices %}
@@ -50,7 +50,9 @@
                             {{ choice.choice_text }}
                         </td>
                         <td class="col-md-2">
+                            {% if status == 'closed' %}
                             {{ choice.votes }}
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
