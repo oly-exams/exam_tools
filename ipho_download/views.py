@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpResponse, HttpResponseNotModified
+from django.http import HttpResponse, HttpResponseNotModified, Http404
 from django.conf import settings
 
 import os
@@ -15,6 +15,11 @@ def main(request, type, url):
 
     basedir = os.path.join(MEDIA_ROOT,'downloads')
     path = os.path.join(basedir,url)
+    rel_url = os.path.relpath(path, basedir)
+    if rel_url[0] == '.':
+        raise Http404('File path not valid.')
+    if not os.path.exists(path):
+        raise Http404('File not found.')
 
     if type == 'f':
         etag = md5(path).hexdigest()
@@ -44,7 +49,6 @@ def main(request, type, url):
             fsize = os.path.getsize(fullpath)
         flist.append((t, tt, f, fpath, fsize))
 
-    rel_url = os.path.relpath(path, basedir)
     cur_url = ''
     cur_path = [('/', '')]
     cur_split = url.split('/')
