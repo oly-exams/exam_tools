@@ -109,7 +109,7 @@ $(function() {
             var style = $('select[name="style"]').val();
             if (style in ipho_languages) {
                 var polyglossia = ipho_languages[style]['polyglossia'];
-                if (polyglossia == null) polyglossia = 'english';
+                if (polyglossia == null) polyglossia = 'custom';
                 $('select[name="direction"]').val(ipho_languages[style]['direction']);
                 $('select[name="polyglossia"]').val(polyglossia);
                 $('select[name="font"]').val(ipho_languages[style]['fonts'][0]);
