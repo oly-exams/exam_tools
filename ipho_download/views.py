@@ -11,9 +11,10 @@ MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
 
 @login_required
 def main(request, type, url):
-    url = url.replace('//', '/')
+    url = os.path.normpath(url)
 
-    path = os.path.join(os.path.join(MEDIA_ROOT,'downloads'),url)
+    basedir = os.path.join(MEDIA_ROOT,'downloads')
+    path = os.path.join(basedir,url)
 
     if type == 'f':
         etag = md5(path).hexdigest()
@@ -31,18 +32,22 @@ def main(request, type, url):
     flist = []
     for f in os.listdir(path):
         if f[0] == '.': continue
-        fpath = os.path.join(path,f)
+        fullpath = os.path.join(path,f)
+        fpath = os.path.relpath(fullpath, basedir)
         tt = 'f'
         t = 'file'
-        if os.path.isdir(fpath):
+        if os.path.isdir(fullpath):
             t = 'folder'
             tt = 'd'
         flist.append((t, tt, f, fpath))
 
+    rel_url = os.path.relpath(path, basedir)
     cur_url = ''
-    cur_path = []
-    for p in url.split('/'):
-        cur_url += '/'+p
+    cur_path = [('/', '')]
+    cur_split = url.split('/')
+    for p in cur_split:
+        if p == '.': continue
+        cur_url += p+'/'
         cur_path.append((p, cur_url))
     return render(request, 'ipho_download/main.html', {
         'flist': flist,

@@ -13,7 +13,7 @@
     </ol>
 
     {% with last=cur_path|last %}
-    <h3>Content of {{ last.0 }}/</h3>
+    <h3>Content of {{ last.0 }}{% if last.0 != '/' %}/{% endif %}</h3>
     {% endwith %}
 
     <table class="table table-striped">
