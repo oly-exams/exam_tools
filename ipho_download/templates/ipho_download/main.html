@@ -17,13 +17,16 @@
     {% endwith %}
 
     <table class="table table-striped">
-      {% for t,tshort,name,link in flist %}
+      {% for t,tshort,name,link,fsize in flist %}
       <tr>
         <td>
           <i class="fa fa-{{ t }}"></i>
           <a href="{% url 'download:path' type=tshort url=link %}">
           {{ name }}
           </a>
+          {% if tshort == 'f' %}
+          {{ fsize|filesizeformat }}
+          {% endif %}
         </td>
       </tr>
       {% endfor %}

@@ -36,10 +36,13 @@ def main(request, type, url):
         fpath = os.path.relpath(fullpath, basedir)
         tt = 'f'
         t = 'file'
+        fsize = None
         if os.path.isdir(fullpath):
             t = 'folder'
             tt = 'd'
-        flist.append((t, tt, f, fpath))
+        else:
+            fsize = os.path.getsize(fullpath)
+        flist.append((t, tt, f, fpath, fsize))
 
     rel_url = os.path.relpath(path, basedir)
     cur_url = ''
