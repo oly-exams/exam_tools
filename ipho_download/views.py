@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotModified
 import os
+import mimetypes
+from hashlib import md5
 
 @login_required
 def main(request, type, url):
@@ -10,7 +12,17 @@ def main(request, type, url):
     path = '/'+url
 
     if type == 'f':
-        return HttpResponse(open(path))
+        etag = md5(path).hexdigest()
+
+        if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
+            return HttpResponseNotModified()
+
+        filename = os.path.basename(path)
+        content_type,encoding = mimetypes.guess_type(path)
+        res = HttpResponse(open(path), content_type=content_type)
+        res['content-disposition'] = 'inline; filename="{}"'.format(filename)
+        res['ETag'] = etag
+        return res
 
     flist = []
     for f in os.listdir(path):
