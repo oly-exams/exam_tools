@@ -1,15 +1,19 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse, HttpResponseNotModified
+from django.conf import settings
+
 import os
 import mimetypes
 from hashlib import md5
+
+MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
 
 @login_required
 def main(request, type, url):
     url = url.replace('//', '/')
 
-    path = '/'+url
+    path = os.path.join(os.path.join(MEDIA_ROOT,'downloads'),url)
 
     if type == 'f':
         etag = md5(path).hexdigest()
@@ -26,6 +30,7 @@ def main(request, type, url):
 
     flist = []
     for f in os.listdir(path):
+        if f[0] == '.': continue
         fpath = os.path.join(path,f)
         tt = 'f'
         t = 'file'
