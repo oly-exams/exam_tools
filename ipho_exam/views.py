@@ -1387,7 +1387,7 @@ def bulk_print(request):
         'barcode_num_pages'
     )
 
-    paginator = Paginator(all_docs, 25) # Show 25 contacts per page
+    paginator = Paginator(all_docs, 50)
 
     page = request.GET.get('page')
     try:
