@@ -1377,9 +1377,11 @@ def bulk_print(request):
     ).values(
         'pk',
         'exam__name',
+        'exam__id',
         'position',
         'student__delegation__name',
         'student__code',
+        'student__id',
         'num_pages',
         'barcode_base',
         'barcode_num_pages'
