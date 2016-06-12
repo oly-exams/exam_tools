@@ -23,6 +23,8 @@
 \geometry{top=3cm}
 \geometry{bottom=2.5cm}
 
+%Paragraph spacing
+\RequirePackage{parskip}
 
 % Font settings
 \RequirePackage{fontspec}
