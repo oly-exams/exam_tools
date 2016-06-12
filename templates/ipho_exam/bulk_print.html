@@ -103,7 +103,7 @@ View and print individual documents, or select and print in bulk.
                 </button>
                 <ul class="dropdown-menu">
                   {% for p in queue_list %}
-                  <li><a href="#">{{ p.1 }}</a></li>
+                  <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position student_id=d.student__id queue=p.0 type='P' %}">{{ p.1 }}</a></li>
                   {% endfor %}
                 </ul>
               </div>
@@ -121,7 +121,7 @@ View and print individual documents, or select and print in bulk.
                   </button>
                   <ul class="dropdown-menu">
                     {% for p in queue_list %}
-                    <li><a href="#">{{ p.1 }}</a></li>
+                    <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position student_id=d.student__id queue=p.0 type='S' %}">{{ p.1 }}</a></li>
                     {% endfor %}
                   </ul>
                 </div>

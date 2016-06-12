@@ -1440,3 +1440,25 @@ def bulk_print(request):
                 'form': form,
                 'this_url_builder'    : url_builder(reverse('exam:bulk-print'), request.GET),
             })
+
+@permission_required('ipho_core.is_staff')
+def print_doc(request, type, exam_id, position, student_id, queue):
+    queue_list = printer.allowed_choices(request.user)
+    if not queue in (q[0] for q in queue_list):
+        raise HttpResponseForbidden('Print queue not allowed.')
+    doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
+
+    if type == 'P':
+        status = printer.send2queue(doc.file, queue, user=request.user)
+        l = PrintLog(document=doc, type='P')
+        l.save()
+    elif doc.scan_file:
+        status = printer.send2queue(doc.scan_file, queue, user=request.user)
+        l = PrintLog(document=doc, type='S')
+        l.save()
+    else:
+        raise Http404('Document type `{}` not found.'.format(type))
+
+    print request.META
+    n = request.META.get('HTTP_REFERER', reverse('exam:bulk-print'))
+    return HttpResponseRedirect(n)
