@@ -1,6 +1,7 @@
 {% extends "ipho_exam/base.html" %}
 {% load static %}
 {% load exam_utils_tags %}
+{% load crispy_forms_tags %}
 
 {% block extra-head %}
 <style>
@@ -20,7 +21,7 @@
 {% block exam-content %}
 <div id="alerts-container">
 {% for class, msg in messages %}
-<div class="alert {{ class }} alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>{{ msg }}</div>
+<div class="alert {{ class }} alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>{{ msg|safe }}</div>
 {% endfor %}
 </div>
 
@@ -62,9 +63,9 @@
 
   </div>
 
+    <form method="POST">
     <table class="table table-striped">
       <tr>
-          <th></th>
           <th>Exam</th>
           <th># Question</th>
           <th>Delegation</th>
@@ -73,13 +74,12 @@
           <th>Barcode</th>
           <th>Num Barcode</th>
           <th>Last print</th>
-          <th>Documents</th>
-          <th></th>
+          <th>Printouts</th>
+          <th>Scans</th>
       </tr>
       <tbody>
         {% for d in docs_list %}
           <tr>
-            <td></td>
             <td>{{ d.exam__name }}</td>
             <td>{{ d.position }}</td>
             <td>{{ d.student__delegation__name }}</td>
@@ -89,27 +89,45 @@
             <td>{{ d.barcode_num_pages }}</td>
             <td>{# {{ d.last_print }} #}</td>
             <td>
-              <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> Printout</a>
-              <a class="btn btn-default btn-xs" href="#"><i class="fa fa-fw fa-file-pdf-o"></i> Scans</a>
-            </td>
-            <td>
+              <input type="checkbox" name="printouts[]" value="{{ d.pk }}" />
+              <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
               <div class="btn-group">
                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
                   <i class="fa fa-print"></i>
-                  Print <span class="caret"></span>
+                  print <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                  <li><a href="#">printer-3</a></li>
-                  <li><a href="#">printer-4</a></li>
+                  {% for p in queue_list %}
+                  <li><a href="#">{{ p.1 }}</a></li>
+                  {% endfor %}
                 </ul>
               </div>
-
+            </td>
+            <td>
+              {% if d.scan_file %}
+                <input type="checkbox" name="scans[]" value="{{ d.pk }}" />
+                <a class="btn btn-default btn-xs" href="#"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-print"></i>
+                    print <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    {% for p in queue_list %}
+                    <li><a href="#">{{ p.1 }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
             </td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
 
+    {% crispy form %}
+
+    </form>
 
     <div class="text-center">
       <ul class="pagination">

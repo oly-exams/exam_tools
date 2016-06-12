@@ -27,7 +27,7 @@ from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, 
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -1355,21 +1355,21 @@ def bulk_print(request):
         filter_dg = delegation
 
     queue_list = printer.allowed_choices(request.user)
-    # form = PrintForm(request.POST or None, request.FILES or None, queue_list=queue_list)
-    # if form.is_valid():
-    #     try:
-    #       status = printer.send2queue(form.cleaned_data['file'], form.cleaned_data['queue'], user=request.user)
-    #       messages.append(('alert-success', '<strong>Success</strong> Print job submitted. Please pickup your document at the printing station.'))
-    #     except printer.PrinterError as e:
-    #         messages.append(('alert-danger', '<strong>Error</strong> The document was uploaded successfully, but an error occured while communicating with the print server. Please try again or report the problem to the IPhO staff.<br /> Error was: '+e.msg))
-    #     form = PrintForm(queue_list=queue_list)
-    #
-    # form_html = render_crispy_form(form, context=csrf(request))
-    # if request.is_ajax():
-    #     return JsonResponse({
-    #             'form'     : form_html,
-    #             'messages' : messages,
-    #         })
+    form = PrintDocsForm(request.POST or None, queue_list=queue_list)
+    if form.is_valid():
+        tot_printed = 0
+        for pk in request.POST.get('printouts[]', []):
+            d = get_or_none(Document, pk=pk)
+            if d is not None:
+                status = printer.send2queue(d.file, form.cleaned_data['queue'], user=request.user)
+                tot_printed += 1
+        for pk in request.POST.get('scans[]', []):
+            d = get_or_none(Document, pk=pk)
+            if d is not None:
+                status = printer.send2queue(d.scan_file, form.cleaned_data['queue'], user=request.user)
+                tot_printed += 1
+        messages.append(('alert-success', '<strong>Success</strong> {} print job submitted. Please pickup your document at the printing station.'.format(tot_printed)))
+
 
     all_docs = Document.objects.filter(
         student__delegation=filter_dg,
@@ -1384,7 +1384,8 @@ def bulk_print(request):
         'student__id',
         'num_pages',
         'barcode_base',
-        'barcode_num_pages'
+        'barcode_num_pages',
+        'scan_file'
     )
 
     paginator = Paginator(all_docs, 50)
@@ -1415,6 +1416,7 @@ def bulk_print(request):
 
     return render(request, 'ipho_exam/bulk_print.html',
             {
+                'messages'    : messages,
                 'exams'       : exams,
                 'exam'        : exam,
                 'delegations' : delegations,
@@ -1422,5 +1424,6 @@ def bulk_print(request):
                 'queue_list'  : queue_list,
                 'docs_list'   : docs_list,
                 'all_pages'   : range(1,paginator.num_pages+1),
+                'form': form,
                 'this_url_builder'    : url_builder(reverse('exam:bulk-print'), request.GET),
             })
