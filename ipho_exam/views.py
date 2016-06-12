@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Max
 
 from copy import deepcopy
 from collections import OrderedDict
@@ -22,7 +22,7 @@ import itertools
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
@@ -1358,22 +1358,29 @@ def bulk_print(request):
     form = PrintDocsForm(request.POST or None, queue_list=queue_list)
     if form.is_valid():
         tot_printed = 0
-        for pk in request.POST.get('printouts[]', []):
+        for pk in request.POST.getlist('printouts[]', []):
             d = get_or_none(Document, pk=pk)
             if d is not None:
                 status = printer.send2queue(d.file, form.cleaned_data['queue'], user=request.user)
                 tot_printed += 1
-        for pk in request.POST.get('scans[]', []):
+                l = PrintLog(document=d, type='P')
+                l.save()
+        for pk in request.POST.getlist('scans[]', []):
             d = get_or_none(Document, pk=pk)
             if d is not None:
                 status = printer.send2queue(d.scan_file, form.cleaned_data['queue'], user=request.user)
                 tot_printed += 1
+                l = PrintLog(document=d, type='S')
+                l.save()
         messages.append(('alert-success', '<strong>Success</strong> {} print job submitted. Please pickup your document at the printing station.'.format(tot_printed)))
 
 
     all_docs = Document.objects.filter(
         student__delegation=filter_dg,
         exam=filter_ex
+    ).annotate(
+        last_print_p=Max('printlog__timestamp'),
+        last_print_s=Max('printlog__timestamp'),
     ).values(
         'pk',
         'exam__name',
@@ -1385,7 +1392,9 @@ def bulk_print(request):
         'num_pages',
         'barcode_base',
         'barcode_num_pages',
-        'scan_file'
+        'scan_file',
+        'last_print_p',
+        'last_print_s'
     )
 
     paginator = Paginator(all_docs, 50)

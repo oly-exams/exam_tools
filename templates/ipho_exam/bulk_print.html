@@ -87,7 +87,7 @@
             <td>{{ d.num_pages }}</td>
             <td>{{ d.barcode_base }}</td>
             <td>{{ d.barcode_num_pages }}</td>
-            <td>{# {{ d.last_print }} #}</td>
+            <td>{{ d.last_print_p|default:'-' }}</td>
             <td>
               <input type="checkbox" name="printouts[]" value="{{ d.pk }}" />
               <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>

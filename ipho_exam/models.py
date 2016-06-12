@@ -391,3 +391,12 @@ class DocumentTask(models.Model):
     document = models.OneToOneField(Document)
     def __unicode__(self):
         return u'{} --> {}'.format(self.task_id, self.document)
+
+class PrintLog(models.Model):
+    TYPE_CHOICES = (('P', 'Printout'), ('S', 'Scan'))
+    document = models.ForeignKey(Document)
+    type = models.CharField(max_length=1, choices=TYPE_CHOICES)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return u'{}-{} ({}) {}'.format(self.document.exam.code, self.document.position, self.type, self.timestamp)
