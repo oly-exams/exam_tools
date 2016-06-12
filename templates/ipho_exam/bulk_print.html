@@ -19,6 +19,10 @@
 {% block pageheader %}<h1>Bulk print</h1>{% endblock %}
 
 {% block exam-content %}
+<p class="lead">
+View and print individual documents, or select and print in bulk.
+</p>
+
 <div id="alerts-container">
 {% for class, msg in messages %}
 <div class="alert {{ class }} alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>{{ msg|safe }}</div>
