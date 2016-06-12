@@ -38,6 +38,7 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^pdf/exam/(?P<exam_id>\d+)/student/(?P<student_id>\d+)$', 'pdf_exam_for_student', name='pdf-exam-student'),
     url(r'^pdf/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)$', 'pdf_exam_pos_student', name='pdf-exam-pos-student'),
     url(r'^pdf/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)/status$', 'pdf_exam_pos_student_status', name='pdf-exam-pos-student-status'),
+    url(r'^print/(?P<type>\w)/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)/queue/(?P<queue>.+)$', 'print_doc', name='print-doc'),
 
     url(r'^pdf-task/(?P<token>[0-9a-z\-]+)$', 'pdf_task', name='pdf-task'),
     url(r'^pdf-task/(?P<token>[0-9a-z\-]+)/status$', 'task_status', name='pdf-task-status'),
@@ -73,6 +74,8 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^admin/submissions/list/(?P<exam_id>\d+)$', 'admin_submission_list', name='admin-submission-list'),
     url(r'^admin/submissions/assign/(?P<exam_id>\d+)$', 'admin_submission_assign', name='admin-submission-assign'),
     url(r'^admin/submissions/(?P<submission_id>\d+)/delete$', 'admin_submission_delete', name='admin-submission-delete'),
+
+    url(r'^admin/bulk-print/?$', 'bulk_print', name='bulk-print'),
 
     url(r'^test/', include('ipho_exam.urls_test', namespace='test')),
 
