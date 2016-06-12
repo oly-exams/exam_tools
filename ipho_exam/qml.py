@@ -682,7 +682,7 @@ class QMLtable(QMLobject):
     
     def tex_begin(self):
         return (
-            u'\\begin{tabular}{' + u'|' * int(self.attributes['left_line']) +
+            u'\\begin{center}\\begin{tabular}{' + u'|' * int(self.attributes['left_line']) +
             (int(self.attributes['grid_lines']) * u'|').join(
                 [u'l'] * int(self.attributes['width'])
             ) +
@@ -691,7 +691,7 @@ class QMLtable(QMLobject):
         )
         
     def tex_end(self):
-        return u'\\end{tabular}'
+        return u'\\end{tabular}\\end{center}\n\n'
     
 class QMLtableRow(QMLobject):
     abbr = "rw"
@@ -719,6 +719,24 @@ class QMLtableCell(QMLobject):
     
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
+        
+class QMLtableCaption(QMLobject):
+    abbr = "tc"
+    tag  = "tablecaption"
+    default_heading = "Table Caption"
+
+    has_text = True
+    has_children = False
+
+    def form_element(self):
+        return forms.CharField(widget=forms.Textarea)
+        
+    def tex_begin(self):
+        return u'\\begin{center}\n'
+        
+    def tex_end(self):
+        return u'\\end{center}\n\n'
+    
 
 class QMLException(Exception):
     pass
