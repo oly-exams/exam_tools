@@ -269,7 +269,7 @@ class PrintDocsForm(forms.Form):
         self.helper.layout = Layout(
             Field('queue'),
             FormActions(
-                Submit('submit', 'Submit')
+                Submit('submit', 'Print')
             )
         )
 
