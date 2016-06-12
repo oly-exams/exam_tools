@@ -1200,8 +1200,12 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
 
 @login_required
-def compiled_question(request, question_id, lang_id, raw_tex=False):
-    trans = qquery.latest_version(question_id, lang_id)
+def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False):
+    if version_num is not None and request.user.has_perm('ipho_core.is_staff'):
+        trans = qquery.get_version(question_id, lang_id, version_num)
+    else:
+        trans = qquery.latest_version(question_id, lang_id)
+
     filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
 
     if trans.lang.is_pdf:
