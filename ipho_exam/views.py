@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
-from django.db.models import Q, Count, Max
+from django.db.models import Q, Count, Max, Case, When, F
 
 from copy import deepcopy
 from collections import OrderedDict
@@ -1379,8 +1379,12 @@ def bulk_print(request):
         student__delegation=filter_dg,
         exam=filter_ex
     ).annotate(
-        last_print_p=Max('printlog__timestamp'),
-        last_print_s=Max('printlog__timestamp'),
+        last_print_p=Max(
+            Case(When(printlog__type='P', then=F('printlog__timestamp')))
+        ),
+        last_print_s=Max(
+            Case(When(printlog__type='S', then=F('printlog__timestamp')))
+        ),
     ).values(
         'pk',
         'exam__name',

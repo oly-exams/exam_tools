@@ -73,9 +73,10 @@
           <th>Num pages</th>
           <th>Barcode</th>
           <th>Num Barcode</th>
-          <th>Last print</th>
           <th>Printouts</th>
+          <th>Last print</th>
           <th>Scans</th>
+          <th>Last print</th>
       </tr>
       <tbody>
         {% for d in docs_list %}
@@ -87,10 +88,10 @@
             <td>{{ d.num_pages }}</td>
             <td>{{ d.barcode_base }}</td>
             <td>{{ d.barcode_num_pages }}</td>
-            <td>{{ d.last_print_p|default:'-' }}</td>
-            <td>
-              <input type="checkbox" name="printouts[]" value="{{ d.pk }}" />
+            <td align="center">
               <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+              <br />
+              <input type="checkbox" name="printouts[]" value="{{ d.pk }}" />
               <div class="btn-group">
                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
                   <i class="fa fa-print"></i>
@@ -103,10 +104,12 @@
                 </ul>
               </div>
             </td>
-            <td>
+            <td>{{ d.last_print_p|date:"SHORT_DATETIME_FORMAT" }}</td>
+            <td align="center">
               {% if d.scan_file %}
-                <input type="checkbox" name="scans[]" value="{{ d.pk }}" />
                 <a class="btn btn-default btn-xs" href="#"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <br />
+                <input type="checkbox" name="scans[]" value="{{ d.pk }}" />
                 <div class="btn-group">
                   <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
                     <i class="fa fa-print"></i>
@@ -120,6 +123,7 @@
                 </div>
               {% endif %}
             </td>
+            <td>{{ d.last_print_s|date:"SHORT_DATETIME_FORMAT" }}</td>
           </tr>
         {% endfor %}
       </tbody>
