@@ -625,11 +625,16 @@ class QMLlistitem(QMLobject):
         return forms.CharField(widget=forms.Textarea)
 
     def tex_begin(self):
-        return u'\\item '
+        texout = u'\\item'
+        try:
+            texout += u'[]'.format(self.attributes['label'])
+        except KeyError:
+            pass
+        texout += u' '
+        return texout
 
     def make_xhtml(self):
         return u'<li>{}</li>'.format(data2xhtml(self.data)), []
-
 
 class QMLlatex(QMLobject):
     abbr = "tx"
