@@ -609,24 +609,6 @@ class QMLlist(QMLobject):
     def xhtml_end(self):
         return u'</ul>'
 
-class QMLenumeration(QMLobject):
-    abbr = "en"
-    tag  = "enumerate"
-    default_heading = "Numbered list"
-
-    has_text = False
-    has_children = True
-
-    def tex_begin(self):
-        return u'\\begin{enumerate}\n'
-    def tex_end(self):
-        return u'\\end{enumerate}\n\n'
-
-    #~ def xhtml_begin(self):
-        #~ return u'<ul>'
-    #~ def xhtml_end(self):
-        #~ return u'</ul>'
-
 
 class QMLlistitem(QMLobject):
     abbr = "li"
@@ -643,11 +625,16 @@ class QMLlistitem(QMLobject):
         return forms.CharField(widget=forms.Textarea)
 
     def tex_begin(self):
-        return u'\\item '
+        texout = u'\\item'
+        try:
+            texout += u'[]'.format(self.attributes['label'])
+        except KeyError:
+            pass
+        texout += u' '
+        return texout
 
     def make_xhtml(self):
         return u'<li>{}</li>'.format(data2xhtml(self.data)), []
-
 
 class QMLlatex(QMLobject):
     abbr = "tx"
