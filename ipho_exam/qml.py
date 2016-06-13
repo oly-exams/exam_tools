@@ -609,6 +609,24 @@ class QMLlist(QMLobject):
     def xhtml_end(self):
         return u'</ul>'
 
+class QMLenumeration(QMLobject):
+    abbr = "en"
+    tag  = "enumerate"
+    default_heading = "Numbered list"
+
+    has_text = False
+    has_children = True
+
+    def tex_begin(self):
+        return u'\\begin{enumerate}\n'
+    def tex_end(self):
+        return u'\\end{enumerate}\n\n'
+
+    #~ def xhtml_begin(self):
+        #~ return u'<ul>'
+    #~ def xhtml_end(self):
+        #~ return u'</ul>'
+
 
 class QMLlistitem(QMLobject):
     abbr = "li"

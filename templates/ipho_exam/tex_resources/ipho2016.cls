@@ -43,6 +43,7 @@
 
 % Math
 \RequirePackage{amsmath}
+\RequirePackage{amsfonts}
 \RequirePackage[]{unicode-math}
 %\setmathfont{XITS Math}
 
