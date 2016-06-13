@@ -402,6 +402,7 @@ def edit_language(request, lang_id):
 @ensure_csrf_cookie
 def feedbacks_list(request):
     exam_list = Exam.objects.filter(hidden=False, feedback_active=True)
+    delegation = Delegation.objects.get(members=request.user)
 
     if 'exam_id' in request.GET:
         exam = get_object_or_404(Exam, id=request.GET['exam_id'], feedback_active=True)
@@ -415,10 +416,17 @@ def feedbacks_list(request):
              num_unlikes=Sum(
                  Case(When(like__status='U', then=1),
                       output_field=IntegerField())
+             ),
+             delegation_likes=Sum(
+                Case(
+                    When(like__delegation=delegation, then=1),
+                    output_field=IntegerField()
+                )
              )
         ).values(
             'num_likes',
             'num_unlikes',
+            'delegation_likes',
             'pk',
             'question__name',
             'delegation__name',
