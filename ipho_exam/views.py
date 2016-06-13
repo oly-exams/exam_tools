@@ -724,6 +724,7 @@ def admin_editor(request, exam_id, question_id, version_num):
         'content_set' : [q],
         'node_version' : node_version,
         'qml_types' : qml_types,
+        'lang_id': lang_id,
     }
     return render(request, 'ipho_exam/admin_editor.html', context)
 
