@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+      <h1>Downloads</h1>
+    </div>
+
+    <ol class="breadcrumb">
+      {% for p,l in cur_path %}
+      <li><a href="{% url 'download:path' type='d' url=l %}">{{ p|default:'/' }}</a></li>
+      {% endfor %}
+    </ol>
+
+    {% with last=cur_path|last %}
+    <h3>Content of {{ last.0 }}{% if last.0 != '/' %}/{% endif %}</h3>
+    {% endwith %}
+
+    <table class="table table-striped">
+      {% for t,tshort,name,link,fsize in flist %}
+      <tr>
+        <td>
+          <i class="fa fa-{{ t }}"></i>
+          <a href="{% url 'download:path' type=tshort url=link %}">
+          {{ name }}
+          </a>
+          {% if tshort == 'f' %}
+          {{ fsize|filesizeformat }}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+</div> <!-- /container -->
+
+{% endblock %}

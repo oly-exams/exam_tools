@@ -15,10 +15,8 @@ PRINTER_QUEUES = getattr(settings, 'PRINTER_QUEUES')
 
 @login_required
 def main(request):
-    # TODO: check permissions and select printers accordingly
     ctx = RequestContext(request)
     messages = []
-    print printer.allowed_choices(request.user)
     queue_list = printer.allowed_choices(request.user)
     form = PrintForm(request.POST or None, request.FILES or None, queue_list=queue_list)
     if form.is_valid():

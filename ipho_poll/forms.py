@@ -31,6 +31,9 @@ class EndDateForm(ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
                                     Field('end_date', id="modal-datetimepicker"),
+                                    HTML('<div class="quick-end-time" data-min="2"></div>'),
+                                    HTML('<div class="quick-end-time" data-min="5"></div>'),
+                                    HTML('<div class="quick-end-time" data-min="10"></div>'),
                                     )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
@@ -51,7 +54,7 @@ class ChoiceForm(ModelForm):
         widgets = {
             'label': forms.TextInput(attrs={'size':3, 'maxlength':3}),
         }
-        
+
 class ChoiceFormHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super(ChoiceFormHelper, self).__init__(*args, **kwargs)

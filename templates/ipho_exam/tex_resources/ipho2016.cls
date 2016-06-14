@@ -23,6 +23,8 @@
 \geometry{top=3cm}
 \geometry{bottom=2.5cm}
 
+%Paragraph spacing
+\RequirePackage{parskip}
 
 % Font settings
 \RequirePackage{fontspec}
@@ -41,6 +43,7 @@
 
 % Math
 \RequirePackage{amsmath}
+\RequirePackage{amsfonts}
 \RequirePackage[]{unicode-math}
 %\setmathfont{XITS Math}
 
@@ -52,48 +55,36 @@
 
 %Definitions
 \definecolor{color1}{rgb}{0,0,.7}
-\newcounter{qtnum}
-\newcounter{prnum}
-\newcounter{ptnum}
-\newcounter{epsnum}
-\setcounter{prnum}{1}
-\setcounter{epsnum}{0}
-
-
-\newcounter{qtnum2}
-\setcounter{qtnum2}{1}
 
 %Commands
 
-%Problem
+%Problem (QMLquestion)
 \newenvironment{PR}[2]
-      {\ifnum\value{prnum}<2{\setcounter{epsnum}0}\fi{\addtocounter{epsnum}{1}}
-      {\noindent\fontsize{18pt}{16pt}\fontshape{bf}
+      {{\noindent\fontsize{18pt}{16pt}\fontshape{bf}
       \textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}(#2 points)}}}}}
-      {
-      \addtocounter{prnum}{1}\setcounter{ptnum}{0}\setcounter{qtnum}{0}}
 
 
 
 %Part
-\newcommand{\PT}[2]{\vspace{0.3cm}\noindent\addtocounter{ptnum}{1}\setcounter{qtnum}{0}\setcounter{qtnum2}{1}
-    { \hspace*{-3pt}\fontsize{12pt}{14pt}\textcolor{color1}{\textbf{\textenglish{Part \Alph{ptnum}.}~#1 \textenglish{(#2 points)}}}}
+\newcommand{\PT}[2]{\vspace{0.3cm}\noindent
+    { \hspace*{-3pt}\fontsize{12pt}{14pt}\textcolor{color1}{#1 \textenglish{(#2 points)}}}}
     {\vspace{0.1cm}}
-    }
 
 
-%Question
-\newcommand{\QT}[1]{\vspace{0.2cm}\noindent\addtocounter{qtnum}{1}{\bf\Alph{ptnum}\arabic{qtnum}.~(#1 \if#11{pt}\else{pts}\fi)}}
+
+%Question -- no longer used
+\newcommand{\QT}[3]{\vspace{0.2cm}\noindent{\bf\Alph#2\arabic#3.~(#1 \if#11{pt}\else{pts}\fi)}}
 
 
-\newenvironment{QTF}[1]
+%Question (QMLsubquestion)
+\newenvironment{QTF}[3]
 {\def\QTFpoints{#1} %\vspace{0.5em}
 \begin{framed}
    \noindent
    \parbox[t]{.1\textwidth}{
    \hspace{1em}
     % \noindent\bf \Alph{ptnum}\arabic{qtnum2}
-    \begin{english}\noindent\bf \Alph{ptnum}.\arabic{qtnum2}\end{english}
+    \begin{english}\noindent\bf #2.#3\end{english}
  }
  \begin{minipage}[t]{.79\textwidth}}
 {
@@ -103,8 +94,7 @@
 }
 % \vspace{0.5em}
 \end{framed}
-\addtocounter{qtnum2}{1}}
-
+}
 
 % \newenvironment{QTF}[1]
 % {\def\QTFpoints{#1}

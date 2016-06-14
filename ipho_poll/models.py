@@ -72,6 +72,9 @@ class Choice(models.Model):
         return Vote.objects.filter(choice = self).count()
     votes = property(calculateVotes)
 
+    class Meta:
+        ordering = ['label']
+
 class VotingRight(models.Model):
     user = models.ForeignKey(User)
     name = models.CharField(max_length=200)

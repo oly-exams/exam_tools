@@ -1,0 +1,174 @@
+{% extends "ipho_exam/base.html" %}
+{% load static %}
+{% load exam_utils_tags %}
+{% load crispy_forms_tags %}
+
+{% block extra-head %}
+<style>
+.div-inline{
+    display:inline-block;
+}
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="#">Admin</a></li>
+<li class="active">Bulk print</li>
+{% endblock %}
+
+{% block pageheader %}<h1>Bulk print</h1>{% endblock %}
+
+{% block exam-content %}
+<p class="lead">
+View and print individual documents, or select and print in bulk.
+</p>
+
+<div id="alerts-container">
+{% for class, msg in messages %}
+<div class="alert {{ class }} alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>{{ msg|safe }}</div>
+{% endfor %}
+</div>
+
+  <div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if exam %}
+          {{ exam.name }}
+      {% else %}
+          Filter exam
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url ex=None page=1 %}">-- None --</a></li>
+      {% for ex in exams %}
+          <li {% if exam == ex %} class="active" {% endif %}><a href="{% this_url ex=ex.pk page=1 %}">{{ ex.name }}</a></li>
+      {% endfor %}
+        </ul>
+      </div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if delegation %}
+          {{ delegation.name }}
+      {% else %}
+          Filter delegation
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url dg=None page=1 %}">-- None --</a></li>
+      {% for dg in delegations %}
+          <li {% if delegation == dg %} class="active" {% endif %}><a href="{% this_url dg=dg.pk page=1 %}">{{ dg.country }} ({{ dg.name }})</a></li>
+      {% endfor %}
+        </ul>
+      </div>
+
+  </div>
+
+    <form method="POST">
+    <table class="table table-striped">
+      <tr>
+          <th>Exam</th>
+          <th># Question</th>
+          <th>Delegation</th>
+          <th>Student</th>
+          <th>Num pages</th>
+          <th>Barcode</th>
+          <th>Num Barcode</th>
+          <th>Printouts</th>
+          <th>Last print</th>
+          <th>Scans</th>
+          <th>Last print</th>
+      </tr>
+      <tbody>
+        {% for d in docs_list %}
+          <tr>
+            <td>{{ d.exam__name }}</td>
+            <td>{{ d.position }}</td>
+            <td>{{ d.student__delegation__name }}</td>
+            <td>{{ d.student__code }}</td>
+            <td>{{ d.num_pages }}</td>
+            <td>{{ d.barcode_base }}</td>
+            <td>{{ d.barcode_num_pages }}</td>
+            <td align="center">
+              <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+              <br />
+              <input type="checkbox" name="printouts[]" value="{{ d.pk }}" />
+              <div class="btn-group">
+                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                  <i class="fa fa-print"></i>
+                  print <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                  {% for p in queue_list %}
+                  <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position student_id=d.student__id queue=p.0 type='P' %}">{{ p.1 }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </td>
+            <td>{{ d.last_print_p|date:"SHORT_DATETIME_FORMAT" }}</td>
+            <td align="center">
+              {% if d.scan_file %}
+                <a class="btn btn-default btn-xs" href="#"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <br />
+                <input type="checkbox" name="scans[]" value="{{ d.pk }}" />
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-print"></i>
+                    print <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    {% for p in queue_list %}
+                    <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position student_id=d.student__id queue=p.0 type='S' %}">{{ p.1 }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+            </td>
+            <td>{{ d.last_print_s|date:"SHORT_DATETIME_FORMAT" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% crispy form %}
+
+    </form>
+
+    <div class="text-center">
+      <ul class="pagination">
+        {% if docs_list.has_previous %}
+        <li>
+          <a href="{% this_url page=docs_list.previous_page_number %}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="disabled">
+          <a href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {% endif %}
+        {% for page in all_pages %}
+        <li class="{% if page == docs_list.number %}active{% endif %}"><a href="{% this_url page=page %}">{{ page }}</a></li>
+        {% endfor %}
+        {% if docs_list.has_next %}
+        <li>
+          <a href="{% this_url page=docs_list.next_page_number %}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="disabled">
+          <a href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+
+{% endblock %}

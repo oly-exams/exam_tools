@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Max, Case, When, F
 
 from copy import deepcopy
 from collections import OrderedDict
@@ -22,10 +22,12 @@ import itertools
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
+from ipho_exam.response import render_odt_response
+from ipho_print import printer
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -722,6 +724,7 @@ def admin_editor(request, exam_id, question_id, version_num):
         'content_set' : [q],
         'node_version' : node_version,
         'qml_types' : qml_types,
+        'lang_id': lang_id,
     }
     return render(request, 'ipho_exam/admin_editor.html', context)
 
@@ -1198,8 +1201,12 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
 
 @login_required
-def compiled_question(request, question_id, lang_id, raw_tex=False):
-    trans = qquery.latest_version(question_id, lang_id)
+def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False):
+    if version_num is not None and request.user.has_perm('ipho_core.is_staff'):
+        trans = qquery.get_version(question_id, lang_id, version_num)
+    else:
+        trans = qquery.latest_version(question_id, lang_id)
+
     filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
 
     if trans.lang.is_pdf:
@@ -1233,6 +1240,22 @@ def compiled_question(request, question_id, lang_id, raw_tex=False):
         return cached_responses.compile_tex(request, body, ext_resources, filename)
     except pdf.TexCompileException as e:
         return HttpResponse(e.log, content_type="text/plain")
+
+@login_required
+def compiled_question_odt(request, question_id, lang_id, raw_tex=False):
+    trans = qquery.latest_version(question_id, lang_id)
+    filename = u'IPhO16 - {} Q{} - {}.odt'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
+
+    trans_content, ext_resources = trans.qml.make_xhtml()
+    for r in ext_resources:
+        if isinstance(r, tex.FigureExport):
+            r.lang = trans.lang
+    context = {
+                'lang_name'   : u'{} ({})'.format(trans.lang.name, trans.lang.delegation.country),
+                'title'       : u'{} - {}'.format(trans.question.exam.name, trans.question.name),
+                'document'    : trans_content,
+              }
+    return render_odt_response('ipho_exam/odt/exam_question.odt', RequestContext(request,context), filename, ext_resources)
 
 @login_required
 def pdf_exam_for_student(request, exam_id, student_id):
@@ -1308,3 +1331,135 @@ def pdf_task(request, token):
             return HttpResponse(e.log, content_type="text/plain")
         else:
             return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)
+
+
+@permission_required('ipho_core.is_staff')
+def bulk_print(request):
+    messages = []
+
+    exams = Exam.objects.filter(hidden=False)
+    delegations = Delegation.objects.all()
+
+    def get_or_none(model, *args, **kwargs):
+        try:
+            return model.objects.get(*args, **kwargs)
+        except model.DoesNotExist:
+            return None
+
+    filter_ex = exams
+    exam = get_or_none(Exam, id=request.GET.get('ex', None))
+    if exam is not None:
+        filter_ex = exam
+    filter_dg = delegations
+    delegation = get_or_none(Delegation, id=request.GET.get('dg', None))
+    if delegation is not None:
+        filter_dg = delegation
+
+    queue_list = printer.allowed_choices(request.user)
+    form = PrintDocsForm(request.POST or None, queue_list=queue_list)
+    if form.is_valid():
+        tot_printed = 0
+        for pk in request.POST.getlist('printouts[]', []):
+            d = get_or_none(Document, pk=pk)
+            if d is not None:
+                status = printer.send2queue(d.file, form.cleaned_data['queue'], user=request.user)
+                tot_printed += 1
+                l = PrintLog(document=d, type='P')
+                l.save()
+        for pk in request.POST.getlist('scans[]', []):
+            d = get_or_none(Document, pk=pk)
+            if d is not None:
+                status = printer.send2queue(d.scan_file, form.cleaned_data['queue'], user=request.user)
+                tot_printed += 1
+                l = PrintLog(document=d, type='S')
+                l.save()
+        messages.append(('alert-success', '<strong>Success</strong> {} print job submitted. Please pickup your document at the printing station.'.format(tot_printed)))
+
+
+    all_docs = Document.objects.filter(
+        student__delegation=filter_dg,
+        exam=filter_ex
+    ).annotate(
+        last_print_p=Max(
+            Case(When(printlog__type='P', then=F('printlog__timestamp')))
+        ),
+        last_print_s=Max(
+            Case(When(printlog__type='S', then=F('printlog__timestamp')))
+        ),
+    ).values(
+        'pk',
+        'exam__name',
+        'exam__id',
+        'position',
+        'student__delegation__name',
+        'student__code',
+        'student__id',
+        'num_pages',
+        'barcode_base',
+        'barcode_num_pages',
+        'scan_file',
+        'last_print_p',
+        'last_print_s'
+    )
+
+    paginator = Paginator(all_docs, 50)
+
+    page = request.GET.get('page')
+    try:
+        docs_list = paginator.page(page)
+    except PageNotAnInteger:
+        docs_list = paginator.page(1)
+    except EmptyPage:
+        docs_list = paginator.page(paginator.num_pages)
+
+    class url_builder(object):
+        def __init__(self, base_url, get={}):
+            self.url = base_url
+            self.get = get
+        def __call__(self, **kwargs):
+            qdict = QueryDict('', mutable=True)
+            for k,v in self.get.iteritems():
+                qdict[k] = v
+            for k,v in kwargs.iteritems():
+                if v is None:
+                    if k in qdict: del qdict[k]
+                else:
+                    qdict[k] = v
+            url = self.url + '?' + qdict.urlencode()
+            return url
+
+    return render(request, 'ipho_exam/bulk_print.html',
+            {
+                'messages'    : messages,
+                'exams'       : exams,
+                'exam'        : exam,
+                'delegations' : delegations,
+                'delegation'  : delegation,
+                'queue_list'  : queue_list,
+                'docs_list'   : docs_list,
+                'all_pages'   : range(1,paginator.num_pages+1),
+                'form': form,
+                'this_url_builder'    : url_builder(reverse('exam:bulk-print'), request.GET),
+            })
+
+@permission_required('ipho_core.is_staff')
+def print_doc(request, type, exam_id, position, student_id, queue):
+    queue_list = printer.allowed_choices(request.user)
+    if not queue in (q[0] for q in queue_list):
+        raise HttpResponseForbidden('Print queue not allowed.')
+    doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
+
+    if type == 'P':
+        status = printer.send2queue(doc.file, queue, user=request.user)
+        l = PrintLog(document=doc, type='P')
+        l.save()
+    elif doc.scan_file:
+        status = printer.send2queue(doc.scan_file, queue, user=request.user)
+        l = PrintLog(document=doc, type='S')
+        l.save()
+    else:
+        raise Http404('Document type `{}` not found.'.format(type))
+
+    print request.META
+    n = request.META.get('HTTP_REFERER', reverse('exam:bulk-print'))
+    return HttpResponseRedirect(n)
