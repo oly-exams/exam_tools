@@ -80,7 +80,7 @@ class VotingRight(models.Model):
         return self.name
 
 class Vote(models.Model):
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question) #Should be removed
     choice = models.ForeignKey(Choice)
     voting_right = models.ForeignKey(VotingRight)
 
