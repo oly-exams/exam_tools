@@ -115,6 +115,8 @@ def inspect_file(input):
         pages.append((i, page, code))
     return pages
 
+def get_timestamp():
+    return datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
 def main(input):
     pages = inspect_file(input)
@@ -141,17 +143,21 @@ def main(input):
             doc.scan_file = contentfile
             doc.save()
 
-            shutil.copy(input.name, os.path.join(GOOD_OUTPUT_DIR, code+'.pdf'))
+            shutil.copy(input.name, os.path.join(GOOD_OUTPUT_DIR, code+'-'+get_timestamp()+'.pdf'))
 
         except Document.DoesNotExist:
-            shutil.copy(input.name, os.path.join(BAD_OUTPUT_DIR, code+'.pdf'))
-            with open(os.path.join(BAD_OUTPUT_DIR, code+'.pdf.status'), 'w') as f:
+            oname = code+'-'+get_timestamp()+'.pdf'
+            oname = os.path.join(BAD_OUTPUT_DIR, oname)
+            shutil.copy(input.name, oname)
+            with open(oname+'.status', 'w') as f:
                 f.write('DB-ENTRY-NOT-FOUND\n'+code)
             print code, 'Not Found'
 
     if len(basecodes) == 0:
-        shutil.copy(input.name, os.path.join(BAD_OUTPUT_DIR, os.path.basename(input.name)))
-        with open(os.path.join(BAD_OUTPUT_DIR, os.path.basename(input.name)+'.pdf.status'), 'w') as f:
+        oname = os.path.basename(input.name)+'-'+get_timestamp()+'.pdf'
+        oname = os.path.join(BAD_OUTPUT_DIR, oname)
+        shutil.copy(input.name, oname)
+        with open(oname+'.status', 'w') as f:
             f.write('NO-BARCODE')
 
     os.unlink(input.name)
