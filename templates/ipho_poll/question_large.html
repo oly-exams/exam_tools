@@ -4,33 +4,50 @@
 {% load static %}
 
 {% block extra-head %}
+<style>
+  th{
+    font-family: Arial;
+    font-size: 25pt;
+  }
+  td{
+    font-family: Arial;
+    font-size: 25pt;
+  }
+  /*.large{
+    font-family: Arial;
+    font-size: 50pt;
+  }*/
+
+</style>
 {% endblock %}
 
 {% block content %}
 
 <div class="container">
 
-    <div class="jumbotron with-logo">
+    <div class="jumbotron">
         <h1>{{ question }}</h1>
-        <p>
-            {{ question.content }}
+        <p style="font-size: 20pt">
+            {{ question.content|safe }}
         </p>
+        {% if status == 'open' %}
+            <p style="font-size: 20pt">Remaining Time: <span class="countdown" data-end-date="{{ question.end_date.isoformat }}"></span></p>
+        {% endif %}
     </div>
 
-    <!-- <p>Status: {{ status }}</p> -->
 
 
-    <div class="parent">
+    <!-- <div class="parent">
         <button id="reload" title="Refresh" type="button" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-    </div>
+    </div> -->
+
 
     <div class="panel panel-default">
-        <div class="panel-heading"><h2>Choices Legend</h2></div>
         <table id="drafted-questions-table" class="table table-striped">
             <tr>
                 <th></th>
-                <th>Choice Text</th>
-                <th>Total Votes</th>
+                <th>Choice</th>
+                <th>{% if status == 'closed' %}Votes{% endif %}</th>
             </tr>
 
                 {% for choice in choices %}
@@ -40,7 +57,9 @@
                             {{ choice.choice_text }}
                         </td>
                         <td class="col-md-2">
+                            {% if status == 'closed' %}
                             {{ choice.votes }}
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
