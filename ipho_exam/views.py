@@ -1,5 +1,5 @@
 # coding=utf-8
-from django.shortcuts import get_object_or_404, render_to_response, render
+from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
 from django.http.request import QueryDict
 
@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
-from django.db.models import Q, Count, Max, Case, When, F
+from django.db.models import Q, Count, Sum, Case, When, IntegerField, F
 
 from copy import deepcopy
 from collections import OrderedDict
@@ -22,7 +22,7 @@ import itertools
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
@@ -404,10 +404,43 @@ def edit_language(request, lang_id):
 @ensure_csrf_cookie
 def feedbacks_list(request):
     exam_list = Exam.objects.filter(hidden=False, feedback_active=True)
+    delegation = Delegation.objects.get(members=request.user)
 
     if 'exam_id' in request.GET:
         exam = get_object_or_404(Exam, id=request.GET['exam_id'], feedback_active=True)
-        feedbacks = Feedback.objects.filter(question__exam=request.GET['exam_id']).order_by('-timestamp')
+        feedbacks = Feedback.objects.filter(
+            question__exam=request.GET['exam_id']
+        ).annotate(
+             num_likes=Sum(
+                 Case(When(like__status='L', then=1),
+                      output_field=IntegerField())
+             ),
+             num_unlikes=Sum(
+                 Case(When(like__status='U', then=1),
+                      output_field=IntegerField())
+             ),
+             delegation_likes=Sum(
+                Case(
+                    When(like__delegation=delegation, then=1),
+                    output_field=IntegerField()
+                )
+             )
+        ).values(
+            'num_likes',
+            'num_unlikes',
+            'delegation_likes',
+            'pk',
+            'question__name',
+            'delegation__name',
+            'delegation__country',
+            'status',
+            'timestamp',
+            'part',
+            'comment'
+        ).order_by('-timestamp')
+        choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
+        for fb in feedbacks:
+            fb['status_display'] = choices[fb['status']]
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
                     'feedbacks' : feedbacks,
@@ -444,6 +477,13 @@ def feedbacks_add(request, exam_id):
                 'submit'  : 'Submit',
                 'success' : False,
             })
+
+@login_required
+def feedback_like(request, status, feedback_id):
+    feedback = get_object_or_404(Feedback, pk=feedback_id, question__exam__feedback_active=True)
+    delegation = Delegation.objects.get(members=request.user)
+    Like.objects.get_or_create(feedback=feedback, delegation=delegation, defaults={'status': status})
+    return redirect('exam:feedbacks-list')
 
 
 @permission_required('ipho_core.is_staff')
