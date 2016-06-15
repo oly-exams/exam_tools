@@ -96,6 +96,9 @@
 \end{framed}
 }
 
+% change font with the \text command
+\renewcommand{\text}{\textrm}
+
 % \newenvironment{QTF}[1]
 % {\def\QTFpoints{#1}
 % \tabularx{\textwidth}{|l|p{.8\textwidth}|r|} \hline
