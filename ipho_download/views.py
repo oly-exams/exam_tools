@@ -16,7 +16,7 @@ def main(request, type, url):
     basedir = os.path.join(MEDIA_ROOT,'downloads')
     path = os.path.join(basedir,url)
     rel_url = os.path.relpath(path, basedir)
-    if rel_url[0] == '.':
+    if rel_url[0] == '.' and '/' in rel_url:
         raise Http404('File path not valid.')
     if not os.path.exists(path):
         raise Http404('File not found.')
