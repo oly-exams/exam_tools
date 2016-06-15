@@ -109,17 +109,6 @@ $(function() {
                 content.find('.panel-collapse').addClass('in');
             }
             exam_tbody.html(content);
-            exam_tbody.sortable({
-                handle: '.handle',
-                update: function(event, ui) {
-                    var serial = exam_tbody.sortable('serialize', {expression: /(.+)[-](.+)/});
-                    $.ajax({
-                        url: data['sort_url'],
-                        method: "POST",
-                        data: serial
-                    });
-                },
-            }).disableSelection();
             exam_tbody.find('[data-action="new-version"]').on('click', function(evt) {
                 evt.preventDefault();
                 var button = $(this);
