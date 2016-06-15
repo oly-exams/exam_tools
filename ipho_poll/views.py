@@ -245,6 +245,18 @@ def setEndDate(request, question_pk):
         else:
             raise Http404("Action not allowed")
 
+@login_required
+@permission_required('iphoperm.is_staff')
+@ensure_csrf_cookie
+def removeEndDate(request, question_pk):
+    question = get_object_or_404(Question, pk=question_pk)
+    if not question.is_open():
+        raise Http404("Action not allowed")
+    else:
+        Vote.objects.filter(choice__question=question).delete()
+        question.end_date = None
+        question.save()
+        return HttpResponseRedirect(reverse('poll:staffIndex'))
 
 
 
@@ -252,7 +264,6 @@ def setEndDate(request, question_pk):
 
 
 @login_required
-
 @ensure_csrf_cookie
 def voterIndex(request):
     user = request.user
