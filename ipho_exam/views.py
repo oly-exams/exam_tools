@@ -599,7 +599,6 @@ def admin_list(request):
     if request.is_ajax and 'exam_id' in request.GET:
         exam = get_object_or_404(Exam, id=request.GET['exam_id'])
         return JsonResponse({
-                    'sort_url' : reverse('exam:admin-sort', args=[exam.pk]),
                     'content'  : render_to_string('ipho_exam/partials/admin_exam_tbody.html', {'exam': exam}),
                 })
     else:
@@ -608,15 +607,6 @@ def admin_list(request):
                 {
                     'exam_list' : exam_list,
                 })
-@permission_required('ipho_core.is_staff')
-def admin_sort(request, exam_id):
-    if not request.is_ajax:
-        raise Exception('TODO: implement small template page for handling without Ajax.')
-    for position, question_id in enumerate(request.POST.getlist('ex{}_q[]'.format(exam_id))):
-        question = get_object_or_404(Question, pk=int(question_id))
-        question.position = position
-        question.save()
-    return HttpResponse('')
 
 @permission_required('ipho_core.is_staff')
 def admin_new_version(request, exam_id, question_id):
