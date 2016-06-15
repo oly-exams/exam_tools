@@ -123,7 +123,7 @@ body { margin-bottom: 70px; }
     <div class="navbar navbar-default navbar-fixed-bottom">
       <div class="container">
         <div class="navbar-right">
-            <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
+            <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf-version' question_id=question.pk lang_id=lang_id version_num=node_version %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
             {# <button type="button" class="btn btn-default navbar-btn"><i class="fa fa-fw fa-unlock"></i> Lock</button>#}
             <a type="submit" class="btn btn-primary navbar-btn" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node_version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> Accept</a>
         </div>
@@ -131,6 +131,8 @@ body { margin-bottom: 70px; }
     </div>
 </form>
 </div> <!-- /container -->
+
+<div style="height:600px"></div> <!-- /whitespace -->
 
 {% endblock %}
 

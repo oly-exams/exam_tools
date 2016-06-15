@@ -65,6 +65,7 @@
               {% if not DEMO_MODE %}
               <li><a href="{% url 'marking:delegation-summary' %}">Results</a></li>
               <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
+              <li><a href="{% url 'download:main' %}">Downloads</a></li>
               <li><a href="{% url 'print:main' %}">Print</a></li>
               {% endif %}
 
@@ -78,6 +79,9 @@
                   <li class="divider"></li>
                   <li class="dropdown-header">Voting</li>
                   <li><a href="{% url 'poll:staffIndex' %}">Voting management</a></li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header">Printing</li>
+                  <li><a href="{% url 'exam:bulk-print' %}">Bulk print</a></li>
                   <li class="divider"></li>
                   <li class="dropdown-header">Marking</li>
                   <li><a href="{% url 'marking:import-exam' %}">Import exam</a></li>

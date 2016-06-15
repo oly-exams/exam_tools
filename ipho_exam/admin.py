@@ -6,7 +6,7 @@ from ipho_exam.widgets import AceWidget
 # Register your models here.
 
 class VersionNodeAdminForm(forms.ModelForm):
-    text = forms.CharField(widget=AceWidget(mode='xml', width='100%'))
+    text = forms.CharField(widget=AceWidget(mode='xml', wordwrap=True, width='100%'))
     class Meta:
         model = VersionNode
         fields = '__all__'
@@ -14,7 +14,7 @@ class VersionNodeAdminForm(forms.ModelForm):
         #     'body':AceWidget()
         # }
 class FigureAdminForm(forms.ModelForm):
-    content = forms.CharField(widget=AceWidget(mode='xml', width='100%'))
+    content = forms.CharField(widget=AceWidget(mode='xml', wordwrap=True, width='100%'))
     class Meta:
         model = Figure
         fields = '__all__'

@@ -24,6 +24,7 @@ python-virtualenv
 python-pip
 mercurial
 libffi-dev
+libzbar-dev
 python-cairosvg
 texlive
 texlive-xetex

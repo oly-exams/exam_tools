@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ipho_core', '0008_auto_20160528_1544'),
-        ('ipho_exam', '0049_auto_20160531_1923'),
+        ('ipho_exam', '0051_auto_20160612_1348'),
     ]
 
     operations = [

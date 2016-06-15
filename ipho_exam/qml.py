@@ -85,6 +85,11 @@ def data2tex(data):
         raise e
     return tex.html2tex(cont_xml)
 
+def data2xhtml(data):
+    xhtmlout = unescape_entities(data)
+    xhtmlout = escape_equations(xhtmlout)
+    return xhtmlout
+
 def canonical_name(qobj):
     if qobj.default_heading is not None:
         return qobj.default_heading
@@ -240,6 +245,24 @@ class QMLobject(object):
         texout += self.tex_end()
         return texout, externals
 
+    def xhtml_begin(self):
+        return ''
+    def xhtml_end(self):
+        return ''
+    def make_xhtml(self):
+        externals = []
+        xhtmlout = self.xhtml_begin()
+        if self.__class__.has_text:
+            xhtmlout += data2xhtml(self.data)
+        for c in self.children:
+            (xhtmlchild, extchild) = c.make_xhtml()
+            externals += extchild
+            xhtmlout  += xhtmlchild
+
+        xhtmlout += self.xhtml_end()
+        return xhtmlout, externals
+
+
     def heading(self):
         return self.attributes['heading'] if 'heading' in self.attributes else self.default_heading
 
@@ -357,15 +380,21 @@ class QMLsubquestion(QMLobject):
     has_text = False
     has_children = True
 
-    default_attributes = {'points': ''}
+    default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
 
     def heading(self):
         return 'Subquestion, %spt' % self.attributes['points']
 
     def tex_begin(self):
-        return u'\\begin{QTF}{%s}\n' % self.attributes['points']
+        return u'\\begin{QTF}{%s}{%s}{%s}\n' % (
+            self.attributes['points'], 
+            self.attributes['part_nr'], 
+            self.attributes['question_nr']
+        )
     def tex_end(self):
         return '\\end{QTF}\n\n'
+    def xhtml_begin(self):
+        return u'<h4>Subquestion ({} pt)</h4>'.format(self.attributes['points'])
 
 
 class QMLtitle(QMLobject):
@@ -379,6 +408,10 @@ class QMLtitle(QMLobject):
     def make_tex(self):
         return '',[]
 
+    def make_xhtml(self):
+        return u'<h1>{}</h1>'.format(data2xhtml(self.data)), []
+
+
 class QMLsection(QMLobject):
     abbr = "sc"
     tag  = "section"
@@ -391,6 +424,9 @@ class QMLsection(QMLobject):
         return u'\\subsubsection*{'
     def tex_end(self):
         return '}\n\n'
+
+    def make_xhtml(self):
+        return u'<h3>{}</h3>'.format(data2xhtml(self.data)), []
 
 class QMLpart(QMLobject):
     abbr = "pt"
@@ -406,6 +442,9 @@ class QMLpart(QMLobject):
     def tex_end(self):
         return '}{%s}\n\n' % self.attributes['points']
 
+    def make_xhtml(self):
+        return u'<h2>{} ({} points)</h2>'.format(data2xhtml(self.data), self.attributes['points']), []
+
 class QMLparagraph(QMLobject):
     abbr = "pa"
     tag  = "paragraph"
@@ -417,6 +456,10 @@ class QMLparagraph(QMLobject):
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
 
+    def xhtml_begin(self):
+        return u'<p>'
+    def xhtml_end(self):
+        return u'</p>'
 
 class QMLfigure(QMLobject):
     abbr = "fi"
@@ -426,6 +469,8 @@ class QMLfigure(QMLobject):
     has_text = False
     has_children = True
     lang = None
+
+    default_attributes = {'figid': ''}
 
     def fig_query(self):
         query = {}
@@ -479,7 +524,7 @@ class QMLfigure(QMLobject):
         texout = u''
         texout += u'\\begin{center}\n'
         texout += u'\\includegraphics[width={}\\textwidth]{{{}}}\n'.format(width, figname)
-        if len(fig_caption) > 0: 
+        if len(fig_caption) > 0:
             texout += u'\\newline %s\n' % fig_caption
         texout += u'\end{center}\n\n'
 
@@ -487,6 +532,23 @@ class QMLfigure(QMLobject):
 
         return texout, externals
 
+    def make_xhtml(self):
+        figname = 'fig_{}.png'.format(self.id)
+
+        fig_caption = ''
+        for c in self.children:
+            if c.tag == 'caption':
+                caption_text = data2xhtml(c.data)
+                fig_caption += caption_text
+
+        width = self.attributes.get('width', 0.9) # 0.9 is the default value
+
+        xhtmlout = u'<img src="{}" />\n'.format(figname)
+        if len(fig_caption) > 0:
+            xhtmlout += u'<div>{}</div>\n'.format(fig_caption)
+
+        externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
+        return xhtmlout, externals
 
 class QMLfigureText(QMLobject):
     abbr = "pq"
@@ -542,6 +604,11 @@ class QMLlist(QMLobject):
     def tex_end(self):
         return u'\\end{itemize}\n\n'
 
+    def xhtml_begin(self):
+        return u'<ul>'
+    def xhtml_end(self):
+        return u'</ul>'
+
 
 class QMLlistitem(QMLobject):
     abbr = "li"
@@ -558,8 +625,16 @@ class QMLlistitem(QMLobject):
         return forms.CharField(widget=forms.Textarea)
 
     def tex_begin(self):
-        return u'\\item '
+        texout = u'\\item'
+        try:
+            texout += u'[]'.format(self.attributes['label'])
+        except KeyError:
+            pass
+        texout += u' '
+        return texout
 
+    def make_xhtml(self):
+        return u'<li>{}</li>'.format(data2xhtml(self.data)), []
 
 class QMLlatex(QMLobject):
     abbr = "tx"
@@ -592,6 +667,81 @@ class QMLlatexParam(QMLobject):
 
     default_attributes = {'name': 'tba'}
 
+class QMLtable(QMLobject):
+    abbr = "tb"
+    tag = "table"
+    default_heading = 'Table'
+    
+    has_text = False
+    has_children = True
+    
+    default_attributes = {
+        'width': '', 
+        'top_line': '1', 
+        'left_line': '1', 
+        'right_line': '1',
+        'grid_lines': '1',
+    }
+    
+    
+    
+    def tex_begin(self):
+        return (
+            u'\\begin{center}\\begin{tabular}{' + u'|' * int(self.attributes['left_line']) +
+            (int(self.attributes['grid_lines']) * u'|').join(
+                [u'l'] * int(self.attributes['width'])
+            ) +
+            u'|' * int(self.attributes['right_line']) + u'}' +
+            int(self.attributes['top_line']) * u'\\hline' + u'\n'
+        )
+        
+    def tex_end(self):
+        return u'\\end{tabular}\\end{center}\n\n'
+    
+class QMLtableRow(QMLobject):
+    abbr = "rw"
+    tag = "row"
+    default_heading = 'Row'
+    
+    has_text = False
+    has_children = True
+    
+    default_attributes = {'bottom_line': '1'}
+    
+    def make_tex(self):
+        texout = u''
+        texout += u' & '.join(data2tex(c.data) for c in self.children)
+        texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
+        return texout, []
+        
+class QMLtableCell(QMLobject):
+    abbr = "ce"
+    tag = "cell"
+    default_heading = None
+    
+    has_text = True
+    has_children = False
+    
+    def form_element(self):
+        return forms.CharField(widget=forms.Textarea)
+        
+class QMLtableCaption(QMLobject):
+    abbr = "tc"
+    tag  = "tablecaption"
+    default_heading = "Table Caption"
+
+    has_text = True
+    has_children = False
+
+    def form_element(self):
+        return forms.CharField(widget=forms.Textarea)
+        
+    def tex_begin(self):
+        return u'\\begin{center}\n'
+        
+    def tex_end(self):
+        return u'\\end{center}\n\n'
+    
 
 class QMLException(Exception):
     pass

@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipho_exam', '0050_like'),
+        ('ipho_exam', '0052_like'),
     ]
 
     operations = [
