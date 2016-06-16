@@ -39,7 +39,7 @@
 \RequirePackage{fancyhdr}
 \renewcommand{\headrulewidth}{2pt}
 \pagestyle{fancy}
-\fancyhf[FC]{\textenglish{\thepage}}
+\fancyhf[FC]{\thepage}
 
 % Math
 \RequirePackage{amsmath}
