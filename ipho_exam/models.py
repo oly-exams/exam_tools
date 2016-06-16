@@ -322,7 +322,12 @@ class Like(models.Model):
     class Meta:
         unique_together = ('delegation', 'feedback')
 
+class ExamActionManager(models.Manager):
+    def get_by_natural_key(self, exam_name, delegation_name, action):
+        return self.get(exam__name=exam_name, delegation__name=delegation_name, action=action)
 class ExamAction(models.Model):
+    objects = ExamActionManager()
+
     OPEN = 'O'
     SUBMITTED = 'S'
     STATUS_CHOICES = (
@@ -343,6 +348,11 @@ class ExamAction(models.Model):
 
     class Meta:
         unique_together = (('exam', 'delegation', 'action'),)
+
+    def natural_key(self):
+        return self.exam.natural_key() + self.delegation.natural_key() + (self.action,)
+    natural_key.dependencies = ['ipho_exam.exam', 'ipho_core.delegation']
+
 
 @receiver(post_save, sender=Exam, dispatch_uid='create_actions_on_exam_creation')
 def create_actions_on_exam_creation(instance, created, raw, **kwargs):
