@@ -1315,18 +1315,26 @@ def pdf_exam_for_student(request, exam_id, student_id):
     return HttpResponseRedirect(reverse('exam:pdf-task', args=[chord_task.id]))
 
 @login_required
-def pdf_exam_pos_student(request, exam_id, position, student_id):
+def pdf_exam_pos_student(request, exam_id, position, student_id, type='P'):
     exam = get_object_or_404(Exam, id=exam_id)
     student = get_object_or_404(Student, id=student_id)
 
     doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
-    if hasattr(doc, 'documenttask'):
-        task = AsyncResult(doc.documenttask.task_id)
-        return render(request, 'ipho_exam/pdf_task.html', {'task': task})
-    if doc.file:
-        response = HttpResponse(doc.file, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename=%s' % doc.file.name
-        return response
+    if type == 'P': ## for for printouts
+        if hasattr(doc, 'documenttask'):
+            task = AsyncResult(doc.documenttask.task_id)
+            return render(request, 'ipho_exam/pdf_task.html', {'task': task})
+        if doc.file:
+            response = HttpResponse(doc.file, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename=%s' % doc.file.name
+            return response
+    elif type == 'S': ## look for scans
+        if doc.scan_file:
+            response = HttpResponse(doc.scan_file, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename=%s' % doc.scan_file.name
+            return response
+        else:
+            raise Http404('Scan document not found')
 
 @login_required
 def pdf_exam_pos_student_status(request, exam_id, position, student_id):

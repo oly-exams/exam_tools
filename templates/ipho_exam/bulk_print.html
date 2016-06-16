@@ -111,7 +111,7 @@ View and print individual documents, or select and print in bulk.
             <td>{{ d.last_print_p|date:"SHORT_DATETIME_FORMAT" }}</td>
             <td align="center">
               {% if d.scan_file %}
-                <a class="btn btn-default btn-xs" href="#"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
                 <br />
                 <input type="checkbox" name="scans[]" value="{{ d.pk }}" />
                 <div class="btn-group">
