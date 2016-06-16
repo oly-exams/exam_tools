@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
-from django.db.models import Q, Count, Sum, Case, When, IntegerField, F
+from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
 
 from copy import deepcopy
 from collections import OrderedDict
