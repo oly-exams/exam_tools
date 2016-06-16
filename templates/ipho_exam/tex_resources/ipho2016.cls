@@ -58,6 +58,8 @@
 
 %Commands
 
+\setlength{\emergencystretch}{3em}
+
 %Problem (QMLquestion)
 \newenvironment{PR}[2]
       {{\noindent\fontsize{18pt}{16pt}\fontshape{bf}
