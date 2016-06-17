@@ -63,6 +63,11 @@
 
 \setlength{\emergencystretch}{3em}
 
+%Fix font in units
+\newfontfamily\mathunits{latinmodern-math.otf}
+\let\oldtext\text
+\renewcommand{\text}[1]{\oldtext{\mathunits #1}}
+
 %Problem (QMLquestion)
 \newenvironment{PR}[2]
       {{\noindent\fontsize{18pt}{16pt}\fontshape{bf}
