@@ -26,6 +26,9 @@
 %Paragraph spacing
 \RequirePackage{parskip}
 
+%Pbox (for Figure & Table captions)
+\RequirePackage{pbox}
+
 % Font settings
 \RequirePackage{fontspec}
 \RequirePackage{polyglossia}
@@ -96,7 +99,7 @@
 \end{framed}
 }
 
-% change font with the \text command
+% change font family with the \text command
 \renewcommand{\text}{\textrm}
 
 % \newenvironment{QTF}[1]
