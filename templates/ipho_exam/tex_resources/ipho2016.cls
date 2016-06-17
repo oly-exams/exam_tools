@@ -26,6 +26,9 @@
 %Paragraph spacing
 \RequirePackage{parskip}
 
+%Pbox (for Figure & Table captions)
+\RequirePackage{pbox}
+
 % Font settings
 \RequirePackage{fontspec}
 \RequirePackage{polyglossia}

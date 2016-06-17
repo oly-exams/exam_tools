@@ -516,7 +516,7 @@ class QMLfigure(QMLobject):
         for c in self.children:
             if c.tag == 'caption':
                 caption_text = data2tex(c.data)
-                caption_text = caption_text.replace('\n','\\newline\n')
+                #~ caption_text = caption_text.replace('\n','\\newline\n')
                 fig_caption += caption_text
 
         width = self.attributes.get('width', 0.9) # 0.9 is the default value
@@ -524,8 +524,10 @@ class QMLfigure(QMLobject):
         texout = u''
         texout += u'\\begin{center}\n'
         texout += u'\\includegraphics[width={}\\textwidth]{{{}}}\n'.format(width, figname)
+        texout += u'\\\\\\vspace{0.1cm}\n'
         if len(fig_caption) > 0:
-            texout += u'\\newline %s\n' % fig_caption
+            texout += u'\\pbox[b]{\\textwidth}{%s}\n' % fig_caption
+            texout += u'\\vspace{0.1cm}'
         texout += u'\end{center}\n\n'
 
         externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
