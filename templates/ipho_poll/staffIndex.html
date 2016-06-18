@@ -42,29 +42,33 @@
     });
 </script>
 <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="{% static "mathquill_alpha/mathquill.min.js" %}"></script>
 <script src="{% static "ckeditor/ckeditor.js" %}"></script>
 <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
 
 <script>
     CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
+    CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
 
     CKEDITOR.config.toolbar = [
     	{ name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
     	{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ], items: [ 'Scayt' ] },
     	{ name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
+      { name: 'equation', items: ['Mathjax-mathquill']},
     	{ name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
     	{ name: 'tools', items: [ 'Maximize' ] },
     	{ name: 'document', groups: [ 'mode', 'document', 'doctools' ], items: [ 'Source' ] },
     	{ name: 'others', items: [ '-' ] },
     	'/',
-    	{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat' ] },
+    	{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup'], items: [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat' ] },
+    	{ name: 'colors', items: [ 'TextColor', 'BGColor' ] },
     	{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] },
     	{ name: 'styles', items: [ 'Styles', 'Format' ] }
     ];
 
     CKEDITOR.config.forcePasteAsPlainText = true;
     CKEDITOR.config.resize_enabled = false;
-    CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax';
+    CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax-mathquill,colorbutton';
     CKEDITOR.config.removePlugins = 'elementspath,contextmenu,tabletools,liststyle';
     // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
     CKEDITOR.config.width = '100%';
@@ -79,6 +83,9 @@
     CKEDITOR.config.disableNativeSpellChecker = false;
     CKEDITOR.config.autoParagraph = false;
     CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
+    CKEDITOR.config.MathQuillLib = '{% static "mathquill_alpha/mathquill.min.js" %}';
+    CKEDITOR.config.MathQuillCss = '{% static "mathquill_alpha/mathquill.css" %}';
+    CKEDITOR.config.MathQuilljQuery = '{% static "jquery/js/jquery-1.11.2.min.js" %}';
     CKEDITOR.config.jsvk_skin = "flat_gray";
 </script>
 
