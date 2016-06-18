@@ -37,7 +37,7 @@ def import_exam(request):
         num_marking_created = 0
         for question in exam.question_set.filter(type=Question.ANSWER):
             qw = qwquery.latest_version(question_id=question.pk, lang_id=OFFICIAL_LANGUAGE)
-            question_points,_,_ = qml.question_points(qw.qml)
+            question_points = qml.question_points(qw.qml)
             for i,(name, points) in enumerate(question_points):
                 mmeta, created = MarkingMeta.objects.update_or_create(question=question, name=name,
                     defaults={'max_points': points, 'position': i})

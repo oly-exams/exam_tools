@@ -99,21 +99,17 @@ def canonical_name(qobj):
         name = ' '.join([ ni.capitalize() for ni in split_pattern.findall(name) if ni is not None ])
         return name
 
-def question_points(root, part_num=-1, subq_num=0):
+def question_points(root):
     ## This function is not too geenric, but it should fit our needs
     ret = []
-    part_code = lambda num: chr(65+num)
     for obj in root.children:
-        if isinstance(obj, QMLpart):
-            part_num += 1
-            subq_num = 0
         if isinstance(obj, QMLsubquestion):
-            subq_num += 1
-            points = float(obj.attributes['points']) if 'points' in obj.attributes else 0.
-            ret.append(( '{}.{}'.format(part_code(part_num), subq_num), points ))
-        child_points, part_num, subq_num = question_points(obj, part_num, subq_num)
+            points = float(obj.attributes.get('points', 0.))
+            name = '{}.{}'.format(obj.attributes.get('part_nr', ''), obj.attributes.get('question_nr', ''))
+            ret.append(( name, points ))
+        child_points = question_points(obj)
         ret += child_points
-    return ret, part_num, subq_num
+    return ret
 
 class QMLForm(forms.Form):
     def __init__(self, root, initials, *args, **kwargs):
@@ -387,8 +383,8 @@ class QMLsubquestion(QMLobject):
 
     def tex_begin(self):
         return u'\\begin{QTF}{%s}{%s}{%s}\n' % (
-            self.attributes['points'], 
-            self.attributes['part_nr'], 
+            self.attributes['points'],
+            self.attributes['part_nr'],
             self.attributes['question_nr']
         )
     def tex_end(self):
@@ -673,20 +669,20 @@ class QMLtable(QMLobject):
     abbr = "tb"
     tag = "table"
     default_heading = 'Table'
-    
+
     has_text = False
     has_children = True
-    
+
     default_attributes = {
-        'width': '', 
-        'top_line': '1', 
-        'left_line': '1', 
+        'width': '',
+        'top_line': '1',
+        'left_line': '1',
         'right_line': '1',
         'grid_lines': '1',
     }
-    
-    
-    
+
+
+
     def tex_begin(self):
         return (
             u'\\begin{center}\\begin{tabular}{' + u'|' * int(self.attributes['left_line']) +
@@ -696,37 +692,37 @@ class QMLtable(QMLobject):
             u'|' * int(self.attributes['right_line']) + u'}' +
             int(self.attributes['top_line']) * u'\\hline' + u'\n'
         )
-        
+
     def tex_end(self):
         return u'\\end{tabular}\\end{center}\n\n'
-    
+
 class QMLtableRow(QMLobject):
     abbr = "rw"
     tag = "row"
     default_heading = 'Row'
-    
+
     has_text = False
     has_children = True
-    
+
     default_attributes = {'bottom_line': '1'}
-    
+
     def make_tex(self):
         texout = u''
         texout += u' & '.join(data2tex(c.data) for c in self.children)
         texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
         return texout, []
-        
+
 class QMLtableCell(QMLobject):
     abbr = "ce"
     tag = "cell"
     default_heading = None
-    
+
     has_text = True
     has_children = False
-    
+
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
-        
+
 class QMLtableCaption(QMLobject):
     abbr = "tc"
     tag  = "tablecaption"
@@ -737,13 +733,13 @@ class QMLtableCaption(QMLobject):
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
-        
+
     def tex_begin(self):
         return u'\\begin{center}\n'
-        
+
     def tex_end(self):
         return u'\\end{center}\n\n'
-    
+
 
 class QMLException(Exception):
     pass
