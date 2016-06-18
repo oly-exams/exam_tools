@@ -13,8 +13,8 @@ class QuestionAdmin(admin.ModelAdmin):
 					 'classes': ['collapse']}),
     ]
     inlines = [ChoiceInline]
-    list_display = ('title', 'pub_date', 'end_date')
-    list_filter = ['pub_date', 'end_date']
+    list_display = ('title', 'pub_date', 'end_date', 'vote_result', 'implementation')
+    list_filter = ['pub_date', 'end_date', 'vote_result', 'implementation']
     search_fields = ['title', 'content']
 
 class VoteAdmin(admin.ModelAdmin):
