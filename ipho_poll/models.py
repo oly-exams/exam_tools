@@ -25,10 +25,30 @@ class QuestionManager(models.Manager):
 
 
 class Question(models.Model):
+    class VOTE_RESULT_META:
+        OPEN     = 0
+        REJECTED = 1
+        ACCEPTED = 2
+        choices = (
+            (OPEN,     'In progress'),
+            (REJECTED, 'Rejected'),
+            (ACCEPTED, 'Accepted'),
+        )
+    class IMPLEMENTATION_META:
+        NOT_IMPL = 0
+        IMPL     = 1
+        choices = (
+            (NOT_IMPL, 'Not implemented'),
+            (IMPL,     'Implemented'),
+        )
+
+
     title = models.CharField(max_length=200)
     content = models.TextField(blank=True, null=True)
     pub_date = models.DateTimeField('date published', default=timezone.now)
     end_date = models.DateTimeField('end date', blank=True, null=True)
+    vote_result = models.PositiveSmallIntegerField(choices=VOTE_RESULT_META.choices, default=VOTE_RESULT_META.OPEN)
+    implementation = models.PositiveSmallIntegerField(choices=IMPLEMENTATION_META.choices, default=IMPLEMENTATION_META.NOT_IMPL)
     objects = QuestionManager()
     def __str__(self):
         return self.title

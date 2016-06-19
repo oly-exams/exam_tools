@@ -4,6 +4,8 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns('ipho_poll.views',
     # staff urls
     url(r'^staff/$', 'staffIndex', name='staffIndex'),
+    url(r'^staff/question/(?P<question_pk>\d+)/set/result/(?P<result>\d+)$', 'staff_setResult', name='staff-set-result'),
+    url(r'^staff/question/(?P<question_pk>\d+)/set/impl/(?P<impl>\d+)$', 'staff_setImpl', name='staff-set-impl'),
 
     url(r'^question/detail/(?P<question_pk>\d+)/$', 'question', name='question'),
     url(r'^question/large/(?P<question_pk>\d+)/$', 'question_large', name='question_large'),

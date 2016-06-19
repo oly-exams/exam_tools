@@ -1,17 +1,38 @@
 {% load crispy_forms_tags %}
 
-<h2>Closed Votings</h2>
 
 {# list of closed questions #}
 <div class="panel panel-default">
-      <div id="question-list" class="list-group">
+  <div class="panel-heading">
+    <h2>Closed Votings</h2>
+  </div>
+  <div class="panel-body">
+    <div class="list-group">
       {% for question in closed_questions_list %}
-          <li class="list-group-item">
-              {{ question.title }}
-              <a class="btn btn-default btn-sm" href="{% url 'poll:question' question_pk=question.pk %}" title="details"> <i class="fa fa-info fa-fw"></i> </a>
-          </li>
-      {% empty %}
-          <li class="list-group-item">No closed questions.</li>
+      <a class="list-group-item row" href="{% url 'poll:question' question_pk=question.pk %}">
+        <div class="col-md-1">
+          #{{ question.pk }}
+        </div>
+        <div class="col-md-3">
+          {% if question.vote_result == VOTE_ACCEPTED %}
+          <span class="label label-success">Accepted</span>
+          {% elif question.vote_result == VOTE_REJECTED %}
+          <span class="label label-danger">Rejected</span>
+          {% endif %}
+
+          {% if question.implementation == VOTE_IMPLEMENTED %}
+          <span class="label label-info">Implemented</span>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+          {{ question.title }}
+        </div>
+        <div class="col-md-2">
+          <i class="fa fa-info fa-fw"></i>
+          <i class="fa fa-chevron-right"></i>
+        </div>
+      </a>
       {% endfor %}
-      </div>
+    </div>
+  </div>
 </div>

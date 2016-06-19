@@ -12,9 +12,33 @@
     <div class="page-header">
       <h1>{{ question }}</h1>
     </div>
+    <div class="row">
+      <div class="col-sm-4">
+        <h4>Status: {{ status }}</h4>
+      </div>
+      {% if status == 'closed' %}
+      <div class="col-sm-4">
+        <h4>Result</h4>
+        <div class="btn-group">
+          {% for r,label in result_choices %}
+          <a class="btn btn-default {% if question.vote_result == r %}active{% endif %}" href="{% url 'poll:staff-set-result' question_pk=question.pk result=r %}">{{ label }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      {% if question.vote_result == VOTE_ACCEPTED %}
+      <div class="col-sm-4">
+        <h4>Implementation</h4>
+        <div class="btn-group">
+          {% for r,label in implementation_choices %}
+          <a class="btn btn-default {% if question.implementation == r %}active{% endif %}" href="{% url 'poll:staff-set-impl' question_pk=question.pk impl=r %}">{{ label }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    {% endif %}
+    </div>
 
-    <p>Status: {{ status }}</p>
-    <p>Content:</p>
+    <h3>Content:</h3>
     <div>{{ question.content|safe }}</div>
     {% if status == 'open' %}
         <p>Remaining Time: <span class="countdown" data-end-date="{{ question.end_date.isoformat }}"></span></p>
