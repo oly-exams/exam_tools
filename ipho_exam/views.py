@@ -1110,6 +1110,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     form = None
     trans_extra_html = None
     orig_lang = None
+    orig_diff_tag = None
     trans_lang = None
     last_saved = None
 
@@ -1141,7 +1142,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         if orig_lang.versioned:
             orig_node = VersionNode.objects.filter(question=question, language=orig_lang, status='C').order_by('-version')[0]
             orig_lang.version = orig_node.version
-            question_versions = VersionNode.objects.values_list('version', flat=True).order_by('-version').filter(question=question, language=orig_lang, status='C')[1:]
+            orig_lang.tag = orig_node.tag
+            question_versions = VersionNode.objects.values_list('version', 'tag').order_by('-version').filter(question=question, language=orig_lang, status='C')[1:]
         else:
             orig_node = get_object_or_404(TranslationNode, question=question, language=orig_lang)
 
@@ -1153,6 +1155,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             if not vn.language in official_list:
                 official_list.append(vn.language)
                 official_list[-1].version = vn.version
+                official_list[-1].tag = vn.tag
         # official_list += list(Language.objects.filter(translationnode__question=question, delegation__name=OFFICIAL_DELEGATION))
         question_langs.append({'name': 'official', 'order':0, 'list': official_list})
         ## own
@@ -1171,6 +1174,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         if orig_diff is not None:
             if not orig_lang.versioned:
                 raise Exception('Original language does not support versioning.')
+            orig_diff_tag = orig_lang.tag
             orig_diff_node = get_object_or_404(VersionNode, question=question, language=orig_lang, version=orig_diff)
             orig_diff_q = qml.QMLquestion(orig_diff_node.text)
             orig_diff_data = orig_diff_q.get_data()
@@ -1225,6 +1229,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context['question_versions'] = question_versions
     context['own_lang']         = own_lang
     context['orig_lang']        = orig_lang
+    context['orig_diff_tag']    = orig_diff_tag
     context['trans_lang']       = trans_lang
     context['content_set']      = content_set
     context['form']             = form

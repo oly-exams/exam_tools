@@ -32,7 +32,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 class VersionNodeAdmin(admin.ModelAdmin):
     form = VersionNodeAdminForm
-    list_display = ('question', 'language', 'version', 'status', 'timestamp')
+    list_display = ('question', 'language', 'version', 'tag', 'status', 'timestamp')
 
 class TranslationNodeAdmin(admin.ModelAdmin):
     list_display = ('question', 'language', 'status', 'timestamp')

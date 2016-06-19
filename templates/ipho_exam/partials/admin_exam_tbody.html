@@ -21,7 +21,7 @@
             {% for node in question.versionnode_set.all %}
             <tr>
                 <td>
-                    v{{ node.version }}
+                    v{{ node.version }} <span class="label label-default">{{ node.tag|default:'' }}</span>
                 </td>
                 <td>
                     {% if node.status == 'C' %}

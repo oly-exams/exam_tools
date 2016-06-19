@@ -231,7 +231,7 @@ body { margin-bottom: 70px; }
                 <span class="dropdown">
                   <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                     {{ orig_lang.name }}
-                    {% if orig_lang.versioned %}<span class="badge">v{{ orig_lang.version }}</span>{% endif %}
+                    {% if orig_lang.versioned %}<span class="badge">v{{ orig_lang.version }}</span><span class="label label-default">{{ orig_lang.tag|default:'' }}</span>{% endif %}
                     <span class="caret"></span>
                   </a>
                   <ul class="dropdown-menu">
@@ -244,7 +244,7 @@ body { margin-bottom: 70px; }
                                   <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=question.pk orig_id=l.pk %}">
                                   {% endif %}
                                       {{ l.name }} {% if lang_group.name != 'own' %}({{ l.delegation.country }}){% endif %}
-                                      {% if l.versioned %}<span class="badge">v{{ l.version }}</span>{% endif %}
+                                      {% if l.versioned %}<span class="badge">v{{ l.version }}</span><span class="label label-default">{{ l.tag|default:'' }}</span>{% endif %}
                                   </a></li>
                           {% endfor %}
                           {% if not forloop.last %}<li class="divider"></li>{% endif %}
@@ -257,17 +257,19 @@ body { margin-bottom: 70px; }
                     Compare to:
                     <span class="dropdown">
                       <button class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown">
-                        {% if orig_diff %}v{{ orig_diff }}{% endif %}
+                        {% if orig_diff %}v{{ orig_diff }} {{ orig_diff_tag }}{% endif %}
                         <span class="caret"></span>
                       </button>
                       <ul class="dropdown-menu">
-                          {% for v in question_versions %}
+                          {% for v,t in question_versions %}
                               <li {% if orig_diff == v %} class="active" {% endif %}>
                                   {% if trans_lang %}
-                                      <a href="{% url 'exam:editor-origdiff-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v lang_id=trans_lang.pk %}">v{{ v }}</a>
+                                  <a href="{% url 'exam:editor-origdiff-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v lang_id=trans_lang.pk %}">
                                   {% else %}
-                                      <a href="{% url 'exam:editor-origdiff' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v %}">v{{ v }}</a>
+                                  <a href="{% url 'exam:editor-origdiff' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v %}">
                                   {% endif %}
+                                    v{{ v }} {{ t|default:'' }}
+                                  </a>
                               </li>
                           {% endfor %}
                       </ul>

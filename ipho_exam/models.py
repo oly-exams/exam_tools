@@ -122,6 +122,7 @@ class VersionNode(models.Model):
     text      = models.TextField()
     question  = models.ForeignKey(Question)
     version   = models.IntegerField()
+    tag       = models.CharField(max_length=100, null=True, blank=True)
     language  = models.ForeignKey(Language)
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
@@ -134,7 +135,7 @@ class VersionNode(models.Model):
         return self.question.name
 
     def __unicode__(self):
-        return u'vnode: {} [{}, v{}, {}] - {}'.format(self.question.name, self.language, self.version, self.timestamp, self.status)
+        return u'vnode: {} [{}, v{} {}, {}] - {}'.format(self.question.name, self.language, self.version, self.tag, self.timestamp, self.status)
 
     def natural_key(self):
         return (self.version,) + self.question.natural_key() + self.language.natural_key()
