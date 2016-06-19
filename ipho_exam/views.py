@@ -628,6 +628,7 @@ def admin_new_version(request, exam_id, question_id):
 
     if lang.versioned: ## make new version and increase version number
         node.pk = None
+        node.tag = None
         node.version += 1
         node.status = 'P'
     node.save()
