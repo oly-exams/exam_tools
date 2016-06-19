@@ -679,14 +679,14 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
     lang = get_object_or_404(Language, id=lang_id)
 
     if compare_version is None:
-        compare_node = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version')[0]
+        compare_node = VersionNode.objects.filter(question=question, language=lang, status__in=['S','C']).order_by('-version')[0]
         return HttpResponseRedirect(reverse('exam:admin-accept-version-diff',
                                     kwargs=dict( exam_id=exam.pk, question_id=question.pk, version_num=int(version_num),
                                                  compare_version=compare_node.version)))
 
     if lang.versioned:
         node = get_object_or_404(VersionNode, question=question, language=lang, status='P', version=version_num)
-        compare_node = get_object_or_404(VersionNode, question=question, language=lang, status='C', version=compare_version)
+        compare_node = get_object_or_404(VersionNode, question=question, language=lang, status__in=['S','C'], version=compare_version)
     else:
         ## TODO: add status check
         node = get_object_or_404(TranslationNode, question=question, language=lang)
@@ -694,13 +694,13 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
 
     ## Save and redirect
     if request.POST:
-        node.status = 'C'
+        node.status = 'S'
         node.save()
         return HttpResponseRedirect(reverse('exam:admin'))
 
     node_versions = []
     if lang.versioned:
-        node_versions = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version').values_list('version', flat=True)
+        node_versions = VersionNode.objects.filter(question=question, language=lang, status__in=['S','C']).order_by('-version').values_list('version', flat=True)
 
     old_q = qml.QMLquestion(compare_node.text)
     old_data = old_q.get_data()
