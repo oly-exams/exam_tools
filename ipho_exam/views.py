@@ -487,6 +487,61 @@ def feedback_like(request, status, feedback_id):
 
 
 @permission_required('ipho_core.is_staff')
+def feedbacks_export(request):
+    questions = Question.objects.all().order_by('exam', 'position', 'type')
+    return render(request, 'ipho_exam/admin_feedbacks_export.html', {
+                'questions' : questions,
+            })
+@permission_required('ipho_core.is_staff')
+def feedbacks_export_csv(request, exam_id, question_id):
+    feedbacks = Feedback.objects.filter(
+        question=question_id,
+    ).annotate(
+         num_likes=Sum(
+             Case(When(like__status='L', then=1),
+                  output_field=IntegerField())
+         ),
+         num_unlikes=Sum(
+             Case(When(like__status='U', then=1),
+                  output_field=IntegerField())
+         )
+    ).values_list(
+        'pk',
+        'question__exam__name',
+        'question__name',
+        'part',
+        'delegation__name',
+        'status',
+        'timestamp',
+        'comment',
+        'num_likes',
+        'num_unlikes'
+    ).order_by('-timestamp')
+
+    import csv
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="Feedbacks_E{}_{}.csv"'.format(exam_id, question_id)
+
+    writer = csv.writer(response)
+    writer.writerow([
+        'Id',
+        'Exam',
+        'Question',
+        'Part',
+        'Delegation',
+        'Status',
+        'Timestamp',
+        'Comment',
+        'Num likes',
+        'Num unlikes'
+    ])
+
+    for row in feedbacks:
+        writer.writerow(row)
+
+    return response
+
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def figure_list(request):
     figure_list = Figure.objects.all()
