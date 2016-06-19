@@ -71,8 +71,28 @@ def question(request, question_pk):
                 'cols'          : cols,
                 'votes'         : votes,
                 'status'        : status,
+                'VOTE_ACCEPTED' : Question.VOTE_RESULT_META.ACCEPTED,
+                'result_choices' : Question.VOTE_RESULT_META.choices,
+                'implementation_choices': Question.IMPLEMENTATION_META.choices,
             }
     )
+
+@login_required
+@permission_required('iphoperm.is_staff')
+def staff_setResult(request, question_pk, result):
+    question = get_object_or_404(Question, pk=question_pk)
+    question.vote_result = result
+    question.save()
+    return HttpResponseRedirect(reverse('poll:question', args=(question.pk,)))
+
+@login_required
+@permission_required('iphoperm.is_staff')
+def staff_setImpl(request, question_pk, impl):
+    question = get_object_or_404(Question, pk=question_pk)
+    question.implementation = impl
+    question.save()
+    return HttpResponseRedirect(reverse('poll:question', args=(question.pk,)))
+
 
 @login_required
 @permission_required('iphoperm.is_staff')
