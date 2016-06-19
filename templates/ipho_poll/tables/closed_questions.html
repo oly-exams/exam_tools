@@ -7,37 +7,32 @@
     <h2>Closed Votings</h2>
   </div>
   <div class="panel-body">
-    <table class="table">
-      <tr>
-        <th class="col-md-1">#</th>
-        <th class="col-md-3">Status</th>
-        <th class="col-md-6">Title</th>
-        <th class="col-md-2">View</th>
-      </tr>
+    <div class="list-group">
       {% for question in closed_questions_list %}
-          <tr>
-            <td>
-              {{ question.pk }}
-            </td>
-            <td>
-              {% if question.vote_result == VOTE_ACCEPTED %}
-              <span class="label label-success">Accepted</span>
-              {% elif question.vote_result == VOTE_REJECTED %}
-              <span class="label label-danger">Rejected</span>
-              {% endif %}
+      <a class="list-group-item row" href="{% url 'poll:question' question_pk=question.pk %}">
+        <div class="col-md-1">
+          #{{ question.pk }}
+        </div>
+        <div class="col-md-3">
+          {% if question.vote_result == VOTE_ACCEPTED %}
+          <span class="label label-success">Accepted</span>
+          {% elif question.vote_result == VOTE_REJECTED %}
+          <span class="label label-danger">Rejected</span>
+          {% endif %}
 
-              {% if question.implementation == VOTE_IMPLEMENTED %}
-              <span class="label label-info">Implemented</span>
-              {% endif %}
-            </td>
-            <td>
-              {{ question.title }}
-            </td>
-            <td>
-              <a class="btn btn-default btn-sm" href="{% url 'poll:question' question_pk=question.pk %}" title="details"> <i class="fa fa-info fa-fw"></i></a>
-            </td>
-          </tr>
+          {% if question.implementation == VOTE_IMPLEMENTED %}
+          <span class="label label-info">Implemented</span>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+          {{ question.title }}
+        </div>
+        <div class="col-md-2">
+          <i class="fa fa-info fa-fw"></i>
+          <i class="fa fa-chevron-right"></i>
+        </div>
+      </a>
       {% endfor %}
-    </table>
+    </div>
   </div>
 </div>
