@@ -724,6 +724,22 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
     ctx['old_content'] = old_flat_dict
     return render(request, 'ipho_exam/admin_accept_version.html', ctx)
 
+@permission_required('ipho_core.is_staff')
+def admin_publish_version(request, exam_id, question_id, version_num):
+    lang_id = OFFICIAL_LANGUAGE
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    question = get_object_or_404(Question, id=question_id)
+    lang = get_object_or_404(Language, id=lang_id)
+
+    if lang.versioned:
+        node = get_object_or_404(VersionNode, question=question, language=lang, status='S', version=version_num)
+    else:
+        node = get_object_or_404(TranslationNode, question=question, language=lang)
+
+    node.status = 'C'
+    node.save()
+    return HttpResponseRedirect(reverse('exam:admin'))
     # node, compare_node, node_versions, exam, question, lang
     pass
 

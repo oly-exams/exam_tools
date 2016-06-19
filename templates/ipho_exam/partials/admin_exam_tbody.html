@@ -52,7 +52,7 @@
                         <a class="btn btn-xs btn-info" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> diff/accept</a>
                       {% endif %}
                       {% if node.status == 'S' %}
-                        <a class="btn btn-xs btn-primary" href="#" title="Show diff and accept"><i class="fa fa-play-circle"></i>
+                        <a class="btn btn-xs btn-primary" href="{% url 'exam:admin-publish-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="fa fa-play-circle"></i>
  publish</a>
                       {% endif %}
                     </div>
