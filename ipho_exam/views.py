@@ -424,6 +424,7 @@ def feedbacks_list(request):
              delegation_likes=Sum(
                 Case(
                     When(like__delegation=delegation, then=1),
+                    default=0,
                     output_field=IntegerField()
                 )
              )
@@ -444,6 +445,8 @@ def feedbacks_list(request):
         choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
         for fb in feedbacks:
             fb['status_display'] = choices[fb['status']]
+            print fb['delegation_likes']
+            fb['enable_likes'] = (fb['delegation_likes']==0) and (fb['question__feedback_active'])
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
                     'feedbacks' : feedbacks,
