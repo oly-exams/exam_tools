@@ -116,6 +116,7 @@ class VersionNode(models.Model):
     objects = VersionNodeManager()
     STATUS_CHOICES = (
         ('P', 'Proposal'),
+        ('S', 'Staged'),
         ('C', 'Confirmed'),
     )
 
