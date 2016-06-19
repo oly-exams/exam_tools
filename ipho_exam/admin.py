@@ -24,11 +24,11 @@ class QuestionInline(admin.StackedInline):
     extra = 2
 
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'active', 'feedback_active', 'hidden')
+    list_display = ('name', 'active', 'hidden')
     inlines = [QuestionInline]
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'exam', 'position')
+    list_display = ('name', 'exam', 'feedback_active', 'position')
 
 class VersionNodeAdmin(admin.ModelAdmin):
     form = VersionNodeAdminForm

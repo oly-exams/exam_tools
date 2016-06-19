@@ -403,13 +403,15 @@ def edit_language(request, lang_id):
 @login_required
 @ensure_csrf_cookie
 def feedbacks_list(request):
-    exam_list = Exam.objects.filter(hidden=False, feedback_active=True)
+    exam_list = Exam.objects.filter(hidden=False, active=True)
     delegation = Delegation.objects.get(members=request.user)
 
     if 'exam_id' in request.GET:
-        exam = get_object_or_404(Exam, id=request.GET['exam_id'], feedback_active=True)
+        if not int(request.GET['exam_id']) in [ex.pk for ex in exam_list]:
+            raise Http404('Not such active exam.')
+        questions = Question.objects.filter(exam=request.GET['exam_id'])
         feedbacks = Feedback.objects.filter(
-            question__exam=request.GET['exam_id']
+            question=questions
         ).annotate(
              num_likes=Sum(
                  Case(When(like__status='L', then=1),
@@ -422,6 +424,7 @@ def feedbacks_list(request):
              delegation_likes=Sum(
                 Case(
                     When(like__delegation=delegation, then=1),
+                    default=0,
                     output_field=IntegerField()
                 )
              )
@@ -431,6 +434,7 @@ def feedbacks_list(request):
             'delegation_likes',
             'pk',
             'question__name',
+            'question__feedback_active',
             'delegation__name',
             'delegation__country',
             'status',
@@ -441,6 +445,7 @@ def feedbacks_list(request):
         choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
         for fb in feedbacks:
             fb['status_display'] = choices[fb['status']]
+            fb['enable_likes'] = (fb['delegation_likes']==0) and (fb['question__feedback_active'])
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
                     'feedbacks' : feedbacks,
@@ -455,11 +460,10 @@ def feedbacks_add(request, exam_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     delegation = Delegation.objects.get(members=request.user)
-    exam = get_object_or_404(Exam, id=exam_id, feedback_active=True)
 
     ## Language section
     form = FeedbackForm(request.POST or None)
-    form.fields['question'].queryset = Question.objects.filter(exam=exam)
+    form.fields['question'].queryset = Question.objects.filter(exam=exam_id, exam__hidden=False, feedback_active=True)
     if form.is_valid():
         form.instance.delegation = delegation
         form.save()
@@ -467,7 +471,7 @@ def feedbacks_add(request, exam_id):
         return JsonResponse({
                     'success' : True,
                     'message' : '<strong>Feedback added!</strong> The new feedback has successfully been added. The staff will look at it.',
-                    'exam_id' : exam.pk,
+                    'exam_id' : exam_id,
                 })
 
     form_html = render_crispy_form(form)
@@ -480,7 +484,7 @@ def feedbacks_add(request, exam_id):
 
 @login_required
 def feedback_like(request, status, feedback_id):
-    feedback = get_object_or_404(Feedback, pk=feedback_id, question__exam__feedback_active=True)
+    feedback = get_object_or_404(Feedback, pk=feedback_id, question__feedback_active=True)
     delegation = Delegation.objects.get(members=request.user)
     Like.objects.get_or_create(feedback=feedback, delegation=delegation, defaults={'status': status})
     return redirect('exam:feedbacks-list')

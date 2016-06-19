@@ -9,13 +9,13 @@
     <td>{{ fb.timestamp }}</td>
     <td>
       <div class="btn-toolbar">
-        <a href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="btn btn-info {{ fb.delegation_likes|yesno:'disabled,' }}">
+        <a href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="btn btn-info {{ fb.enable_likes|yesno:',disabled' }}">
           <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
           {% if fb.num_likes %}
           <span class="badge">{{ fb.num_likes }}</span>
           {% endif %}
         </a>
-        <a href="{% url 'exam:feedback-like' status='U' feedback_id=fb.pk %}" class="btn btn-warning {{ fb.delegation_likes|yesno:'disabled,' }}">
+        <a href="{% url 'exam:feedback-like' status='U' feedback_id=fb.pk %}" class="btn btn-warning {{ fb.enable_likes|yesno:',disabled' }}">
           <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
           {% if fb.num_unlikes %}
           <span class="badge">{{ fb.num_unlikes }}</span>
