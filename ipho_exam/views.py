@@ -471,7 +471,7 @@ def feedbacks_add(request, exam_id):
         return JsonResponse({
                     'success' : True,
                     'message' : '<strong>Feedback added!</strong> The new feedback has successfully been added. The staff will look at it.',
-                    'exam_id' : exam.pk,
+                    'exam_id' : exam_id,
                 })
 
     form_html = render_crispy_form(form)
