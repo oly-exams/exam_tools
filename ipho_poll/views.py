@@ -38,6 +38,10 @@ def staffIndex(request):
                 'open_questions_list'       : open_questions_list,
                 'closed_questions_list'     : closed_questions_list,
                 'choices_list'              : choices_list,
+                'VOTE_ACCEPTED'             : Question.VOTE_RESULT_META.ACCEPTED,
+                'VOTE_REJECTED'             : Question.VOTE_RESULT_META.REJECTED,
+                'VOTE_IMPLEMENTED'          : Question.IMPLEMENTATION_META.IMPL,
+                'VOTE_NOT_IMPLEMENTED'      : Question.IMPLEMENTATION_META.NOT_IMPL,
             }
         )
 
