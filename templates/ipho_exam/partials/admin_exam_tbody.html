@@ -49,6 +49,8 @@
                             </ul>
                         </div>
                       {% if node.status == 'P' %}
+                        <a class="btn btn-xs btn-danger" href="{% url 'exam:admin-delete-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Delete version"><i class="fa fa-trash-o"></i>
+ delete</a>
                         <a class="btn btn-xs btn-info" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> diff/accept</a>
                       {% endif %}
                       {% if node.status == 'S' %}
