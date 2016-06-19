@@ -74,6 +74,9 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/v(?P<version_num>\d+)/editor/block/delete/(?P<block_id>\w+)$', 'admin_editor_delete_block', name='admin-editor-delete-block'),
     url(r'^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/v(?P<version_num>\d+)/editor/block/add/(?P<block_id>\w+)/(?P<tag_name>\w+)$', 'admin_editor_add_block', name='admin-editor-add-block'),
 
+    url(r'^admin/feedbacks/export$', 'feedbacks_export', name='admin-feedbacks-export-main'),
+    url(r'^admin/feedbacks/export/E(?P<exam_id>\d+)_(?P<question_id>\d+).csv$', 'feedbacks_export_csv', name='admin-feedbacks-export-csv'),
+
     url(r'^admin/submissions/list/(?P<exam_id>\d+)$', 'admin_submission_list', name='admin-submission-list'),
     url(r'^admin/submissions/assign/(?P<exam_id>\d+)$', 'admin_submission_assign', name='admin-submission-assign'),
     url(r'^admin/submissions/(?P<submission_id>\d+)/delete$', 'admin_submission_delete', name='admin-submission-delete'),

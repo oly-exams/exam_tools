@@ -1,0 +1,45 @@
+{% extends "ipho_exam/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block extra-head %}
+{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="#">Admin</a></li>
+<li class="active">Export feedbacks</li>
+{% endblock %}
+
+{% block pageheader %}<h1>Import exam</h1>{% endblock %}
+
+{% block exam-content %}
+<p class="lead">Select the question from which you want to export the feedbacks.</p>
+
+<div class="row">
+  {% regroup questions by exam as questions_list %}
+  {% for exam_questions in questions_list %}
+  <div class="col-md-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4>{{ exam_questions.grouper.name }}</h4>
+      </div>
+      <div class="list-group">
+        {% for q in exam_questions.list %}
+        <a class="list-group-item" href="{% url 'exam:admin-feedbacks-export-csv' exam_id=q.exam.pk question_id=q.pk %}">
+          {{ q.name }}
+          <span class="pull-right">
+            <i class="fa fa-file-excel-o"></i>
+            <i class="fa fa-chevron-right"></i>
+          </span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extra-script %}
+{% endblock %}
