@@ -628,6 +628,7 @@ def admin_new_version(request, exam_id, question_id):
 
     if lang.versioned: ## make new version and increase version number
         node.pk = None
+        node.tag = None
         node.version += 1
         node.status = 'P'
     node.save()
@@ -668,6 +669,21 @@ def admin_import_version(request, question_id):
                 'success' : False,
             })
 
+@permission_required('ipho_core.is_staff')
+def admin_delete_version(request, exam_id, question_id, version_num):
+    lang_id = OFFICIAL_LANGUAGE
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    question = get_object_or_404(Question, id=question_id)
+    lang = get_object_or_404(Language, id=lang_id)
+
+    if lang.versioned:
+        node = get_object_or_404(VersionNode, question=question, language=lang, status='P', version=version_num)
+    else:
+        raise Exception('Only versioned node can be deleted')
+
+    node.delete()
+    return HttpResponseRedirect(reverse('exam:admin'))
 
 @permission_required('ipho_core.is_staff')
 def admin_accept_version(request, exam_id, question_id, version_num, compare_version=None):
@@ -679,14 +695,14 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
     lang = get_object_or_404(Language, id=lang_id)
 
     if compare_version is None:
-        compare_node = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version')[0]
+        compare_node = VersionNode.objects.filter(question=question, language=lang, status__in=['S','C']).order_by('-version')[0]
         return HttpResponseRedirect(reverse('exam:admin-accept-version-diff',
                                     kwargs=dict( exam_id=exam.pk, question_id=question.pk, version_num=int(version_num),
                                                  compare_version=compare_node.version)))
 
     if lang.versioned:
         node = get_object_or_404(VersionNode, question=question, language=lang, status='P', version=version_num)
-        compare_node = get_object_or_404(VersionNode, question=question, language=lang, status='C', version=compare_version)
+        compare_node = get_object_or_404(VersionNode, question=question, language=lang, status__in=['S','C'], version=compare_version)
     else:
         ## TODO: add status check
         node = get_object_or_404(TranslationNode, question=question, language=lang)
@@ -694,13 +710,13 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
 
     ## Save and redirect
     if request.POST:
-        node.status = 'C'
+        node.status = 'S'
         node.save()
         return HttpResponseRedirect(reverse('exam:admin'))
 
     node_versions = []
     if lang.versioned:
-        node_versions = VersionNode.objects.filter(question=question, language=lang, status='C').order_by('-version').values_list('version', flat=True)
+        node_versions = VersionNode.objects.filter(question=question, language=lang, status__in=['S','C']).order_by('-version').values_list('version', flat=True)
 
     old_q = qml.QMLquestion(compare_node.text)
     old_data = old_q.get_data()
@@ -723,8 +739,22 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
     ctx['old_content'] = old_flat_dict
     return render(request, 'ipho_exam/admin_accept_version.html', ctx)
 
-    # node, compare_node, node_versions, exam, question, lang
-    pass
+@permission_required('ipho_core.is_staff')
+def admin_publish_version(request, exam_id, question_id, version_num):
+    lang_id = OFFICIAL_LANGUAGE
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    question = get_object_or_404(Question, id=question_id)
+    lang = get_object_or_404(Language, id=lang_id)
+
+    if lang.versioned:
+        node = get_object_or_404(VersionNode, question=question, language=lang, status='S', version=version_num)
+    else:
+        node = get_object_or_404(TranslationNode, question=question, language=lang)
+
+    node.status = 'C'
+    node.save()
+    return HttpResponseRedirect(reverse('exam:admin'))
 
 @permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
