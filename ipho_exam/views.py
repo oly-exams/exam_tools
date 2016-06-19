@@ -740,8 +740,6 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     node.status = 'C'
     node.save()
     return HttpResponseRedirect(reverse('exam:admin'))
-    # node, compare_node, node_versions, exam, question, lang
-    pass
 
 @permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
