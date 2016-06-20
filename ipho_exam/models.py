@@ -313,6 +313,9 @@ class Feedback(models.Model):
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='S')
     timestamp = models.DateTimeField(auto_now=True)
 
+    def __unicode__(self):
+        return u'#{} {} ({})'.format(self.pk, self.question.name, self.delegation.name)
+
 class Like(models.Model):
     CHOICES = (
         ('L', 'Liked'),
