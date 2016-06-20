@@ -1,4 +1,5 @@
 from django.db import models
+from django import forms
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
@@ -307,7 +308,7 @@ class Feedback(models.Model):
 
     delegation = models.ForeignKey(Delegation)
     question  = models.ForeignKey(Question)
-    part = models.CharField(max_length=100)
+    part = models.CharField(max_length=100, default=None)
     comment   = models.TextField(blank=True)
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES, default='S')
     timestamp = models.DateTimeField(auto_now=True)

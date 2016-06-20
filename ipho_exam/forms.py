@@ -142,6 +142,18 @@ class FeedbackForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FeedbackForm, self).__init__(*args, **kwargs)
         self.fields['question'].label_from_instance = lambda obj: obj.name
+        self.fields['part'].widget = forms.RadioSelect()
+        self.fields['part'].choices = (
+            ('General', 'General'),
+            ('Intro', 'Introduction'),
+            ('A', 'Part A'),
+            ('B', 'Part B'),
+            ('C', 'Part C'),
+            ('D', 'Part D'),
+            ('E', 'Part E'),
+            ('F', 'Part F'),
+            ('G', 'Part G'),
+        )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(Field('question'),
@@ -156,7 +168,7 @@ class FeedbackForm(ModelForm):
     class Meta:
         model = Feedback
         fields = ['question','part','comment']
-        labels = {'part': 'Question part (e.g. Caption Fig 1)'}
+        labels = {'part': 'Question part'}
 
 class SubmissionAssignForm(ModelForm):
     def __init__(self, *args, **kwargs):
