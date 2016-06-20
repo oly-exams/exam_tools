@@ -39,6 +39,40 @@
                 {% endfor %}
 
                 </div>
+                {% if question.feedbacks_list %}
+                <table class="table table-striped feedbacks">
+                    <tr>
+                        <th>#</th>
+                        <th>Delegation</th>
+                        <th>Question</th>
+                        <th>Comment</th>
+                        <th></th>
+                    </tr>
+
+                    {% for fb in question.feedbacks_list %}
+                    <tr>
+                        <td>{{ fb.pk }}</td>
+                        <td>{{ fb.delegation__name }}</td>
+                        <td>
+                          {{ fb.question__name }}<br />
+                          {{ fb.part }}
+                        </td>
+                        <td>{{ fb.comment }}</td>
+                        <td style="font-size:24px;">
+                          <span class="label label-info">
+                            <i class="fa fa-thumbs-o-up"></i>
+                            <span class="badge">{{ fb.num_likes }}</span>
+                          </span>
+                          <span class="label label-warning">
+                            <i class="fa fa-thumbs-o-down"></i>
+                            <span class="badge">{{ fb.num_unlikes }}</span>
+                          </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                  </table>
+                  {% endif %}
+                  
               </div>
             </div>
         {% endfor %}
@@ -63,7 +97,7 @@ $('document').ready(function(){
   $('.countdown').each(function(i) {
       var end_date = $(this).data('end-date');
       end_date = new Date(end_date);
-      
+
       $(this).countdown({
           date: end_date,
           render: function (date) {

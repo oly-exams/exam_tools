@@ -335,6 +335,30 @@ def voterIndex(request):
                 voteFormset.save()
         formset_html_dict[question.pk] = render_crispy_form(voteFormset, helper=VoteFormHelper)
 
+        question.feedbacks_list = question.feedbacks.all().annotate(
+             num_likes=Sum(
+                 Case(When(like__status='L', then=1),
+                      output_field=IntegerField(),
+                      default=0)
+             ),
+             num_unlikes=Sum(
+                 Case(When(like__status='U', then=1),
+                      output_field=IntegerField(),
+                      default=0)
+             )
+        ).values(
+            'num_likes',
+            'num_unlikes',
+            'pk',
+            'question__name',
+            'delegation__name',
+            'delegation__country',
+            'status',
+            'timestamp',
+            'part',
+            'comment'
+        )
+
     return render(request, 'ipho_poll/voterIndex.html',
                 {
                     'unvoted_questions_list'    : unvoted_questions_list,
