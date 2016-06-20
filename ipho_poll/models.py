@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q, Count
 from itertools import chain
 
+from ipho_exam.models import Feedback
 
 class QuestionManager(models.Manager):
     def is_draft(self):
@@ -49,6 +50,7 @@ class Question(models.Model):
     end_date = models.DateTimeField('end date', blank=True, null=True)
     vote_result = models.PositiveSmallIntegerField(choices=VOTE_RESULT_META.choices, default=VOTE_RESULT_META.OPEN)
     implementation = models.PositiveSmallIntegerField(choices=IMPLEMENTATION_META.choices, default=IMPLEMENTATION_META.NOT_IMPL)
+    feedbacks = models.ManyToManyField(Feedback, blank=True, related_name='vote')
     objects = QuestionManager()
     def __str__(self):
         return self.title
