@@ -42,7 +42,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Import CSV to users and assign delegations')
     parser.add_argument('file', type=argparse.FileType('rU'), help='Input CSV file')
-    parser.add_argument('--without_autologings',  dest='autologins', action='store_false', default=True, help='Discard autologin')
+    parser.add_argument('--without_autologings',  dest='autologins', action='store_false', help='Discard autologin')
     args = parser.parse_args()
     
     main(args.file, args.autologins)
