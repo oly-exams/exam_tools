@@ -22,7 +22,7 @@ class QuestionForm(ModelForm):
 
     class Meta:
         model = Question
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'feedbacks']
 
 
 class EndDateForm(ModelForm):
