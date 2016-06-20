@@ -11,6 +11,7 @@ class QuestionAdmin(admin.ModelAdmin):
         ('Question information',	{'fields': ['title', 'content']}),
         ('Date information',		{'fields': ['pub_date', 'end_date'],
 					 'classes': ['collapse']}),
+        ('Related feedbacks',	{'fields': ['feedbacks',]}),
     ]
     inlines = [ChoiceInline]
     list_display = ('title', 'pub_date', 'end_date', 'vote_result', 'implementation')
