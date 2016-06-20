@@ -13,6 +13,15 @@
     font-family: Arial;
     font-size: 25pt;
   }
+  table.feedbacks th{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  table.feedbacks td{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+
   /*.large{
     font-family: Arial;
     font-size: 50pt;
@@ -66,6 +75,44 @@
 
           </table>
     </div>
+
+    {% if feedbacks %}
+    <div class="panel panel-default">
+        <table class="table table-striped feedbacks">
+            <tr>
+                <th>#</th>
+                <th>Delegation</th>
+                <th>Question</th>
+                <th>Comment</th>
+                <th></th>
+            </tr>
+
+            {% for fb in feedbacks %}
+            <tr>
+                <td>{{ fb.pk }}</td>
+                <td>{{ fb.delegation__name }}</td>
+                <td>
+                  {{ fb.question__name }}<br />
+                  {{ fb.part }}
+                </td>
+                <td>{{ fb.comment }}</td>
+                <td style="font-size:24px;">
+                  <span class="label label-info">
+                    <i class="fa fa-thumbs-o-up"></i>
+                    <span class="badge">{{ fb.num_likes }}</span>
+                  </span>
+                  <span class="label label-warning">
+                    <i class="fa fa-thumbs-o-down"></i>
+                    <span class="badge">{{ fb.num_unlikes }}</span>
+                  </span>
+                </td>
+            </tr>
+            {% endfor %}
+
+          </table>
+    </div>
+    {% endif %}
+
 </div>
 
 {% endblock %}

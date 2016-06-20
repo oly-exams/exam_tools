@@ -10,6 +10,7 @@ from django.forms import formset_factory, inlineformset_factory
 from django.template import RequestContext
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
 
 
 
@@ -111,12 +112,36 @@ def question_large(request, question_pk):
     else:
         status = 'closed'
 
+    feedbacks = question.feedbacks.all().annotate(
+         num_likes=Sum(
+             Case(When(like__status='L', then=1),
+                  output_field=IntegerField(),
+                  default=0)
+         ),
+         num_unlikes=Sum(
+             Case(When(like__status='U', then=1),
+                  output_field=IntegerField(),
+                  default=0)
+         )
+    ).values(
+        'num_likes',
+        'num_unlikes',
+        'pk',
+        'question__name',
+        'delegation__name',
+        'delegation__country',
+        'status',
+        'timestamp',
+        'part',
+        'comment'
+    )
 
     return render(request, 'ipho_poll/question_large.html',
             {
                 'question'      : question,
                 'choices'       : choices,
                 'status'        : status,
+                'feedbacks'     : feedbacks,
             }
     )
 
