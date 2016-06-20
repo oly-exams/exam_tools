@@ -512,7 +512,8 @@ class QMLfigure(QMLobject):
         for c in self.children:
             if c.tag == 'caption':
                 caption_text = data2tex(c.data)
-                #~ caption_text = caption_text.replace('\n','\\newline\n')
+                caption_text = caption_text.strip('\n')
+                caption_text = caption_text.replace('\n','\\')
                 fig_caption += caption_text
 
         width = self.attributes.get('width', 0.9) # 0.9 is the default value
@@ -572,8 +573,6 @@ class QMLfigureCaption(QMLobject):
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
-
-
 
 class QMLequation(QMLobject):
     abbr = "eq"
