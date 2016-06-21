@@ -18,9 +18,10 @@
 
 % Page options
 \RequirePackage{geometry}
+\setlength{\headheight}{2.5cm}
 \geometry{left=3cm}
 \geometry{right=3cm}
-\geometry{top=3.5cm}
+\geometry{top=5.5cm}
 \geometry{bottom=2.5cm}
 
 %Paragraph spacing
@@ -42,7 +43,6 @@
 \RequirePackage{fancyhdr}
 \renewcommand{\headrulewidth}{2pt}
 \fancyheadoffset{1cm} % make heading go out horizontally
-\setlength{\headheight}{2.5cm}
 \pagestyle{fancy}
 \fancyhf[HL]{\includegraphics[width=2cm]{% templatetag openbrace %}{{ STATIC_PATH }}/ipho_logo.png} }
 
