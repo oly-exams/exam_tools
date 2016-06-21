@@ -17,10 +17,9 @@
 % Usage:
 % Start other language with \begin{English}, or \textenglish
 
-{% if is_answer %}\geometry{top=5cm}{% endif %}
-\fancyhf[HL]{\textenglish{IPhO - Exam Tools}}
-\fancyhf[HC]{\textenglish{ {{ title }} }}
-\fancyhf[HR]{\textenglish{ {{ lang_name }} }}
+\fancyhf[HR]{\textenglish{\fontsize{2cm}{2.5cm}\selectfont \bf {{ code }}-\thepage}}
+\fancyhf[HC]{\textenglish{\fontsize{.5cm}{.5cm} \selectfont {{ exam_name }}}}
+\fancyhf[FC]{\textenglish{ {{ lang_name }} }}
 
 \nonstopmode
 

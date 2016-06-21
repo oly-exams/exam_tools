@@ -18,9 +18,10 @@
 
 % Page options
 \RequirePackage{geometry}
+\setlength{\headheight}{2.5cm}
 \geometry{left=3cm}
 \geometry{right=3cm}
-\geometry{top=3cm}
+\geometry{top=5.5cm}
 \geometry{bottom=2.5cm}
 
 %Paragraph spacing
@@ -41,8 +42,9 @@
 % Headers
 \RequirePackage{fancyhdr}
 \renewcommand{\headrulewidth}{2pt}
+\fancyheadoffset{1cm} % make heading go out horizontally
 \pagestyle{fancy}
-\fancyhf[FC]{\thepage}
+\fancyhf[HL]{\includegraphics[width=2cm]{% templatetag openbrace %}{{ STATIC_PATH }}/ipho_logo.png} }
 
 % Math
 \RequirePackage{amsmath}
@@ -70,14 +72,14 @@
 
 %Problem (QMLquestion)
 \newenvironment{PR}[2]
-      {{\noindent\fontsize{18pt}{16pt}\fontshape{bf}
+      {{\noindent\fontsize{16pt}{14pt}\fontshape{bf}\selectfont
       \textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}(#2 points)}}}}}
 
 
 
 %Part
 \newcommand{\PT}[2]{\vspace{0.3cm}\noindent
-    { \hspace*{-3pt}\fontsize{12pt}{14pt}\textcolor{color1}{#1 \textenglish{(#2 points)}}}}
+    { \hspace*{-3pt}\fontsize{11pt}{13pt}\selectfont\textcolor{color1}{#1 \textenglish{(#2 points)}}}}
     {\vspace{0.1cm}}
 
 

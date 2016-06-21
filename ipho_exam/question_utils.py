@@ -48,6 +48,8 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                             'font'        : fonts.noto[sl.language.font],
                             'extraheader' : sl.language.extraheader,
                             'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
+                            'exam_name'   : u'{}'.format(question.exam.name),
+                            'code'        : u'{}{}'.format(question.code, question.position),
                             'title'       : u'{} - {}'.format(question.exam.name, question.name),
                             'is_answer'   : question.is_answer_sheet(),
                             'document'    : trans_content,

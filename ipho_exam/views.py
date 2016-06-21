@@ -1357,6 +1357,8 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
                 'font'        : fonts.noto[trans.lang.font],
                 'extraheader' : trans.lang.extraheader,
                 'lang_name'   : u'{} ({})'.format(trans.lang.name, trans.lang.delegation.country),
+                'exam_name'   : u'{}'.format(trans.question.exam.name),
+                'code'        : u'{}{}'.format(trans.question.code, trans.question.position),
                 'title'       : u'{} - {}'.format(trans.question.exam.name, trans.question.name),
                 'is_answer'   : trans.question.is_answer_sheet(),
                 'document'    : trans_content,
