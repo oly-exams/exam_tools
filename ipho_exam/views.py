@@ -1387,6 +1387,15 @@ def compiled_question_odt(request, question_id, lang_id, raw_tex=False):
     return render_odt_response('ipho_exam/odt/exam_question.odt', RequestContext(request,context), filename, ext_resources)
 
 @login_required
+def compiled_question_html(request, question_id, lang_id, version_num=None):
+    if version_num is not None and request.user.has_perm('ipho_core.is_staff'):
+        trans = qquery.get_version(question_id, lang_id, version_num)
+    else:
+        trans = qquery.latest_version(question_id, lang_id)
+    trans_content, ext_resources = trans.qml.make_xhtml()
+    return HttpResponse(trans_content)
+
+@login_required
 def pdf_exam_for_student(request, exam_id, student_id):
     exam = get_object_or_404(Exam, id=exam_id)
     student = get_object_or_404(Student, id=student_id)
