@@ -320,6 +320,7 @@ def voterIndex(request):
         raise PermissionDenied
     unvoted_questions_list = Question.objects.not_voted_upon_by(user)
     formset_html_dict = {}
+    just_voted = ()
     for question in unvoted_questions_list:
         # gather voting_rights that could still be used
         voting_rights = user.votingright_set.exclude(vote__question=question)
@@ -333,7 +334,9 @@ def voterIndex(request):
         if voteFormset.is_valid():
             if timezone.now() < question.end_date:
                 voteFormset.save()
-        formset_html_dict[question.pk] = render_crispy_form(voteFormset, helper=VoteFormHelper)
+            just_voted += (question.pk,)
+        else:
+            formset_html_dict[question.pk] = render_crispy_form(voteFormset, helper=VoteFormHelper)
 
         question.feedbacks_list = question.feedbacks.all().annotate(
              num_likes=Sum(
@@ -358,7 +361,7 @@ def voterIndex(request):
             'part',
             'comment'
         )
-
+    unvoted_questions_list = filter(lambda q: q.pk not in just_voted, unvoted_questions_list)
     return render(request, 'ipho_poll/voterIndex.html',
                 {
                     'unvoted_questions_list'    : unvoted_questions_list,
