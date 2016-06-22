@@ -81,7 +81,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                 compile_task = tasks.compile_tex.s(body, [
                     tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
                 ])
-                bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student)
+                bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
                 barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append( celery.chain(compile_task, barcode_task) )
 
