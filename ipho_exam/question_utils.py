@@ -65,7 +65,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
             else:
                 all_tasks.append(compile_task)
 
-            if question.is_answer_sheet() and working_sheet is not None:
+            if question.is_answer_sheet() and question.working_pages > 0:
                 context = {
                             'polyglossia' : sl.language.polyglossia,
                             'font'        : fonts.ipho[sl.language.font],
@@ -75,7 +75,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                             'code'        : u'{}{}'.format('W', question.position),
                             'title'       : u'{} - {}'.format(question.exam.name, question.name),
                             'is_answer'   : question.is_answer_sheet(),
-                            'pages'       : range(4),
+                            'pages'       : range(question.working_pages),
                           }
                 body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
                 compile_task = tasks.compile_tex.s(body, [
