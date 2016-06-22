@@ -1,4 +1,4 @@
-noto = {
+ipho = {
   "notosanstagbanwa": {
     "cjk": 0,
     "font_regular": "NotoSansTagbanwa-Regular.ttf",
@@ -785,6 +785,13 @@ noto = {
     "name": "notosanssinhala",
     "font_regular": "NotoSansSinhala-Regular.ttf",
     "font": "Noto Sans Sinhala",
+    "css": "notosanssinhala.css"
+  },
+  "iskpota": {
+    "cjk": 0,
+    "name": "iskpota",
+    "font_regular": "iskpota.ttf",
+    "font": "Iskoola Pota",
     "css": "notosanssinhala.css"
   },
   "notosanslaoui": {
