@@ -4,7 +4,7 @@
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 \ProcessOptions
 
-\LoadClass[a4paper,10pt]{article}
+\LoadClass[a4paper,9pt]{article}
 
 
 % Packages
@@ -72,13 +72,13 @@
 
 %Problem (QMLquestion)
 \newenvironment{PR}[2]
-      {{\noindent\fontsize{16pt}{14pt}\fontshape{bf}\selectfont\textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}\selectfont(#2 points)}}}}}
+      {% templatetag openbrace %}{\noindent\fontsize{16pt}{14pt}\fontshape{bf}\selectfont\textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}\selectfont(#2 points)}}}}}
 
 
 
 %Part
 \newcommand{\PT}[2]{\vspace{0.3cm}\noindent
-    { \hspace*{-3pt}\fontsize{11pt}{13pt}\selectfont\textcolor{color1}{#1 \textenglish{(#2 points)}}}}
+    { \hspace*{-3pt}\fontsize{10pt}{10pt}\selectfont\textcolor{color1}{#1 \textenglish{(#2 points)}}}}
     {\vspace{0.1cm}}
 
 
