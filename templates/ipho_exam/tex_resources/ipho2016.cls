@@ -72,8 +72,7 @@
 
 %Problem (QMLquestion)
 \newenvironment{PR}[2]
-      {{\noindent\fontsize{16pt}{14pt}\fontshape{bf}\selectfont
-      \textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}\selectfont(#2 points)}}}}}
+      {{\noindent\fontsize{16pt}{14pt}\fontshape{bf}\selectfont\textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}\selectfont(#2 points)}}}}}
 
 
 
