@@ -1355,6 +1355,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
     context = {
                 'polyglossia' : trans.lang.polyglossia,
+                'polyglossia_options' : trans.lang.polyglossia_options,
                 'font'        : fonts.ipho[trans.lang.font],
                 'extraheader' : trans.lang.extraheader,
                 'lang_name'   : u'{} ({})'.format(trans.lang.name, trans.lang.delegation.country),

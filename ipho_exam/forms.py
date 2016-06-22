@@ -36,6 +36,7 @@ class LanguageForm(ModelForm):
                                         AccordionGroup('Advanced settings',
                                             Field('direction'),
                                             Field('polyglossia'),
+                                            Field('polyglossia_options'),
                                             Field('font'),
                                             active=False,
                                         ),
@@ -51,14 +52,16 @@ class LanguageForm(ModelForm):
 
     class Meta:
         model = Language
-        fields = ['name','style','direction','polyglossia','font']
+        fields = ['name','style','direction','polyglossia','polyglossia_options','font']
         labels = {
                    'name': 'Name of the language version (e.g. Swiss German)',
                    'direction': ' Writing Direction',
                    'style': 'Language style <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="Select a language similar to yours or leave <emph>english</emph>. This will preset the advanced settings."><span class="glyphicon glyphicon-info-sign"></span></a>',
                    'polyglossia': 'Polyglossia style <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="Select a language similar to yours or leave <emph>english</emph>. This will improve the final typesetting, e.g. allowing correct hyphenation."><span class="glyphicon glyphicon-info-sign"></span></a>',
                    'font': 'Font in PDF <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="For most languages choose <emph>Noto Sans</emph>. Preview of Noto fonts is available <a href=\'https://www.google.com/get/noto\' target=\'_blank\'>here</a>. More fonts can be added on request."><span class="glyphicon glyphicon-info-sign"></span></a>',
+                   'polyglossia_options': 'Polyglossia options <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="Advanced setting, please refer to the staff before editing"><span class="glyphicon glyphicon-info-sign"></span></a>',
                }
+        widgets = {'polyglossia_options': forms.TextInput()}
 
 class FigureForm(ModelForm):
     file = forms.FileField(validators=[build_extension_validator(['.svg', '.svgz'])], label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: *.svg, *.svgz"><span class="glyphicon glyphicon-info-sign"></span></a>')
