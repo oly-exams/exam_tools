@@ -31,6 +31,7 @@ class Language(models.Model):
     style       = models.CharField(max_length=200, blank=True, null=True, choices=STYLES_CHOICES)
     direction   = models.CharField(max_length=3, default='ltr', choices=DIRECTION_CHOICES)
     polyglossia = models.CharField(max_length=100, default='english', choices=POLYGLOSSIA_CHOICES)
+    polyglossia_options = models.TextField(blank=True, null=True)
     font = models.CharField(max_length=100, default='notosans', choices=[(k,v['font']) for k,v in sorted(fonts.ipho.items())])
     extraheader = models.TextField(blank=True)
 
