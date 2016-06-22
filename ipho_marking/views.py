@@ -189,7 +189,7 @@ def delegation_summary(request):
         ).order_by(
             'marking_meta__question__exam'
         )
-        total = sum([ st_points['exam_points'] for st_points in stud_exam_points_list ])
+        total = sum([ st_points['exam_points'] for st_points in stud_exam_points_list if st_points['exam_points'] is not None ])
         points_per_student.append( (student, stud_exam_points_list, total) )
 
     exams = MarkingMeta.objects.filter(question__exam__hidden=False).values(
