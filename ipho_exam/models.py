@@ -89,6 +89,7 @@ class Question(models.Model):
     position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, default=QUESTION)
     feedback_active = models.BooleanField(default=False, help_text='Are feedbacks allowed?')
+    working_pages = models.PositiveSmallIntegerField(default=0, help_text="How many pages for working sheets")
     ## TODO: add template field
 
     class Meta:
