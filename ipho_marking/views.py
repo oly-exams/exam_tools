@@ -174,8 +174,43 @@ def export(request):
 def delegation_summary(request):
     delegation = Delegation.objects.get(members=request.user)
     points_submissions = ExamAction.objects.filter(delegation=delegation, action=ExamAction.POINTS, exam__active=True).order_by('exam')
-    students = Student.objects.filter(delegation=delegation)
-    ctx = {'students': students, 'points_submissions': points_submissions, 'OPEN_STATUS': ExamAction.OPEN, 'SUBMITTED_STATUS': ExamAction.SUBMITTED, }
+    students = Student.objects.filter(delegation=delegation).values('id', 'pk', 'code', 'first_name', 'last_name')
+    vid = 'F'
+    points_per_student = []
+    for student in students:
+        stud_exam_points_list = Marking.objects.filter(
+            version=vid, student=student['id']
+        ).values(
+            'marking_meta__question__exam'
+        ).annotate(
+            exam_points=Sum('points')
+        ).values(
+            'exam_points'
+        ).order_by(
+            'marking_meta__question__exam'
+        )
+        total = sum([ st_points['exam_points'] for st_points in stud_exam_points_list ])
+        points_per_student.append( (student, stud_exam_points_list, total) )
+
+    exams = MarkingMeta.objects.filter(question__exam__hidden=False).values(
+        'question__exam'
+    ).annotate(
+        exam_points=Sum('max_points')
+    ).values(
+        'question__exam__name',
+        'exam_points'
+    ).order_by(
+        'question__exam',
+    ).distinct()
+
+    ctx = {
+        'students': students,
+        'points_submissions': points_submissions,
+        'exams': exams,
+        'points_per_student': points_per_student,
+        'OPEN_STATUS': ExamAction.OPEN,
+        'SUBMITTED_STATUS': ExamAction.SUBMITTED,
+    }
     return render(request, 'ipho_marking/delegation_summary.html', ctx)
 
 @login_required
