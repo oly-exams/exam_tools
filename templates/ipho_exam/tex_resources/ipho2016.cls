@@ -44,7 +44,7 @@
 \renewcommand{\headrulewidth}{2pt}
 \fancyheadoffset{1cm} % make heading go out horizontally
 \pagestyle{fancy}
-\fancyhf[HL]{\includegraphics[width=2cm]{% templatetag openbrace %}{{ STATIC_PATH }}/ipho_logo.png} }
+\fancyhf[HL]{\includegraphics[width=2cm]{% templatetag openbrace %}{{ STATIC_PATH }}/ipho16_small_green.pdf} }
 
 % Math
 \RequirePackage{amsmath}
@@ -72,8 +72,7 @@
 
 %Problem (QMLquestion)
 \newenvironment{PR}[2]
-      {{\noindent\fontsize{16pt}{14pt}\fontshape{bf}\selectfont
-      \textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}\selectfont(#2 points)}}}}}
+      {{\noindent\fontsize{16pt}{14pt}\fontshape{bf}\selectfont\textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}\selectfont(#2 points)}}}}}
 
 
 
