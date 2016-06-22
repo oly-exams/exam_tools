@@ -4,7 +4,7 @@
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 \ProcessOptions
 
-\LoadClass[a4paper,11pt]{article}
+\LoadClass[a4paper,10pt]{article}
 
 
 % Packages
