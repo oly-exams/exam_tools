@@ -43,12 +43,14 @@
         <th>Subquestion</th>
         <th>Official</th>
         <th>Delegation</th>
+        <th>Final</th>
       </tr>
       {% for m, points in markings %}
       <tr>
         <td><strong>{{ m.name }} ({{ m.max_points }})</strong></td>
         <td>{{ points.O.0.points|default:'-' }}</td>
         <td>{{ points.D.0.points|default:'-' }}</td>
+        <td>{{ points.F.0.points|default:'-' }}</td>
       </tr>
       {% endfor %}
     </table>
