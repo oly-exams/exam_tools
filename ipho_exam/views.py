@@ -1324,8 +1324,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context['form']             = form
     context['trans_extra_html'] = trans_extra_html
     context['last_saved']       = last_saved
-    if context['orig_lang']: context['orig_font'] = fonts.noto[context['orig_lang'].font]
-    if context['trans_lang']: context['trans_font'] = fonts.noto[context['trans_lang'].font]
+    if context['orig_lang']: context['orig_font'] = fonts.ipho[context['orig_lang'].font]
+    if context['trans_lang']: context['trans_font'] = fonts.ipho[context['trans_lang'].font]
     return render(request, 'ipho_exam/editor.html', context)
 
 
@@ -1354,7 +1354,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
     context = {
                 'polyglossia' : trans.lang.polyglossia,
-                'font'        : fonts.noto[trans.lang.font],
+                'font'        : fonts.ipho[trans.lang.font],
                 'extraheader' : trans.lang.extraheader,
                 'lang_name'   : u'{} ({})'.format(trans.lang.name, trans.lang.delegation.country),
                 'exam_name'   : u'{}'.format(trans.question.exam.name),

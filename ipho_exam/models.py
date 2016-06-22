@@ -31,7 +31,7 @@ class Language(models.Model):
     style       = models.CharField(max_length=200, blank=True, null=True, choices=STYLES_CHOICES)
     direction   = models.CharField(max_length=3, default='ltr', choices=DIRECTION_CHOICES)
     polyglossia = models.CharField(max_length=100, default='english', choices=POLYGLOSSIA_CHOICES)
-    font = models.CharField(max_length=100, default='notosans', choices=[(k,v['font']) for k,v in sorted(fonts.noto.items())])
+    font = models.CharField(max_length=100, default='notosans', choices=[(k,v['font']) for k,v in sorted(fonts.ipho.items())])
     extraheader = models.TextField(blank=True)
 
     class Meta:
@@ -245,9 +245,9 @@ class Figure(models.Model):
         font_name = u'Noto Sans'
         text_direction = u'ltr'
         if lang is not None:
-            font_name = fonts.noto[lang.font]['font']
+            font_name = fonts.ipho[lang.font]['font']
             text_direction = lang.direction
-            fonts_repl += '\n@import url({host}/static/noto/{font_css});'.format(host=SITE_URL, font_css=fonts.noto[lang.font]['css'])
+            fonts_repl += '\n@import url({host}/static/noto/{font_css});'.format(host=SITE_URL, font_css=fonts.ipho[lang.font]['css'])
         fig_svg = fig_svg.replace('%font-faces%', fonts_repl)
         fig_svg = fig_svg.replace('%font-family%', font_name)
         # fig_svg = fig_svg.replace('%text-direction%', text_direction)

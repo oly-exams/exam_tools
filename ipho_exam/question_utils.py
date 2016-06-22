@@ -45,7 +45,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                 ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
                 context = {
                             'polyglossia' : sl.language.polyglossia,
-                            'font'        : fonts.noto[sl.language.font],
+                            'font'        : fonts.ipho[sl.language.font],
                             'extraheader' : sl.language.extraheader,
                             'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
                             'exam_name'   : u'{}'.format(question.exam.name),

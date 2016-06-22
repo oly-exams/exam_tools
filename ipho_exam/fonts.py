@@ -1,4 +1,4 @@
-noto = {
+ipho = {
   "notosanstagbanwa": {
     "cjk": 0,
     "font_regular": "NotoSansTagbanwa-Regular.ttf",
