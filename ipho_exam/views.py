@@ -466,6 +466,7 @@ def feedbacks_add(request, exam_id):
     form.fields['question'].queryset = Question.objects.filter(exam=exam_id, exam__hidden=False, feedback_active=True)
     if form.is_valid():
         form.instance.delegation = delegation
+        form.instance.part = '{}.{}'.format(form.cleaned_data['part_nr'], form.cleaned_data['subpart_nr'])
         form.save()
 
         return JsonResponse({
