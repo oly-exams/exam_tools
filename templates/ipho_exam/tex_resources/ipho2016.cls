@@ -46,6 +46,7 @@
 
 % Math
 \RequirePackage{amsmath}
+\RequirePackage{amssymb}
 \RequirePackage{amsfonts}
 \RequirePackage[]{unicode-math}
 %\setmathfont{XITS Math}
@@ -62,6 +63,9 @@
 %Commands
 
 \setlength{\emergencystretch}{3em}
+
+% Table spacing
+\renewcommand{\arraystretch}{1.3}
 
 %Fix font in units
 \newfontfamily\mathunits{latinmodern-math.otf}
