@@ -64,6 +64,27 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                 all_tasks.append( celery.chain(compile_task, barcode_task) )
             else:
                 all_tasks.append(compile_task)
+
+            if question.is_answer_sheet() and working_sheet is not None:
+                context = {
+                            'polyglossia' : sl.language.polyglossia,
+                            'font'        : fonts.ipho[sl.language.font],
+                            'extraheader' : sl.language.extraheader,
+                            # 'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
+                            'exam_name'   : u'{}'.format(question.exam.name),
+                            'code'        : u'{}{}'.format('W', question.position),
+                            'title'       : u'{} - {}'.format(question.exam.name, question.name),
+                            'is_answer'   : question.is_answer_sheet(),
+                            'pages'       : range(4),
+                          }
+                body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
+                compile_task = tasks.compile_tex.s(body, [
+                    tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
+                ])
+                bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student)
+                barcode_task = tasks.add_barcode.s(bgenerator)
+                all_tasks.append( celery.chain(compile_task, barcode_task) )
+
         exam_id = question.exam.pk
         position = question.position
 
