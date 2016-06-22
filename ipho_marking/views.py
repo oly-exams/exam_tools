@@ -217,7 +217,7 @@ def delegation_stud_view(request, stud_id, question_id):
         return HttpResponseForbidden('You do not have permission to access this student.')
 
     question = get_object_or_404(Question, id=question_id)
-    versions = ['O', 'D']
+    versions = ['O', 'D', 'F']
     versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
 
     ctx = RequestContext(request)
@@ -241,7 +241,7 @@ def delegation_stud_view(request, stud_id, question_id):
         )
         for k,g in itertools.groupby(markings, key=lambda m: m.marking_meta)
     ]
-
+    print grouped_markings
     ctx['markings'] = grouped_markings
     return render(request, 'ipho_marking/delegation_detail.html', ctx)
 
