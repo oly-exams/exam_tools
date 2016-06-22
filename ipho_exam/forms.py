@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm, Form
 from django.forms.formsets import formset_factory
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, MultiField, Div
+from crispy_forms.layout import Submit, Layout, Field, MultiField, Div, Fieldset
 from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
 from django.utils.safestring import mark_safe
 
@@ -139,25 +139,41 @@ class TranslationImportForm(ModelForm):
         fields = []
 
 class FeedbackForm(ModelForm):
+    part_nr = forms.ChoiceField(widget=forms.Select(), choices=(
+        ('General', 'General'),
+        ('Intro', 'Introduction'),
+        ('A', 'Part A'),
+        ('B', 'Part B'),
+        ('C', 'Part C'),
+        ('D', 'Part D'),
+        ('E', 'Part E'),
+        ('F', 'Part F'),
+        ('G', 'Part G'),
+    ), label='Which part?')
+    subpart_nr = forms.ChoiceField(widget=forms.Select(), required=False, choices=(
+        ('General', 'General comment on part'),
+        ('Intro', 'Introduction of part'),
+        ('1', '1'),
+        ('2', '2'),
+        ('3', '3'),
+        ('4', '4'),
+        ('5', '5'),
+        ('6', '6'),
+    ), label='Which subpart?')
+
     def __init__(self, *args, **kwargs):
         super(FeedbackForm, self).__init__(*args, **kwargs)
         self.fields['question'].label_from_instance = lambda obj: obj.name
-        self.fields['part'].widget = forms.RadioSelect()
-        self.fields['part'].choices = (
-            ('General', 'General'),
-            ('Intro', 'Introduction'),
-            ('A', 'Part A'),
-            ('B', 'Part B'),
-            ('C', 'Part C'),
-            ('D', 'Part D'),
-            ('E', 'Part E'),
-            ('F', 'Part F'),
-            ('G', 'Part G'),
-        )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(Field('question'),
-                                    Field('part'),
+                                    Div(
+                                        Div(
+                                            Fieldset('','part_nr', css_class='col-md-6'),
+                                            Fieldset('','subpart_nr', css_class='col-md-6'),
+                                            css_class='row'
+                                        ),
+                                        css_class='container-fluid'),
                                     Field('comment', placeholder='Comment'),
                                     )
         self.helper.html5_required = True
@@ -167,8 +183,8 @@ class FeedbackForm(ModelForm):
 
     class Meta:
         model = Feedback
-        fields = ['question','part','comment']
-        labels = {'part': 'Question part'}
+        fields = ['question','comment']
+        # labels = {'part': 'Question part'}
 
 class SubmissionAssignForm(ModelForm):
     def __init__(self, *args, **kwargs):
