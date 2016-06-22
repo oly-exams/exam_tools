@@ -9,65 +9,82 @@
 
 {% block page-content %}
 
+<div>
 
-    {% for psubs in points_submissions %}
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h2 class="panel-title">{{ psubs.exam.name }}</h2>
+  <!-- Nav tabs -->
+  <ul class="nav nav-pills">
+    <li class="active"><a href="#details" data-toggle="tab">Marking details</a></li>
+    <li><a href="#finals" data-toggle="tab">Final points</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content" style="margin-top:10px;">
+    <div class="tab-pane active" id="details">
+
+      {% for psubs in points_submissions %}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h2 class="panel-title">{{ psubs.exam.name }}</h2>
+        </div>
+        <table class="table table-strided">
+            <tr>
+                <th>Student</th>
+                {% for question in psubs.exam.question_set.all %}
+                    {% if question.is_answer_sheet %}
+                    <th>{{ question.name }}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
+                {% for question in psubs.exam.question_set.all %}
+                    {% if question.is_answer_sheet %}
+                        {% if psubs.status == OPEN_STATUS %}
+                        <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> edit</a></td>
+                        {% else %}
+                        <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> view</a></td>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        {% if psubs.status == OPEN_STATUS %}
+        <div class="panel-footer"><a class="btn btn-primary btn-sm" href="{% url 'marking:delegation-confirm' psubs.exam.pk %}">Confirm marking <i class="fa fa-angle-double-right"></i></a></div>
+        {% endif %}
       </div>
-      <table class="table table-strided">
-          <tr>
-              <th>Student</th>
-              {% for question in psubs.exam.question_set.all %}
-                  {% if question.is_answer_sheet %}
-                  <th>{{ question.name }}</th>
-                  {% endif %}
-              {% endfor %}
-          </tr>
-          {% for student in students %}
-          <tr>
-              <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
-              {% for question in psubs.exam.question_set.all %}
-                  {% if question.is_answer_sheet %}
-                      {% if psubs.status == OPEN_STATUS %}
-                      <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> edit</a></td>
-                      {% else %}
-                      <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> view</a></td>
-                      {% endif %}
-                  {% endif %}
-              {% endfor %}
-          </tr>
-          {% endfor %}
-      </table>
-      {% if psubs.status == OPEN_STATUS %}
-      <div class="panel-footer"><a class="btn btn-primary btn-sm" href="{% url 'marking:delegation-confirm' psubs.exam.pk %}">Confirm marking <i class="fa fa-angle-double-right"></i></a></div>
-      {% endif %}
-    </div>
-    {% endfor %}
+      {% endfor %}
 
+      </div>
+      <div class="tab-pane" id="finals">
 
-    <table class="table table-striped">
-        <tr>
-            <th>Student</th>
-            {% for e in exams %}
-            <th>{{ e.question__exam__name }}<br />({{ e.exam_points }})</th>
+        <table class="table table-striped">
+            <tr>
+                <th>Student</th>
+                {% for e in exams %}
+                <th>{{ e.question__exam__name }}<br />({{ e.exam_points }})</th>
+                {% endfor %}
+                <th>Total</th>
+            </tr>
+
+            {% for student, exam_points, total in points_per_student %}
+            <tr>
+                <td>{{ student.code }}</td>
+                {% for ep in exam_points %}
+                <td>
+                  {{ ep.exam_points|default:'-' }}
+                </td>
+                {% endfor %}
+                <td>{{ total|default:'-' }}</td>
+            </tr>
             {% endfor %}
-            <th>Total</th>
-        </tr>
+        </table>
 
-        {% for student, exam_points, total in points_per_student %}
-        <tr>
-            <td>{{ student.code }}</td>
-            {% for ep in exam_points %}
-            <td>
-              {{ ep.exam_points|default:'-' }}
-            </td>
-            {% endfor %}
-            <td>{{ total|default:'-' }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+  </div>
+</div>
 
+</div>
 
 {% endblock %}
 
