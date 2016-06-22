@@ -7,7 +7,7 @@
 \hypersetup{pdftitle={IPhO 2016 - {{ title }}} }
 
 \setmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %}]{% templatetag openbrace %}{{ font.font_regular }}} %Calibri
-\setmainlanguage{% templatetag openbrace %}{{ polyglossia }}}
+\setmainlanguage[{{ polyglossia_options }}]{% templatetag openbrace %}{{ polyglossia }}}
 {% if font.cjk %}
 \usepackage{xeCJK}
 \setCJKmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %}]{% templatetag openbrace %}{{ font.font_regular }}}
