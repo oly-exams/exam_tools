@@ -241,7 +241,7 @@ def delegation_stud_view(request, stud_id, question_id):
         )
         for k,g in itertools.groupby(markings, key=lambda m: m.marking_meta)
     ]
-    print grouped_markings
+
     ctx['markings'] = grouped_markings
     return render(request, 'ipho_marking/delegation_detail.html', ctx)
 
