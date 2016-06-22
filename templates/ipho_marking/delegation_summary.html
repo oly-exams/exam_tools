@@ -18,7 +18,7 @@
           <tr>
               <th>Student</th>
               {% for question in psubs.exam.question_set.all %}
-                  {% if question.type == 'A' %}
+                  {% if question.is_answer_sheet %}
                   <th>{{ question.name }}</th>
                   {% endif %}
               {% endfor %}
@@ -27,7 +27,7 @@
           <tr>
               <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
               {% for question in psubs.exam.question_set.all %}
-                  {% if question.type == 'A' %}
+                  {% if question.is_answer_sheet %}
                       {% if psubs.status == OPEN_STATUS %}
                       <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> edit</a></td>
                       {% else %}
