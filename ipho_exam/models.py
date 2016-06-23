@@ -404,7 +404,7 @@ class Document(models.Model):
     file      = models.FileField(blank=True, upload_to=exam_prints_filename)
     num_pages = models.IntegerField(default=0)
     barcode_num_pages = models.IntegerField(default=0)
-    barcode_base      = models.CharField(max_length=20)
+    barcode_base      = models.TextField()
     scan_file = models.FileField(blank=True, upload_to=exam_scans_filename)
 
     class Meta:
