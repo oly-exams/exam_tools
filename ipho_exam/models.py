@@ -23,7 +23,7 @@ class Language(models.Model):
     POLYGLOSSIA_CHOICES = (('albanian', 'Albanian'), ('amharic', 'Amharic'), ('arabic', 'Arabic'), ('armenian', 'Armenian'), ('asturian', 'Asturian'), ('bahasai', 'Bahasai'), ('bahasam', 'Bahasam'), ('basque', 'Basque'), ('bengali', 'Bengali'), ('brazilian', 'Brazilian'), ('breton', 'Breton'), ('bulgarian', 'Bulgarian'), ('catalan', 'Catalan'), ('coptic', 'Coptic'), ('croatian', 'Croatian'), ('czech', 'Czech'), ('danish', 'Danish'), ('divehi', 'Divehi'), ('dutch', 'Dutch'), ('english', 'English'), ('esperanto', 'Esperanto'), ('estonian', 'Estonian'), ('farsi', 'Farsi'), ('finnish', 'Finnish'), ('french', 'French'), ('friulan', 'Friulan'), ('galician', 'Galician'), ('german', 'German'), ('greek', 'Greek'), ('hebrew', 'Hebrew'), ('hindi', 'Hindi'), ('icelandic', 'Icelandic'), ('interlingua', 'Interlingua'), ('irish', 'Irish'), ('italian', 'Italian'), ('kannada', 'Kannada'), ('lao', 'Lao'), ('latin', 'Latin'), ('latvian', 'Latvian'), ('lithuanian', 'Lithuanian'), ('lsorbian', 'Lsorbian'), ('magyar', 'Magyar'), ('malayalam', 'Malayalam'), ('marathi', 'Marathi'), ('nko', 'Nko'), ('norsk', 'Norsk'), ('nynorsk', 'Nynorsk'), ('occitan', 'Occitan'), ('piedmontese', 'Piedmontese'), ('polish', 'Polish'), ('portuges', 'Portuges'), ('romanian', 'Romanian'), ('romansh', 'Romansh'), ('russian', 'Russian'), ('samin', 'Samin'), ('sanskrit', 'Sanskrit'), ('scottish', 'Scottish'), ('serbian', 'Serbian'), ('slovak', 'Slovak'), ('slovenian', 'Slovenian'), ('spanish', 'Spanish'), ('swedish', 'Swedish'), ('syriac', 'Syriac'), ('tamil', 'Tamil'), ('telugu', 'Telugu'), ('thai', 'Thai'), ('tibetan', 'Tibetan'), ('turkish', 'Turkish'), ('turkmen', 'Turkmen'), ('ukrainian', 'Ukrainian'), ('urdu', 'Urdu'), ('usorbian', 'Usorbian'), ('vietnamese', 'Vietnamese'), ('welsh', 'Welsh'), ('custom', 'Other'))
     STYLES_CHOICES = ((u'afrikaans', u'Afrikaans'), (u'albanian', u'Albanian'), (u'amharic', u'Amharic'), (u'arabic', u'Arabic'), (u'armenian', u'Armenian'), (u'asturian', u'Asturian'), (u'azerbaijani', u'Azerbaijani'), (u'basque', u'Basque'), (u'belarusian', u'Belarusian'), (u'bengali', u'Bengali'), (u'bosnian', u'Bosnian'), (u'breton', u'Breton'), (u'bulgarian', u'Bulgarian'), (u'burmese', u'Burmese'), (u'cantonese', u'Cantonese'), (u'catalan', u'Catalan'), (u'chinese', u'Chinese'), (u'coptic', u'Coptic'), (u'croatian', u'Croatian'), (u'czech', u'Czech'), (u'danish', u'Danish'), (u'divehi', u'Divehi'), (u'dutch', u'Dutch'), (u'english', u'English'), (u'esperanto', u'Esperanto'), (u'filipino', u'Filipino'), (u'finnish', u'Finnish'), (u'french', u'French'), (u'friulian', u'Friulian'), (u'galician', u'Galician'), (u'georgian', u'Georgian'), (u'german', u'German'), (u'greek', u'Greek'), (u'hebrew', u'Hebrew'), (u'hindi', u'Hindi'), (u'hungarian', u'Hungarian'), (u'icelandic', u'Icelandic'), (u'indonesian', u'Indonesian'), (u'interlingua', u'Interlingua'), (u'irish', u'Irish'), (u'italian', u'Italian'), (u'japanese', u'Japanese'), (u'kannada', u'Kannada'), (u'kazakh', u'Kazakh'), (u'khmer', u'Khmer'), (u'korean', u'Korean'), (u'kurdish', u'Kurdish'), (u'kyrgyz', u'Kyrgyz'), (u'lao', u'Lao'), (u'latin', u'Latin'), (u'latvian', u'Latvian'), (u'lithuanian', u'Lithuanian'), (u'luxembourgish', u'Luxembourgish'), (u'macedonian', u'Macedonian'), (u'magyar', u'Magyar'), (u'malay', u'Malay'), (u'malayalam', u'Malayalam'), (u'malaysian', u'Malaysian'), (u'mandarin', u'Mandarin'), (u'marathi', u'Marathi'), (u'mongolian', u'Mongolian'), (u'montenegrin', u'Montenegrin'), (u'nepali', u'Nepali'), (u'northern sotho', u'Northern Sotho'), (u'norwegian bokm\\u00e5l', u'Norwegian Bokm\\u00e5l'), (u'norwegian nynorsk', u'Norwegian Nynorsk'), (u'occitan', u'Occitan'), (u'persian', u'Persian'), (u'piedmontese', u'Piedmontese'), (u'polish', u'Polish'), (u'portuguese', u'Portuguese'), (u'romanian', u'Romanian'), (u'romansh', u'Romansh'), (u'russian', u'Russian'), (u'sanskrit', u'Sanskrit'), (u'scottish', u'Scottish'), (u'serbian', u'Serbian'), (u'sinhalese', u'Sinhalese'), (u'slovak', u'Slovak'), (u'slovenian', u'Slovenian'), (u'southern ndebele', u'Southern Ndebele'), (u'southern sotho', u'Southern Sotho'), (u'spanish', u'Spanish'), (u'swedish', u'Swedish'), (u'syriac', u'Syriac'), (u'tajik', u'Tajik'), (u'tamil', u'Tamil'), (u'telugu', u'Telugu'), (u'thai', u'Thai'), (u'tibetan', u'Tibetan'), (u'tsonga', u'Tsonga'), (u'tswana', u'Tswana'), (u'turkish', u'Turkish'), (u'turkmen', u'Turkmen'), (u'ukrainian', u'Ukrainian'), (u'urdu', u'Urdu'), (u'uzbek', u'Uzbek'), (u'venda', u'Venda'), (u'vietnamese', u'Vietnamese'), (u'welsh', u'Welsh'), (u'xhosa', u'Xhosa'), (u'zulu', u'Zulu'))
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, db_index=True)
     delegation  = models.ForeignKey(Delegation, blank=True, null=True)
     hidden      = models.BooleanField(default=False)
     versioned   = models.BooleanField(default=False)
@@ -36,7 +36,7 @@ class Language(models.Model):
     extraheader = models.TextField(blank=True)
 
     class Meta:
-        unique_together = (('name', 'delegation'),)
+        unique_together = index_together = (('name', 'delegation'),)
 
     def natural_key(self):
         return (self.name,) + self.delegation.natural_key()
@@ -85,7 +85,7 @@ class Question(models.Model):
     )
 
     code = models.CharField(max_length=8)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, db_index=True)
     exam = models.ForeignKey(Exam)
     position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, default=QUESTION)
@@ -132,7 +132,7 @@ class VersionNode(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = (('question', 'language', 'version'),)
+        unique_together = index_together = (('question', 'language', 'version'),)
         ordering = ['-version', '-timestamp']
 
     def question_name(self):
@@ -164,7 +164,7 @@ class TranslationNode(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = (('question', 'language'),)
+        unique_together = index_together = (('question', 'language'),)
 
     def question_name(self):
         return self.question.name
@@ -200,7 +200,7 @@ class PDFNode(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = (('question', 'language'),)
+        unique_together = index_together = (('question', 'language'),)
 
     def question_name(self):
         return self.question.name
@@ -228,7 +228,7 @@ class FigureManager(models.Manager):
 class Figure(models.Model):
     objects = FigureManager()
 
-    name    = models.CharField(max_length=100)
+    name    = models.CharField(max_length=100, db_index=True)
     content = models.TextField(blank=True)
     params  = models.TextField(blank=True)
 
@@ -328,7 +328,7 @@ class Like(models.Model):
     feedback = models.ForeignKey(Feedback);
 
     class Meta:
-        unique_together = ('delegation', 'feedback')
+        unique_together = index_together = ('delegation', 'feedback')
 
 class ExamActionManager(models.Manager):
     def get_by_natural_key(self, exam_name, delegation_name, action):
@@ -355,7 +355,7 @@ class ExamAction(models.Model):
     timestamp  = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = (('exam', 'delegation', 'action'),)
+        unique_together = index_together = (('exam', 'delegation', 'action'),)
 
     def natural_key(self):
         return self.exam.natural_key() + self.delegation.natural_key() + (self.action,)
@@ -389,7 +389,7 @@ class StudentSubmission(models.Model):
     ## TODO: do we need a status? (in progress, submitted, printed)
 
     class Meta:
-        unique_together = (('student', 'exam', 'language'),)
+        unique_together = index_together = (('student', 'exam', 'language'),)
 
 def exam_prints_filename(obj, fname):
     basestr='exams-docs/{}/print/exam-{}-{}.pdf'
@@ -408,7 +408,7 @@ class Document(models.Model):
     scan_file = models.FileField(blank=True, upload_to=exam_scans_filename)
 
     class Meta:
-        unique_together = (('exam', 'student', 'position'),)
+        unique_together = index_together = (('exam', 'student', 'position'),)
 
     def question_name(self):
         return self.question.name

@@ -15,7 +15,7 @@ class MarkingMeta(models.Model):
 
     class Meta:
         ordering = ['position']
-        unique_together = (('question', 'name'),)
+        unique_together = index_together = (('question', 'name'),)
 
 class Marking(models.Model):
     marking_meta = models.ForeignKey(MarkingMeta)
