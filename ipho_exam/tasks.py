@@ -5,6 +5,13 @@ from celery import shared_task
 from ipho_exam import pdf, models
 from hashlib import md5
 
+## utils
+def all_same(items):
+    return all(x == items[0] for x in items)
+
+
+## tasks
+
 @shared_task
 def compile_tex(body, ext_resources, filename='question.pdf', etag=None):
     if etag is None:
@@ -47,7 +54,11 @@ def concatenate_documents(all_pages, filename='exam.pdf'):
     meta['etag'] = md5(''.join([meta['etag'] for _,meta in all_pages])).hexdigest()
     meta['num_pages'] = sum([meta['num_pages'] for _,meta in all_pages])
     meta['barcode_num_pages'] = sum([meta['barcode_num_pages'] for _,meta in all_pages])
-    meta['barcode_base'] = ','.join([meta['barcode_base'] for _,meta in all_pages if meta['barcode_base'] is not None])
+    all_codes = [meta['barcode_base'] for _,meta in all_pages if meta['barcode_base'] is not None]
+    if all_same(all_codes):
+        meta['barcode_base'] = all_codes[0] or None
+    else:
+        meta['barcode_base'] = ','.join(all_codes)
     return doc_pdf, meta
 
 @shared_task(bind=True)
@@ -65,7 +76,11 @@ def wait_and_concatenate(self, all_tasks, filename='exam.pdf'):
     meta['etag'] = md5(''.join([meta['etag'] for _,meta in all_pages])).hexdigest()
     meta['num_pages'] = sum([meta['num_pages'] for _,meta in all_pages])
     meta['barcode_num_pages'] = sum([meta['barcode_num_pages'] for _,meta in all_pages])
-    meta['barcode_base'] = ','.join([meta['barcode_base'] for _,meta in all_pages if meta['barcode_base'] is not None])
+    all_codes = [meta['barcode_base'] for _,meta in all_pages if meta['barcode_base'] is not None]
+    if all_same(all_codes):
+        meta['barcode_base'] = all_codes[0] or None
+    else:
+        meta['barcode_base'] = ','.join(all_codes)
     return doc_pdf, meta
 
 @shared_task(bind=True)
