@@ -55,6 +55,7 @@
               <div class="col-sm-4">
                   <h3>Exam</h3>
                   <ul>
+                    {% if perms.ipho_core.is_delegation %}
                       <li>
                           <h4>Step-by-step guide</h4>
                           <ul>
@@ -84,7 +85,7 @@
                               </li>
                           </ul>
                       </li>
-
+                      {% endif %}
                       <li>
                           <h4>All translations</h4>
                           <ul>
