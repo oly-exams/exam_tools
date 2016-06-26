@@ -75,7 +75,7 @@ def main(request):
 def time_response(request):
     return HttpResponse(timezone.now().isoformat(), content_type="text/plain")
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def wizard(request):
     delegation = Delegation.objects.filter(members=request.user)
 
@@ -98,7 +98,7 @@ def wizard(request):
                 'translations'  : translations,
             })
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 @ensure_csrf_cookie
 def translations_list(request):
     delegation = Delegation.objects.filter(members=request.user)
@@ -196,7 +196,7 @@ def list_all_translations(request):
             })
 
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def add_translation(request, exam_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -230,7 +230,7 @@ def add_translation(request, exam_id):
                 'success'     : False,
             })
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def add_pdf_node(request, question_id, lang_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -275,7 +275,7 @@ def translation_export(request, question_id, lang_id, version_num=None):
     res = HttpResponse(content, content_type="application/ipho+qml+xml")
     res['content-disposition'] = 'attachment; filename="{}"'.format('iphoexport_q{}_l{}.xml'.format(question_id, lang_id))
     return res
-@login_required
+@permission_required('ipho_core.is_delegation')
 def translation_import(request, question_id, lang_id):
     delegation = Delegation.objects.filter(members=request.user)
     language = get_object_or_404(Language, id=lang_id)
@@ -303,7 +303,7 @@ def translation_import(request, question_id, lang_id):
                 'submit'  : 'Upload',
                 'success' : False,
             })
-@login_required
+@permission_required('ipho_core.is_delegation')
 @csrf_protect
 def translation_import_confirm(request, slug):
     trans_import = get_object_or_404(TranslationImportTmp, slug=slug)
@@ -343,7 +343,7 @@ def translation_import_confirm(request, slug):
             })
 
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 @ensure_csrf_cookie
 def list_language(request):
     delegation = Delegation.objects.filter(members=request.user)
@@ -351,7 +351,7 @@ def list_language(request):
     # TODO: do not show Add language if no delegation
     return render(request, 'ipho_exam/languages.html', {'languages': languages})
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def add_language(request):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -382,7 +382,7 @@ def add_language(request):
                 'success' : False,
             })
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def edit_language(request, lang_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -469,7 +469,7 @@ def feedbacks_list(request):
                     'is_delegation' : len(delegation) > 0,
                 })
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def feedbacks_add(request, exam_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
@@ -497,7 +497,7 @@ def feedbacks_add(request, exam_id):
                 'success' : False,
             })
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def feedback_like(request, status, feedback_id):
     feedback = get_object_or_404(Feedback, pk=feedback_id, question__feedback_active=True)
     delegation = Delegation.objects.get(members=request.user)
@@ -980,7 +980,7 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
             })
 
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def submission_exam_list(request):
     delegation = Delegation.objects.filter(members=request.user)
 
@@ -1000,7 +1000,7 @@ def submission_exam_list(request):
     ).distinct()
     return render(request, 'ipho_exam/submission_list.html', {'exams_open': exams_open, 'exams_closed': exams_closed})
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
@@ -1074,7 +1074,7 @@ def submission_exam_assign(request, exam_id):
                 'with_errors': with_errors,
             })
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def submission_exam_confirm(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
@@ -1123,7 +1123,7 @@ def submission_exam_confirm(request, exam_id):
                 'form_error' : form_error,
             })
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def submission_exam_submitted(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
