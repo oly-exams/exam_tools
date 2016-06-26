@@ -456,16 +456,17 @@ def feedbacks_list(request):
         choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
         for fb in feedbacks:
             fb['status_display'] = choices[fb['status']]
-            fb['enable_likes'] = (fb['delegation_likes']==0) and (fb['question__feedback_active'])
-        # TODO: allow vote only if a Delegation
+            fb['enable_likes'] = (fb['delegation_likes']==0) and fb['question__feedback_active'] and len(delegation) > 0
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
                     'feedbacks' : feedbacks,
+                    'is_delegation' : len(delegation) > 0,
                 })
     else:
         # TODO: allow Add feedback only if a delegation
         return render(request, 'ipho_exam/feedbacks.html', {
                     'exam_list' : exam_list,
+                    'is_delegation' : len(delegation) > 0,
                 })
 
 @login_required
