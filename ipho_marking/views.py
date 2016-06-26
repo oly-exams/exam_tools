@@ -173,7 +173,7 @@ def export(request):
 @permission_required('ipho_core.is_delegation')
 def delegation_summary(request):
     delegation = Delegation.objects.get(members=request.user)
-    points_submissions = ExamAction.objects.filter(delegation=delegation, action=ExamAction.POINTS, exam__active=True).order_by('exam')
+    points_submissions = ExamAction.objects.filter(delegation=delegation, action=ExamAction.POINTS, exam__marking_active=True).order_by('exam')
     students = Student.objects.filter(delegation=delegation).values('id', 'pk', 'code', 'first_name', 'last_name')
     vid = 'F'
     points_per_student = []
@@ -220,7 +220,7 @@ def delegation_stud_edit(request, stud_id, question_id):
     if student.delegation != delegation:
         return HttpResponseForbidden('You do not have permission to access this student.')
 
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
     version = 'D'
 
     ctx = RequestContext(request)
@@ -251,7 +251,7 @@ def delegation_stud_view(request, stud_id, question_id):
     if student.delegation != delegation:
         return HttpResponseForbidden('You do not have permission to access this student.')
 
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
     versions = ['O', 'D', 'F']
     versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
 
@@ -283,7 +283,7 @@ def delegation_stud_view(request, stud_id, question_id):
 @permission_required('ipho_core.is_delegation')
 def delegation_confirm(request, exam_id):
     delegation = Delegation.objects.get(members=request.user)
-    exam = get_object_or_404(Exam, id=exam_id, active=True)
+    exam = get_object_or_404(Exam, id=exam_id, marking_active=True)
     form_error = ''
 
     points_submissions,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.POINTS)

@@ -24,7 +24,7 @@ class QuestionInline(admin.StackedInline):
     extra = 2
 
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'active', 'hidden')
+    list_display = ('name', 'active', 'marking_active', 'hidden')
     inlines = [QuestionInline]
 
 class QuestionAdmin(admin.ModelAdmin):
