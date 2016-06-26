@@ -56,7 +56,7 @@ def concatenate_documents(all_pages, filename='exam.pdf'):
     meta['barcode_num_pages'] = sum([meta['barcode_num_pages'] for _,meta in all_pages])
     all_codes = [meta['barcode_base'] for _,meta in all_pages if meta['barcode_base'] is not None]
     if all_same(all_codes):
-        meta['barcode_base'] = all_codes[0] or None
+        meta['barcode_base'] = all_codes[0] if len(all_codes) > 0 else None
     else:
         meta['barcode_base'] = ','.join(all_codes)
     return doc_pdf, meta
