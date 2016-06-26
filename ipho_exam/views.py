@@ -1561,6 +1561,8 @@ def bulk_print(request):
         'barcode_base',
         'barcode_num_pages',
         'scan_file',
+        'scan_status',
+        'scan_msg',
         'last_print_p',
         'last_print_s'
     )
@@ -1600,6 +1602,7 @@ def bulk_print(request):
                 'delegation'  : delegation,
                 'queue_list'  : queue_list,
                 'docs_list'   : docs_list,
+                'scan_status_choices': Document.SCAN_STATUS_CHOICES,
                 'all_pages'   : range(1,paginator.num_pages+1),
                 'form': form,
                 'this_url_builder'    : url_builder(reverse('exam:bulk-print'), request.GET),
@@ -1626,3 +1629,10 @@ def print_doc(request, type, exam_id, position, student_id, queue):
     print request.META
     n = request.META.get('HTTP_REFERER', reverse('exam:bulk-print'))
     return HttpResponseRedirect(n)
+
+@permission_required('ipho_core.is_staff')
+def set_scan_status(request, doc_id, status):
+    doc = get_object_or_404(Document, id=doc_id)
+    doc.scan_status = status
+    doc.save()
+    return HttpResponseRedirect(reverse('exam:bulk-print'))

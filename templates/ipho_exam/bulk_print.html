@@ -71,15 +71,15 @@ View and print individual documents, or select and print in bulk.
     <table class="table table-striped">
       <tr>
           <th>Exam</th>
-          <th># Question</th>
+          <th>#</th>
           <th>Delegation</th>
           <th>Student</th>
           <th>Num pages</th>
           <th>Barcode</th>
-          <th>Num Barcode</th>
           <th>Printouts</th>
           <th>Last print</th>
           <th>Scans</th>
+          <th>Scan status</th>
           <th>Last print</th>
       </tr>
       <tbody>
@@ -89,9 +89,8 @@ View and print individual documents, or select and print in bulk.
             <td>{{ d.position }}</td>
             <td>{{ d.student__delegation__name }}</td>
             <td>{{ d.student__code }}</td>
-            <td>{{ d.num_pages }}</td>
+            <td>{{ d.num_pages }} / {{ d.barcode_num_pages }}</td>
             <td>{{ d.barcode_base }}</td>
-            <td>{{ d.barcode_num_pages }}</td>
             <td align="center">
               <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
               <br />
@@ -125,6 +124,19 @@ View and print individual documents, or select and print in bulk.
                     {% endfor %}
                   </ul>
                 </div>
+              {% endif %}
+            </td>
+            <td>
+              {% if d.scan_status %}
+              <div class="btn-group">
+                {% for r,label in scan_status_choices %}
+                <a class="btn btn-default btn-xs {% if d.scan_status == r %}active{% endif %}" href="{% url 'exam:set-scan-status' doc_id=d.pk status=r %}" title="{{ label }}" data-toggle="tooltip">{{ r }}</a>
+                {% endfor %}
+                {% if d.scan_msg %}
+                <br />
+                <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="{{ d.scan_msg }}"><span class="glyphicon glyphicon-info-sign"></span></a>
+                {% endif %}
+              </div>
               {% endif %}
             </td>
             <td>{{ d.last_print_s|date:"SHORT_DATETIME_FORMAT" }}</td>
@@ -171,4 +183,15 @@ View and print individual documents, or select and print in bulk.
       </ul>
     </div>
 
+{% endblock %}
+
+{% block extra-script %}
+<script>
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  })
+  $(function () {
+  $('[data-toggle="popover"]').popover()
+})
+</script>
 {% endblock %}
