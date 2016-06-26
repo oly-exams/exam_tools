@@ -204,16 +204,32 @@ def add_translation(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
 
+    num_questions = exam.question_set.count()
     translation_form = TranslationForm(request.POST or None)
-    translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation).exclude(translationnode__question__exam=exam).exclude(pdfnode__question__exam=exam) # TODO: still allow for languages that are not created for all questions
+    translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation).annotate(
+         num_translation=Sum(
+             Case(When(translationnode__question__exam=exam, then=1),
+                  output_field=IntegerField())
+         ),
+         num_pdf=Sum(
+             Case(When(pdfnode__question__exam=exam, then=1),
+                  output_field=IntegerField())
+         )
+    ).filter(Q(num_translation__lt=num_questions) | Q(num_pdf__lt=num_questions))
     if translation_form.is_valid():
         for question in exam.question_set.exclude(translationnode__language=translation_form.cleaned_data['language']):
             if translation_form.cleaned_data['language'].is_pdf:
-                node = PDFNode(language=translation_form.cleaned_data['language'], question=question, status='O')
-                node.save()
+                node,_ = PDFNode.objects.get_or_create(
+                    language=translation_form.cleaned_data['language'],
+                    question=question,
+                    defaults={'status': 'O'}
+                )
             else:
-                node = TranslationNode(language=translation_form.cleaned_data['language'], question=question, status='O')
-                node.save()
+                node,_ = TranslationNode.objects.get_or_create(
+                    language=translation_form.cleaned_data['language'],
+                    question=question,
+                    defaults={'status': 'O'}
+                )
 
         return JsonResponse({
                     'success' : True,
