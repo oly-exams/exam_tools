@@ -106,6 +106,7 @@ def translations_list(request):
     # if request.is_ajax and 'exam_id' in request.GET:
     if 'exam_id' in request.GET:
         exam = get_object_or_404(Exam, id=request.GET['exam_id'])
+        in_progress = ExamAction.is_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
         trans_list = TranslationNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
         pdf_list = PDFNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
         node_list = list(trans_list) + list(pdf_list)
@@ -121,9 +122,12 @@ def translations_list(request):
                     'exam'      : exam,
                     'node_list' : node_list,
                     'official_nodes': official_nodes,
+                    'exam_active' : exam.active and in_progress
                 })
     else:
         exam_list = Exam.objects.filter(hidden=False)
+        for exam in exam_list:
+            exam.is_active = exam.active and ExamAction.is_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
         return render(request, 'ipho_exam/list.html',
                 {
                     'exam_list' : exam_list,
