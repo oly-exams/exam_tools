@@ -16,7 +16,7 @@ import datetime
 
 from django.core.files.base import ContentFile
 from ipho_exam.models import Document
-
+import re
 
 MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
 GOOD_OUTPUT_DIR = os.path.join(MEDIA_ROOT, 'scans-evaluated')
@@ -121,7 +121,10 @@ def get_timestamp():
 def main(input):
     pages = inspect_file(input)
 
-    get_base = lambda code: '-'.join(code.split('-')[:-1])
+    base_code_pattern = re.compile(r'(([^ ]+) ([^ ]+))')
+    def get_base(code):
+        match = base_code_pattern.match(code)
+        return match.group(1) if match else None
     basecodes = { get_base(code): [] for i,page,code in pages if code is not None }
     for i,page,code in pages:
         if code is not None:
