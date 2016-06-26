@@ -114,6 +114,8 @@
                 delegation
                 {% elif perms.ipho_core.is_marker %}
                 marker
+                {% else %}
+                user
                 {% endif %}
                 </strong></li>
               <li><a href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
