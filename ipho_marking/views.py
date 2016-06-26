@@ -173,7 +173,7 @@ def export(request):
 @permission_required('ipho_core.is_delegation')
 def delegation_summary(request):
     delegation = Delegation.objects.get(members=request.user)
-    points_submissions = ExamAction.objects.filter(delegation=delegation, action=ExamAction.POINTS, exam__active=True).order_by('exam')
+    points_submissions = ExamAction.objects.filter(delegation=delegation, action=ExamAction.POINTS, exam__marking_active=True).order_by('exam')
     students = Student.objects.filter(delegation=delegation).values('id', 'pk', 'code', 'first_name', 'last_name')
     vid = 'F'
     points_per_student = []

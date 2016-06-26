@@ -56,6 +56,8 @@
         <div class="panel-footer"><a class="btn btn-primary btn-sm" href="{% url 'marking:delegation-confirm' psubs.exam.pk %}">Confirm marking <i class="fa fa-angle-double-right"></i></a></div>
         {% endif %}
       </div>
+      {% empty %}
+      <p class="alert alert-info">Marking is currently enabled for any exam.</p>
       {% endfor %}
 
       </div>
