@@ -47,6 +47,7 @@
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Exam <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
+                  {% if perms.ipho_core.is_delegation %}
                   <li class="dropdown-header">Step-by-step guide</li>
                   <li><a href="{% url 'exam:wizard' %}">Get started!</a></li>
                   <li class="divider"></li>
@@ -55,6 +56,7 @@
                   <li><a href="{% url 'exam:list' %}">Your translations</a></li>
                   <li><a href="{% url 'exam:submission-exam-list' %}">Final submission</a></li>
                   <li class="divider"></li>
+                  {% endif %}
                   <li class="dropdown-header">All translations</li>
                   <li><a href="{% url 'exam:list-all' %}">View all translations</a></li>
                   <li class="divider"></li>
@@ -64,16 +66,21 @@
               </li>
 
               {% if not DEMO_MODE %}
+              {% if perms.ipho_core.is_delegation %}
               <li><a href="{% url 'marking:delegation-summary' %}">Results</a></li>
+              {% endif %}
+              {% if perms.ipho_core.can_vote %}
               <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
+              {% endif %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
               <li><a href="{% url 'print:main' %}">Print</a></li>
               {% endif %}
 
-              {% if perms.ipho_core.is_staff %}
+              {% if perms.ipho_core.is_staff or perms.ipho_core.is_marker %}
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin tools <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
+                  {% if perms.ipho_core.is_staff %}
                   <li class="dropdown-header">Exam</li>
                   <li><a href="{% url 'exam:admin' %}">Exam management</a></li>
                   <li><a href="{% url 'exam:figures' %}">Figures management</a></li>
@@ -87,14 +94,19 @@
                   <li class="dropdown-header">Printing</li>
                   <li><a href="{% url 'exam:bulk-print' %}">Bulk print</a></li>
                   <li class="divider"></li>
+                  {% endif %}
                   <li class="dropdown-header">Marking</li>
+                  {% if perms.ipho_core.is_staff %}
                   <li><a href="{% url 'marking:import-exam' %}">Import exam</a></li>
+                  {% endif %}
                   <li><a href="{% url 'marking:summary' %}">Summary</a></li>
                   <li><a href="{% url 'marking:moderation-index' %}">Moderation</a></li>
                   <li><a href="{% url 'marking:export' %}">Export markings</a></li>
+                  {% if perms.ipho_core.is_staff %}
                   <li class="divider"></li>
                   <li class="dropdown-header">Django admin</li>
                   <li><a href="{% url 'admin:index' %}">Admin interface</a></li>
+                  {% endif %}
                 </ul>
               </li>
               {% endif %}
@@ -104,7 +116,20 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
-              <li class="navbar-text">{{ user.username }}, <strong>{% if user.is_superuser %}admin{% elif perms.ipho_core.is_staff %}staff{% elif perms.ipho_core.is_leader %}delegation{% endif %}</strong></li>
+              <li class="navbar-text">{{ user.username }},
+                <strong>
+                {% if user.is_superuser %}
+                admin
+                {% elif perms.ipho_core.is_staff %}
+                staff
+                {% elif perms.ipho_core.is_delegation %}
+                delegation
+                {% elif perms.ipho_core.is_marker %}
+                marker
+                {% else %}
+                user
+                {% endif %}
+                </strong></li>
               <li><a href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
             {% else %}
               <li><a href="{% url 'django.contrib.auth.views.login' %}?next=/">Login</a></li>
