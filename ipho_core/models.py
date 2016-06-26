@@ -6,7 +6,9 @@ class IphoPerm(models.Model):
     pass
     class Meta:
             permissions = (
-                ('is_leader', 'Is a leader'),
+                ('is_delegation', 'Is a delegation'),
+                ('is_marker', 'Is a marker'),
+                ('can_vote', 'Can vote'),
                 ('is_staff', 'Is an organizer'),
                 ('print_technopark', 'Can print in Technopark'),
                 ('print_irchel', 'Can print in Irchel'),
