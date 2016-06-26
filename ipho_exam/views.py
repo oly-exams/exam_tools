@@ -985,11 +985,12 @@ def submission_exam_list(request):
     delegation = Delegation.objects.filter(members=request.user)
 
     exams_open = Exam.objects.filter(
-        hidden=False
+        hidden=False,
     ).exclude(
-        delegation_status__delegation=delegation,
-        delegation_status__action=ExamAction.TRANSLATION,
-        delegation_status__status=ExamAction.SUBMITTED
+        delegation_status__in=ExamAction.objects.filter(
+            delegation=delegation,
+            action=ExamAction.TRANSLATION,
+            status=ExamAction.SUBMITTED)
     ).distinct()
     exams_closed = Exam.objects.filter(
         hidden=False
