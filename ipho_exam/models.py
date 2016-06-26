@@ -6,6 +6,7 @@ from django.conf import settings
 from ipho_core.models import Delegation, Student
 from django.shortcuts import get_object_or_404
 from ipho_exam import fonts
+from .exceptions import IphoExamException, IphoExamForbidden
 
 import os, uuid
 import subprocess
@@ -360,6 +361,20 @@ class ExamAction(models.Model):
     def natural_key(self):
         return self.exam.natural_key() + self.delegation.natural_key() + (self.action,)
     natural_key.dependencies = ['ipho_exam.exam', 'ipho_core.delegation']
+
+    @staticmethod
+    def is_in_progress(action, exam, delegation):
+        translation_submitted = ExamAction.objects.filter(
+            exam=exam,
+            delegation=delegation,
+            action=action,
+            status=ExamAction.SUBMITTED
+        ).exists()
+        return not translation_submitted
+    @staticmethod
+    def require_in_progress(action, exam, delegation):
+        if not ExamAction.is_in_progress(action, exam, delegation):
+            raise IphoExamForbidden('You cannot perfom this action more than once. Contact the staff if have good reasons to request a reset.')
 
 
 @receiver(post_save, sender=Exam, dispatch_uid='create_actions_on_exam_creation')

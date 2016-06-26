@@ -101,10 +101,11 @@ del {
     <div id="alerts-container"></div>
 
     {% for ex in exam_list %}
-    {# {% url 'exam:add-translation' exam_id=ex.pk %}#}
     <h3>
         {{ ex.name }}
+        {% if ex.is_active %}
         <a class="btn btn-default btn-sm" data-toggle="modal" data-target="#translation-modal" data-remote="false" href="{% url 'exam:add-translation' exam_id=ex.pk %}"><i class="fa fa-plus"></i> Add translation</a>
+        {% endif %}
     </h3>
     <table class="table table-striped">
       <tr>

@@ -81,7 +81,7 @@ def wizard(request):
 
     own_languages = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
     ## Exam section
-    exam_list = Exam.objects.filter(hidden=False)
+    exam_list = Exam.objects.filter(hidden=False, active=True)
     open_submissions = ExamAction.objects.filter(exam=exam_list, exam__active=True,
      delegation=delegation, action=ExamAction.TRANSLATION, status=ExamAction.OPEN)
     closed_submissions = ExamAction.objects.filter(exam=exam_list, delegation=delegation, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED)
@@ -106,6 +106,7 @@ def translations_list(request):
     # if request.is_ajax and 'exam_id' in request.GET:
     if 'exam_id' in request.GET:
         exam = get_object_or_404(Exam, id=request.GET['exam_id'])
+        in_progress = ExamAction.is_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
         trans_list = TranslationNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
         pdf_list = PDFNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
         node_list = list(trans_list) + list(pdf_list)
@@ -121,9 +122,12 @@ def translations_list(request):
                     'exam'      : exam,
                     'node_list' : node_list,
                     'official_nodes': official_nodes,
+                    'exam_active' : exam.active and in_progress
                 })
     else:
         exam_list = Exam.objects.filter(hidden=False)
+        for exam in exam_list:
+            exam.is_active = exam.active and ExamAction.is_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
         return render(request, 'ipho_exam/list.html',
                 {
                     'exam_list' : exam_list,
@@ -198,6 +202,7 @@ def add_translation(request, exam_id):
         raise Exception('TODO: implement small template page for handling without Ajax.')
     delegation = Delegation.objects.get(members=request.user)
     exam = get_object_or_404(Exam, id=exam_id)
+    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
 
     translation_form = TranslationForm(request.POST or None)
     translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation).exclude(translationnode__question__exam=exam).exclude(pdfnode__question__exam=exam) # TODO: still allow for languages that are not created for all questions
@@ -232,7 +237,10 @@ def add_pdf_node(request, question_id, lang_id):
     delegation = Delegation.objects.get(members=request.user)
     question = get_object_or_404(Question, id=question_id)
     lang = get_object_or_404(Language, id=lang_id)
-    ## TODO: check permissions
+    if not lang.check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to edit this language.')
+
+    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
 
     node = get_object_or_404(PDFNode, question=question, language=lang)
     ## Language section
@@ -269,11 +277,13 @@ def translation_export(request, question_id, lang_id, version_num=None):
     return res
 @login_required
 def translation_import(request, question_id, lang_id):
-    delegation = Delegation.objects.get(members=request.user)
+    delegation = Delegation.objects.filter(members=request.user)
     language = get_object_or_404(Language, id=lang_id)
     question = get_object_or_404(Question, id=question_id)
     if not language.check_permission(request.user):
         return HttpResponseForbidden('You do not have the permissions to edit this language.')
+
+    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
 
     form = TranslationImportForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -338,6 +348,7 @@ def translation_import_confirm(request, slug):
 def list_language(request):
     delegation = Delegation.objects.filter(members=request.user)
     languages = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
+    # TODO: do not show Add language if no delegation
     return render(request, 'ipho_exam/languages.html', {'languages': languages})
 
 @login_required
@@ -404,7 +415,7 @@ def edit_language(request, lang_id):
 @ensure_csrf_cookie
 def feedbacks_list(request):
     exam_list = Exam.objects.filter(hidden=False, active=True)
-    delegation = Delegation.objects.get(members=request.user)
+    delegation = Delegation.objects.filter(members=request.user)
 
     if 'exam_id' in request.GET:
         if not int(request.GET['exam_id']) in [ex.pk for ex in exam_list]:
@@ -445,14 +456,17 @@ def feedbacks_list(request):
         choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
         for fb in feedbacks:
             fb['status_display'] = choices[fb['status']]
-            fb['enable_likes'] = (fb['delegation_likes']==0) and (fb['question__feedback_active'])
+            fb['enable_likes'] = (fb['delegation_likes']==0) and fb['question__feedback_active'] and len(delegation) > 0
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
                     'feedbacks' : feedbacks,
+                    'is_delegation' : len(delegation) > 0,
                 })
     else:
+        # TODO: allow Add feedback only if a delegation
         return render(request, 'ipho_exam/feedbacks.html', {
                     'exam_list' : exam_list,
+                    'is_delegation' : len(delegation) > 0,
                 })
 
 @login_required
@@ -1188,7 +1202,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                'orig_id'     : orig_id,
                'orig_diff'   : orig_diff,
                }
-    exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
+    exam_list = Exam.objects.filter(hidden=False, active=True) # TODO: allow admin to see all exams
     context['exam_list'] = exam_list
 
     exam = None
@@ -1205,17 +1219,16 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     last_saved = None
 
     if exam_id is not None:
-        exam = get_object_or_404(Exam, id=exam_id)
+        exam = get_object_or_404(Exam, id=exam_id, active=True, hidden=False)
     if question_id is not None:
-        question = get_object_or_404(Question, id=question_id)
+        question = get_object_or_404(Question, id=question_id, exam=exam)
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.all()[0]
 
     delegation = Delegation.objects.filter(members=request.user)
-
+    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
 
     ## TODO:
-    ## * check for read-only questions
     ## * deal with errors when node not found: no content
 
     if question:
