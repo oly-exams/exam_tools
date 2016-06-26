@@ -170,7 +170,7 @@ def export(request):
 
     return response
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def delegation_summary(request):
     delegation = Delegation.objects.get(members=request.user)
     points_submissions = ExamAction.objects.filter(delegation=delegation, action=ExamAction.POINTS, exam__active=True).order_by('exam')
@@ -213,7 +213,7 @@ def delegation_summary(request):
     }
     return render(request, 'ipho_marking/delegation_summary.html', ctx)
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def delegation_stud_edit(request, stud_id, question_id):
     delegation = Delegation.objects.get(members=request.user)
     student = get_object_or_404(Student, id=stud_id)
@@ -244,7 +244,7 @@ def delegation_stud_edit(request, stud_id, question_id):
     ctx['form'] = form
     return render(request, 'ipho_marking/delegation_detail.html', ctx)
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def delegation_stud_view(request, stud_id, question_id):
     delegation = Delegation.objects.get(members=request.user)
     student = get_object_or_404(Student, id=stud_id)
@@ -280,7 +280,7 @@ def delegation_stud_view(request, stud_id, question_id):
     ctx['markings'] = grouped_markings
     return render(request, 'ipho_marking/delegation_detail.html', ctx)
 
-@login_required
+@permission_required('ipho_core.is_delegation')
 def delegation_confirm(request, exam_id):
     delegation = Delegation.objects.get(members=request.user)
     exam = get_object_or_404(Exam, id=exam_id, active=True)
