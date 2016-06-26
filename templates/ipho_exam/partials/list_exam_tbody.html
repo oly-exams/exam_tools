@@ -4,7 +4,7 @@
     <td>{{ node.question.name }}</td>
     <td>{{ node.language.name }}</td>
     <td>{{ node.timestamp }}</td>
-    <td>{{ node.get_status_display }}</td>
+    <td>{{ exam_active|yesno:'In progress,Closed' }}</td>
     <td>
       <div class="btn-toolbar">
         {% if exam_active %}
