@@ -138,7 +138,8 @@ def main(input):
     for code, pgs in basecodes.iteritems():
         try:
             doc = Document.objects.get(barcode_base=code)
-            if doc.barcode_num_pages != len(pgs):
+            doc_complete = doc.barcode_num_pages == len(pgs)
+            if not doc_complete:
                 print 'WARNING:', 'Number of pages does not match!', code, len(pgs), doc.barcode_num_pages
             ordered_pages = [ page for i,page,code in sorted(pages, key=lambda k: k[2]) if code is not None and i in pgs ]
             output = PdfFileWriter()
@@ -149,6 +150,9 @@ def main(input):
             contentfile = ContentFile(output_pdf.getvalue())
             contentfile.name = input.name
             doc.scan_file = contentfile
+            doc.scan_status = 'S' if doc_complete else 'M'
+            if not doc_complete:
+                doc.scan_msg = 'Missing pages: {} in DB but only {} in scanned document.'.format(doc.barcode_num_pages, len(pgs))
             doc.save()
 
             shutil.copy(input.name, os.path.join(GOOD_OUTPUT_DIR, code+'-'+get_timestamp()+'.pdf'))
@@ -168,7 +172,7 @@ def main(input):
         with open(oname+'.status', 'w') as f:
             f.write('NO-BARCODE')
 
-    # os.unlink(input.name)
+    os.unlink(input.name)
 
 
 

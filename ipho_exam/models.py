@@ -413,6 +413,12 @@ def exam_scans_filename(obj, fname):
     basestr='exams-docs/{}/scan/exam-{}-{}.pdf'
     return basestr.format(obj.student.code,obj.exam.id,obj.position)
 class Document(models.Model):
+    SCAN_STATUS_CHOICES = (
+        ('S', 'Success'),
+        ('W', 'Warning'),
+        ('M', 'Missing pages'),
+    )
+
     exam      = models.ForeignKey(Exam)
     student   = models.ForeignKey(Student)
     position  = models.IntegerField()
@@ -420,7 +426,9 @@ class Document(models.Model):
     num_pages = models.IntegerField(default=0)
     barcode_num_pages = models.IntegerField(default=0)
     barcode_base      = models.TextField()
-    scan_file = models.FileField(blank=True, upload_to=exam_scans_filename)
+    scan_file   = models.FileField(blank=True, upload_to=exam_scans_filename)
+    scan_status = models.CharField(max_length=10, blank=True, null=True, choices=SCAN_STATUS_CHOICES)
+    scan_msg    = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = index_together = (('exam', 'student', 'position'),)

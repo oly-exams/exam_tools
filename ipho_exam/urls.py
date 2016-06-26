@@ -84,6 +84,7 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^admin/submissions/(?P<submission_id>\d+)/delete$', 'admin_submission_delete', name='admin-submission-delete'),
 
     url(r'^admin/bulk-print/?$', 'bulk_print', name='bulk-print'),
+    url(r'^admin/scan-status/(?P<doc_id>\d+)/(?P<status>\w)$', 'set_scan_status', name='set-scan-status'),
 
     url(r'^test/', include('ipho_exam.urls_test', namespace='test')),
 
