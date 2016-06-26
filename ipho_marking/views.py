@@ -55,7 +55,7 @@ def import_exam(request):
     return render(request, 'ipho_marking/import_exam.html', ctx)
 
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_marker')
 def summary(request):
     vid = request.GET.get('version', 'O')
 
@@ -121,7 +121,7 @@ def summary(request):
     }
     return render(request, 'ipho_marking/summary.html', context)
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_marker')
 def staff_stud_detail(request, version, stud_id, question_id):
     ctx = RequestContext(request)
     ctx['msg'] = []
@@ -144,7 +144,7 @@ def staff_stud_detail(request, version, stud_id, question_id):
     ctx['form'] = form
     return render(request, 'ipho_marking/staff_edit.html', ctx)
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_marker')
 def export(request):
     versions = request.GET.get('v', 'O,D,F').split(',')
     exam_id = request.GET.get('exam', False)
@@ -307,7 +307,7 @@ def delegation_confirm(request, exam_id):
     return render(request, 'ipho_marking/delegation_confirm.html', ctx)
 
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_marker')
 def moderation_index(request, question_id=None):
     questions = Question.objects.filter(exam__hidden=False, type=Question.ANSWER)
     question = None if question_id is None else get_object_or_404(Question, id=question_id)
@@ -315,7 +315,7 @@ def moderation_index(request, question_id=None):
     ctx={'questions': questions, 'question': question, 'delegations': delegations}
     return render(request, 'ipho_marking/moderation_index.html', ctx)
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_marker')
 def moderation_detail(request, question_id, delegation_id):
     question = get_object_or_404(Question, id=question_id)
     delegation = get_object_or_404(Delegation, id=delegation_id)
@@ -346,7 +346,7 @@ def moderation_detail(request, question_id, delegation_id):
     ctx = {'metas': metas, 'question': question, 'delegation': delegation, 'student_forms': student_forms}
     return render(request, 'ipho_marking/moderation_detail.html', ctx)
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_marker')
 def moderation_confirmed(request, question_id, delegation_id):
     question = get_object_or_404(Question, id=question_id)
     delegation = get_object_or_404(Delegation, id=delegation_id)
