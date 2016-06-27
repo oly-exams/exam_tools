@@ -508,12 +508,10 @@ body { margin-bottom: 70px; }
             });
 
             clipboard.on('success', function(e) {
-                console.log('copied!!')
               setTooltip(e.trigger, 'Copied!');
               hideTooltip(e.trigger);
             });
             clipboard.on('error', function(e) {
-                console.log('failed!!')
               setTooltip(e.trigger, fallbackMessage(e.action));
               hideLongTooltip(e.trigger);
             });
