@@ -63,6 +63,21 @@ span.dropdown {
     direction: rtl;
 }
 
+.math-tex {
+    position: relative;
+}
+.math-tex .btn {
+    position: absolute;
+    right: 1px;
+    top: 0px;
+    opacity: 0;
+    z-index: 1000;
+}
+.math-tex:hover .btn {
+    opacity: 1;
+}
+
+
 ins {
     color: #00f;
     font-decoration: underline;
@@ -356,6 +371,7 @@ body { margin-bottom: 70px; }
     <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
     <script src="{% static "moment.min.js" %}"></script>
     <script src="{% static "bootstrap-switch/js/bootstrap-switch.min.js" %}"></script>
+    <script src="https://cdn.jsdelivr.net/clipboard.js/1.5.12/clipboard.min.js"></script>
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
         CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
@@ -447,8 +463,73 @@ body { margin-bottom: 70px; }
                 }
             }).tooltip();
 
+
+            function fallbackMessage(action) {
+                var actionMsg = '';
+                var actionKey = (action === 'cut' ? 'X' : 'C');
+                if (/iPhone|iPad/i.test(navigator.userAgent)) {
+                    actionMsg = 'No support :(';
+                } else if (/Mac/i.test(navigator.userAgent)) {
+                    actionMsg = 'Press ⌘-' + actionKey + ' to ' + action;
+                } else {
+                    actionMsg = 'Press Ctrl-' + actionKey + ' to ' + action;
+                }
+                return actionMsg;
+            }
+            function setTooltip(btn, message) {
+              $(btn)
+                .attr('data-original-title', message)
+                .tooltip('show');
+            }
+
+            function hideTooltip(btn) {
+              setTimeout(function() {
+                $(btn).tooltip('hide');
+              }, 1000);
+            }
+            function hideLongTooltip(btn) {
+              setTimeout(function() {
+                $(btn).tooltip('hide');
+              }, 2000);
+            }
+
+            $('.translate-original .math-tex').each(function () {
+                var content = $(this).html();
+                $(this).prepend('<button class="btn btn-xs btn-default small" data-clipboard-snippet><i class="fa fa-clipboard" aria-hidden="true"></i></button>').children('[data-clipboard-snippet]').attr('data-clipboard-text', '<span class="math-tex">'+content+'</span>').tooltip({
+                    trigger: 'click',
+                    placement: 'bottom'
+                });
+            });
+
+            var clipboard = new Clipboard('.btn[data-clipboard-snippet]', {
+                text: function(trigger) {
+                    return trigger.getAttribute('data-clipboard-text');
+                }
+            });
+
+            clipboard.on('success', function(e) {
+                console.log('copied!!')
+              setTooltip(e.trigger, 'Copied!');
+              hideTooltip(e.trigger);
+            });
+            clipboard.on('error', function(e) {
+                console.log('failed!!')
+              setTooltip(e.trigger, fallbackMessage(e.action));
+              hideLongTooltip(e.trigger);
+            });
+
+
             $(".translate-original").each(content2math);
             $(".translate-foreign").each(content2math);
+
+            // $('body').on('click', ':not(.math-tex *)', function (evt) {
+            //   if (evt.target != this) return;
+            //   $('.math-selected').removeClass('math-selected');
+            // });
+            // $("body").on('click', '.math-tex', function (evt) {
+            //   $('.math-selected').removeClass('math-selected');
+            //   $(this).addClass('math-selected');
+            // });
 
             $(".translate-copy-button").click(function( event ) {
                 field_id =  $(this).attr('id').replace('-copy', '');
