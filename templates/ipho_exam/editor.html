@@ -371,7 +371,7 @@ body { margin-bottom: 70px; }
     <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
     <script src="{% static "moment.min.js" %}"></script>
     <script src="{% static "bootstrap-switch/js/bootstrap-switch.min.js" %}"></script>
-    <script src="https://cdn.jsdelivr.net/clipboard.js/1.5.12/clipboard.min.js"></script>
+    <script src="{% static "clipboard.min.js" %}"></script>
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
         CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
