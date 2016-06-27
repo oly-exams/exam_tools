@@ -553,6 +553,16 @@ body { margin-bottom: 70px; }
                 all_editors[myid] = $(this).ckeditor().editor;
                 var textarea = $(this);
                 all_editors[myid].on('change', function() { this.updateElement(); textarea.change(); });
+                all_editors[myid].on('paste', function( evt ) {
+                  // Create a standalone filter passing 'p' and 'b' elements.
+                  var filter = new CKEDITOR.filter( 'span(math-tex)' ),
+                    // Parse the HTML string to pseudo-DOM structure.
+                    fragment = CKEDITOR.htmlParser.fragment.fromHtml( $.parseHTML(evt.data.dataValue)[0].textContent ),
+                    writer = new CKEDITOR.htmlParser.basicWriter();
+                  filter.applyTo( fragment );
+                  fragment.writeHtml( writer );
+                  evt.data.dataValue = writer.getHtml();
+                } );
             });
 
             // Figure preview
