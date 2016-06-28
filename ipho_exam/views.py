@@ -208,11 +208,13 @@ def add_translation(request, exam_id):
     translation_form = TranslationForm(request.POST or None)
     translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation).annotate(
          num_translation=Sum(
-             Case(When(translationnode__question__exam=exam, then=1),
+             Case(When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
+                  When(is_pdf=True, then=None),
                   output_field=IntegerField(), default=0)
          ),
          num_pdf=Sum(
-             Case(When(pdfnode__question__exam=exam, then=1),
+             Case(When(Q(pdfnode__question__exam=exam, is_pdf=True), then=1),
+                  When(is_pdf=False, then=None),
                   output_field=IntegerField(), default=0)
          )
     ).filter(Q(num_translation__lt=num_questions) | Q(num_pdf__lt=num_questions))
