@@ -1,5 +1,6 @@
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import ParseError
+from bs4 import BeautifulSoup
 import re
 from copy import deepcopy
 #import lxml.etree as lxmltree
@@ -66,11 +67,18 @@ def content2string(node):
     # filter removes possible Nones in texts and tails
     return ''.join(filter(None, parts))
 
+def normalize_html(data):
+    xhtmlout = BeautifulSoup(data, "html5lib")
+    xhtmlout.body.hidden = True
+    return unicode(xhtmlout)
+
 mathtex_pattern = re.compile(r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</span>')
 def escape_equations(txt):
     return mathtex_pattern.sub(lambda m: u'<span class="math-tex">\({}\)</span>'.format(escape(m.group(1))), txt)
 
 def data2tex(data):
+    cont_html = BeautifulSoup(data, "html5lib")
+    return tex.html2tex_bs4(cont_html.body)
     cont_str = '<content>'+unescape_entities(data)+'</content>'
     cont_str = escape_equations(cont_str)
     try:
@@ -86,9 +94,7 @@ def data2tex(data):
     return tex.html2tex(cont_xml)
 
 def data2xhtml(data):
-    xhtmlout = unescape_entities(data)
-    xhtmlout = escape_equations(xhtmlout)
-    return xhtmlout
+    return normalize_html(data)
 
 def canonical_name(qobj):
     if qobj.default_heading is not None:
@@ -185,7 +191,7 @@ class QMLobject(object):
         self.data = None
         if self.__class__.has_text:
             content = content2string(root)
-            self.data = unescape_entities(content)
+            self.data = normalize_html(content)
         self.data_html = self.data
 
         if self.__class__.has_children:

@@ -5,6 +5,8 @@ from django.core.cache import cache
 from django.conf import settings
 from django.utils.text import unescape_entities
 
+from bs4 import NavigableString
+
 from tempfile import mkdtemp
 import subprocess
 import os
@@ -62,6 +64,51 @@ def html2tex(el):
             result.append(html2tex(sel))
         if sel.tail:
             result.append(sel.tail)
+    return u"".join(result)
+
+def html2tex_bs4(el):
+    result = []
+    if isinstance(el, NavigableString):
+        return unicode(el)
+    for sel in el.children:
+        if isinstance(sel, NavigableString):
+            result.append(unicode(sel))
+        ## Span styling
+        elif sel.name in ["span"]:
+            for att in sel.attrs.keys():
+                if att =='style':
+                    if 'font-style:italic' in sel.attrs[att]:
+                        result.append(u'\\textit{%s}' % (html2tex_bs4(sel)))
+                    elif 'font-weight:bold' in sel.attrs[att]:
+                        result.append(u'\\textbf{%s}' % (html2tex(sel)))
+                elif att =='class' and 'math-tex' in sel.attrs[att]:
+                    if sel.string is not None and sel.string[:2] == '\(':
+                        if len(sel.contents) > 1:
+                            print 'WARNING:', 'Math with nested tags!!'
+                            print sel
+                        print sel.string
+                        result.append( unescape_entities(sel.string) )
+                elif att =='class' and 'lang-ltr' in sel.attrs[att]:
+                    result.append(u'\\textenglish{%s}' % (html2tex_bs4(sel)))
+        ## Bold
+        elif sel.name in ["b","strong"]:
+            result.append(u'\\textbf{%s}' % (html2tex_bs4(sel)))
+        ## Italic
+        elif sel.name in ["i"]:
+            result.append(u'\\textit{%s}' % (html2tex_bs4(sel)))
+        ## Emph
+        elif sel.name in ["em"]:
+            result.append(u'\\emph{%s}' % (html2tex_bs4(sel)))
+        ## Underline
+        elif sel.name in ["u"]:
+            result.append(u'\\underline{%s}' % (html2tex_bs4(sel)))
+        ## English in RTL
+        elif 'dir' in sel.attrs and sel.attrs['dir'] == 'ltr':
+            result.append(u'\\begin{english}\n%s\n\\end{english}' % (html2tex_bs4(sel)))
+
+        ## By default just append content
+        else:
+            result.append(html2tex_bs4(sel))
     return u"".join(result)
 
 
