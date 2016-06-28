@@ -69,8 +69,10 @@ def content2string(node):
 
 def normalize_html(data):
     xhtmlout = BeautifulSoup(data, "html5lib")
-    xhtmlout.body.hidden = True
-    return unicode(xhtmlout)
+    try:
+        return unicode(xhtmlout.body.contents[0])
+    except:
+        return unicode(xhtmlout)
 
 mathtex_pattern = re.compile(r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</span>')
 def escape_equations(txt):
