@@ -673,22 +673,30 @@ class QMLtable(QMLobject):
     has_children = True
 
     default_attributes = {
-        'width': '',
+        #~ 'width': '',
         'top_line': '1',
-        'left_line': '1',
-        'right_line': '1',
-        'grid_lines': '1',
+        #~ 'left_line': '1',
+        #~ 'right_line': '1',
+        #~ 'grid_lines': '1',
     }
 
-
+    def _rows(self):
+        try:
+            # The rows attribute is a plain tex specifier, like |l|r|l|
+            return unicode(self.attributes['rows'])
+        # If this is not given, the width must be set.
+        except KeyError:
+            return (
+                u'|' * int(self.attributes.get('left_line', 1)) +
+                (int(self.attributes.get('grid_lines', 1)) * u'|').join(
+                    [u'l'] * int(self.attributes['width'])
+                ) +
+                u'|' * int(self.attributes.get('right_line', 1))
+            )
 
     def tex_begin(self):
         return (
-            u'\\begin{center}\\begin{tabular}{' + u'|' * int(self.attributes['left_line']) +
-            (int(self.attributes['grid_lines']) * u'|').join(
-                [u'l'] * int(self.attributes['width'])
-            ) +
-            u'|' * int(self.attributes['right_line']) + u'}' +
+            u'\\begin{center}\\begin{tabular}{' + self._rows() + u'}' +
             int(self.attributes['top_line']) * u'\\hline' + u'\n'
         )
 
