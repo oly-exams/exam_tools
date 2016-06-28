@@ -706,10 +706,14 @@ class QMLtableRow(QMLobject):
     default_attributes = {'bottom_line': '1'}
 
     def make_tex(self):
+        try:
+            multiplier = int(self.attributes['multiplier'])
+        except KeyError:
+            multiplier = 1
         texout = u''
         texout += u' & '.join(data2tex(c.data) for c in self.children)
         texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
-        return texout, []
+        return texout * multiplier, []
 
 class QMLtableCell(QMLobject):
     abbr = "ce"
