@@ -19,10 +19,10 @@
 % Page options
 \RequirePackage{geometry}
 \setlength{\headheight}{2.5cm}
-\geometry{left=3cm}
-\geometry{right=3cm}
+\geometry{left=2cm}
+\geometry{right=2cm}
 \geometry{top=5.5cm}
-\geometry{bottom=2.5cm}
+\geometry{bottom=2cm}
 
 %Paragraph spacing
 \RequirePackage{parskip}
@@ -42,7 +42,7 @@
 % Headers
 \RequirePackage{fancyhdr}
 \renewcommand{\headrulewidth}{2pt}
-\fancyheadoffset{1cm} % make heading go out horizontally
+%\fancyheadoffset{1cm} % make heading go out horizontally
 \pagestyle{fancy}
 \fancyhf[HL]{\includegraphics[width=2cm]{% templatetag openbrace %}{{ STATIC_PATH }}/ipho16_small_green.pdf} }
 
@@ -109,6 +109,20 @@
 }
 % \vspace{0.5em}
 \end{framed}
+}
+
+% Subanswer (QMLsubanswer)
+\newenvironment{QSA}[3]
+{
+    \def\QSApoints{#1} %\vspace{0.5em}
+    \renewcommand{\arraystretch}{2.}
+    \begin{framed}
+    \noindent
+    \begin{english}\noindent\bf #2.#3 (\QSApoints ~pt) \end{english} 
+    
+}
+{
+    \end{framed}
 }
 
 % \newenvironment{QTF}[1]

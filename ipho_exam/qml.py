@@ -111,7 +111,7 @@ def question_points(root):
     ## This function is not too geenric, but it should fit our needs
     ret = []
     for obj in root.children:
-        if isinstance(obj, QMLsubquestion):
+        if isinstance(obj, QMLsubquestion) or isinstance(obj, QMLsubanswer):
             points = float(obj.attributes.get('points', 0.))
             name = '{}.{}'.format(obj.attributes.get('part_nr', ''), obj.attributes.get('question_nr', ''))
             ret.append(( name, points ))
@@ -400,6 +400,30 @@ class QMLsubquestion(QMLobject):
     def xhtml_begin(self):
         return u'<h4>Subquestion ({} pt)</h4>'.format(self.attributes['points'])
 
+class QMLsubanswer(QMLobject):
+    abbr = "sa"
+    tag  = "subanswer"
+    default_heading = "Answer"
+
+    has_text = False
+    has_children = True
+
+    default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
+
+    def heading(self):
+        return 'Subquestion, %spt' % self.attributes['points']
+
+    def tex_begin(self):
+        return u'\\begin{QSA}{%s}{%s}{%s}\n' % (
+            self.attributes['points'],
+            self.attributes['part_nr'],
+            self.attributes['question_nr']
+        )
+    def tex_end(self):
+        return '\\end{QSA}\n\n'
+    def xhtml_begin(self):
+        return u'<h4>Answer ({} pt)</h4>'.format(self.attributes['points'])
+
 
 class QMLtitle(QMLobject):
     abbr = "ti"
@@ -681,22 +705,40 @@ class QMLtable(QMLobject):
     has_children = True
 
     default_attributes = {
-        'width': '',
+        #~ 'width': '',
         'top_line': '1',
-        'left_line': '1',
-        'right_line': '1',
-        'grid_lines': '1',
+        #~ 'left_line': '1',
+        #~ 'right_line': '1',
+        #~ 'grid_lines': '1',
     }
 
+    @property
+    def _columns(self):
+        try:
+            # The rows attribute is a plain tex specifier, like |l|r|l|
+            return unicode(self.attributes['columns'])
+        # If this is not given, the width must be set.
+        except KeyError:
+            return (
+                u'|' * int(self.attributes.get('left_line', 1)) +
+                (int(self.attributes.get('grid_lines', 1)) * u'|').join(
+                    [u'l'] * int(self.attributes['width'])
+                ) +
+                u'|' * int(self.attributes.get('right_line', 1))
+            )
 
+    @property
+    def _arraystretch(self):
+        try:
+            return unicode(r'\renewcommand{{\arraystretch}}{{{}}}'.format(self.attributes['arraystretch']))
+        except KeyError:
+            return u''
+    
 
     def tex_begin(self):
         return (
-            u'\\begin{center}\\begin{tabular}{' + u'|' * int(self.attributes['left_line']) +
-            (int(self.attributes['grid_lines']) * u'|').join(
-                [u'l'] * int(self.attributes['width'])
-            ) +
-            u'|' * int(self.attributes['right_line']) + u'}' +
+            u'\\begin{center}' + self._arraystretch +
+            '\\begin{tabular}{' + self._columns + u'}' +
             int(self.attributes['top_line']) * u'\\hline' + u'\n'
         )
 
@@ -714,10 +756,14 @@ class QMLtableRow(QMLobject):
     default_attributes = {'bottom_line': '1'}
 
     def make_tex(self):
+        try:
+            multiplier = int(self.attributes['multiplier'])
+        except KeyError:
+            multiplier = 1
         texout = u''
         texout += u' & '.join(data2tex(c.data) for c in self.children)
         texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
-        return texout, []
+        return texout * multiplier, []
 
 class QMLtableCell(QMLobject):
     abbr = "ce"
