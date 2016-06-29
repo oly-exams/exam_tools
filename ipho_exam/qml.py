@@ -392,6 +392,30 @@ class QMLsubquestion(QMLobject):
     def xhtml_begin(self):
         return u'<h4>Subquestion ({} pt)</h4>'.format(self.attributes['points'])
 
+class QMLsubanswer(QMLobject):
+    abbr = "sa"
+    tag  = "subanswer"
+    default_heading = "Answer"
+
+    has_text = False
+    has_children = True
+
+    default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
+
+    def heading(self):
+        return 'Subquestion, %spt' % self.attributes['points']
+
+    def tex_begin(self):
+        return u'\\begin{QSA}{%s}{%s}{%s}\n' % (
+            self.attributes['points'],
+            self.attributes['part_nr'],
+            self.attributes['question_nr']
+        )
+    def tex_end(self):
+        return '\\end{QSA}\n\n'
+    def xhtml_begin(self):
+        return u'<h4>Answer ({} pt)</h4>'.format(self.attributes['points'])
+
 
 class QMLtitle(QMLobject):
     abbr = "ti"
@@ -680,10 +704,11 @@ class QMLtable(QMLobject):
         #~ 'grid_lines': '1',
     }
 
-    def _rows(self):
+    @property
+    def _columns(self):
         try:
             # The rows attribute is a plain tex specifier, like |l|r|l|
-            return unicode(self.attributes['rows'])
+            return unicode(self.attributes['columns'])
         # If this is not given, the width must be set.
         except KeyError:
             return (
@@ -694,9 +719,18 @@ class QMLtable(QMLobject):
                 u'|' * int(self.attributes.get('right_line', 1))
             )
 
+    @property
+    def _arraystretch(self):
+        try:
+            return unicode(r'\renewcommand{{\arraystretch}}{{{}}}'.format(self.attributes['arraystretch']))
+        except KeyError:
+            return u''
+    
+
     def tex_begin(self):
         return (
-            u'\\begin{center}\\begin{tabular}{' + self._rows() + u'}' +
+            u'\\begin{center}' + self._arraystretch +
+            '\\begin{tabular}{' + self._columns + u'}' +
             int(self.attributes['top_line']) * u'\\hline' + u'\n'
         )
 
