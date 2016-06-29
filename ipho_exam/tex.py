@@ -86,7 +86,6 @@ def html2tex_bs4(el):
                         if len(sel.contents) > 1:
                             print 'WARNING:', 'Math with nested tags!!'
                             print sel
-                        print sel.string
                         result.append( unescape_entities(sel.string) )
                 elif att =='class' and 'lang-ltr' in sel.attrs[att]:
                     result.append(u'\\textenglish{%s}' % (html2tex_bs4(sel)))

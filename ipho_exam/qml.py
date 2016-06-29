@@ -81,19 +81,6 @@ def escape_equations(txt):
 def data2tex(data):
     cont_html = BeautifulSoup(data, "html5lib")
     return tex.html2tex_bs4(cont_html.body)
-    cont_str = '<content>'+unescape_entities(data)+'</content>'
-    cont_str = escape_equations(cont_str)
-    try:
-        cont_xml = ET.fromstring(cont_str.encode('utf-8'))
-    except ParseError as e:
-        my_string = cont_str.encode('utf-8')
-        formatted_e = str(e)
-        line = int(formatted_e[formatted_e.find("line ") + 5: formatted_e.find(",")])
-        column = int(formatted_e[formatted_e.find("column ") + 7:])
-        split_str = my_string.split("\n")
-        print "{}\n{}^".format(split_str[line - 1], len(split_str[line - 1][0:column])*"-")
-        raise e
-    return tex.html2tex(cont_xml)
 
 def data2xhtml(data):
     return normalize_html(data)
@@ -733,7 +720,7 @@ class QMLtable(QMLobject):
             return unicode(r'\renewcommand{{\arraystretch}}{{{}}}'.format(self.attributes['arraystretch']))
         except KeyError:
             return u''
-    
+
 
     def tex_begin(self):
         return (
