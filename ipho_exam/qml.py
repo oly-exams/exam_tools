@@ -103,7 +103,7 @@ def question_points(root):
     ## This function is not too geenric, but it should fit our needs
     ret = []
     for obj in root.children:
-        if isinstance(obj, QMLsubquestion):
+        if isinstance(obj, QMLsubquestion) or isinstance(obj, QMLsubanswer):
             points = float(obj.attributes.get('points', 0.))
             name = '{}.{}'.format(obj.attributes.get('part_nr', ''), obj.attributes.get('question_nr', ''))
             ret.append(( name, points ))
