@@ -308,7 +308,7 @@ def translation_import(request, question_id, lang_id):
         obj = form.save(commit=False)
         txt = request.FILES['file'].read()
         txt = txt.decode('utf8')
-        obj.content = qml.escape_equations(txt)
+        obj.content = qml.normalize_html(txt)
         obj.question = question
         obj.language = language
         obj.save()

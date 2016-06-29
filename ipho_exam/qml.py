@@ -1,5 +1,6 @@
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import ParseError
+from bs4 import BeautifulSoup
 import re
 from copy import deepcopy
 #import lxml.etree as lxmltree
@@ -66,29 +67,23 @@ def content2string(node):
     # filter removes possible Nones in texts and tails
     return ''.join(filter(None, parts))
 
+def normalize_html(data):
+    xhtmlout = BeautifulSoup(data, "html5lib")
+    try:
+        return unicode(xhtmlout.body.contents[0])
+    except:
+        return unicode(xhtmlout)
+
 mathtex_pattern = re.compile(r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</span>')
 def escape_equations(txt):
     return mathtex_pattern.sub(lambda m: u'<span class="math-tex">\({}\)</span>'.format(escape(m.group(1))), txt)
 
 def data2tex(data):
-    cont_str = '<content>'+unescape_entities(data)+'</content>'
-    cont_str = escape_equations(cont_str)
-    try:
-        cont_xml = ET.fromstring(cont_str.encode('utf-8'))
-    except ParseError as e:
-        my_string = cont_str.encode('utf-8')
-        formatted_e = str(e)
-        line = int(formatted_e[formatted_e.find("line ") + 5: formatted_e.find(",")])
-        column = int(formatted_e[formatted_e.find("column ") + 7:])
-        split_str = my_string.split("\n")
-        print "{}\n{}^".format(split_str[line - 1], len(split_str[line - 1][0:column])*"-")
-        raise e
-    return tex.html2tex(cont_xml)
+    cont_html = BeautifulSoup(data, "html5lib")
+    return tex.html2tex_bs4(cont_html.body)
 
 def data2xhtml(data):
-    xhtmlout = unescape_entities(data)
-    xhtmlout = escape_equations(xhtmlout)
-    return xhtmlout
+    return normalize_html(data)
 
 def canonical_name(qobj):
     if qobj.default_heading is not None:
@@ -185,7 +180,7 @@ class QMLobject(object):
         self.data = None
         if self.__class__.has_text:
             content = content2string(root)
-            self.data = unescape_entities(content)
+            self.data = normalize_html(content)
         self.data_html = self.data
 
         if self.__class__.has_children:
@@ -725,7 +720,7 @@ class QMLtable(QMLobject):
             return unicode(r'\renewcommand{{\arraystretch}}{{{}}}'.format(self.attributes['arraystretch']))
         except KeyError:
             return u''
-    
+
 
     def tex_begin(self):
         return (
