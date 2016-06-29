@@ -204,6 +204,21 @@ body { margin-bottom: 70px; }
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<div class="modal fade" id="checksum-modal">
+  <div class="modal-dialog">
+    <div class="modal-content panel-danger">
+      <div class="modal-header panel-heading">
+        <h3 class="modal-title"> Lost sync with the server!</h3>
+      </div>
+      <div class="modal-body panel-body">
+        <p>The application lost the synchronization with the server. This is very likely because some other user edited the same translation.</p>
+        <p>In order to avoid working on the same translation, you are advised to define a second language, e.g. Swiss German (A) and Swiss German (B). Thanks to the copy buttons you will later be able to merge the two partial works.</p>
+        <p class="alert alert-danger"><i class="fa fa-exclamation-circle fa-2x pull-left"></i> Your changes could not be saved, please <strong>reload</strong> the page to continue editing this translation.</p>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <!-- <div class="page-header">
   <h2>Exam editor :
 
@@ -238,6 +253,7 @@ body { margin-bottom: 70px; }
 {% if question %}
     <form method="post" action="{{ request.path }}" charset="utf8" id="question-form">
         {% csrf_token %}
+        <input type="hidden" name="checksum" value="{{ checksum }}" />
         <h3>{{ question.name }}</h3>
 
         <div class="row">
@@ -708,9 +724,14 @@ body { margin-bottom: 70px; }
                         saving = false;
                         if (data['success']) {
                             last_saved = data['last_saved'];
+                            $('input[name="checksum"]').val(data['checksum']);
                             updateDocumentStatus();
                         } else {
-                            console.log('Saving failed.');
+                          console.log('Saving failed.');
+                          if (data['checksum'] != $('input[name="checksum"]').val()) {
+                            clearInterval(autoSaveTimer);
+                            $('#checksum-modal').modal({backdrop: 'static', keyboard: false});
+                          }
                         }
                     }
                 });

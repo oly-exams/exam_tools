@@ -1236,6 +1236,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     orig_diff_tag = None
     trans_lang = None
     last_saved = None
+    checksum = None
 
     if exam_id is not None:
         exam = get_object_or_404(Exam, id=exam_id, active=True, hidden=False)
@@ -1318,8 +1319,14 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 trans_q.set_lang(trans_lang)
                 trans_content = trans_q.get_data()
                 trans_extra_html = trans_q.get_trans_extra_html()
-
+            checksum = md5(trans_node.text).hexdigest()
             form = qml.QMLForm(orig_q, trans_content, request.POST or None)
+
+            if request.POST and request.POST.get('checksum', None) != checksum:
+                return JsonResponse({
+                            'success'    : False,
+                            'checksum'   : checksum,
+                        })
 
             if form.is_valid():
                 if trans_node.status == 'L':
@@ -1332,11 +1339,13 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 q.update(form.cleaned_data, set_blanks=True)
                 trans_node.text = qml.xml2string(q.make_xml())
                 trans_node.save()
+                checksum = md5(trans_node.text).hexdigest()
 
                 ## Respond via Ajax
                 if request.is_ajax:
                     return JsonResponse({
                                 'last_saved' : trans_node.timestamp,
+                                'checksum'   : checksum,
                                 'success'    : True,
                             })
 
@@ -1357,6 +1366,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context['form']             = form
     context['trans_extra_html'] = trans_extra_html
     context['last_saved']       = last_saved
+    context['checksum']         = checksum
     if context['orig_lang']: context['orig_font'] = fonts.ipho[context['orig_lang'].font]
     if context['trans_lang']: context['trans_font'] = fonts.ipho[context['trans_lang'].font]
     return render(request, 'ipho_exam/editor.html', context)
