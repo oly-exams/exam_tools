@@ -116,13 +116,12 @@
 {
     \def\QSApoints{#1} %\vspace{0.5em}
     \renewcommand{\arraystretch}{2.}
-    \begin{framed}
-    \noindent
-    \begin{english}\noindent\bf #2.#3 (\QSApoints ~pt) \end{english} 
+    \begin{framed}\noindent\begin{minipage}{\textwidth}
+    \begin{english}\noindent\bf #2.#3 (\QSApoints ~pt) \end{english}
     
 }
 {
-    \end{framed}
+    \end{minipage}\end{framed}
 }
 
 % \newenvironment{QTF}[1]
