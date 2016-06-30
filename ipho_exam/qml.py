@@ -401,10 +401,11 @@ class QMLsubanswer(QMLobject):
         return 'Subquestion, %spt' % self.attributes['points']
 
     def tex_begin(self):
-        return u'\\begin{QSA}{%s}{%s}{%s}\n' % (
+        return u'\\begin{QSA}{%s}{%s}{%s}{%s}\n' % (
             self.attributes['points'],
             self.attributes['part_nr'],
-            self.attributes['question_nr']
+            self.attributes['question_nr'],
+            self.attributes.get('height', '')
         )
     def tex_end(self):
         return '\\end{QSA}\n\n'

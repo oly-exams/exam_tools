@@ -112,11 +112,11 @@
 }
 
 % Subanswer (QMLsubanswer)
-\newenvironment{QSA}[3]
+\newenvironment{QSA}[4]
 {
     \def\QSApoints{#1} %\vspace{0.5em}
     \renewcommand{\arraystretch}{2.}
-    \begin{framed}\noindent\begin{minipage}{\textwidth}
+    \begin{framed}\noindent\begin{minipage}[t][#4][t]{\textwidth}
     \begin{english}\noindent\bf #2.#3 (\QSApoints ~pt) \end{english}
     
 }
