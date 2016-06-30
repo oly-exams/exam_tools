@@ -70,7 +70,7 @@ def content2string(node):
 def normalize_html(data):
     xhtmlout = BeautifulSoup(data, "html5lib")
     try:
-        return unicode(xhtmlout.body.contents[0])
+        return ''.join([unicode(el) for el in xhtmlout.body.contents])
     except:
         return unicode(xhtmlout)
 
