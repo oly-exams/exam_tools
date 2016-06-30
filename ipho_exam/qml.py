@@ -180,7 +180,7 @@ class QMLobject(object):
         self.data = None
         if self.__class__.has_text:
             content = content2string(root)
-            self.data = normalize_html(content)
+            self.data = normalize_html(content) if content != '' else content
         self.data_html = self.data
 
         if self.__class__.has_children:
