@@ -124,6 +124,17 @@
     \end{minipage}\end{framed}
 }
 
+% Box (QMLbox)
+\newenvironment{QBO}[1]
+{
+    \renewcommand{\arraystretch}{2.}
+    \begin{framed}\noindent\begin{minipage}[t][#1][t]{\textwidth}
+    
+}
+{
+    \end{minipage}\end{framed}
+}
+
 % \newenvironment{QTF}[1]
 % {\def\QTFpoints{#1}
 % \tabularx{\textwidth}{|l|p{.8\textwidth}|r|} \hline
