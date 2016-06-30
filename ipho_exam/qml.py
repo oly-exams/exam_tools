@@ -412,6 +412,26 @@ class QMLsubanswer(QMLobject):
     def xhtml_begin(self):
         return u'<h4>Answer ({} pt)</h4>'.format(self.attributes['points'])
 
+class QMLbox(QMLobject):
+    abbr = "bo"
+    tag  = "box"
+    default_heading = "Box"
+
+    has_text = False
+    has_children = True
+
+    def heading(self):
+        return 'Box'
+
+    def tex_begin(self):
+        return u'\\begin{QBO}{%s}\n' % (
+            self.attributes.get('height', '')
+        )
+    def tex_end(self):
+        return '\\end{QBO}\n\n'
+    def xhtml_begin(self):
+        return u'<h4>Box</h4>'
+
 
 class QMLtitle(QMLobject):
     abbr = "ti"
