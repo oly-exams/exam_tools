@@ -69,8 +69,8 @@ def detect_barcode(tiff_img):
     image = zbar.Image(width, height, 'Y800', raw)
     scanner = zbar.ImageScanner()
     scanner.parse_config('enable')
-    scanner.set_config(0, zbar.Config.ENABLE, 0)
-    scanner.set_config(zbar.Symbol.CODE128, zbar.Config.ENABLE, 1)
+    # scanner.set_config(0, zbar.Config.ENABLE, 0)
+    # scanner.set_config(zbar.Symbol.CODE128, zbar.Config.ENABLE, 1)
     scanner.scan(image)
 
     symbols = [s for s in image]
@@ -125,7 +125,7 @@ def main(input):
     for i,page,code in pages:
         if code is not None:
             print code
-
+    print 'got', len(pages), 'pages'
     base_code_pattern = re.compile(r'(([^ ]+) ([^ ]+))')
     def get_base(code):
         match = base_code_pattern.match(code)
