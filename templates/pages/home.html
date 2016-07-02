@@ -46,8 +46,11 @@
           {% endif %}
           <h3>Step-by-step guide</h3>
           <p>To guide you through the translation process, we prepared a step-by-step guide which explains the basic steps needed for testing the your notebook.</p>
+          {% if DEMO_MODE %}
           <p class="text-center"><a class="btn btn-primary btn-lg" href="{% url 'exam:wizard' %}">Try it now!</a></p>
-
+          {% else %}
+          <p class="text-center"><a class="btn btn-primary btn-lg" href="{% url 'exam:wizard' %}">Get started!</a></p>
+          {% endif %}
           <hr />
 
           <p><strong>Navigation:</strong> Below you find a summary of the exams tools structure. The same navigation is available in the upper bar on all pages.</p>
@@ -114,13 +117,46 @@
               </div>
 
               <div class="col-sm-4">
+                {% if perms.ipho_core.is_delegation %}
+                <h3>Results</h3>
+                <ul>
+                    <li>
+                        <a href="{% url 'marking:delegation-summary' %}">
+                            View and submit marks
+                        </a>
+                    </li>
+                </ul>
+                {% endif %}
+                {% if perms.ipho_core.can_vote %}
                   <h3>Voting</h3>
-                  <p>Work in progress</p>
+                  <ul>
+                      <li>
+                          <a href="{% url 'poll:voterIndex' %}">
+                              Submit feedbacks
+                          </a>
+                      </li>
+                  </ul>
+                {% endif %}
               </div>
 
               <div class="col-sm-4">
-                  <h3>Results</h3>
-                  <p>Work in progress</p>
+                <h3>Downloads</h3>
+                <ul>
+                    <li>
+                        <a href="{% url 'download:main' %}">
+                            View and download resources
+                        </a>
+                    </li>
+                </ul>
+
+                <h3>Print</h3>
+                <ul>
+                    <li>
+                        <a href="{% url 'print:main' %}">
+                            Print documents
+                        </a>
+                    </li>
+                </ul>
               </div>
 
           </div>
