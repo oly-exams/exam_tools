@@ -41,8 +41,9 @@
               During the registration process you will need to confirm that your delegation will join with at least one supported notebook computer, and that you were successfully able to translate the test exams. Note that the organizers will not provide any notebooks or workstations to the delegations (except with prior arrangement).
           </p>
 
+          {% if DEMO_MODE %}
           <p>Within this demo version you can perfom the translation and submission of previous years IPhO exams.</p>
-
+          {% endif %}
           <h3>Step-by-step guide</h3>
           <p>To guide you through the translation process, we prepared a step-by-step guide which explains the basic steps needed for testing the your notebook.</p>
           <p class="text-center"><a class="btn btn-primary btn-lg" href="{% url 'exam:wizard' %}">Try it now!</a></p>
