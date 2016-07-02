@@ -65,7 +65,6 @@
                 </ul>
               </li>
 
-              {% if not DEMO_MODE %}
               {% if perms.ipho_core.is_delegation %}
               <li><a href="{% url 'marking:delegation-summary' %}">Results</a></li>
               {% endif %}
@@ -74,7 +73,6 @@
               {% endif %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
               <li><a href="{% url 'print:main' %}">Print</a></li>
-              {% endif %}
 
               {% if perms.ipho_core.is_staff or perms.ipho_core.is_marker %}
               <li class="dropdown">
