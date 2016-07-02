@@ -693,6 +693,26 @@ class QMLlatex(QMLobject):
                 content = re.sub(r'({{ *%s *}})' % c.attributes['name'], c.data.encode('utf-8'), content)
                 content.replace('{{ %s }}' % c.attributes['name'], c.data.encode('utf-8'))
         return content, []
+        
+class QMLlatexEnv(QMLobject):
+    abbr = "te"
+    tag = "texenv"
+    default_heading = None
+    
+    has_text=False
+    has_children = True
+    
+    default_attributes = {'name': ''}
+    
+    def tex_begin(self):
+        return unicode(r'\begin{{{}}}{}'.format(
+            self.attributes['name'],
+            self.attributes.get('arguments', '')
+        ))
+    
+    def tex_end(self):
+        return unicode(r'\end{{{}}}'.format(self.attributes['name']))
+    
 
 class QMLlatexParam(QMLobject):
     abbr = "tp"
