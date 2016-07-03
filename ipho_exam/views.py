@@ -1570,7 +1570,10 @@ def bulk_print(request):
 
     all_docs = Document.objects.filter(
         student__delegation=filter_dg,
-        exam=filter_ex
+        exam=filter_ex,
+        exam__delegation_status__action=ExamAction.TRANSLATION,
+        exam__delegation_status__delegation=F('student__delegation'),
+        exam__delegation_status__status=ExamAction.SUBMITTED
     ).annotate(
         last_print_p=Max(
             Case(When(printlog__type='P', then=F('printlog__timestamp')))
