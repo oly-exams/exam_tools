@@ -18,9 +18,10 @@ urlpatterns = patterns('',
     url(r'^print/', include('ipho_print.urls', namespace='print')),
     url(r'^downloads/', include('ipho_download.urls', namespace='download')),
 
-    (r'^accounts/login/?$', 'django.contrib.auth.views.login'),
-    (r'^accounts/logout/?$', 'django.contrib.auth.views.logout', {'next_page':'/'}),
-    (r'^accounts/autologin/(?P<token>[0-9a-z\-]+)/?$', 'ipho_core.views.autologin'),
+    url(r'^accounts/login/?$', 'django.contrib.auth.views.login'),
+    url(r'^accounts/logout/?$', 'django.contrib.auth.views.logout', {'next_page':'/'}),
+    url(r'^accounts/autologin/(?P<token>[0-9a-z\-]+)/?$', 'ipho_core.views.autologin', name='autologin'),
+    url(r'^accounts/impersonate$', 'ipho_core.views.list_impersonate', name='impersonate'),
 
 
     # Uncomment the admin/doc line below to enable admin documentation:
