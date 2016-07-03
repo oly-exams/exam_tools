@@ -1666,7 +1666,6 @@ def print_doc(request, type, exam_id, position, student_id, queue):
     else:
         raise Http404('Document type `{}` not found.'.format(type))
 
-    print request.META
     n = request.META.get('HTTP_REFERER', reverse('exam:bulk-print'))
     return HttpResponseRedirect(n)
 
@@ -1676,3 +1675,11 @@ def set_scan_status(request, doc_id, status):
     doc.scan_status = status
     doc.save()
     return HttpResponseRedirect(reverse('exam:bulk-print'))
+
+@permission_required('ipho_core.is_staff')
+def set_scan_full(request, doc_id):
+    doc = get_object_or_404(Document, id=doc_id)
+    doc.scan_file = doc.scan_file_orig
+    doc.save()
+    n = request.META.get('HTTP_REFERER', reverse('exam:bulk-print'))
+    return HttpResponseRedirect(n)

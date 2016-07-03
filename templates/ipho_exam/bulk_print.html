@@ -147,7 +147,7 @@ This list shows only documents that have been submitted by the delegations.
               {% if d.scan_file_orig %}
                 <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
                 <br />
-                <a class="btn btn-default btn-xs" href="#"><i class="fa fa-angle-double-left"></i> set default</a>
+                <a class="btn btn-default btn-xs" href="{% url 'exam:set-scan-full'  doc_id=d.pk %}"><i class="fa fa-angle-double-left"></i> set default</a>
               {% endif %}
             </td>
           </tr>
