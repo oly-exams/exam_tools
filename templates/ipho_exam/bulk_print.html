@@ -136,11 +136,11 @@ This list shows only documents that have been submitted by the delegations.
                 {% for r,label in scan_status_choices %}
                 <a class="btn btn-default btn-xs {% if d.scan_status == r %}active{% endif %}" href="{% url 'exam:set-scan-status' doc_id=d.pk status=r %}" title="{{ label }}" data-toggle="tooltip">{{ r }}</a>
                 {% endfor %}
+              </div>
                 {% if d.scan_msg %}
                 <br />
                 <a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-container="body" data-content="{{ d.scan_msg }}"><span class="glyphicon glyphicon-info-sign"></span></a>
                 {% endif %}
-              </div>
               {% endif %}
             </td>
             <td>
