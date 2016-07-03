@@ -19,6 +19,9 @@ from django.core.files.base import ContentFile
 from ipho_exam.models import Document
 import re
 
+import logging
+logger = logging.getLogger('exam_tools.scan-worker')
+
 MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
 GOOD_OUTPUT_DIR = os.path.join(MEDIA_ROOT, 'scans-evaluated')
 BAD_OUTPUT_DIR = os.path.join(MEDIA_ROOT, 'scans-problems')
@@ -123,10 +126,8 @@ def get_timestamp():
 
 def main(input):
     pages = inspect_file(input)
-    for i,page,code in pages:
-        if code is not None:
-            print code
-    print 'got', len(pages), 'pages'
+    logger.info('got {} pages.'.format(len(pages)))
+    logger.info('Barcodes: {}'.format([code for i,page,code in pages]))
     base_code_pattern = re.compile(r'(([^ ]+) ([^ ]+))')
     def get_base(code):
         match = base_code_pattern.match(code)
@@ -137,11 +138,12 @@ def main(input):
             basecodes[get_base(code)].append(i)
 
     for code, pgs in basecodes.iteritems():
+        logger.debug('Processing: {}'.format(code))
         try:
             doc = Document.objects.get(barcode_base=code)
             doc_complete = doc.barcode_num_pages == len(pgs)
             if not doc_complete:
-                print 'WARNING:', 'Number of pages does not match!', code, len(pgs), doc.barcode_num_pages
+                logger.warning('Missing pages: {} in DB but only {} in scanned document.'.format(doc.barcode_num_pages, len(pgs)))
             ordered_pages = [ page for i,page,code in sorted(pages, key=lambda k: k[2]) if code is not None and i in pgs ]
             output = PdfFileWriter()
             for page in ordered_pages:
@@ -163,16 +165,17 @@ def main(input):
             shutil.copy(input.name, oname)
             with open(oname+'.status', 'w') as f:
                 f.write('DB-ENTRY-NOT-FOUND\n'+code)
-            print code, 'Not Found'
+            logger.warning('Code {} not found.'.format(code))
 
     if len(basecodes) == 0:
+        logger.warning('NO BARCODE DETECTED')
         oname = os.path.basename(input.name)+'-'+get_timestamp()+'.pdf'
         oname = os.path.join(BAD_OUTPUT_DIR, oname)
         shutil.copy(input.name, oname)
         with open(oname+'.status', 'w') as f:
             f.write('NO-BARCODE')
 
-    # os.unlink(input.name)
+    os.unlink(input.name)
 
 
 
@@ -181,6 +184,14 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Import scan document to DB')
     parser.add_argument('file', type=argparse.FileType('rb'), help='Input PDF')
+    parser.add_argument('-vv', '--more-verbose', help="Be mor verbose", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.WARNING)
+    parser.add_argument('-v', '--verbose', help="Be verbose", action="store_const", dest="loglevel", const=logging.INFO)
     args = parser.parse_args()
+
+    ch = logging.StreamHandler()
+    formatter = logging.Formatter('[%(asctime)s - %(name)s] - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    logger.setLevel(args.loglevel)
 
     main(args.file)
