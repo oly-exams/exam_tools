@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+      <h1>Impersonate delegation</h1>
+    </div>
+
+    <div class="row">
+      {% for user_list in grouped_users %}
+        <div class="col-md-2">
+          <div class="list-group">
+            {% for user in user_list %}
+            <a class="list-group-item" href="{% url 'autologin' token=user.autologin.token  %}">
+              {{ user.username }}
+              <span class="pull-right"><i class="fa fa-angle-double-right"></i></span>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+</div> <!-- /container -->
+
+{% endblock %}
