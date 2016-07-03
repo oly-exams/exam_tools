@@ -1319,7 +1319,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 trans_q.set_lang(trans_lang)
                 trans_content = trans_q.get_data()
                 trans_extra_html = trans_q.get_trans_extra_html()
-            checksum = md5(trans_node.text).hexdigest()
+            checksum = md5(trans_node.text.encode('utf8')).hexdigest()
             form = qml.QMLForm(orig_q, trans_content, request.POST or None)
 
             if request.POST and request.POST.get('checksum', None) != checksum:
@@ -1339,7 +1339,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 q.update(form.cleaned_data, set_blanks=True)
                 trans_node.text = qml.xml2string(q.make_xml())
                 trans_node.save()
-                checksum = md5(trans_node.text).hexdigest()
+                checksum = md5(trans_node.text.encode('utf8')).hexdigest()
 
                 ## Respond via Ajax
                 if request.is_ajax:
