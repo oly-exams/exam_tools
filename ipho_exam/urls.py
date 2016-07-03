@@ -41,6 +41,7 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^pdf/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)$', 'pdf_exam_pos_student',  {'type': 'P'}, name='pdf-exam-pos-student'),
     url(r'^pdf/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)/status$', 'pdf_exam_pos_student_status', name='pdf-exam-pos-student-status'),
     url(r'^scan/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)$', 'pdf_exam_pos_student', {'type': 'S'}, name='scan-exam-pos-student'),
+    url(r'^scan_orig/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)$', 'pdf_exam_pos_student', {'type': 'O'}, name='scan-orig-exam-pos-student'),
     url(r'^print/(?P<type>\w)/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)/queue/(?P<queue>.+)$', 'print_doc', name='print-doc'),
 
     url(r'^pdf-task/(?P<token>[0-9a-z\-]+)$', 'pdf_task', name='pdf-task'),

@@ -1484,6 +1484,13 @@ def pdf_exam_pos_student(request, exam_id, position, student_id, type='P'):
             return response
         else:
             raise Http404('Scan document not found')
+    elif type == 'O': ## look for scans
+        if doc.scan_file_orig:
+            response = HttpResponse(doc.scan_file_orig, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename=%s' % doc.scan_orig.name
+            return response
+        else:
+            raise Http404('Scan document not found')
 
 @login_required
 def pdf_exam_pos_student_status(request, exam_id, position, student_id):
@@ -1594,6 +1601,7 @@ def bulk_print(request):
         'barcode_num_pages',
         'scan_file',
         'scan_status',
+        'scan_file_orig',
         'scan_msg',
         'last_print_p',
         'last_print_s'

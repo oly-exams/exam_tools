@@ -80,10 +80,9 @@ This list shows only documents that have been submitted by the delegations.
           <th>Num pages</th>
           <th>Barcode</th>
           <th>Printouts</th>
-          <th>Last print</th>
           <th>Scans</th>
           <th>Scan status</th>
-          <th>Last print</th>
+          <th>Full scan</th>
       </tr>
       <tbody>
         {% for d in docs_list %}
@@ -108,8 +107,9 @@ This list shows only documents that have been submitted by the delegations.
                   {% endfor %}
                 </ul>
               </div>
+              <br />
+              {{ d.last_print_p|date:"SHORT_DATETIME_FORMAT" }}
             </td>
-            <td>{{ d.last_print_p|date:"SHORT_DATETIME_FORMAT" }}</td>
             <td align="center">
               {% if d.scan_file %}
                 <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
@@ -126,6 +126,8 @@ This list shows only documents that have been submitted by the delegations.
                     {% endfor %}
                   </ul>
                 </div>
+                <br />
+                {{ d.last_print_s|date:"SHORT_DATETIME_FORMAT" }}
               {% endif %}
             </td>
             <td>
@@ -141,7 +143,13 @@ This list shows only documents that have been submitted by the delegations.
               </div>
               {% endif %}
             </td>
-            <td>{{ d.last_print_s|date:"SHORT_DATETIME_FORMAT" }}</td>
+            <td>
+              {% if d.scan_file_orig %}
+                <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <br />
+                <a class="btn btn-default btn-xs" href="#"><i class="fa fa-angle-double-left"></i> set default</a>
+              {% endif %}
+            </td>
           </tr>
         {% endfor %}
       </tbody>
