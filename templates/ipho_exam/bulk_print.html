@@ -131,7 +131,7 @@ This list shows only documents that have been submitted by the delegations.
               {% endif %}
             </td>
             <td>
-              {% if d.scan_status %}
+              {% if d.scan_file %}
               <div class="btn-group">
                 {% for r,label in scan_status_choices %}
                 <a class="btn btn-default btn-xs {% if d.scan_status == r %}active{% endif %}" href="{% url 'exam:set-scan-status' doc_id=d.pk status=r %}" title="{{ label }}" data-toggle="tooltip">{{ r }}</a>
