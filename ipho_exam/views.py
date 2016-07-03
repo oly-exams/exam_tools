@@ -1487,7 +1487,7 @@ def pdf_exam_pos_student(request, exam_id, position, student_id, type='P'):
     elif type == 'O': ## look for scans
         if doc.scan_file_orig:
             response = HttpResponse(doc.scan_file_orig, content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename=%s' % doc.scan_file_orig.name
+            response['Content-Disposition'] = 'attachment; filename=%s' % doc.scan_file_orig.name.replace(' ', '_')
             return response
         else:
             raise Http404('Scan document not found')
