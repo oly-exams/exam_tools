@@ -188,11 +188,10 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose', help="Be verbose", action="store_const", dest="loglevel", const=logging.INFO)
     args = parser.parse_args()
 
-    # logger.setLevel(args.loglevel)
     ch = logging.StreamHandler()
-    ch.setLevel(args.loglevel)
     formatter = logging.Formatter('[%(asctime)s - %(name)s] - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
     logger.addHandler(ch)
+    logger.setLevel(args.loglevel)
 
     main(args.file)
