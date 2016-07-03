@@ -76,7 +76,6 @@ This list shows only documents that have been submitted by the delegations.
       <tr>
           <th>Exam</th>
           <th>#</th>
-          <th>Delegation</th>
           <th>Student</th>
           <th>Num pages</th>
           <th>Barcode</th>
@@ -91,7 +90,6 @@ This list shows only documents that have been submitted by the delegations.
           <tr>
             <td>{{ d.exam__name }}</td>
             <td>{{ d.position }}</td>
-            <td>{{ d.student__delegation__name }}</td>
             <td>{{ d.student__code }}</td>
             <td>{{ d.num_pages }} / {{ d.barcode_num_pages }}</td>
             <td>{{ d.barcode_base }}</td>
