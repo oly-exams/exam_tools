@@ -61,4 +61,4 @@ class Student(models.Model):
         return (self.code,)
 
     def __unicode__(self):
-        return u'{} {} ({})'.format(self.first_name, self.last_name, self.delegation.name)
+        return u'{}'.format(self.code)
