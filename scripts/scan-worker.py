@@ -175,7 +175,7 @@ def main(input):
         with open(oname+'.status', 'w') as f:
             f.write('NO-BARCODE')
 
-    # os.unlink(input.name)
+    os.unlink(input.name)
 
 
 
