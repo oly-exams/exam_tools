@@ -29,25 +29,36 @@ class ExamAdmin(admin.ModelAdmin):
 
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ('name', 'exam', 'feedback_active', 'position')
+    list_filter = ('exam',)
+
+class LanguageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'delegation', 'font', 'is_pdf')
+    list_filter = ('delegation', 'font')
+    search_fields = ['name']
 
 class VersionNodeAdmin(admin.ModelAdmin):
     form = VersionNodeAdminForm
     list_display = ('question', 'language', 'version', 'tag', 'status', 'timestamp')
+    list_filter = ('question',)
 
 class TranslationNodeAdmin(admin.ModelAdmin):
     list_display = ('question', 'language', 'status', 'timestamp')
+    list_filter = ('question','language__delegation')
 
 class PDFNodeAdmin(admin.ModelAdmin):
     list_display = ('question', 'language', 'status', 'timestamp')
+    list_filter = ('question','language__delegation')
 
 class FeedbackAdmin(admin.ModelAdmin):
     list_display = ('question', 'part', 'delegation', 'comment', 'status', 'timestamp')
+    list_filter = ('question','delegation', 'status')
 
 class LikeAdmin(admin.ModelAdmin):
     list_display = ('status', 'feedback', 'delegation')
 
 class FigureAdmin(admin.ModelAdmin):
     form = FigureAdminForm
+    list_display = ('pk', 'name', 'params')
 
 class StudentSubmissionAdmin(admin.ModelAdmin):
     list_display = ('exam','student','language','with_answer')
@@ -60,7 +71,7 @@ class DocumentAdmin(admin.ModelAdmin):
     list_display = ('exam','position','student','num_pages','barcode_base','barcode_num_pages', 'scan_status')
     list_filter = ('exam','position','student__delegation', 'scan_status')
 
-admin.site.register(Language)
+admin.site.register(Language, LanguageAdmin)
 admin.site.register(Feedback, FeedbackAdmin)
 admin.site.register(Like, LikeAdmin)
 admin.site.register(Exam, ExamAdmin)
