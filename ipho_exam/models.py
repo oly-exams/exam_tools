@@ -3,6 +3,7 @@ from django import forms
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
+from django.utils import timezone
 from ipho_core.models import Delegation, Student
 from django.shortcuts import get_object_or_404
 from ipho_exam import fonts
@@ -413,6 +414,10 @@ def exam_prints_filename(obj, fname):
 def exam_scans_filename(obj, fname):
     basestr='exams-docs/{}/scan/exam-{}-{}.pdf'
     return basestr.format(obj.student.code,obj.exam.id,obj.position)
+def exam_scans_orig_filename(obj, fname):
+    basestr='scans-evaluated/{}__{}.pdf'
+    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+    return basestr.format(obj.barcode_base, timestamp)
 class Document(models.Model):
     SCAN_STATUS_CHOICES = (
         ('S', 'Success'),
@@ -428,6 +433,7 @@ class Document(models.Model):
     barcode_num_pages = models.IntegerField(default=0)
     barcode_base      = models.TextField()
     scan_file   = models.FileField(blank=True, upload_to=exam_scans_filename)
+    scan_file_orig = models.FileField(blank=True, upload_to=exam_scans_orig_filename)
     scan_status = models.CharField(max_length=10, blank=True, null=True, choices=SCAN_STATUS_CHOICES)
     scan_msg    = models.TextField(blank=True, null=True)
 
