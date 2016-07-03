@@ -1,0 +1,37 @@
+{% extends "ipho_exam/base.html" %}
+{% load static %}
+{% load exam_utils_tags %}
+{% load crispy_forms_tags %}
+
+{% block extra-head %}
+<style>
+.div-inline{
+    display:inline-block;
+}
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="#">Admin</a></li>
+<li class="active">Upload scan</li>
+{% endblock %}
+
+{% block pageheader %}<h1>Upload scan</h1>{% endblock %}
+
+{% block exam-content %}
+<p class="lead">
+Select the student, exam and question number to upload the scan document.
+</p>
+
+<div id="alerts-container">
+{% for class, msg in messages %}
+<div class="alert {{ class }} alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>{{ msg|safe }}</div>
+{% endfor %}
+</div>
+
+  <div>
+    {% crispy form %}
+  </div>
+
+
+{% endblock %}

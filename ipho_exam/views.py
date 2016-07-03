@@ -27,7 +27,7 @@ from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, 
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -1683,3 +1683,18 @@ def set_scan_full(request, doc_id):
     doc.save()
     n = request.META.get('HTTP_REFERER', reverse('exam:bulk-print'))
     return HttpResponseRedirect(n)
+
+@permission_required('ipho_core.is_staff')
+def upload_scan(request):
+    messages = []
+    form = ScanForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        doc = get_object_or_404(Document,
+            exam=form.cleaned_data['question'].exam,
+            position=form.cleaned_data['question'].position,
+            student=form.cleaned_data['student']
+        )
+        doc.scan_file = form.cleaned_data['file']
+        doc.save()
+        messages.append(('alert-success', '<i class="fa fa-check"></i> Scan uploaded.'))
+    return render(request, 'ipho_exam/upload_scan.html', {'form': form, 'messages': messages})
