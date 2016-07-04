@@ -141,9 +141,10 @@ def main(input):
         logger.debug('Processing: {}'.format(code))
         try:
             doc = Document.objects.get(barcode_base=code)
-            doc_complete = doc.barcode_num_pages == len(pgs)
+            expected_pages = doc.barcode_num_pages + doc.extra_num_pages
+            doc_complete = expected_pages == len(pgs)
             if not doc_complete:
-                logger.warning('Missing pages: {} in DB but only {} in scanned document.'.format(doc.barcode_num_pages, len(pgs)))
+                logger.warning('Missing pages: {} in DB but only {} in scanned document.'.format(expected_pages, len(pgs)))
             ordered_pages = [ page for i,page,code in sorted(pages, key=lambda k: k[2]) if code is not None and i in pgs ]
             output = PdfFileWriter()
             for page in ordered_pages:
@@ -156,7 +157,7 @@ def main(input):
             doc.scan_file_orig = File(input)
             doc.scan_status = 'S' if doc_complete else 'M'
             if not doc_complete:
-                doc.scan_msg = 'Missing pages: {} in DB but only {} in scanned document.'.format(doc.barcode_num_pages, len(pgs))
+                doc.scan_msg = 'Missing pages: {} in DB but only {} in scanned document.'.format(expected_pages, len(pgs))
             doc.save()
 
         except Document.DoesNotExist:

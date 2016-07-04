@@ -68,7 +68,7 @@ class ExamActionAdmin(admin.ModelAdmin):
     list_filter = ('action','exam','delegation')
 
 class DocumentAdmin(admin.ModelAdmin):
-    list_display = ('exam','position','student','num_pages','barcode_base','barcode_num_pages', 'scan_status')
+    list_display = ('exam','position','student','num_pages', 'barcode_num_pages', 'extra_num_pages', 'barcode_base', 'scan_status')
     list_filter = ('exam','position','student__delegation', 'scan_status')
 
 admin.site.register(Language, LanguageAdmin)

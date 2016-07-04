@@ -327,3 +327,23 @@ class ScanForm(forms.Form):
         )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
+
+class ExtraSheetForm(forms.Form):
+    question = forms.ModelChoiceField(queryset=Question.objects.all())
+    student = forms.ModelChoiceField(queryset=Student.objects.all())
+    quantity = forms.IntegerField()
+
+    def __init__(self, *args, **kwargs):
+        super(ExtraSheetForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field('question'),
+            Field('student'),
+            Field('quantity'),
+            FormActions(
+                Submit('submit', 'Generate')
+            )
+        )
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True

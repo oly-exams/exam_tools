@@ -27,7 +27,7 @@ from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, 
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -1611,6 +1611,7 @@ def bulk_print(request):
         'num_pages',
         'barcode_base',
         'barcode_num_pages',
+        'extra_num_pages',
         'scan_file',
         'scan_status',
         'scan_file_orig',
@@ -1710,3 +1711,31 @@ def upload_scan(request):
         doc.save()
         messages.append(('alert-success', '<i class="fa fa-check"></i> Scan uploaded.'))
     return render(request, 'ipho_exam/upload_scan.html', {'form': form, 'messages': messages})
+
+@permission_required('ipho_core.is_staff')
+def extra_sheets(request):
+    messages = []
+    form = ExtraSheetForm(request.POST or None)
+    if form.is_valid():
+        student = form.cleaned_data['student']
+        question = form.cleaned_data['question']
+        exam = question.exam
+        position = question.position
+        quantity = form.cleaned_data['quantity']
+        doc = get_object_or_404(Document,
+            exam=exam,
+            position=position,
+            student=student
+        )
+
+        doc_pdf = question_utils.generate_extra_sheets(student, question, doc.extra_num_pages, quantity)
+
+        doc.extra_num_pages += quantity
+        doc.save()
+
+        res = HttpResponse(doc_pdf, content_type="application/pdf")
+        res['content-disposition'] = 'attachment; filename="{} {} Z.pdf"'.format(student.code, exam.code)
+        return res
+
+
+    return render(request, 'ipho_exam/extra_sheets.html', {'form': form, 'messages': messages})
