@@ -46,6 +46,7 @@ urlpatterns = patterns('ipho_exam.views',
 
     url(r'^pdf-task/(?P<token>[0-9a-z\-]+)$', 'pdf_task', name='pdf-task'),
     url(r'^pdf-task/(?P<token>[0-9a-z\-]+)/status$', 'task_status', name='pdf-task-status'),
+    url(r'^pdf-task/(?P<token>[0-9a-z\-]+)/log$', 'task_log', name='pdf-task-log'),
 
     url(r'^feedbacks/list/?$', 'feedbacks_list', name='feedbacks-list'),
     url(r'^feedbacks/add/(?P<exam_id>\d+)$', 'feedbacks_add', name='feedbacks-add'),
