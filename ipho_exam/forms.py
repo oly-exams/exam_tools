@@ -50,6 +50,12 @@ class LanguageForm(ModelForm):
         # self.helper.form_action = 'exam:main'
         # self.helper.add_input(Submit('submit', 'Create'))
 
+    def clean_name(self):
+        data = self.cleaned_data['name']
+        if "_" in data:
+            raise forms.ValidationError("Underscore '_' symbols are forbidden in language names.")
+        return data
+
     class Meta:
         model = Language
         fields = ['name','style','direction','polyglossia','polyglossia_options','font']
