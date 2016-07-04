@@ -1611,6 +1611,7 @@ def bulk_print(request):
         'num_pages',
         'barcode_base',
         'barcode_num_pages',
+        'extra_num_pages',
         'scan_file',
         'scan_status',
         'scan_file_orig',
