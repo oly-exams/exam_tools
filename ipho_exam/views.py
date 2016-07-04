@@ -1511,6 +1511,18 @@ def task_status(request, token):
     return JsonResponse({'status': task.status, 'ready': task.ready()})
 
 @login_required
+def task_log(request, token):
+    task = AsyncResult(token)
+    try:
+        if task.ready():
+            doc_pdf, meta = task.get()
+            return HttpResponse('NO LOG', content_type="text/plain")
+        else:
+            return render(request, 'ipho_exam/pdf_task.html', {'task': task})
+    except ipho_exam.pdf.TexCompileException as e:
+        return HttpResponse(e.log, content_type="text/plain")
+
+@login_required
 def pdf_task(request, token):
     task = AsyncResult(token)
     try:
