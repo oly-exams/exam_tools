@@ -7,15 +7,16 @@ from StringIO import StringIO
 import cairosvg
 
 class QuestionBarcodeGen(object):
-    def __init__(self, exam, question, student, qcode=None, format='qr'):
+    def __init__(self, exam, question, student, qcode=None, startnum=0, format='qr'):
         if qcode is None:
             qcode = question.code
         self.base = u'{stud} {ex}-{qpos}'.format(stud=student.code, ex=exam.code, qpos=question.position)
         self.text = self.base + u' {qcode}'.format(qcode=qcode) + u'-{pg}'
         self.format = format
+        self.startnum = startnum
 
     def __call__(self, pg):
-        code = self.text.format(pg=pg)
+        code = self.text.format(pg=self.startnum+pg)
         if self.format == 'code128':
             bcode = barcode.codex.Code128(code=code, writer=SVGWriter())
             bcode_svg = bcode.render(dict(module_width=.3))

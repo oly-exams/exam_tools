@@ -102,3 +102,22 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
     else:
         task = chord_task
     return task
+
+
+def generate_extra_sheets(student, question, startnum, npages):
+    context = {
+                'polyglossia' : 'english',
+                'polyglossia_options' : '',
+                'font'        : fonts.ipho['notosans'],
+                'exam_name'   : u'{}'.format(question.exam.name),
+                'code'        : u'{}{}'.format('Z', question.position),
+                'pages'       : range(npages),
+                'startnum'    : startnum+1,
+              }
+    body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
+    question_pdf = pdf.compile_tex(body, [
+        tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
+    ])
+    bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, student, qcode='Z', startnum=startnum)
+    doc_pdf = pdf.add_barcode(question_pdf, bgenerator)
+    return doc_pdf
