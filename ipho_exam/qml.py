@@ -559,13 +559,12 @@ class QMLfigure(QMLobject):
         width = self.attributes.get('width', 0.9) # 0.9 is the default value
 
         texout = u''
-        texout += unicode(r'\begin{minipage}{\textwidth}\centering') + u'\n'
+        texout += unicode(r'\vspace{0.5cm}\begin{minipage}{\textwidth}\centering') + u'\n'
         texout += u'\\includegraphics[width={}\\textwidth]{{{}}}\n'.format(width, figname)
-        texout += u'\\\\\\vspace{0.1cm}\n'
         if len(fig_caption) > 0:
-            texout += u'\\pbox[b]{\\textwidth}{%s}\n' % fig_caption
-            texout += unicode(r'\vspace{0.8cm}')
-        texout += unicode(r'\end{minipage}') + u'\n\n'
+            texout += unicode('\n' + r'\vspace{0.1cm}' + '\n')
+            texout += u'\\pbox[b]{0.9\\textwidth}{%s}\n' % fig_caption
+        texout += unicode(r'\end{minipage}\vspace{0.5cm}') + u'\n\n'
 
         externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
 
@@ -765,13 +764,14 @@ class QMLtable(QMLobject):
 
     def tex_begin(self):
         return (
+            unicode(r'\vspace{0.5cm}') + 
             u'\\begin{center}' + self._arraystretch +
             '\\begin{tabular}{' + self._columns + u'}' +
             int(self.attributes['top_line']) * u'\\hline' + u'\n'
         )
 
     def tex_end(self):
-        return u'\\end{tabular}\\end{center}\n\n'
+        return unicode(r'\end{tabular}\end{center}\vspace{0.5cm}') + u'\n\n'
 
 class QMLtableRow(QMLobject):
     abbr = "rw"
