@@ -21,21 +21,37 @@ def build_extension_validator(valid_extensions):
 class PrintForm(forms.Form):
     file = forms.FileField(validators=[build_extension_validator(['.pdf'])], label='PDF document to print')
     queue = forms.ChoiceField(choices=[], label='Print queue to use')
+    duplex = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('LongEdge', 'Yes')], label='Color')
+    color = forms.ChoiceField(initial='Colour', choices=[('Colour', 'Yes'), ('GreyScale', 'No')])
+    staple = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('1PLU', 'Yes')])
 
     def __init__(self, *args, **kwargs):
         queue_list = kwargs.pop('queue_list')
+        enable_opts = kwargs.pop('enable_opts') if 'enable_opts' in kwargs else False
         super(PrintForm, self).__init__(*args, **kwargs)
 
         self.fields['queue'].choices = queue_list
 
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Field('file'),
-            Field('queue'),
-            FormActions(
-                Submit('submit', 'Submit')
+        if enable_opts:
+            self.helper.layout = Layout(
+                Field('file'),
+                Field('queue'),
+                Field('duplex'),
+                Field('color'),
+                Field('staple'),
+                FormActions(
+                    Submit('submit', 'Submit')
+                )
             )
-        )
+        else:
+            self.helper.layout = Layout(
+                Field('file'),
+                Field('queue'),
+                FormActions(
+                    Submit('submit', 'Submit')
+                )
+            )
 
         self.helper.html5_required = True
         self.helper.form_show_labels = True

@@ -18,10 +18,16 @@ def main(request):
     ctx = RequestContext(request)
     messages = []
     queue_list = printer.allowed_choices(request.user)
-    form = PrintForm(request.POST or None, request.FILES or None, queue_list=queue_list)
+    enable_opts = request.user.has_perm('ipho_core.is_staff')
+    form = PrintForm(request.POST or None, request.FILES or None, queue_list=queue_list, enable_opts=enable_opts)
     if form.is_valid():
         try:
-          status = printer.send2queue(form.cleaned_data['file'], form.cleaned_data['queue'], user=request.user)
+          opts = {
+            'ColourMode': form.cleaned_data['color'],
+            'Staple': form.cleaned_data['staple'],
+            'Duplex': form.cleaned_data['duplex'],
+          }
+          status = printer.send2queue(form.cleaned_data['file'], form.cleaned_data['queue'], user=request.user, user_opts=opts)
           messages.append(('alert-success', '<strong>Success</strong> Print job submitted. Please pickup your document at the printing station.'))
         except printer.PrinterError as e:
             messages.append(('alert-danger', '<strong>Error</strong> The document was uploaded successfully, but an error occured while communicating with the print server. Please try again or report the problem to the IPhO staff.<br /> Error was: '+e.msg))
