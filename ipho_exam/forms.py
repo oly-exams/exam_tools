@@ -295,6 +295,9 @@ class AdminBlockForm(forms.Form):
 
 class PrintDocsForm(forms.Form):
     queue = forms.ChoiceField(choices=[], label='Print queue to use')
+    duplex = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('DuplexNoTumble', 'Yes')])
+    color = forms.ChoiceField(initial='Colour', choices=[('Colour', 'Yes'), ('Grayscale', 'No')])
+    staple = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('1PLU', 'Yes')])
 
     def __init__(self, *args, **kwargs):
         queue_list = kwargs.pop('queue_list')
@@ -305,6 +308,9 @@ class PrintDocsForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field('queue'),
+            Field('duplex'),
+            Field('color'),
+            Field('staple'),
             FormActions(
                 Submit('submit', 'Print')
             )
