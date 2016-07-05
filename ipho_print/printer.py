@@ -18,7 +18,10 @@ def send2queue(file, queue, user=None):
   url = 'http://{host}/print/{queue}'.format(**PRINTER_QUEUES[queue])
   files = {'file': (os.path.basename(file.name), file, 'application/pdf')}
   headers = {'Authorization': 'IPhOToken {auth_token}'.format(**PRINTER_QUEUES[queue])}
-  r = requests.post(url, files=files, headers=headers)
+  data = {}
+  if user is not None:
+      data['user'] = user.username
+  r = requests.post(url, files=files, headers=headers, data=data)
   if r.status_code == 200:
     return SUCCESS
   else:
