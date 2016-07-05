@@ -1570,7 +1570,7 @@ def bulk_print(request):
     form = PrintDocsForm(request.POST or None, queue_list=queue_list)
     if form.is_valid():
         opts = {
-            'ColourMode': form.cleaned_data['color'],
+            'ColourModel': form.cleaned_data['color'],
             'Staple': form.cleaned_data['staple'],
             'Duplex': form.cleaned_data['duplex'],
         }

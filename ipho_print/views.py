@@ -23,7 +23,7 @@ def main(request):
     if form.is_valid():
         try:
           opts = {
-            'ColourMode': form.cleaned_data['color'],
+            'ColourModel': form.cleaned_data['color'],
             'Staple': form.cleaned_data['staple'],
             'Duplex': form.cleaned_data['duplex'],
           }

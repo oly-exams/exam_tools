@@ -295,8 +295,8 @@ class AdminBlockForm(forms.Form):
 
 class PrintDocsForm(forms.Form):
     queue = forms.ChoiceField(choices=[], label='Print queue to use')
-    duplex = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('LongEdge', 'Yes')])
-    color = forms.ChoiceField(initial='Colour', choices=[('Colour', 'Yes'), ('GreyScale', 'No')])
+    duplex = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('DuplexNoTumble', 'Yes')])
+    color = forms.ChoiceField(initial='Colour', choices=[('Colour', 'Yes'), ('Grayscale', 'No')])
     staple = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('1PLU', 'Yes')])
 
     def __init__(self, *args, **kwargs):

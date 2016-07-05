@@ -39,7 +39,7 @@ PRINTER_QUEUES = {
     'host': '',
     'queue': 'printer-1',
     'auth_token': '',
-    'opts': {'Duplex': 'None', 'ColourMode': 'GreyScale', 'Staple': '1PLU'},
+    'opts': {'Duplex': 'None', 'ColourModel': 'Greyscale', 'Staple': '1PLU'},
     'required_perm': 'ipho_core.print_technopark',
   },
   'technopark.printer-2': {
@@ -47,7 +47,7 @@ PRINTER_QUEUES = {
     'host': '',
     'queue': 'printer-2',
     'auth_token': '',
-    'opts': {'Duplex': 'None', 'ColourMode': 'GreyScale', 'Staple': '1PLU'},
+    'opts': {'Duplex': 'None', 'ColourModel': 'Greyscale', 'Staple': '1PLU'},
     'required_perm': 'ipho_core.print_technopark',
   },
   'irchel.printer-1': {
@@ -55,7 +55,7 @@ PRINTER_QUEUES = {
     'host': '',
     'queue': 'printer-1',
     'auth_token': '',
-    'opts': {'Duplex': 'None', 'ColourMode': 'Colour', 'Staple': '1PLU'},
+    'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
     'required_perm': 'ipho_core.print_irchel',
   },
   'irchel.printer-2': {
@@ -63,7 +63,7 @@ PRINTER_QUEUES = {
     'host': '',
     'queue': 'printer-2',
     'auth_token': '',
-    'opts': {'Duplex': 'None', 'ColourMode': 'Colour', 'Staple': '1PLU'},
+    'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
     'required_perm': 'ipho_core.print_irchel',
   },
   'irchel.printer-3': {
@@ -71,7 +71,7 @@ PRINTER_QUEUES = {
     'host': '',
     'queue': 'printer-3',
     'auth_token': '',
-    'opts': {'Duplex': 'None', 'ColourMode': 'Colour', 'Staple': '1PLU'},
+    'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
     'required_perm': 'ipho_core.print_irchel',
   },
   'irchel.printer-4': {
@@ -79,7 +79,7 @@ PRINTER_QUEUES = {
     'host': '',
     'queue': 'printer-4',
     'auth_token': '',
-    'opts': {'Duplex': 'None', 'ColourMode': 'Colour', 'Staple': '1PLU'},
+    'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
     'required_perm': 'ipho_core.print_irchel',
   },
 }
