@@ -29,6 +29,7 @@ $(function() {
     var last_check = new Date();
     var taskStatus = 'PENDING';
     var taskReady = false;
+    var timer = null;
     function updateStatus() {
         $.ajax({
             url: '{% url 'exam:pdf-task-status' token=task.id %}',
@@ -45,13 +46,14 @@ $(function() {
                 $('#task-status').html(taskStatus);
 
                 if (taskReady) {
+                    clearInterval(timer);
                     location.reload();
                 }
             },
         });
     }
     updateStatus();
-    setInterval(updateStatus, 10000);
+    timer = setInterval(updateStatus, 10000);
 
 });
 </script>
