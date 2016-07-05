@@ -1569,18 +1569,23 @@ def bulk_print(request):
     queue_list = printer.allowed_choices(request.user)
     form = PrintDocsForm(request.POST or None, queue_list=queue_list)
     if form.is_valid():
+        opts = {
+            'ColourMode': form.cleaned_data['color'],
+            'Staple': form.cleaned_data['staple'],
+            'Duplex': form.cleaned_data['duplex'],
+        }
         tot_printed = 0
         for pk in request.POST.getlist('printouts[]', []):
             d = get_or_none(Document, pk=pk)
             if d is not None:
-                status = printer.send2queue(d.file, form.cleaned_data['queue'], user=request.user)
+                status = printer.send2queue(d.file, form.cleaned_data['queue'], user=request.user, user_opts=opts)
                 tot_printed += 1
                 l = PrintLog(document=d, type='P')
                 l.save()
         for pk in request.POST.getlist('scans[]', []):
             d = get_or_none(Document, pk=pk)
             if d is not None:
-                status = printer.send2queue(d.scan_file, form.cleaned_data['queue'], user=request.user)
+                status = printer.send2queue(d.scan_file, form.cleaned_data['queue'], user=request.user, user_opts=opts)
                 tot_printed += 1
                 l = PrintLog(document=d, type='S')
                 l.save()
