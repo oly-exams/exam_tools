@@ -21,10 +21,13 @@ def forwards_func(apps, schema_editor):
         NodeType = apps.get_model("ipho_exam", node_name)
         for node in NodeType.objects.using(db_alias).all():
             if not '<question' in node.text: continue
-            q = qml.QMLquestion(node.text)
-            update_question(q)
-            node.text = qml.xml2string(q.make_xml())
-            node.save()
+            try:
+                q = qml.QMLquestion(node.text)
+                update_question(q)
+                node.text = qml.xml2string(q.make_xml())
+                node.save()
+            except:
+                pass
 
 def backwards_func(*args, **kwargs):
     pass
