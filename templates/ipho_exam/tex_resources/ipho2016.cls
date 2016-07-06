@@ -76,13 +76,13 @@
 
 %Problem (QMLquestion)
 \newenvironment{PR}[2]
-      {% templatetag openbrace %}{\noindent\fontsize{16pt}{14pt}\fontshape{bf}\selectfont\textcolor{color1}{\textbf{#1 \textenglish{\fontshape{it}\selectfont(#2 points)}}}}}
+      {% templatetag openbrace %}{\noindent\fontsize{16pt}{14pt}\fontshape{bf}\selectfont\textcolor{color1}{\textbf{#1}}}}
 
 
 
 %Part
 \newcommand{\PT}[2]{\vspace{0.3cm}\noindent
-    { \hspace*{-3pt}\fontsize{11pt}{11pt}\selectfont\textcolor{color1}{\textbf{#1 \textenglish{(#2 points)}}}}}
+    { \hspace*{-3pt}\fontsize{11pt}{11pt}\selectfont\textcolor{color1}{\textbf{#1}}}}
     {\vspace{0.1cm}}
 
 
@@ -118,7 +118,7 @@
     \renewcommand{\arraystretch}{2.}
     \begin{framed}\noindent\begin{minipage}[t][#4][t]{\textwidth}
     \begin{english}\noindent\bf #2.#3 (\QSApoints ~pt) \end{english}
-    
+
 }
 {
     \end{minipage}\end{framed}
@@ -129,7 +129,7 @@
 {
     \renewcommand{\arraystretch}{2.}
     \begin{framed}\noindent\begin{minipage}[t][#1][t]{\textwidth}
-    
+
 }
 {
     \end{minipage}\end{framed}
