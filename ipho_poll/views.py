@@ -25,7 +25,7 @@ from .forms import ChoiceFormHelper, VoteFormHelper
 #staff views
 
 @login_required
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def staffIndex(request):
     drafted_questions_list = Question.objects.is_draft()
@@ -48,7 +48,7 @@ def staffIndex(request):
 
 
 @login_required
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def question(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
@@ -83,7 +83,7 @@ def question(request, question_pk):
     )
 
 @login_required
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def staff_setResult(request, question_pk, result):
     question = get_object_or_404(Question, pk=question_pk)
     question.vote_result = result
@@ -91,7 +91,7 @@ def staff_setResult(request, question_pk, result):
     return HttpResponseRedirect(reverse('poll:question', args=(question.pk,)))
 
 @login_required
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 def staff_setImpl(request, question_pk, impl):
     question = get_object_or_404(Question, pk=question_pk)
     question.implementation = impl
@@ -100,7 +100,7 @@ def staff_setImpl(request, question_pk, impl):
 
 
 @login_required
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def question_large(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
@@ -147,7 +147,7 @@ def question_large(request, question_pk):
 
 
 @login_required
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def addQuestion(request):
     if not request.is_ajax:
@@ -195,7 +195,7 @@ def addQuestion(request):
 
 
 @login_required
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def editQuestion(request, question_pk):
     ChoiceFormset = inlineformset_factory(Question, Choice, form=ChoiceForm, extra=2, can_delete=True)
@@ -239,7 +239,7 @@ def editQuestion(request, question_pk):
 
 
 @login_required
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def deleteQuestion(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
@@ -263,7 +263,7 @@ def deleteQuestion(request, question_pk):
 
 
 @login_required
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def setEndDate(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
@@ -295,7 +295,7 @@ def setEndDate(request, question_pk):
             raise Http404("Action not allowed")
 
 @login_required
-@permission_required('iphoperm.is_staff')
+@permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def removeEndDate(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
