@@ -82,8 +82,8 @@
 
 %Part
 \newcommand{\PT}[2]{\vspace{0.3cm}\noindent
-    { \hspace*{-3pt}\fontsize{11pt}{11pt}\selectfont\textcolor{color1}{\textbf{#1 \textenglish{(#2 points)}}}}}
-    {\vspace{0.1cm}}
+    { \hspace*{-3pt}\fontsize{11pt}{11pt}\selectfont\textcolor{color1}{\textbf{#1}}}\nopagebreak}
+    {\vspace{0.1cm}}\nopagebreak
 
 
 
