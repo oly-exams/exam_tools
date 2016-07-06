@@ -304,6 +304,22 @@ class Figure(models.Model):
         return self.name
 
 
+class PlaceManager(models.Manager):
+    def get_by_natural_key(self, name, exam_name):
+        return self.get(name=name, exam__name=exam_name)
+class Place(models.Model):
+    objects = PlaceManager()
+
+    student = models.ForeignKey(Student)
+    exam = models.ForeignKey(Exam)
+    name = models.CharField(max_length=20)
+
+    def __unicode__(self):
+        return u'{} [{} {}]'.format(self.name, self.exam.name, self.student.code)
+    def natural_key(self):
+        return self.name, self.exam.name
+
+
 class Feedback(models.Model):
     STATUS_CHOICES = (
         ('S', 'Submitted'),
