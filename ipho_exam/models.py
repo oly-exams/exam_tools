@@ -319,6 +319,9 @@ class Place(models.Model):
     def natural_key(self):
         return self.name, self.exam.name
 
+    class Meta:
+        unique_together = index_together = ('student', 'exam')
+
 
 class Feedback(models.Model):
     STATUS_CHOICES = (
