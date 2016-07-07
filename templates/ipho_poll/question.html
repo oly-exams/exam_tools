@@ -13,8 +13,16 @@
       <h1>{{ question }}</h1>
     </div>
     <div class="row">
-      <div class="col-sm-4">
+      <div class="col-sm-2">
         <h4>Status: {{ status }}</h4>
+      </div>
+      <div class="col-sm-2">
+        <h4>Feedbacks:</h4>
+          {% for fb in question.feedbacks.all %}
+          <span class="label label-default">#{{ fb.pk }} ({{ fb.question.exam.code }} {{ fb.question.code }}-{{ fb.question.position }})</span>
+          {% empty %}
+          <span class="label label-default">none</span>
+          {% endfor %}
       </div>
       {% if status == 'closed' %}
       <div class="col-sm-4">
