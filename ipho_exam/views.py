@@ -478,6 +478,7 @@ def feedbacks_list(request):
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
                     'feedbacks' : feedbacks,
+                    'status_choices': Feedback.STATUS_CHOICES,
                     'is_delegation' : len(delegation) > 0,
                 })
     else:
@@ -522,6 +523,12 @@ def feedback_like(request, status, feedback_id):
     Like.objects.get_or_create(feedback=feedback, delegation=delegation, defaults={'status': status})
     return redirect('exam:feedbacks-list')
 
+@permission_required('ipho_core.is_staff')
+def feedback_set_status(request, feedback_id, status):
+    fb = get_object_or_404(Feedback, id=feedback_id)
+    fb.status = status
+    fb.save()
+    return redirect('exam:feedbacks-list')
 
 @permission_required('ipho_core.is_staff')
 def feedbacks_export(request):
