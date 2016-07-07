@@ -17,6 +17,7 @@ from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
 from ipho_core.models import User
 
 from .models import Question, Choice, VotingRight, Vote
+from ipho_exam.models import Feedback
 
 from .forms import QuestionForm, ChoiceForm, VoteForm, EndDateForm
 from .forms import ChoiceFormHelper, VoteFormHelper
@@ -161,6 +162,9 @@ def addQuestion(request):
         choiceFormset = ChoiceFormset(None, prefix='choices')
     if questionForm.is_valid() and choiceFormset.is_valid():
         new_question = questionForm.save()
+        for fb in Feedback.objects.filter(vote=new_question):
+            fb.status = 'V' # scheduled for voting
+            fb.save()
         choiceFormset.instance = new_question
         choice_list = choiceFormset.save(commit=False)
         choice_text_list = []
