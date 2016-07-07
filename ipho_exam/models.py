@@ -304,6 +304,25 @@ class Figure(models.Model):
         return self.name
 
 
+class PlaceManager(models.Manager):
+    def get_by_natural_key(self, name, exam_name):
+        return self.get(name=name, exam__name=exam_name)
+class Place(models.Model):
+    objects = PlaceManager()
+
+    student = models.ForeignKey(Student)
+    exam = models.ForeignKey(Exam)
+    name = models.CharField(max_length=20)
+
+    def __unicode__(self):
+        return u'{} [{} {}]'.format(self.name, self.exam.name, self.student.code)
+    def natural_key(self):
+        return self.name, self.exam.name
+
+    class Meta:
+        unique_together = index_together = ('student', 'exam')
+
+
 class Feedback(models.Model):
     STATUS_CHOICES = (
         ('S', 'Submitted'),
@@ -319,7 +338,7 @@ class Feedback(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u'#{} {} ({})'.format(self.pk, self.question.name, self.delegation.name)
+        return u'#{} {} - {} ({})'.format(self.pk, self.question.name, self.question.exam.name, self.delegation.name)
 
 class Like(models.Model):
     CHOICES = (

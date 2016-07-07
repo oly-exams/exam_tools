@@ -28,7 +28,11 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
     if cover is not None:
         body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover)).encode("utf-8")
         compile_task = tasks.compile_tex.s(body, [])
-        all_tasks.append(compile_task)
+        q = questions[0]
+        s = student_languages[0].student
+        bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C')
+        barcode_task = tasks.add_barcode.s(bgenerator)
+        all_tasks.append( celery.chain(compile_task, barcode_task) )
 
     for question in questions:
         for sl in student_languages:

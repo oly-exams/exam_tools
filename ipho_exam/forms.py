@@ -182,6 +182,8 @@ class FeedbackForm(ModelForm):
         ('4', '4'),
         ('5', '5'),
         ('6', '6'),
+        ('7', '7'),
+        ('8', '8'),
     ), label='Which subpart?')
 
     def __init__(self, *args, **kwargs):
