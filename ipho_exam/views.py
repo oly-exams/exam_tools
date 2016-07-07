@@ -125,7 +125,7 @@ def translations_list(request):
                     'exam_active' : exam.active and in_progress
                 })
     else:
-        exam_list = Exam.objects.filter(hidden=False)
+        exam_list = Exam.objects.filter(hidden=False, active=True)
         for exam in exam_list:
             exam.is_active = exam.active and ExamAction.is_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
         return render(request, 'ipho_exam/list.html',
@@ -136,7 +136,7 @@ def translations_list(request):
 @login_required
 @ensure_csrf_cookie
 def list_all_translations(request):
-    exams = Exam.objects.filter(hidden=False)
+    exams = Exam.objects.filter(hidden=False, active=True)
     delegations = Delegation.objects.all()
 
     def get_or_none(model, *args, **kwargs):
@@ -479,6 +479,7 @@ def feedbacks_list(request):
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
                     'feedbacks' : feedbacks,
+                    'status_choices': Feedback.STATUS_CHOICES,
                     'is_delegation' : len(delegation) > 0,
                 })
     else:
@@ -523,6 +524,12 @@ def feedback_like(request, status, feedback_id):
     Like.objects.get_or_create(feedback=feedback, delegation=delegation, defaults={'status': status})
     return redirect('exam:feedbacks-list')
 
+@permission_required('ipho_core.is_staff')
+def feedback_set_status(request, feedback_id, status):
+    fb = get_object_or_404(Feedback, id=feedback_id)
+    fb.status = status
+    fb.save()
+    return redirect('exam:feedbacks-list')
 
 @permission_required('ipho_core.is_staff')
 def feedbacks_export(request):

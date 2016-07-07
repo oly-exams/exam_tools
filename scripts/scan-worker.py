@@ -10,6 +10,7 @@ from django.conf import settings
 from PyPDF2 import PdfFileWriter, PdfFileReader
 import io, struct, zbar
 from PIL import Image
+from wand.image import Image as WImage
 from StringIO import StringIO
 import shutil, os
 import datetime
@@ -105,7 +106,7 @@ def other_fig_formats():
         img.write(data)
         img.close()
 
-def inspect_file(input):
+def inspect_file_old(input):
     pdfdoc = PdfFileReader(input)
     pages = []
     for i in xrange(pdfdoc.getNumPages()):
@@ -119,6 +120,18 @@ def inspect_file(input):
                     tiff_img = extract_tiff(obj,xObject)
                     code = detect_barcode(tiff_img)
         pages.append((i, page, code))
+    return pages
+
+def inspect_file(input):
+    pages = []
+    with WImage(blob=input, format='pdf', resolution=300) as img:
+        npages = len(img.sequence)
+        logger.info('npages: {}'.format(npages))
+        for pg in xrange(npages):
+            with WImage(img.sequence[pg]).convert('png') as converted:
+                img_bytes = converted.make_blob()
+                code = detect_barcode(img_bytes)
+                pages.append((pg, converted, code))
     return pages
 
 def get_timestamp():

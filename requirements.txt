@@ -15,3 +15,4 @@ lxml
 html5lib
 bs4
 qrcode
+Wand
