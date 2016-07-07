@@ -2,7 +2,23 @@
 {% for fb in feedbacks %}
 <tr>
     <td>{{ fb.pk }}</td>
-    <td>{{ fb.status_display }}</td>
+    <td>
+      {% if perms.ipho_core.is_staff %}
+        <div class="btn-group">
+          <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+            {{ fb.status_display }}
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            {% for k,v in status_choices %}
+            <li class="{% if k == fb.status %}active{% endif %}"><a href="{% url 'exam:feedback-set-status' status=k feedback_id=fb.pk %}">{{ v }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        {{ fb.status_display }}
+      {% endif %}
+    </td>
     <td>{{ fb.delegation__country }}</td>
     <td>{{ fb.question__name }}</td>
     <td>{{ fb.part }}</td>
