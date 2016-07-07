@@ -339,7 +339,7 @@ def translation_import_confirm(request, slug):
 
     old_q = trans.qml
     old_data = old_q.get_data()
-    new_q = qml.QMLquestion(trans_import.content)
+    new_q = qml.make_qml(trans_import)
     new_data = new_q.get_data()
 
     old_q.diff_content_html(new_data)
@@ -818,9 +818,9 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
     if lang.versioned:
         node_versions = VersionNode.objects.filter(question=question, language=lang, status__in=['S','C']).order_by('-version').values_list('version', flat=True)
 
-    old_q = qml.QMLquestion(compare_node.text)
+    old_q = qml.make_qml(compare_node)
     old_data = old_q.get_data()
-    new_q = qml.QMLquestion(node.text)
+    new_q = make_qml(node)
     new_data = new_q.get_data()
 
     old_q.diff_content_html(new_data)
@@ -874,7 +874,7 @@ def admin_editor(request, exam_id, question_id, version_num):
         node = get_object_or_404(TranslationNode, question=question, language=lang)
         node_version = 0
 
-    q = qml.QMLquestion(node.text)
+    q = qml.make_qml(node)
     #content_set = qml.make_content(q)
 
     qml_types = [(qobj.tag, qml.canonical_name(qobj)) for qobj in qml.QMLobject.all_objects()]
@@ -905,7 +905,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
-    q = qml.QMLquestion(node.text)
+    q = qml.make_qml(node)
 
     block = q.find(block_id)
     if block is None:
@@ -955,7 +955,7 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
-    q = qml.QMLquestion(node.text)
+    q = qml.make_qml(node)
 
     block = q.delete(block_id)
     node.text = qml.xml2string(q.make_xml())
@@ -982,7 +982,7 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
         node = get_object_or_404(TranslationNode, question=question, language=lang)
         node_version = 0
 
-    q = qml.QMLquestion(node.text)
+    q = qml.make_qml(node)
 
     block = q.find(block_id)
     if block is None:
@@ -1300,7 +1300,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             'list': Language.objects.filter(translationnode__question=question).exclude(delegation=delegation).exclude(delegation__name=OFFICIAL_DELEGATION)
             })
 
-        orig_q = qml.QMLquestion(orig_node.text)
+        orig_q = qml.make_qml(orig_node)
         orig_q.set_lang(orig_lang)
 
         if orig_diff is not None:
@@ -1308,8 +1308,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 raise Exception('Original language does not support versioning.')
             orig_diff_tag = orig_lang.tag
             orig_diff_node = get_object_or_404(VersionNode, question=question, language=orig_lang, version=orig_diff)
-            orig_diff_q = qml.QMLquestion(orig_diff_node.text)
-            orig_diff_data = orig_diff_q.get_data()
+            orig_diff_q = qml.make_qml(orig_diff_node)
+            orig_diff_data = qml.get_data(orig_diff_q)
 
             ## make diff
             ## show diff, new elements
@@ -1324,7 +1324,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             trans_lang = get_object_or_404(Language, id=lang_id)
             trans_node, created = TranslationNode.objects.get_or_create(question=question, language_id=lang_id, defaults={'text': '', 'status' : 'O'}) ## TODO: check permissions for this.
             if len(trans_node.text) > 0:
-                trans_q    = qml.QMLquestion(trans_node.text)
+                trans_q    = qml.make_qml(trans_node)
                 trans_q.set_lang(trans_lang)
                 trans_content = trans_q.get_data()
                 trans_extra_html = trans_q.get_trans_extra_html()

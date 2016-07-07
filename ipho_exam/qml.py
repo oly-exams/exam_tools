@@ -55,6 +55,15 @@ def make_content_node(node):
 
     return descr
 
+def make_qml(node):
+    q = QMLquestion(node.text)
+
+    attr_change = {}
+    if hasattr(node, 'attributechange'):
+        attr_change = json.loads(node.attributechange.content)
+    q.update_attrs(attr_change)
+    return q
+
 def xml2string(xml):
     return ET.tostring(xml)
 
@@ -303,6 +312,11 @@ class QMLobject(object):
 
         for c in self.children:
             c.update(data)
+    def update_attrs(self, attrs):
+        if self.id in attrs:
+            self.attributes.update(attrs[self.id])
+        for c in self.children:
+            c.update_attrs(attrs)
 
     def diff_content_html(self, other_data):
         if self.has_text:
@@ -692,26 +706,26 @@ class QMLlatex(QMLobject):
                 content = re.sub(r'({{ *%s *}})' % c.attributes['name'], c.data.encode('utf-8'), content)
                 content.replace('{{ %s }}' % c.attributes['name'], c.data.encode('utf-8'))
         return content, []
-        
+
 class QMLlatexEnv(QMLobject):
     abbr = "te"
     tag = "texenv"
     default_heading = None
-    
+
     has_text=False
     has_children = True
-    
+
     default_attributes = {'name': ''}
-    
+
     def tex_begin(self):
         return unicode(r'\begin{{{}}}{}'.format(
             self.attributes['name'],
             self.attributes.get('arguments', '')
         ))
-    
+
     def tex_end(self):
         return unicode(r'\end{{{}}}'.format(self.attributes['name']))
-    
+
 
 class QMLlatexParam(QMLobject):
     abbr = "tp"
@@ -764,7 +778,7 @@ class QMLtable(QMLobject):
 
     def tex_begin(self):
         return (
-            unicode(r'\vspace{0.5cm}') + 
+            unicode(r'\vspace{0.5cm}') +
             u'\\begin{center}' + self._arraystretch +
             '\\begin{tabular}{' + self._columns + u'}' +
             int(self.attributes['top_line']) * u'\\hline' + u'\n'
