@@ -125,7 +125,7 @@ def translations_list(request):
                     'exam_active' : exam.active and in_progress
                 })
     else:
-        exam_list = Exam.objects.filter(hidden=False)
+        exam_list = Exam.objects.filter(hidden=False, active=True)
         for exam in exam_list:
             exam.is_active = exam.active and ExamAction.is_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
         return render(request, 'ipho_exam/list.html',
@@ -136,7 +136,7 @@ def translations_list(request):
 @login_required
 @ensure_csrf_cookie
 def list_all_translations(request):
-    exams = Exam.objects.filter(hidden=False)
+    exams = Exam.objects.filter(hidden=False, active=True)
     delegations = Delegation.objects.all()
 
     def get_or_none(model, *args, **kwargs):
