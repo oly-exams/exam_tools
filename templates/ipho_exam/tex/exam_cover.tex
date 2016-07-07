@@ -1,15 +1,17 @@
-\documentclass[a4paper,foldmarks=false]{scrlttr2}
+\documentclass[12pt,a4paper,foldmarks=false]{scrlttr2}
 
+\usepackage{fontspec}
+\setmainfont{Noto Sans}
 \setkomavar{date}{}
 \nonstopmode
 
 \begin{document}
 
-\begin{letter}{\textbf{% templatetag openbrace %}{{ exam.name }} - {{ question.name }}}\\ {{ student.code }} {{ exam.code }}-{{ question.position }} C }
+\begin{letter}{\textbf{% templatetag openbrace %}{{ student.code }} {{ exam.code }}-{{ question.position }} C}\\{{ student.first_name }} {{ student.last_name }}\\\textbf{\large {{ place }}} }
 \opening{}
 
 \begin{center}
-{\bf \Huge {{ exam.name }} - {{ question.name }}}
+{\bf \Huge {{ exam.name }}\\ {{ question.name }}}
 \vspace{1em}\\
 {\bf \Large Cover sheet}
 \end{center}
