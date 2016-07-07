@@ -13,7 +13,7 @@
         <div class="col-md-1">
           #{{ question.pk }}
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           {% if question.vote_result == VOTE_ACCEPTED %}
           <span class="label label-success">Accepted</span>
           {% elif question.vote_result == VOTE_REJECTED %}
@@ -24,8 +24,13 @@
           <span class="label label-info">Implemented</span>
           {% endif %}
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
           {{ question.title }}
+        </div>
+        <div class="col-md-3">
+          {% for fb in question.feedbacks.all %}
+          <span class="label label-default">#{{ fb.pk }} ({{ fb.question.exam.code }} {{ fb.question.code }}-{{ fb.question.position }})</span>
+          {% endfor %}
         </div>
         <div class="col-md-2">
           <i class="fa fa-info fa-fw"></i>
