@@ -83,7 +83,7 @@ def add_barcode(doc, bgenerator):
         pbox = page.artBox
         pwidth = (pbox.upperRight[0] - pbox.upperLeft[0])
         x = float(pbox.upperLeft[0]) + float(pwidth-wwidth) / 2.
-        page.mergeTranslatedPage(watermark, x, pbox.upperLeft[1]-wbox.upperLeft[1]-20)
+        page.mergeTranslatedPage(watermark, x, pbox.upperLeft[1]-wbox.upperLeft[1]-25)
         output.addPage(page)
 
     output_pdf = StringIO()
