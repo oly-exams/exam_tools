@@ -23,6 +23,7 @@ def build_extension_validator(valid_extensions):
 
 class LanguageForm(ModelForm):
     def __init__(self, *args, **kwargs):
+        self.user_delegation = kwargs.pop('user_delegation')
         super(LanguageForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
         if instance and instance.pk:
@@ -55,6 +56,19 @@ class LanguageForm(ModelForm):
         if "_" in data:
             raise forms.ValidationError("Underscore '_' symbols are forbidden in language names.")
         return data
+
+    def clean(self):
+        cleaned_data = super(LanguageForm, self).clean()
+
+        try:
+            Language.objects.get(name=cleaned_data['name'], delegation=self.user_delegation)
+        except Language.DoesNotExist:
+            pass
+        else:
+            raise ValidationError('This language already exist for delegation ' + self.user_delegation.name + '. Enter a different name.')
+
+        # Always return cleaned_data
+        return cleaned_data
 
     class Meta:
         model = Language
