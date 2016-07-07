@@ -27,14 +27,14 @@ def question_points(root, part_num=-1, subq_num=0):
 def main():
     for node in VersionNode.objects.all():
         if not '<question' in node.text: continue
-        q = qml.QMLquestion(node.text)
+        q = qml.make_qml(node)
         question_points(q)
         node.text = qml.xml2string(q.make_xml())
         node.save()
 
     for node in TranslationNode.objects.all():
         if not '<question' in node.text: continue
-        q = qml.QMLquestion(node.text)
+        q = qml.make_qml(node)
         question_points(q)
         node.text = qml.xml2string(q.make_xml())
         node.save()
@@ -42,4 +42,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

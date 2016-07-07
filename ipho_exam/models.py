@@ -179,6 +179,21 @@ class TranslationNode(models.Model):
         return self.question.natural_key() + self.language.natural_key()
     natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
 
+class AttributeChangeManager(models.Manager):
+    def get_by_natural_key(self, *args, **kwargs):
+        return self.get(node=TranslationNode.objects.get_by_natural_key(*args, **kwargs))
+class AttributeChange(models.Model):
+    objects = AttributeChangeManager()
+    content   = models.TextField(blank=True)
+    node      = models.OneToOneField(TranslationNode)
+
+    def __unicode__(self):
+        return u'attrs:{}'.format(self.node)
+
+    def natural_key(self):
+        return self.node.natural_key()
+    natural_key.dependencies = ['ipho_exam.translationnode',]
+
 class PDFNodeManager(models.Manager):
     def get_by_natural_key(self, question_name, exam_name, lang_name, delegation_name):
         return self.get(language=Language.objects.get_by_natural_key(lang_name, delegation_name),
