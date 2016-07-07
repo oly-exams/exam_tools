@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django import forms
+import json
 from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, Place, AttributeChange
 from ipho_exam.widgets import AceWidget
 
@@ -18,6 +19,19 @@ class FigureAdminForm(forms.ModelForm):
     class Meta:
         model = Figure
         fields = '__all__'
+
+class AttributeChangeForm(forms.ModelForm):
+    class Meta:
+        model = AttributeChange
+        fields = '__all__'
+    def clean(self):
+        super(AttributeChangeForm, self).clean()
+        try:
+            d = json.loads(self.cleaned_data['content'])
+            self.cleaned_data['content'] = json.dumps(d, indent=2)
+        except ValueError:
+            raise forms.ValidationError("Content is not valid JSON.")
+        return self.cleaned_data
 
 class QuestionInline(admin.StackedInline):
     model = Question
@@ -46,6 +60,7 @@ class TranslationNodeAdmin(admin.ModelAdmin):
     list_filter = ('question','language__delegation')
 
 class AttributeChangeAdmin(admin.ModelAdmin):
+    form = AttributeChangeForm
     list_display = ('node', 'language')
     list_filter = ('node__question','language__delegation')
 
