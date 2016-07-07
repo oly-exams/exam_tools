@@ -173,6 +173,7 @@ def main(input):
             if not doc_complete:
                 doc.scan_msg = 'Missing pages: {} in DB but only {} in scanned document.'.format(expected_pages, len(pgs))
             doc.save()
+            logger.info('Scan document inserted in DB for barcode {}'.format(code))
 
         except Document.DoesNotExist:
             oname = code+'-'+get_timestamp()+'.pdf'
