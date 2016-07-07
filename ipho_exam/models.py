@@ -338,7 +338,7 @@ class Feedback(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u'#{} {} ({})'.format(self.pk, self.question.name, self.delegation.name)
+        return u'#{} {} - {} ({})'.format(self.pk, self.question.name, self.question.exam.name, self.delegation.name)
 
 class Like(models.Model):
     CHOICES = (
