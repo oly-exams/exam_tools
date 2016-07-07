@@ -61,8 +61,8 @@ class TranslationNodeAdmin(admin.ModelAdmin):
 
 class AttributeChangeAdmin(admin.ModelAdmin):
     form = AttributeChangeForm
-    list_display = ('node', 'language')
-    list_filter = ('node__question','language__delegation')
+    list_display = ('node',)
+    list_filter = ('node__question', 'node__language')
 
 class PDFNodeAdmin(admin.ModelAdmin):
     list_display = ('question', 'language', 'status', 'timestamp')

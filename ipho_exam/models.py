@@ -180,26 +180,19 @@ class TranslationNode(models.Model):
     natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
 
 class AttributeChangeManager(models.Manager):
-    def get_by_natural_key(self, question_name, exam_name, lang_name, delegation_name):
-        lang = Language.objects.get_by_natural_key(lang_name, delegation_name)
-        return self.get(language=lang,
-                        node__language=lang,
-                        node__question=Question.objects.get_by_natural_key(question_name, exam_name))
+    def get_by_natural_key(self, *args, **kwargs):
+        return self.get(node=TranslationNode.objects.get_by_natural_key(*args, **kwargs))
 class AttributeChange(models.Model):
     objects = AttributeChangeManager()
     content   = models.TextField(blank=True)
-    node      = models.ForeignKey(TranslationNode)
-    language  = models.ForeignKey(Language)
-
-    class Meta:
-        unique_together = index_together = (('node', 'language'),)
+    node      = models.OneToOneField(TranslationNode)
 
     def __unicode__(self):
-        return u'attrs_{}_{}'.format(self.node.question, self.language)
+        return u'attrs:{}'.format(self.node)
 
     def natural_key(self):
-        return self.node.question.natural_key() + self.language.natural_key()
-    natural_key.dependencies = ['ipho_exam.translationnode', 'ipho_exam.question', 'ipho_exam.language']
+        return self.node.natural_key()
+    natural_key.dependencies = ['ipho_exam.translationnode',]
 
 class PDFNodeManager(models.Manager):
     def get_by_natural_key(self, question_name, exam_name, lang_name, delegation_name):
