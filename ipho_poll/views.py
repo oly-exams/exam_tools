@@ -306,7 +306,6 @@ def removeEndDate(request, question_pk):
     if not question.is_open():
         raise Http404("Action not allowed")
     else:
-        Vote.objects.filter(choice__question=question).delete()
         question.end_date = None
         question.save()
         return HttpResponseRedirect(reverse('poll:staffIndex'))
