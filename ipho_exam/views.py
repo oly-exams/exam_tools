@@ -376,7 +376,8 @@ def add_language(request):
     delegation = Delegation.objects.get(members=request.user)
 
     ## Language section
-    language_form = LanguageForm(request.POST or None)
+    language_form = LanguageForm(request.POST or None, user_delegation=delegation)
+
     if language_form.is_valid():
         lang = language_form.instance.delegation = delegation
         lang = language_form.save()
