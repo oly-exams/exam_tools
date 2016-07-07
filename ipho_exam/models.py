@@ -326,7 +326,7 @@ class Place(models.Model):
 class Feedback(models.Model):
     STATUS_CHOICES = (
         ('S', 'Submitted'),
-        ('V', 'Schedule for voting'),
+        ('V', 'Scheduled for voting'),
         ('I', 'Implemented'),
         ('T', 'Settle'),
     )
