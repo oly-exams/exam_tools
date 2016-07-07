@@ -326,8 +326,9 @@ class Place(models.Model):
 class Feedback(models.Model):
     STATUS_CHOICES = (
         ('S', 'Submitted'),
-        ('P', 'In progress'),
-        ('R', 'Resolved'),
+        ('V', 'Schedule for voting'),
+        ('I', 'Implemented'),
+        ('T', 'Settle'),
     )
 
     delegation = models.ForeignKey(Delegation)
