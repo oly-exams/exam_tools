@@ -493,7 +493,7 @@ class QMLpart(QMLobject):
         return '}{%s}\n\n' % self.attributes['points']
 
     def make_xhtml(self):
-        return u'<h2>{} ({} points)</h2>'.format(data2xhtml(self.data), self.attributes['points']), []
+        return u'<h2>{}</h2>'.format(data2xhtml(self.data)), []
 
 class QMLparagraph(QMLobject):
     abbr = "pa"
@@ -787,6 +787,11 @@ class QMLtable(QMLobject):
     def tex_end(self):
         return unicode(r'\end{tabular}\end{center}\vspace{0.5cm}') + u'\n\n'
 
+    def xhtml_begin(self):
+        return u'<table>'
+    def xhtml_end(self):
+        return u'</table>'
+
 class QMLtableRow(QMLobject):
     abbr = "rw"
     tag = "row"
@@ -806,6 +811,10 @@ class QMLtableRow(QMLobject):
         texout += u' & '.join(data2tex(c.data) for c in self.children)
         texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
         return texout * multiplier, []
+    def xhtml_begin(self):
+        return u'<tr>'
+    def xhtml_end(self):
+        return u'</tr>'
 
 class QMLtableCell(QMLobject):
     abbr = "ce"
@@ -817,6 +826,10 @@ class QMLtableCell(QMLobject):
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
+    def xhtml_begin(self):
+        return u'<td>'
+    def xhtml_end(self):
+        return u'</td>'
 
 class QMLtableCaption(QMLobject):
     abbr = "tc"
