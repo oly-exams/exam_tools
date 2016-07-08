@@ -1325,7 +1325,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 official_list.append(vn.language)
                 official_list[-1].version = vn.version
                 official_list[-1].tag = vn.tag
-        # official_list += list(Language.objects.filter(translationnode__question=question, delegation__name=OFFICIAL_DELEGATION))
+        official_list += list(Language.objects.filter(translationnode__question=question, delegation__name=OFFICIAL_DELEGATION))
         question_langs.append({'name': 'official', 'order':0, 'list': official_list})
         ## own
         if delegation.count() > 0:
