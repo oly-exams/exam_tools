@@ -822,7 +822,7 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
 
     old_q = qml.make_qml(compare_node)
     old_data = old_q.get_data()
-    new_q = make_qml(node)
+    new_q = qml.make_qml(node)
     new_data = new_q.get_data()
 
     old_q.diff_content_html(new_data)
