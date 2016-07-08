@@ -15,7 +15,7 @@ import itertools
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, ExamAction
+from ipho_exam.models import Exam, Question, VersionNode, ExamAction, Document
 from ipho_exam import qquery as qwquery
 from ipho_exam import qml
 
@@ -241,7 +241,10 @@ def delegation_stud_edit(request, stud_id, question_id):
         form.save()
         ctx['msg'].append( ('alert-success', '<strong>Success.</strong> Points have been saved. <a href="{}" class="btn btn-default btn-xs">back to summary</a>'.format(reverse('marking:delegation-summary'))) )
 
+    documents = Document.objects.filter(student=student, exam=question.exam, position=question.position)
+
     ctx['form'] = form
+    ctx['documents'] = documents
     return render(request, 'ipho_marking/delegation_detail.html', ctx)
 
 @permission_required('ipho_core.is_delegation')
@@ -277,6 +280,9 @@ def delegation_stud_view(request, stud_id, question_id):
         for k,g in itertools.groupby(markings, key=lambda m: m.marking_meta)
     ]
 
+    documents = Document.objects.filter(student=student, exam=question.exam, position=question.position)
+
+    ctx['documents'] = documents
     ctx['markings'] = grouped_markings
     return render(request, 'ipho_marking/delegation_detail.html', ctx)
 
