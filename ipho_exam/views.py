@@ -503,7 +503,7 @@ def feedbacks_list(request):
         # TODO: allow Add feedback only if a delegation
         return render(request, 'ipho_exam/feedbacks.html', {
                     'exam_list' : exam_list,
-                    'is_delegation' : len(delegation) > 0,
+                    'is_delegation' : len(delegation) > 0 or request.user.has_perm('ipho_core.is_staff'),
                 })
 
 @any_permission_required('ipho_core.is_delegation', 'ipho_core.is_staff')
