@@ -345,6 +345,29 @@ class Feedback(models.Model):
         ('I', 'Implemented'),
         ('T', 'Settle'),
     )
+    PARTS_CHOICES = (
+        ('General', 'General'),
+        ('Intro', 'Introduction'),
+        ('A', 'Part A'),
+        ('B', 'Part B'),
+        ('C', 'Part C'),
+        ('D', 'Part D'),
+        ('E', 'Part E'),
+        ('F', 'Part F'),
+        ('G', 'Part G'),
+    )
+    SUBPARTS_CHOICES = (
+        ('General', 'General comment on part'),
+        ('Intro', 'Introduction of part'),
+        ('1', '1'),
+        ('2', '2'),
+        ('3', '3'),
+        ('4', '4'),
+        ('5', '5'),
+        ('6', '6'),
+        ('7', '7'),
+        ('8', '8'),
+    )
 
     delegation = models.ForeignKey(Delegation)
     question  = models.ForeignKey(Question)
@@ -355,6 +378,18 @@ class Feedback(models.Model):
 
     def __unicode__(self):
         return u'#{} {} - {} ({})'.format(self.pk, self.question.name, self.question.exam.name, self.delegation.name)
+    @staticmethod
+    def choice_id(txt):
+        all_parts = []
+        for k,v in Feedback.PARTS_CHOICES:
+            for kk,vv in Feedback.SUBPARTS_CHOICES:
+                all_parts.append('{}.{}'.format(k,kk))
+        try:
+            i = all_parts.index(txt)
+        except:
+            print 'Problem'
+            i = len(all_parts)
+        return i
 
 class Like(models.Model):
     CHOICES = (

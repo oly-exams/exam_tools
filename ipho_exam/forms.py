@@ -162,29 +162,8 @@ class TranslationImportForm(ModelForm):
         fields = []
 
 class FeedbackForm(ModelForm):
-    part_nr = forms.ChoiceField(widget=forms.Select(), choices=(
-        ('General', 'General'),
-        ('Intro', 'Introduction'),
-        ('A', 'Part A'),
-        ('B', 'Part B'),
-        ('C', 'Part C'),
-        ('D', 'Part D'),
-        ('E', 'Part E'),
-        ('F', 'Part F'),
-        ('G', 'Part G'),
-    ), label='Which part?')
-    subpart_nr = forms.ChoiceField(widget=forms.Select(), required=False, choices=(
-        ('General', 'General comment on part'),
-        ('Intro', 'Introduction of part'),
-        ('1', '1'),
-        ('2', '2'),
-        ('3', '3'),
-        ('4', '4'),
-        ('5', '5'),
-        ('6', '6'),
-        ('7', '7'),
-        ('8', '8'),
-    ), label='Which subpart?')
+    part_nr = forms.ChoiceField(widget=forms.Select(), choices=Feedback.PARTS_CHOICES, label='Which part?')
+    subpart_nr = forms.ChoiceField(widget=forms.Select(), required=False, choices=Feedback.SUBPARTS_CHOICES, label='Which subpart?')
 
     def __init__(self, *args, **kwargs):
         super(FeedbackForm, self).__init__(*args, **kwargs)
