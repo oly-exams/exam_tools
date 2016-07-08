@@ -5,7 +5,7 @@ from django.http.request import QueryDict
 
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.context_processors import csrf
@@ -36,6 +36,19 @@ from celery.result import AsyncResult
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
+
+def any_permission_required(*args):
+    """
+    A decorator which checks user has any of the given permissions.
+    permission required can not be used in its place as that takes only a
+    single permission.
+    """
+    def test_func(user):
+        for perm in args:
+            if user.has_perm(perm):
+                return True
+        return False
+    return user_passes_test(test_func)
 
 @login_required
 def index(request):
@@ -484,7 +497,7 @@ def feedbacks_list(request):
                 {
                     'feedbacks' : feedbacks,
                     'status_choices': Feedback.STATUS_CHOICES,
-                    'is_delegation' : len(delegation) > 0,
+                    'is_delegation' : len(delegation) > 0 or request.user.has_perm('ipho_core.is_staff'),
                 })
     else:
         # TODO: allow Add feedback only if a delegation
@@ -493,11 +506,14 @@ def feedbacks_list(request):
                     'is_delegation' : len(delegation) > 0,
                 })
 
-@permission_required('ipho_core.is_delegation')
+@any_permission_required('ipho_core.is_delegation', 'ipho_core.is_staff')
 def feedbacks_add(request, exam_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    delegation = Delegation.objects.get(members=request.user)
+    if request.user.has_perm('ipho_core.is_staff'):
+        delegation = Delegation.objects.get(name=OFFICIAL_DELEGATION)
+    else:
+        delegation = Delegation.objects.get(members=request.user)
 
     ## Language section
     form = FeedbackForm(request.POST or None)
