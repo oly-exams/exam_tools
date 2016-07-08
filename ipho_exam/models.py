@@ -379,7 +379,7 @@ class Feedback(models.Model):
     def __unicode__(self):
         return u'#{} {} - {} ({})'.format(self.pk, self.question.name, self.question.exam.name, self.delegation.name)
     @staticmethod
-    def choice_id(txt):
+    def part_id(txt):
         all_parts = []
         for k,v in Feedback.PARTS_CHOICES:
             for kk,vv in Feedback.SUBPARTS_CHOICES:
