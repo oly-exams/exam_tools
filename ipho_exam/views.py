@@ -110,13 +110,15 @@ def translations_list(request):
         trans_list = TranslationNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
         pdf_list = PDFNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
         node_list = list(trans_list) + list(pdf_list)
-        official_translations = VersionNode.objects.filter(question__exam=exam, language__delegation__name=OFFICIAL_DELEGATION, status='C').order_by('question', '-version')
+        official_translations_vnode = VersionNode.objects.filter(question__exam=exam, language__delegation__name=OFFICIAL_DELEGATION, status='C').order_by('question', '-version')
+        official_translations_tnode = TranslationNode.objects.filter(question__exam=exam, language__delegation__name=OFFICIAL_DELEGATION).order_by('question')
         official_nodes = []
         qdone = set()
-        for node in official_translations:
+        for node in official_translations_vnode:
             if node.question not in qdone:
                 official_nodes.append(node)
                 qdone.add(node.question)
+        official_nodes += list(official_translations_tnode)
         return render(request, 'ipho_exam/partials/list_exam_tbody.html',
                 {
                     'exam'      : exam,
