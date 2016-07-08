@@ -6,19 +6,24 @@ django.setup()
 
 from django.core import serializers
 from ipho_exam.models import *
+import json
+from StringIO import StringIO
 
-def save(objs, fname):
+def save(objs, stream):
+    if type(stream) == str:
+        stream = open(stream, 'w')
     serializers.serialize('json', objs, indent=2,
             use_natural_foreign_keys=True,
             use_natural_primary_keys=True,
-            stream=open(fname, 'w'))
+            stream=stream)
 
-
-def save_with_pk(objs, fname):
+def save_with_pk(objs, stream):
+    if type(stream) == str:
+        stream = open(stream, 'w')
     serializers.serialize('json', objs, indent=2,
             use_natural_foreign_keys=False,
             use_natural_primary_keys=False,
-            stream=open(fname, 'w'))
+            stream=stream)
 
 exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
 save(exams, '031_exams.json')
@@ -37,4 +42,10 @@ for node in nodes:
         continue
     last_nodes.append(node)
     last_nodes_incl.append(node.question.pk)
-save(last_nodes, '034_content_nodes.json')
+ss = StringIO()
+save(last_nodes, ss)
+data = json.loads(ss.getvalue())
+for d in data:
+    d['fields']['version'] = 1
+    d['fields']['tag'] = 'initial'
+json.dump(data, open('034_content_nodes.json', 'w'), indent=2)
