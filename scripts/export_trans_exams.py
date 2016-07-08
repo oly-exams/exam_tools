@@ -37,7 +37,7 @@ data = json.loads(ss.getvalue())
 for d in data:
     d['fields']['delegation'] = [u'IPhO']
     d['fields']['name'] = d['fields']['name'].replace(' final', '')
-json.dump(data, open('035_trans_official_lang.json'), indent=2)
+json.dump(data, open('035_trans_official_lang.json', 'w'), indent=2)
 
 
 nodes = TranslationNode.objects.filter(question=questions, language=languages)
@@ -46,4 +46,4 @@ save(nodes, ss)
 data = json.loads(ss.getvalue())
 for d in data:
     d['fields']['language'] = [d['fields']['language'][0].replace(' final', ''), u'IPhO']
-json.dump(data, open('035_trans_official_nodes.json'), indent=2)
+json.dump(data, open('035_trans_official_nodes.json', 'w'), indent=2)
