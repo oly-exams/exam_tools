@@ -77,6 +77,7 @@ def content2string(node):
     return ''.join(filter(None, parts))
 
 def normalize_html(data):
+    data = data.replace('&nbsp;', ' ').replace('&#160;', ' ')
     xhtmlout = BeautifulSoup(data, "html5lib")
     try:
         return ''.join([unicode(el) for el in xhtmlout.body.contents])
