@@ -339,7 +339,7 @@ def translation_import_confirm(request, slug):
 
     old_q = trans.qml
     old_data = old_q.get_data()
-    new_q = qml.make_qml(trans_import)
+    new_q = qml.QMLquestion(trans_import.content)
     new_data = new_q.get_data()
 
     old_q.diff_content_html(new_data)
