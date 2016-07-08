@@ -29,16 +29,25 @@ from .forms import ChoiceFormHelper, VoteFormHelper
 @permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def staffIndex(request):
-    drafted_questions_list = Question.objects.is_draft()
-    open_questions_list = Question.objects.is_open()
-    closed_questions_list = Question.objects.is_closed()
+    return render(request, 'ipho_poll/staffIndex.html')
+
+@login_required
+@permission_required('ipho_core.is_staff')
+@ensure_csrf_cookie
+def staffIndexPartial(request, qtype):
+    if qtype == 'drafted':
+        questions_list = Question.objects.is_draft()
+    elif qtype == 'open':
+        questions_list = Question.objects.is_open()
+    elif qtype == 'closed':
+        questions_list = Question.objects.is_closed()
+    else:
+        raise RuntimeError('No valid qtype')
     choices_list = Choice.objects.all()
 
-    return render(request, 'ipho_poll/staffIndex.html',
+    return render(request, 'ipho_poll/tables/{}_questions.html'.format(qtype),
             {
-                'drafted_questions_list'    : drafted_questions_list,
-                'open_questions_list'       : open_questions_list,
-                'closed_questions_list'     : closed_questions_list,
+                'questions_list'            : questions_list,
                 'choices_list'              : choices_list,
                 'VOTE_ACCEPTED'             : Question.VOTE_RESULT_META.ACCEPTED,
                 'VOTE_REJECTED'             : Question.VOTE_RESULT_META.REJECTED,

@@ -5,7 +5,7 @@
 <div class='panel panel-default'>
     <div class="panel-heading"><h2>Open Votings</h2></div>
     <div class="panel-body">
-        {% if not open_questions_list%}
+        {% if not questions_list%}
             <div class="alert alert-info alert-dismissible">
                 <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
                 <strong>There are no open votings at the moment!</strong> Click the green "open vote" button on a drafted voting to open a vote.
@@ -21,8 +21,8 @@
             <th>Choices</th>
             <th>Actions</th>
         </tr>
-        {% if open_questions_list %}
-            {% for question in open_questions_list %}
+        {% if questions_list %}
+            {% for question in questions_list %}
                 <tr id="question-{{ question.pk }}">
                     <td class="col-md-1">{{ question.pk }}</td>
                     <td class="col-md-1">
