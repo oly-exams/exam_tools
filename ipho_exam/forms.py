@@ -23,6 +23,7 @@ def build_extension_validator(valid_extensions):
 
 class LanguageForm(ModelForm):
     def __init__(self, *args, **kwargs):
+        self.user_delegation = kwargs.pop('user_delegation')
         super(LanguageForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
         if instance and instance.pk:
@@ -55,6 +56,19 @@ class LanguageForm(ModelForm):
         if "_" in data:
             raise forms.ValidationError("Underscore '_' symbols are forbidden in language names.")
         return data
+
+    def clean(self):
+        cleaned_data = super(LanguageForm, self).clean()
+
+        try:
+            Language.objects.get(name=cleaned_data['name'], delegation=self.user_delegation)
+        except Language.DoesNotExist:
+            pass
+        else:
+            raise ValidationError('This language already exist for delegation ' + self.user_delegation.name + '. Enter a different name.')
+
+        # Always return cleaned_data
+        return cleaned_data
 
     class Meta:
         model = Language
@@ -148,29 +162,8 @@ class TranslationImportForm(ModelForm):
         fields = []
 
 class FeedbackForm(ModelForm):
-    part_nr = forms.ChoiceField(widget=forms.Select(), choices=(
-        ('General', 'General'),
-        ('Intro', 'Introduction'),
-        ('A', 'Part A'),
-        ('B', 'Part B'),
-        ('C', 'Part C'),
-        ('D', 'Part D'),
-        ('E', 'Part E'),
-        ('F', 'Part F'),
-        ('G', 'Part G'),
-    ), label='Which part?')
-    subpart_nr = forms.ChoiceField(widget=forms.Select(), required=False, choices=(
-        ('General', 'General comment on part'),
-        ('Intro', 'Introduction of part'),
-        ('1', '1'),
-        ('2', '2'),
-        ('3', '3'),
-        ('4', '4'),
-        ('5', '5'),
-        ('6', '6'),
-        ('7', '7'),
-        ('8', '8'),
-    ), label='Which subpart?')
+    part_nr = forms.ChoiceField(widget=forms.Select(), choices=Feedback.PARTS_CHOICES, label='Which part?')
+    subpart_nr = forms.ChoiceField(widget=forms.Select(), required=False, choices=Feedback.SUBPARTS_CHOICES, label='Which subpart?')
 
     def __init__(self, *args, **kwargs):
         super(FeedbackForm, self).__init__(*args, **kwargs)

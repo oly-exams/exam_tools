@@ -306,10 +306,17 @@ def removeEndDate(request, question_pk):
     if not question.is_open():
         raise Http404("Action not allowed")
     else:
-        Vote.objects.filter(choice__question=question).delete()
         question.end_date = None
         question.save()
         return HttpResponseRedirect(reverse('poll:staffIndex'))
+
+
+
+
+
+
+
+
 
 
 
@@ -339,6 +346,9 @@ def voterIndex(request):
             if timezone.now() < question.end_date:
                 voteFormset.save()
             just_voted += (question.pk,)
+            return HttpResponseRedirect(reverse('poll:voted'))
+
+
         else:
             formset_html_dict[question.pk] = render_crispy_form(voteFormset, helper=VoteFormHelper)
 
@@ -372,3 +382,6 @@ def voterIndex(request):
                     'formset_list'              : formset_html_dict,
                 }
             )
+
+def voted(request):
+    return render(request, 'ipho_poll/voted.html')

@@ -5,7 +5,7 @@ from django.http.request import QueryDict
 
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.context_processors import csrf
@@ -36,6 +36,19 @@ from celery.result import AsyncResult
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
+
+def any_permission_required(*args):
+    """
+    A decorator which checks user has any of the given permissions.
+    permission required can not be used in its place as that takes only a
+    single permission.
+    """
+    def test_func(user):
+        for perm in args:
+            if user.has_perm(perm):
+                return True
+        return False
+    return user_passes_test(test_func)
 
 @login_required
 def index(request):
@@ -110,13 +123,15 @@ def translations_list(request):
         trans_list = TranslationNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
         pdf_list = PDFNode.objects.filter(question__exam=exam, language__delegation=delegation).order_by('language', 'question')
         node_list = list(trans_list) + list(pdf_list)
-        official_translations = VersionNode.objects.filter(question__exam=exam, language__delegation__name=OFFICIAL_DELEGATION, status='C').order_by('question', '-version')
+        official_translations_vnode = VersionNode.objects.filter(question__exam=exam, language__delegation__name=OFFICIAL_DELEGATION, status='C').order_by('question', '-version')
+        official_translations_tnode = TranslationNode.objects.filter(question__exam=exam, language__delegation__name=OFFICIAL_DELEGATION).order_by('question')
         official_nodes = []
         qdone = set()
-        for node in official_translations:
+        for node in official_translations_vnode:
             if node.question not in qdone:
                 official_nodes.append(node)
                 qdone.add(node.question)
+        official_nodes += list(official_translations_tnode)
         return render(request, 'ipho_exam/partials/list_exam_tbody.html',
                 {
                     'exam'      : exam,
@@ -376,7 +391,8 @@ def add_language(request):
     delegation = Delegation.objects.get(members=request.user)
 
     ## Language section
-    language_form = LanguageForm(request.POST or None)
+    language_form = LanguageForm(request.POST or None, user_delegation=delegation)
+
     if language_form.is_valid():
         lang = language_form.instance.delegation = delegation
         lang = language_form.save()
@@ -470,29 +486,34 @@ def feedbacks_list(request):
             'timestamp',
             'part',
             'comment'
-        ).order_by('-timestamp')
+        ).order_by('question__position')
         choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
         for fb in feedbacks:
             fb['status_display'] = choices[fb['status']]
             fb['enable_likes'] = (fb['delegation_likes']==0) and fb['question__feedback_active'] and len(delegation) > 0
+        feedbacks = list(feedbacks)
+        feedbacks.sort(key=lambda fb: Feedback.part_id(fb['part']))
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
                     'feedbacks' : feedbacks,
                     'status_choices': Feedback.STATUS_CHOICES,
-                    'is_delegation' : len(delegation) > 0,
+                    'is_delegation' : len(delegation) > 0 or request.user.has_perm('ipho_core.is_staff'),
                 })
     else:
         # TODO: allow Add feedback only if a delegation
         return render(request, 'ipho_exam/feedbacks.html', {
                     'exam_list' : exam_list,
-                    'is_delegation' : len(delegation) > 0,
+                    'is_delegation' : len(delegation) > 0 or request.user.has_perm('ipho_core.is_staff'),
                 })
 
-@permission_required('ipho_core.is_delegation')
+@any_permission_required('ipho_core.is_delegation', 'ipho_core.is_staff')
 def feedbacks_add(request, exam_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    delegation = Delegation.objects.get(members=request.user)
+    if request.user.has_perm('ipho_core.is_staff'):
+        delegation = Delegation.objects.get(name=OFFICIAL_DELEGATION)
+    else:
+        delegation = Delegation.objects.get(members=request.user)
 
     ## Language section
     form = FeedbackForm(request.POST or None)
@@ -817,9 +838,9 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
     if lang.versioned:
         node_versions = VersionNode.objects.filter(question=question, language=lang, status__in=['S','C']).order_by('-version').values_list('version', flat=True)
 
-    old_q = qml.QMLquestion(compare_node.text)
+    old_q = qml.make_qml(compare_node)
     old_data = old_q.get_data()
-    new_q = qml.QMLquestion(node.text)
+    new_q = qml.make_qml(node)
     new_data = new_q.get_data()
 
     old_q.diff_content_html(new_data)
@@ -873,7 +894,7 @@ def admin_editor(request, exam_id, question_id, version_num):
         node = get_object_or_404(TranslationNode, question=question, language=lang)
         node_version = 0
 
-    q = qml.QMLquestion(node.text)
+    q = qml.make_qml(node)
     #content_set = qml.make_content(q)
 
     qml_types = [(qobj.tag, qml.canonical_name(qobj)) for qobj in qml.QMLobject.all_objects()]
@@ -904,7 +925,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
-    q = qml.QMLquestion(node.text)
+    q = qml.make_qml(node)
 
     block = q.find(block_id)
     if block is None:
@@ -954,7 +975,7 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
-    q = qml.QMLquestion(node.text)
+    q = qml.make_qml(node)
 
     block = q.delete(block_id)
     node.text = qml.xml2string(q.make_xml())
@@ -981,7 +1002,7 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
         node = get_object_or_404(TranslationNode, question=question, language=lang)
         node_version = 0
 
-    q = qml.QMLquestion(node.text)
+    q = qml.make_qml(node)
 
     block = q.find(block_id)
     if block is None:
@@ -1029,8 +1050,20 @@ def submission_exam_list(request):
 @permission_required('ipho_core.is_delegation')
 def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
+    num_questions = exam.question_set.count()
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
+    languages = Language.objects.all().annotate(
+         num_translation=Sum(
+             Case(When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
+                  When(is_pdf=True, then=None),
+                  output_field=IntegerField(), default=0)
+         ),
+         num_pdf=Sum(
+             Case(When(Q(pdfnode__question__exam=exam, is_pdf=True), then=1),
+                  When(is_pdf=False, then=None),
+                  output_field=IntegerField(), default=0)
+         )
+    ).filter( Q(delegation__name=OFFICIAL_DELEGATION) | Q(num_translation=num_questions) | Q(num_pdf=num_questions))
 
     ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
     if ex_submission.status == ExamAction.SUBMITTED and not settings.DEMO_MODE:
@@ -1090,7 +1123,18 @@ def submission_exam_assign(request, exam_id):
         ## Return
         return HttpResponseRedirect(reverse('exam:submission-exam-confirm', args=(exam.pk,)))
 
-    empty_languages = Language.objects.filter(delegation=delegation).annotate(num_questions=Count('translationnode__question'),num_pdf_questions=Count('pdfnode__question')).exclude( Q(num_questions=exam.question_set.count()) | Q(num_pdf_questions=exam.question_set.count()) )
+    empty_languages = Language.objects.filter(delegation=delegation).annotate(
+         num_translation=Sum(
+             Case(When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
+                  When(is_pdf=True, then=None),
+                  output_field=IntegerField(), default=0)
+         ),
+         num_pdf=Sum(
+             Case(When(Q(pdfnode__question__exam=exam, is_pdf=True), then=1),
+                  When(is_pdf=False, then=None),
+                  output_field=IntegerField(), default=0)
+         )
+    ).filter(Q(num_translation__lt=num_questions) | Q(num_pdf__lt=num_questions))
 
     return render(request, 'ipho_exam/submission_assign.html', {
                 'exam' : exam,
@@ -1104,8 +1148,20 @@ def submission_exam_assign(request, exam_id):
 @permission_required('ipho_core.is_delegation')
 def submission_exam_confirm(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
+    num_questions = exam.question_set.count()
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
+    languages = Language.objects.all().annotate(
+         num_translation=Sum(
+             Case(When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
+                  When(is_pdf=True, then=None),
+                  output_field=IntegerField(), default=0)
+         ),
+         num_pdf=Sum(
+             Case(When(Q(pdfnode__question__exam=exam, is_pdf=True), then=1),
+                  When(is_pdf=False, then=None),
+                  output_field=IntegerField(), default=0)
+         )
+    ).filter( Q(delegation__name=OFFICIAL_DELEGATION) | Q(num_translation=num_questions) | Q(num_pdf=num_questions))
     form_error = ''
 
     ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
@@ -1287,7 +1343,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 official_list.append(vn.language)
                 official_list[-1].version = vn.version
                 official_list[-1].tag = vn.tag
-        # official_list += list(Language.objects.filter(translationnode__question=question, delegation__name=OFFICIAL_DELEGATION))
+        official_list += list(Language.objects.filter(translationnode__question=question, delegation__name=OFFICIAL_DELEGATION))
         question_langs.append({'name': 'official', 'order':0, 'list': official_list})
         ## own
         if delegation.count() > 0:
@@ -1299,7 +1355,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             'list': Language.objects.filter(translationnode__question=question).exclude(delegation=delegation).exclude(delegation__name=OFFICIAL_DELEGATION)
             })
 
-        orig_q = qml.QMLquestion(orig_node.text)
+        orig_q = qml.make_qml(orig_node)
         orig_q.set_lang(orig_lang)
 
         if orig_diff is not None:
@@ -1307,8 +1363,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 raise Exception('Original language does not support versioning.')
             orig_diff_tag = orig_lang.tag
             orig_diff_node = get_object_or_404(VersionNode, question=question, language=orig_lang, version=orig_diff)
-            orig_diff_q = qml.QMLquestion(orig_diff_node.text)
-            orig_diff_data = orig_diff_q.get_data()
+            orig_diff_q = qml.make_qml(orig_diff_node)
+            orig_diff_data = qml.get_data(orig_diff_q)
 
             ## make diff
             ## show diff, new elements
@@ -1323,7 +1379,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             trans_lang = get_object_or_404(Language, id=lang_id)
             trans_node, created = TranslationNode.objects.get_or_create(question=question, language_id=lang_id, defaults={'text': '', 'status' : 'O'}) ## TODO: check permissions for this.
             if len(trans_node.text) > 0:
-                trans_q    = qml.QMLquestion(trans_node.text)
+                trans_q    = qml.make_qml(trans_node)
                 trans_q.set_lang(trans_lang)
                 trans_content = trans_q.get_data()
                 trans_extra_html = trans_q.get_trans_extra_html()

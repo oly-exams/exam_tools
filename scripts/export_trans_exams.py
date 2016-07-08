@@ -17,6 +17,7 @@ def save(objs, stream):
             use_natural_primary_keys=True,
             stream=stream)
 
+
 def save_with_pk(objs, stream):
     if type(stream) == str:
         stream = open(stream, 'w')
@@ -26,26 +27,23 @@ def save_with_pk(objs, stream):
             stream=stream)
 
 exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
-save(exams, '031_exams.json')
 
 questions = Question.objects.filter(exam=exams)
-save(questions, '032_questions.json')
 
-figures = Figure.objects.all()
-save_with_pk(figures, '033_figures.json')
-
-nodes = VersionNode.objects.filter(question=questions).order_by('-version')
-last_nodes = []
-last_nodes_incl = []
-for node in nodes:
-    if node.question.pk in last_nodes_incl:
-        continue
-    last_nodes.append(node)
-    last_nodes_incl.append(node.question.pk)
+languages = Language.objects.filter(name__contains='final')
 ss = StringIO()
-save(last_nodes, ss)
+save(languages, ss)
 data = json.loads(ss.getvalue())
 for d in data:
-    d['fields']['version'] = 1
-    d['fields']['tag'] = 'initial'
-json.dump(data, open('034_content_nodes.json', 'w'), indent=2)
+    d['fields']['delegation'] = [u'IPhO']
+    d['fields']['name'] = d['fields']['name'].replace(' final', '')
+json.dump(data, open('035_trans_official_lang.json', 'w'), indent=2)
+
+
+nodes = TranslationNode.objects.filter(question=questions, language=languages)
+ss = StringIO()
+save(nodes, ss)
+data = json.loads(ss.getvalue())
+for d in data:
+    d['fields']['language'] = [d['fields']['language'][0].replace(' final', ''), u'IPhO']
+json.dump(data, open('036_trans_official_nodes.json', 'w'), indent=2)

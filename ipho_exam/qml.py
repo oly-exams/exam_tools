@@ -55,6 +55,15 @@ def make_content_node(node):
 
     return descr
 
+def make_qml(node):
+    q = QMLquestion(node.text)
+
+    attr_change = {}
+    if hasattr(node, 'attributechange'):
+        attr_change = json.loads(node.attributechange.content)
+    q.update_attrs(attr_change)
+    return q
+
 def xml2string(xml):
     return ET.tostring(xml)
 
@@ -68,6 +77,7 @@ def content2string(node):
     return ''.join(filter(None, parts))
 
 def normalize_html(data):
+    data = data.replace('&nbsp;', ' ').replace('&#160;', ' ')
     xhtmlout = BeautifulSoup(data, "html5lib")
     try:
         return ''.join([unicode(el) for el in xhtmlout.body.contents])
@@ -303,6 +313,11 @@ class QMLobject(object):
 
         for c in self.children:
             c.update(data)
+    def update_attrs(self, attrs):
+        if self.id in attrs:
+            self.attributes.update(attrs[self.id])
+        for c in self.children:
+            c.update_attrs(attrs)
 
     def diff_content_html(self, other_data):
         if self.has_text:
@@ -479,7 +494,7 @@ class QMLpart(QMLobject):
         return '}{%s}\n\n' % self.attributes['points']
 
     def make_xhtml(self):
-        return u'<h2>{} ({} points)</h2>'.format(data2xhtml(self.data), self.attributes['points']), []
+        return u'<h2>{}</h2>'.format(data2xhtml(self.data)), []
 
 class QMLparagraph(QMLobject):
     abbr = "pa"
@@ -692,26 +707,26 @@ class QMLlatex(QMLobject):
                 content = re.sub(r'({{ *%s *}})' % c.attributes['name'], c.data.encode('utf-8'), content)
                 content.replace('{{ %s }}' % c.attributes['name'], c.data.encode('utf-8'))
         return content, []
-        
+
 class QMLlatexEnv(QMLobject):
     abbr = "te"
     tag = "texenv"
     default_heading = None
-    
+
     has_text=False
     has_children = True
-    
+
     default_attributes = {'name': ''}
-    
+
     def tex_begin(self):
         return unicode(r'\begin{{{}}}{}'.format(
             self.attributes['name'],
             self.attributes.get('arguments', '')
         ))
-    
+
     def tex_end(self):
         return unicode(r'\end{{{}}}'.format(self.attributes['name']))
-    
+
 
 class QMLlatexParam(QMLobject):
     abbr = "tp"
@@ -764,7 +779,7 @@ class QMLtable(QMLobject):
 
     def tex_begin(self):
         return (
-            unicode(r'\vspace{0.5cm}') + 
+            unicode(r'\vspace{0.5cm}') +
             u'\\begin{center}' + self._arraystretch +
             '\\begin{tabular}{' + self._columns + u'}' +
             int(self.attributes['top_line']) * u'\\hline' + u'\n'
@@ -772,6 +787,11 @@ class QMLtable(QMLobject):
 
     def tex_end(self):
         return unicode(r'\end{tabular}\end{center}\vspace{0.5cm}') + u'\n\n'
+
+    def xhtml_begin(self):
+        return u'<table>'
+    def xhtml_end(self):
+        return u'</table>'
 
 class QMLtableRow(QMLobject):
     abbr = "rw"
@@ -792,6 +812,10 @@ class QMLtableRow(QMLobject):
         texout += u' & '.join(data2tex(c.data) for c in self.children)
         texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
         return texout * multiplier, []
+    def xhtml_begin(self):
+        return u'<tr>'
+    def xhtml_end(self):
+        return u'</tr>'
 
 class QMLtableCell(QMLobject):
     abbr = "ce"
@@ -803,6 +827,10 @@ class QMLtableCell(QMLobject):
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
+    def xhtml_begin(self):
+        return u'<td>'
+    def xhtml_end(self):
+        return u'</td>'
 
 class QMLtableCaption(QMLobject):
     abbr = "tc"

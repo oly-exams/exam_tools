@@ -39,6 +39,9 @@ class Delegation(models.Model):
     country = models.CharField(unique=True,max_length=100)
     members = models.ManyToManyField(User, blank=True)
 
+    class Meta:
+        ordering = ['name']
+
     def natural_key(self):
         return (self.name,)
 
@@ -56,6 +59,9 @@ class Student(models.Model):
     last_name      = models.CharField(max_length=200)
     delegation     = models.ForeignKey(Delegation)
     # exam_languages = models.ManyToManyField(Language)
+
+    class Meta:
+        ordering = ['code']
 
     def natural_key(self):
         return (self.code,)

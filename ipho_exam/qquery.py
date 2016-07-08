@@ -31,7 +31,7 @@ def latest_version(question_id, lang_id):
     else:
         q.node = get_object_or_404(TranslationNode, question=q.question, language=q.lang)
 
-    q.qml = qml.QMLquestion(q.node.text if '<question' in q.node.text else '<question id="q0" />')
+    q.qml = qml.make_qml(q.node) if '<question' in q.node.text else qml.QMLquestion('<question id="q0" />')
 
     return q
 
@@ -42,6 +42,6 @@ def get_version(question_id, lang_id, version_num):
     q.lang = get_object_or_404(Language, id=lang_id)
     q.node = get_object_or_404(VersionNode, question=q.question, language=q.lang, version=version_num)
 
-    q.qml = qml.QMLquestion(q.node.text if '<question' in q.node.text else '<question id="q0" />')
+    q.qml = qml.make_qml(q.node) if '<question' in q.node.text else qml.QMLquestion('<question id="q0" />')
 
     return q

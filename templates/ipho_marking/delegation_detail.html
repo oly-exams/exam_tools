@@ -56,6 +56,24 @@
     </table>
     {% endif %}
 
+    <hr />
+    <h3>Scans of exam</h3>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="list-group">
+          {% for doc in documents %}
+            {% if doc.scan_file %}
+            <a class="list-group-item" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=question.position %}">
+              <i class="fa fa-file-pdf-o"></i>
+              Download
+              <span class="pull-right"><i class="fa fa-angle-double-right"></i></span>
+            </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
 </div>
 
 {% endblock %}

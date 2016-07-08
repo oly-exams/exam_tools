@@ -18,4 +18,5 @@ urlpatterns = patterns('ipho_poll.views',
 
     #delegation urls
     url(r'^$', 'voterIndex', name='voterIndex'),
+    url(r'^voted/$', 'voted', name='voted'),
 )

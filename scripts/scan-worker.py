@@ -131,7 +131,7 @@ def inspect_file(input):
             with WImage(img.sequence[pg]).convert('png') as converted:
                 img_bytes = converted.make_blob()
                 code = detect_barcode(img_bytes)
-                pages.append((pg, converted, code))
+                pages.append((pg, code))
     return pages
 
 def get_timestamp():
@@ -140,16 +140,17 @@ def get_timestamp():
 def main(input):
     pages = inspect_file(input)
     logger.info('got {} pages.'.format(len(pages)))
-    logger.info('Barcodes: {}'.format([code for i,page,code in pages]))
+    logger.info('Barcodes: {}'.format([code for i,code in pages]))
     base_code_pattern = re.compile(r'(([^ ]+) ([^ ]+))')
     def get_base(code):
         match = base_code_pattern.match(code)
         return match.group(1) if match else None
-    basecodes = { get_base(code): [] for i,page,code in pages if code is not None }
-    for i,page,code in pages:
+    basecodes = { get_base(code): [] for i,code in pages if code is not None }
+    for i,code in pages:
         if code is not None:
             basecodes[get_base(code)].append(i)
-
+    
+    pdfdoc = PdfFileReader(input)
     for code, pgs in basecodes.iteritems():
         logger.debug('Processing: {}'.format(code))
         try:
@@ -158,7 +159,7 @@ def main(input):
             doc_complete = expected_pages == len(pgs)
             if not doc_complete:
                 logger.warning('Missing pages: {} in DB but only {} in scanned document.'.format(expected_pages, len(pgs)))
-            ordered_pages = [ page for i,page,code in sorted(pages, key=lambda k: k[2]) if code is not None and i in pgs ]
+            ordered_pages = [ pdfdoc.getPage(i) for i,code in sorted(pages, key=lambda k: k[1]) if code is not None and i in pgs ]
             output = PdfFileWriter()
             for page in ordered_pages:
                 output.addPage(page)
@@ -172,6 +173,7 @@ def main(input):
             if not doc_complete:
                 doc.scan_msg = 'Missing pages: {} in DB but only {} in scanned document.'.format(expected_pages, len(pgs))
             doc.save()
+            logger.info('Scan document inserted in DB for barcode {}'.format(code))
 
         except Document.DoesNotExist:
             oname = code+'-'+get_timestamp()+'.pdf'

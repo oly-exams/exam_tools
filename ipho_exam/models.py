@@ -179,6 +179,21 @@ class TranslationNode(models.Model):
         return self.question.natural_key() + self.language.natural_key()
     natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
 
+class AttributeChangeManager(models.Manager):
+    def get_by_natural_key(self, *args, **kwargs):
+        return self.get(node=TranslationNode.objects.get_by_natural_key(*args, **kwargs))
+class AttributeChange(models.Model):
+    objects = AttributeChangeManager()
+    content   = models.TextField(blank=True)
+    node      = models.OneToOneField(TranslationNode)
+
+    def __unicode__(self):
+        return u'attrs:{}'.format(self.node)
+
+    def natural_key(self):
+        return self.node.natural_key()
+    natural_key.dependencies = ['ipho_exam.translationnode',]
+
 class PDFNodeManager(models.Manager):
     def get_by_natural_key(self, question_name, exam_name, lang_name, delegation_name):
         return self.get(language=Language.objects.get_by_natural_key(lang_name, delegation_name),
@@ -330,6 +345,29 @@ class Feedback(models.Model):
         ('I', 'Implemented'),
         ('T', 'Settle'),
     )
+    PARTS_CHOICES = (
+        ('General', 'General'),
+        ('Intro', 'Introduction'),
+        ('A', 'Part A'),
+        ('B', 'Part B'),
+        ('C', 'Part C'),
+        ('D', 'Part D'),
+        ('E', 'Part E'),
+        ('F', 'Part F'),
+        ('G', 'Part G'),
+    )
+    SUBPARTS_CHOICES = (
+        ('General', 'General comment on part'),
+        ('Intro', 'Introduction of part'),
+        ('1', '1'),
+        ('2', '2'),
+        ('3', '3'),
+        ('4', '4'),
+        ('5', '5'),
+        ('6', '6'),
+        ('7', '7'),
+        ('8', '8'),
+    )
 
     delegation = models.ForeignKey(Delegation)
     question  = models.ForeignKey(Question)
@@ -340,6 +378,18 @@ class Feedback(models.Model):
 
     def __unicode__(self):
         return u'#{} {} - {} ({})'.format(self.pk, self.question.name, self.question.exam.name, self.delegation.name)
+    @staticmethod
+    def part_id(txt):
+        all_parts = []
+        for k,v in Feedback.PARTS_CHOICES:
+            for kk,vv in Feedback.SUBPARTS_CHOICES:
+                all_parts.append('{}.{}'.format(k,kk))
+        try:
+            i = all_parts.index(txt)
+        except:
+            print 'Problem'
+            i = len(all_parts)
+        return i
 
 class Like(models.Model):
     CHOICES = (
