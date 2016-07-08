@@ -473,11 +473,13 @@ def feedbacks_list(request):
             'timestamp',
             'part',
             'comment'
-        ).order_by('-timestamp')
+        ).order_by('question__position')
         choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
         for fb in feedbacks:
             fb['status_display'] = choices[fb['status']]
             fb['enable_likes'] = (fb['delegation_likes']==0) and fb['question__feedback_active'] and len(delegation) > 0
+        feedbacks = list(feedbacks)
+        feedbacks.sort(key=lambda fb: Feedback.part_id(fb['part']))
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
                     'feedbacks' : feedbacks,
