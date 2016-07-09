@@ -7,11 +7,11 @@
 <style>
   th{
     font-family: Arial;
-    font-size: 25pt;
+    font-size: 16pt;
   }
   td{
     font-family: Arial;
-    font-size: 25pt;
+    font-size: 16pt;
   }
   table.feedbacks th{
     font-family: Arial;
@@ -36,13 +36,19 @@
 
     <div class="jumbotron">
         <h1>{{ question }}</h1>
-        <p style="font-size: 20pt">
-            {{ question.content|safe }}
-        </p>
         {% if status == 'open' %}
-            <p style="font-size: 20pt">Remaining Time: <span class="countdown" data-end-date="{{ question.end_date.isoformat }}"></span></p>
+            <p>
+              Remaining Time: <strong><span class="countdown" data-end-date="{{ question.end_date.isoformat }}"></span></strong>
+            </p>
         {% endif %}
+        <div class="jumbotron">
+            <p>{{ question.content|safe }}</p>
+        </div>
+
+
     </div>
+
+
 
 
 
@@ -52,7 +58,8 @@
 
 
     <div class="panel panel-default">
-        <table id="drafted-questions-table" class="table table-striped">
+        <div class="panel-heading"><h2>Choices</h2></div>
+        <table id="choice-table" class="table table-striped">
             <tr>
                 <th></th>
                 <th>Choice</th>
@@ -78,13 +85,14 @@
 
     {% if feedbacks %}
     <div class="panel panel-default">
+        <div class="panel-heading"><h2>Feedbacks</h2></div>
         <table class="table table-striped feedbacks">
             <tr>
                 <th>#</th>
                 <th>Delegation</th>
                 <th>Question</th>
-                <th>Comment</th>
-                <th></th>
+                <th>Feedback</th>
+                <th>Likes</th>
             </tr>
 
             {% for fb in feedbacks %}
