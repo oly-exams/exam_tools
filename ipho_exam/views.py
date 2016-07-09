@@ -1063,7 +1063,7 @@ def submission_exam_assign(request, exam_id):
                   When(is_pdf=False, then=None),
                   output_field=IntegerField(), default=0)
          )
-    ).filter( Q(delegation__name=OFFICIAL_DELEGATION) | Q(num_translation=num_questions) | Q(num_pdf=num_questions))
+    ).filter( Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & (Q(num_translation=num_questions) | Q(num_pdf=num_questions))))
 
     ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
     if ex_submission.status == ExamAction.SUBMITTED and not settings.DEMO_MODE:
@@ -1161,7 +1161,7 @@ def submission_exam_confirm(request, exam_id):
                   When(is_pdf=False, then=None),
                   output_field=IntegerField(), default=0)
          )
-    ).filter( Q(delegation__name=OFFICIAL_DELEGATION) | Q(num_translation=num_questions) | Q(num_pdf=num_questions))
+    ).filter( Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & (Q(num_translation=num_questions) | Q(num_pdf=num_questions))))
     form_error = ''
 
     ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
