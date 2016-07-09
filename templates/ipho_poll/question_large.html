@@ -27,99 +27,119 @@
     font-size: 50pt;
   }*/
 
+  .pre-scrollable{
+    min-height: 27cm;
+    height: 27cm;
+    max-height:27cm;
+  }
+
+
 </style>
 {% endblock %}
 
 {% block content %}
 
-<div class="container">
+<div class="container-fluid">
 
-    <div class="jumbotron">
-        <h1>{{ question }}</h1>
-        {% if status == 'open' %}
-            <p>
-              Remaining Time: <strong><span class="countdown" data-end-date="{{ question.end_date.isoformat }}"></span></strong>
-            </p>
-        {% endif %}
+  <div class="col-md-6 pre-scrollable">
+
         <div class="jumbotron">
-            <p>{{ question.content|safe }}</p>
+            <h1>{{ question }}</h1>
+            {% if status == 'open' %}
+                <p>
+                  Remaining Time: <strong><span class="countdown" data-end-date="{{ question.end_date.isoformat }}"></span></strong>
+                </p>
+            {% endif %}
+            <div class="jumbotron">
+                <p>{{ question.content|safe }}</p>
+            </div>
+
+
         </div>
 
-
-    </div>
-
+  </div>
 
 
 
-
-    <!-- <div class="parent">
-        <button id="reload" title="Refresh" type="button" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-    </div> -->
+  <div class="col-md-6 pre-scrollable">
 
 
-    <div class="panel panel-default">
-        <div class="panel-heading"><h2>Choices</h2></div>
-        <table id="choice-table" class="table table-striped">
-            <tr>
-                <th></th>
-                <th>Choice</th>
-                <th>{% if status == 'closed' %}Votes{% endif %}</th>
-            </tr>
+        <!-- <div class="parent">
+            <button id="reload" title="Refresh" type="button" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+        </div> -->
 
-                {% for choice in choices %}
-                    <tr id="choice-{{ choice.pk }}">
-                        <td class="col-md-1"><strong>{{ choice.label }}</strong></td>
-                        <td class="col-md-6", id="choice-{{ choice.pk }}-choice-text">
-                            {{ choice.choice_text }}
-                        </td>
-                        <td class="col-md-2">
-                            {% if status == 'closed' %}
-                            {{ choice.votes }}
-                            {% endif %}
-                        </td>
-                    </tr>
+
+        <div class="panel panel-default">
+            <div class="panel-heading"><h2>Choices</h2></div>
+            <table id="choice-table" class="table table-striped">
+                <tr>
+                    <th></th>
+                    <th>Choice</th>
+                    <th>{% if status == 'closed' %}Votes{% endif %}</th>
+                </tr>
+
+                    {% for choice in choices %}
+                        <tr id="choice-{{ choice.pk }}">
+                            <td class="col-md-1"><strong>{{ choice.label }}</strong></td>
+                            <td class="col-md-6", id="choice-{{ choice.pk }}-choice-text">
+                                {{ choice.choice_text }}
+                            </td>
+                            <td class="col-md-2">
+                                {% if status == 'closed' %}
+                                {{ choice.votes }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+              </table>
+        </div>
+
+        {% if feedbacks %}
+        <div class="panel panel-default">
+            <div class="panel-heading"><h2>Feedbacks</h2></div>
+            <table class="table table-striped feedbacks">
+                <tr>
+                    <th>#</th>
+                    <th>Delegation</th>
+                    <th>Question</th>
+                    <th>Feedback</th>
+                    <th>Likes</th>
+                </tr>
+
+                {% for fb in feedbacks %}
+                <tr>
+                    <td>{{ fb.pk }}</td>
+                    <td>{{ fb.delegation__name }}</td>
+                    <td>
+                      {{ fb.question__name }}<br />
+                      {{ fb.part }}
+                    </td>
+                    <td>{{ fb.comment }}</td>
+                    <td style="font-size:24px;">
+                      <span class="label label-info">
+                        <i class="fa fa-thumbs-o-up"></i>
+                        <span class="badge">{{ fb.num_likes }}</span>
+                      </span>
+                      <span class="label label-warning">
+                        <i class="fa fa-thumbs-o-down"></i>
+                        <span class="badge">{{ fb.num_unlikes }}</span>
+                      </span>
+                    </td>
+                </tr>
                 {% endfor %}
 
-          </table>
-    </div>
+              </table>
+        </div>
+        {% endif %}
 
-    {% if feedbacks %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><h2>Feedbacks</h2></div>
-        <table class="table table-striped feedbacks">
-            <tr>
-                <th>#</th>
-                <th>Delegation</th>
-                <th>Question</th>
-                <th>Feedback</th>
-                <th>Likes</th>
-            </tr>
 
-            {% for fb in feedbacks %}
-            <tr>
-                <td>{{ fb.pk }}</td>
-                <td>{{ fb.delegation__name }}</td>
-                <td>
-                  {{ fb.question__name }}<br />
-                  {{ fb.part }}
-                </td>
-                <td>{{ fb.comment }}</td>
-                <td style="font-size:24px;">
-                  <span class="label label-info">
-                    <i class="fa fa-thumbs-o-up"></i>
-                    <span class="badge">{{ fb.num_likes }}</span>
-                  </span>
-                  <span class="label label-warning">
-                    <i class="fa fa-thumbs-o-down"></i>
-                    <span class="badge">{{ fb.num_unlikes }}</span>
-                  </span>
-                </td>
-            </tr>
-            {% endfor %}
+  </div>
 
-          </table>
-    </div>
-    {% endif %}
+
+
+
+
 
 </div>
 
