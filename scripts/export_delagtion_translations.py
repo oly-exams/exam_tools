@@ -30,9 +30,14 @@ exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
 
 questions = Question.objects.filter(exam=exams)
 
-languages = Language.objects.exclude(delegation__name='IPhO').exclude(delegation__name='TTT').exclude(delegation__name__contains='-')
+languages = Language.objects.exclude(delegation__name__in=['IPhO', 'TTT', 'TUN']).exclude(delegation__name__contains='-')
 save(languages, '037_delegation_langs.json')
 
 
 nodes = TranslationNode.objects.filter(question=questions, language=languages)
-save(nodes, '038_delegation_nodes.json')
+ss = StringIO()
+save(nodes, ss)
+data = json.loads(ss.getvalue())
+for d in data:
+    d['fields']['question'][0] = d['fields']['question'][0].replace('instructions', 'Instructions')
+json.dump(data, open('038_delegation_nodes.json', 'w'), indent=2)
