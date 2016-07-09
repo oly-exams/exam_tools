@@ -8,7 +8,7 @@
   </div>
   <div class="panel-body">
     <div class="list-group">
-      {% for question in closed_questions_list %}
+      {% for question in questions_list %}
       <a class="list-group-item row" href="{% url 'poll:question' question_pk=question.pk %}">
         <div class="col-md-1">
           #{{ question.pk }}

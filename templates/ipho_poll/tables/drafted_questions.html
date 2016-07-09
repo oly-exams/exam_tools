@@ -1,50 +1,11 @@
 {% load crispy_forms_tags %}
 
 
-{# modal for creating a new question and editing questions. #}
-<div class="modal fade" id="question-modal" tabindex="-1" aria-labelledby="modalLabel">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-        <h4 class="modal-title" id="modalLabel"></h4>
-      </div>
-      <form role="form" method="post" action="">{% csrf_token %}
-          <div class="modal-body"></div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-{# modal for deleting questions #}
-<div class="modal fade" id="delete-modal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-        <h4 class="model-title">Are you sure?</h4>
-      </div>
-      <div class="modal-body"></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" data-confirm="delete"><i class="fa fa-trash-o fa-fw"></i> Delete</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
 {# table of drafted questions #}
 <div class='panel panel-default'>
     <div class="panel-heading"><h2>Drafted Votings</h2></div>
     <div class="panel-body">
-        {% if not drafted_questions_list%}
+        {% if not questions_list%}
             <div class="alert alert-info alert-dismissible">
                 <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
                 <strong>There are no drafted votings at the moment!</strong> Create one by clicking on "Create New".
@@ -60,8 +21,8 @@
             <th>Choices</th>
             <th>Actions</th>
         </tr>
-        {% if drafted_questions_list %}
-            {% for question in drafted_questions_list %}
+        {% if questions_list %}
+            {% for question in questions_list %}
                 <tr id="question-{{ question.pk }}">
                     <td class="col-md-1">{{ question.pk }}</td>
                     <td class="col-md-1">

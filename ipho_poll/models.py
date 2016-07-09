@@ -111,3 +111,6 @@ class Vote(models.Model):
 
     def __str__(self):
         return self.choice.__str__()
+
+    class Meta:
+        unique_together = (('question', 'voting_right'))
