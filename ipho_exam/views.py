@@ -247,6 +247,19 @@ def add_translation(request, exam_id):
                     question=question,
                     defaults={'status': 'O'}
                 )
+                trans = deepcopy(qquery.latest_version(
+                    question_id=question.pk, 
+                    lang_id=OFFICIAL_LANGUAGE
+                ))
+                data = {
+                    key: u'\xa0' 
+                    for key in trans.qml.get_data().keys()
+                }
+                trans.qml.update(data)
+                node.text = qml.xml2string(
+                    trans.qml.make_xml()
+                )
+                node.save()
 
         return JsonResponse({
                     'success' : True,
