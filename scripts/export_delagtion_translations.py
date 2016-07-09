@@ -35,4 +35,4 @@ save(languages, '037_delegation_langs.json')
 
 
 nodes = TranslationNode.objects.filter(question=questions, language=languages)
-save(languages, '038_delegation_nodes.json')
+save(nodes, '038_delegation_nodes.json')
