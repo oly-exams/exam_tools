@@ -423,7 +423,7 @@ def edit_language(request, lang_id):
     delegation = Delegation.objects.get(members=request.user)
 
     instance = get_object_or_404(Language, pk=lang_id)
-    language_form = LanguageForm(request.POST or None, instance=instance)
+    language_form = LanguageForm(request.POST or None, instance=instance, user_delegation=delegation)
     if language_form.is_valid():
         lang = language_form.save()
 
