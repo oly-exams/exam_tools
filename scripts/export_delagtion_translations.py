@@ -30,7 +30,7 @@ exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
 
 questions = Question.objects.filter(exam=exams)
 
-languages = Language.objects.exclude(delegation__name='IPhO').exclude(delegation__name='TTT')
+languages = Language.objects.exclude(delegation__name='IPhO').exclude(delegation__name='TTT').exclude(delegation__name__contains='-')
 save(languages, '037_delegation_langs.json')
 
 
