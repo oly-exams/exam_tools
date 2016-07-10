@@ -3,6 +3,7 @@ import requests
 from django.conf import settings
 import json
 from copy import deepcopy
+import urllib
 
 SUCCESS = 0
 FAILED = 1
@@ -18,7 +19,7 @@ def allowed_choices(user):
 
 def send2queue(file, queue, user=None, user_opts={}):
   url = 'http://{host}/print/{queue}'.format(**PRINTER_QUEUES[queue])
-  files = {'file': (os.path.basename(file.name), file, 'application/pdf')}
+  files = {'file': (urllib.quote(os.path.basename(file.name).encode('utf8')), file, 'application/pdf')}
   headers = {'Authorization': 'IPhOToken {auth_token}'.format(**PRINTER_QUEUES[queue])}
   data = {}
   if user is not None:
