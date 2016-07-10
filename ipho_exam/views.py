@@ -248,11 +248,11 @@ def add_translation(request, exam_id):
                     defaults={'status': 'O'}
                 )
                 trans = deepcopy(qquery.latest_version(
-                    question_id=question.pk, 
+                    question_id=question.pk,
                     lang_id=OFFICIAL_LANGUAGE
                 ))
                 data = {
-                    key: u'\xa0' 
+                    key: u'\xa0'
                     for key in trans.qml.get_data().keys()
                 }
                 trans.qml.update(data)
@@ -1372,7 +1372,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
         orig_q_raw = qml.make_qml(orig_node)
         orig_q = deepcopy(official_question.qml)
-        orig_q.update(orig_q_raw.get_data())
+        orig_q_raw_data = orig_q_raw.get_data()
+        orig_q_raw_data = {k:v for k,v in orig_q_raw_data.iteritems() if v}
+        orig_q.update(orig_q_raw_data)
         orig_q.set_lang(orig_lang)
 
         if orig_diff is not None:
