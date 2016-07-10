@@ -36,7 +36,7 @@ In the second step you see the summary of what has been selected in the previous
 
 By clicking on the checkbox below the summary table and clicking on *Submit*, you will submit the current selection of translations to the organizers who will take care of printing them and package it for the exam.
 
-Please click on *Submit* only when you are sure about the translations. You will no longer be allowed to modified the translations afterwards.
+Please click on *Submit* only when you are sure about the translations. You will no longer be allowed to modifiy the translations afterwards.
 
 ## Summary overview
 

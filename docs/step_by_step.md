@@ -17,7 +17,7 @@ The step-by-step guide reports the tasks that you already completed and explains
 </figure>
 
 
-## Sections ans status report
+## Sections and status report
 
 ### Languages
 

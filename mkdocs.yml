@@ -13,6 +13,4 @@ pages:
       - "Exam editor - FAQ": exam_editor_faq.md
     - "Assign exams and submit": assign_exams.md
     - "Exam feedbacks": exam_feedbacks.md
-  - voting.md
-  - "Results and grading": results_grading.md
   - "Tool feedbacks": tool_feedbacks.md
