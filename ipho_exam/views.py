@@ -1337,6 +1337,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             own_lang = Language.objects.all().order_by('name')
 
 
+        official_question = qquery.latest_version(question_id=question.pk, lang_id=OFFICIAL_LANGUAGE)
+
     # try:
         ## TODO: make a free function
         if orig_lang.versioned:
@@ -1368,7 +1370,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             'list': Language.objects.filter(translationnode__question=question).exclude(delegation=delegation).exclude(delegation__name=OFFICIAL_DELEGATION)
             })
 
-        orig_q = qml.make_qml(orig_node)
+        orig_q_raw = qml.make_qml(orig_node)
+        orig_q = deepcopy(official_question.qml)
+        orig_q.update(orig_q_raw.get_data())
         orig_q.set_lang(orig_lang)
 
         if orig_diff is not None:
