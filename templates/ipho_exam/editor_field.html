@@ -9,7 +9,7 @@
     </div>
     {% endif %}
 
-    {% if field.original %}
+    {% if field.original != None %}
         <div class="row">
             <div class="col-xs-5">
                 <div class="translate-original {% if orig_lang.direction == 'rtl' %}rtl{% endif %}" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
