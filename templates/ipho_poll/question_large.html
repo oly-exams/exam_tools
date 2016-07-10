@@ -147,6 +147,13 @@
 
 
 {% block extra-script %}
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        showMathMenu: false,
+    });
+</script>
+<script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+
 <script src="{% static "jquery.countdown.js" %}"></script>
 
 <script>
@@ -196,6 +203,18 @@ $('document').ready(function(){
         });
     });
 
+    function content2math() {
+        // convert equations for mathquill
+        // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
+        // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
+
+        // convert equations for mathjax
+        // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
+        var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
+        $(this).html(newtext);
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
+    }
+    $(".math-tex").each(content2math);
 
 }); // $(document).ready()
 </script>
