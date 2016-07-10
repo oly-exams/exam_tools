@@ -229,6 +229,14 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+    'formatters': {
+        'default': {
+            'format': '[%(asctime)s - %(name)s] - %(levelname)s - %(message)s'
+        },
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+    },
     'handlers': {
     },
     'loggers': {
