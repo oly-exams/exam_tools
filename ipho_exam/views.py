@@ -1364,7 +1364,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             orig_diff_tag = orig_lang.tag
             orig_diff_node = get_object_or_404(VersionNode, question=question, language=orig_lang, version=orig_diff)
             orig_diff_q = qml.make_qml(orig_diff_node)
-            orig_diff_data = qml.get_data(orig_diff_q)
+            orig_diff_data = orig_diff_q.get_data()
 
             ## make diff
             ## show diff, new elements
