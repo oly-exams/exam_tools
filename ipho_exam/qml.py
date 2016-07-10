@@ -308,8 +308,10 @@ class QMLobject(object):
 
         if self.id in data:
             self.data = data[self.id] #escape(data[self.id])
+            self.data_html = self.data
         elif self.has_text and set_blanks:
             self.data = ''
+            self.data_html = self.data
 
         for c in self.children:
             c.update(data)
