@@ -13,8 +13,8 @@ STATIC_PATH   = os.path.join(PROJECT_PATH, 'static')
 
 SITE_URL = 'http://127.0.0.1:8000'
 
-VERSION = '0.4b'
-VERSION_DATE = 'in progress' #'2016-02-23'
+VERSION = '1.0'
+VERSION_DATE = '' #'2016-02-23'
 
 OFFICIAL_DELEGATION = 'IPhO'
 
