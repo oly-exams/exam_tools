@@ -26,7 +26,7 @@ def main(input):
         user,created = User.objects.get_or_create(username=row['Username'], defaults={
             'first_name': row['First name'],
             'last_name': row['Last name'],
-            'is_staff': is_admin or is_super,
+            'is_staff': is_super,
             'is_superuser': is_super,
         })
         user.set_password(row['Password'])
