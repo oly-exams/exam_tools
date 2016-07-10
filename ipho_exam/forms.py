@@ -65,7 +65,8 @@ class LanguageForm(ModelForm):
         except Language.DoesNotExist:
             pass
         else:
-            raise ValidationError('This language already exist for delegation ' + self.user_delegation.name + '. Enter a different name.')
+            if not self.instance or not self.instance.pk:
+                raise ValidationError('This language already exist for delegation ' + self.user_delegation.name + '. Enter a different name.')
 
         # Always return cleaned_data
         return cleaned_data
