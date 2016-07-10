@@ -1708,7 +1708,7 @@ def bulk_print(request):
         'scan_msg',
         'last_print_p',
         'last_print_s'
-    )
+    ).order_by('student_id', 'position')
 
     paginator = Paginator(all_docs, 50)
 
