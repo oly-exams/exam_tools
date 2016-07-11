@@ -328,6 +328,16 @@ ipho = {
     "font": "Noto Sans Thai",
     "css": "notosansthai.css"
   },
+  "thsarabun": {
+    "cjk": 0,
+    "font_italic": "THSarabun-Italic.ttf",
+    "font_bolditalic": "THSarabun-BoldItalic.ttf",
+    "font_bold": "THSarabun-Bold.ttf",
+    "name": "thsarabun",
+    "font_regular": "THSarabun.ttf",
+    "font": "THSarabun",
+    "css": "notosansthai.css"
+  },
   "notosansbuhid": {
     "cjk": 0,
     "font_regular": "NotoSansBuhid-Regular.ttf",
