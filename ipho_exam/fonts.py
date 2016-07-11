@@ -176,6 +176,22 @@ ipho = {
     "name": "notosansoldpersian",
     "css": "notosansoldpersian.css"
   },
+  "broya": {
+    "cjk": 0,
+    "font_bold": "BRoyaBd.ttf",
+    "font_regular": "BRoya.ttf",
+    "font": "BRoya",
+    "name": "broya",
+    "css": "notosansoldpersian.css"
+  },
+  "blotus": {
+    "cjk": 0,
+    "font_bold": "BLotusBd.ttf",
+    "font_regular": "BLotus.ttf",
+    "font": "BLotus",
+    "name": "blotus",
+    "css": "notosansoldpersian.css"
+  },
   "notosansjp": {
     "cjk": 1,
     "font_bold": "NotoSansJP-Bold.otf",
