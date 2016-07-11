@@ -1424,7 +1424,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 q = deepcopy(orig_q)
                 cleaned_data = form.cleaned_data
                 for k in cleaned_data.keys():
-                    cleaned_data[k] = cleaned_data[k].replace(unichr(8), u'')
+                    cleaned_data[k] = cleaned_data[k].replace(unichr(8), u'').replace(unichr(29), u'')
                 q.update(cleaned_data, set_blanks=True)
                 trans_node.text = qml.xml2string(q.make_xml())
                 trans_node.save()
