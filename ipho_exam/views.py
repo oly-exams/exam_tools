@@ -491,6 +491,7 @@ def feedbacks_list(request):
             'num_unlikes',
             'delegation_likes',
             'pk',
+            'question__pk',
             'question__name',
             'question__feedback_active',
             'delegation__name',
@@ -505,7 +506,7 @@ def feedbacks_list(request):
             fb['status_display'] = choices[fb['status']]
             fb['enable_likes'] = (fb['delegation_likes']==0) and fb['question__feedback_active'] and len(delegation) > 0
         feedbacks = list(feedbacks)
-        feedbacks.sort(key=lambda fb: Feedback.part_id(fb['part']))
+        feedbacks.sort(key=lambda fb: (fb['question__pk'],Feedback.part_id(fb['part'])))
         return render(request, 'ipho_exam/partials/feedbacks_tbody.html',
                 {
                     'feedbacks' : feedbacks,
