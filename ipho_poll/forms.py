@@ -31,6 +31,7 @@ class EndDateForm(ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
                                     Field('end_date', id="modal-datetimepicker"),
+                                    HTML('<div class="quick-end-time" data-min="1"></div>'),
                                     HTML('<div class="quick-end-time" data-min="2"></div>'),
                                     HTML('<div class="quick-end-time" data-min="5"></div>'),
                                     HTML('<div class="quick-end-time" data-min="10"></div>'),
