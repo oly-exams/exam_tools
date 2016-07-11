@@ -616,7 +616,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
     ])
 
     for row in feedbacks:
-        writer.writerow(row)
+        writer.writerow([c.encode('utf8') if type(c)==unicode else c for c in row])
 
     return response
 
