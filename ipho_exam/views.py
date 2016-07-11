@@ -1422,7 +1422,10 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 ## update the content in the original XML.
                 ## TODO: we could keep track of orig_v in the submission and, in case of updates, show a diff in the original language.
                 q = deepcopy(orig_q)
-                q.update(form.cleaned_data, set_blanks=True)
+                cleaned_data = form.cleaned_data
+                for k in cleaned_data.keys():
+                    cleaned_data[k] = cleaned_data[k].replace(unichr(8), u'')
+                q.update(cleaned_data, set_blanks=True)
                 trans_node.text = qml.xml2string(q.make_xml())
                 trans_node.save()
                 checksum = md5(trans_node.text.encode('utf8')).hexdigest()
