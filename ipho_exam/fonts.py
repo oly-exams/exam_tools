@@ -515,6 +515,13 @@ ipho = {
     "font": "Noto Sans Khmer",
     "css": "notosanskhmer.css"
   },
+  "khmeros": {
+    "cjk": 0,
+    "name": "khmeros",
+    "font_regular": "KhmerOS.ttf",
+    "font": "Khmer OS",
+    "css": "notosanskhmer.css"
+  },
   "notosanssundanese": {
     "cjk": 0,
     "font_regular": "NotoSansSundanese-Regular.ttf",
