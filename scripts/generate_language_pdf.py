@@ -1,12 +1,3 @@
-#!/usr/bin/env python
-
-import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
-
-import django
-django.setup()
-from django.conf import settings
-
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
 from django.template import RequestContext
@@ -52,7 +43,7 @@ def compile_question(question, language):
     body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
     print 'Compile...'
     question_pdf = pdf.compile_tex(body, ext_resources)
-
+    
     exam_code = question.exam.code
     position = question.position
     question_code = question.code
@@ -73,7 +64,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         s = student_languages[0].student
         bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C')
         page = pdf.add_barcode(question_pdf, bgenerator)
-
+        
         all_docs.append(page)
 
     for question in questions:
@@ -103,7 +94,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
             body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
             print 'Compile', question, student, sl.language
             question_pdf = pdf.compile_tex(body, ext_resources)
-
+            
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student)
                 page = pdf.add_barcode(question_pdf, bgenerator)
@@ -190,5 +181,3 @@ def compile_all():
             compile_question(q, lang)
     print 'COMPLETED'
 
-if __name__ == '__main__':
-    compile_all()
