@@ -48,7 +48,7 @@ def make_backups(backup_folder):
         
         with open(dump_file, 'w') as stream:
             serializers.serialize(
-                'json', [node], indent=2,
+                'json', [node.language, node], indent=2,
                 use_natural_foreign_keys=True,
                 use_natural_primary_keys=True,
                 stream=stream
