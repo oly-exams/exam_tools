@@ -72,10 +72,10 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
 
             if question.is_answer_sheet() and question.working_pages > 0:
                 context = {
-                            'polyglossia' : sl.language.polyglossia,
-                            'polyglossia_options' : sl.language.polyglossia_options,
-                            'font'        : fonts.ipho[sl.language.font],
-                            'extraheader' : sl.language.extraheader,
+                            'polyglossia' : 'english',
+                            'polyglossia_options' : '',
+                            'font'        : fonts.ipho['notosans'],
+                            'extraheader' : '',
                             # 'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
                             'exam_name'   : u'{}'.format(question.exam.name),
                             'code'        : u'{}{}'.format('W', question.position),
