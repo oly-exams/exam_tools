@@ -48,7 +48,7 @@ def make_backups(backup_folder):
         
         with open(dump_file, 'w') as stream:
             serializers.serialize(
-                'json', [node], indent=2,
+                'json', [node.language, node], indent=2,
                 use_natural_foreign_keys=True,
                 use_natural_primary_keys=True,
                 stream=stream
@@ -78,5 +78,9 @@ def clean_old_backups(backup_folder, timedelta):
 
 if __name__ == '__main__':
     backup_folder = sys.argv[1]
-    clean_old_backups(backup_folder, datetime.timedelta(days=1))
+    try:
+        os.makedirs(backup_folder)
+    except OSError:
+        pass
+    clean_old_backups(backup_folder, datetime.timedelta(hours=4))
     make_backups(backup_folder)
