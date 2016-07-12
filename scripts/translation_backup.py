@@ -78,5 +78,9 @@ def clean_old_backups(backup_folder, timedelta):
 
 if __name__ == '__main__':
     backup_folder = sys.argv[1]
-    clean_old_backups(backup_folder, datetime.timedelta(days=1))
+    try:
+        os.makedirs(backup_folder)
+    except OSError:
+        pass
+    clean_old_backups(backup_folder, datetime.timedelta(hours=4))
     make_backups(backup_folder)
