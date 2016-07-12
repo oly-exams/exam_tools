@@ -176,7 +176,7 @@ $('document').ready(function(){
                 modal.find('.modal-body').append(data['form']);
                 modal.find('.modal-body textarea').ckeditor();
                 $('#modal-datetimepicker').datetimepicker({
-                    format: "MM/DD/YYYY HH:mm",
+                    format: "MM/DD/YYYY HH:mm:ss",
                     inline: true,
                     sideBySide: true,
                     defaultDate: moment().add(10, 'seconds'),
