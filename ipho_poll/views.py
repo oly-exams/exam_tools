@@ -36,11 +36,11 @@ def staffIndex(request):
 @ensure_csrf_cookie
 def staffIndexPartial(request, qtype):
     if qtype == 'drafted':
-        questions_list = Question.objects.is_draft()
+        questions_list = Question.objects.is_draft().order_by('pk')
     elif qtype == 'open':
-        questions_list = Question.objects.is_open()
+        questions_list = Question.objects.is_open().order_by('pk')
     elif qtype == 'closed':
-        questions_list = Question.objects.is_closed()
+        questions_list = Question.objects.is_closed().order_by('pk')
     else:
         raise RuntimeError('No valid qtype')
     choices_list = Choice.objects.all()
