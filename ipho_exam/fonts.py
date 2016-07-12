@@ -336,7 +336,7 @@ ipho = {
     "name": "thsarabun",
     "font_regular": "THSarabun.ttf",
     "font": "THSarabun",
-    "css": "notosansthai.css"
+    "css": "notosansthai.css",
   },
   "notosansbuhid": {
     "cjk": 0,
