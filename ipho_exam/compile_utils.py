@@ -111,6 +111,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                 all_docs.append(page)
 
         exam_id = question.exam.pk
+        exam_code = question.exam.code
         position = question.position
 
     if all_same(all_barcodes):
@@ -134,6 +135,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
             doc.barcode_base = meta['barcode_base']
             doc.save()
             doc_task.delete()
+            print 'Doc committed: {} {}{}'.format(sl.student.code, exam_code, position)
         except DocumentTask.DoesNotExist:
             pass
     return final_doc, meta
