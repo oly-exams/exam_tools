@@ -31,7 +31,7 @@ OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 def compile_question(question, language):
     print 'Prepare', question, 'in', language
-    trans = qquery.latest_version(question.pk, sl.language.pk)
+    trans = qquery.latest_version(question.pk, language.pk)
     trans_content, ext_resources = trans.qml.make_tex()
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
@@ -47,20 +47,23 @@ def compile_question(question, language):
                 'code'        : u'{}{}'.format(question.code, question.position),
                 'title'       : u'{} - {}'.format(question.exam.name, question.name),
                 'is_answer'   : question.is_answer_sheet(),
-                'document'    : trans_content,
+                'document'    : trans_content.encode('utf-8'),
               }
     body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
     print 'Compile...'
-    question_pdf = pdf.compile_tex(body, ext_resources)
+    try:
+        question_pdf = pdf.compile_tex(body, ext_resources)
+        exam_code = question.exam.code
+        position = question.position
+        question_code = question.code
 
-    exam_code = question.exam.code
-    position = question.position
-    question_code = question.code
-
-    filename = u'TRANSLATION-{}{}-{}.pdf'.format(exam_code, position, question_code)
-    with open(filename, 'wb') as fp:
-        fp.write(question_pdf)
-    print filename, 'DONE'
+        filename = u'TRANSLATION-{}{}-{}-{}-{}.pdf'.format(exam_code, position, question_code, language.delegation.name, language.name.replace(u' ',u'_'))
+        with open(filename.encode('utf8'), 'wb') as fp:
+            fp.write(question_pdf)
+        print filename, 'DONE'
+    except Exception as e:
+        print 'ERROR'
+        print e
 
 
 def compile_stud_exam_question(questions, student_languages, cover=None, commit=False):
@@ -182,8 +185,8 @@ def missing_submissions():
 
 def compile_all():
     exams = Exam.objects.filter(name='Experiment')
-    questions = Question.objects.filter(exam=exams)
-    languages = Language.objects.filter(student_submission__exam=exams).unique()
+    questions = Question.objects.filter(exam=exams, position__in=[1,2])
+    languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
     print 'Going to compile in {} languages.'.format(len(languages))
     for q in questions:
         for lang in languages:
