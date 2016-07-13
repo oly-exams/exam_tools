@@ -109,6 +109,13 @@ def identity_args(self, prev_task):
 
 @shared_task(bind=True)
 def student_exam_document(self, questions, student_languages, cover=None, commit=False):
+    meta = {}
+    meta['num_pages'] = 0
+    meta['barcode_num_pages'] = 0
+    meta['barcode_base'] = ''
+    meta['etag'] = ''
+    meta['filename'] = ''
+    all_barcodes = []
     all_docs = []
     if cover is not None:
         body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover)).encode("utf-8")
@@ -117,7 +124,10 @@ def student_exam_document(self, questions, student_languages, cover=None, commit
         s = student_languages[0].student
         bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C')
         page = pdf.add_barcode(question_pdf, bgenerator)
-
+        doc_pages = pdf.get_num_pages(page)
+        meta['num_pages'] += doc_pages
+        meta['barcode_num_pages'] += doc_pages
+        all_barcodes.append(bgenerator.base)
         all_docs.append(page)
 
     for question in questions:
@@ -151,9 +161,13 @@ def student_exam_document(self, questions, student_languages, cover=None, commit
             else:
                 question_pdf = trans.node.pdf.read()
 
+            doc_pages = pdf.get_num_pages(question_pdf)
+            meta['num_pages'] += doc_pages
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student)
                 page = pdf.add_barcode(question_pdf, bgenerator)
+                meta['barcode_num_pages'] += doc_pages
+                all_barcodes.append(bgenerator.base)
                 all_docs.append( page )
             else:
                 all_docs.append(question_pdf)
@@ -177,15 +191,25 @@ def student_exam_document(self, questions, student_languages, cover=None, commit
                 ])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
                 page = pdf.add_barcode(question_pdf, bgenerator)
+
+                doc_pages = pdf.get_num_pages(page)
+                meta['num_pages'] += doc_pages
+                meta['barcode_num_pages'] += doc_pages
+                all_barcodes.append(bgenerator.base)
                 all_docs.append(page)
 
         exam_id = question.exam.pk
         position = question.position
 
+    if all_same(all_barcodes):
+        meta['barcode_base'] = all_barcodes[0] or None
+    else:
+        meta['barcode_base'] = ','.join(all_barcodes)
+
     filename = u'{}_EXAM-{}-{}.pdf'.format(sl.student.code, exam_id, position)
     final_doc = pdf.concatenate_documents(all_docs)
     meta['filename'] = filename
-    meta['etag'] = ''
+    meta['etag'] = md5(final_doc).hexdigest()
     if commit:
         try:
             doc_task = models.DocumentTask.objects.get(task_id=self.request.id)
