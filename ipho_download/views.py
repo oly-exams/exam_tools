@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseNotModified, Http404
 from django.conf import settings
 
 import os
+from unicodedata import normalize
 import mimetypes
 from hashlib import md5
 
@@ -14,7 +15,7 @@ def main(request, type, url):
     url = os.path.normpath(url)
 
     basedir = os.path.join(MEDIA_ROOT,'downloads')
-    path = os.path.join(basedir,url)
+    path = os.path.join(basedir,url).encode('utf8')
     rel_url = os.path.relpath(path, basedir)
     if rel_url[0] == '.' and '/' in rel_url:
         raise Http404('File path not valid.')
@@ -37,7 +38,7 @@ def main(request, type, url):
     flist = []
     for f in os.listdir(path):
         if f[0] == '.': continue
-        fullpath = os.path.join(path,f)
+        fullpath = os.path.join(path, f.decode('utf8')).encode('utf8')
         fpath = os.path.relpath(fullpath, basedir)
         tt = 'f'
         t = 'file'
