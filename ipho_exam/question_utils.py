@@ -12,7 +12,6 @@ from django.conf import settings
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction
 from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
-from hashlib import md5
 
 import ipho_exam
 from ipho_exam import tasks
