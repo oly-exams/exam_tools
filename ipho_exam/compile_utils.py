@@ -47,7 +47,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
             if question.is_answer_sheet() and not sl.with_answer:
                 continue
 
-            print 'Prepare', question, 'in', sl.language
+            print 'Prepare {} in {}.'.format(question, sl.language)
             trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
             if not trans.lang.is_pdf:
                 trans_content, ext_resources = trans.qml.make_tex()
@@ -68,7 +68,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                             'document'    : trans_content,
                           }
                 body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-                print 'Compile', question, sl.language
+                print 'Compile {} {}.'.format(question, sl.language)
                 question_pdf = pdf.compile_tex(body, ext_resources)
             else:
                 question_pdf = trans.node.pdf.read()
