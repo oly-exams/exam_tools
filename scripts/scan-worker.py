@@ -15,6 +15,7 @@ from StringIO import StringIO
 import shutil, os
 import datetime
 import subprocess
+from tempfile import mkdtemp
 
 from django.core.files import File
 from django.core.files.base import ContentFile
@@ -24,8 +25,7 @@ import re
 import logging
 logger = logging.getLogger('exam_tools.scan-worker')
 
-base_path = os.getcwd()
-temp_folder = os.path.join(base_path, "tmp")
+temp_folder = mkdtemp(prefix="scan")
 
 MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
 GOOD_OUTPUT_DIR = os.path.join(MEDIA_ROOT, 'scans-evaluated')
@@ -70,6 +70,7 @@ def extract_tiff(obj, xObject):
 
 def all_same(items):
     return all(x == items[0] for x in items)
+
 def detect_barcode(img_path):
     im = Image.open(img_path).convert('L')
     width, height = im.size
@@ -128,22 +129,26 @@ def inspect_file_old(input):
 
 def inspect_file(input):
     pages = []
+    logger.debug('starting pdftoppm')
     p = subprocess.Popen(
-        ["pdftoppm", "-r", "300", os.path.join(base_path, input), "tmp/temp"],
+        ["pdftoppm", "-r", "300", input.name, os.path.join(temp_folder, "temp")],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     p.wait()
     err = p.stderr.read()
+    logger.debug('pdftoppm done')
     if err:
-        logging.error('PDFTOPPM PROCESSING ERROR: ' + err)
+        logger.error('PDFTOPPM PROCESSING ERROR: {}'.format(err))
     else:
         out = p.stdout.read()
         if out:
-            logging.debug('pdftoppm processing log: ' + out)
+            logging.debug('pdftoppm processing log: {}'.format(out))
+        logger.debug('starting to extract barcodes')
         for pg, fn in enumerate(sorted(os.listdir(temp_folder))):
             fp = os.path.join(temp_folder, fn)
             code = detect_barcode(fp)
             pages.append((pg, code))
             os.remove(fp)
+        logger.debug('barcodes done')
     return pages
 
 def get_timestamp():
