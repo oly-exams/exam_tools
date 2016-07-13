@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from django.core.files.base import ContentFile
 from celery import shared_task
-from ipho_exam import pdf, models
+from ipho_exam import pdf, compile_utils, models
 from hashlib import md5
 from django.utils import timezone
 
