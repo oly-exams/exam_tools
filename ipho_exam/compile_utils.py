@@ -20,7 +20,7 @@ OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 def all_same(items):
     return all(x == items[0] for x in items)
 
-def student_exam_document(questions, student_languages, cover=None, commit=False):
+def student_exam_document(questions, student_languages, cover=None, job_task=None):
     meta = {}
     meta['num_pages'] = 0
     meta['barcode_num_pages'] = 0
@@ -122,11 +122,11 @@ def student_exam_document(questions, student_languages, cover=None, commit=False
     final_doc = pdf.concatenate_documents(all_docs)
     meta['filename'] = filename
     meta['etag'] = md5(final_doc).hexdigest()
-    if commit:
+    if job_task is not None:
         try:
-            doc_task = DocumentTask.objects.get(task_id=self.request.id)
+            doc_task = DocumentTask.objects.get(task_id=job_task)
             doc = doc_task.document
-            contentfile = ContentFile(doc_pdf)
+            contentfile = ContentFile(final_doc)
             contentfile.name = meta['filename']
             doc.file = contentfile
             doc.num_pages = meta['num_pages']
@@ -134,6 +134,6 @@ def student_exam_document(questions, student_languages, cover=None, commit=False
             doc.barcode_base = meta['barcode_base']
             doc.save()
             doc_task.delete()
-        except models.DocumentTask.DoesNotExist:
+        except DocumentTask.DoesNotExist:
             pass
     return final_doc, meta

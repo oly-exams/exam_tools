@@ -109,7 +109,8 @@ def identity_args(self, prev_task):
 
 @shared_task(bind=True)
 def student_exam_document(self, questions, student_languages, cover=None, commit=False):
-    return compile_utils.student_exam_document(questions, student_languages, cover, commit)
+    job_task = self.request.id if commit else None
+    return compile_utils.student_exam_document(questions, student_languages, cover, job_task=job_task)
 
 @shared_task(bind=True)
 def cleanup_meta(self):
