@@ -1840,14 +1840,18 @@ def extra_sheets(request):
 @permission_required('ipho_core.is_staff')
 def submission_summary(request, exam_id):
     open_exams = ExamAction.objects.filter(exam__active=True,
-        action=ExamAction.TRANSLATION, status=ExamAction.OPEN).count()
+        action=ExamAction.TRANSLATION, status=ExamAction.OPEN).count() - 1
 
     submitted_exams = ExamAction.objects.filter(exam__active=True,
         action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED).count()
 
+    remaining_countries = ExamAction.objects.filter(exam__active=True,
+        action=ExamAction.TRANSLATION, status=ExamAction.OPEN).values('delegation__country')
+
     return render(request, 'ipho_exam/submission_summary.html',
         {
-            'open_exams':       open_exams,
-            'submitted_exams':  submitted_exams,
+            'open_exams':           open_exams,
+            'submitted_exams':      submitted_exams,
+            'remaining_countries':  remaining_countries,
         }
     )

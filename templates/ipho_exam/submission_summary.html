@@ -44,8 +44,13 @@
         <div class="jumbotron">
             <h1>Submission Summary</h1>
             <div class="jumbotron">
-                <p>In Progress: {{ open_exams }}</p>
-                <p>Submitted: {{ submitted_exams }}</p>
+                <p><strong>In Progress:</strong> {{ open_exams }}</p>
+                <p><strong>Submitted:</strong> {{ submitted_exams }}</p>
+                <br>
+                <p><strong>Remaining:</strong></p>
+                {% for country in remaining_countries %}
+                    <p>{{ country.delegation__country }}
+                {% endfor %}
             </div>
 
 
