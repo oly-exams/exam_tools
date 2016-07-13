@@ -1,0 +1,74 @@
+
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra-head %}
+<meta http-equiv="refresh" content="5" />
+
+<style>
+  th{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  td{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  table.feedbacks th{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  table.feedbacks td{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+
+  /*.large{
+    font-family: Arial;
+    font-size: 50pt;
+  }*/
+
+
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+  <div class="col-md-12">
+
+        <div class="jumbotron">
+            <h1>Submission Summary</h1>
+            <div class="jumbotron">
+                <p>In Progress: {{ open_exams }}</p>
+                <p>Submitted: {{ submitted_exams }}</p>
+            </div>
+
+
+        </div>
+
+  </div>
+
+
+
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script>
+$('document').ready(function(){
+    $(document).on('click', '#reload', function(event){
+        location.reload();
+    });
+
+    // Activates tooltipls
+    $('.btn').tooltip({containter: ".parent"});
+
+}); // $(document).ready()
+</script>
+{% endblock %}
