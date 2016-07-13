@@ -1834,3 +1834,20 @@ def extra_sheets(request):
 
 
     return render(request, 'ipho_exam/extra_sheets.html', {'form': form, 'messages': messages})
+
+
+
+@permission_required('ipho_core.is_staff')
+def submission_summary(request, exam_id):
+    open_exams = ExamAction.objects.filter(exam__active=True,
+        action=ExamAction.TRANSLATION, status=ExamAction.OPEN).count()
+
+    submitted_exams = ExamAction.objects.filter(exam__active=True,
+        action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED).count()
+
+    return render(request, 'ipho_exam/submission_summary.html',
+        {
+            'open_exams':       open_exams,
+            'submitted_exams':  submitted_exams,
+        }
+    )
