@@ -15,6 +15,10 @@ from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
+## utils
+def all_same(items):
+    return all(x == items[0] for x in items)
+
 def student_exam_document(questions, student_languages, cover=None, commit=False):
     meta = {}
     meta['num_pages'] = 0
@@ -63,7 +67,7 @@ def student_exam_document(questions, student_languages, cover=None, commit=False
                             'document'    : trans_content,
                           }
                 body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-                print 'Compile', question, student, sl.language
+                print 'Compile', question, sl.language
                 question_pdf = pdf.compile_tex(body, ext_resources)
             else:
                 question_pdf = trans.node.pdf.read()
