@@ -29,6 +29,10 @@
     font-size: 50pt;
   }*/
 
+  .flex {
+    display: flex-inline;
+  }
+
 
 
 
@@ -44,8 +48,15 @@
         <div class="jumbotron">
             <h1>Submission Summary</h1>
             <div class="jumbotron">
-                <p>In Progress: {{ open_exams }}</p>
-                <p>Submitted: {{ submitted_exams }}</p>
+                <p><strong>In Progress:</strong> {{ open_exams }}</p>
+                <p><strong>Submitted:</strong> {{ submitted_exams }}</p>
+                <br>
+                <p><strong>Remaining:</strong></p>
+                <div class="flex">
+                {% for country in remaining_countries %}
+                    <span>{{ country.delegation__country }}</span>
+                {% endfor %}
+                </div>
             </div>
 
 
