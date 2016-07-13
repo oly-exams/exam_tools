@@ -14,6 +14,7 @@ from wand.image import Image as WImage
 from StringIO import StringIO
 import shutil, os
 import datetime
+import subprocess
 
 from django.core.files import File
 from django.core.files.base import ContentFile
@@ -22,6 +23,9 @@ import re
 
 import logging
 logger = logging.getLogger('exam_tools.scan-worker')
+
+base_path = os.getcwd()
+temp_folder = os.path.join(base_path, "tmp")
 
 MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
 GOOD_OUTPUT_DIR = os.path.join(MEDIA_ROOT, 'scans-evaluated')
@@ -66,8 +70,8 @@ def extract_tiff(obj, xObject):
 
 def all_same(items):
     return all(x == items[0] for x in items)
-def detect_barcode(tiff_img):
-    im = Image.open(io.BytesIO(tiff_img)).convert('L')
+def detect_barcode(img_path):
+    im = Image.open(img_path).convert('L')
     width, height = im.size
     raw = im.tobytes()
 
@@ -119,23 +123,48 @@ def inspect_file_old(input):
                 if xObject[obj]['/Filter'] == '/CCITTFaxDecode':
                     tiff_img = extract_tiff(obj,xObject)
                     code = detect_barcode(tiff_img)
-        pages.append((i, page, code))
+        pages.append((i, code))
     return pages
 
 def inspect_file(input):
     pages = []
-    with WImage(blob=input, format='pdf', resolution=300) as img:
-        npages = len(img.sequence)
-        logger.info('npages: {}'.format(npages))
-        for pg in xrange(npages):
-            with WImage(img.sequence[pg]).convert('png') as converted:
-                img_bytes = converted.make_blob()
-                code = detect_barcode(img_bytes)
-                pages.append((pg, code))
+    p = subprocess.Popen(
+        ["pdftoppm", "-r", "300", os.path.join(base_path, input), "tmp/temp"],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p.wait()
+    err = p.stderr.read()
+    if err:
+        logging.error('PDFTOPPM PROCESSING ERROR: ' + err)
+    else:
+        out = p.stdout.read()
+        if out:
+            logging.debug('pdftoppm processing log: ' + out)
+        for pg, fn in enumerate(sorted(os.listdir(temp_folder))):
+            fp = os.path.join(temp_folder, fn)
+            code = detect_barcode(fp)
+            pages.append((pg, code))
+            os.remove(fp)
     return pages
 
 def get_timestamp():
     return datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+
+def page_sort(page_info):
+    lookup_type = {"C" : 0, "A": 100, "W": 200, "Z": 300}  # do not use 900 or higher, 900 is used as default
+    pg, code = page_info
+    if code is None:
+        return
+    page_parts = code.split()[-1].split('-')
+    try:
+        val = lookup_type[page_parts[0]]
+    except KeyError:
+        logger.warning("page type '{}' not found, using default (900).".format(page_parts[0]))
+        val = 900
+    try:
+        val += int(page_parts[1])
+    except TypeError:
+        logger.warning("failed to convert page number '{}' to int, using default (0).".format(page_parts[1]))
+    return val
 
 def main(input):
     pages = inspect_file(input)
@@ -159,7 +188,7 @@ def main(input):
             doc_complete = expected_pages == len(pgs)
             if not doc_complete:
                 logger.warning('Missing pages: {} in DB but only {} in scanned document.'.format(expected_pages, len(pgs)))
-            ordered_pages = [ pdfdoc.getPage(i) for i,code in sorted(pages, key=lambda k: k[1]) if code is not None and i in pgs ]
+            ordered_pages = [ pdfdoc.getPage(i) for i,code in sorted(pages, key=page_sort) if code is not None and i in pgs ]
             output = PdfFileWriter()
             for page in ordered_pages:
                 output.addPage(page)
