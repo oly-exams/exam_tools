@@ -29,6 +29,10 @@
     font-size: 50pt;
   }*/
 
+  .flex {
+    display: flex-inline;
+  }
+
 
 
 
@@ -48,9 +52,11 @@
                 <p><strong>Submitted:</strong> {{ submitted_exams }}</p>
                 <br>
                 <p><strong>Remaining:</strong></p>
+                <div class="flex">
                 {% for country in remaining_countries %}
-                    <p>{{ country.delegation__country }}
+                    <span>{{ country.delegation__country }}</span>
                 {% endfor %}
+                </div>
             </div>
 
 
