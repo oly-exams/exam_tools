@@ -184,7 +184,8 @@ def student_exam_document(self, questions, student_languages, cover=None, commit
 
     filename = u'{}_EXAM-{}-{}.pdf'.format(sl.student.code, exam_id, position)
     final_doc = pdf.concatenate_documents(all_docs)
-
+    meta['filename'] = filename
+    meta['etag'] = ''
     if commit:
         try:
             doc_task = models.DocumentTask.objects.get(task_id=self.request.id)
@@ -201,7 +202,7 @@ def student_exam_document(self, questions, student_languages, cover=None, commit
             pass
 
 
-    return filename, final_doc
+    return final_doc, meta
 
 
 @shared_task(bind=True)
