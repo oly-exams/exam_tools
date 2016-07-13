@@ -110,5 +110,5 @@ def identity_args(self, prev_task):
 @shared_task(bind=True)
 def cleanup_meta(self):
     from djcelery.models import TaskMeta
-    TaskMeta.objects.filter(date_done__lte=timezone.now() - timezone.timedelta(minutes=15)).delete()
+    TaskMeta.objects.filter(date_done__lte=timezone.now() - timezone.timedelta(minutes=25)).delete()
 
