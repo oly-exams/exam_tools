@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from django.core.files.base import ContentFile
 from celery import shared_task
-from ipho_exam import pdf, models
+from ipho_exam import pdf, compile_utils, models
 from hashlib import md5
 from django.utils import timezone
 
@@ -108,7 +108,11 @@ def identity_args(self, prev_task):
     return prev_task
 
 @shared_task(bind=True)
+def student_exam_document(self, questions, student_languages, cover=None, commit=False):
+    job_task = self.request.id if commit else None
+    return compile_utils.student_exam_document(questions, student_languages, cover, job_task=job_task)
+
+@shared_task(bind=True)
 def cleanup_meta(self):
     from djcelery.models import TaskMeta
     TaskMeta.objects.filter(date_done__lte=timezone.now() - timezone.timedelta(minutes=25)).delete()
-
