@@ -211,10 +211,10 @@ def main(input):
             contentfile.name = input.name
             doc.scan_file = contentfile
             doc.scan_file_orig = File(input)
-            if len(msg) > 0:
-                doc.scan_status = 'W'
-            elif not doc_complete:
+            if not doc_complete and len(msg) == 1:
                 doc.scan_status = 'M'
+            elif len(msg) > 0:
+                doc.scan_status = 'W'
             else:
                 doc.scan_status = 'S'
             if len(msg) > 0:
