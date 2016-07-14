@@ -183,7 +183,11 @@ def main(input):
     for i,code in pages:
         if code is not None:
             basecodes[get_base(code)].append(i)
-    
+
+    msg = []
+    if len(basecodes) > 1:
+        logger.warning('Pages with different barcodes detected. {}'.format(basecodes.keys()))
+        msg.append('Pages with different barcodes detected. {}'.format(basecodes.keys()))
     pdfdoc = PdfFileReader(input)
     for code, pgs in basecodes.iteritems():
         logger.debug('Processing: {}'.format(code))
@@ -193,6 +197,7 @@ def main(input):
             doc_complete = expected_pages == len(pgs)
             if not doc_complete:
                 logger.warning('Missing pages: {} in DB but only {} in scanned document.'.format(expected_pages, len(pgs)))
+                msg.append('Missing pages: {} in DB but only {} in scanned document.'.format(expected_pages, len(pgs)))
             ordered_pages = [ pdfdoc.getPage(i) for i,code in sorted(pages, key=page_sort) if code is not None and i in pgs ]
             output = PdfFileWriter()
             for page in ordered_pages:
@@ -203,9 +208,14 @@ def main(input):
             contentfile.name = input.name
             doc.scan_file = contentfile
             doc.scan_file_orig = File(input)
-            doc.scan_status = 'S' if doc_complete else 'M'
-            if not doc_complete:
-                doc.scan_msg = 'Missing pages: {} in DB but only {} in scanned document.'.format(expected_pages, len(pgs))
+            if len(msg) > 0:
+                doc.scan_status = 'W'
+            elif not doc_complete:
+                doc.scan_status = 'M'
+            else:
+                doc.scan_status = 'S'
+            if len(msg) > 0:
+                doc.scan_msg = '\n'.join(msg)
             doc.save()
             logger.info('Scan document inserted in DB for barcode {}'.format(code))
 
