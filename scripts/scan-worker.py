@@ -183,7 +183,7 @@ def main(input):
     for i,code in pages:
         if code is not None:
             if ' E-' in code:
-                logger.error('This scan contains experiment barcodes!')
+                logger.error('This scan contains experiment barcodes! Document is {}'.format(input.name))
                 raise RuntimeError('This scan contains experiment barcodes!')
             basecodes[get_base(code)].append(i)
 
