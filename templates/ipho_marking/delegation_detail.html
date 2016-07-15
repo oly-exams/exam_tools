@@ -48,9 +48,9 @@
       {% for m, points in markings %}
       <tr>
         <td><strong>{{ m.name }} ({{ m.max_points }})</strong></td>
-        <td>{{ points.O.0.points|default:'-' }}</td>
-        <td>{{ points.D.0.points|default:'-' }}</td>
-        <td>{{ points.F.0.points|default:'-' }}</td>
+        <td>{{ points.O.0.points|default_if_none:'-' }}</td>
+        <td>{{ points.D.0.points|default_if_none:'-' }}</td>
+        <td>{{ points.F.0.points|default_if_none:'-' }}</td>
       </tr>
       {% endfor %}
     </table>

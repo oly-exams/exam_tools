@@ -78,10 +78,10 @@
                 <td>{{ student.code }}</td>
                 {% for ep in exam_points %}
                 <td>
-                  {{ ep.exam_points|default:'-' }}
+                  {{ ep.exam_points|default_if_none:'-' }}
                 </td>
                 {% endfor %}
-                <td>{{ total|default:'-' }}</td>
+                <td>{{ total|default_if_none:'-' }}</td>
             </tr>
             {% endfor %}
         </table>
