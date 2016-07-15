@@ -42,7 +42,7 @@
             <td>{{ student.code }}</td>
             {% for qid,pp in points %}
             <td>
-              {{ pp|default:'-' }}
+              {{ pp|default_if_none:'-' }}
               <a class="btn btn-default btn-xs" href="{% url 'marking:staff-stud-detail' question_id=qid version=vid stud_id=student.id %}">
                 <i class="fa fa-pencil" aria-hidden="true"></i>
               </a>
@@ -50,7 +50,7 @@
             {% endfor %}
             {% for ep in exam_points %}
             <td>
-              {{ ep.exam_points|default:'-' }}
+              {{ ep.exam_points|default_if_none:'-' }}
             </td>
             {% endfor %}
         </tr>
