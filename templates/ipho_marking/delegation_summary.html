@@ -55,6 +55,9 @@
         {% if psubs.status == OPEN_STATUS %}
         <div class="panel-footer"><a class="btn btn-primary btn-sm" href="{% url 'marking:delegation-confirm' psubs.exam.pk %}">Confirm marking <i class="fa fa-angle-double-right"></i></a></div>
         {% endif %}
+        {% if psubs.status == SUBMITTED_STATUS %}
+        <div class="panel-footer"><a class="btn btn-default btn-sm" href="{% url 'marking:delegation-export' exam_id=psubs.exam.pk %}"><i class="fa fa-file-excel-o"></i> Export</i></a></div>
+        {% endif %}
       </div>
       {% empty %}
       <p class="alert alert-info">Marking is currently not enabled for any exam.</p>

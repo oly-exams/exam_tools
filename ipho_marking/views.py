@@ -174,6 +174,32 @@ def export(request):
     return response
 
 @permission_required('ipho_core.is_delegation')
+def delegation_export(request, exam_id):
+    versions = request.GET.get('v', 'O,D,F').split(',')
+    delegation = Delegation.objects.get(members=request.user)
+
+    import csv
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="markings.csv"'
+
+    writer = csv.writer(response)
+    title_row = ['Student', 'Delegation', 'Version']
+    mmeta = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
+    for m in mmeta:
+        title_row.append( '{} - {} ({})'.format(m.question.name, m.name, m.max_points) )
+    writer.writerow(title_row)
+
+    for student in Student.objects.filter(delegation=delegation):
+        for version in versions:
+            row = [student.code, student.delegation.name, version]
+            markings = Marking.objects.filter(student=student, version=version).order_by('marking_meta__question__exam', 'marking_meta__question__position', 'marking_meta__position').values_list('points', flat=True)
+            row += markings
+            row = map(lambda v: '-' if v is None else v, row)
+            writer.writerow(row)
+
+    return response
+
+@permission_required('ipho_core.is_delegation')
 def delegation_summary(request):
     delegation = Delegation.objects.get(members=request.user)
     points_submissions = ExamAction.objects.filter(delegation=delegation, action=ExamAction.POINTS, exam__marking_active=True).order_by('exam')
@@ -207,6 +233,7 @@ def delegation_summary(request):
     ).distinct()
 
     ctx = {
+        'delegation': delegation,
         'students': students,
         'points_submissions': points_submissions,
         'exams': exams,
