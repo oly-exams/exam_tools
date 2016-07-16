@@ -16,7 +16,7 @@
       <div class="dropdown">
         <a class="btn {{ question|yesno:"btn-default,btn-primary" }} btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
           {% if question %}
-          {{ question.exam.name }} - {{ question.name }}
+          {{ question.exam.code }}-{{ question.position }} {{ question.exam.name }} - {{ question.name }}
           {% else %}
           Select question
           {% endif %}
@@ -24,7 +24,7 @@
         </a>
         <ul class="dropdown-menu">
       {% for q in questions %}
-          <li {% if question == q %} class="active" {% endif %}><a href="{% url 'marking:moderation-index-question' question_id=q.pk %}">{{ q.exam.name }} - {{ q.name }}</a></li>
+          <li {% if question == q %} class="active" {% endif %}><a href="{% url 'marking:moderation-index-question' question_id=q.pk %}">{{ q.exam.code }}-{{ q.position }} {{ q.exam.name }} - {{ q.name }}</a></li>
       {% endfor %}
         </ul>
       </div>

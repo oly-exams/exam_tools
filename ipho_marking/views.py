@@ -318,7 +318,7 @@ def delegation_confirm(request, exam_id):
 
 @permission_required('ipho_core.is_marker')
 def moderation_index(request, question_id=None):
-    questions = Question.objects.filter(exam__hidden=False, type=Question.ANSWER)
+    questions = Question.objects.filter(exam__hidden=False, type=Question.ANSWER).order_by('exam__code', 'position')
     question = None if question_id is None else get_object_or_404(Question, id=question_id)
     delegations = Delegation.objects.all()
     ctx={'questions': questions, 'question': question, 'delegations': delegations}
