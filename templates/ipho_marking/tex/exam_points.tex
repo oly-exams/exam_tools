@@ -1,0 +1,42 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{Noto Sans}
+\setkomavar{date}{}
+\nonstopmode
+
+\title{IPhO 2016\\\scriptsize{Final marks}}
+
+\begin{document}
+
+\maketitle
+
+\section*{% openbrace %}{{ delegation.country }}}
+
+{{ results }}
+\begin{tabular}{ll}
+
+\end{tabular}
+    <tr>
+        <th>Student</th>
+        {% for e in exams %}
+        <th>{{ e.question__exam__name }}<br />({{ e.exam_points }})</th>
+        {% endfor %}
+        <th>Total</th>
+    </tr>
+
+    {% for student, exam_points, total in points_per_student %}
+    <tr>
+        <td>{{ student.code }}</td>
+        {% for ep in exam_points %}
+        <td>
+          {{ ep.exam_points|default_if_none:'-' }}
+        </td>
+        {% endfor %}
+        <td>{{ total|default_if_none:'-' }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+\end{document}
