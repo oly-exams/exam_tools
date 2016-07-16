@@ -15,6 +15,8 @@ from django.core.urlresolvers import reverse
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
+from django.db.models import Sum
+
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
@@ -36,13 +38,14 @@ def compile_all():
             stud_exam_points_list = Marking.objects.filter(
                 version=vid, student=student['id']
             ).values(
-                'marking_meta__question__exam'
+                'marking_meta__question'
             ).annotate(
                 exam_points=Sum('points')
             ).values(
                 'exam_points'
             ).order_by(
-                'marking_meta__question__exam'
+                'marking_meta__question__exam',
+                'marking_meta__question'
             )
             total = sum([ st_points['exam_points'] for st_points in stud_exam_points_list if st_points['exam_points'] is not None ])
             points_per_student.append( (student, stud_exam_points_list, total) )
@@ -58,22 +61,24 @@ def compile_all():
             'exam_points'
         ).order_by(
             'question__exam',
+            'question'
         ).distinct()
 
 
         results = u''
-        results += u'\\begin{tabular}'
+        results += u'\\vspace{2em}\n\\begin{center}\n'
+        results += u'\\begin{tabular}{'+''.join(['p{3cm}']+['p{1cm}']*(len(exams)+1))+'}\n'
         for i, ex in enumerate(exams):
-            if i != 0:
-                results += u' & '
-            results += u'{}-{} (max {})'.format(ex['question__exam__code'], ex['question__position'])
-        results += u' \\'
+            results += u' & '
+            results += u'\\textbf{{{}-{}}}'.format(ex['question__exam__code'], ex['question__position'])
+        results += u' & \\textbf{Total} \\\\\n'
         for (student, stud_exam_points_list, total) in points_per_student:
-            results += u'{} & '.format(student.code)
+            results += u'{} & '.format(student['code'])
             for p in stud_exam_points_list:
                 results += u'{} & '.format(p['exam_points'])
-            results += u'{} \\'.format(total)
-        results += u'\\end{tabular}'
+            results += u'{} \\\\\n'.format(total)
+        results += u'\\end{tabular}\n'
+        results += u'\\end{center}\n'
 
         context = {
                     'polyglossia' : 'english',
@@ -84,14 +89,17 @@ def compile_all():
                     'results'    : results,
                   }
         body = render_to_string('ipho_marking/tex/exam_points.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-        print 'Compile...'
-        try:
-            question_pdf = pdf.compile_tex(body, ext_resources)
-
-            filename = u'FINALPOINTS-{}.pdf'.format(delagtion.name)
-            with open(filename.encode('utf8'), 'wb') as fp:
-                fp.write(question_pdf)
-            print filename, 'DONE'
+        with open(u'FINALPOINTS-{}.tex'.format(delegation.name), 'w') as fp:
+            fp.write(body)
+        continue
+        filename = u'FINALPOINTS-{}.pdf'.format(delegation.name)
+        print 'Compile', filename
+        question_pdf = pdf.compile_tex(body, [])
+        #question_pdf = pdf.compile_tex(body, ext_resources)
+        print 'Compile Success'
+        with open(filename, 'wb') as fp:
+            fp.write(question_pdf)
+        print filename, 'DONE'
 
 
 if __name__ == '__main__':

@@ -1,42 +1,34 @@
 \documentclass[12pt,a4paper]{article}
 
+\usepackage{geometry}
+\geometry{left=2.5cm}
+\geometry{right=2.5cm}
+\geometry{top=3.5cm}
+\geometry{bottom=2cm}
+
 \usepackage{fontspec}
 \setmainfont{Noto Sans}
-\setkomavar{date}{}
+
+\usepackage{fancyhdr}
+\renewcommand{\headrulewidth}{0pt}
+\pagestyle{fancy}
+\fancyhf[HL]{\includegraphics[width=2cm]{% templatetag openbrace %}{{ STATIC_PATH }}/ipho16_small_green.pdf} }
+\fancyhf[FC]{}
+
+\renewcommand{\arraystretch}{1.3}
+
 \nonstopmode
 
-\title{IPhO 2016\\\scriptsize{Final marks}}
+\title{IPhO 2016\\\normalsize{Final marks}}
 
 \begin{document}
 
 \maketitle
+\thispagestyle{fancy}
 
-\section*{% openbrace %}{{ delegation.country }}}
 
-{{ results }}
-\begin{tabular}{ll}
+\section*{% templatetag openbrace %}{{ delegation.country }}}
 
-\end{tabular}
-    <tr>
-        <th>Student</th>
-        {% for e in exams %}
-        <th>{{ e.question__exam__name }}<br />({{ e.exam_points }})</th>
-        {% endfor %}
-        <th>Total</th>
-    </tr>
-
-    {% for student, exam_points, total in points_per_student %}
-    <tr>
-        <td>{{ student.code }}</td>
-        {% for ep in exam_points %}
-        <td>
-          {{ ep.exam_points|default_if_none:'-' }}
-        </td>
-        {% endfor %}
-        <td>{{ total|default_if_none:'-' }}</td>
-    </tr>
-    {% endfor %}
-</table>
-
+{{ results|safe }}
 
 \end{document}
