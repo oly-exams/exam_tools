@@ -31,7 +31,11 @@ OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 def compile_question(question, language):
     print 'Prepare', question, 'in', language
-    trans = qquery.latest_version(question.pk, language.pk)
+    try:
+        trans = qquery.latest_version(question.pk, language.pk)
+    except:
+        print 'NOT-FOUND'
+        return
     trans_content, ext_resources = trans.qml.make_tex()
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
@@ -184,8 +188,8 @@ def missing_submissions():
                 compile_stud_exam_question(questions, student_languages, cover=cover_ctx, commit=False)
 
 def compile_all():
-    exams = Exam.objects.filter(name='Experiment')
-    questions = Question.objects.filter(exam=exams, position__in=[1,2])
+    exams = Exam.objects.filter(name='Theory')
+    questions = Question.objects.filter(exam=exams, position__in=[1,2,3])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
     print 'Going to compile in {} languages.'.format(len(languages))
     for q in questions:
