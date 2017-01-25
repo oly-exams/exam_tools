@@ -4,7 +4,7 @@ CairoSVG==1.*
 hg+https://bitbucket.org/whitie/python-barcode
 PyPDF2
 mkdocs
-Celery
+Celery==3.*
 django-celery
 flower
 requests
