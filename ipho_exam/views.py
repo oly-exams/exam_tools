@@ -1061,12 +1061,10 @@ def submission_exam_list(request):
     ).distinct()
     return render(request, 'ipho_exam/submission_list.html', {'exams_open': exams_open, 'exams_closed': exams_closed})
 
-@permission_required('ipho_core.is_delegation')
-def submission_exam_assign(request, exam_id):
-    exam = get_object_or_404(Exam, id=exam_id)
+def _get_submission_languages(exam, delegation):
+    """Returns the languages which are valid for submission."""
     num_questions = exam.question_set.count()
-    delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.all().annotate(
+    return Language.objects.all().annotate(
          num_translation=Sum(
              Case(When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
                   When(is_pdf=True, then=None),
@@ -1077,8 +1075,14 @@ def submission_exam_assign(request, exam_id):
                   When(is_pdf=False, then=None),
                   output_field=IntegerField(), default=0)
          )
-    ).filter( Q(delegation__name=OFFICIAL_DELEGATION) & Q(hidden_from_submission=False) | (Q(delegation=delegation) & (Q(num_translation=num_questions) | Q(num_pdf=num_questions))))
+    ).filter(Q(delegation__name=OFFICIAL_DELEGATION) & Q(hidden_from_submission=False) | (Q(delegation=delegation) & (Q(num_translation=num_questions) | Q(num_pdf=num_questions))))
 
+@permission_required('ipho_core.is_delegation')
+def submission_exam_assign(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    delegation = Delegation.objects.get(members=request.user)
+    num_questions = exam.question_set.count()
+    languages = _get_submission_languages(exam, delegation)
     ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
     if ex_submission.status == ExamAction.SUBMITTED and not settings.DEMO_MODE:
         return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
@@ -1225,7 +1229,7 @@ def submission_exam_confirm(request, exam_id):
 def submission_exam_submitted(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
+    languages = _get_submission_languages(exam, delegation)
 
     ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
 
