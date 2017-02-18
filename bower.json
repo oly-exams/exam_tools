@@ -16,6 +16,7 @@
     "jquery": "1.11.2",
     "bootstrap-switch": "3.3.2",
     "ckeditor": "4.5.9",
-    "font-awesome": "4.3.0"
+    "font-awesome": "4.3.0",
+    "jquery.dirtyforms": "2.0.0-beta00006"
   }
 }
