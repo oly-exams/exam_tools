@@ -72,6 +72,23 @@ For the local server, simply execute
 python manage.py runserver
 ```
 
+## Running the workers **locally**
+Add to exam_tools/settings.py:
+```
+BROKER_URL = 'django://'
+INSTALLED_APPS = INSTALLED_APPS + ('kombu.transport.django',)
+```
+
+Execute: 
+```
+python manage.py migrate kombu_transport_django
+```
+
+Start workers with
+```
+celery -A exam_tools worker -E --concurrency=2
+```
+
 ## Building the docs
 For development it is suggested to serve the docs locally
 ```bash
