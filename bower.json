@@ -8,6 +8,7 @@
   "homepage": "http://oly-exams.org",
   "private": true,
   "dependencies": {
-    "moment": "2.11.2"
+    "moment": "2.11.2",
+    "ace-builds": "1.2.6"
   }
 }
