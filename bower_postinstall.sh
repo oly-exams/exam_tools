@@ -1,5 +1,11 @@
 #!/bin/bash
 
+STATIC_BOWER=static_bower
+STATIC=static
 
 # moment.js
-cp static_bower/moment/min/moment.min.js static/moment.min.js
+cp $STATIC_BOWER/moment/min/moment.min.js $STATIC/
+
+
+
+# rm -rf $STATIC_BOWER
