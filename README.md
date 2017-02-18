@@ -86,8 +86,9 @@ python manage.py migrate kombu_transport_django
 
 Start workers with
 ```
-celery -A exam_tools worker -E --concurrency=2
+celery -A exam_tools worker -E --concurrency=1
 ```
+Concurrency must be 1 because the sqlite database doesn't allow concurrent access.
 
 ## Building the docs
 For development it is suggested to serve the docs locally

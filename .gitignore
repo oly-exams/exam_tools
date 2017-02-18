@@ -2,8 +2,10 @@ iphoadmin.esproj
 iphoadmin/settings.py
 exam_tools/settings.py
 *.pyc
-.gitignore
 venv
 ipho.db
 exams-docs
 outcode_raw.svg
+.idea
+runserver.sh
+_docs_html
