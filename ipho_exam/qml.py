@@ -16,6 +16,10 @@ from django.utils.text import unescape_entities
 import urllib
 from django.core.urlresolvers import reverse
 
+#block groups
+PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'table', 'equation', 'figure', 'box')
+DEFAULT_BLOCKS = ('texfield', 'texenv')
+
 def make_content(root):
     assert(root.tag == 'question')
     ret = []
@@ -97,8 +101,8 @@ def data2xhtml(data):
     return normalize_html(data)
 
 def canonical_name(qobj):
-    if qobj.default_heading is not None:
-        return qobj.default_heading
+    if qobj.display_name is not None:
+        return qobj.display_name
     else:
         name = qobj.__name__.replace('QML', '')
         split_pattern = re.compile('(^[^A-Z]*|[A-Z][^A-Z]*)')
@@ -140,10 +144,12 @@ def all_subclasses(cls):
     return cls.__subclasses__() + [g for s in cls.__subclasses__()
                                    for g in all_subclasses(s)]
 
-
 class QMLobject(object):
     default_attributes = {}
     _all_objects = None
+    valid_children = DEFAULT_BLOCKS
+    display_name = None
+    default_heading = None
 
     @staticmethod
     def all_objects():
@@ -352,11 +358,12 @@ class QMLobject(object):
 
 class QMLquestion(QMLobject):
     tag  = "question"
-    default_heading = None
     default_attributes = {'points': ''}
 
     has_text = False
     has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
+                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer')
 
     def title(self):
         tt = ''
@@ -376,10 +383,10 @@ class QMLquestion(QMLobject):
 
 class QMLsubquestion(QMLobject):
     tag  = "subquestion"
-    default_heading = "Subquestion"
 
     has_text = False
     has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
 
     default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
 
@@ -399,10 +406,12 @@ class QMLsubquestion(QMLobject):
 
 class QMLsubanswer(QMLobject):
     tag  = "subanswer"
+    display_name = "Answer"
     default_heading = "Answer"
 
     has_text = False
     has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
 
     default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
 
@@ -427,6 +436,7 @@ class QMLbox(QMLobject):
 
     has_text = False
     has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
 
     def heading(self):
         return 'Box'
@@ -488,7 +498,6 @@ class QMLpart(QMLobject):
 
 class QMLparagraph(QMLobject):
     tag  = "paragraph"
-    default_heading = None
 
     has_text = True
     has_children = False
@@ -508,6 +517,7 @@ class QMLfigure(QMLobject):
     has_text = False
     has_children = True
     lang = None
+    valid_children = ('caption',)
 
     default_attributes = {'figid': ''}
 
@@ -593,7 +603,7 @@ class QMLfigure(QMLobject):
 
 class QMLfigureText(QMLobject):
     tag  = "param"
-    default_heading = None
+    display_name = "Figure Text"
 
     has_text = True
     has_children = False
@@ -606,6 +616,7 @@ class QMLfigureText(QMLobject):
 
 class QMLfigureCaption(QMLobject):
     tag  = "caption"
+    display_name = "Figure Caption"
     default_heading = "Caption"
 
     has_text = True
@@ -629,10 +640,12 @@ class QMLequation(QMLobject):
 
 class QMLlist(QMLobject):
     tag  = "list"
+    display_name = "Bullet list"
     default_heading = "Bullet list"
 
     has_text = False
     has_children = True
+    valid_children = ('item',)
 
     def tex_begin(self):
         return u'\\begin{itemize}\n'
@@ -645,9 +658,8 @@ class QMLlist(QMLobject):
         return u'</ul>'
 
 
-class QMLlistitem(QMLobject):
+class QMLlistItem(QMLobject):
     tag  = "item"
-    default_heading = None
 
     has_text = True
     has_children = False
@@ -672,10 +684,11 @@ class QMLlistitem(QMLobject):
 
 class QMLlatex(QMLobject):
     tag  = "texfield"
-    default_heading = None
+    display_name = "Latex Replacement Template"
 
     has_text = False
     has_children = True
+    valid_children = ('texparam',)
 
     default_attributes = {'content': ''}
 
@@ -690,12 +703,23 @@ class QMLlatex(QMLobject):
                 content.replace('{{ %s }}' % c.attributes['name'], c.data.encode('utf-8'))
         return content, []
 
+class QMLlatexParam(QMLobject):
+    tag  = "texparam"
+    display_name = "Latex Replacement Parameter"
+
+    has_text = True
+    has_children = False
+
+    default_attributes = {'name': 'tba'}
+
 class QMLlatexEnv(QMLobject):
     tag = "texenv"
-    default_heading = None
+    display_name = "Latex Environment"
 
     has_text=False
     has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
+                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer')
 
     default_attributes = {'name': ''}
 
@@ -708,22 +732,13 @@ class QMLlatexEnv(QMLobject):
     def tex_end(self):
         return unicode(r'\end{{{}}}'.format(self.attributes['name']))
 
-
-class QMLlatexParam(QMLobject):
-    tag  = "texparam"
-    default_heading = None
-
-    has_text = True
-    has_children = False
-
-    default_attributes = {'name': 'tba'}
-
 class QMLtable(QMLobject):
     tag = "table"
     default_heading = 'Table'
 
     has_text = False
     has_children = True
+    valid_children = ('row', 'tablecaption')
 
     default_attributes = {
         #~ 'width': '',
@@ -778,6 +793,7 @@ class QMLtableRow(QMLobject):
 
     has_text = False
     has_children = True
+    valid_children = ('cell',)
 
     default_attributes = {'bottom_line': '1'}
 
@@ -794,7 +810,6 @@ class QMLtableRow(QMLobject):
 
 class QMLtableCell(QMLobject):
     tag = "cell"
-    default_heading = None
 
     has_text = True
     has_children = False
