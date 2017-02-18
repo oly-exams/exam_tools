@@ -143,6 +143,7 @@ def all_subclasses(cls):
 class QMLobject(object):
     default_attributes = {}
     _all_objects = None
+    valid_children = [QMLlatex, QMLlatexEnv, QMLlatexParam]
 
     @staticmethod
     def all_objects():
@@ -710,6 +711,16 @@ class QMLlatex(QMLobject):
                 content.replace('{{ %s }}' % c.attributes['name'], c.data.encode('utf-8'))
         return content, []
 
+class QMLlatexParam(QMLobject):
+    abbr = "tp"
+    tag  = "texparam"
+    default_heading = None
+
+    has_text = True
+    has_children = False
+
+    default_attributes = {'name': 'tba'}
+
 class QMLlatexEnv(QMLobject):
     abbr = "te"
     tag = "texenv"
@@ -728,17 +739,6 @@ class QMLlatexEnv(QMLobject):
 
     def tex_end(self):
         return unicode(r'\end{{{}}}'.format(self.attributes['name']))
-
-
-class QMLlatexParam(QMLobject):
-    abbr = "tp"
-    tag  = "texparam"
-    default_heading = None
-
-    has_text = True
-    has_children = False
-
-    default_attributes = {'name': 'tba'}
 
 class QMLtable(QMLobject):
     abbr = "tb"
