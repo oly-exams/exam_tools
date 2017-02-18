@@ -9,6 +9,8 @@
   "private": true,
   "dependencies": {
     "moment": "2.11.2",
-    "ace-builds": "1.2.6"
+    "ace-builds": "1.2.6",
+    "bootstrap": "3.3.4",
+    "eonasdan-bootstrap-datetimepicker": "git://github.com/Eonasdan/bootstrap-datetimepicker#4.17.37"
   }
 }
