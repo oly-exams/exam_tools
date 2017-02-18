@@ -860,7 +860,7 @@ class QMLpagebreak(QMLobject):
     has_children = False
 
     def make_tex(self):
-        return ur'\newpage', []
+        return ur'~ \clearpage', []
 
 class QMLException(Exception):
     pass
