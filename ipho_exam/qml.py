@@ -5,6 +5,7 @@ import re
 from copy import deepcopy
 #import lxml.etree as lxmltree
 import tex
+import uuid
 import simplediff
 import json
 
@@ -178,7 +179,6 @@ class QMLobject(object):
         except KeyError:
             raise KeyError("`id` missing from QML element `%s`." % root.tag)
 
-        self.tag_counter = {}
         self.children = []
         self.parse(root)
 
@@ -200,15 +200,10 @@ class QMLobject(object):
 
     def add_child(self, elem):
         child_qml = QMLobject.get_qml(elem.tag)
-        if not child_qml.abbr in self.tag_counter: self.tag_counter[child_qml.abbr] = 0
-        self.tag_counter[child_qml.abbr] += 1
 
         child_id = None
-        if not 'id' in elem.attrib:
-            child_id = self.id + '_%s%s' % (child_qml.abbr, self.tag_counter[child_qml.abbr])
-            while self.find(child_id) is not None:
-                self.tag_counter[child_qml.abbr] += 1
-                child_id = self.id + '_%s%s' % (child_qml.abbr, self.tag_counter[child_qml.abbr])
+        if 'id' not in elem.attrib:
+            child_id = uuid.uuid4().hex
         child_node = child_qml(elem, force_id=child_id)
         self.children.append(child_node)
         return child_node
@@ -357,7 +352,6 @@ class QMLobject(object):
 
 
 class QMLquestion(QMLobject):
-    abbr = "q"
     tag  = "question"
     default_heading = None
     default_attributes = {'points': ''}
@@ -382,7 +376,6 @@ class QMLquestion(QMLobject):
 
 
 class QMLsubquestion(QMLobject):
-    abbr = "sq"
     tag  = "subquestion"
     default_heading = "Subquestion"
 
@@ -406,7 +399,6 @@ class QMLsubquestion(QMLobject):
         return u'<h4>Subquestion ({} pt)</h4>'.format(self.attributes['points'])
 
 class QMLsubanswer(QMLobject):
-    abbr = "sa"
     tag  = "subanswer"
     default_heading = "Answer"
 
@@ -431,7 +423,6 @@ class QMLsubanswer(QMLobject):
         return u'<h4>Answer ({} pt)</h4>'.format(self.attributes['points'])
 
 class QMLbox(QMLobject):
-    abbr = "bo"
     tag  = "box"
     default_heading = "Box"
 
@@ -452,7 +443,6 @@ class QMLbox(QMLobject):
 
 
 class QMLtitle(QMLobject):
-    abbr = "ti"
     tag  = "title"
     default_heading = "Title"
 
@@ -467,7 +457,6 @@ class QMLtitle(QMLobject):
 
 
 class QMLsection(QMLobject):
-    abbr = "sc"
     tag  = "section"
     default_heading = "Section"
 
@@ -483,7 +472,6 @@ class QMLsection(QMLobject):
         return u'<h3>{}</h3>'.format(data2xhtml(self.data)), []
 
 class QMLpart(QMLobject):
-    abbr = "pt"
     tag  = "part"
     default_heading = "Part"
     default_attributes = {'points': ''}
@@ -500,7 +488,6 @@ class QMLpart(QMLobject):
         return u'<h2>{}</h2>'.format(data2xhtml(self.data)), []
 
 class QMLparagraph(QMLobject):
-    abbr = "pa"
     tag  = "paragraph"
     default_heading = None
 
@@ -516,7 +503,6 @@ class QMLparagraph(QMLobject):
         return u'</p>'
 
 class QMLfigure(QMLobject):
-    abbr = "fi"
     tag  = "figure"
     default_heading = "Figure"
 
@@ -607,7 +593,6 @@ class QMLfigure(QMLobject):
         return xhtmlout, externals
 
 class QMLfigureText(QMLobject):
-    abbr = "pq"
     tag  = "param"
     default_heading = None
 
@@ -621,7 +606,6 @@ class QMLfigureText(QMLobject):
 
 
 class QMLfigureCaption(QMLobject):
-    abbr = "ca"
     tag  = "caption"
     default_heading = "Caption"
 
@@ -632,7 +616,6 @@ class QMLfigureCaption(QMLobject):
         return forms.CharField(widget=forms.Textarea)
 
 class QMLequation(QMLobject):
-    abbr = "eq"
     tag  = "equation"
     default_heading = "Equation"
 
@@ -646,7 +629,6 @@ class QMLequation(QMLobject):
 
 
 class QMLlist(QMLobject):
-    abbr = "ls"
     tag  = "list"
     default_heading = "Bullet list"
 
@@ -665,7 +647,6 @@ class QMLlist(QMLobject):
 
 
 class QMLlistitem(QMLobject):
-    abbr = "li"
     tag  = "item"
     default_heading = None
 
@@ -691,7 +672,6 @@ class QMLlistitem(QMLobject):
         return u'<li>{}</li>'.format(data2xhtml(self.data)), []
 
 class QMLlatex(QMLobject):
-    abbr = "tx"
     tag  = "texfield"
     default_heading = None
 
@@ -712,7 +692,6 @@ class QMLlatex(QMLobject):
         return content, []
 
 class QMLlatexParam(QMLobject):
-    abbr = "tp"
     tag  = "texparam"
     default_heading = None
 
@@ -722,7 +701,6 @@ class QMLlatexParam(QMLobject):
     default_attributes = {'name': 'tba'}
 
 class QMLlatexEnv(QMLobject):
-    abbr = "te"
     tag = "texenv"
     default_heading = None
 
@@ -741,7 +719,6 @@ class QMLlatexEnv(QMLobject):
         return unicode(r'\end{{{}}}'.format(self.attributes['name']))
 
 class QMLtable(QMLobject):
-    abbr = "tb"
     tag = "table"
     default_heading = 'Table'
 
@@ -796,7 +773,6 @@ class QMLtable(QMLobject):
         return u'</table>'
 
 class QMLtableRow(QMLobject):
-    abbr = "rw"
     tag = "row"
     default_heading = 'Row'
 
@@ -806,10 +782,7 @@ class QMLtableRow(QMLobject):
     default_attributes = {'bottom_line': '1'}
 
     def make_tex(self):
-        try:
-            multiplier = int(self.attributes['multiplier'])
-        except KeyError:
-            multiplier = 1
+        multiplier = int(self.attributes.get('multiplier', 1))
         texout = u''
         texout += u' & '.join(data2tex(c.data) for c in self.children)
         texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
@@ -820,7 +793,6 @@ class QMLtableRow(QMLobject):
         return u'</tr>'
 
 class QMLtableCell(QMLobject):
-    abbr = "ce"
     tag = "cell"
     default_heading = None
 
@@ -835,7 +807,6 @@ class QMLtableCell(QMLobject):
         return u'</td>'
 
 class QMLtableCaption(QMLobject):
-    abbr = "tc"
     tag  = "tablecaption"
     default_heading = "Table Caption"
 
