@@ -822,6 +822,14 @@ class QMLtableCaption(QMLobject):
     def tex_end(self):
         return u'\\end{center}\n\n'
 
+class QMLpageBreak(QMLobject):
+    tag  = "pagebreak"
+
+    has_text = False
+    has_children = False
+
+    def make_tex(self):
+        return ur'~ \clearpage', []
 
 class QMLException(Exception):
     pass
