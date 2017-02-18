@@ -1,8 +1,10 @@
 moment.min.js
 MathJax
+jquery-dirtyforms
 ace/
 bootstrap/
 bootstrap-switch/
+font-awesome
 ckeditor/
 ckeditor_plugins/Jsvk/
 ckeditor_plugins/mathedit/
