@@ -5,6 +5,7 @@ import re
 from copy import deepcopy
 #import lxml.etree as lxmltree
 import tex
+import uuid
 import simplediff
 import json
 
@@ -202,12 +203,12 @@ class QMLobject(object):
         if not child_qml.abbr in self.tag_counter: self.tag_counter[child_qml.abbr] = 0
         self.tag_counter[child_qml.abbr] += 1
 
-        child_id = None
-        if not 'id' in elem.attrib:
-            child_id = self.id + '_%s%s' % (child_qml.abbr, self.tag_counter[child_qml.abbr])
-            while self.find(child_id) is not None:
-                self.tag_counter[child_qml.abbr] += 1
-                child_id = self.id + '_%s%s' % (child_qml.abbr, self.tag_counter[child_qml.abbr])
+        child_id = uuid.uuid4().hex
+        #~ if not 'id' in elem.attrib:
+            #~ child_id = self.id + '_%s%s' % (child_qml.abbr, self.tag_counter[child_qml.abbr])
+            #~ while self.find(child_id) is not None:
+                #~ self.tag_counter[child_qml.abbr] += 1
+                #~ child_id = self.id + '_%s%s' % (child_qml.abbr, self.tag_counter[child_qml.abbr])
         child_node = child_qml(elem, force_id=child_id)
         self.children.append(child_node)
         return child_node
@@ -806,10 +807,7 @@ class QMLtableRow(QMLobject):
     default_attributes = {'bottom_line': '1'}
 
     def make_tex(self):
-        try:
-            multiplier = int(self.attributes['multiplier'])
-        except KeyError:
-            multiplier = 1
+        multiplier = int(self.attributes.get('multiplier', 1))
         texout = u''
         texout += u' & '.join(data2tex(c.data) for c in self.children)
         texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
