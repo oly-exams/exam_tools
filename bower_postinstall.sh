@@ -1,10 +1,16 @@
 #!/bin/bash
 
+STATIC_BOWER=static_bower
+STATIC=static
 
 
 # ace
-cp -r static_bower/ace-builds/src-min/ static/ace/
+cp -r $STATIC_BOWER/ace-builds/src-min/ $STATIC/ace/
 
 
 # moment.js
-cp static_bower/moment/min/moment.min.js static/moment.min.js
+cp $STATIC_BOWER/moment/min/moment.min.js $STATIC/
+
+
+
+# rm -rf $STATIC_BOWER
