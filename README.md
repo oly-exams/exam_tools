@@ -72,7 +72,7 @@ For the local server, simply execute
 python manage.py runserver
 ```
 
-## Running the workers **locally**
+## Running the workers *locally*
 Add to exam_tools/settings.py:
 ```
 BROKER_URL = 'django://'
