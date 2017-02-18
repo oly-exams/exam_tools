@@ -1,0 +1,12 @@
+{
+  "name": "Exam Tools",
+  "authors": [],
+  "description": "",
+  "main": "",
+  "keywords": [],
+  "license": "AGPLv3",
+  "homepage": "http://oly-exams.org",
+  "private": true,
+  "dependencies": {
+  }
+}
