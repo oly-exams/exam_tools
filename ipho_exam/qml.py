@@ -99,8 +99,6 @@ def data2xhtml(data):
 def canonical_name(qobj):
     if qobj.display_name is not None:
         return qobj.display_name
-    elif qobj.default_heading is not None:
-        return qobj.default_heading
     else:
         name = qobj.__name__.replace('QML', '')
         split_pattern = re.compile('(^[^A-Z]*|[A-Z][^A-Z]*)')
@@ -357,7 +355,6 @@ class QMLobject(object):
 
 class QMLquestion(QMLobject):
     tag  = "question"
-    default_heading = None
     default_attributes = {'points': ''}
 
     has_text = False
@@ -381,7 +378,6 @@ class QMLquestion(QMLobject):
 
 class QMLsubquestion(QMLobject):
     tag  = "subquestion"
-    default_heading = "Subquestion"
 
     has_text = False
     has_children = True
@@ -404,6 +400,7 @@ class QMLsubquestion(QMLobject):
 
 class QMLsubanswer(QMLobject):
     tag  = "subanswer"
+    display_name = "Answer"
     default_heading = "Answer"
 
     has_text = False
@@ -493,7 +490,6 @@ class QMLpart(QMLobject):
 
 class QMLparagraph(QMLobject):
     tag  = "paragraph"
-    default_heading = None
 
     has_text = True
     has_children = False
@@ -598,7 +594,7 @@ class QMLfigure(QMLobject):
 
 class QMLfigureText(QMLobject):
     tag  = "param"
-    default_heading = None
+    display_name = "Figure Text"
 
     has_text = True
     has_children = False
@@ -611,6 +607,7 @@ class QMLfigureText(QMLobject):
 
 class QMLfigureCaption(QMLobject):
     tag  = "caption"
+    display_name = "Figure Caption"
     default_heading = "Caption"
 
     has_text = True
@@ -634,6 +631,7 @@ class QMLequation(QMLobject):
 
 class QMLlist(QMLobject):
     tag  = "list"
+    display_name = "Bullet list"
     default_heading = "Bullet list"
 
     has_text = False
@@ -650,9 +648,8 @@ class QMLlist(QMLobject):
         return u'</ul>'
 
 
-class QMLlistitem(QMLobject):
+class QMLlistItem(QMLobject):
     tag  = "item"
-    default_heading = None
 
     has_text = True
     has_children = False
@@ -677,7 +674,7 @@ class QMLlistitem(QMLobject):
 
 class QMLlatex(QMLobject):
     tag  = "texfield"
-    default_heading = None
+    display_name = "Latex Replacement Template"
 
     has_text = False
     has_children = True
@@ -697,7 +694,7 @@ class QMLlatex(QMLobject):
 
 class QMLlatexParam(QMLobject):
     tag  = "texparam"
-    default_heading = None
+    display_name = "Latex Replacement Parameter"
 
     has_text = True
     has_children = False
@@ -706,7 +703,7 @@ class QMLlatexParam(QMLobject):
 
 class QMLlatexEnv(QMLobject):
     tag = "texenv"
-    default_heading = None
+    display_name = "Latex Environment"
 
     has_text=False
     has_children = True
@@ -798,7 +795,6 @@ class QMLtableRow(QMLobject):
 
 class QMLtableCell(QMLobject):
     tag = "cell"
-    default_heading = None
 
     has_text = True
     has_children = False
