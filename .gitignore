@@ -5,3 +5,5 @@ exam_tools/settings.py
 .gitignore
 venv
 ipho.db
+exams-docs
+outcode_raw.svg

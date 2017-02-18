@@ -28,6 +28,7 @@ class Language(models.Model):
     name = models.CharField(max_length=100, db_index=True)
     delegation  = models.ForeignKey(Delegation, blank=True, null=True)
     hidden      = models.BooleanField(default=False)
+    hidden_from_submission = models.BooleanField(default=False)
     versioned   = models.BooleanField(default=False)
     is_pdf      = models.BooleanField(default=False)
     style       = models.CharField(max_length=200, blank=True, null=True, choices=STYLES_CHOICES)
