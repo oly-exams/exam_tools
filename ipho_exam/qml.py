@@ -97,7 +97,9 @@ def data2xhtml(data):
     return normalize_html(data)
 
 def canonical_name(qobj):
-    if qobj.default_heading is not None:
+    if qobj.display_name is not None:
+        return qobj.display_name
+    elif qobj.default_heading is not None:
         return qobj.default_heading
     else:
         name = qobj.__name__.replace('QML', '')
@@ -145,6 +147,8 @@ class QMLobject(object):
     default_attributes = {}
     _all_objects = None
     valid_children = ['texfield', 'texparam', 'texenv']
+    display_name = None
+    default_heading = None
 
     @staticmethod
     def all_objects():
