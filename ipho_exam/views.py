@@ -1169,18 +1169,7 @@ def submission_exam_confirm(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     num_questions = exam.question_set.count()
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.all().annotate(
-         num_translation=Sum(
-             Case(When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
-                  When(is_pdf=True, then=None),
-                  output_field=IntegerField(), default=0)
-         ),
-         num_pdf=Sum(
-             Case(When(Q(pdfnode__question__exam=exam, is_pdf=True), then=1),
-                  When(is_pdf=False, then=None),
-                  output_field=IntegerField(), default=0)
-         )
-    ).filter( Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & (Q(num_translation=num_questions) | Q(num_pdf=num_questions))))
+    languages = _get_submission_languages(exam, delegation)
     form_error = ''
 
     ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
