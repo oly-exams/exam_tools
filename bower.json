@@ -14,6 +14,9 @@
     "bootstrap": "3.3.4",
     "eonasdan-bootstrap-datetimepicker": "git://github.com/Eonasdan/bootstrap-datetimepicker#4.17.37",
     "bootstrap-switch": "3.3.2",
-    "ckeditor": "4.5.9"
+    "ckeditor": "4.5.9",
+    "mathedit": "git://github.com/rikuhaa/mathedit.git#6d974c3ff53c9bc47cc4b7e48722e84f099f1076",
+    "mathjax_4.5.11": "http://download.ckeditor.com/mathjax/releases/mathjax_4.5.11.zip",
+    "VirtualKeyboard.ckeditor.3.7.2.tar": "https://downloads.sourceforge.net/project/jsvk/VirtualKeyboard%203.7.x/VirtualKeyboard%203.7.2/VirtualKeyboard.ckeditor.3.7.2.tar.gz"
   }
 }

@@ -1,0 +1,28 @@
+3c3
+< Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+---
+> Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+14c14
+< 	<link href="../../../samples/old/sample.css" rel="stylesheet">
+---
+> 	<link href="../../../samples/sample.css" rel="stylesheet">
+26c26
+< 		<a href="../../../samples/old/index.html">CKEditor Samples</a> &raquo; Widgets: MathJax
+---
+> 		<a href="../../../samples/index.html">CKEditor Samples</a> &raquo; Widgets: MathJax
+81c81
+< 			// mathJaxLib: 'http://cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
+---
+> 			// mathJaxLib: './truncated-mathjax/MathJax.js?config=TeX-AMS_HTML',
+89c89
+< 			// mathJaxLib: 'http://cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
+---
+> 			// mathJaxLib: './truncated-mathjax/MathJax.js?config=TeX-AMS_HTML',
+97c97
+< 			// mathJaxLib: 'http://cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
+---
+> 			// mathJaxLib: './truncated-mathjax/MathJax.js?config=TeX-AMS_HTML',
+116c116
+< 			Copyright &copy; 2003-2016, <a class="samples" href="http://cksource.com/">CKSource</a> - Frederico
+---
+> 			Copyright &copy; 2003-2015, <a class="samples" href="http://cksource.com/">CKSource</a> - Frederico

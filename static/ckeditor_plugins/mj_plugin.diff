@@ -1,0 +1,82 @@
+2,3c2
+<  * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+<  * For licensing, see LICENSE.md or http://ckeditor.com/license
+---
+>  * Copyright (c) 2015-2016, IPhO 2016 - Michele Dolfi.
+7c6
+<  * @fileOverview The [Mathematical Formulas](http://ckeditor.com/addon/mathjax) plugin that allows you to create and modify mathematical equations written in TeX directly in CKEditor..
+---
+>  * @fileOverview [Mathematical Formulas](http://ckeditor.com/addon/mathjax) plugin.
+13,14c12,16
+< 	CKEDITOR.plugins.add( 'mathjax', {
+< 		lang: 'af,ar,bg,ca,cs,cy,da,de,de-ch,el,en,en-gb,eo,es,eu,fa,fi,fr,gl,he,hr,hu,id,it,ja,km,ko,ku,lt,nb,nl,no,pl,pt,pt-br,ro,ru,sk,sl,sq,sv,tr,tt,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
+---
+> 
+> 	var cdn = 'http:\/\/cdn.mathjax.org\/mathjax\/2.2-latest\/MathJax.js?config=TeX-AMS_HTML';
+> 
+> 	CKEDITOR.plugins.add( 'mathjax-mathquill', {
+> 		lang: 'af,ar,ca,cs,cy,da,de,el,en,en-gb,eo,es,fa,fi,fr,gl,he,hr,hu,it,ja,km,ku,lt,nb,nl,no,pl,pt,pt-br,ro,ru,sk,sl,sq,sv,tr,tt,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
+16c18
+< 		icons: 'mathjax',
+---
+> 		icons: 'mathjax-mathquill',
+22,26c24
+< 			if ( !editor.config.mathJaxLib ) {
+< 				CKEDITOR.error( 'mathjax-no-config' );
+< 			}
+< 
+< 			editor.widgets.add( 'mathjax', {
+---
+> 			editor.widgets.add( 'mathjax-mathquill', {
+28c26
+< 				dialog: 'mathjax',
+---
+> 				dialog: 'mathjax-mathquill',
+50c48
+< 					math: '\\(x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}\\)'
+---
+> 					math: '\\(x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}\\)'
+127c125
+< 			CKEDITOR.dialog.add( 'mathjax', this.path + 'dialogs/mathjax.js' );
+---
+> 			CKEDITOR.dialog.add( 'mathjax-mathquill', this.path + 'dialogs/mathjax-mathquill.js' );
+131,134c129,130
+< 				evt.data.dataValue = evt.data.dataValue.replace(
+< 					/<\/head>/,
+< 					'<script src="' + CKEDITOR.getUrl( editor.config.mathJaxLib ) + '"><\/script><\/head>'
+< 				);
+---
+> 				evt.data.dataValue = evt.data.dataValue.replace( /<\/head>/,
+> 					'<script src="' + ( editor.config.mathJaxLib ? CKEDITOR.getUrl( editor.config.mathJaxLib ) : cdn ) + '"><\/script><\/head>' );
+181c177
+< 	CKEDITOR.plugins.mathjax.loadingIcon = CKEDITOR.plugins.get( 'mathjax' ).path + 'images/loader.gif';
+---
+> 	CKEDITOR.plugins.mathjax.loadingIcon = CKEDITOR.plugins.get( 'mathjax-mathquill' ).path + 'images/loader.gif';
+343c339
+< 								'<script src="' + ( editor.config.mathJaxLib ) + '"></script>' +
+---
+> 								'<script src="' + ( editor.config.mathJaxLib || cdn ) + '"></script>' +
+437c433,434
+<  * Sets the path to the MathJax library. It can be both a local resource and a location different than the default CDN.
+---
+>  * Sets the path to the MathJax library. It can be both a local
+>  * resource and a location different than the default CDN.
+441,442c438
+<  * Read more in the [documentation](#!/guide/dev_mathjax)
+<  * and see the [SDK sample](http://sdk.ckeditor.com/samples/mathjax.html).
+---
+>  *		config.mathJaxLib = 'http:\/\/example.com\/libs\/MathJax.js';
+444,450c440
+<  *		config.mathJaxLib = '//cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-AMS_HTML';
+<  *
+<  * **Note:** Since CKEditor 4.5 this option does not have a default value, so it must
+<  * be set in order to enable the MathJax plugin.
+<  *
+<  * @since 4.3
+<  * @cfg {String} mathJaxLib
+---
+>  * @cfg {String} [mathJaxLib='http:\/\/cdn.mathjax.org\/mathjax\/2.2-latest\/MathJax.js?config=TeX-AMS_HTML']
+467,469d456
+<  * Read more in the [documentation](#!/guide/dev_mathjax)
+<  * and see the [SDK sample](http://sdk.ckeditor.com/samples/mathjax.html).
+<  *

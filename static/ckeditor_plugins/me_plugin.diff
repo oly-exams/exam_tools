@@ -1,0 +1,29 @@
+4c4
+< * Uses MathQuill to ( http://mathquill.com/ ) to provide a editable WYSIWYG-latex field 
+---
+> * Uses MathQuill ( http://mathquill.com/ ) to provide an editable WYSIWYG-latex field 
+17c17
+< * Special thanks also to creators of the great CKEditor -plugin tutorials:
+---
+> * Special thanks also to creators of great CKEditor -plugin tutorials:
+80d79
+< 				   evt.stop();
+83c82
+< 		}, null, null, 1);
+---
+> 		}, null, null, 100);
+110,117c109
+<     								"padding: 2px;'></span>" + 
+< 									"<div style='float: right; padding-top: 10px;'>" +
+< 									"<a href='http://www.codecogs.com/' style='cursor: " +
+< 									"pointer; font-size: smaller; color:#085585' " +
+< 									"target='_blank'>CodeCogs</a><br/>" +
+< 									"<a href='http://www.mathquill.com/' style='cursor: pointer; " + 
+< 									"font-size: smaller; color:#085585' target='_blank'>MathQuill</a>" +
+< 									"</div>",
+---
+>     								"padding: 2px; line-height:40px; font-size: 16pt;'></span>",
+126c118
+< 										url='http://latex.codecogs.com/gif.latex?',
+---
+> 										url='http://latex.codecogs.com/svg.latex?',
