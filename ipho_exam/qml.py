@@ -143,7 +143,7 @@ def all_subclasses(cls):
 class QMLobject(object):
     default_attributes = {}
     _all_objects = None
-    valid_children = [QMLlatex, QMLlatexEnv, QMLlatexParam]
+    valid_children = ['texfield', 'texparam', 'texenv']
 
     @staticmethod
     def all_objects():
