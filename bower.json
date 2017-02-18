@@ -10,5 +10,6 @@
   "dependencies": {
     "moment": "2.11.2",
     "MathJax": "2.5.1"
+    "ace-builds": "1.2.6"
   }
 }
