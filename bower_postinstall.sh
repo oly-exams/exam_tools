@@ -15,6 +15,9 @@ cp $STATIC_BOWER/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepi
 # bootstrap-switch
 cp -r $STATIC_BOWER/bootstrap-switch/dist/ $STATIC/bootstrap-switch/
 
+# ckeditor
+cp -r $STATIC_BOWER/ckeditor/ $STATIC/ckeditor/
+
 # moment.js
 cp $STATIC_BOWER/moment/min/moment.min.js $STATIC/
 

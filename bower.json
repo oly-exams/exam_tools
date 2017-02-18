@@ -13,6 +13,7 @@
     "ace-builds": "1.2.6",
     "bootstrap": "3.3.4",
     "eonasdan-bootstrap-datetimepicker": "git://github.com/Eonasdan/bootstrap-datetimepicker#4.17.37",
-    "bootstrap-switch": "3.3.2"
+    "bootstrap-switch": "3.3.2",
+    "ckeditor": "4.5.9"
   }
 }
