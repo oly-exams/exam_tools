@@ -851,10 +851,8 @@ class QMLtableCaption(QMLobject):
     def tex_end(self):
         return u'\\end{center}\n\n'
 
-class QMLpagebreak(QMLobject):
-    abbr = "pb"
+class QMLpageBreak(QMLobject):
     tag  = "pagebreak"
-    default_heading = "Page Break"
 
     has_text = False
     has_children = False
