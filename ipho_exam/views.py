@@ -1000,7 +1000,7 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
             })
 
 @permission_required('ipho_core.is_staff')
-def admin_editor_add_block(request, exam_id, question_id, version_num, block_id, tag_name):
+def admin_editor_add_block(request, exam_id, question_id, version_num, block_id, tag_name, after_id=None):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     lang_id = OFFICIAL_LANGUAGE
@@ -1022,7 +1022,7 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
     if block is None:
         raise Http404('block_id not found')
 
-    newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)))
+    newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)), after_id=after_id)
     node.text = qml.xml2string(q.make_xml())
     node.save()
 

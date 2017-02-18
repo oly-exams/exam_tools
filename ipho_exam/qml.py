@@ -197,7 +197,7 @@ class QMLobject(object):
             for elem in root:
                 self.add_child(elem)
 
-    def add_child(self, elem):
+    def add_child(self, elem, after_id=None):
         child_qml = QMLobject.get_qml(elem.tag)
         if not child_qml.abbr in self.tag_counter: self.tag_counter[child_qml.abbr] = 0
         self.tag_counter[child_qml.abbr] += 1
@@ -209,7 +209,17 @@ class QMLobject(object):
                 self.tag_counter[child_qml.abbr] += 1
                 child_id = self.id + '_%s%s' % (child_qml.abbr, self.tag_counter[child_qml.abbr])
         child_node = child_qml(elem, force_id=child_id)
-        self.children.append(child_node)
+        if after_id is None:
+            self.children.append(child_node)
+        else:
+            ix = None
+            for i,c in enumerate(self.children):
+                if c.id == after_id:
+                    ix = i
+                    break
+            if ix is None:
+                raise RuntimeError('after_id={} not found. len={}'.format(after_id, len(ll)))
+            self.children.insert(ix+1, child_node)
         return child_node
 
     def set_lang(self, lang):
