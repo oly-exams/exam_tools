@@ -207,14 +207,24 @@ class QMLobject(object):
             for elem in root:
                 self.add_child(elem)
 
-    def add_child(self, elem):
+    def add_child(self, elem, after_id=None):
         child_qml = QMLobject.get_qml(elem.tag)
 
         child_id = None
         if 'id' not in elem.attrib:
             child_id = uuid.uuid4().hex
         child_node = child_qml(elem, force_id=child_id)
-        self.children.append(child_node)
+        if after_id is None:
+            self.children.append(child_node)
+        else:
+            ix = None
+            for i,c in enumerate(self.children):
+                if c.id == after_id:
+                    ix = i
+                    break
+            if ix is None:
+                raise RuntimeError('after_id={} not found. len={}'.format(after_id, len(ll)))
+            self.children.insert(ix+1, child_node)
         return child_node
 
     def set_lang(self, lang):
