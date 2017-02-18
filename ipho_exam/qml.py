@@ -755,6 +755,11 @@ class QMLtable(QMLobject):
         except KeyError:
             return u''
 
+    def make_tex(self):
+        # filter out captions
+        self.captions = [c for c in self.children if c.tag == 'tablecaption']
+        self.children = [c for c in self.children if c.tag != 'tablecaption']
+        return super(QMLtable, self).make_tex()
 
     def tex_begin(self):
         return (
@@ -765,7 +770,9 @@ class QMLtable(QMLobject):
         )
 
     def tex_end(self):
-        return unicode(r'\end{tabular}\end{center}\vspace{0.5cm}') + u'\n\n'
+        tex = unicode(r'\end{tabular}\end{center}\vspace{0.5cm}') + u'\n\n'
+        tex += u''.join(c.make_tex()[0] for c in self.captions)
+        return tex
 
     def xhtml_begin(self):
         return u'<table>'
