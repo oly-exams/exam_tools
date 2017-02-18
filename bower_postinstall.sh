@@ -15,6 +15,7 @@ cp $STATIC_BOWER/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepi
 # moment.js
 cp $STATIC_BOWER/moment/min/moment.min.js $STATIC/
 
-
+# MathJax
+cp -r $STATIC_BOWER/MathJax $STATIC/
 
 # rm -rf $STATIC_BOWER
