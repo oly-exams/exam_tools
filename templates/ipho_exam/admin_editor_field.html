@@ -4,7 +4,7 @@
       <div class="row">
           <div class="col-xs-12">
               <span class="handle"><i class="fa fa-arrows"></i></span>
-              <span class="label label-info">{{ field.tag }}</span>
+              <span class="label label-info">{{ field.display_name }}</span>
               <span id="{{ field.id }}-attributes">
               {% include 'ipho_exam/partials/admin_editor_attributes.html' with attributes=field.attributes %}
               </span>
@@ -77,4 +77,3 @@
 
 </div>
 {% endfor %}
-
