@@ -14,5 +14,7 @@
     "bootstrap": "3.3.4",
     "eonasdan-bootstrap-datetimepicker": "git://github.com/Eonasdan/bootstrap-datetimepicker#4.17.37",
     "jquery": "1.11.2"
+    "bootstrap-switch": "3.3.2",
+    "ckeditor": "4.5.9"
   }
 }
