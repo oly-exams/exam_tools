@@ -200,7 +200,9 @@ class QMLobject(object):
     def add_child(self, elem):
         child_qml = QMLobject.get_qml(elem.tag)
 
-        child_id = uuid.uuid4().hex
+        child_id = None
+        if 'id' not in elem.attrib:
+            child_id = uuid.uuid4().hex
         child_node = child_qml(elem, force_id=child_id)
         self.children.append(child_node)
         return child_node
