@@ -16,6 +16,10 @@ from django.utils.text import unescape_entities
 import urllib
 from django.core.urlresolvers import reverse
 
+#block groups
+PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'table', 'equation', 'figure', 'box')
+DEFAULT_BLOCKS = ('texfield', 'texenv')
+
 def make_content(root):
     assert(root.tag == 'question')
     ret = []
@@ -140,11 +144,10 @@ def all_subclasses(cls):
     return cls.__subclasses__() + [g for s in cls.__subclasses__()
                                    for g in all_subclasses(s)]
 
-
 class QMLobject(object):
     default_attributes = {}
     _all_objects = None
-    valid_children = ['texfield', 'texparam', 'texenv']
+    valid_children = DEFAULT_BLOCKS
     display_name = None
     default_heading = None
 
@@ -359,6 +362,8 @@ class QMLquestion(QMLobject):
 
     has_text = False
     has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
+                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer')
 
     def title(self):
         tt = ''
@@ -381,6 +386,7 @@ class QMLsubquestion(QMLobject):
 
     has_text = False
     has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
 
     default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
 
@@ -405,6 +411,7 @@ class QMLsubanswer(QMLobject):
 
     has_text = False
     has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
 
     default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
 
@@ -429,6 +436,7 @@ class QMLbox(QMLobject):
 
     has_text = False
     has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
 
     def heading(self):
         return 'Box'
@@ -509,6 +517,7 @@ class QMLfigure(QMLobject):
     has_text = False
     has_children = True
     lang = None
+    valid_children = ('caption',)
 
     default_attributes = {'figid': ''}
 
@@ -636,6 +645,7 @@ class QMLlist(QMLobject):
 
     has_text = False
     has_children = True
+    valid_children = ('item',)
 
     def tex_begin(self):
         return u'\\begin{itemize}\n'
@@ -678,6 +688,7 @@ class QMLlatex(QMLobject):
 
     has_text = False
     has_children = True
+    valid_children = ('texparam',)
 
     default_attributes = {'content': ''}
 
@@ -707,6 +718,8 @@ class QMLlatexEnv(QMLobject):
 
     has_text=False
     has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
+                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer')
 
     default_attributes = {'name': ''}
 
@@ -725,6 +738,7 @@ class QMLtable(QMLobject):
 
     has_text = False
     has_children = True
+    valid_children = ('row', 'tablecaption')
 
     default_attributes = {
         #~ 'width': '',
@@ -779,6 +793,7 @@ class QMLtableRow(QMLobject):
 
     has_text = False
     has_children = True
+    valid_children = ('cell',)
 
     default_attributes = {'bottom_line': '1'}
 
