@@ -8,3 +8,4 @@ ipho.db
 runserver.sh
 _docs_html
 .vscode/
+static_bower

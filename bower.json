@@ -1,5 +1,5 @@
 {
-  "name": "Exam Tools",
+  "name": "exam_tools",
   "authors": [],
   "description": "",
   "main": "",
@@ -7,11 +7,7 @@
   "license": "AGPLv3",
   "homepage": "http://oly-exams.org",
   "private": true,
-  "scripts": {
-    "preinstall": "",
-    "postinstall": "bash bower_postinstall.sh",
-    "preuninstall": ""
-  },
   "dependencies": {
+    "moment": "2.11.2"
   }
 }
