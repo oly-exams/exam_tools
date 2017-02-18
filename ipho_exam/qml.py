@@ -178,7 +178,6 @@ class QMLobject(object):
         except KeyError:
             raise KeyError("`id` missing from QML element `%s`." % root.tag)
 
-        self.tag_counter = {}
         self.children = []
         self.parse(root)
 
@@ -200,15 +199,8 @@ class QMLobject(object):
 
     def add_child(self, elem):
         child_qml = QMLobject.get_qml(elem.tag)
-        if not child_qml.abbr in self.tag_counter: self.tag_counter[child_qml.abbr] = 0
-        self.tag_counter[child_qml.abbr] += 1
 
         child_id = uuid.uuid4().hex
-        #~ if not 'id' in elem.attrib:
-            #~ child_id = self.id + '_%s%s' % (child_qml.abbr, self.tag_counter[child_qml.abbr])
-            #~ while self.find(child_id) is not None:
-                #~ self.tag_counter[child_qml.abbr] += 1
-                #~ child_id = self.id + '_%s%s' % (child_qml.abbr, self.tag_counter[child_qml.abbr])
         child_node = child_qml(elem, force_id=child_id)
         self.children.append(child_node)
         return child_node
