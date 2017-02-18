@@ -24,6 +24,9 @@ cp $STATIC_BOWER/moment/min/moment.min.js $STATIC/
 # MathJax
 cp -r $STATIC_BOWER/MathJax $STATIC/
 
+# font-awesome
+cp -r $STATIC_BOWER/font-awesome $STATIC/
+
 # jquery
 mkdir -p $STATIC/jquery/js
 cp $STATIC_BOWER/jquery/dist/jquery.min.js $STATIC/jquery/js/jquery-1.11.2.min.js
