@@ -100,14 +100,14 @@ def data2tex(data):
 def data2xhtml(data):
     return normalize_html(data)
 
-def canonical_name(qobj):
-    if qobj.display_name is not None:
-        return qobj.display_name
-    else:
-        name = qobj.__name__.replace('QML', '')
-        split_pattern = re.compile('(^[^A-Z]*|[A-Z][^A-Z]*)')
-        name = ' '.join([ ni.capitalize() for ni in split_pattern.findall(name) if ni is not None ])
-        return name
+# def canonical_name(qobj):
+#     if qobj.display_name is not None:
+#         return qobj.display_name
+#     else:
+#         name = qobj.__name__.replace('QML', '')
+#         split_pattern = re.compile('(^[^A-Z]*|[A-Z][^A-Z]*)')
+#         name = ' '.join([ ni.capitalize() for ni in split_pattern.findall(name) if ni is not None ])
+#         return name
 
 def question_points(root):
     ## This function is not too geenric, but it should fit our needs
@@ -148,8 +148,17 @@ class QMLobject(object):
     default_attributes = {}
     _all_objects = None
     valid_children = DEFAULT_BLOCKS
-    display_name = None
     default_heading = None
+
+    @property
+    def display_name(self):
+        if qobj.display_name is not None:
+            return qobj.display_name
+        else:
+            name = qobj.__name__.replace('QML', '')
+            split_pattern = re.compile('(^[^A-Z]*|[A-Z][^A-Z]*)')
+            name = ' '.join([ ni.capitalize() for ni in split_pattern.findall(name) if ni is not None ])
+            return name
 
     @staticmethod
     def all_objects():
