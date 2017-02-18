@@ -1029,6 +1029,7 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
     qml_types = [(qobj.tag, qml.canonical_name(qobj)) for qobj in qml.QMLobject.all_objects()]
     ctx = {
         'fields_set': [newblock],
+        'parent': block,
         'exam': exam,
         'node_version': node_version,
         'question': question,

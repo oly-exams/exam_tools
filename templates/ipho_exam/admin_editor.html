@@ -258,12 +258,18 @@ body { margin-bottom: 70px; }
                 var button = $(this);
                 var href = button.attr('href');
                 var block_id = button.data('block-id');
+                var after_id = button.data('after-id');
 
                 $.ajax({
                     url: href,
                     dataType: 'json',
                     success: function(data) {
-                        $('#'+block_id+'-children').append(data['new_block']);
+                        if (after_id != undefined) {
+                          $('#'+after_id+'-container').after(data['new_block']);
+                        } else {
+                          $('#'+block_id+'-container .no-child-add').remove();
+                          $('#'+block_id+'-children').append(data['new_block']);
+                        }
                     },
                 });
             });
