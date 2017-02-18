@@ -144,21 +144,25 @@ def all_subclasses(cls):
     return cls.__subclasses__() + [g for s in cls.__subclasses__()
                                    for g in all_subclasses(s)]
 
+class _classproperty(object):
+    def __init__(self, fget):
+        self.fget = fget
+
+    def __get__(self, owner_self, owner_cls):
+        return self.fget(owner_cls)
+
 class QMLobject(object):
     default_attributes = {}
     _all_objects = None
     valid_children = DEFAULT_BLOCKS
     default_heading = None
 
-    @property
-    def display_name(self):
-        if qobj.display_name is not None:
-            return qobj.display_name
-        else:
-            name = qobj.__name__.replace('QML', '')
-            split_pattern = re.compile('(^[^A-Z]*|[A-Z][^A-Z]*)')
-            name = ' '.join([ ni.capitalize() for ni in split_pattern.findall(name) if ni is not None ])
-            return name
+    @_classproperty
+    def display_name(cls):
+        name = cls.__name__.replace('QML', '')
+        split_pattern = re.compile('(^[^A-Z]*|[A-Z][^A-Z]*)')
+        name = ' '.join([ ni.capitalize() for ni in split_pattern.findall(name) if ni is not None ])
+        return name
 
     @staticmethod
     def all_objects():
