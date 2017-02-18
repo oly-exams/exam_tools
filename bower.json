@@ -7,6 +7,11 @@
   "license": "AGPLv3",
   "homepage": "http://oly-exams.org",
   "private": true,
+  "scripts": {
+    "preinstall": "",
+    "postinstall": "bash bower_postinstall.sh",
+    "preuninstall": ""
+  },
   "dependencies": {
   }
 }
