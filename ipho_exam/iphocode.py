@@ -1,5 +1,5 @@
 # Exam Tools
-#    
+#
 # Copyright (C) 2014 - 2017 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
