@@ -12,15 +12,15 @@ A new question contains an empty block *Question*. The exam is then constructed 
 Main block for every question. Exists only once.
 
 Valid children:
-* [Title]("#title")
-* [Section]("#section")
-* [Part]("#part")
-* [Subquestion]("#subquestion")
-* [Answer]("#answer")
-* [Paragraph like blocks]("#paragraph-like-blocks")
-* [Box]("#box")
-* [Pagebreak]("#pagebreak")
-* [Latex blocks]("#latex-blocks")
+* [Title]("title")
+* [Section]("section")
+* [Part]("part")
+* [Subquestion]("subquestion")
+* [Answer]("answer")
+* [Paragraph like blocks]("paragraph-like-blocks")
+* [Box]("box")
+* [Pagebreak]("pagebreak")
+* [Latex blocks]("latex-blocks")
 
 ### Title
 
@@ -37,14 +37,14 @@ No children.
 ### Subquestion
 
 Valid children:
-* [Paragraph like blocks]("#paragraph-like-blocks")
-* [Latex blocks]("#latex-blocks")
+* [Paragraph like blocks]("paragraph-like-blocks")
+* [Latex blocks]("latex-blocks")
 
 ### Answer
 
 Valid children:
-* [Paragraph like blocks]("#paragraph-like-blocks")
-* [Latex blocks]("#latex-blocks")
+* [Paragraph like blocks]("paragraph-like-blocks")
+* [Latex blocks]("latex-blocks")
 
 ### Paragraph like blocks
 #### Paragraph
@@ -54,7 +54,7 @@ No children.
 #### Figure
 
 Valid children:
-* [Figure caption]("#figure-caption")
+* [Figure caption]("figure-caption")
 
 #### Equation
 
@@ -63,19 +63,19 @@ No children.
 #### List
 
 Valid children:
-* [List item]("#list-item")
+* [List item]("list-item")
 
 #### Table
 
 Valid children:
-* [Table row]("#table-row")
-* [Table caption]("#table-caption")
+* [Table row]("table-row")
+* [Table caption]("table-caption")
 
 #### Box
 
 Valid children:
-* [Paragraph like blocks]("#paragraph-like-blocks")
-* [Latex blocks]("#latex-blocks")
+* [Paragraph like blocks]("paragraph-like-blocks")
+* [Latex blocks]("latex-blocks")
 
 ### Figure Caption
 
@@ -88,7 +88,7 @@ No children.
 ### Table row
 
 Valid children:
-* [Table cell]("#table-cell")
+* [Table cell]("table-cell")
 
 ### Table cell
 
@@ -106,7 +106,7 @@ No children.
 #### Latex replacement template
 
 Valid children:
-* [Latex replacement parameter]("#latex-replacement-parameter")
+* [Latex replacement parameter]("latex-replacement-parameter")
 
 #### Latex replacement parameter
 
@@ -115,14 +115,14 @@ No children.
 #### Latex environment
 
 Valid children:
-* [Title]("#title")
-* [Section]("#section")
-* [Part]("#part")
-* [Subquestion]("#subquestion")
-* [Answer]("#answer")
-* [Paragraph like blocks]("#paragraph-like-blocks")
-* [Box]("#box")
-* [Pagebreak]("#pagebreak")
-* [Latex blocks]("#latex-blocks")
+* [Title]("title")
+* [Section]("section")
+* [Part]("part")
+* [Subquestion]("subquestion")
+* [Answer]("answer")
+* [Paragraph like blocks]("paragraph-like-blocks")
+* [Box]("box")
+* [Pagebreak]("pagebreak")
+* [Latex blocks]("latex-blocks")
 
 
