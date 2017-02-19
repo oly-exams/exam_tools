@@ -2,6 +2,7 @@
 
 STATIC_BOWER=static_bower
 STATIC=static
+BOWER_POSTINSTALL=bower_postinstall
 
 
 # ace
@@ -17,19 +18,20 @@ cp $STATIC_BOWER/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepi
 cp -r $STATIC_BOWER/bootstrap-switch/dist $STATIC/bootstrap-switch
 
 # ckeditor
+patch $STATIC_BOWER/ckeditor/ckeditor.js $BOWER_POSTINSTALL/ck_editor.diff
 cp -r $STATIC_BOWER/ckeditor $STATIC/
-patch $STATIC/ckeditor/ckeditor.js $STATIC/ckeditor/ck_editor.diff
 
 # ckeditor_plugins
+mkdir $STATIC/ckeditor_plugins
+patch $STATIC_BOWER/mathedit/mathedit/plugin.js $BOWER_POSTINSTALL/me_plugin.diff
+patch $STATIC_BOWER/mathjax_4.5.11/plugin.js $BOWER_POSTINSTALL/mj_plugin.diff
+patch $STATIC_BOWER/mathjax_4.5.11/dev/mathjax.html $BOWER_POSTINSTALL/mj_dev_mathjax.diff
+patch $STATIC_BOWER/mathjax_4.5.11/dialogs/mathjax.js $BOWER_POSTINSTALL/mj_dialogs_mathjax.diff
+patch $STATIC_BOWER/mathjax_4.5.11/samples/mathjax.html $BOWER_POSTINSTALL/mj_samples_mathjax.diff
 cp -r $STATIC_BOWER/mathedit/mathedit $STATIC/ckeditor_plugins/
 cp -r $STATIC_BOWER/mathjax_4.5.11 $STATIC/ckeditor_plugins/mathjax-mathquill
 cp -r $STATIC_BOWER/VirtualKeyboard.ckeditor.3.7.2.tar $STATIC/ckeditor_plugins/Jsvk
 # note: bg.js, de-ch.js, eu.js, id.js, ko.js, ug.js were initially not in the repo
-patch $STATIC/ckeditor_plugins/mathedit/plugin.js $STATIC/ckeditor_plugins/me_plugin.diff
-patch $STATIC/ckeditor_plugins/mathjax-mathquill/plugin.js $STATIC/ckeditor_plugins/mj_plugin.diff
-patch $STATIC/ckeditor_plugins/mathjax-mathquill/dev/mathjax.html $STATIC/ckeditor_plugins/mj_dev_mathjax.diff
-patch $STATIC/ckeditor_plugins/mathjax-mathquill/dialogs/mathjax.js $STATIC/ckeditor_plugins/mj_dialogs_mathjax.diff
-patch $STATIC/ckeditor_plugins/mathjax-mathquill/samples/mathjax.html $STATIC/ckeditor_plugins/mj_samples_mathjax.diff
 mv $STATIC/ckeditor_plugins/mathjax-mathquill/dialogs/mathjax.js $STATIC/ckeditor_plugins/mathjax-mathquill/dialogs/mathjax-mathquill.js
 mv $STATIC/ckeditor_plugins/mathjax-mathquill/icons/mathjax.png $STATIC/ckeditor_plugins/mathjax-mathquill/icons/mathjax-mathquill.png
 mv $STATIC/ckeditor_plugins/mathjax-mathquill/icons/hidpi/mathjax.png $STATIC/ckeditor_plugins/mathjax-mathquill/icons/hidpi/mathjax-mathquill.png
