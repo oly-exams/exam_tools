@@ -367,9 +367,7 @@ def delegation_stud_view(request, stud_id, question_id):
 @permission_required('ipho_core.is_delegation')
 def delegation_view_all(request, question_id):
     delegation = Delegation.objects.get(members=request.user)
-    student = get_object_or_404(Student, id=stud_id)
-    if student.delegation != delegation:
-        return HttpResponseForbidden('You do not have permission to access this student.')
+    students = Student.objects.filter(delegation=delegation)
 
     question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
     versions = ['O', 'D', 'F']
@@ -377,18 +375,18 @@ def delegation_view_all(request, question_id):
 
     ctx = RequestContext(request)
     ctx['msg'] = []
-    ctx['student'] = student
     ctx['question'] = question
+    ctx['students'] = students
     ctx['exam'] = question.exam
     ctx['versions_display'] = versions_display
 
     points_submissions,_ = ExamAction.objects.get_or_create(exam=question.exam, delegation=delegation, action=ExamAction.POINTS)
     if points_submissions.status == ExamAction.OPEN:
         ctx['msg'].append( (('alert-info'), '<strong>Note:</strong> You can see the official points only when you confirmed your markings.') )
-        return render(request, 'ipho_marking/delegation_detail.html', ctx)
+        return render(request, 'ipho_marking/delegation_detail_all.html', ctx)
 
     metas = MarkingMeta.objects.filter(question=question)
-    markings = Marking.objects.filter(marking_meta=metas, student=student, version__in=versions).order_by('marking_meta')
+    markings = Marking.objects.filter(marking_meta=metas, version__in=versions).order_by('marking_meta')
     grouped_markings = [
         (
             k,
@@ -397,11 +395,11 @@ def delegation_view_all(request, question_id):
         for k,g in itertools.groupby(markings, key=lambda m: m.marking_meta)
     ]
 
-    documents = Document.objects.filter(student=student, exam=question.exam, position=question.position)
+    documents = Document.objects.filter(exam=question.exam, position=question.position, student=students)
 
     ctx['documents'] = documents
     ctx['markings'] = grouped_markings
-    return render(request, 'ipho_marking/delegation_detail.html', ctx)
+    return render(request, 'ipho_marking/delegation_detail_all.html', ctx)
 
 @permission_required('ipho_core.is_delegation')
 def delegation_confirm(request, exam_id):
