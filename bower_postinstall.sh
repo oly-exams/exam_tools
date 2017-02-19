@@ -39,6 +39,9 @@ mv $STATIC/ckeditor_plugins/mathjax-mathquill/icons/hidpi/mathjax.png $STATIC/ck
 # moment.js
 cp $STATIC_BOWER/moment/min/moment.min.js $STATIC/
 
+# clipboard.js
+cp $STATIC_BOWER/clipboard/dist/clipboard.min.js $STATIC/
+
 # MathJax
 cp -r $STATIC_BOWER/MathJax $STATIC/
 
