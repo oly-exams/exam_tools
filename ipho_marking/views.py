@@ -199,8 +199,7 @@ def delegation_export(request, exam_id):
         row = ['{} - {} ({})'.format(m.question.name, m.name, m.max_points)]
         for student in students:
             for version in versions:
-                markings = Marking.objects.filter(student__delegation=delegation, marking_meta=m, student=student, version=version).values_list('points', flat=True)
-                row += markings
+                row.append(Marking.objects.get(student__delegation=delegation, marking_meta=m, student=student, version=version).points)
         row = map(lambda v: '-' if v is None else v, row)
         writer.writerow(row)
 
