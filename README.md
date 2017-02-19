@@ -61,6 +61,8 @@ The project [ipho2016/deploy](/ipho2016/deploy) provides scripts to deploy a tes
 cp exam_tools/settings_example.py exam_tools/settings.py
 ```
 
+1. If using a virtualenv, make sure it is active
+
 1. Install dependencies using bower, by running at the project root
 ```bash
 bower install
