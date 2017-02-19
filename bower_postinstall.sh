@@ -17,10 +17,11 @@ cp $STATIC_BOWER/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepi
 # bootstrap-switch
 cp -r $STATIC_BOWER/bootstrap-switch/dist $STATIC/bootstrap-switch
 
+# TODO
 # ckeditor
-patch $STATIC_BOWER/ckeditor/ckeditor.js $BOWER_POSTINSTALL/ck_editor.diff
-patch $STATIC_BOWER/ckeditor/lang/en.js $BOWER_POSTINSTALL/ck_langen.diff
-cp -r $STATIC_BOWER/ckeditor $STATIC/
+#patch $STATIC_BOWER/ckeditor/ckeditor.js $BOWER_POSTINSTALL/ck_editor.diff
+#patch $STATIC_BOWER/ckeditor/lang/en.js $BOWER_POSTINSTALL/ck_langen.diff
+#cp -r $STATIC_BOWER/ckeditor $STATIC/
 
 # ckeditor_plugins
 mkdir $STATIC/ckeditor_plugins

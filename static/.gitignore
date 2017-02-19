@@ -7,5 +7,6 @@ ace/
 bootstrap/
 bootstrap-switch/
 font-awesome
-ckeditor/
+# TODO
+#ckeditor/
 ckeditor_plugins/
