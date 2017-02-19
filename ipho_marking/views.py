@@ -1,20 +1,3 @@
-# Exam Tools
-#
-# Copyright (C) 2014 - 2017 Oly Exams Team
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, HttpResponseForbidden, JsonResponse, Http404
 from django.template import RequestContext
@@ -200,19 +183,35 @@ def delegation_export(request, exam_id):
     response['Content-Disposition'] = 'attachment; filename="markings.csv"'
 
     writer = csv.writer(response)
-    title_row = ['Student', 'Delegation', 'Version']
+    students = Student.objects.filter(delegation=delegation)
+
+    row1 = ['Student']
+    row2 = ['Version']
+    for student in students:
+        for version in versions:
+            row1.append(student.code)
+            row2.append(Marking.MARKING_VERSIONS[version])
+    writer.writerow(row1)
+    writer.writerow(row2)
+    totals = [0.0]*(len(row1) - 1)
+
     mmeta = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
     for m in mmeta:
-        title_row.append( '{} - {} ({})'.format(m.question.name, m.name, m.max_points) )
-    writer.writerow(title_row)
+        row = ['{} - {} ({})'.format(m.question.name, m.name, m.max_points)]
+        i = 0
+        for student in students:
+            for version in versions:
+                marking = Marking.objects.get(student__delegation=delegation, marking_meta=m, student=student, version=version).points
+                row.append(marking)
+                if marking is not None:
+                    totals[i] += marking
+                i += 1
+        row = map(lambda v: '-' if v is None else v, row)
+        writer.writerow(row)
 
-    for student in Student.objects.filter(delegation=delegation):
-        for version in versions:
-            row = [student.code, student.delegation.name, version]
-            markings = Marking.objects.filter(student=student, version=version).order_by('marking_meta__question__exam', 'marking_meta__question__position', 'marking_meta__position').values_list('points', flat=True)
-            row += markings
-            row = map(lambda v: '-' if v is None else v, row)
-            writer.writerow(row)
+    row = ['Total']
+    totals = [round(t, 1) for t in totals]
+    writer.writerow(row + totals)
 
     return response
 
