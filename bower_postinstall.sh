@@ -19,6 +19,7 @@ cp -r $STATIC_BOWER/bootstrap-switch/dist $STATIC/bootstrap-switch
 
 # ckeditor
 patch $STATIC_BOWER/ckeditor/ckeditor.js $BOWER_POSTINSTALL/ck_editor.diff
+patch $STATIC_BOWER/ckeditor/lang/en.js $BOWER_POSTINSTALL/ck_langen.diff
 cp -r $STATIC_BOWER/ckeditor $STATIC/
 
 # ckeditor_plugins
