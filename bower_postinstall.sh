@@ -20,6 +20,7 @@ mv $STATIC/dist $STATIC/bootstrap-switch
 
 # ckeditor
 cp -r $STATIC_BOWER/ckeditor $STATIC/
+patch $STATIC/ckeditor/config.js $STATIC/ckeditor/ck_config.diff
 
 # ckeditor_plugins
 cp -r $STATIC_BOWER/mathedit/mathedit $STATIC/ckeditor_plugins/
