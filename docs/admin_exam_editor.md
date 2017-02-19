@@ -5,7 +5,7 @@ The admin editor is launched from [exam management](admin_exam_management.md) by
 
 ## New Question
 
-A new question contains an empty block *Question*. The exam is then constructed by adding different [functional blocks](admin_editor.md#functional-blocks) like *Subquestion, Paragraph, etc.* with the *add-button*. Each block can have different child blocks. TODO: screen-shot for add-button etc.
+A new question contains an empty block *Question*. The exam is then constructed by adding different [functional blocks](admin_exam_editor.md#functional-blocks) like *Subquestion, Paragraph, etc.* with the *add-button*. Each block can have different child blocks. TODO: screen-shot for add-button etc.
 
 ## View PDF
 The *View PDF* butten shows the compiled version of the question. It is good practice to complie regularly, in order to identify compilation erros as soon as possible.
@@ -29,15 +29,15 @@ Attributes:
 | points   | Total number of points in the whole question.  |
 
 Valid children:
-* [Title](admin_editor.md#title)
-* [Section](admin_editor.md#section)
-* [Part](admin_editor.md#part)
-* [Subquestion](admin_editor.md#subquestion)
-* [Answer](admin_editor.md#answer)
-* [Paragraph like blocks](admin_editor.md#paragraph-like-blocks)
-* [Box](admin_editor.md#box)
-* [Pagebreak](admin_editor.md#pagebreak)
-* [Latex blocks](admin_editor.md#latex-blocks)
+* [Title](admin_exam_editor.md#title)
+* [Section](admin_exam_editor.md#section)
+* [Part](admin_exam_editor.md#part)
+* [Subquestion](admin_exam_editor.md#subquestion)
+* [Answer](admin_exam_editor.md#answer)
+* [Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
+* [Box](admin_exam_editor.md#box)
+* [Pagebreak](admin_exam_editor.md#pagebreak)
+* [Latex blocks](admin_exam_editor.md#latex-blocks)
 
 ### Title
 
@@ -80,8 +80,8 @@ Attributes:
 | question_nr | Question the subquestion belongs to, e.g "1".  |
 
 Valid children:
-* [Paragraph like blocks](admin_editor.md#paragraph-like-blocks)
-* [Latex blocks](admin_editor.md#latex-blocks)
+* [Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
+* [Latex blocks](admin_exam_editor.md#latex-blocks)
 
 ### Answer
 
@@ -97,8 +97,8 @@ Attributes:
 | height      | Define space available to write the answer, e.g. "4 cm". |
 
 Valid children:
-* [Paragraph like blocks](admin_editor.md#paragraph-like-blocks)
-* [Latex blocks](admin_editor.md#latex-blocks)
+* [Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
+* [Latex blocks](admin_exam_editor.md#latex-blocks)
 
 ### Paragraph like blocks
 #### Paragraph
@@ -122,8 +122,8 @@ Attributes:
 
 
 Valid children:
-* [Figure caption](admin_editor.md#figure-caption)
-* [Figure text](admin_editor.md#figure-text)
+* [Figure caption](admin_exam_editor.md#figure-caption)
+* [Figure text](admin_exam_editor.md#figure-text)
 
 #### Equation
 
@@ -140,7 +140,7 @@ No block content.
 No attributes.
 
 Valid children:
-* [List item](admin_editor.md#list-item)
+* [List item](admin_exam_editor.md#list-item)
 
 #### Table
 
@@ -156,8 +156,8 @@ No block content.
 | grid_line   | Number of lines, default: "1".                                     |
 
 Valid children:
-* [Table row](admin_editor.md#table-row)
-* [Table caption](admin_editor.md#table-caption)
+* [Table row](admin_exam_editor.md#table-row)
+* [Table caption](admin_exam_editor.md#table-caption)
 
 #### Box
 Draw box around another block.
@@ -167,8 +167,8 @@ No block content.
 No attributes.
 
 Valid children:
-* [Paragraph like blocks](admin_editor.md#paragraph-like-blocks)
-* [Latex blocks](admin_editor.md#latex-blocks)
+* [Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
+* [Latex blocks](admin_exam_editor.md#latex-blocks)
 
 ### Figure Caption
 
@@ -210,7 +210,7 @@ Attributes:
 | multiplier  | Repeate the row n times, default: "1".                             |
 
 Valid children:
-* [Table cell](admin_editor.md#table-cell)
+* [Table cell](admin_exam_editor.md#table-cell)
 
 ### Table Cell
 
@@ -252,7 +252,7 @@ Attributes:
 | content     | TODO                                                               |
 
 Valid children:
-* [Latex replacement parameter](admin_editor.md#latex-replacement-parameter)
+* [Latex replacement parameter](admin_exam_editor.md#latex-replacement-parameter)
 
 #### Latex environment
 
@@ -265,15 +265,15 @@ Attributes:
 | name        | TODO                                                               |
 
 Valid children:
-* [Title](admin_editor.md#title)
-* [Section](admin_editor.md#section)
-* [Part](admin_editor.md#part)
-* [Subquestion](admin_editor.md#subquestion)
-* [Answer](admin_editor.md#answer)
-* [Paragraph like blocks](admin_editor.md#paragraph-like-blocks)
-* [Box](admin_editor.md#box)
-* [Pagebreak](admin_editor.md#pagebreak)
-* [Latex blocks](admin_editor.md#latex-blocks)
+* [Title](admin_exam_editor.md#title)
+* [Section](admin_exam_editor.md#section)
+* [Part](admin_exam_editor.md#part)
+* [Subquestion](admin_exam_editor.md#subquestion)
+* [Answer](admin_exam_editor.md#answer)
+* [Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
+* [Box](admin_exam_editor.md#box)
+* [Pagebreak](admin_exam_editor.md#pagebreak)
+* [Latex blocks](admin_exam_editor.md#latex-blocks)
 
 ### Latex replacement parameter
 

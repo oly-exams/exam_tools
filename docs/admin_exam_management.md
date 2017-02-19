@@ -1,1 +1,1 @@
-# Admin figure management
+# Admin exam management
