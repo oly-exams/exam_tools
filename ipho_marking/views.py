@@ -193,15 +193,25 @@ def delegation_export(request, exam_id):
             row2.append(Marking.MARKING_VERSIONS[version])
     writer.writerow(row1)
     writer.writerow(row2)
+    totals = [0.0]*(len(row1) - 1)
 
     mmeta = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
     for m in mmeta:
         row = ['{} - {} ({})'.format(m.question.name, m.name, m.max_points)]
+        i = 0
         for student in students:
             for version in versions:
-                row.append(Marking.objects.get(student__delegation=delegation, marking_meta=m, student=student, version=version).points)
+                marking = Marking.objects.get(student__delegation=delegation, marking_meta=m, student=student, version=version).points
+                row.append(marking)
+                if marking is not None:
+                    totals[i] += marking
+                i += 1
         row = map(lambda v: '-' if v is None else v, row)
         writer.writerow(row)
+
+    row = ['Total']
+    totals = [round(t, 1) for t in totals]
+    writer.writerow(row + totals)
 
     return response
 
