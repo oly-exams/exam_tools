@@ -548,7 +548,7 @@ class QMLfigure(QMLobject):
     has_text = False
     has_children = True
     lang = None
-    valid_children = ('caption',)
+    valid_children = ('caption', 'param')
 
     default_attributes = {'figid': ''}
 
