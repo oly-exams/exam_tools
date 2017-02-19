@@ -5,6 +5,7 @@ ace/
 bootstrap/
 bootstrap-switch/
 font-awesome
+ckeditor/*
 ckeditor_plugins/Jsvk/
 ckeditor_plugins/mathedit/
 ckeditor_plugins/mathjax-mathquill/
