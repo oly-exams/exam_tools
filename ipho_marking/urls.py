@@ -24,7 +24,9 @@ urlpatterns = [
     url(r'^/?$', views.delegation_summary, name='delegation-summary'),
     url(r'^export/exam/(?P<exam_id>\d+)$', views.delegation_export, name='delegation-export'),
     url(r'^detail/(?P<stud_id>\d+)/question/(?P<question_id>\d+)$', views.delegation_stud_view, name='delegation-stud-detail'),
+    url(r'^detail_all/question/(?P<question_id>\d+)$', views.delegation_view_all, name='delegation-all-detail'),
     url(r'^detail/(?P<stud_id>\d+)/question/(?P<question_id>\d+)/edit$', views.delegation_stud_edit, name='delegation-stud-detail-edit'),
+    url(r'^detail_all/question/(?P<question_id>\d+)/edit$', views.delegation_edit_all, name='delegation-all-detail-edit'),
     url(r'^confirm/(?P<exam_id>\d+)$', views.delegation_confirm, name='delegation-confirm'),
 
 ## Markers
