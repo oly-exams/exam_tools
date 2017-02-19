@@ -12,7 +12,7 @@ A new question contains an empty block *Question*. The exam is then constructed 
 Main block for every question. Exists only once.
 
 Valid children:
-* [Title](title)
+* [Title](admin_editor.md#title)
 * [Section]("section")
 * [Part]("part")
 * [Subquestion]("subquestion")
