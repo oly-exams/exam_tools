@@ -1,3 +1,20 @@
+# Exam Tools
+#
+# Copyright (C) 2014 - 2017 Oly Exams Team
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
@@ -911,7 +928,7 @@ def admin_editor(request, exam_id, question_id, version_num):
     q = qml.make_qml(node)
     #content_set = qml.make_content(q)
 
-    qml_types = [(qobj.tag, qml.canonical_name(qobj)) for qobj in qml.QMLobject.all_objects()]
+    qml_types = [(qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()]
     context = {
         'exam' : exam,
         'question' : question,
@@ -1000,7 +1017,7 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
             })
 
 @permission_required('ipho_core.is_staff')
-def admin_editor_add_block(request, exam_id, question_id, version_num, block_id, tag_name):
+def admin_editor_add_block(request, exam_id, question_id, version_num, block_id, tag_name, after_id=None):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     lang_id = OFFICIAL_LANGUAGE
@@ -1022,13 +1039,14 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
     if block is None:
         raise Http404('block_id not found')
 
-    newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)))
+    newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)), after_id=after_id)
     node.text = qml.xml2string(q.make_xml())
     node.save()
 
-    qml_types = [(qobj.tag, qml.canonical_name(qobj)) for qobj in qml.QMLobject.all_objects()]
+    qml_types = [(qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()]
     ctx = {
         'fields_set': [newblock],
+        'parent': block,
         'exam': exam,
         'node_version': node_version,
         'question': question,
@@ -1061,12 +1079,10 @@ def submission_exam_list(request):
     ).distinct()
     return render(request, 'ipho_exam/submission_list.html', {'exams_open': exams_open, 'exams_closed': exams_closed})
 
-@permission_required('ipho_core.is_delegation')
-def submission_exam_assign(request, exam_id):
-    exam = get_object_or_404(Exam, id=exam_id)
+def _get_submission_languages(exam, delegation):
+    """Returns the languages which are valid for submission."""
     num_questions = exam.question_set.count()
-    delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.all().annotate(
+    return Language.objects.all().annotate(
          num_translation=Sum(
              Case(When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
                   When(is_pdf=True, then=None),
@@ -1077,8 +1093,14 @@ def submission_exam_assign(request, exam_id):
                   When(is_pdf=False, then=None),
                   output_field=IntegerField(), default=0)
          )
-    ).filter( Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & (Q(num_translation=num_questions) | Q(num_pdf=num_questions))))
+    ).filter(Q(delegation__name=OFFICIAL_DELEGATION) & Q(hidden_from_submission=False) | (Q(delegation=delegation) & (Q(num_translation=num_questions) | Q(num_pdf=num_questions))))
 
+@permission_required('ipho_core.is_delegation')
+def submission_exam_assign(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    delegation = Delegation.objects.get(members=request.user)
+    num_questions = exam.question_set.count()
+    languages = _get_submission_languages(exam, delegation)
     ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
     if ex_submission.status == ExamAction.SUBMITTED and not settings.DEMO_MODE:
         return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk,)))
@@ -1165,18 +1187,7 @@ def submission_exam_confirm(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     num_questions = exam.question_set.count()
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.all().annotate(
-         num_translation=Sum(
-             Case(When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
-                  When(is_pdf=True, then=None),
-                  output_field=IntegerField(), default=0)
-         ),
-         num_pdf=Sum(
-             Case(When(Q(pdfnode__question__exam=exam, is_pdf=True), then=1),
-                  When(is_pdf=False, then=None),
-                  output_field=IntegerField(), default=0)
-         )
-    ).filter( Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & (Q(num_translation=num_questions) | Q(num_pdf=num_questions))))
+    languages = _get_submission_languages(exam, delegation)
     form_error = ''
 
     ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
@@ -1225,7 +1236,7 @@ def submission_exam_confirm(request, exam_id):
 def submission_exam_submitted(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    languages = Language.objects.annotate(num_questions=Count('translationnode__question'), num_pdf_questions=Count('pdfnode__question')).filter(  Q(delegation__name=OFFICIAL_DELEGATION) | (Q(delegation=delegation) & Q(num_questions=exam.question_set.count())) | (Q(delegation=delegation) & Q(num_pdf_questions=exam.question_set.count())) )
+    languages = _get_submission_languages(exam, delegation)
 
     ex_submission,_ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
 
