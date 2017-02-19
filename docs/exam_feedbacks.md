@@ -18,7 +18,7 @@ Finally click the *add* button and a green confimation banner will tell you that
 | ![feedback choose subpart](img/feedback_add4.png) |  ![feedback choose subpart](img/feedback_add5.png) |
 
 ## Review Feedbacks
-All Feedbacks for the currently disscussed exam are visible to everyone. While the leaders prepare feedbacks, the authors can already react to them. Each feedback can have one of four states:
+All Feedbacks for the currently disscussed exam are visible to everyone. While the leaders prepare feedbacks, the authors can already react to them. Each feedback can have one of four states which is controlled by the organizers:
 * **Submitted**: The feedback has successfully been submitted to the server and is now visible to everyone.
 * **Scheduled for voting**: This feedback will be partially or entirely part of a voting of the entire board.
 * **Implemented**: The changes suggested in this feedback have been included in the exam, either after a voting or after having been accepted by the authors.
