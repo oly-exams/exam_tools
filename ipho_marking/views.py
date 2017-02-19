@@ -405,6 +405,10 @@ def delegation_view_all(request, question_id):
 
     ctx['documents'] = documents
     ctx['markings'] = grouped_markings
+    ctx['sums'] = [
+        {version: sum(entry[1][student][1][version].points or 0 for entry in grouped_markings) for version in ['O', 'D', 'F']}
+        for student in range(len(students))
+    ]
     return render(request, 'ipho_marking/delegation_detail_all.html', ctx)
 
 @permission_required('ipho_core.is_delegation')

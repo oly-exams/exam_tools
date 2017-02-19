@@ -63,6 +63,14 @@
         {% endfor %}
       </tr>
       {% endfor %}
+      <tr>
+        <td><strong>Total</strong></td>
+        {% for mark in sums %}
+          <td>{{ mark.O }}</td>
+          <td>{{ mark.D }}</td>
+          <td><strong>{{ mark.F }}</strong></td>
+        {% endfor %}
+      </tr>
     </table>
     {% endif %}
 
