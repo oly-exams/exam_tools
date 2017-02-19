@@ -386,13 +386,19 @@ def delegation_view_all(request, question_id):
         return render(request, 'ipho_marking/delegation_detail_all.html', ctx)
 
     metas = MarkingMeta.objects.filter(question=question)
-    markings = Marking.objects.filter(marking_meta=metas, version__in=versions).order_by('marking_meta')
+    markings = Marking.objects.filter(marking_meta=metas, version__in=versions, student=students).order_by('marking_meta')
     grouped_markings = [
         (
-            k,
-            {kk: list(gg) for kk,gg in itertools.groupby(g, key=lambda m: m.version)}
+            meta,
+            [   
+                (
+                    student, 
+                    {mark.version: mark for mark in list(student_group)}
+                )
+                for student, student_group in itertools.groupby(sorted(meta_group, key=lambda m: m.student.code), key=lambda m: m.student.code)
+            ]
         )
-        for k,g in itertools.groupby(markings, key=lambda m: m.marking_meta)
+        for meta, meta_group in itertools.groupby(markings, key=lambda m: m.marking_meta)
     ]
 
     documents = Document.objects.filter(exam=question.exam, position=question.position, student=students)

@@ -53,12 +53,14 @@
           <th>Final</th>
         {% endfor %}
       </tr>
-      {% for m, points in markings %}
+      {% for meta, student_points in markings %}
       <tr>
-        <td><strong>{{ m.name }} ({{ m.max_points }})</strong></td>
-        <td>{{ points.O.0.points|default_if_none:'-' }}</td>
-        <td>{{ points.D.0.points|default_if_none:'-' }}</td>
-        <td>{{ points.F.0.points|default_if_none:'-' }}</td>
+        <td><strong>{{ meta.name }} ({{ meta.max_points }})</strong></td>
+        {% for student, points in student_points %}
+        <td>{{ points.O.points|default_if_none:'-' }}</td>
+        <td>{{ points.D.points|default_if_none:'-' }}</td>
+        <td>{{ points.F.points|default_if_none:'-' }}</td>
+        {% endfor %}
       </tr>
       {% endfor %}
     </table>
