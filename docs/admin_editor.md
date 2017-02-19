@@ -14,9 +14,15 @@ Each block has different attributes that define its properties. IMPORTANT: Do no
 Main block for every question. Exists only once.
 
 Attributes:
+
 | Key      | Specification                                  |
 | -------- | ---------------------------------------------- |
 | points   | Total number of points for the whole question. |
+
+| header 1 | header 2 |
+| -------- | -------- |
+| cell 1   | cell 2   |
+| cell 3   | cell 4   |
 
 Valid children:
 * [Title](admin_editor.md#title)
