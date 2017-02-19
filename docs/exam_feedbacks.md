@@ -24,4 +24,4 @@ All Feedbacks for the currently disscussed exam are visible to everyone. While t
 * **Implemented**: The changes suggested in this feedback have been included in the exam, either after a voting or after having been accepted by the authors.
 * **Settled**: The creator and the authors have come to an agreement that this feedback needs no further pro
 
-Additionaly, you can like or dislike a feedback. Simply klick either of the *thumbs up* or *thumbs down* buttons in the *Actions* column. If, for example, you see a feedback which makes the same point as you were about to make, you can give this feedback a like instead of submitting your own. This will help the authors decide quickly which feedbacks are important to the most people.
+Additionaly, you can **like** or **dislike** a feedback. Simply klick either of the *thumbs up* or *thumbs down* buttons in the *Actions* column. If, for example, you see a feedback which makes the same point as you were about to make, you can give this feedback a like instead of submitting your own. This will help the authors decide quickly which feedbacks are important to the most people.
