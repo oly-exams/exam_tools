@@ -5,11 +5,18 @@ The admin editor is launched from [exam management](exam_management.md) by click
 
 ## New Question
 
-A new question contains an empty block *Question*. The exam is then constructed by adding different functional blocks like *Subquestion, Paragraph, etc.* with the *add button*. Each block can have different child blocks. TODO: screen-shot for add button etc.
+A new question contains an empty block *Question*. The exam is then constructed by adding different functional blocks like *Subquestion, Paragraph, etc.* with the *add button*. Each block can have different child blocks. TODO: screen-shot for add-button etc.
 
 ## Functional Blocks
+Each block has different attributes that define its properties. IMPORTANT: Do not ever change the attribute "id"!
+
 ### Question
 Main block for every question. Exists only once.
+
+Attributes:
+| Key | Specification |
+| -------- | -------- |
+| points | Total number of points for the whole question. |
 
 Valid children:
 * [Title](admin_editor.md#title)
@@ -23,6 +30,9 @@ Valid children:
 * [Latex blocks](admin_editor.md#latex-blocks)
 
 ### Title
+
+Attributes:
+| points | Total number of points for the whole question. |
 
 No children.
 
@@ -108,10 +118,6 @@ No children.
 Valid children:
 * [Latex replacement parameter](admin_editor.md#latex-replacement-parameter)
 
-#### Latex replacement parameter
-
-No children.
-
 #### Latex environment
 
 Valid children:
@@ -125,4 +131,6 @@ Valid children:
 * [Pagebreak](admin_editor.md#pagebreak)
 * [Latex blocks](admin_editor.md#latex-blocks)
 
+### Latex replacement parameter
 
+No children.
