@@ -296,14 +296,14 @@ def delegation_stud_edit(request, stud_id, question_id):
 @permission_required('ipho_core.is_delegation')
 def delegation_edit_all(request, question_id):
     delegation = Delegation.objects.get(members=request.user)
-    students = Student.objects.filter(delegation=delegation)
+    students = Student.objects.filter(delegation=delegation).order_by('code')
 
     question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
     version = 'D'
 
     ctx = RequestContext(request)
     ctx['msg'] = []
-    ctx['student'] = student
+    ctx['students'] = students
     ctx['question'] = question
     ctx['exam'] = question.exam
 
@@ -312,18 +312,18 @@ def delegation_edit_all(request, question_id):
         ctx['msg'].append( (('alert-info'), '<strong>Note:</strong> The points have been submitted, you can no longer edit them.') )
         return render(request, 'ipho_marking/delegation_detail.html', ctx)
 
-    metas = MarkingMeta.objects.filter(question=question)
+    metas = MarkingMeta.objects.filter(question=question).order_by('position')
     FormSet = modelformset_factory(Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False)
-    form = FormSet(request.POST or None, queryset=Marking.objects.filter(marking_meta=metas, student=student, version=version))
-    if form.is_valid():
-        form.save()
+    formset = FormSet(request.POST or None, queryset=Marking.objects.filter(marking_meta=metas, student=students, version=version))
+    if formset.is_valid():
+        formset.save()
         ctx['msg'].append( ('alert-success', '<strong>Success.</strong> Points have been saved. <a href="{}" class="btn btn-default btn-xs">back to summary</a>'.format(reverse('marking:delegation-summary'))) )
 
-    documents = Document.objects.filter(student=student, exam=question.exam, position=question.position)
+    documents = Document.objects.filter(exam=question.exam, position=question.position, student=students).order_by('student__code')
 
-    ctx['form'] = form
     ctx['documents'] = documents
-    return render(request, 'ipho_marking/delegation_detail.html', ctx)
+    ctx['formset'] = [(marking_name, list(student_marks)) for marking_name, student_marks in itertools.groupby(formset, lambda f: f.instance.marking_meta.name)]
+    return render(request, 'ipho_marking/delegation_detail_all.html', ctx)
 
 @permission_required('ipho_core.is_delegation')
 def delegation_stud_view(request, stud_id, question_id):

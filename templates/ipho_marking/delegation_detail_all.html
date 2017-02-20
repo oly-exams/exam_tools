@@ -23,15 +23,24 @@
 
     <h3> {{ exam.name }} - {{ question.name }}</h3>
 
-    {% if form %}
+    {% if formset %}
     <form method="post">
       {% csrf_token %}
       <table class="table table-striped">
         <tr>
           <th>Subquestion</th>
-          <th>Points</th>
+          {% for stud in students %}
+            <th>{{ stud.code }}</th>
+          {% endfor %}
         </tr>
-        {{ form.as_table }}
+        {% for marking_name, student_marks in formset %}
+          <tr>
+            <td><strong>{{ marking_name }}</strong></td>
+            {% for mark in student_marks %}
+              <td>{{ mark.points }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
       </table>
       <input type="submit" class="btn btn-primary" value="Submit" />
     </form>
