@@ -32,15 +32,14 @@
           {% for stud in students %}
             <th>{{ stud.code }}</th>
           {% endfor %}
-        </tr>
-        {% for marking_name, student_marks in formset %}
-          <tr>
-            <td><strong>{{ marking_name }}</strong></td>
-            {% for mark in student_marks %}
-              <td>{{ mark.points }}</td>
-            {% endfor %}
-          </tr>
+        {{ formset.management_form }}
+        {% for form in formset %}
+          {% if form.instance.student == students.first %}
+            </tr><tr><td>{{ form.points.label }}</td>
+          {% endif %}
+          <td>{{ form.id }} {{form.points}}</td>
         {% endfor %}
+        </tr>
       </table>
       <input type="submit" class="btn btn-primary" value="Submit" />
     </form>

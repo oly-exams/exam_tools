@@ -315,6 +315,7 @@ def delegation_edit_all(request, question_id):
     metas = MarkingMeta.objects.filter(question=question).order_by('position')
     FormSet = modelformset_factory(Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False)
     formset = FormSet(request.POST or None, queryset=Marking.objects.filter(marking_meta=metas, student=students, version=version))
+
     if formset.is_valid():
         formset.save()
         ctx['msg'].append( ('alert-success', '<strong>Success.</strong> Points have been saved. <a href="{}" class="btn btn-default btn-xs">back to summary</a>'.format(reverse('marking:delegation-summary'))) )
@@ -322,7 +323,7 @@ def delegation_edit_all(request, question_id):
     documents = Document.objects.filter(exam=question.exam, position=question.position, student=students).order_by('student__code')
 
     ctx['documents'] = documents
-    ctx['formset'] = [(marking_name, list(student_marks)) for marking_name, student_marks in itertools.groupby(formset, lambda f: f.instance.marking_meta.name)]
+    ctx['formset'] = formset
     return render(request, 'ipho_marking/delegation_detail_all.html', ctx)
 
 @permission_required('ipho_core.is_delegation')
