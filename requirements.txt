@@ -1,5 +1,6 @@
 Django >= 1.8, < 1.9
 django-crispy-forms
+django-ace
 CairoSVG==1.*
 hg+https://bitbucket.org/whitie/python-barcode
 PyPDF2

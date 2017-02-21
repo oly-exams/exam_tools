@@ -219,6 +219,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django.contrib.humanize',
     'crispy_forms',
+    'django_ace',
     'djcelery',
     'ipho_core',
     'ipho_exam',

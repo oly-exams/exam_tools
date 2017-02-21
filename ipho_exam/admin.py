@@ -19,7 +19,7 @@ from django.contrib import admin
 from django import forms
 import json
 from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, Place, AttributeChange
-from ipho_exam.widgets import AceWidget
+from django_ace import AceWidget
 
 # Register your models here.
 

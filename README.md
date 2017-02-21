@@ -6,6 +6,7 @@ Base dependencies
 * Django 1.8.x
 * django-crispy-forms
 * mkdocs (for building the docs)
+* bower
 
 To compile exams
 * XeLaTeX, with TexLive 2015 (2013 does not work with Noto Fonts and CJK). See [texlive/install.md](texlive/install.md) for installation details.
@@ -40,6 +41,15 @@ Then using ```pip```:
 pip install -r requirements.txt
 ```
 
+### Install bower
+
+```bash
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+sudo npm install -g bower
+```
+
 
 ### Development/production environment
 The project [ipho2016/deploy](/ipho2016/deploy) provides scripts to deploy a testing environment as well as the final production and demo systems.
@@ -49,6 +59,13 @@ The project [ipho2016/deploy](/ipho2016/deploy) provides scripts to deploy a tes
 1. Create exam_tools/settings.py, for a simple installation simply copy exam_tools/settings_example.py
 ```bash
 cp exam_tools/settings_example.py exam_tools/settings.py
+```
+
+1. If using a virtualenv, make sure it is active
+
+1. Install dependencies using bower, by running at the project root
+```bash
+bower install
 ```
 
 1. Initialize DB
@@ -71,24 +88,6 @@ For the local server, simply execute
 ```bash
 python manage.py runserver
 ```
-
-## Running the workers *locally*
-Add to exam_tools/settings.py:
-```
-BROKER_URL = 'django://'
-INSTALLED_APPS = INSTALLED_APPS + ('kombu.transport.django',)
-```
-
-Execute: 
-```
-python manage.py migrate kombu_transport_django
-```
-
-Start workers with
-```
-celery -A exam_tools worker -E --concurrency=1
-```
-Concurrency must be 1 because the sqlite database doesn't allow concurrent access.
 
 ## Building the docs
 For development it is suggested to serve the docs locally

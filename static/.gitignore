@@ -1,0 +1,12 @@
+moment.min.js
+clipboard.min.js
+MathJax
+jquery-dirtyforms
+jquery
+ace/
+bootstrap/
+bootstrap-switch/
+font-awesome
+# TODO
+#ckeditor/
+ckeditor_plugins/

@@ -9,4 +9,6 @@ outcode_raw.svg
 .idea
 runserver.sh
 _docs_html
+.vscode/
+static_bower
 .spyderproject

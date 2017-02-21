@@ -1,0 +1,6 @@
+{
+  "directory" : "static_bower",
+  "scripts": {
+    "postinstall": "bash bower_postinstall.sh"
+  }
+}
