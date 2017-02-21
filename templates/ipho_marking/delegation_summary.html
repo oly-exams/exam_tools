@@ -51,6 +51,18 @@
                 {% endfor %}
             </tr>
             {% endfor %}
+            <tr>
+                <td></td>
+                {% for question in psubs.exam.question_set.all %}
+                    {% if question.is_answer_sheet %}
+                        {% if psubs.status == OPEN_STATUS %}
+                        <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> edit all</a></td>
+                        {% else %}
+                        <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> view all</a></td>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </tr>
         </table>
         {% if psubs.status == OPEN_STATUS %}
         <div class="panel-footer"><a class="btn btn-primary btn-sm" href="{% url 'marking:delegation-confirm' psubs.exam.pk %}">Confirm marking <i class="fa fa-angle-double-right"></i></a></div>

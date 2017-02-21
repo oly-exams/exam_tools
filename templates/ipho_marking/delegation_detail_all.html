@@ -1,0 +1,109 @@
+{% extends "ipho_marking/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+
+{% block extra-head %}
+{% endblock %}
+
+{% block pageheader %}<h1>Delegation detailed marking</h1>{% endblock %}
+
+
+
+{% block page-content %}
+
+  <div>
+    {% for type, message in msg %}
+    <div class="alert {{ type }}">{{ message|safe }}</div>
+    {% endfor %}
+  </div>
+
+    <h2>All Students</h2>
+
+    <h3> {{ exam.name }} - {{ question.name }}</h3>
+
+    {% if formset %}
+    <form method="post">
+      {% csrf_token %}
+      <table class="table table-striped">
+        <tr>
+          <th>Subquestion</th>
+          {% for stud in students %}
+            <th>{{ stud.code }}</th>
+          {% endfor %}
+        {{ formset.management_form }}
+        {% for form in formset %}
+          {% if form.instance.student == students.first %}
+            </tr><tr><td>{{ form.points.label }}</td>
+          {% endif %}
+            <td >
+              <div {{ form.points.errors|yesno:'class="has-error error",,'|safe }}>
+              {{ form.id }} {{ form.points.errors }} {{ form.points }}
+              </div>
+            </td>
+        {% endfor %}
+        </tr>
+      </table>
+      <input type="submit" class="btn btn-primary" value="Submit" />
+    </form>
+    {% endif %}
+
+    {% if markings %}
+    <table class="table table-striped">
+      <tr>
+        <th/>
+        {% for stud in students %}
+          <th colspan="3">{{ stud.code }}</th>
+        {% endfor %}
+      </tr>
+      <tr>
+        <th>Subquestion</th>
+        {% for stud in students %}
+          <th>Off.</th>
+          <th>Del.</th>
+          <th>Final</th>
+        {% endfor %}
+      </tr>
+      {% for meta, student_points in markings %}
+      <tr>
+        <td><strong>{{ meta.name }} ({{ meta.max_points }})</strong></td>
+        {% for student, points in student_points %}
+        <td>{{ points.O.points|default_if_none:'-' }}</td>
+        <td>{{ points.D.points|default_if_none:'-' }}</td>
+        <td>{{ points.F.points|default_if_none:'-' }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+      <tr>
+        <td><strong>Total</strong></td>
+        {% for mark in sums %}
+          <td>{{ mark.O }}</td>
+          <td>{{ mark.D }}</td>
+          <td><strong>{{ mark.F }}</strong></td>
+        {% endfor %}
+      </tr>
+    </table>
+    {% endif %}
+
+    <hr />
+    <h3>Scans of exam</h3>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="list-group">
+          {% for doc in documents %}
+            {% if doc.scan_file %}
+              <a class="list-group-item" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=doc.student.pk position=question.position %}">
+                <i class="fa fa-file-pdf-o"></i>
+                Download {{doc.student.code}}
+                <span class="pull-right"><i class="fa fa-angle-double-right"></i></span>
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+</div>
+
+{% endblock %}

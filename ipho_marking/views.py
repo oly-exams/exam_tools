@@ -200,19 +200,35 @@ def delegation_export(request, exam_id):
     response['Content-Disposition'] = 'attachment; filename="markings.csv"'
 
     writer = csv.writer(response)
-    title_row = ['Student', 'Delegation', 'Version']
+    students = Student.objects.filter(delegation=delegation)
+
+    row1 = ['Student']
+    row2 = ['Version']
+    for student in students:
+        for version in versions:
+            row1.append(student.code)
+            row2.append(Marking.MARKING_VERSIONS[version])
+    writer.writerow(row1)
+    writer.writerow(row2)
+    totals = [0.0]*(len(row1) - 1)
+
     mmeta = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
     for m in mmeta:
-        title_row.append( '{} - {} ({})'.format(m.question.name, m.name, m.max_points) )
-    writer.writerow(title_row)
+        row = ['{} - {} ({})'.format(m.question.name, m.name, m.max_points)]
+        i = 0
+        for student in students:
+            for version in versions:
+                marking = Marking.objects.get(student__delegation=delegation, marking_meta=m, student=student, version=version).points
+                row.append(marking)
+                if marking is not None:
+                    totals[i] += marking
+                i += 1
+        row = map(lambda v: '-' if v is None else v, row)
+        writer.writerow(row)
 
-    for student in Student.objects.filter(delegation=delegation):
-        for version in versions:
-            row = [student.code, student.delegation.name, version]
-            markings = Marking.objects.filter(student=student, version=version).order_by('marking_meta__question__exam', 'marking_meta__question__position', 'marking_meta__position').values_list('points', flat=True)
-            row += markings
-            row = map(lambda v: '-' if v is None else v, row)
-            writer.writerow(row)
+    row = ['Total']
+    totals = [round(t, 1) for t in totals]
+    writer.writerow(row + totals)
 
     return response
 
@@ -295,6 +311,41 @@ def delegation_stud_edit(request, stud_id, question_id):
     return render(request, 'ipho_marking/delegation_detail.html', ctx)
 
 @permission_required('ipho_core.is_delegation')
+def delegation_edit_all(request, question_id):
+    delegation = Delegation.objects.get(members=request.user)
+    students = Student.objects.filter(delegation=delegation).order_by('code')
+
+    question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
+    version = 'D'
+
+    ctx = RequestContext(request)
+    ctx['msg'] = []
+    ctx['students'] = students
+    ctx['question'] = question
+    ctx['exam'] = question.exam
+
+    points_submissions, _ = ExamAction.objects.get_or_create(exam=question.exam, delegation=delegation, action=ExamAction.POINTS)
+    if points_submissions.status == ExamAction.SUBMITTED:
+        ctx['msg'].append( (('alert-info'), '<strong>Note:</strong> The points have been submitted, you can no longer edit them.') )
+        return render(request, 'ipho_marking/delegation_detail.html', ctx)
+
+    metas = MarkingMeta.objects.filter(question=question).order_by('position')
+    FormSet = modelformset_factory(Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False)
+    formset = FormSet(request.POST or None, queryset=Marking.objects.filter(marking_meta=metas, student=students, version=version))
+
+    if formset.is_valid():
+        formset.save()
+        ctx['msg'].append( ('alert-success', '<strong>Success.</strong> Points have been saved. <a href="{}" class="btn btn-default btn-xs">back to summary</a>'.format(reverse('marking:delegation-summary'))) )
+    if formset.total_error_count() > 0:
+        ctx['msg'].append( ('alert-danger', '<strong>Error.</strong> The submission could not be completed. See below for the errors.'.format(reverse('marking:delegation-summary'))) )
+    
+    documents = Document.objects.filter(exam=question.exam, position=question.position, student=students).order_by('student__code')
+
+    ctx['documents'] = documents
+    ctx['formset'] = formset
+    return render(request, 'ipho_marking/delegation_detail_all.html', ctx)
+
+@permission_required('ipho_core.is_delegation')
 def delegation_stud_view(request, stud_id, question_id):
     delegation = Delegation.objects.get(members=request.user)
     student = get_object_or_404(Student, id=stud_id)
@@ -332,6 +383,53 @@ def delegation_stud_view(request, stud_id, question_id):
     ctx['documents'] = documents
     ctx['markings'] = grouped_markings
     return render(request, 'ipho_marking/delegation_detail.html', ctx)
+
+@permission_required('ipho_core.is_delegation')
+def delegation_view_all(request, question_id):
+    delegation = Delegation.objects.get(members=request.user)
+    students = Student.objects.filter(delegation=delegation)
+
+    question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
+    versions = ['O', 'D', 'F']
+    versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
+
+    ctx = RequestContext(request)
+    ctx['msg'] = []
+    ctx['question'] = question
+    ctx['students'] = students
+    ctx['exam'] = question.exam
+    ctx['versions_display'] = versions_display
+
+    points_submissions,_ = ExamAction.objects.get_or_create(exam=question.exam, delegation=delegation, action=ExamAction.POINTS)
+    if points_submissions.status == ExamAction.OPEN:
+        ctx['msg'].append( (('alert-info'), '<strong>Note:</strong> You can see the official points only when you confirmed your markings.') )
+        return render(request, 'ipho_marking/delegation_detail_all.html', ctx)
+
+    metas = MarkingMeta.objects.filter(question=question)
+    markings = Marking.objects.filter(marking_meta=metas, version__in=versions, student=students).order_by('marking_meta')
+    grouped_markings = [
+        (
+            meta,
+            [   
+                (
+                    student, 
+                    {mark.version: mark for mark in list(student_group)}
+                )
+                for student, student_group in itertools.groupby(sorted(meta_group, key=lambda m: m.student.code), key=lambda m: m.student.code)
+            ]
+        )
+        for meta, meta_group in itertools.groupby(markings, key=lambda m: m.marking_meta)
+    ]
+
+    documents = Document.objects.filter(exam=question.exam, position=question.position, student=students)
+
+    ctx['documents'] = documents
+    ctx['markings'] = grouped_markings
+    ctx['sums'] = [
+        {version: sum(entry[1][student][1][version].points or 0 for entry in grouped_markings) for version in ['O', 'D', 'F']}
+        for student in range(len(students))
+    ]
+    return render(request, 'ipho_marking/delegation_detail_all.html', ctx)
 
 @permission_required('ipho_core.is_delegation')
 def delegation_confirm(request, exam_id):
