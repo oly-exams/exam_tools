@@ -37,7 +37,11 @@
           {% if form.instance.student == students.first %}
             </tr><tr><td>{{ form.points.label }}</td>
           {% endif %}
-          <td>{{ form.id }} {{form.points}}</td>
+            <td >
+              <div {{ form.points.errors|yesno:'class="has-error error",,'|safe }}>
+              {{ form.id }} {{ form.points.errors }} {{ form.points }}
+              </div>
+            </td>
         {% endfor %}
         </tr>
       </table>
