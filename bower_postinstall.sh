@@ -9,8 +9,7 @@ BOWER_POSTINSTALL=bower_postinstall
 cp -r $STATIC_BOWER/ace-builds/src-min $STATIC/ace
 
 # bootstrap and bootstrap-datetimepicker
-cp -r $STATIC_BOWER/bootstrap/dist $STATIC/
-mv $STATIC/dist $STATIC/bootstrap
+cp -r $STATIC_BOWER/bootstrap/dist/ $STATIC/bootstrap
 cp $STATIC_BOWER/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css $STATIC/bootstrap/css/
 cp $STATIC_BOWER/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js $STATIC/bootstrap/js/
 
