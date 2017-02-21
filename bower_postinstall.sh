@@ -57,8 +57,5 @@ cp $STATIC_BOWER/jquery/dist/jquery.min.js $STATIC/jquery/js/jquery-1.11.2.min.j
 # jquery-dirtyforms
 cp -r $STATIC_BOWER/jquery.dirtyforms $STATIC/jquery-dirtyforms
 
-# django ace
-cp -r python -c `"import django_ace;import os;print os.path.join(os.path.dirname(django_ace.__file__), 'static')"` $STATIC/
-
 
 # rm -rf $STATIC_BOWER
