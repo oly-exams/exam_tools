@@ -359,7 +359,7 @@ class ExtraSheetForm(forms.Form):
 
     def __init__(self, exam_id, *args, **kwargs):
         super(ExtraSheetForm, self).__init__(*args, **kwargs)
-        self.fields['question'] = forms.ModelChoiceField(queryset=Question.objects.filter(exam_id=exam_id))
+        self.fields['question'] = forms.ModelChoiceField(queryset=Question.objects.filter(exam_id=exam_id, code='Q'))
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field('question'),
