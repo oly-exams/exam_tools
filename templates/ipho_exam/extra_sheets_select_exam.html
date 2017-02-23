@@ -1,0 +1,41 @@
+{% extends "ipho_exam/base.html" %}
+{% load static %}
+{% load exam_utils_tags %}
+{% load crispy_forms_tags %}
+
+{% block extra-head %}
+<style>
+.div-inline{
+    display:inline-block;
+}
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="#">Admin</a></li>
+<li class="active">Extra sheets</li>
+{% endblock %}
+
+{% block pageheader %}<h1>Print extra sheets</h1>{% endblock %}
+
+{% block exam-content %}
+<p class="lead">
+Select the exam below.
+</p>
+
+<div id="alerts-container">
+{% for class, msg in messages %}
+<div class="alert {{ class }} alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>{{ msg|safe }}</div>
+{% endfor %}
+</div>
+
+  <div>
+    {% for ex in exams %}
+        <div>
+            <p><a href={% url 'exam:extra-sheets' exam_id=ex.id %} class="btn btn-primary">{{ ex.name }}</a></p>
+        </div>
+    {% endfor %}
+  </div>
+
+
+{% endblock %}
