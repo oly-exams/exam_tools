@@ -31,9 +31,7 @@ Select the exam below.
 
   <div>
     {% for ex in exams %}
-        <div>
-            <p><a href={% url 'exam:extra-sheets' exam_id=ex.id %} class="btn btn-primary">{{ ex.name }}</a></p>
-        </div>
+      <a href={% url 'exam:extra-sheets' exam_id=ex.id %} class="btn btn-primary">{{ ex.code }} - {{ ex.name }}</a>
     {% endfor %}
   </div>
 
