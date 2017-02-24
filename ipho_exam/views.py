@@ -1480,7 +1480,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     else:
         trans = qquery.latest_version(question_id, lang_id)
 
-    filename = u'IPhO16 - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
+    filename = u'Exam - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
 
     if trans.lang.is_pdf:
         # etag = md5(trans.node.pdf).hexdigest()
