@@ -88,6 +88,10 @@ For the local server, simply execute
 ```bash
 python manage.py runserver
 ```
+and for the compilation workers
+```bash
+celery -A exam_tools worker -E --concurrency=1
+```
 
 ## Building the docs
 For development it is suggested to serve the docs locally
