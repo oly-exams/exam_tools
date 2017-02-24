@@ -1819,12 +1819,10 @@ def upload_scan(request):
     return render(request, 'ipho_exam/upload_scan.html', {'form': form, 'messages': messages})
 
 @permission_required('ipho_core.is_staff')
-def extra_sheets_select_exam(request):
-    exams = Exam.objects.filter(hidden=False)
-    return render(request, 'ipho_exam/extra_sheets_select_exam.html', {'exams': exams})
-
-@permission_required('ipho_core.is_staff')
-def extra_sheets(request, exam_id):
+def extra_sheets(request, exam_id=None):
+    if exam_id is None:
+        exams = Exam.objects.filter(hidden=False)
+        return render(request, 'ipho_exam/extra_sheets_select_exam.html', {'exams': exams})
     messages = []
     form = ExtraSheetForm(exam_id, request.POST or None)
     if form.is_valid():

@@ -106,7 +106,7 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^admin/submissions/(?P<submission_id>\d+)/delete$', 'admin_submission_delete', name='admin-submission-delete'),
 
     url(r'^admin/bulk-print/?$', 'bulk_print', name='bulk-print'),
-    url(r'^admin/extra-sheets-select-exam$', 'extra_sheets_select_exam', name='extra-sheets-select-exam'),
+    url(r'^admin/extra-sheets/?$', 'extra_sheets', name='extra-sheets-select-exam'),
     url(r'^admin/extra-sheets/(?P<exam_id>\d+)$', 'extra_sheets', name='extra-sheets'),
     url(r'^admin/scan-status/(?P<doc_id>\d+)/(?P<status>\w)$', 'set_scan_status', name='set-scan-status'),
     url(r'^admin/scan/promote-full/(?P<doc_id>\d+)$', 'set_scan_full', name='set-scan-full'),
