@@ -49,7 +49,7 @@ def main(request):
           messages.append(('alert-success', '<strong>Success</strong> Print job submitted. Please pickup your document at the printing station.'))
           success = True
         except printer.PrinterError as e:
-            messages.append(('alert-danger', '<strong>Error</strong> The document was uploaded successfully, but an error occured while communicating with the print server. Please try again or report the problem to the IPhO staff.<br /> Error was: '+e.msg))
+            messages.append(('alert-danger', '<strong>Error</strong> The document was uploaded successfully, but an error occured while communicating with the print server. Please try again or report the problem to a staff member.<br /> Error was: '+e.msg))
         form = PrintForm(queue_list=queue_list)
 
     form_html = render_crispy_form(form, context=csrf(request))

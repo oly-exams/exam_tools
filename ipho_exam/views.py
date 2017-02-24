@@ -336,7 +336,7 @@ def translation_export(request, question_id, lang_id, version_num=None):
     content = qml.unescape_entities(content)
 
     res = HttpResponse(content, content_type="application/ipho+qml+xml")
-    res['content-disposition'] = 'attachment; filename="{}"'.format('iphoexport_q{}_l{}.xml'.format(question_id, lang_id))
+    res['content-disposition'] = 'attachment; filename="{}"'.format('exam_export_q{}_l{}.xml'.format(question_id, lang_id))
     return res
 @permission_required('ipho_core.is_delegation')
 def translation_import(request, question_id, lang_id):
