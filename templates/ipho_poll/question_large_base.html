@@ -6,10 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
-    <meta name="author" content="Michele Dolfi, IPhO 2016">
+    <meta name="author" content="Oly Exams Team">
     {# <link rel="icon" href="../../favicon.ico"> #}
 
-    <title>{% block head-title %}IPhO Exam Tools{% endblock %}</title>
+    <title>{% block head-title %}Exam Tools{% endblock %}</title>
 
     <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
     <link href="{% static "font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
@@ -24,7 +24,7 @@
     </style>
     <style>
     .with-logo {
-      background: #eee url('{% static "ipho16_blue.png" %}') center right no-repeat;
+      background: #eee url('{% static "logo_square.png" %}') center right no-repeat;
       -webkit-background-clip: padding-box;
       background-clip: padding-box;
       background-origin: content-box;
@@ -39,7 +39,7 @@
   <body>
 
       {% if DEMO_MODE %}
-      <div class="alert alert-info" role="alert"><div class="container"><strong>DEMO VERSION.</strong> This is a demo version of the IPhO 2016 Exam Tools. (v{{ VERSION }} - {{ VERSION_DATE }})</div></div>
+      <div class="alert alert-info" role="alert"><div class="container"><strong>DEMO VERSION.</strong> This is a demo version of the Exam Tools. (v{{ VERSION }} - {{ VERSION_DATE }})</div></div>
       {% endif %}
 
 
@@ -49,7 +49,7 @@
       <div class="footer">
           <hr />
           <div class="container">
-              <p class="text-muted">Copyright © 2016 <a href="http://www.ipho2016.org">IPhO 2016</a>. Version {{ VERSION }} - {{ VERSION_DATE }}.</p>
+              <p class="text-muted">Copyright © 2014 - 2017 <a href="http://oly-exams.org/">Oly Exams Team</a>. Version {{ VERSION }} - {{ VERSION_DATE }}.</p>
           </div>
       </div>
 

@@ -1,7 +1,7 @@
 # Welcome on the Exam Tools Documentation
 
 
-During this year's IPhO we will for the first time use an entirely web-based management of the exams. Exam feedbacks, translations, printing, voting, corrections and ranking are among the features of this new tool.
+This is the user documentation for the Exam Tools, a web-based management tool that was introduced at the IPhO 2016. Exam feedbacks, translations, printing, voting, corrections and ranking are among the features of this tool.
 
 During the registration process you had to confirm that your delegation will join with at least one supported notebook computer, and that you were successfully able to translate the test exams. Note that the organizers will not provide any notebooks or workstations to the delegations (except with prior arrangement).
 
@@ -36,4 +36,4 @@ Jump directly to the documentation of the individual components:
 
 Please contact a Team Guide or IT Staff member if you need help with the exam tool or you notice something malfunctioning.
 
-Contact e-mail: [exam-tools@ipho2016.org](mailto:exam-tools@ipho2016.org)
+Contact e-mail: [exam-tools-users@oly-exams.org](mailto:exam-tools-users@oly-exams.org)

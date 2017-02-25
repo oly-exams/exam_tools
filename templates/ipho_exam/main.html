@@ -32,9 +32,9 @@
 {% block content %}
 <div class="container">
     <div class="page-header">
-      <h1>IPhO Exams</h1>
+      <h1>Exams</h1>
     </div>
-    
+
     <div id="alerts-container">
         {% if success %}
         <div class="alert alert-success alert-dismissible">
@@ -43,20 +43,20 @@
         </div>
         {% endif %}
     </div>
-    
+
     <div class="row">
         <div class="col-md-3">
           {% include "ipho_exam/panels/languages.html" %}
         </div>
-        
+
         <div class="col-md-3">
           {% include "ipho_exam/panels/editor.html" %}
         </div>
-        
+
         <div class="col-md-3">
           {% include "ipho_exam/panels/view.html" %}
         </div>
-        
+
         <div class="col-md-3">
           {% include "ipho_exam/panels/submit.html" %}
         </div>
@@ -86,7 +86,7 @@ $(function() {
         return cookieValue;
     }
     var csrftoken = getCookie('csrftoken');
-    
+
     function csrfSafeMethod(method) {
         // these HTTP methods do not require CSRF protection
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -98,8 +98,8 @@ $(function() {
             }
         }
     });
-    
-    
+
+
     function toggleChevron(e) {
         $(e.target)
             .prev('.panel-heading')
@@ -110,10 +110,10 @@ $(function() {
     $('#editor-accordion').on('show.bs.collapse', toggleChevron);
     $('#view-accordion').on('hide.bs.collapse', toggleChevron);
     $('#view-accordion').on('show.bs.collapse', toggleChevron);
-    
+
     $("[data-toggle=popover]").popover();
-    
-    
+
+
     // Language modal
     $(document).on('submit', '#language-modal form', function(evt) {
         var form = evt.target;
@@ -128,7 +128,7 @@ $(function() {
                     $('#language-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
                     return;
                 }
-                
+
                 if (data['type'] == 'add') {
                     $('#language-list').append('<a class="list-group-item" data-toggle="modal" data-target="#language-modal" data-remote="false" href="'+data['href']+'">'+data['name']+' <span class="pull-right"><i class="fa fa-pencil"></i></span></a>');
                     // TODO: sort
@@ -138,15 +138,15 @@ $(function() {
             }
         });
     });
-    
+
     $('#language-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var href = button.attr('href');
         var modal = $(this);
-        
+
         modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
         modal.find('.modal-body').html('');
-        
+
         $.ajax({
             url: href,
             dataType: 'json',
