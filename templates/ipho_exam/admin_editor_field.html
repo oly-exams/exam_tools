@@ -3,10 +3,12 @@
   <div class="field-content">
       <div class="row">
           <div class="col-xs-12">
-              <div class="btn-group" role="group" aria-label="...">
-                <a href"#" class="btn btn-default btn-xs"><i class="fa fa-arrow-up"></i></a>
-                <a href"#" class="btn btn-default btn-xs"><i class="fa fa-arrow-down"></i></a>
+              {% if parent %}
+              <div class="btn-group">
+                <a href="{% url 'exam:admin-editor-moveup-block' question_id=question.pk exam_id=exam.pk parent_id=parent.id block_id=field.id version_num=node_version %}" data-action="move" data-block-id="{{ field.id }}" class="btn btn-default btn-xs"><i class="fa fa-arrow-up"></i></a>
+                <a href="{% url 'exam:admin-editor-movedown-block' question_id=question.pk exam_id=exam.pk parent_id=parent.id block_id=field.id version_num=node_version %}" data-action="move" data-block-id="{{ field.id }}" class="btn btn-default btn-xs"><i class="fa fa-arrow-down"></i></a>
               </div>
+              {% endif %}
               <span class="label label-info">{{ field.display_name }}</span>
               <span id="{{ field.id }}-attributes">
               {% include 'ipho_exam/partials/admin_editor_attributes.html' with attributes=field.attributes %}

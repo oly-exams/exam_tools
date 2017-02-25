@@ -234,11 +234,7 @@ class QMLobject(object):
         if after_id is None:
             self.children.append(child_node)
         else:
-            ix = None
-            for i,c in enumerate(self.children):
-                if c.id == after_id:
-                    ix = i
-                    break
+            ix = self.child_index(after_id)
             if ix is None:
                 raise RuntimeError('after_id={} not found. len={}'.format(after_id, len(ll)))
             self.children.insert(ix+1, child_node)
@@ -374,6 +370,14 @@ class QMLobject(object):
             if cfind is not None:
                 return cfind
         return None
+
+    def child_index(self, child_id):
+        ix = None
+        for i,c in enumerate(self.children):
+            if c.id == child_id:
+                ix = i
+                break
+        return ix
 
     def delete(self, search_id):
         self.children = filter(lambda c: c.id != search_id, self.children)
