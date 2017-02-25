@@ -1,6 +1,6 @@
 site_name: Exam Tools Documentation
 theme: readthedocs
-copyright: Copyright 2016, IPhO 2016
+copyright: Copyright 2014 - 2017, Oly Exams Team
 site_dir: _docs_html
 pages:
   - "Home": index.md

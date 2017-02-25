@@ -1520,7 +1520,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
 @login_required
 def compiled_question_odt(request, question_id, lang_id, raw_tex=False):
     trans = qquery.latest_version(question_id, lang_id)
-    filename = u'IPhO16 - {} Q{} - {}.odt'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
+    filename = u'Exam - {} Q{} - {}.odt'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
 
     trans_content, ext_resources = trans.qml.make_xhtml()
     for r in ext_resources:
@@ -1559,7 +1559,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
         result = question_task.delay()
         all_tasks.append(result)
         print 'Group', position, 'done.'
-    filename = u'IPhO16 - {} - {}.pdf'.format(exam.name, student.code)
+    filename = u'Exam - {} - {}.pdf'.format(exam.name, student.code)
     chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
     #chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
     return HttpResponseRedirect(reverse('exam:pdf-task', args=[chord_task.id]))
