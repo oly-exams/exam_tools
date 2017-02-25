@@ -354,13 +354,12 @@ class ScanForm(forms.Form):
         self.helper.form_show_labels = True
 
 class ExtraSheetForm(forms.Form):
-    question = forms.ModelChoiceField(queryset=Question.objects.all())
     student = forms.ModelChoiceField(queryset=Student.objects.all())
     quantity = forms.IntegerField()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, exam_id, *args, **kwargs):
         super(ExtraSheetForm, self).__init__(*args, **kwargs)
-
+        self.fields['question'] = forms.ModelChoiceField(queryset=Question.objects.filter(exam_id=exam_id, code='Q'))
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field('question'),
