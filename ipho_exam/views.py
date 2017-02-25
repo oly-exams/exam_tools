@@ -1057,6 +1057,44 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
                 'success'    : True,
             })
 
+@permission_required('ipho_core.is_staff')
+def admin_editor_move_block(request, exam_id, question_id, version_num, parent_id, block_id, direction):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    lang_id = OFFICIAL_LANGUAGE
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    question = get_object_or_404(Question, id=question_id)
+
+    lang = get_object_or_404(Language, id=lang_id)
+    if lang.versioned:
+        node = get_object_or_404(VersionNode, question=question, language=lang, version=version_num)
+        node_version = node.version
+    else:
+        node = get_object_or_404(TranslationNode, question=question, language=lang)
+        node_version = 0
+
+    q = qml.make_qml(node)
+
+    parent_block = q.find(parent_id)
+    if parent_block is None:
+        raise Http404('parent_id not found')
+    
+    ix = parent_block.child_index(block_id)
+    if ix is None:
+        raise Http404('block_id not found in parent {}'.format(parent_id))
+    
+    if direction == 'up' and ix > 0:
+        parent_block.children[ix], parent_block.children[ix-1] = parent_block.children[ix-1], parent_block.children[ix]
+    elif direction == 'down' and ix < len(parent_block.children)-1:
+        parent_block.children[ix+1], parent_block.children[ix] = parent_block.children[ix], parent_block.children[ix+1]
+    else:
+        return JsonResponse({'success': False})
+    
+    node.text = qml.xml2string(q.make_xml())
+    node.save()
+    
+    return JsonResponse({'success': True, 'direction': direction})
 
 @permission_required('ipho_core.is_delegation')
 def submission_exam_list(request):

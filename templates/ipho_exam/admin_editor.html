@@ -98,12 +98,14 @@ body { margin-bottom: 70px; }
       </div>
     </div>
 
-{% if warning %}
-    <div class="alert alert-warning alert-dismissible" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <strong>Warning:</strong> {{ warning }}
+    <div id="alerts-container">
+    {% if warning %}
+        <div class="alert alert-warning alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <strong>Warning:</strong> {{ warning }}
+        </div>
+    {% endif %}
     </div>
-{% endif %}
 
 <div class="page-header">
   <h1>Exam admin editor</h1>
@@ -249,6 +251,34 @@ body { margin-bottom: 70px; }
                   }
                   modal.find('.modal-body').html('<img src="'+img_url+'" />');
                 }
+            });
+
+            // Block move
+            $(document).on('click', 'a[data-action="move"]', function(evt) {
+                evt.preventDefault();
+
+                var button = $(this);
+                var href = button.attr('href');
+                var block_id = button.data('block-id');
+
+                $.ajax({
+                    url: href,
+                    dataType: 'json',
+                    success: function(data) {
+                      $el = $('#'+block_id+'-container');
+                      if (data['success'] && data['direction'] == 'up') {
+                        $el.insertBefore($el.prev());
+                      } else if (data['success'] && data['direction'] == 'down') {
+                        $el.insertAfter($el.next());
+                      } else {
+                        console.log('Element not moved correctly');
+                        $('#alerts-container').prepend('<div class="alert alert-warning alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button><strong>Error:</strong> Move operation unsuccessful. (maybe trying to move up the top element?)</div>');
+                      }
+                    },
+                    error: function(jqXHR, textStatus ) {
+                      $('#alerts-container').prepend('<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button><strong>Error:</strong> Move request failed with status '+jqXHR.status+' ('+jqXHR.statusText+').</div>');
+                    },
+                });
             });
 
             // Block add
