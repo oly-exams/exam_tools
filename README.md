@@ -1,4 +1,4 @@
-# IPhO Admin Tools
+# Exam Tools
 
 ## Dependencies
 Base dependencies

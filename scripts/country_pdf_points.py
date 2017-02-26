@@ -47,7 +47,7 @@ OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 
 def compile_all():
-    for delegation in Delegation.objects.exclude(name='IPhO'):
+    for delegation in Delegation.objects.exclude(name=settings.OFFICIAL_DELEGATION):
         students = Student.objects.filter(delegation=delegation).values('id', 'pk', 'code', 'first_name', 'last_name')
         vid = 'F'
         points_per_student = []
