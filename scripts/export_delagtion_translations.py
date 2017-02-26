@@ -21,6 +21,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 import django
 django.setup()
 
+from django.conf import settings
 from django.core import serializers
 from ipho_exam.models import *
 import json
@@ -47,7 +48,7 @@ exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
 
 questions = Question.objects.filter(exam=exams)
 
-languages = Language.objects.exclude(delegation__name__in=['IPhO', 'TTT', 'TUN']).exclude(delegation__name__contains='-')
+languages = Language.objects.exclude(delegation__name__in=[settings.OFFICIAL_DELEGATION]).exclude(delegation__name__contains='-')
 save(languages, '037_delegation_langs.json')
 
 

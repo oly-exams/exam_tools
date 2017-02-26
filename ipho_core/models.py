@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User, Group
 import uuid
 
@@ -52,7 +53,7 @@ class DelegationManager(models.Manager):
 class Delegation(models.Model):
     objects = DelegationManager()
 
-    name    = models.CharField(unique=True,max_length=4)
+    name    = models.CharField(unique=True,max_length=max(3, len(settings.OFFICIAL_DELEGATION))
     country = models.CharField(unique=True,max_length=100)
     members = models.ManyToManyField(User, blank=True)
 

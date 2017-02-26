@@ -33,7 +33,7 @@ SITE_URL = 'http://127.0.0.1:8000'
 VERSION = '1.0'
 VERSION_DATE = '' #'2016-02-23'
 
-OFFICIAL_DELEGATION = 'IPhO'
+OFFICIAL_DELEGATION = 'Official'
 
 # Demo mode shows watermark and turns off some functionality
 DEMO_MODE = False
