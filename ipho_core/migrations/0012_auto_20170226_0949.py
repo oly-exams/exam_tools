@@ -6,9 +6,12 @@ from django.db import migrations, models
 
 def change_official(apps, schema_editor):
     Delegation = apps.get_model('ipho_core', 'Delegation')
-    official_delegation = Delegation.objects.get(name='IPhO')
-    official_delegation.name = settings.OFFICIAL_DELEGATION
-    official_delegation.save()
+    try:
+        official_delegation = Delegation.objects.get(name='IPhO')
+        official_delegation.name = settings.OFFICIAL_DELEGATION
+        official_delegation.save()
+    except Delegation.DoesNotExist:
+        pass
 
 class Migration(migrations.Migration):
 
