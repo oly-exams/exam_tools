@@ -101,6 +101,12 @@ PRINTER_QUEUES = {
   },
 }
 
+
+EXAM_TOOLS_API_KEYS = {
+    'PDF Worker': 'KeyChangeMe',
+    'Scan Worker': 'KeyChangeMe',
+}
+
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []
@@ -221,6 +227,7 @@ INSTALLED_APPS = (
     'crispy_forms',
     'django_ace',
     'djcelery',
+    'rest_framework',
     'ipho_core',
     'ipho_exam',
     'ipho_poll',
@@ -233,6 +240,13 @@ INSTALLED_APPS = (
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAdminUser',
+        'ipho_exam.permissions.HasValidApiKey',
+    ],
+    'PAGE_SIZE': 10
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

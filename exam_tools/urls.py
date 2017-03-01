@@ -40,6 +40,8 @@ urlpatterns = patterns('',
     url(r'^accounts/autologin/(?P<token>[0-9a-z\-]+)/?$', 'ipho_core.views.autologin', name='autologin'),
     url(r'^accounts/impersonate$', 'ipho_core.views.list_impersonate', name='impersonate'),
 
+    url(r'^api/exam/', include('ipho_exam.urls_api', namespace='exam-api')),
+
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
