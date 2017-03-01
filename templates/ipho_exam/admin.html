@@ -143,7 +143,7 @@ $(function() {
         });
     }
 
-    // question modal TODO: replace content, for now copied from translation
+    // question modal TODO: look what has to be changed more, mostly copied from translation
     $(document).on('submit', '#question-modal form', function(evt) {
         var form = evt.target;
         var $form = $(form);
@@ -172,7 +172,7 @@ $(function() {
         });
     });
 
-    $('#quesiton-modal').on('show.bs.modal', function (event) {
+    $('#question-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var href = button.attr('href');
         var modal = $(this);

@@ -44,7 +44,7 @@ from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, 
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, AddQuestionForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -743,20 +743,23 @@ def figure_export(request, fig_id, output_format='svg', lang_id=None):
         Figure.to_pdf(fig_svg, tmpfile)
         return HttpResponse(open(tmpfile), content_type="application/pdf")
 
-# TODO: replace content, for now copied from languague
+# TODO: save does not work, how do i set exam_id???
 @permission_required('ipho_core.is_staff')
 def admin_add_question(request, exam_id):
+    print("hello world from admin_add_question")
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
 
     ## Question section
-    question_form = QuestionForm(request.POST or None, exam_id=exam_id)
+    question_form = AddQuestionForm(request.POST or None, exam_id=exam_id)
 
     if question_form.is_valid():
-        # lang = language_form.instance.delegation = delegation
-        # lang = language_form.save()
+        print("hello world from admin_add_question2")
+        
+        question_form.instance.exam = exam_id
+        ques = quesiton_form.save()
 
-        # languages = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
+        #not modified yet
         return JsonResponse({
                     'type'    : 'add',
                     'name'    : lang.name,
@@ -769,7 +772,7 @@ def admin_add_question(request, exam_id):
 
     form_html = render_crispy_form(question_form)
     return JsonResponse({
-                'title'   : 'Add new language',
+                'title'   : 'Add new quesiton',
                 'form'    : form_html,
                 'submit'  : 'Create',
                 'success' : False,
