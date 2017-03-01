@@ -114,6 +114,8 @@ urlpatterns = patterns('ipho_exam.views',
     url(r'^admin/scan/promote-full/(?P<doc_id>\d+)$', 'set_scan_full', name='set-scan-full'),
     url(r'^admin/scan/upload$', 'upload_scan', name='upload-scan'),
 
+    url(r'^admin/api_keys$', 'api_keys', name='api-keys'),
+
     url(r'^test/', include('ipho_exam.urls_test', namespace='test')),
 
     # url(r'^(?P<rep_id>\d+)/submit/?$', 'submit'),

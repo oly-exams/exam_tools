@@ -1,0 +1,32 @@
+{% extends "ipho_exam/base.html" %}
+{% load static %}
+{% load exam_utils_tags %}
+{% load crispy_forms_tags %}
+
+{% block extra-head %}
+<style>
+.div-inline{
+    display:inline-block;
+}
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="#">Admin</a></li>
+<li class="active">Api Keys</li>
+{% endblock %}
+
+{% block pageheader %}<h1>Api Key</h1>{% endblock %}
+
+{% block exam-content %}
+<p class="lead">
+These Api Keys have read/write access to the exam documents table.
+Keys can be added and modified in the application settings.
+</p>
+
+{% for name, key in EXAM_TOOLS_API_KEYS.items %}
+<h3>{{ name }}</h3>
+<div class="well well-sm">{{ key }}</div>
+{% endfor %}
+
+{% endblock %}
