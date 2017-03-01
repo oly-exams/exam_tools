@@ -743,6 +743,37 @@ def figure_export(request, fig_id, output_format='svg', lang_id=None):
         Figure.to_pdf(fig_svg, tmpfile)
         return HttpResponse(open(tmpfile), content_type="application/pdf")
 
+# TODO: replace content, for now copied from languague
+@permission_required('ipho_core.is_staff')
+def admin_add_question(request, exam_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+
+    ## Question section
+    question_form = QuestionForm(request.POST or None, exam_id=exam_id)
+
+    if question_form.is_valid():
+        # lang = language_form.instance.delegation = delegation
+        # lang = language_form.save()
+
+        # languages = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
+        return JsonResponse({
+                    'type'    : 'add',
+                    'name'    : lang.name,
+                    'href'    : reverse('exam:language-edit', args=[lang.pk]),
+                    'tbody'   : render_to_string('ipho_exam/partials/languages_tbody.html', {'languages': languages}),
+                    'success' : True,
+                    'message' : '<strong>Question created!</strong> The new question has successfully been created.',
+                })
+
+
+    form_html = render_crispy_form(question_form)
+    return JsonResponse({
+                'title'   : 'Add new language',
+                'form'    : form_html,
+                'submit'  : 'Create',
+                'success' : False,
+            })
 
 @permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
