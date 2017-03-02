@@ -147,12 +147,9 @@ class TranslationForm(forms.Form):
                    'language': 'Language <a href="#" onclick="return false;" data-toggle="popover" data-trigger="hover" data-container="body" data-content="More languages can be created from the Exam > Languages interface."><span class="glyphicon glyphicon-info-sign"></span></a>',
                }
 
-# TODO verify, do I need exam_id?, can i set it here?
-class AddQuestionForm(ModelForm):
+class ExamQuestionForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        print("hello world from AddQuestionForm")
-        self.exam_id = kwargs.pop('exam_id')
-        super(AddQuestionForm, self).__init__(*args, **kwargs)
+        super(ExamQuestionForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.html5_required = True
         self.helper.form_show_labels = True

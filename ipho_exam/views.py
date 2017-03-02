@@ -44,7 +44,7 @@ from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, 
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, AddQuestionForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, ExamQuestionForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -751,22 +751,20 @@ def admin_add_question(request, exam_id):
         raise Exception('TODO: implement small template page for handling without Ajax.')
 
     ## Question section
-    question_form = AddQuestionForm(request.POST or None, exam_id=exam_id)
+    question_form = ExamQuestionForm(request.POST or None)
+    exam = get_object_or_404(Exam, id=exam_id)
 
     if question_form.is_valid():
         print("hello world from admin_add_question2")
-        
-        question_form.instance.exam = exam_id
-        ques = quesiton_form.save()
+        question_form.instance.exam = exam
+        question_form.save()
 
         #not modified yet
         return JsonResponse({
-                    'type'    : 'add',
-                    'name'    : lang.name,
-                    'href'    : reverse('exam:language-edit', args=[lang.pk]),
-                    'tbody'   : render_to_string('ipho_exam/partials/languages_tbody.html', {'languages': languages}),
+                    'type'    : 'submit',
                     'success' : True,
                     'message' : '<strong>Question created!</strong> The new question has successfully been created.',
+                    'exam_id': exam_id,
                 })
 
 
