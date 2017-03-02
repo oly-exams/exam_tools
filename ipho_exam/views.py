@@ -754,6 +754,8 @@ def admin_add_question(request, exam_id):
 
     if question_form.is_valid():
         question_form.instance.exam = exam
+        if question_form.cleaned_data.get('type') != Question.ANSWER:
+            question_form.instance.working_pages = 0
         question_form.save()
 
         return JsonResponse({
@@ -773,12 +775,42 @@ def admin_add_question(request, exam_id):
 
 @permission_required('ipho_core.is_staff')
 def admin_delete_question(request, question_id):
-    print("hello world from delete question")
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
+
     obj = get_object_or_404(Question, pk=question_id)
     obj.delete()
+
     return HttpResponseRedirect(reverse('exam:admin'))
+
+@permission_required('ipho_core.is_staff')
+def admin_edit_question(request, exam_id, question_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+
+    ## Question section
+    instance = get_object_or_404(Question, pk=question_id)
+    question_form = ExamQuestionForm(request.POST or None, instance=instance)
+
+    if question_form.is_valid():
+        if question_form.cleaned_data.get('type') != Question.ANSWER:
+            question_form.instance.working_pages = 0
+        question = question_form.save()
+
+        return JsonResponse({
+                    'type'    : 'submit',
+                    'success' : True,
+                    'message' : '<strong>Question modified!</strong> The question '+question.name+' has successfully been modified.',
+                    'exam_id': exam_id,
+                })
+
+    form_html = render_crispy_form(question_form)
+    return JsonResponse({
+                'title'   : 'Edit quesiton',
+                'form'    : form_html,
+                'submit'  : 'Save',
+                'success' : False,
+            })
 
 @permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie

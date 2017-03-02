@@ -150,6 +150,11 @@ class TranslationForm(forms.Form):
 class ExamQuestionForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ExamQuestionForm, self).__init__(*args, **kwargs)
+
+        instance = getattr(self, 'instance', None)
+        # if instance and instance.pk:
+        #     self.fields['name'].widget.attrs['readonly'] = True
+
         self.helper = FormHelper()
         self.helper.html5_required = True
         self.helper.form_show_labels = True
@@ -164,8 +169,8 @@ class ExamQuestionForm(ModelForm):
                    'name': 'Name',
                    'position': 'Position',
                    'type': 'Type',
-                   'working_pages': 'Working Pages (only if answersheet)',
-               }
+                   'working_pages': 'Working Pages (only valid for Type Answer)',
+                }
 
 class PDFNodeForm(ModelForm):
     def __init__(self, *args, **kwargs):

@@ -41,7 +41,7 @@
               <div class="modal-body"></div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Add</button>
+                <button type="submit" class="btn btn-primary"></button>
               </div>
           </form>
         </div>
@@ -143,7 +143,6 @@ $(function() {
         });
     }
 
-    // question modal TODO: look what has to be changed more, mostly copied from translation
     $(document).on('submit', '#question-modal form', function(evt) {
         var form = evt.target;
         var $form = $(form);
@@ -189,7 +188,7 @@ $(function() {
                 modal.find('form').attr('action', href);
                 modal.find('.modal-body').html(data['form']);
                 modal.find('.modal-footer').removeClass('hide');
-                modal.find('button[type="submit"]').text(data['submit_text']);
+                modal.find('button[type="submit"]').text(data['submit']);
                 modal.find("[data-toggle=popover]").popover(); // activate popover
             },
         });
