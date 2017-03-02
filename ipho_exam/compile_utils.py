@@ -19,6 +19,7 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
 from django.template import RequestContext
+from django.core.urlresolvers import reverse
 
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
@@ -29,6 +30,7 @@ from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, DocumentTask
 from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
 from hashlib import md5
+import requests
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
@@ -144,13 +146,17 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
         try:
             doc_task = DocumentTask.objects.get(task_id=job_task)
             doc = doc_task.document
-            contentfile = ContentFile(final_doc)
-            contentfile.name = meta['filename']
-            doc.file = contentfile
-            doc.num_pages = meta['num_pages']
-            doc.barcode_num_pages = meta['barcode_num_pages']
-            doc.barcode_base = meta['barcode_base']
-            doc.save()
+            api_url = settings.SITE_URL + reverse('api-exam:document-detail', kwargs=dict(pk=doc.pk))
+            r = requests.patch(api_url, headers={
+                'ApiKey': settings.EXAM_TOOLS_API_KEYS['PDF Worker']
+            }, files={
+                'file': (meta['filename'], final_doc)
+            }, data={
+                'num_pages': meta['num_pages'],
+                'barcode_num_pages': meta['barcode_num_pages'],
+                'barcode_base': meta['barcode_base'],
+            })
+            # TODO: check request result
             doc_task.delete()
             print 'Doc committed: {} {}{}'.format(sl.student.code, exam_code, position)
         except DocumentTask.DoesNotExist:
