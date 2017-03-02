@@ -5,8 +5,10 @@
         <h4 class="panel-title">
         <a data-toggle="collapse" href="#ex{{ exam.pk }}_q-{{ question.pk }}-versions">
             {{ question.name }}
-            <span class="glyphicon glyphicon-chevron-down"></span>
         </a>
+        <span class="glyphicon glyphicon-chevron-down"></span>
+        <a class="btn btn-sm btn-default" data-action="edit-question" data-action-url="{% url 'exam:admin' %}" title="Edit question"><i class="fa fa-pencil fa-fw"></i> edit</a>
+        <a class="btn btn- btn-danger" href="{% url 'exam:admin-delete-question' question_id=question.pk %}" title="Delete question"><i class="fa fa-trash-o"></i> delete</a>
         </h4>
     </div>
     <div id="ex{{ exam.pk }}_q-{{ question.pk }}-versions" class="panel-collapse collapse in">

@@ -743,10 +743,8 @@ def figure_export(request, fig_id, output_format='svg', lang_id=None):
         Figure.to_pdf(fig_svg, tmpfile)
         return HttpResponse(open(tmpfile), content_type="application/pdf")
 
-# TODO: save does not work, how do i set exam_id???
 @permission_required('ipho_core.is_staff')
 def admin_add_question(request, exam_id):
-    print("hello world from admin_add_question")
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
 
@@ -755,18 +753,15 @@ def admin_add_question(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
 
     if question_form.is_valid():
-        print("hello world from admin_add_question2")
         question_form.instance.exam = exam
         question_form.save()
 
-        #not modified yet
         return JsonResponse({
                     'type'    : 'submit',
                     'success' : True,
                     'message' : '<strong>Question created!</strong> The new question has successfully been created.',
                     'exam_id': exam_id,
                 })
-
 
     form_html = render_crispy_form(question_form)
     return JsonResponse({
@@ -775,6 +770,15 @@ def admin_add_question(request, exam_id):
                 'submit'  : 'Create',
                 'success' : False,
             })
+
+@permission_required('ipho_core.is_staff')
+def admin_delete_question(request, question_id):
+    print("hello world from delete question")
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    obj = get_object_or_404(Question, pk=question_id)
+    obj.delete()
+    return HttpResponseRedirect(reverse('exam:admin'))
 
 @permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
