@@ -941,7 +941,7 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
 
     lang = get_object_or_404(Language, id=lang_id)
 
-    if version_num == '1':
+    if not VersionNode.objects.filter(question=question, language=lang, status__in=['S','C']):
         node = get_object_or_404(VersionNode, question=question, language=lang, status='P', version=version_num)
         node.status = 'S'
         node.save()
