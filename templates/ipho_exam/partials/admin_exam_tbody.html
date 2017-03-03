@@ -8,7 +8,7 @@
         </a>
         <span class="glyphicon glyphicon-chevron-down"></span>
         <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'exam:admin-edit-question' exam_id=exam.pk question_id=question.pk %}"><i class="fa fa-pencil fa-fw"></i> edit</a>
-        <a class="btn btn-sm btn-danger" href="{% url 'exam:admin-delete-question' question_id=question.pk %}" title="Delete question"><i class="fa fa-trash-o"></i> delete</a>
+        <button class="btn btn-sm btn-danger" class="btn btn-sm btn-default" data-toggle="modal" data-target="#delete-modal" data-remote="false" href="{% url 'exam:admin-delete-question' exam_id=exam.pk question_id=question.pk %}" title="Delete question"><i class="fa fa-trash-o"></i> delete</button>
         <span style="float: right;">Position {{ question.position }}</span>
         <div class="clear"></div>
         </h4>

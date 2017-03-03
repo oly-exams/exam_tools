@@ -44,7 +44,7 @@ from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, 
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, ExamQuestionForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, ExamQuestionForm, DeleteForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -761,7 +761,7 @@ def admin_add_question(request, exam_id):
         return JsonResponse({
                     'type'    : 'submit',
                     'success' : True,
-                    'message' : '<strong>Question created!</strong> The new question has successfully been created.',
+                    'message' : '<strong>Question created!</strong> The new question '+question_form.cleaned_data.get('name')+' has successfully been created.',
                     'exam_id': exam_id,
                 })
 
@@ -774,14 +774,42 @@ def admin_add_question(request, exam_id):
             })
 
 @permission_required('ipho_core.is_staff')
-def admin_delete_question(request, question_id):
+def admin_delete_question(request, exam_id, question_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
+    
+    delete_form = DeleteForm(request.POST or None)
 
-    obj = get_object_or_404(Question, pk=question_id)
-    obj.delete()
+    delete_message = 'This action <strong>CANNOT</strong> be undone. <strong>All versions and all translations</strong> of this question will be deleted.'
 
-    return HttpResponseRedirect(reverse('exam:admin'))
+    if delete_form.is_valid():
+        question = get_object_or_404(Question, id=question_id)
+        if question.name == delete_form.cleaned_data.get('verify'):
+            question.delete()
+            return JsonResponse({
+                        'type'    : 'submit',
+                        'success' : True,
+                        'message' : '<strong>Question deleted!</strong> The question '+question.name+' has been deleted.',
+                        'exam_id': exam_id,
+                    })
+        else:
+            form_html = render_crispy_form(delete_form)
+            return JsonResponse({
+                        'title'   : 'Are you sure?',
+                        'form'    : '<div class="alert alert-warning alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'\
+                                    +'<strong>Try again!</strong> The question name does not match.</div>'\
+                                    +delete_message\
+                                    +form_html,
+                        'success' : False,
+                    })
+
+    form_html = render_crispy_form(delete_form)
+    return JsonResponse({
+                'title'   : 'Are you sure?',
+                'form'    : delete_message\
+                            +form_html,
+                'success' : False,
+            })
 
 @permission_required('ipho_core.is_staff')
 def admin_edit_question(request, exam_id, question_id):
@@ -912,6 +940,12 @@ def admin_accept_version(request, exam_id, question_id, version_num, compare_ver
     question = get_object_or_404(Question, id=question_id)
 
     lang = get_object_or_404(Language, id=lang_id)
+
+    if version_num == '1':
+        node = get_object_or_404(VersionNode, question=question, language=lang, status='P', version=version_num)
+        node.status = 'S'
+        node.save()
+        return HttpResponseRedirect(reverse('exam:admin'))
 
     if compare_version is None:
         compare_node = VersionNode.objects.filter(question=question, language=lang, status__in=['S','C']).order_by('-version')[0]

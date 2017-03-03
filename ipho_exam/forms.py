@@ -150,11 +150,6 @@ class TranslationForm(forms.Form):
 class ExamQuestionForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ExamQuestionForm, self).__init__(*args, **kwargs)
-
-        instance = getattr(self, 'instance', None)
-        # if instance and instance.pk:
-        #     self.fields['name'].widget.attrs['readonly'] = True
-
         self.helper = FormHelper()
         self.helper.html5_required = True
         self.helper.form_show_labels = True
@@ -171,6 +166,19 @@ class ExamQuestionForm(ModelForm):
                    'type': 'Type',
                    'working_pages': 'Working Pages (only valid for Type Answer)',
                 }
+
+class DeleteForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        print("hello world from delete form")
+        super(DeleteForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.helper.disable_csrf = True
+
+    verify = forms.CharField(max_length=100, label='Please type in the name of the question to confirm.')
+
 
 class PDFNodeForm(ModelForm):
     def __init__(self, *args, **kwargs):

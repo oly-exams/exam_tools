@@ -35,13 +35,30 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            <h4 class="modal-title">Add question</h4>
+            <h4 class="modal-title"></h4>
           </div>
           <form method="post" action="">
               <div class="modal-body"></div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-primary"></button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="delete-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <form method="post" action="">
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-danger">Delete</button>
               </div>
           </form>
         </div>
@@ -189,6 +206,56 @@ $(function() {
                 modal.find('.modal-body').html(data['form']);
                 modal.find('.modal-footer').removeClass('hide');
                 modal.find('button[type="submit"]').text(data['submit']);
+                modal.find("[data-toggle=popover]").popover(); // activate popover
+            },
+        });
+    })
+
+    $(document).on('submit', '#delete-modal form', function(evt) {
+        var form = evt.target;
+        var $form = $(form);
+        evt.preventDefault();
+
+        var data = new FormData($form.get(0));
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (!data['success']) {
+                    $('#delete-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    return;
+                }
+
+                update_questions(data['exam_id']);
+
+                $('#delete-modal').modal('hide');
+                $('#alerts-container').prepend('<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+
+            }
+        });
+    });
+
+    $('#delete-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
+        modal.find('.modal-footer').addClass('hide');
+
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('form').attr('action', href);
+                modal.find('.modal-body').html(data['form']);
+                modal.find('.modal-footer').removeClass('hide');
                 modal.find("[data-toggle=popover]").popover(); // activate popover
             },
         });
