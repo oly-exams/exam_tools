@@ -23,6 +23,7 @@ django.setup()
 from django.conf import settings
 
 from django.core import serializers
+from ipho_core.models import Delegation
 from ipho_exam.models import *
 import json
 from StringIO import StringIO
@@ -43,6 +44,19 @@ def save_with_pk(objs, stream):
             use_natural_primary_keys=False,
             stream=stream)
 
+
+## Official delegation
+objs = []
+OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
+objs.append( Delegation.objects.get(name=OFFICIAL_DELEGATION) )
+
+languages = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION, versioned=True)
+objs += list(languages)
+
+save(objs, '030_official_delagation.json')
+
+
+## Exams
 
 # exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
 exams = Exam.objects.all()

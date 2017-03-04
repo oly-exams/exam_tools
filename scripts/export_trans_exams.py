@@ -54,7 +54,7 @@ exams = Exam.objects.all()
 questions = Question.objects.filter(exam=exams)
 
 # languages = Language.objects.filter(name__contains='final')
-languages = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION)
+languages = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION, versioned=False)
 ss = StringIO()
 save(languages, ss)
 data = json.loads(ss.getvalue())
