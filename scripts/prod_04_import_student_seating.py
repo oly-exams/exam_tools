@@ -38,7 +38,7 @@ def main(input):
             Place(student=student, exam=experiment, name=row['seat_experiment']).save()
 
             print row['individual_id'], '.....', 'imported.'
-        except Delegation.DoesNotExist:
+        except Student.DoesNotExist:
             print 'Skip', row['individual_id'], 'because delegation does not exist.'
 
 
