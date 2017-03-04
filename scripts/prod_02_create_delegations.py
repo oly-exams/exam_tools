@@ -52,7 +52,7 @@ def create_objs(input):
             autologin = AutoLogin(user=user)
             autologin.save()
             log('Autologin created')
-            created_objs.append(autologin)
+        created_objs.append(user.autologin)
         
         delegation.members.add(user)
         delegation.save()
