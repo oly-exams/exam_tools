@@ -26,7 +26,7 @@ from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
 
-from ipho_exam.models import Language, Question, Student, Figure, TranslationNode, PDFNode, Feedback, StudentSubmission, TranslationImportTmp, Document
+from ipho_exam.models import Language, Question, Student, Figure, VersionNode, TranslationNode, PDFNode, Feedback, StudentSubmission, TranslationImportTmp, Document
 
 def build_extension_validator(valid_extensions):
     def validate_file_extension(value):
@@ -178,6 +178,23 @@ class DeleteForm(forms.Form):
         self.helper.disable_csrf = True
 
     verify = forms.CharField(max_length=100, label='Please type in the name of the question to confirm.')
+
+class VersionNodeForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(VersionNodeForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.helper.disable_csrf = True
+        
+    class Meta:
+        model = VersionNode
+        fields = ['tag']
+        labels = {
+                   'tag': 'Tag',
+                   }
+        
 
 
 class PDFNodeForm(ModelForm):

@@ -44,7 +44,7 @@ from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, 
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, ExamQuestionForm, DeleteForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, ExamQuestionForm, DeleteForm, VersionNodeForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -780,7 +780,7 @@ def admin_delete_question(request, exam_id, question_id):
     
     delete_form = DeleteForm(request.POST or None)
 
-    delete_message = 'This action <strong>CANNOT</strong> be undone. <strong>All versions and all translations</strong> of this question will be deleted.'
+    delete_message = 'This action <strong>CANNOT</strong> be undone. <strong>All versions and all translations</strong> of this question will be lost.'
 
     if delete_form.is_valid():
         question = get_object_or_404(Question, id=question_id)
@@ -929,8 +929,37 @@ def admin_delete_version(request, exam_id, question_id, version_num):
     else:
         raise Exception('Only versioned node can be deleted')
 
-    node.delete()
-    return HttpResponseRedirect(reverse('exam:admin'))
+    delete_form = DeleteForm(request.POST or None)
+
+    delete_message = 'This action <strong>CANNOT</strong> be undone. All changes made in this version will be lost.'
+
+    if delete_form.is_valid():
+        if question.name == delete_form.cleaned_data.get('verify'):
+            node.delete()
+            return JsonResponse({
+                        'type'    : 'submit',
+                        'success' : True,
+                        'message' : '<strong>Version deleted!</strong> Version v'+str(node.version)+' of question '+question.name+' has been deleted.',
+                        'exam_id': exam_id,
+                    })
+        else:
+            form_html = render_crispy_form(delete_form)
+            return JsonResponse({
+                        'title'   : 'Are you sure?',
+                        'form'    : '<div class="alert alert-warning alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'\
+                                    +'<strong>Try again!</strong> The question name does not match.</div>'\
+                                    +delete_message\
+                                    +form_html,
+                        'success' : False,
+                    })
+
+    form_html = render_crispy_form(delete_form)
+    return JsonResponse({
+                'title'   : 'Are you sure?',
+                'form'    : delete_message\
+                            +form_html,
+                'success' : False,
+            })
 
 @permission_required('ipho_core.is_staff')
 def admin_accept_version(request, exam_id, question_id, version_num, compare_version=None):
@@ -1008,6 +1037,38 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     node.status = 'C'
     node.save()
     return HttpResponseRedirect(reverse('exam:admin'))
+
+@permission_required('ipho_core.is_staff')
+def admin_settag_version(request, exam_id, question_id, version_num):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+
+    lang_id = OFFICIAL_LANGUAGE
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    question = get_object_or_404(Question, id=question_id)
+    lang = get_object_or_404(Language, id=lang_id)
+
+    ## Version section
+    node = get_object_or_404(VersionNode, question=question, language=lang, version=version_num)
+    node_form = VersionNodeForm(request.POST or None, instance=node)
+
+    if node_form.is_valid():
+        node_form.save()
+        return JsonResponse({
+                    'type'    : 'submit',
+                    'success' : True,
+                    'message' : '<strong>Tag set!</strong> The tag has successfully been modified.',
+                    'exam_id': exam_id,
+                })
+
+    form_html = render_crispy_form(node_form)
+    return JsonResponse({
+                'title'   : 'Set version tag',
+                'form'    : form_html,
+                'submit'  : 'Save',
+                'success' : False,
+            })
 
 @permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
