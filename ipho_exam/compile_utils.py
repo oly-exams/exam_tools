@@ -156,7 +156,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                 'barcode_num_pages': meta['barcode_num_pages'],
                 'barcode_base': meta['barcode_base'],
             })
-            # TODO: check request result
+            r.raise_for_status() # or, if r.status_code == requests.codes.ok:
             doc_task.delete()
             print 'Doc committed: {} {}{}'.format(sl.student.code, exam_code, position)
         except DocumentTask.DoesNotExist:
