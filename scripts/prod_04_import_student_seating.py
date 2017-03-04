@@ -34,8 +34,8 @@ def main(input):
         try:
             student = Student.objects.get(code=row['individual_id'])
 
-            Place(student=student, exam=theory, name=row['seat_theory']).save()
-            Place(student=student, exam=experiment, name=row['seat_experiment']).save()
+            Place.objects.get_or_create(student=student, exam=theory, name=row['seat_theory'])
+            Place.objects.get_or_create(student=student, exam=experiment, name=row['seat_experiment'])
 
             print row['individual_id'], '.....', 'imported.'
         except Student.DoesNotExist:
