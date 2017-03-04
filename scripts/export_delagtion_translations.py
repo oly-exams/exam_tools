@@ -44,7 +44,8 @@ def save_with_pk(objs, stream):
             use_natural_primary_keys=False,
             stream=stream)
 
-exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
+# exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
+exams = Exam.objects.all()
 
 questions = Question.objects.filter(exam=exams)
 
@@ -56,6 +57,6 @@ nodes = TranslationNode.objects.filter(question=questions, language=languages)
 ss = StringIO()
 save(nodes, ss)
 data = json.loads(ss.getvalue())
-for d in data:
-    d['fields']['question'][0] = d['fields']['question'][0].replace('instructions', 'Instructions')
+# for d in data:
+#     d['fields']['question'][0] = d['fields']['question'][0].replace('instructions', 'Instructions')
 json.dump(data, open('038_delegation_nodes.json', 'w'), indent=2)

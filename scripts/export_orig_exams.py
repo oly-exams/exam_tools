@@ -20,6 +20,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
 import django
 django.setup()
+from django.conf import settings
 
 from django.core import serializers
 from ipho_exam.models import *
@@ -42,7 +43,9 @@ def save_with_pk(objs, stream):
             use_natural_primary_keys=False,
             stream=stream)
 
-exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
+
+# exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
+exams = Exam.objects.all()
 save(exams, '031_exams.json')
 
 questions = Question.objects.filter(exam=exams)
@@ -62,7 +65,7 @@ for node in nodes:
 ss = StringIO()
 save(last_nodes, ss)
 data = json.loads(ss.getvalue())
-for d in data:
-    d['fields']['version'] = 1
-    d['fields']['tag'] = 'initial'
+# for d in data:
+#     d['fields']['version'] = 1
+#     d['fields']['tag'] = 'initial'
 json.dump(data, open('034_content_nodes.json', 'w'), indent=2)
