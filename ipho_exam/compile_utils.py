@@ -147,7 +147,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
             doc_task = DocumentTask.objects.get(task_id=job_task)
             doc = doc_task.document
             api_url = settings.SITE_URL + reverse('api-exam:document-detail', kwargs=dict(pk=doc.pk))
-            r = requests.patch(api_url, headers={
+            r = requests.patch(api_url, allow_redirects=False, headers={
                 'ApiKey': settings.EXAM_TOOLS_API_KEYS['PDF Worker']
             }, files={
                 'file': (meta['filename'], final_doc)
