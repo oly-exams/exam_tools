@@ -53,7 +53,7 @@ objs.append( Delegation.objects.get(name=OFFICIAL_DELEGATION) )
 languages = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION, versioned=True)
 objs += list(languages)
 
-save(objs, '030_official_delagation.json')
+save_with_pk(objs, '030_official_delagation.json')
 
 
 ## Exams
