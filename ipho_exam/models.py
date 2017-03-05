@@ -263,8 +263,11 @@ class FigureManager(models.Manager):
         return self.get(name=name)
 class Figure(models.Model):
     objects = FigureManager()
-
     name    = models.CharField(max_length=100, db_index=True)
+    tmp_content = models.TextField(blank=True)
+    tmp_params  = models.TextField(blank=True)
+
+class CompiledFigure(Figure):
     content = models.TextField(blank=True)
     params  = models.TextField(blank=True)
 
@@ -335,9 +338,6 @@ class Figure(models.Model):
 
     def natural_key(self):
         return self.name
-
-class CompiledFigure(Figure):
-    pass
 
 class PlaceManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):

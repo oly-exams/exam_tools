@@ -2,9 +2,11 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-from ipho_exam.models import Figure, CompiledFigure
 
 def move_figures(apps, schema_editor):
+    Figure = apps.get_model('ipho_exam', 'Figure')
+    CompiledFigure = apps.get_model('ipho_exam', 'CompiledFigure')
+
     for f in Figure.objects.all():
         if not isinstance(f, CompiledFigure):
             cf = CompiledFigure(
