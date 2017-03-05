@@ -2,9 +2,9 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-from ipho_exam.models import CompiledFigure
 
-def copy_content_params(*args):
+def copy_content_params(apps, schema_editor):
+    CompiledFigure = apps.get_model('ipho_exam', 'CompiledFigure')
     for cf in CompiledFigure.objects.all():
         cf.params = cf.tmp_params
         cf.content = cf.tmp_content
