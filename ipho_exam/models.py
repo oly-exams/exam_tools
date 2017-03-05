@@ -264,8 +264,6 @@ class FigureManager(models.Manager):
 class Figure(models.Model):
     objects = FigureManager()
     name    = models.CharField(max_length=100, db_index=True)
-    tmp_content = models.TextField(blank=True)
-    tmp_params  = models.TextField(blank=True)
 
 class CompiledFigure(Figure):
     content = models.TextField(blank=True)
