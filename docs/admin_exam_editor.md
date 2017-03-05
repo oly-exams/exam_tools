@@ -5,17 +5,36 @@ The admin editor is launched from [exam management](admin_exam_management.md) by
 
 ## New Question
 
-A new question contains an empty block *Question*. The exam is then constructed by adding different [functional blocks](admin_exam_editor.md#functional-blocks) like *Subquestion, Paragraph, etc.* with the *add-button*. Each block can have different child blocks. TODO: screen-shot for add-button etc.
+A new question contains an empty block *Question*. The exam is then constructed by adding different [functional blocks](admin_exam_editor.md#functional-blocks) (e.g. *Subquestion, Paragraph, etc.*) together. Each block can have different child blocks.
+
+### Overview over functionality
+![](img/admin_exam_editor.png)
+
+* 1 - Name of the block, click [here](admin_exam_editor.md#functional-blocks) for more details about which block does what.
+* 2 - Add a new block. Not all blocks may contain all other blocks, for more details see the *valid children* section of the description of each block.
+* 3 - Unique id of each block. **IMPORTANT:** never change the id.
+* 4 - Number of points in the Question, Part or Subquestion. This information is used for the marking section of the ExamTools.
+* If the block has more attributes they are shown here as well.
+* 5 - Edit the attributes and the content of the block.
+* 6 - Delete the block.
+* 7 - Move blocks up and down with respect to each other.
 
 ## View PDF
-The *View PDF* butten shows the compiled version of the question. It is good practice to complie regularly, in order to identify compilation erros as soon as possible.
+The *View PDF* button shows the compiled version of the question. It is good practice to compile regularly, in order to identify compilation errors as soon as possible.
 
 ## Accept
-TODO
+In order to make a question visible to the delegation it has to be accepted. If a version is accepted it can not be changed anymore. To continue working on the question a new version has to be created. When clicking on *Accept* all the changes made are shown and can be revised.
+![](img/admin_accept_diff.png)
+
+* 1 - Content of the *old* version of the exam.
+* 2 - Content of the *new* version that you currently want to accept.
+* 3 - Choose the old version (if there is more than one previous one).
+* 4 - All changes made between the two versions.
+* 5 - *Stage version*, by clicking here the version is accepted and will show up with status *staged* in the [exam management](admin_exam_management.md). This is still not visible to the delegations. To make it visible, all *staged* versions can be published in the *exam management*.
 
 ## Functional Blocks
 Each block has different attributes that define its properties.
-IMPORTANT: Do not ever change the attribute "id"!
+**IMPORTANT:** Do not ever change the attribute "id"!
 
 ### Question
 Main block of the question. Exists only once.
@@ -148,12 +167,12 @@ No block content.
 
 | Key         | Specification                                                      |
 | ----------- | ------------------------------------------------------------------ |
-| columns     | TODO: ugly.                                                        |
 | width       | Number of columns in table, has to be set if *columns* is not set. |
 | top_line    | Number of lines, default: "1".                                     |
 | left_line   | Number of lines, default: "1".                                     |
 | right_line  | Number of lines, default: "1".                                     |
 | grid_line   | Number of lines, default: "1".                                     |
+| columns     | Advanced: Used to customize columns, use latex format.             |
 
 Valid children:
 * [Table row](admin_exam_editor.md#table-row)
@@ -207,7 +226,7 @@ Attributes:
 | Key         | Specification                                                      |
 | ----------- | ------------------------------------------------------------------ |
 | bottom_line | Number of lines, default: "1".                                     |
-| multiplier  | Repeate the row n times, default: "1".                             |
+| multiplier  | Repeat the row n times, default: "1".                             |
 
 Valid children:
 * [Table cell](admin_exam_editor.md#table-cell)
