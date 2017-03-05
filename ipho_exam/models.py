@@ -336,6 +336,8 @@ class Figure(models.Model):
     def natural_key(self):
         return self.name
 
+class CompiledFigure(Figure):
+    pass
 
 class PlaceManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):
