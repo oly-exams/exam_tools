@@ -1907,3 +1907,9 @@ def submission_summary(request, exam_id):
             'remaining_countries':  remaining_countries,
         }
     )
+
+@permission_required('ipho_core.is_staff')
+def api_keys(request):
+    return render(request, 'ipho_exam/api_keys.html', {
+        'EXAM_TOOLS_API_KEYS': settings.EXAM_TOOLS_API_KEYS,
+    })
