@@ -265,15 +265,18 @@ class Figure(models.Model):
     objects = FigureManager()
     name    = models.CharField(max_length=100, db_index=True)
 
+    def natural_key(self):
+        return self.name
+
+    def __unicode__(self):
+        return u'%s' % (self.name)
+
 class CompiledFigure(Figure):
     content = models.TextField(blank=True)
     params  = models.TextField(blank=True)
 
     def params_as_list(self):
         return list([si.trim() for si in self.params.split(',')])
-
-    def __unicode__(self):
-        return u'%s' % (self.name)
 
     @staticmethod
     def get_fig_query(fig_id, query, lang=None):
@@ -332,10 +335,6 @@ class CompiledFigure(Figure):
         if error:
             print 'Got error', error
             raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
-
-
-    def natural_key(self):
-        return self.name
 
 class PlaceManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):
