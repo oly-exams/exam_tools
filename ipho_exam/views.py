@@ -258,7 +258,7 @@ def add_translation(request, exam_id):
                     question=question,
                     defaults={'status': 'O'}
                 )
-            else:
+            elif VersionNode.objects.filter(question=question, language=get_object_or_404(Language, id=OFFICIAL_LANGUAGE), status='C'):
                 node,_ = TranslationNode.objects.get_or_create(
                     language=translation_form.cleaned_data['language'],
                     question=question,
