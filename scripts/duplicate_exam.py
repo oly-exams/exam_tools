@@ -21,7 +21,6 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 import django
 django.setup()
 
-from django.conf import settings
 from django.core import serializers
 from ipho_exam.models import *
 import json
@@ -35,7 +34,6 @@ def save(objs, stream):
             use_natural_primary_keys=True,
             stream=stream)
 
-
 def save_with_pk(objs, stream):
     if type(stream) == str:
         stream = open(stream, 'w')
@@ -44,18 +42,33 @@ def save_with_pk(objs, stream):
             use_natural_primary_keys=False,
             stream=stream)
 
-exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
+def serialize(objs, with_pk):
+  ss = StringIO()
+  if with_pk:
+    save_pk(objs, ss)
+  else:
+    save(objs, ss)
+  return ss.getvalue()  
+
+orig_exam = 'Experiment - 2016'
+dest_exam = 'Experiment - Short'
+
+all_data = []
+
+exams = Exam.objects.filter(name=orig_exam)
+s = serialize(exams, with_pk=False)
+s = s.replace(orig_exam, dest_exam)
+all_data += json.loads(s)
 
 questions = Question.objects.filter(exam=exams)
+s = serialize(questions, with_pk=False)
+s = s.replace(orig_exam, dest_exam)
+all_data += json.loads(s)
 
-languages = Language.objects.exclude(delegation__name__in=[settings.OFFICIAL_DELEGATION]).exclude(delegation__name__contains='-')
-save(languages, '037_delegation_langs.json')
+nodes = VersionNode.objects.filter(question=questions).order_by('-version')
+s = serialize(nodes, with_pk=False)
+s = s.replace(orig_exam, dest_exam)
+all_data += json.loads(s)
 
 
-nodes = TranslationNode.objects.filter(question=questions, language=languages)
-ss = StringIO()
-save(nodes, ss)
-data = json.loads(ss.getvalue())
-for d in data:
-    d['fields']['question'][0] = d['fields']['question'][0].replace('instructions', 'Instructions')
-json.dump(data, open('038_delegation_nodes.json', 'w'), indent=2)
+json.dump(all_data, open('duplicate_question.json', 'w'), indent=2)
