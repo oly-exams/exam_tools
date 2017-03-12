@@ -20,6 +20,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
 import django
 django.setup()
+from django.conf import settings
 
 from django.core import serializers
 from ipho_exam.models import *
@@ -43,17 +44,23 @@ def save_with_pk(objs, stream):
             use_natural_primary_keys=False,
             stream=stream)
 
-exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
+
+OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
+
+
+# exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
+exams = Exam.objects.all()
 
 questions = Question.objects.filter(exam=exams)
 
-languages = Language.objects.filter(name__contains='final')
+# languages = Language.objects.filter(name__contains='final')
+languages = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION, versioned=False)
 ss = StringIO()
 save(languages, ss)
 data = json.loads(ss.getvalue())
-for d in data:
-    d['fields']['delegation'] = [u'IPhO']
-    d['fields']['name'] = d['fields']['name'].replace(' final', '')
+# for d in data:
+#     d['fields']['delegation'] = [u'IPhO']
+#     d['fields']['name'] = d['fields']['name'].replace(' final', '')
 json.dump(data, open('035_trans_official_lang.json', 'w'), indent=2)
 
 
@@ -61,6 +68,6 @@ nodes = TranslationNode.objects.filter(question=questions, language=languages)
 ss = StringIO()
 save(nodes, ss)
 data = json.loads(ss.getvalue())
-for d in data:
-    d['fields']['language'] = [d['fields']['language'][0].replace(' final', ''), u'IPhO']
+# for d in data:
+#     d['fields']['language'] = [d['fields']['language'][0].replace(' final', ''), u'IPhO']
 json.dump(data, open('036_trans_official_nodes.json', 'w'), indent=2)

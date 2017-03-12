@@ -14,3 +14,9 @@ pages:
     - "Assign exams and submit": assign_exams.md
     - "Exam feedbacks": exam_feedbacks.md
   - "Tool feedbacks": tool_feedbacks.md
+  - Administration:
+    # - admin_boardmeetings.md
+    # - admin_voting_tool.md
+    - admin_exam_management.md
+    - admin_exam_editor.md
+    - admin_figure_management.md
