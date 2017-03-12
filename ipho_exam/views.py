@@ -284,7 +284,8 @@ def add_translation(request, exam_id):
         if failed_questions:
             # raise ValueError(failed_questions)
             return JsonResponse({
-                        'success' : False,
+                        'success' : True,
+                        'added_all' : False,
                         'message' : '<strong>Warning!</strong> Translation{1} could not be added for the following question{1}: {0}'.format(
                             ', '.join(failed_questions),
                             's' if len(failed_questions) > 1 else ''
@@ -294,6 +295,7 @@ def add_translation(request, exam_id):
         else:
             return JsonResponse({
                         'success' : True,
+                        'added_all' : True,
                         'message' : '<strong>Translation added!</strong> The new translation has successfully been added.',
                         'exam_id' : exam.pk,
                     })
