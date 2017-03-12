@@ -267,6 +267,17 @@ class Figure(models.Model):
 
     def natural_key(self):
         return self.name
+        
+    def __getattr__(self, key):
+        try:
+            return super(Figure, self).__getattribute__(key)
+        except AttributeError:
+            subclasses = ['compiledfigure', 'rawfigure']
+            if key in subclasses or key.endswith('_cache'):
+                raise AttributeError
+            for sc in subclasses:
+                # raise AttributeError
+                return getattr(getattr(self, sc), key)
 
     def __unicode__(self):
         return u'%s' % (self.name)

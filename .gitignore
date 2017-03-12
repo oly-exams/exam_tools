@@ -2,6 +2,7 @@ iphoadmin.esproj
 iphoadmin/settings.py
 exam_tools/settings.py
 *.pyc
+.fuse_hidden*
 venv
 ipho.db
 exams-docs
