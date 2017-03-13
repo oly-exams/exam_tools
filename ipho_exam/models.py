@@ -291,7 +291,7 @@ class CompiledFigure(Figure):
     def params_as_list(self):
         return list([si.trim() for si in self.params.split(',')])
         
-    def to_inline(self, query, lang=None):
+    def _to_svg(self, query, lang=None):
         placeholders = self.params.split(',')
         fig_svg = self.content
         fonts_repl = u'@import url({host}/static/noto/notosans.css);'.format(host=SITE_URL)
@@ -312,9 +312,29 @@ class CompiledFigure(Figure):
                     repl = repl.decode('utf-8')
                 fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
         return fig_svg
+        
+    def to_inline(self, query, lang=None):
+        return self._to_svg(query=query, lang=lang)
+
+    def to_file(self, fig_name, query, lang=None, format_default='pdf', force_default=False):
+        # guessing the output format from the fig_name
+        if not force_default:
+            output_format = os.path.splitext(fig_name)[1].lstrip('.').lower()
+            # fall back on default if no format was found
+            if not output_format:
+                output_format = format_default
+        else:
+            output_format = format_default
+        
+        fig_svg = self._to_svg(query=query, lang=lang)
+        if output_format == 'pdf':
+            return self._to_pdf(fig_svg, fig_name)
+        elif output_format == 'png':
+            return self._to_png(fig_svg, fig_name)
+        raise ValueError("Invalid output_format '{0}' for '{1}' object.".format(output_format, type(self)))
 
     @staticmethod
-    def to_pdf(fig_svg, fig_name):
+    def _to_pdf(fig_svg, fig_name):
         with open('%s.svg' % (fig_name), 'w') as fp:
             fp.write(fig_svg.encode('utf8'))
         error = subprocess.Popen(
@@ -331,7 +351,7 @@ class CompiledFigure(Figure):
             raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
 
     @staticmethod
-    def to_png(fig_svg, fig_name):
+    def _to_png(fig_svg, fig_name):
         with open('%s.svg' % (fig_name), 'w') as fp:
             fp.write(fig_svg.encode('utf8'))
         error = subprocess.Popen(

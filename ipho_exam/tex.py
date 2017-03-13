@@ -135,13 +135,8 @@ class FigureExport(object):
         self.query = query
         self.lang = lang
     def save(self, dirname):
-        fig = get_object_or_404(Figure, pk=self.figid)
-        fig_svg = fig.to_inline(query=self.query, lang=self.lang)
-        # fig_svg = Figure.get_fig_query(self.figid, self.query, self.lang)
-        if '.png' in self.figname:
-            Figure.to_png(fig_svg, '%s/%s' % (dirname, self.figname))
-        else:
-            Figure.to_pdf(fig_svg, '%s/%s' % (dirname, self.figname))
+        fig = Figure.objects.get(id=self.figid)
+        fig.to_file(fig_name='%s/%s' % (dirname, self.figname), query=self.query, lang=self.lang)
 
 class StaticExport(object):
     def __init__(self, origin):

@@ -735,14 +735,12 @@ def figure_delete(request, fig_id):
 def figure_export(request, fig_id, output_format='svg', lang_id=None):
     lang = get_object_or_404(Language, pk=lang_id) if lang_id is not None else None
     fig = get_object_or_404(Figure, pk=fig_id)
-    fig_svg = fig.to_inline(query=request.GET, lang=lang)
-    # fig_svg = Figure.get_fig_query(fig_id, request.GET, lang)
     if output_format == 'svg':
-        return HttpResponse(fig_svg, content_type="image/svg+xml")
+        return HttpResponse(fig.to_inline(query=request.GET, lang=lang), content_type="image/svg+xml")
     if output_format == 'pdf':
         tmpdir = mkdtemp()
-        tmpfile = tmpdir+'/fig.pdf'
-        Figure.to_pdf(fig_svg, tmpfile)
+        tmpfile = os.path.join(tmpdir, 'fig.pdf')
+        Figure.to_file(tmpfile, query=request.GET, lang=lang)
         return HttpResponse(open(tmpfile), content_type="application/pdf")
 
 
