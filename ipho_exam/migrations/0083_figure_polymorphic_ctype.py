@@ -28,4 +28,5 @@ class Migration(migrations.Migration):
             name='polymorphic_ctype',
             field=models.ForeignKey(related_name='polymorphic_ipho_exam.figure_set+', editable=False, to='contenttypes.ContentType', null=True),
         ),
+        migrations.RunPython(forwards_func, backwards_func),
     ]

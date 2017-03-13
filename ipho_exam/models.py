@@ -26,6 +26,7 @@ from django.shortcuts import get_object_or_404
 from ipho_exam import fonts
 from .exceptions import IphoExamException, IphoExamForbidden
 from polymorphic.models import PolymorphicModel
+from polymorphic.manager import PolymorphicManager
 
 import os, uuid
 import subprocess
@@ -259,7 +260,7 @@ class TranslationImportTmp(models.Model):
         return u'%s - %s, %s' % (self.slug, self.question, self.language)
 
 
-class FigureManager(models.Manager):
+class FigureManager(PolymorphicManager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
 class Figure(PolymorphicModel):
