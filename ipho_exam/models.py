@@ -290,12 +290,10 @@ class CompiledFigure(Figure):
 
     def params_as_list(self):
         return list([si.trim() for si in self.params.split(',')])
-
-    @staticmethod
-    def get_fig_query(fig_id, query, lang=None):
-        fig = get_object_or_404(Figure, pk=fig_id)
-        placeholders = fig.params.split(',')
-        fig_svg = fig.content
+        
+    def to_inline(self, query, lang=None):
+        placeholders = self.params.split(',')
+        fig_svg = self.content
         fonts_repl = u'@import url({host}/static/noto/notosans.css);'.format(host=SITE_URL)
         font_name = u'Noto Sans'
         text_direction = u'ltr'
@@ -314,6 +312,7 @@ class CompiledFigure(Figure):
                     repl = repl.decode('utf-8')
                 fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
         return fig_svg
+
     @staticmethod
     def to_pdf(fig_svg, fig_name):
         with open('%s.svg' % (fig_name), 'w') as fp:

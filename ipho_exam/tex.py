@@ -135,7 +135,9 @@ class FigureExport(object):
         self.query = query
         self.lang = lang
     def save(self, dirname):
-        fig_svg = Figure.get_fig_query(self.figid, self.query, self.lang)
+        fig = get_object_or_404(Figure, pk=self.figid)
+        fig_svg = fig.to_inline(query=self.query, lang=self.lang)
+        # fig_svg = Figure.get_fig_query(self.figid, self.query, self.lang)
         if '.png' in self.figname:
             Figure.to_png(fig_svg, '%s/%s' % (dirname, self.figname))
         else:
