@@ -25,6 +25,7 @@ from ipho_core.models import Delegation, Student
 from django.shortcuts import get_object_or_404
 from ipho_exam import fonts
 from .exceptions import IphoExamException, IphoExamForbidden
+from polymorphic.models import PolymorphicModel
 
 import os, uuid
 import subprocess
@@ -261,23 +262,23 @@ class TranslationImportTmp(models.Model):
 class FigureManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
-class Figure(models.Model):
+class Figure(PolymorphicModel):
     objects = FigureManager()
     name    = models.CharField(max_length=100, db_index=True)
 
     def natural_key(self):
         return self.name
         
-    def __getattr__(self, key):
-        try:
-            return super(Figure, self).__getattribute__(key)
-        except AttributeError:
-            subclasses = ['compiledfigure', 'rawfigure']
-            if key in subclasses or key.endswith('_cache'):
-                raise AttributeError
-            for sc in subclasses:
-                # raise AttributeError
-                return getattr(getattr(self, sc), key)
+    # def __getattr__(self, key):
+    #     try:
+    #         return super(Figure, self).__getattribute__(key)
+    #     except AttributeError:
+    #         subclasses = ['compiledfigure', 'rawfigure']
+    #         if key in subclasses or key.endswith('_cache'):
+    #             raise AttributeError
+    #         for sc in subclasses:
+    #             # raise AttributeError
+    #             return getattr(getattr(self, sc), key)
 
     def __unicode__(self):
         return u'%s' % (self.name)
