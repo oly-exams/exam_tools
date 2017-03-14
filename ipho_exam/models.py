@@ -29,6 +29,7 @@ from polymorphic.models import PolymorphicModel
 from polymorphic.manager import PolymorphicManager
 
 import os, uuid
+import binascii
 import subprocess
 
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
@@ -367,6 +368,16 @@ class CompiledFigure(Figure):
         if error:
             print 'Got error', error
             raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
+            
+class RawFigure(Figure):
+    content = models.BinaryField()
+    filetype = models.CharField(max_length=4)
+    
+    def params_as_list(self):
+        return []
+    
+    def to_inline(self, *args, **kwargs):
+        return binascii.b2a_base64(self.content)
 
 class PlaceManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):
