@@ -228,6 +228,7 @@ INSTALLED_APPS = (
     'django_ace',
     'djcelery',
     'rest_framework',
+    'rest_framework_swagger',
     'ipho_core',
     'ipho_exam',
     'ipho_poll',

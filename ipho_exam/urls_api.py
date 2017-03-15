@@ -18,12 +18,17 @@
 from django.conf.urls import patterns, include, url
 
 from rest_framework.routers import DefaultRouter
+from rest_framework_swagger.views import get_swagger_view
 from ipho_exam import views_api
 
 router = DefaultRouter()
 router.register(r'documents', views_api.DocumentViewSet)
 
+schema_view = get_swagger_view(title='Exam Tools - Exam Documents API')
+
 urlpatterns = patterns('ipho_exam.views_api',
     url(r'^', include(router.urls)),
+    url(r'^docs/', schema_view),
+
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 )
