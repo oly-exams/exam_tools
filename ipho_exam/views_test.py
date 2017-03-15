@@ -1,3 +1,5 @@
+# coding=utf-8
+
 # Exam Tools
 #
 # Copyright (C) 2014 - 2017 Oly Exams Team
@@ -15,7 +17,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext
@@ -28,7 +29,7 @@ def index(request):
     return render_to_response('example_exam/index.html',
                               context_instance=RequestContext(request))
 def view_exam(request, display_tpl="show"):
-    
+
     base_template = "base_fullexam.html" if display_tpl == 'show' else "base_ckeditor.html"
     return render_to_response('example_exam/theo_2011_Q1.html', {'base_template': base_template},
                               context_instance=RequestContext(request))
@@ -39,13 +40,13 @@ def edit(request):
 
 def inline_edit(request):
     title = u'Ein Drei-Körper-Problem und LISA'
-    
+
     parts = []
-    
+
     parts.append(u"""
     <div class="figure">
         <img src="{}" /><br />
-        ABBILDUNG 1: Koplanare Umlaufbahnen der drei Körper. 
+        ABBILDUNG 1: Koplanare Umlaufbahnen der drei Körper.
         ("Koplanar": in der gleichen Ebene liegend)
     </div>
     """.format(static('exam/img/fig1.svg')))
@@ -112,9 +113,9 @@ def inline_edit(request):
     parts.append(u""" <p>1.4	Betrachte die Bewegung der Sonden in der
     Ebene in der sie sich befinden. Berechne die Relativgeschwindigkeit
     jeweils zweier Sonden zueinander.</p> """)
-    
+
     return render(request, 'base_exam.html', {'exam_title': title, 'exam_parts': parts})
-    
+
 
 def mathquill(request):
     return render_to_response('test_mathquill.html',
@@ -123,4 +124,3 @@ def mathquill(request):
 def mathquill_toolbar(request):
     return render_to_response('test_mathquill_toolbar.html',
                               context_instance=RequestContext(request))
-
