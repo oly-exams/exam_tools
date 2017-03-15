@@ -15,13 +15,30 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from rest_framework import serializers
-from ipho_exam.models import Document
+import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+
+import django
+django.setup()
+
+from ipho_core.models import Student
+from ipho_exam.models import Place, Exam
+
+import random
+
+def main():
+    Place.objects.all().delete()
+    
+    exams = Exam.objects.all()
+    for student in Student.objects.all():
+        for exam in exams:
+            seat = '{}-{}{}'.format(
+                random.choice(['M', 'N']),
+                random.choice(['A', 'B', 'C', 'D', 'E', 'F']),
+                random.randint(100, 400),
+            )
+            Place.objects.get_or_create(student=student, exam=exam, name=seat)
 
 
-class DocumentSerializer(serializers.ModelSerializer):
-    student = serializers.SlugRelatedField(slug_field='code', read_only=True)
-    exam    = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    class Meta:
-        model = Document
-        fields = '__all__'
+if __name__ == '__main__':
+    main()

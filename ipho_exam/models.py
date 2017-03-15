@@ -108,7 +108,7 @@ class Question(models.Model):
         (ANSWER, 'Answer'),
     )
 
-    code = models.CharField(max_length=8)
+    code = models.CharField(max_length=8, help_text="e.g. Q for Question, A for Answer Sheet, G for General Instruction")
     name = models.CharField(max_length=100, db_index=True)
     exam = models.ForeignKey(Exam)
     position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
@@ -150,7 +150,7 @@ class VersionNode(models.Model):
     text      = models.TextField()
     question  = models.ForeignKey(Question)
     version   = models.IntegerField()
-    tag       = models.CharField(max_length=100, null=True, blank=True)
+    tag       = models.CharField(max_length=100, null=True, blank=True, help_text='leave empty to show no tag')
     language  = models.ForeignKey(Language)
     status    = models.CharField(max_length=1, choices=STATUS_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)

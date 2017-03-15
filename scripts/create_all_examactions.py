@@ -15,13 +15,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from rest_framework import serializers
-from ipho_exam.models import Document
+import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
+import django
+django.setup()
 
-class DocumentSerializer(serializers.ModelSerializer):
-    student = serializers.SlugRelatedField(slug_field='code', read_only=True)
-    exam    = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    class Meta:
-        model = Document
-        fields = '__all__'
+from ipho_exam.models import *
+
+exams = Exam.objects.all()
+for exam in Exam.objects.all():
+    for delegation in Delegation.objects.all():
+        for action,_ in ExamAction.ACTION_CHOICES:
+            exam_action, _ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=action)
+

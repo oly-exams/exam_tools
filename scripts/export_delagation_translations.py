@@ -20,10 +20,9 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
 import django
 django.setup()
-from django.conf import settings
 
+from django.conf import settings
 from django.core import serializers
-from ipho_core.models import Delegation
 from ipho_exam.models import *
 import json
 from StringIO import StringIO
@@ -36,6 +35,7 @@ def save(objs, stream):
             use_natural_primary_keys=True,
             stream=stream)
 
+
 def save_with_pk(objs, stream):
     if type(stream) == str:
         stream = open(stream, 'w')
@@ -44,42 +44,19 @@ def save_with_pk(objs, stream):
             use_natural_primary_keys=False,
             stream=stream)
 
-
-## Official delegation
-objs = []
-OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
-objs.append( Delegation.objects.get(name=OFFICIAL_DELEGATION) )
-
-languages = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION, versioned=True)
-objs += list(languages)
-
-save_with_pk(objs, '030_official_delagation.json')
-
-
-## Exams
-
 # exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
 exams = Exam.objects.all()
-save(exams, '031_exams.json')
 
 questions = Question.objects.filter(exam=exams)
-save(questions, '032_questions.json')
 
-figures = Figure.objects.all()
-save_with_pk(figures, '033_figures.json')
+languages = Language.objects.exclude(delegation__name__in=[settings.OFFICIAL_DELEGATION]).exclude(delegation__name__contains='-')
+save(languages, '037_delegation_langs.json')
 
-nodes = VersionNode.objects.filter(question=questions).order_by('-version')
-last_nodes = []
-last_nodes_incl = []
-for node in nodes:
-    if node.question.pk in last_nodes_incl:
-        continue
-    last_nodes.append(node)
-    last_nodes_incl.append(node.question.pk)
+
+nodes = TranslationNode.objects.filter(question=questions, language=languages)
 ss = StringIO()
-save(last_nodes, ss)
+save(nodes, ss)
 data = json.loads(ss.getvalue())
 # for d in data:
-#     d['fields']['version'] = 1
-#     d['fields']['tag'] = 'initial'
-json.dump(data, open('034_content_nodes.json', 'w'), indent=2)
+#     d['fields']['question'][0] = d['fields']['question'][0].replace('instructions', 'Instructions')
+json.dump(data, open('038_delegation_nodes.json', 'w'), indent=2)
