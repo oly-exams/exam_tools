@@ -251,6 +251,7 @@ def add_translation(request, exam_id):
          )
     ).filter(Q(num_translation__lt=num_questions) | Q(num_pdf__lt=num_questions))
     if translation_form.is_valid():
+        failed_questions = []
         for question in exam.question_set.exclude(translationnode__language=translation_form.cleaned_data['language']):
             if translation_form.cleaned_data['language'].is_pdf:
                 node,_ = PDFNode.objects.get_or_create(
@@ -258,7 +259,7 @@ def add_translation(request, exam_id):
                     question=question,
                     defaults={'status': 'O'}
                 )
-            else:
+            elif VersionNode.objects.filter(question=question, language=get_object_or_404(Language, id=OFFICIAL_LANGUAGE), status='C'):
                 node,_ = TranslationNode.objects.get_or_create(
                     language=translation_form.cleaned_data['language'],
                     question=question,
@@ -277,12 +278,27 @@ def add_translation(request, exam_id):
                     trans.qml.make_xml()
                 )
                 node.save()
+            else:
+                failed_questions.append(question.name)
 
-        return JsonResponse({
-                    'success' : True,
-                    'message' : '<strong>Translation added!</strong> The new translation has successfully been added.',
-                    'exam_id' : exam.pk,
-                })
+        if failed_questions:
+            # raise ValueError(failed_questions)
+            return JsonResponse({
+                        'success' : True,
+                        'added_all' : False,
+                        'message' : '<strong>Warning!</strong> Translation{1} could not be added for the following question{1}: {0}'.format(
+                            ', '.join(failed_questions),
+                            's' if len(failed_questions) > 1 else ''
+                        ),
+                        'exam_id' : exam.pk,
+                    })
+        else:
+            return JsonResponse({
+                        'success' : True,
+                        'added_all' : True,
+                        'message' : '<strong>Translation added!</strong> The new translation has successfully been added.',
+                        'exam_id' : exam.pk,
+                    })
 
 
     form_html = render_crispy_form(translation_form)
@@ -777,7 +793,7 @@ def admin_add_question(request, exam_id):
 def admin_delete_question(request, exam_id, question_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    
+
     delete_form = DeleteForm(request.POST or None)
 
     delete_message = 'This action <strong>CANNOT</strong> be undone. <strong>All versions and all translations</strong> of this question will be lost.'
@@ -1242,21 +1258,21 @@ def admin_editor_move_block(request, exam_id, question_id, version_num, parent_i
     parent_block = q.find(parent_id)
     if parent_block is None:
         raise Http404('parent_id not found')
-    
+
     ix = parent_block.child_index(block_id)
     if ix is None:
         raise Http404('block_id not found in parent {}'.format(parent_id))
-    
+
     if direction == 'up' and ix > 0:
         parent_block.children[ix], parent_block.children[ix-1] = parent_block.children[ix-1], parent_block.children[ix]
     elif direction == 'down' and ix < len(parent_block.children)-1:
         parent_block.children[ix+1], parent_block.children[ix] = parent_block.children[ix], parent_block.children[ix+1]
     else:
         return JsonResponse({'success': False})
-    
+
     node.text = qml.xml2string(q.make_xml())
     node.save()
-    
+
     return JsonResponse({'success': True, 'direction': direction})
 
 @permission_required('ipho_core.is_delegation')
