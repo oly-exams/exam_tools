@@ -306,22 +306,9 @@ class CompiledFigure(Figure):
     def to_inline(self, query, lang=None):
         return self._to_svg(query=query, lang=lang), 'svg+xml'
 
-    def to_file(self, fig_name, query, lang=None, format_default='pdf', force_default=False):
-        # guessing the output format from the fig_name
-        if not force_default:
-            output_format = os.path.splitext(fig_name)[1].lstrip('.').lower()
-            # fall back on default if no format was found
-            if not output_format:
-                output_format = format_default
-        else:
-            output_format = format_default
-        
+    def to_file(self, fig_name, query, lang=None):
         fig_svg = self._to_svg(query=query, lang=lang)
-        if output_format == 'pdf':
-            return self._to_pdf(fig_svg, fig_name)
-        elif output_format == 'png':
-            return self._to_png(fig_svg, fig_name)
-        raise ValueError("Invalid output_format '{0}' for '{1}' object.".format(output_format, type(self)))
+        return self._to_pdf(fig_svg, fig_name)
 
     @staticmethod
     def _to_pdf(fig_svg, fig_name):
@@ -331,7 +318,7 @@ class CompiledFigure(Figure):
             [INKSCAPE_BIN,
              '--without-gui',
              '%s.svg' % (fig_name),
-             '--export-pdf=%s' % (fig_name)],
+             '--export-pdf=%s.pdf' % (fig_name)],
             stdin=open(os.devnull, "r"),
             stderr=open(os.devnull, "wb"),
             stdout=open(os.devnull, "wb")
@@ -340,23 +327,23 @@ class CompiledFigure(Figure):
             print 'Got error', error
             raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
 
-    @staticmethod
-    def _to_png(fig_svg, fig_name):
-        with open('%s.svg' % (fig_name), 'w') as fp:
-            fp.write(fig_svg.encode('utf8'))
-        error = subprocess.Popen(
-            [INKSCAPE_BIN,
-             '--without-gui',
-             '%s.svg' % (fig_name),
-             '--export-png=%s' % (fig_name),
-             '--export-dpi=180'],
-            stdin=open(os.devnull, "r"),
-            stderr=open(os.devnull, "wb"),
-            stdout=open(os.devnull, "wb")
-        ).wait()
-        if error:
-            print 'Got error', error
-            raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
+    # @staticmethod
+    # def _to_png(fig_svg, fig_name):
+    #     with open('%s.svg' % (fig_name), 'w') as fp:
+    #         fp.write(fig_svg.encode('utf8'))
+    #     error = subprocess.Popen(
+    #         [INKSCAPE_BIN,
+    #          '--without-gui',
+    #          '%s.svg' % (fig_name),
+    #          '--export-png=%s' % (fig_name),
+    #          '--export-dpi=180'],
+    #         stdin=open(os.devnull, "r"),
+    #         stderr=open(os.devnull, "wb"),
+    #         stdout=open(os.devnull, "wb")
+    #     ).wait()
+    #     if error:
+    #         print 'Got error', error
+    #         raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
             
 class RawFigure(Figure):
     content = models.BinaryField()
@@ -367,7 +354,10 @@ class RawFigure(Figure):
     
     def to_inline(self, *args, **kwargs):
         return self.content, self.filetype
-        return binascii.b2a_base64(self.content), self.filetype
+        
+    def to_file(self, fig_name, query, lang=None, format_default='auto', force_default=False):
+        with open('{name}.{ext}'.format(name=fig_name, ext=self.filetype), 'wb') as f:
+            f.write(self.content)
 
 class PlaceManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):

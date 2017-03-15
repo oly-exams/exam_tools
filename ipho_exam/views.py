@@ -750,19 +750,9 @@ def figure_delete(request, fig_id):
 @login_required
 def figure_export(request, fig_id, lang_id=None):
     lang = get_object_or_404(Language, pk=lang_id) if lang_id is not None else None
-<<<<<<< HEAD
     fig = get_object_or_404(Figure, pk=fig_id)
     figure_content, content_type = fig.to_inline(query=request.GET, lang=lang)
     return HttpResponse(figure_content, content_type="image/{}".format(content_type))
-=======
-    fig_svg = Figure.get_fig_query(fig_id, request.GET, lang)
-    if output_format == 'svg':
-        return HttpResponse(fig_svg, content_type="image/svg+xml")
-    if output_format == 'pdf':
-        tmpdir = mkdtemp()
-        tmpfile = tmpdir+'/fig.pdf'
-        Figure.to_pdf(fig_svg, tmpfile)
-        return HttpResponse(open(tmpfile), content_type="application/pdf")
 
 @permission_required('ipho_core.is_staff')
 def admin_add_question(request, exam_id):
@@ -860,7 +850,6 @@ def admin_edit_question(request, exam_id, question_id):
                 'submit'  : 'Save',
                 'success' : False,
             })
->>>>>>> 612525b83a606da709158329b32a7c2656f7f0dd
 
 @permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie

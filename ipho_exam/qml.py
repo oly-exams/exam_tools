@@ -562,11 +562,17 @@ class QMLfigure(QMLobject):
             if c.tag == 'param':
                 query[c.attributes['name']] = c.data.encode('utf-8')
         return query
-    def fig_url(self):
-        if self.lang is None:
-            img_src = reverse('exam:figure-export', args=[self.attributes['figid']])
+    def fig_url(self, output_format='svg'):
+        if output_format == 'svg':
+            if self.lang is None:
+                img_src = reverse('exam:figure-export', args=[self.attributes['figid']])
+            else:
+                img_src = reverse('exam:figure-lang-export', args=[self.attributes['figid'], self.lang.pk])
         else:
-            img_src = reverse('exam:figure-lang-export', args=[self.attributes['figid'], self.lang.pk])
+            if self.lang is None:
+                img_src = reverse('exam:figure-export-pdf', args=[self.attributes['figid']])
+            else:
+                img_src = reverse('exam:figure-lang-export-pdf', args=[self.attributes['figid'], self.lang.pk])
 
         query = self.fig_query()
         if len(query) > 0: img_src += '?' + urllib.urlencode(query)
@@ -588,7 +594,7 @@ class QMLfigure(QMLobject):
         return {self.id: ret}
 
     def make_tex(self):
-        figname = 'fig_{}.pdf'.format(self.id)
+        figname = 'fig_{}'.format(self.id)
 
         fig_caption = ''
         for c in self.children:
