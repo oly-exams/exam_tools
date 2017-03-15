@@ -271,17 +271,6 @@ class Figure(PolymorphicModel):
     def natural_key(self):
         return self.name
         
-    # def __getattr__(self, key):
-    #     try:
-    #         return super(Figure, self).__getattribute__(key)
-    #     except AttributeError:
-    #         subclasses = ['compiledfigure', 'rawfigure']
-    #         if key in subclasses or key.endswith('_cache'):
-    #             raise AttributeError
-    #         for sc in subclasses:
-    #             # raise AttributeError
-    #             return getattr(getattr(self, sc), key)
-
     def __unicode__(self):
         return u'%s' % (self.name)
 
@@ -315,7 +304,7 @@ class CompiledFigure(Figure):
         return fig_svg
         
     def to_inline(self, query, lang=None):
-        return self._to_svg(query=query, lang=lang)
+        return self._to_svg(query=query, lang=lang), 'svg+xml'
 
     def to_file(self, fig_name, query, lang=None, format_default='pdf', force_default=False):
         # guessing the output format from the fig_name
@@ -377,7 +366,8 @@ class RawFigure(Figure):
         return []
     
     def to_inline(self, *args, **kwargs):
-        return binascii.b2a_base64(self.content)
+        return self.content, self.filetype
+        return binascii.b2a_base64(self.content), self.filetype
 
 class PlaceManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):

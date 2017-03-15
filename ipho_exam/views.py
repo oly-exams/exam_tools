@@ -732,17 +732,11 @@ def figure_delete(request, fig_id):
 
 
 @login_required
-def figure_export(request, fig_id, output_format='svg', lang_id=None):
+def figure_export(request, fig_id, lang_id=None):
     lang = get_object_or_404(Language, pk=lang_id) if lang_id is not None else None
     fig = get_object_or_404(Figure, pk=fig_id)
-    if output_format == 'svg':
-        return HttpResponse(fig.to_inline(query=request.GET, lang=lang), content_type="image/svg+xml")
-    if output_format == 'pdf':
-        tmpdir = mkdtemp()
-        tmpfile = os.path.join(tmpdir, 'fig.pdf')
-        Figure.to_file(tmpfile, query=request.GET, lang=lang)
-        return HttpResponse(open(tmpfile), content_type="application/pdf")
-
+    figure_content, content_type = fig.to_inline(query=request.GET, lang=lang)
+    return HttpResponse(figure_content, content_type="image/{}".format(content_type))
 
 @permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
