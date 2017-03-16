@@ -238,15 +238,17 @@ body { margin-bottom: 70px; }
 
 <ul class="nav nav-tabs">
     {% for q in exam.question_set.all %}
-        <li {% if question == q %} class="active" {% endif %}>
-            {% if orig_lang and trans_lang %}
-                <a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk lang_id=trans_lang.pk %}">{{ q.name }}</a>
-            {% elif orig_lang %}
-                <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk %}">{{ q.name }}</a>
-            {% else %}
-                <a href="{% url 'exam:editor-question' exam_id=exam.pk question_id=q.pk %}">{{ q.name }}</a>
-            {% endif %}
-        </li>
+        {% if q.has_published_version %}
+            <li {% if question == q %} class="active" {% endif %}>
+                {% if orig_lang and trans_lang %}
+                    <a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk lang_id=trans_lang.pk %}">{{ q.name }}</a>
+                {% elif orig_lang %}
+                    <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk %}">{{ q.name }}</a>
+                {% else %}
+                    <a href="{% url 'exam:editor-question' exam_id=exam.pk question_id=q.pk %}">{{ q.name }}</a>
+                {% endif %}
+            </li>
+        {% endif %}
     {% endfor %}
 </ul>
 

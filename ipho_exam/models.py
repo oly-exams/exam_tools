@@ -132,7 +132,9 @@ class Question(models.Model):
     def natural_key(self):
         return (self.name,) + self.exam.natural_key()
     natural_key.dependencies = ['ipho_exam.exam']
-
+    
+    def has_published_version(self):
+        return bool(self.versionnode_set.filter(status='C'))
 
 class VersionNodeManager(models.Manager):
     def get_by_natural_key(self, version, question_name, exam_name, lang_name, delegation_name):

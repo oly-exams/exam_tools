@@ -259,7 +259,7 @@ def add_translation(request, exam_id):
                     question=question,
                     defaults={'status': 'O'}
                 )
-            elif VersionNode.objects.filter(question=question, language=get_object_or_404(Language, id=OFFICIAL_LANGUAGE), status='C'):
+            elif question.has_published_version():
                 node,_ = TranslationNode.objects.get_or_create(
                     language=translation_form.cleaned_data['language'],
                     question=question,
@@ -1545,7 +1545,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
     elif exam is not None and exam.question_set.count() > 0:
-        question = exam.question_set.all()[0]
+        question = exam.question_set.first()
 
     delegation = Delegation.objects.filter(members=request.user)
     ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
