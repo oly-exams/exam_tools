@@ -674,26 +674,11 @@ def figure_add(request):
 
     form = FigureForm(request.POST or None, request.FILES or None)
     if form.is_valid():
-        fig_obj = form.save(commit=False)
-        ext = os.path.splitext(request.FILES['file'])[1]
-        
-        # return JsonResponse(
-        #     {
-        #             'type'      : 'add',
-        #             'figid'     : 1,
-        #             'name'      : 'bla',
-        #             'params'    : '',
-        #             'src'       : reverse('exam:figure-export', args=[1]),
-        #             'edit-href' : reverse('exam:figure-edit', args=[1]),
-        #             'delete-href' : reverse('exam:figure-delete', args=[1]),
-        #             'success'   : True,
-        #             'message'   : '<strong>Figure added!</strong> The new figure has successfully been created.',
-        #     }
-        # 
-        # )
+        obj = form.save(commit=False)
+        ext = os.path.splitext(str(request.FILES['file']))[1]
         
         if ext in ['.svg', '.svgz']:
-            obj = CompiledFigure.objects.create(name=fig_obj.name)
+            obj = CompiledFigure.objects.create(name=obj.name)
             obj.content = request.FILES['file'].read()
             placeholders = figparam_placeholder.findall(obj.content)
             obj.params = ','.join(placeholders)
@@ -701,6 +686,7 @@ def figure_add(request):
         else:
             obj = RawFigure.objects.create(name=fig_obj.name)
             obj.content = request.FILES['file'].read()
+            obj.filetype = ext.lstrip('.')
             obj.save()
 
         return JsonResponse({
@@ -729,14 +715,26 @@ def figure_edit(request, fig_id):
         raise Exception('TODO: implement small template page for handling without Ajax.')
 
     instance = get_object_or_404(Figure, pk=fig_id)
-    form = FigureForm(request.POST or None, request.FILES or None, instance=instance)
+    # if isinstance(instance, RawFigure):
+    #     compiled = False
+    #     valid_extensions = (instance.filetype)
+    # elif isinstance(instance, CompiledFigure):
+    #     compiled = True
+    valid_extensions = ('.svg', '.svgz')
+    compiled = True
+    # The 'else' case should produce an error, since Figures should never be neither Raw nor Compiled.
+    form = FigureForm(request.POST or None, request.FILES or None, instance=instance, valid_extensions=valid_extensions)
     if form.is_valid():
-        obj = form.save()
+        obj = form.save(commit=False)
         if 'file' in request.FILES:
-            obj.content = request.FILES['file'].read()
-            placeholders = figparam_placeholder.findall(obj.content)
-            obj.params = ','.join(placeholders)
-            obj.save()
+            if compiled:
+                obj.content = request.FILES['file'].read()
+                placeholders = figparam_placeholder.findall(obj.content)
+                obj.params = ','.join(placeholders)
+                obj.save()
+            else:
+                obj.content = request.FILES['file'].read()
+                obj.save()
 
         return JsonResponse({
                     'type'    : 'edit',
