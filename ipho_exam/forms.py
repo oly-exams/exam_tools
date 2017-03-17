@@ -103,11 +103,11 @@ class LanguageForm(ModelForm):
 
 class FigureForm(ModelForm):
     def __init__(self, *args, **kwargs):
+        valid_extensions = kwargs.pop('valid_extensions', ('.svg', '.svgz', '.png'))
         super(FigureForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
-        # valid_extensions = getattr(self, 'valid_extensions', ('.svg', '.svgz', '.png'))
         self.fields['file'] = forms.FileField(
-            validators=[build_extension_validator(('.svg', '.svgz', '.png'))], 
+            validators=[build_extension_validator(valid_extensions)], 
             label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: *.svg, *.svgz, *.png"><span class="glyphicon glyphicon-info-sign"></span></a>'
         )
         if instance and instance.pk:

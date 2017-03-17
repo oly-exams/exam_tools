@@ -684,7 +684,7 @@ def figure_add(request):
             obj.params = ','.join(placeholders)
             obj.save()
         else:
-            obj = RawFigure.objects.create(name=fig_obj.name)
+            obj = RawFigure.objects.create(name=obj.name)
             obj.content = request.FILES['file'].read()
             obj.filetype = ext.lstrip('.')
             obj.save()
@@ -715,13 +715,12 @@ def figure_edit(request, fig_id):
         raise Exception('TODO: implement small template page for handling without Ajax.')
 
     instance = get_object_or_404(Figure, pk=fig_id)
-    # if isinstance(instance, RawFigure):
-    #     compiled = False
-    #     valid_extensions = (instance.filetype)
-    # elif isinstance(instance, CompiledFigure):
-    #     compiled = True
-    valid_extensions = ('.svg', '.svgz')
-    compiled = True
+    if isinstance(instance, RawFigure):
+        compiled = False
+        valid_extensions = ('.' + instance.filetype,)
+    elif isinstance(instance, CompiledFigure):
+        compiled = True
+        valid_extensions = ('.svg', '.svgz')
     # The 'else' case should produce an error, since Figures should never be neither Raw nor Compiled.
     form = FigureForm(request.POST or None, request.FILES or None, instance=instance, valid_extensions=valid_extensions)
     if form.is_valid():
