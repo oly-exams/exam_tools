@@ -350,6 +350,7 @@ class CompiledFigure(Figure):
 class RawFigure(Figure):
     content = models.BinaryField()
     filetype = models.CharField(max_length=4)
+    params = ''
     
     def params_as_list(self):
         return []

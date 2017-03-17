@@ -102,7 +102,7 @@ class LanguageForm(ModelForm):
         widgets = {'polyglossia_options': forms.TextInput()}
 
 class FigureForm(ModelForm):
-    file = forms.FileField(validators=[build_extension_validator(['.svg', '.svgz'])], label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: *.svg, *.svgz"><span class="glyphicon glyphicon-info-sign"></span></a>')
+    file = forms.FileField(validators=[build_extension_validator(['.svg', '.svgz', '.png'])], label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: *.svg, *.svgz, *.png"><span class="glyphicon glyphicon-info-sign"></span></a>')
 
     def __init__(self, *args, **kwargs):
         super(FigureForm, self).__init__(*args, **kwargs)

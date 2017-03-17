@@ -30,6 +30,7 @@ from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
 
+import os
 from copy import deepcopy
 from collections import OrderedDict
 from django.utils import timezone
@@ -39,7 +40,7 @@ import itertools
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog, Place
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, CompiledFigure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog, Place
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
@@ -673,13 +674,34 @@ def figure_add(request):
 
     form = FigureForm(request.POST or None, request.FILES or None)
     if form.is_valid():
-        obj = form.save(commit=False)
-        # import codecs
-        # f = codecs.open('unicode.rst', encoding='utf-8')
-        obj.content = request.FILES['file'].read()
-        placeholders = figparam_placeholder.findall(obj.content)
-        obj.params = ','.join(placeholders)
-        obj.save()
+        fig_obj = form.save(commit=False)
+        ext = os.path.splitext(request.FILES['file'])[1]
+        
+        # return JsonResponse(
+        #     {
+        #             'type'      : 'add',
+        #             'figid'     : 1,
+        #             'name'      : 'bla',
+        #             'params'    : '',
+        #             'src'       : reverse('exam:figure-export', args=[1]),
+        #             'edit-href' : reverse('exam:figure-edit', args=[1]),
+        #             'delete-href' : reverse('exam:figure-delete', args=[1]),
+        #             'success'   : True,
+        #             'message'   : '<strong>Figure added!</strong> The new figure has successfully been created.',
+        #     }
+        # 
+        # )
+        
+        if ext in ['.svg', '.svgz']:
+            obj = CompiledFigure.objects.create(name=fig_obj.name)
+            obj.content = request.FILES['file'].read()
+            placeholders = figparam_placeholder.findall(obj.content)
+            obj.params = ','.join(placeholders)
+            obj.save()
+        else:
+            obj = RawFigure.objects.create(name=fig_obj.name)
+            obj.content = request.FILES['file'].read()
+            obj.save()
 
         return JsonResponse({
                     'type'      : 'add',
