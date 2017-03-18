@@ -18,6 +18,7 @@
 from ipho_exam.models import Document
 from ipho_exam.serializers import DocumentSerializer
 from rest_framework import generics, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
 
 from ipho_exam.permissions import HasValidApiKeyOrAdmin
 
@@ -43,3 +44,5 @@ class DocumentViewSet(viewsets.ModelViewSet):
     permission_classes = (HasValidApiKeyOrAdmin,)
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('id', 'position', 'student', 'exam', 'barcode_base', 'num_pages')
