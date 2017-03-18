@@ -17,7 +17,7 @@
 
 from ipho_exam.models import Document
 from ipho_exam.serializers import DocumentSerializer
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, mixins
 from django_filters.rest_framework import DjangoFilterBackend
 
 from ipho_exam.permissions import HasValidApiKeyOrAdmin
@@ -31,7 +31,10 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DocumentSerializer
 
 
-class DocumentViewSet(viewsets.ModelViewSet):
+class DocumentViewSet(mixins.ListModelMixin,
+                      mixins.RetrieveModelMixin,
+                      mixins.UpdateModelMixin,
+                      viewsets.GenericViewSet):
     """
     Access and edit the collection of student documents (exam printouts and scans)
 
