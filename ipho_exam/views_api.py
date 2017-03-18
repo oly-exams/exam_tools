@@ -32,7 +32,13 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class DocumentViewSet(viewsets.ModelViewSet):
     """
-    This viewset automatically provides `list` and `detail` actions.
+    Access and edit the collection of student documents (exam printouts and scans)
+
+    list:
+        param1 -- First test
+        param2 -- Second
+
+    retrieve: Single entry.
     """
     permission_classes = (HasValidApiKeyOrAdmin,)
     queryset = Document.objects.all()
