@@ -19,6 +19,7 @@ from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import ParseError
 from bs4 import BeautifulSoup
 import re
+import binascii
 from copy import deepcopy
 #import lxml.etree as lxmltree
 import tex
@@ -32,6 +33,8 @@ from django.utils.html import escape
 from django.utils.text import unescape_entities
 import urllib
 from django.core.urlresolvers import reverse
+
+from ipho_exam.models import Figure
 
 #block groups
 PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'table', 'equation', 'figure', 'box')
@@ -619,8 +622,6 @@ class QMLfigure(QMLobject):
         return texout, externals
 
     def make_xhtml(self):
-        figname = 'fig_{}.png'.format(self.id)
-
         fig_caption = ''
         for c in self.children:
             if c.tag == 'caption':
@@ -629,11 +630,17 @@ class QMLfigure(QMLobject):
 
         width = self.attributes.get('width', 0.9) # 0.9 is the default value
 
-        xhtmlout = u'<img src="{}" />\n'.format(figname)
+        fig = Figure.objects.get(id=self.attributes['figid'])
+        fig_content, content_type = fig.to_inline(query=self.fig_query(), lang=self.lang)
+        
+        if content_type == 'svg+xml':
+            xhtmlout = fig_content
+        else:
+            xhtmlout = u'<img src="data:image/{content_type};base64,{fig_content}"/>\n'.format(content_type=content_type, fig_content=binascii.b2a_base64(fig_content))
         if len(fig_caption) > 0:
             xhtmlout += u'<div>{}</div>\n'.format(fig_caption)
 
-        externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
+        externals = []
         return xhtmlout, externals
 
 class QMLfigureText(QMLobject):

@@ -29,7 +29,6 @@ from polymorphic.models import PolymorphicModel
 from polymorphic.manager import PolymorphicManager
 
 import os, uuid
-import binascii
 import subprocess
 
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
