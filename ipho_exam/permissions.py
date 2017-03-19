@@ -14,7 +14,5 @@ class HasValidApiKey(permissions.BasePermission):
 
 class HasValidApiKeyOrAdmin(permissions.IsAdminUser, HasValidApiKey):
     def has_permission(self, request, view):
-        if request.method in ['OPTIONS', 'HEAD']:
-            return True
         return permissions.IsAdminUser.has_permission(self, request, view) \
             or HasValidApiKey.has_permission(self, request, view)
