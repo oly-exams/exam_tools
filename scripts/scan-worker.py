@@ -34,9 +34,6 @@ logger = logging.getLogger('exam_tools.scan-worker')
 
 temp_folder = mkdtemp(prefix="scan")
 
-BAD_OUTPUT_DIR = 'scans-problems'
-BASE_API = 'https://demo-apho.oly-exams.org/api/exam'
-API_KEY = 'KeyChangeMe'
 
 def tiff_header_for_CCITT(width, height, img_size, CCITT_group=4):
     tiff_header_struct = '<' + '2s' + 'h' + 'l' + 'h' + 'hhll' * 8 + 'h'
@@ -178,7 +175,7 @@ def page_sort(page_info):
         logger.warning("failed to convert page number '{}' to int, using default (0).".format(page_parts[1]))
     return val
 
-def main(input):
+def main(input, url, key, bad_output):
     pages = inspect_file(input)
     logger.info('got {} pages.'.format(len(pages)))
     logger.info('Barcodes: {}'.format([code for i,code in pages]))
@@ -199,9 +196,9 @@ def main(input):
     for code, pgs in basecodes.iteritems():
         logger.debug('Processing: {}'.format(code))
         try:
-            api_url = BASE_API+'/documents/'
+            api_url = url+'/documents/'
             r = requests.get(api_url, allow_redirects=False, headers={
-                'ApiKey': API_KEY
+                'ApiKey': key
             }, params={
                 'barcode_base': code,
             })
@@ -230,9 +227,9 @@ def main(input):
             if len(msg) > 0:
                 data['scan_msg'] = '\n'.join(msg)
             
-            api_url = BASE_API+'/documents/{id}/'.format(**doc)
+            api_url = url+'/documents/{id}/'.format(**doc)
             r = requests.patch(api_url, allow_redirects=False, headers={
-                'ApiKey': API_KEY
+                'ApiKey': key
             }, files={
                 'scan_file': (input.name, output_pdf),
                 'scan_file_orig': (input.name, open(input.name, 'rb')),
@@ -243,7 +240,7 @@ def main(input):
 
         except requests.HTTPError as error:
             oname = code+'-'+get_timestamp()+'.pdf'
-            oname = os.path.join(BAD_OUTPUT_DIR, oname)
+            oname = os.path.join(bad_output, oname)
             shutil.copy(input.name, oname)
             with open(oname+'.status', 'w') as f:
                 f.write('Barcode: {}\nHttp response:\n{}\n'.format(code, error.response))
@@ -252,7 +249,7 @@ def main(input):
     if len(basecodes) == 0:
         logger.warning('NO BARCODE DETECTED')
         oname = os.path.basename(input.name)+'-'+get_timestamp()+'.pdf'
-        oname = os.path.join(BAD_OUTPUT_DIR, oname)
+        oname = os.path.join(bad_output, oname)
         shutil.copy(input.name, oname)
         with open(oname+'.status', 'w') as f:
             f.write('NO-BARCODE')
@@ -263,6 +260,9 @@ def main(input):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Import scan document to DB')
+    parser.add_argument('--bad-output', dest='bad_output', type=str, default='scans-problems', help='Directory for storing problematic scans')
+    parser.add_argument('--url', type=str, help='Url of the documents API, e.g. https://demo-apho.oly-exams.org/api/exam')
+    parser.add_argument('--key', type=str, help='API Key')
     parser.add_argument('file', type=argparse.FileType('rb'), help='Input PDF')
     parser.add_argument('-vv', '--more-verbose', help="Be mor verbose", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.WARNING)
     parser.add_argument('-v', '--verbose', help="Be verbose", action="store_const", dest="loglevel", const=logging.INFO)
@@ -273,5 +273,7 @@ if __name__ == '__main__':
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     logger.setLevel(args.loglevel)
-
-    main(args.file)
+    
+    if not os.path.isdir(args.bad_output):
+        os.makedirs(args.bad_output)
+    main(args.file, args.url, args.key, args.bad_output)
