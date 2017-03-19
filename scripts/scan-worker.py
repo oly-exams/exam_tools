@@ -261,8 +261,8 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Import scan document to DB')
     parser.add_argument('--bad-output', dest='bad_output', type=str, default='scans-problems', help='Directory for storing problematic scans')
-    parser.add_argument('--url', type=str, help='Url of the documents API, e.g. https://demo-apho.oly-exams.org/api/exam')
-    parser.add_argument('--key', type=str, help='API Key')
+    parser.add_argument('--url', type=str, required=True, help='Url of the documents API, e.g. https://demo-apho.oly-exams.org/api/exam')
+    parser.add_argument('--key', type=str, required=True, help='API Key')
     parser.add_argument('file', type=argparse.FileType('rb'), help='Input PDF')
     parser.add_argument('-vv', '--more-verbose', help="Be mor verbose", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.WARNING)
     parser.add_argument('-v', '--verbose', help="Be verbose", action="store_const", dest="loglevel", const=logging.INFO)
