@@ -2,6 +2,7 @@ Django >= 1.8, < 1.9
 django-crispy-forms
 django-ace
 djangorestframework
+django-rest-swagger
 django-polymorphic
 CairoSVG==1.*
 hg+https://bitbucket.org/whitie/python-barcode

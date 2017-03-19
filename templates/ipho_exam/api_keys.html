@@ -13,16 +13,18 @@
 
 {% block breadcrumb %}
 <li><a href="#">Admin</a></li>
-<li class="active">Api Keys</li>
+<li class="active">API Keys</li>
 {% endblock %}
 
-{% block pageheader %}<h1>Api Key</h1>{% endblock %}
+{% block pageheader %}<h1>API Key</h1>{% endblock %}
 
 {% block exam-content %}
 <p class="lead">
-These Api Keys have read/write access to the exam documents table.
+These API Keys have read/write access to the exam documents table.
 Keys can be added and modified in the application settings.
 </p>
+
+<p class="alert alert-info">The API endpoints are described at <a href="{% url 'api-exam:schema' %}" class="alert-link">API schema</a>.</p>
 
 {% for name, key in EXAM_TOOLS_API_KEYS.items %}
 <h3>{{ name }}</h3>
