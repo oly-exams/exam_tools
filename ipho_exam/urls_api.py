@@ -25,7 +25,6 @@ router.register(r'documents', views_api.DocumentViewSet)
 
 urlpatterns = patterns('ipho_exam.views_api',
     url(r'^', include(router.urls)),
-    # url(r'^schema\.json', views_api.schema_view, name='schema'),
     url(r'^schema', views_api.SwaggerSchemaView.as_view()),
 
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
