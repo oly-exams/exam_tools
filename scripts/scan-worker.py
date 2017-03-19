@@ -243,8 +243,8 @@ def main(input, url, key, bad_output):
             oname = os.path.join(bad_output, oname)
             shutil.copy(input.name, oname)
             with open(oname+'.status', 'w') as f:
-                f.write('Barcode: {}\nHttp response:\n{}\n'.format(code, error.response))
-            logger.warning('Errors with code {}.\n{}'.format(code, error.response))
+                f.write('Barcode: {}\nHttp response:\n{}\n'.format(code, error.response.text))
+            logger.warning('Errors with code {}.\n{}'.format(code, error.response.text))
 
     if len(basecodes) == 0:
         logger.warning('NO BARCODE DETECTED')
