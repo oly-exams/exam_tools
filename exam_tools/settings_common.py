@@ -258,6 +258,7 @@ SWAGGER_SETTINGS = {
         }
     },
     'DOC_EXPANSION': 'list',
+    'VALIDATOR_URL': None,
 }
 
 # A sample logging configuration. The only tangible logging
