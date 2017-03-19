@@ -30,6 +30,7 @@ from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
 
+import os
 from copy import deepcopy
 from collections import OrderedDict
 from django.utils import timezone
@@ -39,7 +40,7 @@ import itertools
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog, Place
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, CompiledFigure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog, Place
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
@@ -674,12 +675,19 @@ def figure_add(request):
     form = FigureForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         obj = form.save(commit=False)
-        # import codecs
-        # f = codecs.open('unicode.rst', encoding='utf-8')
-        obj.content = request.FILES['file'].read()
-        placeholders = figparam_placeholder.findall(obj.content)
-        obj.params = ','.join(placeholders)
-        obj.save()
+        ext = os.path.splitext(str(request.FILES['file']))[1]
+        
+        if ext in ['.svg', '.svgz']:
+            obj = CompiledFigure.objects.create(name=obj.name)
+            obj.content = request.FILES['file'].read()
+            placeholders = figparam_placeholder.findall(obj.content)
+            obj.params = ','.join(placeholders)
+            obj.save()
+        else:
+            obj = RawFigure.objects.create(name=obj.name)
+            obj.content = request.FILES['file'].read()
+            obj.filetype = ext.lstrip('.')
+            obj.save()
 
         return JsonResponse({
                     'type'      : 'add',
@@ -707,14 +715,25 @@ def figure_edit(request, fig_id):
         raise Exception('TODO: implement small template page for handling without Ajax.')
 
     instance = get_object_or_404(Figure, pk=fig_id)
-    form = FigureForm(request.POST or None, request.FILES or None, instance=instance)
+    if isinstance(instance, RawFigure):
+        compiled = False
+        valid_extensions = ('.' + instance.filetype,)
+    elif isinstance(instance, CompiledFigure):
+        compiled = True
+        valid_extensions = ('.svg', '.svgz')
+    # The 'else' case should produce an error, since Figures should never be neither Raw nor Compiled.
+    form = FigureForm(request.POST or None, request.FILES or None, instance=instance, valid_extensions=valid_extensions)
     if form.is_valid():
-        obj = form.save()
+        obj = form.save(commit=False)
         if 'file' in request.FILES:
-            obj.content = request.FILES['file'].read()
-            placeholders = figparam_placeholder.findall(obj.content)
-            obj.params = ','.join(placeholders)
-            obj.save()
+            if compiled:
+                obj.content = request.FILES['file'].read()
+                placeholders = figparam_placeholder.findall(obj.content)
+                obj.params = ','.join(placeholders)
+                obj.save()
+            else:
+                obj.content = request.FILES['file'].read()
+                obj.save()
 
         return JsonResponse({
                     'type'    : 'edit',
@@ -748,16 +767,11 @@ def figure_delete(request, fig_id):
 
 
 @login_required
-def figure_export(request, fig_id, output_format='svg', lang_id=None):
+def figure_export(request, fig_id, lang_id=None):
     lang = get_object_or_404(Language, pk=lang_id) if lang_id is not None else None
-    fig_svg = Figure.get_fig_query(fig_id, request.GET, lang)
-    if output_format == 'svg':
-        return HttpResponse(fig_svg, content_type="image/svg+xml")
-    if output_format == 'pdf':
-        tmpdir = mkdtemp()
-        tmpfile = tmpdir+'/fig.pdf'
-        Figure.to_pdf(fig_svg, tmpfile)
-        return HttpResponse(open(tmpfile), content_type="application/pdf")
+    fig = get_object_or_404(Figure, pk=fig_id)
+    figure_content, content_type = fig.to_inline(query=request.GET, lang=lang)
+    return HttpResponse(figure_content, content_type="image/{}".format(content_type))
 
 @permission_required('ipho_core.is_staff')
 def admin_add_question(request, exam_id):
