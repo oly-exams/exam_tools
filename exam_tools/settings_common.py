@@ -256,7 +256,8 @@ SWAGGER_SETTINGS = {
             'name': 'APIKEY',
             'in': 'header',
         }
-    }
+    },
+    'DOC_EXPANSION': 'list',
 }
 
 # A sample logging configuration. The only tangible logging

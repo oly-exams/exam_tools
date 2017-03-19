@@ -17,8 +17,13 @@
 
 from ipho_exam.models import Document
 from ipho_exam.serializers import DocumentSerializer
-from rest_framework import generics, viewsets, mixins
+
+from rest_framework import generics, views, viewsets, mixins, renderers, schemas
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 
 from ipho_exam.permissions import HasValidApiKeyOrAdmin
 
@@ -30,19 +35,31 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
 
+class SwaggerSchemaView(views.APIView):
+    exclude_from_schema = True
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [
+        renderers.CoreJSONRenderer,
+        OpenAPIRenderer,
+        SwaggerUIRenderer
+    ]
+    def get(self, request):
+        generator = schemas.SchemaGenerator(title='Exam Tools - Exam Documents API')
+        schema = generator.get_schema()
+        return Response(schema)
 
 class DocumentViewSet(mixins.ListModelMixin,
                       mixins.RetrieveModelMixin,
                       mixins.UpdateModelMixin,
                       viewsets.GenericViewSet):
+    # """
+    # Access and edit the collection of student documents (exam printouts and scans)
+    # """
     """
-    Access and edit the collection of student documents (exam printouts and scans)
-
-    list:
-        param1 -- First test
-        param2 -- Second
-
-    retrieve: Single entry.
+    list: Collection of documents
+    retrieve: Single entry
+    partial_update: Partially update single entry
+    update: Update single entry
     """
     permission_classes = (HasValidApiKeyOrAdmin,)
     queryset = Document.objects.all()
