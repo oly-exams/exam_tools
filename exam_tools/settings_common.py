@@ -229,6 +229,7 @@ INSTALLED_APPS = (
     'djcelery',
     'rest_framework',
     'rest_framework_swagger',
+    'polymorphic',
     'ipho_core',
     'ipho_exam',
     'ipho_poll',

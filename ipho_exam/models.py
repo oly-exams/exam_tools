@@ -25,6 +25,8 @@ from ipho_core.models import Delegation, Student
 from django.shortcuts import get_object_or_404
 from ipho_exam import fonts
 from .exceptions import IphoExamException, IphoExamForbidden
+from polymorphic.models import PolymorphicModel
+from polymorphic.manager import PolymorphicManager
 
 import os, uuid
 import subprocess
@@ -260,27 +262,29 @@ class TranslationImportTmp(models.Model):
         return u'%s - %s, %s' % (self.slug, self.question, self.language)
 
 
-class FigureManager(models.Manager):
+class FigureManager(PolymorphicManager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
-class Figure(models.Model):
+class Figure(PolymorphicModel):
     objects = FigureManager()
-
     name    = models.CharField(max_length=100, db_index=True)
+
+    def natural_key(self):
+        return self.name
+        
+    def __unicode__(self):
+        return u'%s' % (self.name)
+
+class CompiledFigure(Figure):
     content = models.TextField(blank=True)
     params  = models.TextField(blank=True)
 
     def params_as_list(self):
         return list([si.trim() for si in self.params.split(',')])
-
-    def __unicode__(self):
-        return u'%s' % (self.name)
-
-    @staticmethod
-    def get_fig_query(fig_id, query, lang=None):
-        fig = get_object_or_404(Figure, pk=fig_id)
-        placeholders = fig.params.split(',')
-        fig_svg = fig.content
+        
+    def _to_svg(self, query, lang=None):
+        placeholders = self.params.split(',')
+        fig_svg = self.content
         fonts_repl = u'@import url({host}/static/noto/notosans.css);'.format(host=SITE_URL)
         font_name = u'Noto Sans'
         text_direction = u'ltr'
@@ -299,15 +303,23 @@ class Figure(models.Model):
                     repl = repl.decode('utf-8')
                 fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
         return fig_svg
+        
+    def to_inline(self, query, lang=None):
+        return self._to_svg(query=query, lang=lang), 'svg+xml'
+
+    def to_file(self, fig_name, query, lang=None):
+        fig_svg = self._to_svg(query=query, lang=lang)
+        return self._to_pdf(fig_svg, fig_name)
+
     @staticmethod
-    def to_pdf(fig_svg, fig_name):
+    def _to_pdf(fig_svg, fig_name):
         with open('%s.svg' % (fig_name), 'w') as fp:
             fp.write(fig_svg.encode('utf8'))
         error = subprocess.Popen(
             [INKSCAPE_BIN,
              '--without-gui',
              '%s.svg' % (fig_name),
-             '--export-pdf=%s' % (fig_name)],
+             '--export-pdf=%s.pdf' % (fig_name)],
             stdin=open(os.devnull, "r"),
             stderr=open(os.devnull, "wb"),
             stdout=open(os.devnull, "wb")
@@ -316,28 +328,38 @@ class Figure(models.Model):
             print 'Got error', error
             raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
 
-    @staticmethod
-    def to_png(fig_svg, fig_name):
-        with open('%s.svg' % (fig_name), 'w') as fp:
-            fp.write(fig_svg.encode('utf8'))
-        error = subprocess.Popen(
-            [INKSCAPE_BIN,
-             '--without-gui',
-             '%s.svg' % (fig_name),
-             '--export-png=%s' % (fig_name),
-             '--export-dpi=180'],
-            stdin=open(os.devnull, "r"),
-            stderr=open(os.devnull, "wb"),
-            stdout=open(os.devnull, "wb")
-        ).wait()
-        if error:
-            print 'Got error', error
-            raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
-
-
-    def natural_key(self):
-        return self.name
-
+    # @staticmethod
+    # def _to_png(fig_svg, fig_name):
+    #     with open('%s.svg' % (fig_name), 'w') as fp:
+    #         fp.write(fig_svg.encode('utf8'))
+    #     error = subprocess.Popen(
+    #         [INKSCAPE_BIN,
+    #          '--without-gui',
+    #          '%s.svg' % (fig_name),
+    #          '--export-png=%s' % (fig_name),
+    #          '--export-dpi=180'],
+    #         stdin=open(os.devnull, "r"),
+    #         stderr=open(os.devnull, "wb"),
+    #         stdout=open(os.devnull, "wb")
+    #     ).wait()
+    #     if error:
+    #         print 'Got error', error
+    #         raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
+            
+class RawFigure(Figure):
+    content = models.BinaryField()
+    filetype = models.CharField(max_length=4)
+    params = ''
+    
+    def params_as_list(self):
+        return []
+    
+    def to_inline(self, *args, **kwargs):
+        return self.content, self.filetype
+        
+    def to_file(self, fig_name, query, lang=None, format_default='auto', force_default=False):
+        with open('{name}.{ext}'.format(name=fig_name, ext=self.filetype), 'wb') as f:
+            f.write(self.content)
 
 class PlaceManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):
