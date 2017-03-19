@@ -17,13 +17,6 @@
 
 #!/usr/bin/env python
 
-import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
-
-import django
-django.setup()
-from django.conf import settings
-
 from PyPDF2 import PdfFileWriter, PdfFileReader
 import io, struct, zbar
 from PIL import Image
@@ -33,10 +26,7 @@ import shutil, os
 import datetime
 import subprocess
 from tempfile import mkdtemp
-
-from django.core.files import File
-from django.core.files.base import ContentFile
-from ipho_exam.models import Document
+import requests
 import re
 
 import logging
@@ -44,9 +34,9 @@ logger = logging.getLogger('exam_tools.scan-worker')
 
 temp_folder = mkdtemp(prefix="scan")
 
-MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
-GOOD_OUTPUT_DIR = os.path.join(MEDIA_ROOT, 'scans-evaluated')
-BAD_OUTPUT_DIR = os.path.join(MEDIA_ROOT, 'scans-problems')
+BAD_OUTPUT_DIR = 'scans-problems'
+BASE_API = 'https://demo-apho.oly-exams.org/api/exam'
+API_KEY = 'KeyChangeMe'
 
 def tiff_header_for_CCITT(width, height, img_size, CCITT_group=4):
     tiff_header_struct = '<' + '2s' + 'h' + 'l' + 'h' + 'hhll' * 8 + 'h'
@@ -212,8 +202,16 @@ def main(input):
     for code, pgs in basecodes.iteritems():
         logger.debug('Processing: {}'.format(code))
         try:
-            doc = Document.objects.get(barcode_base=code)
-            expected_pages = doc.barcode_num_pages + doc.extra_num_pages
+            api_url = BASE_API+'/documents/'
+            r = requests.get(api_url, allow_redirects=False, headers={
+                'ApiKey': API_KEY
+            }, params={
+                'barcode_base': code,
+            })
+            r.raise_for_status()
+            doc = r.json()
+            
+            expected_pages = doc['barcode_num_pages'] + doc['extra_num_pages']
             doc_complete = expected_pages == len(pgs)
             if not doc_complete:
                 logger.warning('Missing pages: {} in DB but only {} in scanned document.'.format(expected_pages, len(pgs)))
@@ -222,30 +220,37 @@ def main(input):
             output = PdfFileWriter()
             for page in ordered_pages:
                 output.addPage(page)
-            output_pdf = StringIO()
-            output.write(output_pdf)
-            contentfile = ContentFile(output_pdf.getvalue())
-            contentfile.name = input.name
-            doc.scan_file = contentfile
-            doc.scan_file_orig = File(input)
+            output_stream = StringIO()
+            output.write(output_stream)
+            output_pdf = output_stream.getvalue()
+            data = {}
             if not doc_complete and len(msg) == 1:
-                doc.scan_status = 'M'
+                data['scan_status'] = 'M'
             elif len(msg) > 0:
-                doc.scan_status = 'W'
+                data['scan_status'] = 'W'
             else:
-                doc.scan_status = 'S'
+                data['scan_status'] = 'S'
             if len(msg) > 0:
-                doc.scan_msg = '\n'.join(msg)
-            doc.save()
+                data['scan_msg'] = '\n'.join(msg)
+            
+            api_url = BASE_API+'/documents/{id}/'.format(**doc)
+            r = requests.patch(api_url, allow_redirects=False, headers={
+                'ApiKey': API_KEY
+            }, files={
+                'scan_file': (input.name, output_pdf),
+                'scan_file_orig': (input.name, input),
+            }, data=data)
+            r.raise_for_status()
+            
             logger.info('Scan document inserted in DB for barcode {}'.format(code))
 
-        except Document.DoesNotExist:
+        except requests.HTTPError as error:
             oname = code+'-'+get_timestamp()+'.pdf'
             oname = os.path.join(BAD_OUTPUT_DIR, oname)
             shutil.copy(input.name, oname)
             with open(oname+'.status', 'w') as f:
-                f.write('DB-ENTRY-NOT-FOUND\n'+code)
-            logger.warning('Code {} not found.'.format(code))
+                f.write('Barcode: {}\nHttp response:\n{}\n'.format(code, error.response))
+            logger.warning('Errors with code {}.\n{}'.format(code, error.response))
 
     if len(basecodes) == 0:
         logger.warning('NO BARCODE DETECTED')
