@@ -101,7 +101,10 @@
                   <li><a href="{% url 'exam:upload-scan' %}">Upload scans</a></li>
                   <li><a href="{% url 'exam:extra-sheets-select-exam' %}">Generate extra sheets</a></li>
                   {% if perms.ipho_core.is_staff %}
-                  <li><a href="{% url 'exam:api-keys' %}">Get Api Keys</a></li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header">Documents API</li>
+                  <li><a href="{% url 'exam:api-keys' %}">Get API Keys</a></li>
+                  <li><a href="{% url 'api-exam:schema' %}">API schema</a></li>
                   {% endif %}
                   <li class="divider"></li>
                   {% endif %}

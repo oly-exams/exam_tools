@@ -102,11 +102,14 @@ class LanguageForm(ModelForm):
         widgets = {'polyglossia_options': forms.TextInput()}
 
 class FigureForm(ModelForm):
-    file = forms.FileField(validators=[build_extension_validator(['.svg', '.svgz'])], label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: *.svg, *.svgz"><span class="glyphicon glyphicon-info-sign"></span></a>')
-
     def __init__(self, *args, **kwargs):
+        valid_extensions = kwargs.pop('valid_extensions', ('.svg', '.svgz', '.png', '.jpg', '.jpeg'))
         super(FigureForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
+        self.fields['file'] = forms.FileField(
+            validators=[build_extension_validator(valid_extensions)], 
+            label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: {}"><span class="glyphicon glyphicon-info-sign"></span></a>'.format(' '.join('*' + ext for ext in valid_extensions))
+        )
         if instance and instance.pk:
             self.fields['file'].required = False
 

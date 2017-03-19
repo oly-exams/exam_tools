@@ -228,6 +228,8 @@ INSTALLED_APPS = (
     'django_ace',
     'djcelery',
     'rest_framework',
+    'rest_framework_swagger',
+    'polymorphic',
     'ipho_core',
     'ipho_exam',
     'ipho_poll',
@@ -246,6 +248,18 @@ REST_FRAMEWORK = {
         'ipho_exam.permissions.HasValidApiKey',
     ],
     'PAGE_SIZE': 10
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Api Token': {
+            'type': 'apiKey',
+            'name': 'APIKEY',
+            'in': 'header',
+        }
+    },
+    'DOC_EXPANSION': 'list',
+    'VALIDATOR_URL': None,
 }
 
 # A sample logging configuration. The only tangible logging

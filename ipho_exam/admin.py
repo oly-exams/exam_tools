@@ -94,6 +94,10 @@ class LikeAdmin(admin.ModelAdmin):
 
 class FigureAdmin(admin.ModelAdmin):
     form = FigureAdminForm
+    list_display = ('pk', 'name')
+
+class CompiledFigureAdmin(admin.ModelAdmin):
+    form = FigureAdminForm
     list_display = ('pk', 'name', 'params')
 
 class StudentSubmissionAdmin(admin.ModelAdmin):
