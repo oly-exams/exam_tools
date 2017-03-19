@@ -27,13 +27,6 @@ from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 
 from ipho_exam.permissions import HasValidApiKeyOrAdmin
 
-class DocumentList(generics.ListCreateAPIView):
-    queryset = Document.objects.all()
-    serializer_class = DocumentSerializer
-
-class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Document.objects.all()
-    serializer_class = DocumentSerializer
 
 class SwaggerSchemaView(views.APIView):
     exclude_from_schema = True
