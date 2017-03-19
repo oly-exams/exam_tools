@@ -17,13 +17,6 @@
 
 #!/usr/bin/env python
 
-import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
-
-import django
-django.setup()
-from django.conf import settings
-
 from PyPDF2 import PdfFileWriter, PdfFileReader
 import io, struct, zbar
 from PIL import Image
@@ -33,10 +26,7 @@ import shutil, os
 import datetime
 import subprocess
 from tempfile import mkdtemp
-
-from django.core.files import File
-from django.core.files.base import ContentFile
-from ipho_exam.models import Document
+import requests
 import re
 
 import logging
@@ -44,9 +34,6 @@ logger = logging.getLogger('exam_tools.scan-worker')
 
 temp_folder = mkdtemp(prefix="scan")
 
-MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
-GOOD_OUTPUT_DIR = os.path.join(MEDIA_ROOT, 'scans-evaluated')
-BAD_OUTPUT_DIR = os.path.join(MEDIA_ROOT, 'scans-problems')
 
 def tiff_header_for_CCITT(width, height, img_size, CCITT_group=4):
     tiff_header_struct = '<' + '2s' + 'h' + 'l' + 'h' + 'hhll' * 8 + 'h'
@@ -188,7 +175,7 @@ def page_sort(page_info):
         logger.warning("failed to convert page number '{}' to int, using default (0).".format(page_parts[1]))
     return val
 
-def main(input):
+def main(input, url, key, bad_output):
     pages = inspect_file(input)
     logger.info('got {} pages.'.format(len(pages)))
     logger.info('Barcodes: {}'.format([code for i,code in pages]))
@@ -199,9 +186,6 @@ def main(input):
     basecodes = { get_base(code): [] for i,code in pages if code is not None }
     for i,code in pages:
         if code is not None:
-            if ' E-' in code:
-                logger.error('This scan contains experiment barcodes! Document is {}'.format(input.name))
-                raise RuntimeError('This scan contains experiment barcodes!')
             basecodes[get_base(code)].append(i)
 
     msg = []
@@ -212,8 +196,16 @@ def main(input):
     for code, pgs in basecodes.iteritems():
         logger.debug('Processing: {}'.format(code))
         try:
-            doc = Document.objects.get(barcode_base=code)
-            expected_pages = doc.barcode_num_pages + doc.extra_num_pages
+            api_url = url+'/documents/'
+            r = requests.get(api_url, allow_redirects=False, headers={
+                'ApiKey': key
+            }, params={
+                'barcode_base': code,
+            })
+            r.raise_for_status()
+            doc = r.json()['results'][0]
+            
+            expected_pages = doc['barcode_num_pages'] + doc['extra_num_pages']
             doc_complete = expected_pages == len(pgs)
             if not doc_complete:
                 logger.warning('Missing pages: {} in DB but only {} in scanned document.'.format(expected_pages, len(pgs)))
@@ -222,35 +214,42 @@ def main(input):
             output = PdfFileWriter()
             for page in ordered_pages:
                 output.addPage(page)
-            output_pdf = StringIO()
-            output.write(output_pdf)
-            contentfile = ContentFile(output_pdf.getvalue())
-            contentfile.name = input.name
-            doc.scan_file = contentfile
-            doc.scan_file_orig = File(input)
+            output_stream = StringIO()
+            output.write(output_stream)
+            output_pdf = output_stream.getvalue()
+            data = {}
             if not doc_complete and len(msg) == 1:
-                doc.scan_status = 'M'
+                data['scan_status'] = 'M'
             elif len(msg) > 0:
-                doc.scan_status = 'W'
+                data['scan_status'] = 'W'
             else:
-                doc.scan_status = 'S'
+                data['scan_status'] = 'S'
             if len(msg) > 0:
-                doc.scan_msg = '\n'.join(msg)
-            doc.save()
+                data['scan_msg'] = '\n'.join(msg)
+            
+            api_url = url+'/documents/{id}/'.format(**doc)
+            r = requests.patch(api_url, allow_redirects=False, headers={
+                'ApiKey': key
+            }, files={
+                'scan_file': (input.name, output_pdf),
+                'scan_file_orig': (input.name, open(input.name, 'rb')),
+            }, data=data)
+            r.raise_for_status()
+            
             logger.info('Scan document inserted in DB for barcode {}'.format(code))
 
-        except Document.DoesNotExist:
+        except requests.HTTPError as error:
             oname = code+'-'+get_timestamp()+'.pdf'
-            oname = os.path.join(BAD_OUTPUT_DIR, oname)
+            oname = os.path.join(bad_output, oname)
             shutil.copy(input.name, oname)
             with open(oname+'.status', 'w') as f:
-                f.write('DB-ENTRY-NOT-FOUND\n'+code)
-            logger.warning('Code {} not found.'.format(code))
+                f.write('Barcode: {}\nHttp response:\n{}\n'.format(code, error.response.text))
+            logger.warning('Errors with code {}.\n{}'.format(code, error.response.text))
 
     if len(basecodes) == 0:
         logger.warning('NO BARCODE DETECTED')
         oname = os.path.basename(input.name)+'-'+get_timestamp()+'.pdf'
-        oname = os.path.join(BAD_OUTPUT_DIR, oname)
+        oname = os.path.join(bad_output, oname)
         shutil.copy(input.name, oname)
         with open(oname+'.status', 'w') as f:
             f.write('NO-BARCODE')
@@ -261,6 +260,9 @@ def main(input):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Import scan document to DB')
+    parser.add_argument('--bad-output', dest='bad_output', type=str, default='scans-problems', help='Directory for storing problematic scans')
+    parser.add_argument('--url', type=str, required=True, help='Url of the documents API, e.g. https://demo-apho.oly-exams.org/api/exam')
+    parser.add_argument('--key', type=str, required=True, help='API Key')
     parser.add_argument('file', type=argparse.FileType('rb'), help='Input PDF')
     parser.add_argument('-vv', '--more-verbose', help="Be mor verbose", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.WARNING)
     parser.add_argument('-v', '--verbose', help="Be verbose", action="store_const", dest="loglevel", const=logging.INFO)
@@ -271,5 +273,7 @@ if __name__ == '__main__':
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     logger.setLevel(args.loglevel)
-
-    main(args.file)
+    
+    if not os.path.isdir(args.bad_output):
+        os.makedirs(args.bad_output)
+    main(args.file, args.url, args.key, args.bad_output)
