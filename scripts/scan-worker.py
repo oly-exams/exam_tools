@@ -206,7 +206,7 @@ def main(input):
                 'barcode_base': code,
             })
             r.raise_for_status()
-            doc = r.json()
+            doc = r.json()['results'][0]
             
             expected_pages = doc['barcode_num_pages'] + doc['extra_num_pages']
             doc_complete = expected_pages == len(pgs)
@@ -235,7 +235,7 @@ def main(input):
                 'ApiKey': API_KEY
             }, files={
                 'scan_file': (input.name, output_pdf),
-                'scan_file_orig': (input.name, input),
+                'scan_file_orig': (input.name, open(input.name, 'rb')),
             }, data=data)
             r.raise_for_status()
             
