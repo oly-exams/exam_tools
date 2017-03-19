@@ -108,7 +108,7 @@ class FigureForm(ModelForm):
         instance = getattr(self, 'instance', None)
         self.fields['file'] = forms.FileField(
             validators=[build_extension_validator(valid_extensions)], 
-            label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: *.svg, *.svgz, *.png *.jpg *.jpeg"><span class="glyphicon glyphicon-info-sign"></span></a>'
+            label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: {}"><span class="glyphicon glyphicon-info-sign"></span></a>'.format(' '.join('*' + ext for ext in valid_extensions))
         )
         if instance and instance.pk:
             self.fields['file'].required = False
