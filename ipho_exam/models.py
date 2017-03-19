@@ -517,7 +517,7 @@ class Document(models.Model):
 
     exam      = models.ForeignKey(Exam, help_text='Exam')
     student   = models.ForeignKey(Student, help_text='Student')
-    position  = models.IntegerField(help_text='Question groupping position, e.g. 0 for cover sheer, 1 for the first question, etc')
+    position  = models.IntegerField(help_text='Question grouping position, e.g. 0 for cover sheet / instructions, 1 for the first question, etc')
     file      = models.FileField(blank=True, upload_to=exam_prints_filename, help_text='Exam handouts')
     num_pages = models.IntegerField(default=0, help_text='Number of pages of the handouts')
     barcode_num_pages = models.IntegerField(default=0, help_text='Number of pages with a barcode')
