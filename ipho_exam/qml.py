@@ -395,7 +395,7 @@ class QMLobject(object):
 
 
 class QMLquestion(QMLobject):
-    tag  = "question"
+    tag = "question"
     default_attributes = {'points': ''}
 
     has_text = False
@@ -827,8 +827,9 @@ class QMLtable(QMLobject):
         )
 
     def tex_end(self):
-        tex = unicode(r'\end{tabular}\end{center}\vspace{0.5cm}') + u'\n\n'
+        tex = unicode(r'\end{tabular}\end{center}') 
         tex += u''.join(c.make_tex()[0] for c in self.captions)
+        tex += unicode(r'\vspace{0.5cm}') + u'\n\n'
         return tex
 
     def xhtml_begin(self):
