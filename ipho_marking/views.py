@@ -520,7 +520,7 @@ def submission_summary(request):
                 ExamAction.objects.filter(exam=exam, action=ExamAction.POINTS,
                     status=ExamAction.SUBMITTED).exclude(delegation__name=OFFICIAL_DELEGATION).count(),
                 ExamAction.objects.filter(exam=exam, action=ExamAction.POINTS,
-                    status=ExamAction.OPEN).exclude(delegation__name=OFFICIAL_DELEGATION).values('delegation__country'),
+                    status=ExamAction.OPEN).exclude(delegation__name=OFFICIAL_DELEGATION).values_list('delegation__country', flat=True),
             )
             for exam in Exam.objects.filter(marking_active=True)
         ]
