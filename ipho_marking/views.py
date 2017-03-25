@@ -40,6 +40,7 @@ from .models import MarkingMeta, Marking
 from .forms import ImportForm, PointsForm
 
 OFFICIAL_LANGUAGE = getattr(settings, 'OFFICIAL_LANGUAGE', 1)
+OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 @permission_required('ipho_core.is_staff')
 def import_exam(request):
@@ -506,3 +507,22 @@ def moderation_confirmed(request, question_id, delegation_id):
 
     ctx = {'question': question, 'delegation': delegation, 'markings': markings}
     return render(request, 'ipho_marking/moderation_confirmed.html', ctx)
+
+
+@permission_required('ipho_core.is_staff')
+def submission_summary(request):
+    ctx = {
+        "summaries":[
+            (
+                exam.name,
+                ExamAction.objects.filter(exam=exam, action=ExamAction.POINTS,
+                    status=ExamAction.OPEN).exclude(delegation__name=OFFICIAL_DELEGATION).count(),
+                ExamAction.objects.filter(exam=exam, action=ExamAction.POINTS,
+                    status=ExamAction.SUBMITTED).exclude(delegation__name=OFFICIAL_DELEGATION).count(),
+                ExamAction.objects.filter(exam=exam, action=ExamAction.POINTS,
+                    status=ExamAction.OPEN).exclude(delegation__name=OFFICIAL_DELEGATION).values_list('delegation__country', flat=True),
+            )
+            for exam in Exam.objects.filter(marking_active=True)
+        ]
+    }
+    return render(request, 'ipho_marking/submission_summary.html', ctx)

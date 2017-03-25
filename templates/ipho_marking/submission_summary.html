@@ -1,0 +1,60 @@
+
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra-head %}
+<meta http-equiv="refresh" content="15" />
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="page-header">
+        <h1>Submission Summary</h1>
+    </div>
+    <p class="text-muted">Status at {% now "Y-m-d H:i:s" %}.</p>
+    
+    {% for summary in summaries %}
+    <h3>
+        {{ summary.0 }}
+    </h3>
+    <table class="table table-striped">
+        <tr>
+            <th>In Progress</th>
+            <th>Submitted</th>
+            <th>Remaining</th>
+        </tr>
+        <tbody>
+            <tr>
+                <td>{{ summary.1 }}</td>
+                <td>{{ summary.2 }}</td>
+                <td>
+                    {% for country in summary.3 %}
+                    <span>{{ country }}</span>
+                    {% endfor %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    {% empty %}
+    <p class="alert alert-info">No exam is enabled for marking.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script>
+$('document').ready(function(){
+    $(document).on('click', '#reload', function(event){
+        location.reload();
+    });
+
+    // Activates tooltipls
+    $('.btn').tooltip({containter: ".parent"});
+
+}); // $(document).ready()
+</script>
+{% endblock %}
