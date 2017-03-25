@@ -506,3 +506,22 @@ def moderation_confirmed(request, question_id, delegation_id):
 
     ctx = {'question': question, 'delegation': delegation, 'markings': markings}
     return render(request, 'ipho_marking/moderation_confirmed.html', ctx)
+
+
+@permission_required('ipho_core.is_staff')
+def submission_summary(request):
+    ctx = {
+        "summaries":[
+            (
+                exam.name,
+                ExamAction.objects.filter(exam=exam, action=ExamAction.POINTS,
+                    status=ExamAction.OPEN).count() - 1,
+                ExamAction.objects.filter(exam=exam, action=ExamAction.POINTS,
+                    status=ExamAction.SUBMITTED).count(),
+                ExamAction.objects.filter(exam=exam, action=ExamAction.POINTS,
+                    status=ExamAction.OPEN).values('delegation__country'),
+            )
+            for exam in Exam.objects.filter(marking_active=True)
+        ]
+    }
+    return render(request, 'ipho_marking/submission_summary.html', ctx)

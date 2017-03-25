@@ -43,4 +43,6 @@ urlpatterns = [
     url(r'^staff/v(?P<version>\w)/student/(?P<stud_id>\d+)/question/(?P<question_id>\d+)/edit$', views.staff_stud_detail, name='staff-stud-detail'),
 
     url(r'^all/export.csv$', views.export, name='export'),
+
+    url(r'^submission/summary$', views.submission_summary, name='submission-summary'),
 ]

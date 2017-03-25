@@ -1,0 +1,57 @@
+
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra-head %}
+<meta http-equiv="refresh" content="5" />
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="page-header">
+        <h1>Submission Summary</h1>
+    </div>
+    
+    {% for summary in summaries %}
+    <h3>
+        {{ summary.0 }}
+    </h3>
+    <table class="table table-striped">
+        <tr>
+            <th>In Progress</th>
+            <th>Submitted</th>
+            <th>Remaining</th>
+        </tr>
+        <tbody>
+            <tr>
+                <td>{{ summary.1 }}</td>
+                <td>{{ summary.2 }}</td>
+                <td>
+                    {% for country in summary.3 %}
+                    <span>{{ country.delegation__country }}</span>
+                    {% endfor %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script>
+$('document').ready(function(){
+    $(document).on('click', '#reload', function(event){
+        location.reload();
+    });
+
+    // Activates tooltipls
+    $('.btn').tooltip({containter: ".parent"});
+
+}); // $(document).ready()
+</script>
+{% endblock %}

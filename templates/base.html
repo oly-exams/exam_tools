@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
-    <meta name="author" content="Oly Exams Team">
+    <meta name="author" content="Quentin" >
     <meta name="google-site-verification" content="zqUrYerHwOScwmLIi5QyzGlA6gQn7DaG4idgsqq3_7U" />
 
 	<link rel="apple-touch-icon" sizes="180x180" href="{% static "apple-touch-icon.png" %}">
@@ -115,6 +115,7 @@
                   <li><a href="{% url 'marking:summary' %}">Summary</a></li>
                   <li><a href="{% url 'marking:moderation-index' %}">Moderation</a></li>
                   <li><a href="{% url 'marking:export' %}">Export markings</a></li>
+                  <li><a href="{% url 'marking:submission-summary' %}">Submission summary</a></li>
                   {% if perms.ipho_core.is_staff %}
                   <li class="divider"></li>
                   <li class="dropdown-header">Django admin</li>
