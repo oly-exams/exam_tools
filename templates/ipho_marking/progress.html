@@ -1,0 +1,76 @@
+{% extends "ipho_marking/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+
+{% block extra-head %}
+<meta http-equiv="refresh" content="15" />
+{% endblock %}
+
+{% block pageheader %}<h1>Marking Progress</h1>{% endblock %}
+
+
+
+{% block page-content %}
+
+<div class="dropdown">
+  Version:
+  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownVersion" data-toggle="dropdown">
+    {{ version }}
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    {% for vvid, vvname in all_versions.items %}
+    <li><a href="{% url 'marking:progress' %}?version={{ vvid }}">{{ vvname }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+
+
+{% for exam_name, questions, student_statuses in marking_statuses %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">{{ exam_name }}</h2>
+  </div>
+  <table class="table table-strided">
+    <tr>
+      <th>Student</th>
+      {% for question in questions %}
+      <th>{{ question.name }}</th>
+      {% endfor %}
+    </tr>
+    {% for student_code, statuses in student_statuses %}
+    <tr>
+      <td>{{ student_code }}</td>
+      {% for status in statuses %}
+      <td>
+        {% if status %}
+        <i class="fa fa-times"></i>
+        {% endif %}
+      </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% empty %}
+<p class="alert alert-info">Marking is currently not enabled for any exam or no mark is missing.</p>
+{% endfor %}
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script>
+$('document').ready(function(){
+    $(document).on('click', '#reload', function(event){
+        location.reload();
+    });
+
+    // Activates tooltipls
+    $('.btn').tooltip({containter: ".parent"});
+
+}); // $(document).ready()
+</script>
+{% endblock %}

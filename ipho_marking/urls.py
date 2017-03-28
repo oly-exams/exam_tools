@@ -45,4 +45,5 @@ urlpatterns = [
     url(r'^all/export.csv$', views.export, name='export'),
 
     url(r'^submission/summary$', views.submission_summary, name='submission-summary'),
+    url(r'^progress$', views.progress, name='progress'),
 ]
