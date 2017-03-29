@@ -29,6 +29,7 @@ from django.db.models import Sum
 from django.forms import modelformset_factory, inlineformset_factory
 
 import itertools
+from collections import OrderedDict
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
@@ -526,3 +527,46 @@ def submission_summary(request):
         ]
     }
     return render(request, 'ipho_marking/submission_summary.html', ctx)
+
+
+def progress(request):
+    vid = request.GET.get('version', 'O')
+    if request.user.has_perm('ipho_core.is_staff'):
+        all_versions = Marking.MARKING_VERSIONS
+    elif request.user.has_perm('ipho_core.is_marker'):
+        all_versions = OrderedDict([
+            (k, v) for k, v in Marking.MARKING_VERSIONS.items() if k != 'D'])
+        if vid not in all_versions:
+            return HttpResponseForbidden('Only the staff can see this page.')
+    else:
+        return HttpResponseForbidden('You do not have permission to access this page.')
+
+    students = Student.objects.all().values('id', 'code')
+
+    marking_statuses = []
+    for exam in Exam.objects.filter(marking_active=True):
+        questions = Question.objects.filter(exam=exam, type=Question.ANSWER)
+        metas_groups = [
+            MarkingMeta.objects.filter(question=question)
+            for question in questions]
+        added = False
+        for student in students:
+            statuses = []
+            for question, metas in zip(questions, metas_groups):
+                markings = Marking.objects.filter(
+                    version=vid, student=student['id'],
+                    marking_meta__question=question,
+                )
+                statuses.append(markings.count() < metas.count())
+            if any(statuses):
+                if not added:
+                    marking_statuses.append([exam.name, questions, []])
+                    added = True
+                marking_statuses[-1][2].append((student['code'], statuses))
+
+    ctx = {
+        'version': Marking.MARKING_VERSIONS[vid],
+        'all_versions': all_versions,
+        'marking_statuses': marking_statuses,
+    }
+    return render(request, 'ipho_marking/progress.html', ctx)
