@@ -86,6 +86,7 @@ class Exam(models.Model):
     active = models.BooleanField(default=True,  help_text='Only active exams are editable.')
     hidden = models.BooleanField(default=False, help_text='Is the exam hidden for the delegations?')
     marking_active = models.BooleanField(default=False,  help_text='Allow marking submission from delegations.')
+    moderation_active = models.BooleanField(default=False,  help_text='Allow access to moderation interface.')
 
     def __unicode__(self):
         return u'%s' % (self.name)
