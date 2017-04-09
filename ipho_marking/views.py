@@ -462,7 +462,7 @@ def delegation_confirm(request, exam_id):
 
 @permission_required('ipho_core.is_marker')
 def moderation_index(request, question_id=None):
-    questions = Question.objects.filter(exam__hidden=False, type=Question.ANSWER).order_by('exam__code', 'position')
+    questions = Question.objects.filter(exam__hidden=False, exam__moderation_active=True, type=Question.ANSWER).order_by('exam__code', 'position')
     question = None if question_id is None else get_object_or_404(Question, id=question_id)
     delegations = Delegation.objects.all()
     ctx={'questions': questions, 'question': question, 'delegations': delegations}
@@ -470,7 +470,7 @@ def moderation_index(request, question_id=None):
 
 @permission_required('ipho_core.is_marker')
 def moderation_detail(request, question_id, delegation_id):
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(Question, id=question_id, exam__hidden=False, exam__moderation_active=True)
     delegation = get_object_or_404(Delegation, id=delegation_id)
 
     metas = MarkingMeta.objects.filter(question=question)
@@ -501,7 +501,7 @@ def moderation_detail(request, question_id, delegation_id):
 
 @permission_required('ipho_core.is_marker')
 def moderation_confirmed(request, question_id, delegation_id):
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(Question, id=question_id, exam__hidden=False, exam__moderation_active=True)
     delegation = get_object_or_404(Delegation, id=delegation_id)
 
     markings = Marking.objects.filter( marking_meta__question=question, version='F', student__delegation=delegation).values('student').annotate(total=Sum('points')).order_by('student').values('student__first_name', 'student__last_name', 'student__code', 'total')

@@ -12,7 +12,8 @@
 
   <div class="row">
     <div class="col-md-6">
-
+      
+      {% if questions %}
       <div class="dropdown">
         <a class="btn {{ question|yesno:"btn-default,btn-primary" }} btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
           {% if question %}
@@ -28,6 +29,9 @@
       {% endfor %}
         </ul>
       </div>
+      {% else %}
+      <p class="alert alert-info">No exam has the moderation feature activated.</p>
+      {% endif %}
 
     </div>
     <div class="col-md-6">
