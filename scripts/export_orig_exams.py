@@ -40,7 +40,7 @@ def save_with_pk(objs, stream):
     if type(stream) == str:
         stream = open(stream, 'w')
     serializers.serialize('json', objs, indent=2,
-            use_natural_foreign_keys=False,
+            use_natural_foreign_keys=True,
             use_natural_primary_keys=False,
             stream=stream)
 
@@ -65,7 +65,10 @@ save(exams, '031_exams.json')
 questions = Question.objects.filter(exam=exams)
 save(questions, '032_questions.json')
 
-figures = Figure.objects.all()
+figures = []
+figures.append(Figures.objects.all())
+figures.append(CompiledFigure.objects.all())
+figures.append(RawFigure.objects.all())
 save_with_pk(figures, '033_figures.json')
 
 nodes = VersionNode.objects.filter(question=questions).order_by('-version')
