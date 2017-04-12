@@ -14,7 +14,6 @@ flower
 requests
 appy
 Pillow
-zbar
 lxml
 html5lib
 bs4
