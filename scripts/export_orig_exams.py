@@ -40,7 +40,7 @@ def save_with_pk(objs, stream):
     if type(stream) == str:
         stream = open(stream, 'w')
     serializers.serialize('json', objs, indent=2,
-            use_natural_foreign_keys=False,
+            use_natural_foreign_keys=True,
             use_natural_primary_keys=False,
             stream=stream)
 
