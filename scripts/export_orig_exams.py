@@ -66,9 +66,8 @@ questions = Question.objects.filter(exam=exams)
 save(questions, '032_questions.json')
 
 figures = []
-figures.append(Figures.objects.all())
-figures.append(CompiledFigure.objects.all())
-figures.append(RawFigure.objects.all())
+figures.extend(Figure.objects.non_polymorphic().all())
+figures.extend(Figure.objects.all())
 save_with_pk(figures, '033_figures.json')
 
 nodes = VersionNode.objects.filter(question=questions).order_by('-version')
