@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
@@ -27,17 +29,25 @@ from ipho_exam.models import Place, Exam
 import random
 
 def main():
-    Place.objects.all().delete()
-    
     exams = Exam.objects.all()
+    print('\nFor which exam you want to generate random seats.')
+    exams_ix = []
+    for i, exam in enumerate(exams):
+        print('[{}] {}'.format(i+1, exam.name))
+    ix = int(input('Select index > '))
+    if ix <= 0 or ix > len(exams):
+        print('Index is invalid.')
+        return
+    exam = exams[ix-1]
+    Place.objects.filter(exam=exam).delete()
+    
     for student in Student.objects.all():
-        for exam in exams:
-            seat = '{}-{}{}'.format(
-                random.choice(['M', 'N']),
-                random.choice(['A', 'B', 'C', 'D', 'E', 'F']),
-                random.randint(100, 400),
-            )
-            Place.objects.get_or_create(student=student, exam=exam, name=seat)
+        seat = '{}-{}{}'.format(
+            random.choice(['M', 'N']),
+            random.choice(['A', 'B', 'C', 'D', 'E', 'F']),
+            random.randint(100, 400),
+        )
+        Place.objects.get_or_create(student=student, exam=exam, name=seat)
 
 
 if __name__ == '__main__':
