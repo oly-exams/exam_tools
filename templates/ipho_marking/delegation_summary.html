@@ -80,6 +80,7 @@
       <div class="tab-pane" id="finals">
         <p class="lead">Final results of your delegation decided after the moderation session.</p>
 
+        <div class="panel panel-default">
         <table class="table table-striped">
             <tr>
                 <th>Student</th>
@@ -91,7 +92,7 @@
 
             {% for student, exam_points, total in points_per_student %}
             <tr>
-                <td>{{ student.code }}</td>
+                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
                 {% for ep in exam_points %}
                 <td>
                   {{ ep.exam_points|default_if_none:'-' }}
@@ -101,6 +102,7 @@
             </tr>
             {% endfor %}
         </table>
+        </div>
       </div>
 
 
