@@ -13,3 +13,4 @@ _docs_html
 .vscode/
 static_bower
 .spyderproject
+docs/*.html
