@@ -797,7 +797,7 @@ def admin_add_question(request, exam_id):
 
     form_html = render_crispy_form(question_form)
     return JsonResponse({
-                'title'   : 'Add new quesiton',
+                'title'   : 'Add new question',
                 'form'    : form_html,
                 'submit'  : 'Create',
                 'success' : False,
@@ -864,7 +864,7 @@ def admin_edit_question(request, exam_id, question_id):
 
     form_html = render_crispy_form(question_form)
     return JsonResponse({
-                'title'   : 'Edit quesiton',
+                'title'   : 'Edit question',
                 'form'    : form_html,
                 'submit'  : 'Save',
                 'success' : False,
@@ -934,7 +934,7 @@ def admin_import_version(request, question_id):
             node.pk = None
             node.version += 1
             node.status = 'P'
-        node.content = qml.escape_equations(txt)
+        node.text = qml.escape_equations(txt)
         node.save()
         return JsonResponse({'success': True})
 
