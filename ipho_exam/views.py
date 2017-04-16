@@ -934,7 +934,7 @@ def admin_import_version(request, question_id):
             node.pk = None
             node.version += 1
             node.status = 'P'
-        node.content = qml.escape_equations(txt)
+        node.text = qml.escape_equations(txt)
         node.save()
         return JsonResponse({'success': True})
 
