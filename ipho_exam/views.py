@@ -1676,7 +1676,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 ## Respond via Ajax
                 if request.is_ajax:
                     return JsonResponse({
-                                'last_saved' : trans_node.timestamp,
+                                'last_saved' : trans_node.timestamp.isoformat(),
                                 'checksum'   : checksum,
                                 'success'    : True,
                             })

@@ -47,7 +47,7 @@
             <h1>{{ question }}</h1>
             {% if status == 'open' %}
                 <p>
-                  Remaining Time: <strong><span class="countdown" data-end-date="{{ question.end_date.isoformat }}"></span></strong>
+                  Remaining Time: <strong><span class="countdown" data-end-date="{{ question.end_date | date:'r' }}"></span></strong>
                 </p>
             {% endif %}
             <div class="jumbotron">

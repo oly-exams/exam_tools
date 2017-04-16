@@ -30,7 +30,7 @@
                       <span class="label label-default">#{{ fb.pk }}</span>
                       {% endfor %}
                     </td>
-                    <td class="col-md-1 countdown" data-end-date="{{ question.end_date.isoformat }}"></td>
+                    <td class="col-md-1 countdown" data-end-date="{{ question.end_date | date:'r' }}"></td>
                     <td class="col-md-3", id="question-{{ question.pk }}-question-text">
                         {{ question.title }}
                     </td>

@@ -43,10 +43,12 @@ class QuestionForm(ModelForm):
 
 
 class EndDateForm(ModelForm):
+    utc_offset = forms.IntegerField(widget=HiddenInput(), help_text='UTC offset in minutes')
     def __init__(self, *args, **kwargs):
         super(EndDateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+                                    Field('utc_offset', id="modal-utc_offset"),
                                     Field('end_date', id="modal-datetimepicker"),
                                     HTML('<div class="quick-end-time" data-min="1"></div>'),
                                     HTML('<div class="quick-end-time" data-min="2"></div>'),
@@ -61,7 +63,6 @@ class EndDateForm(ModelForm):
     class Meta:
         model = Question
         fields = ['end_date']
-        localized_fields = ['end_date',]
         widgets={'end_date': HiddenInput()}
 
 
