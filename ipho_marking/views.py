@@ -265,7 +265,7 @@ def delegation_summary(request):
         for student in students:
             # Scans
             stud_exam_scans_list = Document.objects.filter(
-                student=student, exam=exam
+                student=student['pk'], exam=exam
             ).order_by(
                 'position'
             )

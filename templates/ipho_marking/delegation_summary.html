@@ -108,7 +108,8 @@
 
       <div class="tab-pane active" id="results">
 
-      <p class="lead">Download scaned exams.</p>
+      <p class="lead">Download scanned exams.</p>
+      <p class="alert alert-info"><i class="fa fa-info-circle"></i> Pending documents still have to be processed by the organizers.</p>
 
       {% for exam,questions,scans_of_students in scans_table_per_exam %}
       <div class="panel panel-default">
@@ -127,7 +128,7 @@
                 <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
                 {% for doc in scans_list %}
                   <td>
-                  {% if not doc.scan_file is None %}
+                  {% if doc.scan_file %}
                     <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> view</a>
                   {% else %}
                     <span class="label label-default">pending</span>
