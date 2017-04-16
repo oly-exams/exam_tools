@@ -726,7 +726,7 @@ body { margin-bottom: 70px; }
                     success: function(data) {
                         saving = false;
                         if (data['success']) {
-                            last_saved = data['last_saved'];
+                            last_saved = new Date(data['last_saved']);
                             $('input[name="checksum"]').val(data['checksum']);
                             updateDocumentStatus();
                         } else {
