@@ -84,7 +84,7 @@
         <table class="table table-striped">
             <tr>
                 <th>Student</th>
-                {% for e in exams %}
+                {% for e in final_points_exams %}
                 <th>{{ e.question__exam__name }}<br />({{ e.exam_points }})</th>
                 {% endfor %}
                 <th>Total</th>
@@ -110,27 +110,29 @@
 
       <p class="lead">Download scaned exams.</p>
 
-      {% for psubs in points_submissions %}
+      {% for exam,questions,scans_of_students in scans_table_per_exam %}
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h2 class="panel-title">{{ psubs.exam.name }}</h2>
+          <h2 class="panel-title">{{ exam.name }}</h2>
         </div>
         <table class="table table-strided">
             <tr>
                 <th>Student</th>
-                {% for question in psubs.exam.question_set.all %}
-                    {% if question.is_answer_sheet %}
-                    <th>{{ question.name }}</th>
-                    {% endif %}
+                {% for question in questions %}
+                  <th>{{ question.name }}</th>
                 {% endfor %}
             </tr>
-            {% for student in students %}
+            {% for student,scans_list in scans_of_students %}
             <tr>
                 <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
-                {% for question in psubs.exam.question_set.all %}
-                    {% if question.is_answer_sheet %}
-                        <td><a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=psubs.exam.pk student_id=student.pk position=question.position %}"><i class="fa fa-file-pdf-o"></i> download</a></td>
-                    {% endif %}
+                {% for doc in scans_list %}
+                  <td>
+                  {% if not doc.scan_file is None %}
+                    <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> view</a>
+                  {% else %}
+                    <span class="label label-default">pending</span>
+                  {% endif %}
+                  </td>
                 {% endfor %}
             </tr>
             {% endfor %}
