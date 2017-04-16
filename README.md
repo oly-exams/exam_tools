@@ -90,7 +90,8 @@ python manage.py runserver
 ```
 For the compilation workers, you need to install rabbitmq and then run it by executing
 ```bash
-rabbitmq-server```
+rabbitmq-server
+```
 and for the compilation workers
 ```bash
 celery -A exam_tools worker -E --concurrency=1
