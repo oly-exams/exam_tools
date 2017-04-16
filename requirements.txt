@@ -20,3 +20,4 @@ bs4
 qrcode
 Wand
 django-filter
+python-dateutil
