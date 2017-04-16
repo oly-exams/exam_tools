@@ -48,15 +48,15 @@ Attributes:
 | points   | Total number of points in the whole question.  |
 
 Valid children:
-* [Title](admin_exam_editor.md#title)
-* [Section](admin_exam_editor.md#section)
-* [Part](admin_exam_editor.md#part)
-* [Subquestion](admin_exam_editor.md#subquestion)
-* [Answer](admin_exam_editor.md#answer)
-* [Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
-* [Box](admin_exam_editor.md#box)
-* [Pagebreak](admin_exam_editor.md#pagebreak)
-* [Latex blocks](admin_exam_editor.md#latex-blocks)
+[Title](admin_exam_editor.md#title)
+[Section](admin_exam_editor.md#section)
+[Part](admin_exam_editor.md#part)
+[Subquestion](admin_exam_editor.md#subquestion)
+[Answer](admin_exam_editor.md#answer)
+[Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
+[Box](admin_exam_editor.md#box)
+[Pagebreak](admin_exam_editor.md#pagebreak)
+[Latex blocks](admin_exam_editor.md#latex-blocks)
 
 ### Title
 
@@ -99,8 +99,8 @@ Attributes:
 | question_nr | Question the subquestion belongs to, e.g "1".  |
 
 Valid children:
-* [Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
-* [Latex blocks](admin_exam_editor.md#latex-blocks)
+[Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
+[Latex blocks](admin_exam_editor.md#latex-blocks)
 
 ### Answer
 
@@ -116,8 +116,8 @@ Attributes:
 | height      | Define space available to write the answer, e.g. "4 cm". |
 
 Valid children:
-* [Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
-* [Latex blocks](admin_exam_editor.md#latex-blocks)
+[Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
+[Latex blocks](admin_exam_editor.md#latex-blocks)
 
 ### Paragraph like blocks
 #### Paragraph
@@ -141,8 +141,8 @@ Attributes:
 
 
 Valid children:
-* [Figure caption](admin_exam_editor.md#figure-caption)
-* [Figure text](admin_exam_editor.md#figure-text)
+[Figure caption](admin_exam_editor.md#figure-caption)
+[Figure text](admin_exam_editor.md#figure-text)
 
 #### Equation
 
@@ -159,24 +159,24 @@ No block content.
 No attributes.
 
 Valid children:
-* [List item](admin_exam_editor.md#list-item)
+[List item](admin_exam_editor.md#list-item)
 
 #### Table
 
 No block content.
 
-| Key         | Specification                                                      |
-| ----------- | ------------------------------------------------------------------ |
-| width       | Number of columns in table, has to be set if *columns* is not set. |
-| top_line    | Number of lines, default: "1".                                     |
-| left_line   | Number of lines, default: "1".                                     |
-| right_line  | Number of lines, default: "1".                                     |
-| grid_line   | Number of lines, default: "1".                                     |
-| columns     | Advanced: Used to customize columns, use latex format.             |
+| Key         | Specification                                                           |
+| ----------- | ----------------------------------------------------------------------- |
+| width       | Number of columns in table, has to be set if *columns* is not set.      |
+| top_line    | Number of lines, default: "1".                                          |
+| left_line   | Number of lines, default: "1".                                          |
+| right_line  | Number of lines, default: "1".                                          |
+| grid_line   | Number of lines, default: "1".                                          |
+| columns     | Advanced: Used to customize columns, (do not set at same time as width) |
 
 Valid children:
-* [Table row](admin_exam_editor.md#table-row)
-* [Table caption](admin_exam_editor.md#table-caption)
+[Table row](admin_exam_editor.md#table-row)
+[Table caption](admin_exam_editor.md#table-caption)
 
 #### Box
 Draw box around another block.
@@ -186,8 +186,8 @@ No block content.
 No attributes.
 
 Valid children:
-* [Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
-* [Latex blocks](admin_exam_editor.md#latex-blocks)
+[Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
+[Latex blocks](admin_exam_editor.md#latex-blocks)
 
 ### Figure Caption
 
@@ -213,7 +213,12 @@ No children.
 
 Block content: Item text.
 
-No attributes.
+Attributes:
+
+| Key         | Specification                                                      |
+| ----------- | ------------------------------------------------------------------ |
+| Label       | Label in front of each item, (e.g. " " (space) for no bullet).     |
+|             | If no label set a bullet point shows up.                           |
 
 No children.
 
@@ -226,10 +231,10 @@ Attributes:
 | Key         | Specification                                                      |
 | ----------- | ------------------------------------------------------------------ |
 | bottom_line | Number of lines, default: "1".                                     |
-| multiplier  | Repeat the row n times, default: "1".                             |
+| multiplier  | Repeat the row n times, default: "1".                              |
 
 Valid children:
-* [Table cell](admin_exam_editor.md#table-cell)
+[Table cell](admin_exam_editor.md#table-cell)
 
 ### Table Cell
 
@@ -271,7 +276,7 @@ Attributes:
 | content     | TODO                                                               |
 
 Valid children:
-* [Latex replacement parameter](admin_exam_editor.md#latex-replacement-parameter)
+[Latex replacement parameter](admin_exam_editor.md#latex-replacement-parameter)
 
 #### Latex environment
 
@@ -284,15 +289,15 @@ Attributes:
 | name        | TODO                                                               |
 
 Valid children:
-* [Title](admin_exam_editor.md#title)
-* [Section](admin_exam_editor.md#section)
-* [Part](admin_exam_editor.md#part)
-* [Subquestion](admin_exam_editor.md#subquestion)
-* [Answer](admin_exam_editor.md#answer)
-* [Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
-* [Box](admin_exam_editor.md#box)
-* [Pagebreak](admin_exam_editor.md#pagebreak)
-* [Latex blocks](admin_exam_editor.md#latex-blocks)
+[Title](admin_exam_editor.md#title)
+[Section](admin_exam_editor.md#section)
+[Part](admin_exam_editor.md#part)
+[Subquestion](admin_exam_editor.md#subquestion)
+[Answer](admin_exam_editor.md#answer)
+[Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
+[Box](admin_exam_editor.md#box)
+[Pagebreak](admin_exam_editor.md#pagebreak)
+[Latex blocks](admin_exam_editor.md#latex-blocks)
 
 ### Latex replacement parameter
 
