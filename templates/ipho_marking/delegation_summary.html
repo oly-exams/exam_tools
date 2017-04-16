@@ -13,14 +13,13 @@
 
   <!-- Nav tabs -->
   <ul class="nav nav-pills">
-    <li class="active"><a href="#results" data-toggle="tab">Student scans</a></li>
-    <li><a href="#details" data-toggle="tab">Delegation marking</a></li>
+    <li class="active"><a href="#details" data-toggle="tab">Marking details</a></li>
     <li><a href="#finals" data-toggle="tab">Final points</a></li>
   </ul>
 
   <!-- Tab panes -->
   <div class="tab-content" style="margin-top:10px;">
-    <div class="tab-pane" id="details">
+    <div class="tab-pane active" id="details">
 
       <p class="lead">Submit your marking and see the official marks.</p>
 
@@ -80,7 +79,6 @@
       <div class="tab-pane" id="finals">
         <p class="lead">Final results of your delegation decided after the moderation session.</p>
 
-        <div class="panel panel-default">
         <table class="table table-striped">
             <tr>
                 <th>Student</th>
@@ -92,7 +90,7 @@
 
             {% for student, exam_points, total in points_per_student %}
             <tr>
-                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
+                <td>{{ student.code }}</td>
                 {% for ep in exam_points %}
                 <td>
                   {{ ep.exam_points|default_if_none:'-' }}
@@ -102,9 +100,6 @@
             </tr>
             {% endfor %}
         </table>
-        </div>
-      </div>
-
 
       <div class="tab-pane active" id="results">
 
