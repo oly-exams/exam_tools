@@ -87,7 +87,7 @@
 
 
 %Question -- no longer used
-\newcommand{\QT}[3]{\vspace{0.2cm}\noindent{\bf\Alph#2\arabic#3.~(#1 \if#11{pt}\else{pts}\fi)}}
+\newcommand{\QT}[3]{\vspace{0.2cm}\noindent{\textbf\Alph#2\arabic#3.~(#1 \if#11{pt}\else{pts}\fi)}}
 
 
 %Question (QMLsubquestion)
@@ -97,8 +97,8 @@
    \noindent
    \parbox[t]{.1\textwidth}{
    \hspace{1em}
-    % \noindent\bf \Alph{ptnum}\arabic{qtnum2}
-    \begin{english}\noindent\bf #2.#3\end{english}
+    % \noindent\textbf \Alph{ptnum}\arabic{qtnum2}
+    \begin{english}\noindent\textbf #2.#3\end{english}
  }
  \begin{minipage}[t]{.79\textwidth}}
 {
@@ -116,7 +116,7 @@
     \def\QSApoints{#1} %\vspace{0.5em}
     \renewcommand{\arraystretch}{2.}
     \begin{framed}\noindent\begin{minipage}[t][#4][t]{\textwidth}
-    {\noindent\bf \begin{english} #2.#3 $(\QSApoints ~\text{pt})$ \end{english}}
+    {\noindent\textbf \begin{english} #2.#3 $(\QSApoints ~\text{pt})$ \end{english}}
 
 }
 {
@@ -138,8 +138,8 @@
 % {\def\QTFpoints{#1}
 % \tabularx{\textwidth}{|l|p{.8\textwidth}|r|} \hline
 %    \noindent
-%     % \noindent\bf \Alph{ptnum}\arabic{qtnum2}
-%     \begin{english}\noindent\bf \Alph{ptnum}.\arabic{qtnum2}\end{english}
+%     % \noindent\textbf \Alph{ptnum}\arabic{qtnum2}
+%     \begin{english}\noindent\textbf \Alph{ptnum}.\arabic{qtnum2}\end{english}
 %     &
 %  }
 % { & \QTFpoints pt \tabularnewline

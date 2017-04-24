@@ -65,7 +65,7 @@ language.extraheader = ''
 
 # Exported from Exam Tools
 doc_content = ur"""
-\begin{PR}{兩個力學問題 (10分)}{10}
+\begin{PR}{兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題(10分)}{10}
 
 在開始作答之前，請先細讀另一信封袋內的「理論考試通用指引」。
 
