@@ -34,7 +34,7 @@ logger = logging.getLogger('exam_tools.backups')
 
 def clean_old_backups():
     storage = Storage()
-    keep_delta = datetime.timedelta(days=4)
+    keep_delta = datetime.timedelta(days=1)
     files = storage.list_backups()
     now = datetime.datetime.now()
     files = sorted(files, key=utils.filename_to_date, reverse=True)
