@@ -409,6 +409,10 @@ class ScanForm(forms.Form):
 class ExtraSheetForm(forms.Form):
     student = forms.ModelChoiceField(queryset=Student.objects.all())
     quantity = forms.IntegerField()
+    template = forms.ChoiceField(widget=forms.RadioSelect, choices=(
+        ('exam_blank.tex', 'Blank sheets'),
+        ('exam_graph.tex', 'Graph sheets'),
+    ))
 
     def __init__(self, exam_id, *args, **kwargs):
         super(ExtraSheetForm, self).__init__(*args, **kwargs)
@@ -418,6 +422,7 @@ class ExtraSheetForm(forms.Form):
             Field('question'),
             Field('student'),
             Field('quantity'),
+            Field('template'),
             FormActions(
                 Submit('submit', 'Generate')
             )

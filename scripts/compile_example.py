@@ -290,8 +290,32 @@ def compile_blank():
     with open('test_blank.pdf', 'wb') as pdf_file:
         pdf_file.write(page)
 
+
+def compile_graph():
+    pages = 3
+    context = {
+                'polyglossia' : 'english',
+                'polyglossia_options' : '',
+                'font'        : fonts.ipho['notosans'],
+                'extraheader' : '',
+                'exam_name'   : u'{}'.format(exam.name),
+                'code'        : u'W2',
+                'title'       : u'{} - {}'.format(exam.name, question.name),
+                'is_answer'   : True,
+                'pages'       : range(pages),
+              }
+    body = render_to_string('ipho_exam/tex/exam_graph.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
+    question_pdf = pdf.compile_tex(body, [
+        tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
+    ])
+    bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='W')
+    page = pdf.add_barcode(question_pdf, bgenerator)
+    with open('test_graph.pdf', 'wb') as pdf_file:
+        pdf_file.write(page)
+
 if __name__ == '__main__':
     compile_cover()
     compile_question(doc_content)
     compile_blank()
+    compile_graph()
 

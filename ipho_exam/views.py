@@ -2055,20 +2055,21 @@ def extra_sheets(request, exam_id=None):
         exams = Exam.objects.filter(hidden=False)
         return render(request, 'ipho_exam/extra_sheets_select_exam.html', {'exams': exams})
     messages = []
-    form = ExtraSheetForm(exam_id, request.POST or None)
+    form = ExtraSheetForm(exam_id, request.POST or None, initial={'template': 'exam_blank.tex'})
     if form.is_valid():
         student = form.cleaned_data['student']
         question = form.cleaned_data['question']
         exam = question.exam
         position = question.position
         quantity = form.cleaned_data['quantity']
+        template_name = form.cleaned_data['template']
         doc = get_object_or_404(Document,
             exam=exam,
             position=position,
             student=student
         )
 
-        doc_pdf = question_utils.generate_extra_sheets(student, question, doc.extra_num_pages, quantity)
+        doc_pdf = question_utils.generate_extra_sheets(student, question, doc.extra_num_pages, quantity, template_name)
 
         doc.extra_num_pages += quantity
         doc.save()
