@@ -125,7 +125,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
     return task
 
 
-def generate_extra_sheets(student, question, startnum, npages):
+def generate_extra_sheets(student, question, startnum, npages, template_name='exam_blank.tex'):
     context = {
                 'polyglossia' : 'english',
                 'polyglossia_options' : '',
@@ -135,7 +135,7 @@ def generate_extra_sheets(student, question, startnum, npages):
                 'pages'       : range(npages),
                 'startnum'    : startnum+1,
               }
-    body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
+    body = render_to_string('ipho_exam/tex/{}'.format(template_name), RequestContext(HttpRequest(), context)).encode("utf-8")
     question_pdf = pdf.compile_tex(body, [
         tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
     ])
