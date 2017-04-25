@@ -632,7 +632,7 @@ class QMLfigure(QMLobject):
 
         fig = Figure.objects.get(id=self.attributes['figid'])
         fig_content, content_type = fig.to_inline(query=self.fig_query(), lang=self.lang)
-        
+
         if content_type == 'svg+xml':
             xhtmlout = fig_content
         else:
@@ -827,7 +827,7 @@ class QMLtable(QMLobject):
         )
 
     def tex_end(self):
-        tex = unicode(r'\end{tabular}\end{center}') 
+        tex = unicode(r'\end{tabular}\end{center}')
         tex += u''.join(c.make_tex()[0] for c in self.captions)
         tex += unicode(r'\vspace{0.5cm}') + u'\n\n'
         return tex
@@ -894,7 +894,7 @@ class QMLpageBreak(QMLobject):
     has_children = False
 
     def make_tex(self):
-        return ur'~ \clearpage', []
+        return ur'~ \clearpage' + u'\n', []
 
 class QMLException(Exception):
     pass
