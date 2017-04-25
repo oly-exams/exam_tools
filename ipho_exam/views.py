@@ -797,7 +797,7 @@ def admin_add_question(request, exam_id):
 
     form_html = render_crispy_form(question_form)
     return JsonResponse({
-                'title'   : 'Add new quesiton',
+                'title'   : 'Add new question',
                 'form'    : form_html,
                 'submit'  : 'Create',
                 'success' : False,
@@ -864,7 +864,7 @@ def admin_edit_question(request, exam_id, question_id):
 
     form_html = render_crispy_form(question_form)
     return JsonResponse({
-                'title'   : 'Edit quesiton',
+                'title'   : 'Edit question',
                 'form'    : form_html,
                 'submit'  : 'Save',
                 'success' : False,
@@ -934,7 +934,7 @@ def admin_import_version(request, question_id):
             node.pk = None
             node.version += 1
             node.status = 'P'
-        node.content = qml.escape_equations(txt)
+        node.text = qml.escape_equations(txt)
         node.save()
         return JsonResponse({'success': True})
 
@@ -1676,7 +1676,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 ## Respond via Ajax
                 if request.is_ajax:
                     return JsonResponse({
-                                'last_saved' : trans_node.timestamp,
+                                'last_saved' : trans_node.timestamp.isoformat(),
                                 'checksum'   : checksum,
                                 'success'    : True,
                             })
@@ -1876,7 +1876,7 @@ def pdf_task(request, token):
             return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)
 
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_printstaff')
 def bulk_print(request):
     messages = []
 
@@ -1998,7 +1998,7 @@ def bulk_print(request):
                 'this_url_builder'    : url_builder(reverse('exam:bulk-print'), request.GET),
             })
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_printstaff')
 def print_doc(request, type, exam_id, position, student_id, queue):
     queue_list = printer.allowed_choices(request.user)
     if not queue in (q[0] for q in queue_list):
@@ -2019,14 +2019,14 @@ def print_doc(request, type, exam_id, position, student_id, queue):
     n = request.META.get('HTTP_REFERER', reverse('exam:bulk-print'))
     return HttpResponseRedirect(n)
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_printstaff')
 def set_scan_status(request, doc_id, status):
     doc = get_object_or_404(Document, id=doc_id)
     doc.scan_status = status
     doc.save()
     return HttpResponseRedirect(reverse('exam:bulk-print'))
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_printstaff')
 def set_scan_full(request, doc_id):
     doc = get_object_or_404(Document, id=doc_id)
     doc.scan_file = doc.scan_file_orig
@@ -2034,7 +2034,7 @@ def set_scan_full(request, doc_id):
     n = request.META.get('HTTP_REFERER', reverse('exam:bulk-print'))
     return HttpResponseRedirect(n)
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_printstaff')
 def upload_scan(request):
     messages = []
     form = ScanForm(request.POST or None, request.FILES or None)
@@ -2049,26 +2049,27 @@ def upload_scan(request):
         messages.append(('alert-success', '<i class="fa fa-check"></i> Scan uploaded.'))
     return render(request, 'ipho_exam/upload_scan.html', {'form': form, 'messages': messages})
 
-@permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.is_printstaff')
 def extra_sheets(request, exam_id=None):
     if exam_id is None:
         exams = Exam.objects.filter(hidden=False)
         return render(request, 'ipho_exam/extra_sheets_select_exam.html', {'exams': exams})
     messages = []
-    form = ExtraSheetForm(exam_id, request.POST or None)
+    form = ExtraSheetForm(exam_id, request.POST or None, initial={'template': 'exam_blank.tex'})
     if form.is_valid():
         student = form.cleaned_data['student']
         question = form.cleaned_data['question']
         exam = question.exam
         position = question.position
         quantity = form.cleaned_data['quantity']
+        template_name = form.cleaned_data['template']
         doc = get_object_or_404(Document,
             exam=exam,
             position=position,
             student=student
         )
 
-        doc_pdf = question_utils.generate_extra_sheets(student, question, doc.extra_num_pages, quantity)
+        doc_pdf = question_utils.generate_extra_sheets(student, question, doc.extra_num_pages, quantity, template_name)
 
         doc.extra_num_pages += quantity
         doc.save()

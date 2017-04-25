@@ -13,13 +13,14 @@
 
   <!-- Nav tabs -->
   <ul class="nav nav-pills">
-    <li class="active"><a href="#details" data-toggle="tab">Marking details</a></li>
+    <li class="active"><a href="#results" data-toggle="tab">Student scans</a></li>
+    <li><a href="#details" data-toggle="tab">Delegation marking</a></li>
     <li><a href="#finals" data-toggle="tab">Final points</a></li>
   </ul>
 
   <!-- Tab panes -->
   <div class="tab-content" style="margin-top:10px;">
-    <div class="tab-pane active" id="details">
+    <div class="tab-pane" id="details">
 
       <p class="lead">Submit your marking and see the official marks.</p>
 
@@ -79,10 +80,11 @@
       <div class="tab-pane" id="finals">
         <p class="lead">Final results of your delegation decided after the moderation session.</p>
 
+        <div class="panel panel-default">
         <table class="table table-striped">
             <tr>
                 <th>Student</th>
-                {% for e in exams %}
+                {% for e in final_points_exams %}
                 <th>{{ e.question__exam__name }}<br />({{ e.exam_points }})</th>
                 {% endfor %}
                 <th>Total</th>
@@ -90,7 +92,7 @@
 
             {% for student, exam_points, total in points_per_student %}
             <tr>
-                <td>{{ student.code }}</td>
+                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
                 {% for ep in exam_points %}
                 <td>
                   {{ ep.exam_points|default_if_none:'-' }}
@@ -100,8 +102,47 @@
             </tr>
             {% endfor %}
         </table>
+        </div>
+      </div>
 
-  </div>
+
+      <div class="tab-pane active" id="results">
+
+      <p class="lead">Download scanned exams.</p>
+      <p class="alert alert-info"><i class="fa fa-info-circle fa-lg"></i> Pending documents still have to be processed by the organizers.</p>
+
+      {% for exam,questions,scans_of_students in scans_table_per_exam %}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h2 class="panel-title">{{ exam.name }}</h2>
+        </div>
+        <table class="table table-strided">
+            <tr>
+                <th>Student</th>
+                {% for question in questions %}
+                  <th>{{ question.name }}</th>
+                {% endfor %}
+            </tr>
+            {% for student,scans_list in scans_of_students %}
+            <tr>
+                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
+                {% for doc in scans_list %}
+                  <td>
+                  {% if doc.scan_file %}
+                    <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> view</a>
+                  {% else %}
+                    <span class="label label-default">pending</span>
+                  {% endif %}
+                  </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+          </table>
+      </div>
+      {% empty %}
+      <p class="alert alert-info">There are no files available for download.</p>
+      {% endfor %}
+      
 </div>
 
 </div>

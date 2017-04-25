@@ -35,7 +35,7 @@ def main(request):
     ctx = RequestContext(request)
     messages = []
     queue_list = printer.allowed_choices(request.user)
-    enable_opts = request.user.has_perm('ipho_core.is_staff')
+    enable_opts = request.user.has_perm('ipho_core.is_printstaff')
     success = False
     form = PrintForm(request.POST or None, request.FILES or None, queue_list=queue_list, enable_opts=enable_opts)
     if form.is_valid():

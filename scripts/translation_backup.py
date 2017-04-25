@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Exam Tools
 #
 # Copyright (C) 2014 - 2017 Oly Exams Team
@@ -15,7 +17,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#!/usr/bin/env python
 
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
@@ -99,5 +100,5 @@ if __name__ == '__main__':
         os.makedirs(backup_folder)
     except OSError:
         pass
-    clean_old_backups(backup_folder, datetime.timedelta(hours=4))
     make_backups(backup_folder)
+    clean_old_backups(backup_folder, datetime.timedelta(hours=4))

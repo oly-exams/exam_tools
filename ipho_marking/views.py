@@ -242,6 +242,7 @@ def delegation_summary(request):
     vid = 'F'
     points_per_student = []
     for student in students:
+        # Exam points
         stud_exam_points_list = Marking.objects.filter(
             version=vid, student=student['id']
         ).values(
@@ -255,8 +256,24 @@ def delegation_summary(request):
         )
         total = sum([ st_points['exam_points'] for st_points in stud_exam_points_list if st_points['exam_points'] is not None ])
         points_per_student.append( (student, stud_exam_points_list, total) )
+    
+    active_exams = Exam.objects.filter(hidden=False, marking_active=True)
+    scans_table_per_exam = []
+    for exam in active_exams:
+        questions = exam.question_set.filter(type=Question.ANSWER)
+        scans_of_students = []
+        for student in students:
+            # Scans
+            stud_exam_scans_list = Document.objects.filter(
+                student=student['pk'], exam=exam
+            ).order_by(
+                'position'
+            )
+            scans_of_students.append( (student, stud_exam_scans_list) )
 
-    exams = MarkingMeta.objects.filter(question__exam__hidden=False).values(
+        scans_table_per_exam.append((exam, questions, scans_of_students))
+    
+    final_points_exams = MarkingMeta.objects.filter(question__exam__hidden=False).values(
         'question__exam'
     ).annotate(
         exam_points=Sum('max_points')
@@ -271,8 +288,10 @@ def delegation_summary(request):
         'delegation': delegation,
         'students': students,
         'points_submissions': points_submissions,
-        'exams': exams,
+        'final_points_exams': final_points_exams,
         'points_per_student': points_per_student,
+        'active_exams' : active_exams,
+        'scans_table_per_exam' : scans_table_per_exam,
         'OPEN_STATUS': ExamAction.OPEN,
         'SUBMITTED_STATUS': ExamAction.SUBMITTED,
     }

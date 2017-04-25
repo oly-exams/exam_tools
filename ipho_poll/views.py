@@ -29,7 +29,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
 
-
+from dateutil import tz
 
 from ipho_core.models import User
 
@@ -299,7 +299,13 @@ def setEndDate(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
     endDateForm = EndDateForm(request.POST or None, instance=question)
     if endDateForm.is_valid():
-        question = endDateForm.save()
+        tzuser = tz.tzoffset(None, endDateForm.cleaned_data['utc_offset']*60)
+        end_date = endDateForm.cleaned_data['end_date']
+        end_date = end_date.replace(tzinfo=None)
+        end_date = end_date.replace(tzinfo=tzuser)
+        question = endDateForm.save(commit=False)
+        question.end_date = timezone.localtime(end_date)
+        question.save()
         choice_text_list = []
         for choice in Choice.objects.filter(question=question):
             choice_text_list.append(choice.choice_text)

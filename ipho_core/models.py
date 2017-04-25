@@ -30,6 +30,7 @@ class IphoPerm(models.Model):
                 ('is_staff', 'Is an organizer'),
                 ('print_technopark', 'Can print in Technopark'),
                 ('print_irchel', 'Can print in Irchel'),
+                ('is_printstaff', 'Is a print staff'),
             )
 
 class AutoLoginManager(models.Manager):

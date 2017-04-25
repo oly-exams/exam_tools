@@ -1,15 +1,15 @@
 {% autoescape off %}
 
-\documentclass[9pt,a4paper]{ipho2016}
+\documentclass[11pt,a4paper]{ipho2016}
 
 
 % PDF metadata
 \hypersetup{pdftitle={IPhO 2016 - {{ title }}} }
 
 \setmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %}]{% templatetag openbrace %}{{ font.font_regular }}} %Calibri
-\setmainlanguage[{{ polyglossia_options|default:'' }}]{% templatetag openbrace %}{{ polyglossia }}}
+\setmainlanguage{% templatetag openbrace %}{{ polyglossia }}}
 {% if font.cjk %}
-\usepackage[space]{xeCJK}
+\usepackage{xeCJK}
 \setCJKmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %}]{% templatetag openbrace %}{{ font.font_regular }}}
 {% endif %}
 
@@ -18,14 +18,15 @@
 % Start other language with \begin{English}, or \textenglish
 
 \fancyhf[HL]{\bf \textenglish{\fontsize{.5cm}{.5cm} \selectfont {{ exam_name }}} \\\vspace{1 mm} \includegraphics[width=5.4 cm]{% templatetag openbrace %}{{ STATIC_PATH }}/apho17_logo_bw.pdf}}
-\fancyhf[HR]{\bf \textenglish{\fontsize{2cm}{2.5cm}\selectfont {{ code }}-\thepage}\\\rm \textenglish{ {{ lang_name }} }}
+\fancyhf[HR]{\bf \textenglish{\fontsize{2cm}{2.5cm}\selectfont {{ code }}-\thepage}}
 \fancyhf[HC]{}
-\fancyhf[FC]{}
+\fancyhf[FC]{\underline{do not} write on the back of this page}
 
-% \fancyhf[HC]{\textenglish{\fontsize{.5cm}{.5cm} \selectfont {{ exam_name }}}\\\textenglish{ {{ lang_name }} }}
+\usepackage{pst-node}
 
 \nonstopmode
 
+\setcounter{page}{% templatetag openbrace %}{{ startnum|default:'1' }}}
 
 
 {{ extraheader }}
@@ -36,7 +37,15 @@
 
 \begin{document}
 
-{{ document }}
+{% for i in pages %}
+{% if not forloop.first %}
+\clearpage
+{% endif %}
+  \rnode[lt]{A}{~}
+  \vfill
+  \includegraphics[width=\textwidth]{% templatetag openbrace %}{{ STATIC_PATH }}/graph-paper.pdf}\rnode[rb]{B}{~}
+  \psframe(A)(B)
+{% endfor %}
 
 \end{document}
 {% endautoescape %}

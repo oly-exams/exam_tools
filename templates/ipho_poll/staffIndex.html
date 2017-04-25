@@ -182,6 +182,7 @@ $('document').ready(function(){
                     defaultDate: moment().add(10, 'seconds'),
                     minDate: moment().add(0, 'minutes'),
                 });
+                $('#modal-utc_offset').val(moment().utcOffset());
                 modal.find('.quick-end-time').each(function() {
                   var $this=$(this);
                   var minutes = $this.data('min');
@@ -211,8 +212,9 @@ $('document').ready(function(){
                 if (!data['success']) {
                     $('#question-modal .modal-body').html(data['form']);
                     $('#question-modal .modal-body textarea').ckeditor();
+                    $('#modal-utc_offset').val(moment().utcOffset());
                     $('#modal-datetimepicker').datetimepicker({
-                        format: "MM/DD/YYYY HH:mm",
+                        format: "MM/DD/YYYY HH:mm:ss",
                         inline: true,
                         sideBySide: true,
                         defaultDate: moment().add(10, 'seconds'),
@@ -314,7 +316,7 @@ $('document').ready(function(){
               // Activate countdowns
               $('.countdown').each(function(i) {
                   var end_date = $(this).data('end-date');
-                  end_date = new Date(end_date);
+                  end_date = new moment(end_date).toDate();
                   $(this).countdown({
                       date: end_date,
                       render: function (date) {

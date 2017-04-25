@@ -44,7 +44,6 @@
 \renewcommand{\headrulewidth}{2pt}
 %\fancyheadoffset{1cm} % make heading go out horizontally
 \pagestyle{fancy}
-\fancyhf[HL]{\includegraphics[width=2cm]{% templatetag openbrace %}{{ STATIC_PATH }}/ipho16_small_green.pdf} }
 
 % Math
 \RequirePackage{amsmath}
