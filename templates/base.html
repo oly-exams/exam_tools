@@ -78,7 +78,7 @@
               <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
               {% endif %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
-              {% if perms.ipho_core.can_print_in_technopark or perms.ipho_core.can_print_in_irchel %}
+              {% if perms.ipho_core.print_technopark or perms.ipho_core.print_irchel %}
               <li><a href="{% url 'print:main' %}">Print</a></li>
               {% endif %}
 

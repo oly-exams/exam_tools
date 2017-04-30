@@ -18,6 +18,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+## how to call this script
+##
+## fix the TEXBIN config variable in  exam_tools/settings.py  to the location of latex on your machine
+## ```export PYTHONPATH=.:$PYTHONPATH```
+## call the testing script
+## ```python scripts/compile_example.py```
+
+
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
@@ -65,7 +73,7 @@ language.extraheader = ''
 
 # Exported from Exam Tools
 doc_content = ur"""
-\begin{PR}{兩個力學問題 (10分)}{10}
+\begin{PR}{兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題(10分)}{10}
 
 在開始作答之前，請先細讀另一信封袋內的「理論考試通用指引」。
 
@@ -234,10 +242,19 @@ F_C = 2 m v \omega_{ss}  \sin \phi\ ,\end{equation}
 
 
 
+def _compile_tex(body, ext_resources):
+    try: 
+        return pdf.compile_tex(body, ext_resources)
+    except pdf.TexCompileException as err:
+        print(err)
+        print(err.log)
+        raise
+        
+        
 def compile_cover():
     cover = {'student': student, 'exam': exam, 'question': question, 'place': 'M439'}
     body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover)).encode("utf-8")
-    question_pdf = pdf.compile_tex(body, [])
+    question_pdf = _compile_tex(body, [])
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='C')
     page = pdf.add_barcode(question_pdf, bgenerator)
     with open('test_cover.pdf', 'wb') as pdf_file:
@@ -261,7 +278,7 @@ def compile_question(qml_trans):
                 'document'    : doc_content,
               }
     body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-    question_pdf = pdf.compile_tex(body, ext_resources)
+    question_pdf = _compile_tex(body, ext_resources)
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
     page = pdf.add_barcode(question_pdf, bgenerator)
     with open('test_question.pdf', 'wb') as pdf_file:
@@ -282,7 +299,7 @@ def compile_blank():
                 'pages'       : range(pages),
               }
     body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-    question_pdf = pdf.compile_tex(body, [
+    question_pdf = _compile_tex(body, [
         tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
     ])
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='W')
@@ -305,7 +322,7 @@ def compile_graph():
                 'pages'       : range(pages),
               }
     body = render_to_string('ipho_exam/tex/exam_graph.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-    question_pdf = pdf.compile_tex(body, [
+    question_pdf = _compile_tex(body, [
         tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
     ])
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='W')
