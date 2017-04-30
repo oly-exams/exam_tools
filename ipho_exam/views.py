@@ -88,7 +88,7 @@ def main(request):
         other_lang = Language.objects.filter(hidden=False).order_by('name')
 
     ## Exam section
-    exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
+    exam_list = Exam.objects.filter(hidden=False, active=True) # TODO: allow admin to see all exams
     exams_open = ExamAction.objects.filter(delegation=delegation, exam=exam_list, exam__active=True,
         action=ExamAction.TRANSLATION, status=ExamAction.OPEN).values('exam__pk','exam__name')
     exams_closed = ExamAction.objects.filter(delegation=delegation, exam=exam_list,
@@ -676,7 +676,7 @@ def figure_add(request):
     if form.is_valid():
         obj = form.save(commit=False)
         ext = os.path.splitext(str(request.FILES['file']))[1]
-        
+
         if ext in ['.svg', '.svgz']:
             obj = CompiledFigure.objects.create(name=obj.name)
             obj.content = request.FILES['file'].read()
@@ -1295,6 +1295,7 @@ def submission_exam_list(request):
 
     exams_open = Exam.objects.filter(
         hidden=False,
+        active=True
     ).exclude(
         delegation_status__in=ExamAction.objects.filter(
             delegation=delegation,
@@ -1302,7 +1303,8 @@ def submission_exam_list(request):
             status=ExamAction.SUBMITTED)
     ).distinct()
     exams_closed = Exam.objects.filter(
-        hidden=False
+        hidden=False,
+        active=True,
     ).filter(
         delegation_status__delegation=delegation,
         delegation_status__action=ExamAction.TRANSLATION,
@@ -1576,7 +1578,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         orig_lang = get_object_or_404(Language, id=orig_id)
 
         if delegation.count() > 0:
-            own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
+            own_lang = Language.objects.filter(hidden=False, active=True, delegation=delegation).order_by('name')
         elif request.user.is_superuser:
             own_lang = Language.objects.all().order_by('name')
 
