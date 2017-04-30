@@ -256,7 +256,7 @@ def delegation_summary(request):
         )
         total = sum([ st_points['exam_points'] for st_points in stud_exam_points_list if st_points['exam_points'] is not None ])
         points_per_student.append( (student, stud_exam_points_list, total) )
-    
+
     active_exams = Exam.objects.filter(hidden=False, marking_active=True)
     scans_table_per_exam = []
     for exam in active_exams:
@@ -272,8 +272,8 @@ def delegation_summary(request):
             scans_of_students.append( (student, stud_exam_scans_list) )
 
         scans_table_per_exam.append((exam, questions, scans_of_students))
-    
-    final_points_exams = MarkingMeta.objects.filter(question__exam__hidden=False).values(
+
+    final_points_exams = MarkingMeta.objects.filter(question__exam__hidden=False, question__exam__marking_active=True).values(
         'question__exam'
     ).annotate(
         exam_points=Sum('max_points')
@@ -359,7 +359,7 @@ def delegation_edit_all(request, question_id):
         ctx['msg'].append( ('alert-success', '<strong>Success.</strong> Points have been saved. <a href="{}" class="btn btn-default btn-xs">back to summary</a>'.format(reverse('marking:delegation-summary'))) )
     if formset.total_error_count() > 0:
         ctx['msg'].append( ('alert-danger', '<strong>Error.</strong> The submission could not be completed. See below for the errors.'.format(reverse('marking:delegation-summary'))) )
-    
+
     documents = Document.objects.filter(exam=question.exam, position=question.position, student=students).order_by('student__code')
 
     ctx['documents'] = documents
@@ -431,9 +431,9 @@ def delegation_view_all(request, question_id):
     grouped_markings = [
         (
             meta,
-            [   
+            [
                 (
-                    student, 
+                    student,
                     {mark.version: mark for mark in list(student_group)}
                 )
                 for student, student_group in itertools.groupby(sorted(meta_group, key=lambda m: m.student.code), key=lambda m: m.student.code)
