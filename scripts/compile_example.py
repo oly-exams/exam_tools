@@ -340,13 +340,6 @@ Determine the time \(T\) that the protons need to pass through this field.
 
 \end{QTF}
 
-\vspace{0.5cm}\begin{minipage}{\textwidth}\centering
-\includegraphics[width=0.8\textwidth]{fig_q0_fi2}
-
-\vspace{0.1cm}
-\pbox[b]{0.9\textwidth}{Figure 1: Sketch of an accelerator module.}
-\end{minipage}\vspace{0.5cm}
-
 ~\\ \clearpage
 
 \PT{Part B. Particle Identification (4 points)}{4}
@@ -377,12 +370,7 @@ Electron
 \begin{center}
 Table 2: Particles and their masses.\end{center}
 
-\vspace{0.5cm}\begin{minipage}{\textwidth}\centering
-\includegraphics[width=0.9\textwidth]{fig_q0_fi3}
 
-\vspace{0.1cm}
-\pbox[b]{0.9\textwidth}{Figure 2: Schematic view of a time-of-flight detector.}
-\end{minipage}\vspace{0.5cm}
 
 \begin{QTF}{0.8}{B}{1}
 Express the particle rest mass \(m\) as a function of the momentum \(p\), the flight length \( l\) and the flight time \(t\) assuming that the particles with elementary charge \(e\) travel with high velocity on straight tracks in the ToF detector and that it travels perpendicular to the two detection planes (see figure 2).
@@ -398,13 +386,6 @@ Calculate the length \(l\) of a ToF detector that allows to safely distinguish a
 
 In the following, particles produced in a typical LHC detector are identified in a two stage detector consisting of a tracking detector and a ToF detector. Figure 3 shows the setup in the plane transverse and longitudinal to the proton beams. Both detectors are tubes surrounding the interaction region. The tracking detector measures the trajectory of a charged particle which passes through a magnetic field whose direction is parallel to the proton beams. The radius \(r\) of the trajectory allows to determine the transverse momentum \(\text{p}_\text{T}\) of the particle. Since the collision time is known the ToF detector only needs one tube to measure the flight time. This ToF tube is situated just after the tracking chamber. For this task you may assume that all particles created by the collision travel perpendicular to the proton beams, that means that the created particles have no longitudinal momentum.
 
-
-\vspace{0.5cm}\begin{minipage}{\textwidth}\centering
-\includegraphics[width=0.9\textwidth]{fig_q0_fi4}
-
-\vspace{0.1cm}
-\pbox[b]{0.9\textwidth}{(1) - ToF tube\\(2) - track\\(3) - collision point\\(4) - tracking detector\\ \\Figure 3 : Experimental setup for particle identification with a tracking chamber and a ToF detector. Both detectors are tubes surrounding the collision point in the middle. Left : transverse view perpendicular to the beamline, right : longitudinal view parallel to the beam line. The particle is travelling perpendicular to the beam line.}
-\end{minipage}\vspace{0.5cm}
 
 \begin{QTF}{1.7}{B}{3}
 Express the particle mass as a function of the magnetic flux density \(B\), the radius \(R\) of the ToF tube, fundamental constants and the measured quantities: radius \(r\) of the track and time-of-flight \(t\).
@@ -522,8 +503,13 @@ def compile_graph():
         pdf_file.write(page)
 
 if __name__ == '__main__':
+    print('cover')
     compile_cover()
+    print('question')
     compile_question(doc_content)
+    print('blank')
     compile_blank()
+    print('answer')
     compile_question(answer_content, pdf_name='test_answer')
+    print('graph')
     compile_graph()
