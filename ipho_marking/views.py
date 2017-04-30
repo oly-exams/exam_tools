@@ -244,7 +244,8 @@ def delegation_summary(request):
     for student in students:
         # Exam points
         stud_exam_points_list = Marking.objects.filter(
-            version=vid, student=student['id']
+            version=vid, student=student['id'],
+            marking_meta__question__exam__hidden=False
         ).values(
             'marking_meta__question__exam'
         ).annotate(
@@ -273,7 +274,7 @@ def delegation_summary(request):
 
         scans_table_per_exam.append((exam, questions, scans_of_students))
 
-    final_points_exams = MarkingMeta.objects.filter(question__exam__hidden=False, question__exam__marking_active=True).values(
+    final_points_exams = MarkingMeta.objects.filter(question__exam__hidden=False).values(
         'question__exam'
     ).annotate(
         exam_points=Sum('max_points')

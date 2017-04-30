@@ -1304,7 +1304,6 @@ def submission_exam_list(request):
     ).distinct()
     exams_closed = Exam.objects.filter(
         hidden=False,
-        active=True,
     ).filter(
         delegation_status__delegation=delegation,
         delegation_status__action=ExamAction.TRANSLATION,
