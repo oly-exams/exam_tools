@@ -1,5 +1,16 @@
 \documentclass[12pt,a4paper,foldmarks=false]{scrlttr2}
 
+% \LoadLetterOption{visualize}
+% \showfields{address}
+
+\makeatletter
+  \@setplength{backaddrheight}{0pt}% because backaddress=off
+  \@setplength{toaddrhpos}{8.5cm}%distance from left
+  \@setplength{toaddrvpos}{5cm}%distance from top
+  \@setplength{toaddrheight}{2.5cm}%height of the addressbox
+  \@setplength{toaddrwidth}{10cm}% width of the addressbox
+\makeatother
+
 \usepackage{fontspec}
 \setmainfont[ Path = {{ STATIC_PATH }}/noto/,BoldFont=NotoSans-Bold.ttf, ItalicFont=NotoSans-Italic.ttf, BoldItalicFont=NotoSans-BoldItalic.ttf, ]{NotoSans-Regular.ttf}
 \setkomavar{date}{}
@@ -7,7 +18,7 @@
 
 \begin{document}
 
-\begin{letter}{\textbf{% templatetag openbrace %}{{ student.code }} {{ exam.code }}-{{ question.position }} C}\\{{ student.first_name }} {{ student.last_name }}\\\textbf{\large {{ place }}} }
+\begin{letter}{\flushright{ \textbf{% templatetag openbrace %}{{ student.code }} {{ exam.code }}-{{ question.position }} C}\\{{ student.first_name }} {{ student.last_name }}\\\textbf{\large {{ place }}} }}
 \opening{}
 
 \begin{center}
