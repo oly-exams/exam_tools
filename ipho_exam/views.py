@@ -1578,7 +1578,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         orig_lang = get_object_or_404(Language, id=orig_id)
 
         if delegation.count() > 0:
-            own_lang = Language.objects.filter(hidden=False, active=True, delegation=delegation).order_by('name')
+            own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
         elif request.user.is_superuser:
             own_lang = Language.objects.all().order_by('name')
 
