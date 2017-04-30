@@ -241,16 +241,240 @@ F_C = 2 m v \omega_{ss}  \sin \phi\ ,\end{equation}
 """
 
 
+answer_content = ur"""
+
+\begin{PR}{Two Problems in Mechanics (10 points)}{10}
+
+\PT{Part A. The Hidden Disk (3.5 points)}{3.5}
+
+\begin{QSA}{0.8}{A}{1}{}
+
+
+
+
+\(b =\)
+
+
+
+
+
+
+\end{QSA}
+
+\begin{QSA}{0.5}{A}{2}{}
+
+
+
+
+\(I_S =\)
+
+
+
+
+
+
+\end{QSA}
+
+\begin{QSA}{0.4}{A}{3}{}
+
+
+
+
+\(d =\)
+
+
+
+
+
+
+\end{QSA}
+
+\begin{QSA}{0.7}{A}{4}{}
+
+
+
+
+\(I_S = \)
+
+
+
+
+
+
+\end{QSA}
+
+\begin{QSA}{1.1}{A}{5}{}
+
+
+
+
+\(w_2 =\)
+
+
+
+
+
+\(r_2 = \)
+
+
+
+
+
+
+\end{QSA}
+
+~ \clearpage
+
+\PT{Part B. Rotating Space Station (6.5 points)}{6.5}
+
+\begin{QSA}{0.5}{B}{1}{}
+
+
+
+
+\(\omega_{ss} =\)
+
+
+
+
+
+
+\end{QSA}
+
+\begin{QSA}{0.2}{B}{2}{}
+
+
+
+
+\(\omega_E =\)
+
+
+
+
+
+
+\end{QSA}
+
+\begin{QSA}{0.6}{B}{3}{}
+
+
+
+
+\(\omega = \)
+
+
+
+
+
+
+\end{QSA}
+
+\begin{QSA}{0.8}{B}{4}{}
+
+
+
+
+\(g_E(h)=\)
+
+
+
+
+
+\(\tilde{\omega}_E = \)
+
+
+
+
+
+
+\end{QSA}
+
+\begin{QSA}{0.3}{B}{5}{}
+
+
+
+
+\(R =\)
+
+
+
+
+
+
+\end{QSA}
+
+\begin{QSA}{1.1}{B}{6}{}
+
+
+
+
+\(v_x =\)
+
+
+
+
+
+\(d_x =\)
+
+
+
+
+\end{QSA}
+
+\begin{QSA}{1.3}{B}{7}{}
+
+
+
+
+\(\frac{H}{R} =\)
+
+
+
+
+
+\(H \geq\)
+
+
+
+
+
+
+\end{QSA}
+
+\begin{QSA}{1.7}{B}{8}{}
+
+
+
+
+\(x(t) =\)
+
+
+
+
+
+\(y(t) =\)
+
+
+
+
+
+
+
+\end{QSA}
+
+\end{PR}
+"""
+
 
 def _compile_tex(body, ext_resources):
-    try: 
+    try:
         return pdf.compile_tex(body, ext_resources)
     except pdf.TexCompileException as err:
         print(err)
         print(err.log)
         raise
-        
-        
+
+
 def compile_cover():
     cover = {'student': student, 'exam': exam, 'question': question, 'place': 'M439'}
     body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover)).encode("utf-8")
@@ -262,7 +486,7 @@ def compile_cover():
 
 
 
-def compile_question(qml_trans):
+def compile_question(qml_trans, pdf_name='test_question'):
     ext_resources = []
     ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
     context = {
@@ -275,13 +499,13 @@ def compile_question(qml_trans):
                 'code'        : u'{}{}'.format(question.code, question.position),
                 'title'       : u'{} - {}'.format(exam.name, question.name),
                 'is_answer'   : True,
-                'document'    : doc_content,
+                'document'    : qml_trans,
               }
     body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
     question_pdf = _compile_tex(body, ext_resources)
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
     page = pdf.add_barcode(question_pdf, bgenerator)
-    with open('test_question.pdf', 'wb') as pdf_file:
+    with open('{}.pdf'.format(pdf_name), 'wb') as pdf_file:
         pdf_file.write(page)
 
 
@@ -331,8 +555,13 @@ def compile_graph():
         pdf_file.write(page)
 
 if __name__ == '__main__':
+    print('cover')
     compile_cover()
+    print('question')
     compile_question(doc_content)
+    print('blank')
     compile_blank()
+    print('answer')
+    compile_question(answer_content, pdf_name='test_answer')
+    print('graph')
     compile_graph()
-
