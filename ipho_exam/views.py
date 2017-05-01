@@ -88,7 +88,7 @@ def main(request):
         other_lang = Language.objects.filter(hidden=False).order_by('name')
 
     ## Exam section
-    exam_list = Exam.objects.filter(hidden=False) # TODO: allow admin to see all exams
+    exam_list = Exam.objects.filter(hidden=False, active=True) # TODO: allow admin to see all exams
     exams_open = ExamAction.objects.filter(delegation=delegation, exam=exam_list, exam__active=True,
         action=ExamAction.TRANSLATION, status=ExamAction.OPEN).values('exam__pk','exam__name')
     exams_closed = ExamAction.objects.filter(delegation=delegation, exam=exam_list,
@@ -676,7 +676,7 @@ def figure_add(request):
     if form.is_valid():
         obj = form.save(commit=False)
         ext = os.path.splitext(str(request.FILES['file']))[1]
-        
+
         if ext in ['.svg', '.svgz']:
             obj = CompiledFigure.objects.create(name=obj.name)
             obj.content = request.FILES['file'].read()
@@ -1295,6 +1295,7 @@ def submission_exam_list(request):
 
     exams_open = Exam.objects.filter(
         hidden=False,
+        active=True
     ).exclude(
         delegation_status__in=ExamAction.objects.filter(
             delegation=delegation,
@@ -1302,7 +1303,7 @@ def submission_exam_list(request):
             status=ExamAction.SUBMITTED)
     ).distinct()
     exams_closed = Exam.objects.filter(
-        hidden=False
+        hidden=False,
     ).filter(
         delegation_status__delegation=delegation,
         delegation_status__action=ExamAction.TRANSLATION,
