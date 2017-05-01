@@ -266,9 +266,12 @@ def delegation_summary(request):
             # Scans
             stud_exam_scans_list = Document.objects.filter(
                 student=student['pk'], exam=exam
+            ).exclude(
+                position=0 # remove general instructions
             ).order_by(
                 'position'
             )
+            
             scans_of_students.append( (student, stud_exam_scans_list) )
 
         scans_table_per_exam.append((exam, questions, scans_of_students))
