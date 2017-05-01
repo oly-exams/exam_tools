@@ -98,7 +98,7 @@
    \parbox[t]{.1\textwidth}{
    \hspace{1em}
     % \noindent\textbf \Alph{ptnum}\arabic{qtnum2}
-    \begin{english}\noindent\textbf #2.#3\end{english}
+    \begin{english}\noindent\textbf{#2.#3}\end{english}
  }
  \begin{minipage}[t]{.79\textwidth}}
 {
