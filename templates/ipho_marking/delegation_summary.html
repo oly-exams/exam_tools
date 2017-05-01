@@ -128,7 +128,7 @@
                 <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
                 {% for doc in scans_list %}
                   <td>
-                  {% if doc.scan_file %}
+                  {% if doc.scan_file and doc.scan_status == 'S' %}
                     <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> view</a>
                   {% else %}
                     <span class="label label-default">pending</span>
@@ -142,7 +142,7 @@
       {% empty %}
       <p class="alert alert-info">There are no files available for download.</p>
       {% endfor %}
-      
+
 </div>
 
 </div>
