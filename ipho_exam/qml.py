@@ -738,14 +738,14 @@ class QMLlatex(QMLobject):
     default_attributes = {'content': ''}
 
     def make_tex(self):
-        content = self.attributes['content'] + '\n\n'
-        content = content.replace('\\n','\n')
+        content = unicode(self.attributes['content']) + u'\n\n'
+        content = content.replace(u'\\n',u'\n')
 
         query = {}
         for c in self.children:
             if c.tag == 'texparam':
-                content = re.sub(r'({{ *%s *}})' % c.attributes['name'], c.data.encode('utf-8'), content)
-                content.replace('{{ %s }}' % c.attributes['name'], c.data.encode('utf-8'))
+                content = re.sub(ur'({{ *%s *}})' % c.attributes['name'], c.data, content)
+                content.replace(u'{{ %s }}' % c.attributes['name'], c.data)
         return content, []
 
 class QMLlatexParam(QMLobject):
