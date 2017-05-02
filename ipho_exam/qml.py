@@ -260,9 +260,9 @@ class QMLobject(object):
         return elem
 
     def tex_begin(self):
-        return ''
+        return u''
     def tex_end(self):
-        return '\n\n'
+        return u'\n\n'
 
     def make_tex(self):
         externals = []
@@ -272,7 +272,10 @@ class QMLobject(object):
         for c in self.children:
             (texchild, extchild) = c.make_tex()
             externals += extchild
-            texout    += texchild
+            try:
+                texout    += texchild
+            except Exception:
+                raise ValueError(texout, texchild, type(texout), type(texchild))
 
         texout += self.tex_end()
         return texout, externals
@@ -416,7 +419,7 @@ class QMLquestion(QMLobject):
             points = self.attributes['points']
         return u'\\begin{PR}{%s}{%s}\n\n' % (self.title(),points)
     def tex_end(self):
-        return '\\end{PR}\n\n'
+        return u'\\end{PR}\n\n'
 
 
 class QMLsubquestion(QMLobject):
@@ -438,7 +441,7 @@ class QMLsubquestion(QMLobject):
             self.attributes['question_nr']
         )
     def tex_end(self):
-        return '\\end{QTF}\n\n'
+        return u'\\end{QTF}\n\n'
     def xhtml_begin(self):
         return u'<h4>Subquestion ({} pt)</h4>'.format(self.attributes['points'])
 
@@ -464,7 +467,7 @@ class QMLsubanswer(QMLobject):
             self.attributes.get('height', '')
         )
     def tex_end(self):
-        return '\\end{QSA}\n\n'
+        return u'\\end{QSA}\n\n'
     def xhtml_begin(self):
         return u'<h4>Answer ({} pt)</h4>'.format(self.attributes['points'])
 
