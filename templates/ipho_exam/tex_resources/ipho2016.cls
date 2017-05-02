@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{ipho2016}[2016/02/06 Template for IPhO 2016 problems]
+\ProvidesClass{ipho2016}[2016/02/06 Template for Exam Tools problems]
 
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 \ProcessOptions
@@ -12,7 +12,7 @@
 % PDF search & cut'n'paste
 \RequirePackage{cmap}
 % PDF metadata
-\RequirePackage[pdfauthor={IPhO 2016},
+\RequirePackage[pdfauthor={Exam Tools},
                 pdfproducer={XeLateX},
                 pdfcreator={Xelatex}]{hyperref}
 
