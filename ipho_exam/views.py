@@ -68,13 +68,6 @@ def any_permission_required(*args):
         return False
     return user_passes_test(test_func)
 
-def hide_exam_from_delegation(func):
-    def inner(request, question_id, *args, **kwargs):
-        is_active = Question.objects.get(pk=question_id).exam.active
-        if not is_active:
-            func = permission_required('ipho_core.is_staff')(func)
-        return func(request, question_id, *args, **kwargs)
-    return inner
 
 @login_required
 def index(request):
@@ -1545,6 +1538,8 @@ def admin_submission_delete(request, submission_id):
 
 @login_required
 def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICIAL_LANGUAGE, orig_diff=None):
+    if not Question.objects.get(pk=question_id).check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to view this question.')
     context = {'exam_id'     : exam_id,
                'question_id' : question_id,
                'lang_id'     : question_id,
@@ -1713,8 +1708,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     return render(request, 'ipho_exam/editor.html', context)
 
 @login_required
-@hide_exam_from_delegation
 def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False):
+    if not Question.objects.get(pk=question_id).check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to view this question.')
     if version_num is not None and request.user.has_perm('ipho_core.is_staff'):
         trans = qquery.get_version(question_id, lang_id, version_num)
     else:
@@ -1759,6 +1755,8 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
 
 @login_required
 def compiled_question_odt(request, question_id, lang_id, raw_tex=False):
+    if not Question.objects.get(pk=question_id).check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to view this question.')
     trans = qquery.latest_version(question_id, lang_id)
     filename = u'Exam - {} Q{} - {}.odt'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
 
@@ -1775,6 +1773,8 @@ def compiled_question_odt(request, question_id, lang_id, raw_tex=False):
 
 @login_required
 def compiled_question_html(request, question_id, lang_id, version_num=None):
+    if not Question.objects.get(pk=question_id).check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to view this question.')
     if version_num is not None and request.user.has_perm('ipho_core.is_staff'):
         trans = qquery.get_version(question_id, lang_id, version_num)
     else:
