@@ -272,10 +272,7 @@ class QMLobject(object):
         for c in self.children:
             (texchild, extchild) = c.make_tex()
             externals += extchild
-            try:
-                texout    += texchild
-            except Exception:
-                raise ValueError(texout, texchild, type(texout), type(texchild))
+            texout    += texchild
 
         texout += self.tex_end()
         return texout, externals
