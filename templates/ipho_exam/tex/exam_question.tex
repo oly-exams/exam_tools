@@ -4,7 +4,7 @@
 \usepackage{graphicx}
 
 % PDF metadata
-\hypersetup{pdftitle={IPhO 2016 - {{ title }}} }
+\hypersetup{pdftitle={ {{ title }}}}
 
 \setmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %}]{% templatetag openbrace %}{{ font.font_regular }}} %Calibri
 \setmainlanguage[{{ polyglossia_options|default:'' }}]{% templatetag openbrace %}{{ polyglossia }}}

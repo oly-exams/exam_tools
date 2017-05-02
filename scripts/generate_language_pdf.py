@@ -188,7 +188,7 @@ def generate_extra_sheets(student, question, startnum, npages):
 ## Main functions
 
 def missing_submissions():
-    missing = Delegation.objects.filter(exam_status__exam__name='Experiment', exam_status__action=ExamAction.TRANSLATION, exam_status__status=ExamAction.OPEN).exclude(name='IPhO')
+    missing = Delegation.objects.filter(exam_status__exam__name='Experiment', exam_status__action=ExamAction.TRANSLATION, exam_status__status=ExamAction.OPEN).exclude(name=settings.OFFICIAL_DELEGATION)
 
     exam = Exam.objects.get(name='Experiment')
     questions = exam.question_set.all()
