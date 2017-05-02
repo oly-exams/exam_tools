@@ -68,6 +68,14 @@ def any_permission_required(*args):
         return False
     return user_passes_test(test_func)
 
+def hide_exam_from_delegation(func):
+    def inner(request, question_id, *args, **kwargs):
+        is_active = Question.objects.get(pk=question_id).exam.active
+        if not is_active:
+            func = permission_required('ipho_core.is_staff')(func)
+        return func(request, question_id, *args, **kwargs)
+    return inner
+
 @login_required
 def index(request):
     return render(request, 'ipho_exam/index.html')
@@ -1704,8 +1712,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     if context['trans_lang']: context['trans_font'] = fonts.ipho[context['trans_lang'].font]
     return render(request, 'ipho_exam/editor.html', context)
 
-
 @login_required
+@hide_exam_from_delegation
 def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False):
     if version_num is not None and request.user.has_perm('ipho_core.is_staff'):
         trans = qquery.get_version(question_id, lang_id, version_num)
@@ -2092,8 +2100,13 @@ def submission_summary(request, exam_id):
     submitted_exams = ExamAction.objects.filter(exam__active=True,
         action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED).count()
 
-    remaining_countries = ExamAction.objects.filter(exam__active=True,
-        action=ExamAction.TRANSLATION, status=ExamAction.OPEN).values('delegation__country')
+    remaining_countries = ExamAction.objects.filter(
+        exam__active=True,
+        action=ExamAction.TRANSLATION,
+        status=ExamAction.OPEN
+    ).exclude(
+        delegation=OFFICIAL_DELEGATION
+    ).values('delegation__country')
 
     return render(request, 'ipho_exam/submission_summary.html',
         {
