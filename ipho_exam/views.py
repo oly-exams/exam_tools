@@ -1538,8 +1538,6 @@ def admin_submission_delete(request, submission_id):
 
 @login_required
 def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICIAL_LANGUAGE, orig_diff=None):
-    if not Question.objects.get(pk=question_id).check_permission(request.user):
-        return HttpResponseForbidden('You do not have the permissions to view this question.')
     context = {'exam_id'     : exam_id,
                'question_id' : question_id,
                'lang_id'     : question_id,
@@ -1569,6 +1567,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         question = get_object_or_404(Question, id=question_id, exam=exam)
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.first()
+
+    if not question.check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to view this question.')
 
     delegation = Delegation.objects.filter(members=request.user)
     ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
