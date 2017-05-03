@@ -675,22 +675,24 @@ body { margin-bottom: 70px; }
             /// Saving methods
             var server_date;
             var server_offset = 0;
+            var autoSaveInterval = 20000;
+            var updateDocumentStatusInterval = 30000;
             $.get("{% url 'exam:time' %}", function(data){
                server_date = data;
-               server_offset = moment(server_date).diff(new Date());
+               server_offset = moment(server_date).diff(moment());
                console.log("Server time difference: "+server_offset);
             });
 
             var last_saved = new Date("{{ last_saved.isoformat }}");
             var saving = false;
             function updateDocumentStatus() {
-                var status_text = (saving) ? 'Saving...' : 'Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).from(moment()+server_offset)+'</abbr>.';
+                var status_text = (saving) ? 'Saving...' : 'Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).from(moment()+server_offset+1000)+'</abbr>.';
                 $('#save-status')
                     .html(status_text)
                     .find('[data-toggle="tooltip"]').tooltip();
             }
             updateDocumentStatus();
-            setInterval(updateDocumentStatus, 30000);
+            setInterval(updateDocumentStatus, updateDocumentStatusInterval);
 
             var checkHTML = function(html) {
               var doc = document.createElement('div');
@@ -709,6 +711,11 @@ body { margin-bottom: 70px; }
                 var $button = $form.find('button[type="submit"]');
                 evt.preventDefault();
 
+                if (saving) {
+                    console.log(new Date() + ' Save still in progress. Skipping.');
+                    return;
+                }
+
                 saving = true;
                 $button.prop('disabled', true);
                 $button.tooltip('destroy');
@@ -716,6 +723,7 @@ body { margin-bottom: 70px; }
                 updateDocumentStatus();
 
                 var data = new FormData($form.get(0));
+                console.log(new Date() + ' Saving...');
                 $.ajax({
                     url: form.action,
                     type: form.method,
@@ -723,21 +731,35 @@ body { margin-bottom: 70px; }
                     cache: false,
                     processData: false,
                     contentType: false,
-                    success: function(data) {
-                        saving = false;
+                    timeout: Math.max(autoSaveInterval - 5000, 10000),
+                    success: function(data, textStatus, jqXHR) {
+                        console.log(new Date() + ' Ajax save request successful.');
                         if (data['success']) {
+                            console.log(new Date() + ' Save successful.');
                             last_saved = new Date(data['last_saved']);
                             $('input[name="checksum"]').val(data['checksum']);
-                            updateDocumentStatus();
                         } else {
-                          console.log('Saving failed.');
+                          console.log(new Date() + ' Save failed.');
                           if (data['checksum'] != $('input[name="checksum"]').val()) {
                             clearInterval(autoSaveTimer);
                             $('#checksum-modal').modal({backdrop: 'static', keyboard: false});
                           }
                         }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log(new Date() + ' Ajax save error: ' + textStatus + ' (' + errorThrown + ')');
+                    },
+                    complete: function(jqXHR, textStatus) {
+                        console.log(new Date() + ' Ajax save request completed.');
+                        saving = false;
+                        updateDocumentStatus();
                     }
                 });
+
+                if ($('#auto-save-checkbox').bootstrapSwitch('state')) {
+                    clearInterval(autoSaveTimer);
+                    autoSaveTimer = setInterval(autoSave, autoSaveInterval);
+                }
             });
             $(document).keypress(function(event) {
                 if (!(event.which == 115 && (navigator.platform.match("Mac") ? event.metaKey : event.ctrlKey)) && !(event.which == 19)) return true;
@@ -764,15 +786,16 @@ body { margin-bottom: 70px; }
 
             function autoSave() {
                 $form = $('#question-form');
-                if (!saving && $form.dirtyForms('isDirty')) {
+                if ($form.dirtyForms('isDirty')) {
                     $form.submit();
                 }
             }
-            var autoSaveTimer = setInterval(autoSave, 20000);
+
+            var autoSaveTimer = setInterval(autoSave, autoSaveInterval);
             $('#auto-save-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function(event, state) {
                 var $checkbox = $(this);
                 if (state) {
-                    autoSaveTimer = setInterval(autoSave, 20000);
+                    autoSaveTimer = setInterval(autoSave, autoSaveInterval);
                 } else {
                     clearInterval(autoSaveTimer);
                 }
