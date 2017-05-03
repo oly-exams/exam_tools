@@ -137,7 +137,7 @@ class Question(models.Model):
         return bool(self.versionnode_set.filter(status='C'))
 
     def check_permission(self, user):
-        if user.is_staff:
+        if user.has_perm('is_staff'):
             return True
         else:
             return self.exam.active
