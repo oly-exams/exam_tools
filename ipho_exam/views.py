@@ -68,6 +68,7 @@ def any_permission_required(*args):
         return False
     return user_passes_test(test_func)
 
+
 @login_required
 def index(request):
     return render(request, 'ipho_exam/index.html')
@@ -1567,6 +1568,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.first()
 
+    if not question.check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to view this question.')
+
     delegation = Delegation.objects.filter(members=request.user)
     ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
 
@@ -1704,9 +1708,10 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     if context['trans_lang']: context['trans_font'] = fonts.ipho[context['trans_lang'].font]
     return render(request, 'ipho_exam/editor.html', context)
 
-
 @login_required
 def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False):
+    if not Question.objects.get(pk=question_id).check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to view this question.')
     if version_num is not None and request.user.has_perm('ipho_core.is_staff'):
         trans = qquery.get_version(question_id, lang_id, version_num)
     else:
@@ -1751,6 +1756,8 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
 
 @login_required
 def compiled_question_odt(request, question_id, lang_id, raw_tex=False):
+    if not Question.objects.get(pk=question_id).check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to view this question.')
     trans = qquery.latest_version(question_id, lang_id)
     filename = u'Exam - {} Q{} - {}.odt'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
 
@@ -1767,6 +1774,8 @@ def compiled_question_odt(request, question_id, lang_id, raw_tex=False):
 
 @login_required
 def compiled_question_html(request, question_id, lang_id, version_num=None):
+    if not Question.objects.get(pk=question_id).check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to view this question.')
     if version_num is not None and request.user.has_perm('ipho_core.is_staff'):
         trans = qquery.get_version(question_id, lang_id, version_num)
     else:
@@ -2092,8 +2101,13 @@ def submission_summary(request, exam_id):
     submitted_exams = ExamAction.objects.filter(exam__active=True,
         action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED).count()
 
-    remaining_countries = ExamAction.objects.filter(exam__active=True,
-        action=ExamAction.TRANSLATION, status=ExamAction.OPEN).values('delegation__country')
+    remaining_countries = ExamAction.objects.filter(
+        exam__active=True,
+        action=ExamAction.TRANSLATION,
+        status=ExamAction.OPEN
+    ).exclude(
+        delegation=OFFICIAL_DELEGATION
+    ).values('delegation__country')
 
     return render(request, 'ipho_exam/submission_summary.html',
         {

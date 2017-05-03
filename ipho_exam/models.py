@@ -132,9 +132,15 @@ class Question(models.Model):
     def natural_key(self):
         return (self.name,) + self.exam.natural_key()
     natural_key.dependencies = ['ipho_exam.exam']
-    
+
     def has_published_version(self):
         return bool(self.versionnode_set.filter(status='C'))
+
+    def check_permission(self, user):
+        if user.is_staff:
+            return True
+        else:
+            return self.exam.active
 
 class VersionNodeManager(models.Manager):
     def get_by_natural_key(self, version, question_name, exam_name, lang_name, delegation_name):
@@ -272,7 +278,7 @@ class Figure(PolymorphicModel):
 
     def natural_key(self):
         return self.name
-        
+
     def __unicode__(self):
         return u'%s' % (self.name)
 
@@ -282,7 +288,7 @@ class CompiledFigure(Figure):
 
     def params_as_list(self):
         return list([si.trim() for si in self.params.split(',')])
-        
+
     def _to_svg(self, query, lang=None):
         placeholders = self.params.split(',')
         fig_svg = self.content
@@ -304,7 +310,7 @@ class CompiledFigure(Figure):
                     repl = repl.decode('utf-8')
                 fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
         return fig_svg
-        
+
     def to_inline(self, query, lang=None):
         return self._to_svg(query=query, lang=lang), 'svg+xml'
 
@@ -346,18 +352,18 @@ class CompiledFigure(Figure):
     #     if error:
     #         print 'Got error', error
     #         raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
-            
+
 class RawFigure(Figure):
     content = models.BinaryField()
     filetype = models.CharField(max_length=4)
     params = ''
-    
+
     def params_as_list(self):
         return []
-    
+
     def to_inline(self, *args, **kwargs):
         return self.content, self.filetype
-        
+
     def to_file(self, fig_name, query, lang=None, format_default='auto', force_default=False):
         with open('{name}.{ext}'.format(name=fig_name, ext=self.filetype), 'wb') as f:
             f.write(self.content)
