@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
@@ -52,6 +54,7 @@ from ipho_exam import tasks
 import celery
 from celery.result import AsyncResult
 
+logger = logging.getLogger('ipho_exam')
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
@@ -1657,6 +1660,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             form = qml.QMLForm(orig_q, trans_content, request.POST or None)
 
             if request.POST and request.POST.get('checksum', None) != checksum:
+                logger.warning("Sync lost. incoming checksum '{}', existing checksum '{}'.\n\nThe POST request was:\n{}\n\nThe locals are:\n{}\n\n".format(request.POST.get('checksum', None), checksum, request.POST, locals()))
                 return JsonResponse({
                             'success'    : False,
                             'checksum'   : checksum,
