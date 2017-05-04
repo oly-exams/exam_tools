@@ -54,7 +54,14 @@
                 <p><strong>Remaining:</strong></p>
                 <div class="flex">
                 {% for country in remaining_countries %}
-                    <span>{{ country.delegation__country }}</span>
+                    <span>{{ country }}</span>
+                {% endfor %}
+                </div>
+                <br>
+                <p><strong>Submitted:</strong></p>
+                <div class="flex">
+                {% for country in submitted_countries %}
+                    <span>{{ country }}</span>
                 {% endfor %}
                 </div>
             </div>
