@@ -534,7 +534,7 @@ def moderation_confirmed(request, question_id, delegation_id):
 
 
 @permission_required('ipho_core.is_staff')
-def submission_summary(request):
+def marking_submissions(request):
     ctx = {
         "summaries":[
             (
@@ -549,7 +549,7 @@ def submission_summary(request):
             for exam in Exam.objects.filter(marking_active=True)
         ]
     }
-    return render(request, 'ipho_marking/submission_summary.html', ctx)
+    return render(request, 'ipho_marking/marking_submissions.html', ctx)
 
 
 def progress(request):
