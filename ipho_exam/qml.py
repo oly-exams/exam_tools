@@ -895,7 +895,7 @@ class QMLpageBreak(QMLobject):
 
     def make_tex(self):
         if bool(self.attributes.get('skip', False)):
-            return u'\n'
+            return u'\n', []
         return ur'~ \clearpage' + u'\n', []
 
 class QMLException(Exception):
