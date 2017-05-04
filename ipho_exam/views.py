@@ -1364,7 +1364,7 @@ def admin_submissions_translation(request):
     if submitted_countries:
         submitted_countries[-1] = submitted_countries[-1][:-1]
 
-    return render(request, 'ipho_exam/translation_submissions.html',
+    return render(request, 'ipho_exam/admin_submissions_translation.html',
         {
             'open_exams':           open_exams,
             'submitted_exams':      submitted_exams,
