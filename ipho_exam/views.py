@@ -1328,6 +1328,48 @@ def _get_submission_languages(exam, delegation):
          )
     ).filter(Q(delegation__name=OFFICIAL_DELEGATION) & Q(hidden_from_submission=False) | (Q(delegation=delegation) & (Q(num_translation=num_questions) | Q(num_pdf=num_questions))))
 
+@permission_required('ipho_core.is_staff')
+def admin_submissions_translation(request):
+    open_exams = ExamAction.objects.filter(exam__active=True,
+        action=ExamAction.TRANSLATION, status=ExamAction.OPEN).count() - 1
+
+    submitted_exams = ExamAction.objects.filter(exam__active=True,
+        action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED).count()
+
+    remaining_countries= ExamAction.objects.filter(
+        exam__active=True,
+        action=ExamAction.TRANSLATION,
+        status=ExamAction.OPEN
+    ).exclude(
+        delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
+    ).values_list('delegation__country')
+
+    remaining_countries = [country[0]+',' for country in remaining_countries]
+    if remaining_countries:
+        remaining_countries[-1] = remaining_countries[-1][:-1]
+
+    submitted_countries = ExamAction.objects.filter(
+        exam__active=True,
+        action=ExamAction.TRANSLATION,
+        status=ExamAction.SUBMITTED
+    ).exclude(
+        delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
+    ).order_by('timestamp'
+    ).values_list('delegation__country')
+
+    submitted_countries = [country[0]+',' for country in submitted_countries]
+    if submitted_countries:
+        submitted_countries[-1] = submitted_countries[-1][:-1]
+
+    return render(request, 'ipho_exam/translation_submissions.html',
+        {
+            'open_exams':           open_exams,
+            'submitted_exams':      submitted_exams,
+            'remaining_countries':  remaining_countries,
+            'submitted_countries':  submitted_countries,
+        }
+    )
+
 @permission_required('ipho_core.is_delegation')
 def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
@@ -2091,49 +2133,6 @@ def extra_sheets(request, exam_id=None):
 
     return render(request, 'ipho_exam/extra_sheets.html', {'form': form, 'messages': messages})
 
-
-
-@permission_required('ipho_core.is_staff')
-def submission_summary(request, exam_id):
-    open_exams = ExamAction.objects.filter(exam__active=True,
-        action=ExamAction.TRANSLATION, status=ExamAction.OPEN).count() - 1
-
-    submitted_exams = ExamAction.objects.filter(exam__active=True,
-        action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED).count()
-
-    remaining_countries= ExamAction.objects.filter(
-        exam__active=True,
-        action=ExamAction.TRANSLATION,
-        status=ExamAction.OPEN
-    ).exclude(
-        delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
-    ).values_list('delegation__country')
-
-    remaining_countries = [country[0]+',' for country in remaining_countries]
-    if remaining_countries:
-        remaining_countries[-1] = remaining_countries[-1][:-1]
-
-    submitted_countries = ExamAction.objects.filter(
-        exam__active=True,
-        action=ExamAction.TRANSLATION,
-        status=ExamAction.SUBMITTED
-    ).exclude(
-        delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
-    ).order_by('timestamp'
-    ).values_list('delegation__country')
-
-    submitted_countries = [country[0]+',' for country in submitted_countries]
-    if submitted_countries:
-        submitted_countries[-1] = submitted_countries[-1][:-1]
-
-    return render(request, 'ipho_exam/submission_summary.html',
-        {
-            'open_exams':           open_exams,
-            'submitted_exams':      submitted_exams,
-            'remaining_countries':  remaining_countries,
-            'submitted_countries':  submitted_countries,
-        }
-    )
 
 @permission_required('ipho_core.is_staff')
 def api_keys(request):
