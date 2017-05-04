@@ -2106,8 +2106,9 @@ def submission_summary(request, exam_id):
         action=ExamAction.TRANSLATION,
         status=ExamAction.OPEN
     ).exclude(
-        delegation=OFFICIAL_DELEGATION
+        delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
     ).values('delegation__country')
+    
 
     return render(request, 'ipho_exam/submission_summary.html',
         {
