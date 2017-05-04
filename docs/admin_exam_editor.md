@@ -60,7 +60,7 @@ Valid children:
 
 ### Title
 
-Block content: e.g. "Large Hadron Collider (10 points)". 
+Block content: e.g. "Large Hadron Collider (10 points)".
 
 No attributes.
 
@@ -257,7 +257,12 @@ Start new page.
 
 No block content.
 
-No attributes.
+Attributes:
+
+| Key         | Specification                                                      |
+| ----------- | ------------------------------------------------------------------ |
+| skip        | Do not perform the pagebreak. The purpose of this is to skip it in |
+|             | specific languages (via attribute change).                         |
 
 No children.
 
