@@ -49,7 +49,7 @@ OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 BASE_PATH = u'../media/language_tex'
 
-def compile_question(question, language):
+def compile_question(question, language, logo_file):
     print 'Prepare', question, 'in', language
     try:
         trans = qquery.latest_version(question.pk, language.pk)
@@ -89,7 +89,7 @@ def compile_question(question, language):
             pass
         with open(os.path.join(folder, 'question.tex'), 'w') as f:
             f.write(body)
-            
+
         for e in ext_resources:
             e.save(dirname=folder)
 
@@ -102,7 +102,7 @@ def compile_question(question, language):
         used_fonts = [v for k, v in fonts.ipho[language.font].items() if isinstance(v, str) and v.endswith('.ttf')]
         used_fonts.extend([v for k, v in fonts.ipho['notosans'].items() if isinstance(v, str) and v.endswith('.ttf')])
         used_fonts = set(used_fonts)
-        
+
         for f in used_fonts:
             source = os.path.join('/srv/exam_tools/app/static/noto', f)
             shutil.copyfile(source, os.path.join(folder, f))
@@ -110,21 +110,21 @@ def compile_question(question, language):
         for f in os.listdir(folder):
             if f.endswith('.pdf.svg'):
                 os.remove(os.path.join(folder, f))
-                
-        shutil.copyfile('/srv/exam_tools/static/ipho16_small_green.pdf', os.path.join(folder, 'ipho16_small_green.pdf'))
+
+        shutil.copyfile('/srv/exam_tools/static/' + logo_file, os.path.join(folder, logo_file))
         shutil.make_archive(folder, 'zip', root_dir=BASE_PATH, base_dir=base_folder)
     except Exception as e:
         print 'ERROR', e
 
-def export_all():
+def export_all(logo_file):
     exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
     questions = Question.objects.filter(exam=exams, position__in=[1,2,3])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
     print 'Going to export in {} languages.'.format(len(languages))
     for q in questions:
         for lang in languages:
-            compile_question(q, lang)
+            compile_question(q, lang, logo_file)
     print 'COMPLETED'
 
 if __name__ == '__main__':
-    export_all()
+    export_all('apho17_logo_bw.pdf')
