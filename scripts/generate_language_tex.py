@@ -48,6 +48,7 @@ OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 BASE_PATH = u'../media/language_tex'
+REPLACEMENTS = [('/srv/exam_tools/app/static/noto', '.'), ('/srv/exam_tools/app/static', '.')]
 
 def compile_question(question, language, logo_file):
     print 'Prepare', question, 'in', language
@@ -88,14 +89,18 @@ def compile_question(question, language, logo_file):
         except OSError:
             pass
         with open(os.path.join(folder, 'question.tex'), 'w') as f:
-            f.write(body.replace('/src/exam_tools/app/static', '.')) # replace icon path
+            for r in REPLACEMENTS:
+                body = body.replace(*r)
+            f.write(body
 
         for e in ext_resources:
             e.save(dirname=folder)
 
         # replacing font path in ipho2016.cls
         with open(os.path.join(folder, 'ipho2016.cls'), 'r') as f:
-            tex_cls = f.read().replace('/srv/exam_tools/app/static/noto', '.').replace('/srv/exam_tools/app/static', '.')
+            tex_cls = f.read()
+        for r in REPLACEMENTS:
+            tex_cls = tex_cls.replace(*r)
         with open(os.path.join(folder, 'ipho2016.cls'), 'w') as f:
             f.write(tex_cls)
 
