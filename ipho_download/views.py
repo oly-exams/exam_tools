@@ -67,6 +67,8 @@ def main(request, type, url):
             fsize = os.path.getsize(fullpath)
         flist.append((t, tt, f, fpath, fsize))
 
+    flist.sort(key=lambda tup: tup[2])
+
     cur_url = ''
     cur_path = [('/', '')]
     cur_split = url.split('/')
