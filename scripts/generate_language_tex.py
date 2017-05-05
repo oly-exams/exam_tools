@@ -88,16 +88,16 @@ def compile_question(question, language, logo_file):
         except OSError:
             pass
         with open(os.path.join(folder, 'question.tex'), 'w') as f:
-            f.write(body)
+            f.write(body.replace('/src/exam_tools/app/static', '.')) # replace icon path
 
         for e in ext_resources:
             e.save(dirname=folder)
 
         # replacing font path in ipho2016.cls
         with open(os.path.join(folder, 'ipho2016.cls'), 'r') as f:
-            cls = f.read().replace('/srv/exam_tools/app/static/noto', '.').replace('/srv/exam_tools/app/static', '.')
+            tex_cls = f.read().replace('/srv/exam_tools/app/static/noto', '.').replace('/srv/exam_tools/app/static', '.')
         with open(os.path.join(folder, 'ipho2016.cls'), 'w') as f:
-            f.write(cls)
+            f.write(tex_cls)
 
         used_fonts = [v for k, v in fonts.ipho[language.font].items() if isinstance(v, str) and v.endswith('.ttf')]
         used_fonts.extend([v for k, v in fonts.ipho['notosans'].items() if isinstance(v, str) and v.endswith('.ttf')])
