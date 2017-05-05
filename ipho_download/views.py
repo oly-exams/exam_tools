@@ -68,7 +68,7 @@ def main(request, type, url):
             fsize = os.path.getsize(fullpath)
         flist.append((t, tt, f, fpath, fsize))
 
-    sorted(flist, key=operator.itemgetter(2))
+    flist = sorted(flist, key=operator.itemgetter(2))
 
     cur_url = ''
     cur_path = [('/', '')]
