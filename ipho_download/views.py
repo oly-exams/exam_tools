@@ -21,6 +21,7 @@ from django.http import HttpResponse, HttpResponseNotModified, Http404
 from django.conf import settings
 
 import os
+import operator
 from unicodedata import normalize
 import mimetypes
 from hashlib import md5
@@ -67,7 +68,7 @@ def main(request, type, url):
             fsize = os.path.getsize(fullpath)
         flist.append((t, tt, f, fpath, fsize))
 
-    flist.sort(key=lambda tup: tup[2])
+    sorted(flist, key=operator.itemgetter(2))
 
     cur_url = ''
     cur_path = [('/', '')]
