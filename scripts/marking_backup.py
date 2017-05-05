@@ -32,6 +32,7 @@ from django.core import serializers
 from ipho_marking.models import Marking
 
 TIMESTP_FORMAT = '%Y%m%d%H%M%S'
+PREFIX = 'marking'
 
 def save(objs, stream):
     if type(stream) == str:
@@ -45,7 +46,7 @@ def make_backups(backup_folder):
     node_id = timestamp
     dump_file = os.path.join(
         backup_folder,
-        'marking_dump_' + node_id + '.json'
+        PREFIX + '_dump_' + node_id + '.json'
     )
     with open(dump_file, 'w') as stream:
         serializers.serialize(
@@ -59,7 +60,7 @@ def clean_old_backups(backup_folder, timedelta):
     current_time = get_time()
     files = (
         path for path in os.listdir(backup_folder)
-        if path.startswith('version')
+        if path.startswith(PREFIX)
     )
     for path in files:
         timestamp = path.split('.')[0].split('_')[2]
