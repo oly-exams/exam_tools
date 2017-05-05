@@ -1333,12 +1333,6 @@ def _get_submission_languages(exam, delegation):
 
 @permission_required('ipho_core.is_staff')
 def admin_submissions_translation(request):
-    open_exams = ExamAction.objects.filter(exam__active=True,
-        action=ExamAction.TRANSLATION, status=ExamAction.OPEN).count() - 1
-
-    submitted_exams = ExamAction.objects.filter(exam__active=True,
-        action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED).count()
-
     remaining_countries= ExamAction.objects.filter(
         exam__active=True,
         action=ExamAction.TRANSLATION,
@@ -1350,6 +1344,8 @@ def admin_submissions_translation(request):
     remaining_countries = [country[0]+',' for country in remaining_countries]
     if remaining_countries:
         remaining_countries[-1] = remaining_countries[-1][:-1]
+
+    open_exams = len(remaining_countries)
 
     submitted_countries = ExamAction.objects.filter(
         exam__active=True,
@@ -1363,6 +1359,8 @@ def admin_submissions_translation(request):
     submitted_countries = [country[0]+',' for country in submitted_countries]
     if submitted_countries:
         submitted_countries[-1] = submitted_countries[-1][:-1]
+
+    submitted_exams = len(submitted_countries)
 
     return render(request, 'ipho_exam/admin_submissions_translation.html',
         {
