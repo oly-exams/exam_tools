@@ -91,7 +91,7 @@ def compile_question(question, language, logo_file):
         with open(os.path.join(folder, 'question.tex'), 'w') as f:
             for r in REPLACEMENTS:
                 body = body.replace(*r)
-            f.write(body
+            f.write(body)
 
         for e in ext_resources:
             e.save(dirname=folder)
