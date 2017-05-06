@@ -148,7 +148,7 @@
                         </a>
                     </li>
                 </ul>
-
+                {% if perms.ipho_core.print_technopark or perms.ipho_core.print_irchel %}
                 <h3>Print</h3>
                 <ul>
                     <li>
@@ -157,6 +157,7 @@
                         </a>
                     </li>
                 </ul>
+                {% endif %}
               </div>
 
           </div>
