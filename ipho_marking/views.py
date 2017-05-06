@@ -39,6 +39,7 @@ from ipho_exam import qml
 
 from .models import MarkingMeta, Marking
 from .forms import ImportForm, PointsForm
+from ipho_exam.models import ExamAction
 
 OFFICIAL_LANGUAGE = getattr(settings, 'OFFICIAL_LANGUAGE', 1)
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
@@ -194,8 +195,15 @@ def export(request):
 
 @permission_required('ipho_core.is_delegation')
 def delegation_export(request, exam_id):
-    versions = request.GET.get('v', 'O,D,F').split(',')
     delegation = Delegation.objects.get(members=request.user)
+
+    all_versions = request.GET.get('v', 'O,D,F').split(',')
+    # check if the delegation should see all versions
+    if ExamAction.objects.get(exam__id=exam_id, delegation=delegation, action='P').status == u'S':
+        allowed_versions = ['O', 'D', 'F']
+    else:
+        allowed_versions = ['D']
+    versions = [v for v in all_versions if v in allowed_versions]
 
     import csv
     response = HttpResponse(content_type='text/csv')
@@ -272,7 +280,7 @@ def delegation_summary(request):
             ).order_by(
                 'position'
             )
-            
+
             scans_of_students.append( (student, stud_exam_scans_list) )
 
         scans_table_per_exam.append((exam, questions, scans_of_students))
