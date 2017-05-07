@@ -199,7 +199,7 @@ def delegation_export(request, exam_id):
 
     all_versions = request.GET.get('v', 'O,D,F').split(',')
     # check if the delegation should see all versions
-    if ExamAction.objects.get(exam__id=exam_id, delegation=delegation, action='P').status == u'S':
+    if ExamAction.objects.get(exam__id=exam_id, delegation=delegation, action=ExamAction.POINTS).status == ExamAction.SUBMITTED:
         allowed_versions = ['O', 'D', 'F']
     else:
         allowed_versions = ['D']
