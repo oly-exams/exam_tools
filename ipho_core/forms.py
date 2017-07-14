@@ -27,7 +27,11 @@ from ipho_core.models import User, AccountRequest
 
 
 class AccountRequestForm(ModelForm):
-    user = forms.ModelChoiceField(queryset=User.objects.exclude(delegation__isnull=True).exclude(autologin__isnull=True).order_by('username'))
+    user = forms.ModelChoiceField(
+        queryset=User.objects.exclude(delegation__isnull=True).exclude(autologin__isnull=True).exclude(is_superuser=True).order_by('username'),
+        to_field_name='username',
+        label='Delegation'
+    )
 
     def __init__(self, *args, **kwargs):
         super(AccountRequestForm, self).__init__(*args, **kwargs)
