@@ -58,6 +58,10 @@
         
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
         <input type="hidden" name="next" value="{{ next }}" />
+        {% if DEMO_SIGN_UP %}
+        <hr />
+        <p><a class="btn btn-default btn-lg btn-block" href="{% url 'account_request' %}">Demo account request</a></p>
+        {% endif %}
       </form>
 </div> <!-- /container -->
 

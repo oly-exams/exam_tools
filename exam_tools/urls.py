@@ -39,6 +39,7 @@ urlpatterns = patterns('',
     url(r'^accounts/logout/?$', 'django.contrib.auth.views.logout', {'next_page':'/'}),
     url(r'^accounts/autologin/(?P<token>[0-9a-z\-]+)/?$', 'ipho_core.views.autologin', name='autologin'),
     url(r'^accounts/impersonate$', 'ipho_core.views.list_impersonate', name='impersonate'),
+    url(r'^accounts/account_request$', 'ipho_core.views.account_request', name='account_request'),
 
     url(r'^api/exam/', include('ipho_exam.urls_api', namespace='api-exam')),
 

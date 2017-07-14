@@ -37,6 +37,8 @@ OFFICIAL_DELEGATION = 'Official'
 
 # Demo mode shows watermark and turns off some functionality
 DEMO_MODE = False
+# Allow user sign-up for demo
+DEMO_SIGN_UP = False
 
 # Url of documentation
 DOCS_URL = '/docs'
