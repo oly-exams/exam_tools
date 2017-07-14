@@ -87,3 +87,14 @@ class Student(models.Model):
 
     def __unicode__(self):
         return u'{}'.format(self.code)
+
+class AccountRequest(models.Model):
+    email     = models.EmailField()
+    user      = models.ForeignKey(User)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __unicode__(self):
+        return u'{} ({}) - {}'.format(self.email, self.user, self.timestamp)

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+      <h1>Account request</h1>
+    </div>
+    
+    <div class="row">
+        <div class="col-sm-6">
+            <h3>Delegation accounts</h3>
+            <p>
+              Exam Tools allows you to evaluate the system with a demo account.
+              Please fill in the following form to get your account.
+            </p>
+            
+            {% crispy form %}
+
+        </div>
+        <div class="col-sm-6">
+            
+            <h3>Staff accounts</h3>
+            <p>
+              For testing an administrator account, please contact us at
+              <a href="mailto:request@oly-exams.org"><i class="fa fa-envelope-o"></i> request@oly-exams.org</a>
+            </p>
+            <p>The following staff accounts are avaibale:</p>
+            <ul>
+              <li>Administrator</li>
+              <li>Problem author</li>
+              <li>Marker</li>
+              <li>Printing staff</li>
+            </ul>
+        </div>
+    </div>
+    
+</div> <!-- /container -->
+
+{% endblock %}

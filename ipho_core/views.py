@@ -23,8 +23,10 @@ from django.contrib.auth import authenticate, login
 from django.core.urlresolvers import reverse
 
 from ipho_core.models import AutoLogin, User
+from ipho_core.forms import AccountRequestForm
 
 DEMO_MODE = getattr(settings, 'DEMO_MODE')
+DEMO_SIGN_UP = getattr(settings, 'DEMO_SIGN_UP')
 
 def autologin(request, token):
     if not DEMO_MODE and not request.user.has_perm('ipho_core.is_staff'):
@@ -36,6 +38,21 @@ def autologin(request, token):
         return redirect(redirect_to)
     else:
         return redirect(settings.LOGIN_URL+'?next={}'.format(redirect_to))
+
+def account_request(request):
+    if not DEMO_SIGN_UP and not request.user.has_perm('ipho_core.is_staff'):
+        return HttpResponseForbidden('Only the staff can use account-request.')
+    form = AccountRequestForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        selected_user = form.cleaned_data['user']
+        ## Redirect authenticate user
+        user = authenticate(token=selected_user.autologin.token)
+        redirect_to = reverse('home')
+        login(request, user)
+        return redirect(redirect_to)
+
+    return render(request, 'registration/account_request.html', {'form': form})
 
 @permission_required('ipho_core.is_staff')
 def list_impersonate(request):
