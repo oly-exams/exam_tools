@@ -26,7 +26,6 @@ from django.core.exceptions import ValidationError
 from ipho_poll.models import Question, Choice, Vote
 
 
-
 class QuestionForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(QuestionForm, self).__init__(*args, **kwargs)
@@ -44,26 +43,28 @@ class QuestionForm(ModelForm):
 
 class EndDateForm(ModelForm):
     utc_offset = forms.IntegerField(widget=HiddenInput(), help_text='UTC offset in minutes')
+
     def __init__(self, *args, **kwargs):
         super(EndDateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-                                    Field('utc_offset', id="modal-utc_offset"),
-                                    Field('end_date', id="modal-datetimepicker"),
-                                    HTML('<div class="quick-end-time" data-min="1"></div>'),
-                                    HTML('<div class="quick-end-time" data-min="2"></div>'),
-                                    HTML('<div class="quick-end-time" data-min="5"></div>'),
-                                    HTML('<div class="quick-end-time" data-min="10"></div>'),
-                                    )
+            Field('utc_offset', id="modal-utc_offset"),
+            Field('end_date', id="modal-datetimepicker"),
+            HTML('<div class="quick-end-time" data-min="1"></div>'),
+            HTML('<div class="quick-end-time" data-min="2"></div>'),
+            HTML('<div class="quick-end-time" data-min="5"></div>'),
+            HTML('<div class="quick-end-time" data-min="10"></div>'),
+        )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.helper.form_tag = False
         self.helper.disable_csrf = True
         self.helper.include_media = True
+
     class Meta:
         model = Question
         fields = ['end_date']
-        widgets={'end_date': HiddenInput()}
+        widgets = {'end_date': HiddenInput()}
 
 
 class ChoiceForm(ModelForm):
@@ -71,21 +72,24 @@ class ChoiceForm(ModelForm):
         model = Choice
         fields = ['label', 'choice_text']
         widgets = {
-            'label': forms.TextInput(attrs={'size':3, 'maxlength':3}),
+            'label': forms.TextInput(attrs={
+                'size': 3,
+                'maxlength': 3
+            }),
         }
+
 
 class ChoiceFormHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super(ChoiceFormHelper, self).__init__(*args, **kwargs)
-        self.layout =   Layout(
-                            Div(
-                                Div(Field('label'), css_class='form-group'),
-                                Div(Field('choice_text', placeholder='Enter choice text'), css_class='form-group'),
-                                Div(Field('DELETE')),
-                                css_class='form-inline'
-
-                            )
-                        )
+        self.layout = Layout(
+            Div(
+                Div(Field('label'), css_class='form-group'),
+                Div(Field('choice_text', placeholder='Enter choice text'), css_class='form-group'),
+                Div(Field('DELETE')),
+                css_class='form-inline'
+            )
+        )
         self.form_show_labels = True
         self.html5_required = False
         self.form_tag = False
@@ -104,14 +108,13 @@ class VoteForm(ModelForm):
     class Meta:
         model = Vote
         fields = ['choice', 'question', 'voting_right']
-        widgets={'choice': RadioSelect(), 'voting_right': HiddenInput()}
+        widgets = {'choice': RadioSelect(), 'voting_right': HiddenInput()}
+
+
 class VoteFormHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super(VoteFormHelper, self).__init__(*args, **kwargs)
-        self.layout = Layout(
-                        Div(Field('choice')),
-                        Div(Field('question'))
-        )
+        self.layout = Layout(Div(Field('choice')), Div(Field('question')))
         self.form_show_labels = True
         self.html5_required = False
         self.form_tag = False

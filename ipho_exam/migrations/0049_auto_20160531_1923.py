@@ -14,8 +14,10 @@ def forwards_func(apps, schema_editor):
             q.code = 'A'
             q.save()
 
+
 def backwards_func(apps, schema_editor):
     pass
+
 
 class Migration(migrations.Migration):
 

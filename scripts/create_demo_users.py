@@ -31,9 +31,8 @@ def main(input, autologins):
     reader = csv.DictReader(input)
 
     delegations_group = Group.objects.get(name='Delegation')
-    for i,row in enumerate(reader):
+    for i, row in enumerate(reader):
         delegation = Delegation.objects.get(name=row['Country code'])
-
 
         user = User(username=row['Country code'], first_name=row['Country name'])
         try:
@@ -61,7 +60,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Import CSV to users and assign delegations')
     parser.add_argument('file', type=argparse.FileType('rU'), help='Input CSV file')
-    parser.add_argument('--without_autologings',  dest='autologins', action='store_false', help='Discard autologin')
+    parser.add_argument('--without_autologings', dest='autologins', action='store_false', help='Discard autologin')
     args = parser.parse_args()
 
     main(args.file, args.autologins)

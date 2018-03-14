@@ -17,7 +17,6 @@
 
 # Django settings for exam_tools project.
 
-
 # Import the OS module and work out our project's paths
 import os
 SETTINGS_DIR = os.path.dirname(__file__)
@@ -26,12 +25,12 @@ PROJECT_PATH = os.path.join(SETTINGS_DIR, os.pardir)
 PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 
 TEMPLATE_PATH = os.path.join(PROJECT_PATH, 'templates')
-STATIC_PATH   = os.path.join(PROJECT_PATH, 'static')
+STATIC_PATH = os.path.join(PROJECT_PATH, 'static')
 
 SITE_URL = 'http://127.0.0.1:8000'
 
 VERSION = '1.0'
-VERSION_DATE = '' #'2016-02-23'
+VERSION_DATE = ''  #'2016-02-23'
 
 OFFICIAL_DELEGATION = 'Official'
 
@@ -49,60 +48,63 @@ INKSCAPE_BIN = 'inkscape'
 
 # Celery SETTINGS_DIR
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
-CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend'
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
 # Printing system
 PRINTER_QUEUES = {
-  # 'technopark.printer-1': {
-  #   'name': 'Technopark 1',
-  #   'host': '',
-  #   'queue': 'printer-1',
-  #   'auth_token': '',
-  #   'opts': {'Duplex': 'None', 'ColourModel': 'Greyscale', 'Staple': '1PLU'},
-  #   'required_perm': 'ipho_core.print_technopark',
-  # },
-  # 'technopark.printer-2': {
-  #   'name': 'Technopark 2',
-  #   'host': '',
-  #   'queue': 'printer-2',
-  #   'auth_token': '',
-  #   'opts': {'Duplex': 'None', 'ColourModel': 'Greyscale', 'Staple': '1PLU'},
-  #   'required_perm': 'ipho_core.print_technopark',
-  # },
-  # 'irchel.printer-1': {
-  #   'name': 'Irchel 1',
-  #   'host': '',
-  #   'queue': 'printer-1',
-  #   'auth_token': '',
-  #   'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
-  #   'required_perm': 'ipho_core.print_irchel',
-  # },
-  # 'irchel.printer-2': {
-  #   'name': 'Irchel 2',
-  #   'host': '',
-  #   'queue': 'printer-2',
-  #   'auth_token': '',
-  #   'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
-  #   'required_perm': 'ipho_core.print_irchel',
-  # },
-  # 'irchel.printer-3': {
-  #   'name': 'Irchel 3',
-  #   'host': '',
-  #   'queue': 'printer-3',
-  #   'auth_token': '',
-  #   'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
-  #   'required_perm': 'ipho_core.print_irchel',
-  # },
-  'generic.printer-1': {
-    'name': 'Generic printer',
-    'host': '',
-    'queue': 'printer-1',
-    'auth_token': '',
-    'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
-    'required_perm': 'ipho_core.print_irchel',
-  },
+    # 'technopark.printer-1': {
+    #   'name': 'Technopark 1',
+    #   'host': '',
+    #   'queue': 'printer-1',
+    #   'auth_token': '',
+    #   'opts': {'Duplex': 'None', 'ColourModel': 'Greyscale', 'Staple': '1PLU'},
+    #   'required_perm': 'ipho_core.print_technopark',
+    # },
+    # 'technopark.printer-2': {
+    #   'name': 'Technopark 2',
+    #   'host': '',
+    #   'queue': 'printer-2',
+    #   'auth_token': '',
+    #   'opts': {'Duplex': 'None', 'ColourModel': 'Greyscale', 'Staple': '1PLU'},
+    #   'required_perm': 'ipho_core.print_technopark',
+    # },
+    # 'irchel.printer-1': {
+    #   'name': 'Irchel 1',
+    #   'host': '',
+    #   'queue': 'printer-1',
+    #   'auth_token': '',
+    #   'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
+    #   'required_perm': 'ipho_core.print_irchel',
+    # },
+    # 'irchel.printer-2': {
+    #   'name': 'Irchel 2',
+    #   'host': '',
+    #   'queue': 'printer-2',
+    #   'auth_token': '',
+    #   'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
+    #   'required_perm': 'ipho_core.print_irchel',
+    # },
+    # 'irchel.printer-3': {
+    #   'name': 'Irchel 3',
+    #   'host': '',
+    #   'queue': 'printer-3',
+    #   'auth_token': '',
+    #   'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
+    #   'required_perm': 'ipho_core.print_irchel',
+    # },
+    'generic.printer-1': {
+        'name': 'Generic printer',
+        'host': '',
+        'queue': 'printer-1',
+        'auth_token': '',
+        'opts': {
+            'Duplex': 'None',
+            'ColourModel': 'Colour',
+            'Staple': '1PLU'
+        },
+        'required_perm': 'ipho_core.print_irchel',
+    },
 }
-
 
 EXAM_TOOLS_API_KEYS = {
     'PDF Worker': 'KeyChangeMe',
@@ -112,7 +114,6 @@ EXAM_TOOLS_API_KEYS = {
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []
-
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
@@ -171,7 +172,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 TEMPLATES = [
@@ -239,7 +240,6 @@ INSTALLED_APPS = (
     'ipho_download',
     'ipho_print',
     # 'django_extensions', # Some useful utils, e.g. graph models
-
 )
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
@@ -285,8 +285,6 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
     },
-    'handlers': {
-    },
-    'loggers': {
-    }
+    'handlers': {},
+    'loggers': {}
 }

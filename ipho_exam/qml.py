@@ -32,7 +32,6 @@ import uuid
 import json
 #import lxml.etree as lxmltree
 
-
 from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
@@ -48,12 +47,14 @@ from . import simplediff
 PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'table', 'equation', 'figure', 'box')
 DEFAULT_BLOCKS = ('texfield', 'texenv')
 
+
 def make_content(root):
-    assert(root.tag == 'question')
+    assert (root.tag == 'question')
     ret = []
     for node in root.children:
-        ret.append( make_content_node(node) )
+        ret.append(make_content_node(node))
     return ret
+
 
 def make_content_node(node):
     """
@@ -74,19 +75,20 @@ def make_content_node(node):
 
     descr = {}
     descr['heading'] = node.heading()
-    descr['style']   = []
-    descr['id']      = node.id
-    descr['type']    = node.tag
-    descr['attrs']    = node.attributes
+    descr['style'] = []
+    descr['id'] = node.id
+    descr['type'] = node.tag
+    descr['attrs'] = node.attributes
     descr['original'] = node.content()
     descr['original_html'] = node.content_html()
     descr['description'] = node.attributes.get('description')
 
     descr['children'] = []
     for c in node.children:
-        descr['children'].append( make_content_node(c) )
+        descr['children'].append(make_content_node(c))
 
     return descr
+
 
 def make_qml(node):
     q = QMLquestion(node.text)
@@ -97,36 +99,45 @@ def make_qml(node):
     q.update_attrs(attr_change)
     return q
 
+
 def xml2string(xml):
     return ET.tostring(xml)
 
 
 def content2string(node):
-    parts = ([node.text] +
-             [ ET.tostring(c) for c in node ])
-              # We assume that `node` is a pure QML tag, therefore we don't consider the tail.
-              # +[node.tail])
+    parts = ([node.text] + [ET.tostring(c) for c in node])
+    # We assume that `node` is a pure QML tag, therefore we don't consider the tail.
+    # +[node.tail])
     # filter removes possible Nones in texts and tails
     return ''.join(filter(None, parts))
 
+
 def normalize_html(data):
-    data = str(data).replace('<p>&nbsp;</p>', '__EMPTYPP__').replace('<p>&#160;</p>', '__EMPTYPP__').replace(u'<p>{}</p>'.format(chr(160)), '__EMPTYPP__').replace('&nbsp;', ' ').replace('&#160;', ' ').replace(chr(160), u' ').replace('__EMPTYPP__', '<p>&nbsp;</p>')
+    data = str(data).replace('<p>&nbsp;</p>', '__EMPTYPP__').replace('<p>&#160;</p>', '__EMPTYPP__').replace(
+        u'<p>{}</p>'.format(chr(160)), '__EMPTYPP__'
+    ).replace('&nbsp;', ' ').replace('&#160;', ' ').replace(chr(160), u' ').replace('__EMPTYPP__', '<p>&nbsp;</p>')
     xhtmlout = BeautifulSoup(data, "html5lib")
     try:
         return ''.join([str(el) for el in xhtmlout.body.contents])
     except:
         return str(xhtmlout)
 
+
 mathtex_pattern = re.compile(r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</span>')
+
+
 def escape_equations(txt):
     return mathtex_pattern.sub(lambda m: u'<span class="math-tex">\({}\)</span>'.format(escape(m.group(1))), txt)
+
 
 def data2tex(data):
     cont_html = BeautifulSoup(data, "html5lib")
     return tex.html2tex_bs4(cont_html.body)
 
+
 def data2xhtml(data):
     return normalize_html(data)
+
 
 def question_points(root):
     ## This function is not too geenric, but it should fit our needs
@@ -135,10 +146,11 @@ def question_points(root):
         if isinstance(obj, QMLsubquestion) or isinstance(obj, QMLsubanswer):
             points = float(obj.attributes.get('points', 0.))
             name = '{}.{}'.format(obj.attributes.get('part_nr', ''), obj.attributes.get('question_nr', ''))
-            ret.append(( name, points ))
+            ret.append((name, points))
         child_points = question_points(obj)
         ret += child_points
     return ret
+
 
 class QMLForm(forms.Form):
     def __init__(self, root, initials, *args, **kwargs):
@@ -158,10 +170,12 @@ class QMLForm(forms.Form):
 
 ## List of all QML obects available for parsing
 qml_objects = None
+
+
 # TODO: find better way for this. it seems that Django provides a ContentType module that could be useful.
 def all_subclasses(cls):
-    return cls.__subclasses__() + [g for s in cls.__subclasses__()
-                                   for g in all_subclasses(s)]
+    return cls.__subclasses__() + [g for s in cls.__subclasses__() for g in all_subclasses(s)]
+
 
 class _classproperty(object):
     def __init__(self, fget):
@@ -169,6 +183,7 @@ class _classproperty(object):
 
     def __get__(self, owner_self, owner_cls):
         return self.fget(owner_cls)
+
 
 class QMLobject(object):
     default_attributes = {}
@@ -180,7 +195,7 @@ class QMLobject(object):
     def display_name(cls):
         name = cls.__name__.replace('QML', '')
         split_pattern = re.compile('(^[^A-Z]*|[A-Z][^A-Z]*)')
-        name = ' '.join([ ni.capitalize() for ni in split_pattern.findall(name) if ni is not None ])
+        name = ' '.join([ni.capitalize() for ni in split_pattern.findall(name) if ni is not None])
         return name
 
     @staticmethod
@@ -188,12 +203,12 @@ class QMLobject(object):
         if QMLobject._all_objects is None:
             QMLobject._all_objects = all_subclasses(QMLobject)
         return QMLobject._all_objects
+
     @staticmethod
     def get_qml(tag):
         for obj in QMLobject.all_objects():
             if obj.tag == tag: return obj
         raise QMLException('Tag `%s` not found.' % tag)
-
 
     def __init__(self, xml, force_id=None):
         """
@@ -220,7 +235,7 @@ class QMLobject(object):
         self.parse(root)
 
     def parse(self, root):
-        assert(self.__class__.tag == root.tag)
+        assert (self.__class__.tag == root.tag)
 
         self.attributes = deepcopy(self.__class__.default_attributes)
         self.attributes.update(root.attrib)
@@ -248,7 +263,7 @@ class QMLobject(object):
             ix = self.child_index(after_id)
             if ix is None:
                 raise RuntimeError('after_id={} not found.'.format(after_id))
-            self.children.insert(ix+1, child_node)
+            self.children.insert(ix + 1, child_node)
         return child_node
 
     def set_lang(self, lang):
@@ -257,7 +272,7 @@ class QMLobject(object):
             c.set_lang(lang)
 
     def make_xml(self):
-        assert('id' in self.attributes)
+        assert ('id' in self.attributes)
         elem = ET.Element(self.tag, self.attributes)
         if self.__class__.has_text:
             elem.text = self.data
@@ -269,6 +284,7 @@ class QMLobject(object):
 
     def tex_begin(self):
         return u''
+
     def tex_end(self):
         return u'\n\n'
 
@@ -280,15 +296,17 @@ class QMLobject(object):
         for c in self.children:
             (texchild, extchild) = c.make_tex()
             externals += extchild
-            texout    += texchild
+            texout += texchild
 
         texout += self.tex_end()
         return texout, externals
 
     def xhtml_begin(self):
         return ''
+
     def xhtml_end(self):
         return ''
+
     def make_xhtml(self):
         externals = []
         xhtmlout = self.xhtml_begin()
@@ -297,11 +315,10 @@ class QMLobject(object):
         for c in self.children:
             (xhtmlchild, extchild) = c.make_xhtml()
             externals += extchild
-            xhtmlout  += xhtmlchild
+            xhtmlout += xhtmlchild
 
         xhtmlout += self.xhtml_end()
         return xhtmlout, externals
-
 
     def heading(self):
         return self.attributes['heading'] if 'heading' in self.attributes else self.default_heading
@@ -318,6 +335,7 @@ class QMLobject(object):
         for c in self.children:
             ret.update(c.get_data())
         return ret
+
     def get_trans_extra_html(self):
         ret = {}
         for c in self.children:
@@ -335,6 +353,7 @@ class QMLobject(object):
         if self.has_text:
             return self.data
         return None
+
     def content_html(self):
         return self.data_html
 
@@ -346,7 +365,7 @@ class QMLobject(object):
         """
 
         if self.id in data:
-            self.data = data[self.id] #escape(data[self.id])
+            self.data = data[self.id]  #escape(data[self.id])
             self.data_html = self.data
         elif self.has_text and set_blanks:
             self.data = ''
@@ -354,6 +373,7 @@ class QMLobject(object):
 
         for c in self.children:
             c.update(data)
+
     def update_attrs(self, attrs):
         if self.id in attrs:
             self.attributes.update(attrs[self.id])
@@ -384,7 +404,7 @@ class QMLobject(object):
 
     def child_index(self, child_id):
         ix = None
-        for i,c in enumerate(self.children):
+        for i, c in enumerate(self.children):
             if c.id == child_id:
                 ix = i
                 break
@@ -422,13 +442,14 @@ class QMLquestion(QMLobject):
         points = ''
         if 'points' in self.attributes:
             points = self.attributes['points']
-        return u'\\begin{PR}{%s}{%s}\n\n' % (self.title(),points)
+        return u'\\begin{PR}{%s}{%s}\n\n' % (self.title(), points)
+
     def tex_end(self):
         return u'\\end{PR}\n\n'
 
 
 class QMLsubquestion(QMLobject):
-    tag  = "subquestion"
+    tag = "subquestion"
 
     has_text = False
     has_children = True
@@ -437,21 +458,24 @@ class QMLsubquestion(QMLobject):
     default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
 
     def heading(self):
-        return 'Subquestion %s.%s, %spt' % (self.attributes['part_nr'],self.attributes['question_nr'],self.attributes['points'])
+        return 'Subquestion %s.%s, %spt' % (
+            self.attributes['part_nr'], self.attributes['question_nr'], self.attributes['points']
+        )
 
     def tex_begin(self):
         return u'\\begin{QTF}{%s}{%s}{%s}\n' % (
-            self.attributes['points'],
-            self.attributes['part_nr'],
-            self.attributes['question_nr']
+            self.attributes['points'], self.attributes['part_nr'], self.attributes['question_nr']
         )
+
     def tex_end(self):
         return u'\\end{QTF}\n\n'
+
     def xhtml_begin(self):
         return u'<h4>Subquestion ({} pt)</h4>'.format(self.attributes['points'])
 
+
 class QMLsubanswer(QMLobject):
-    tag  = "subanswer"
+    tag = "subanswer"
     display_name = "Answer"
     default_heading = "Answer"
 
@@ -462,22 +486,25 @@ class QMLsubanswer(QMLobject):
     default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
 
     def heading(self):
-        return 'Subquestion %s.%s, %spt' % (self.attributes['part_nr'],self.attributes['question_nr'],self.attributes['points'])
+        return 'Subquestion %s.%s, %spt' % (
+            self.attributes['part_nr'], self.attributes['question_nr'], self.attributes['points']
+        )
 
     def tex_begin(self):
         return u'\\begin{QSA}{%s}{%s}{%s}{%s}\n' % (
-            self.attributes['points'],
-            self.attributes['part_nr'],
-            self.attributes['question_nr'],
+            self.attributes['points'], self.attributes['part_nr'], self.attributes['question_nr'],
             self.attributes.get('height', '')
         )
+
     def tex_end(self):
         return u'\\end{QSA}\n\n'
+
     def xhtml_begin(self):
         return u'<h4>Answer ({} pt)</h4>'.format(self.attributes['points'])
 
+
 class QMLbox(QMLobject):
-    tag  = "box"
+    tag = "box"
     default_heading = "Box"
 
     has_text = False
@@ -488,31 +515,31 @@ class QMLbox(QMLobject):
         return 'Box'
 
     def tex_begin(self):
-        return u'\\begin{QBO}{%s}\n' % (
-            self.attributes.get('height', '')
-        )
+        return u'\\begin{QBO}{%s}\n' % (self.attributes.get('height', ''))
+
     def tex_end(self):
         return '\\end{QBO}\n\n'
+
     def xhtml_begin(self):
         return u'<h4>Box</h4>'
 
 
 class QMLtitle(QMLobject):
-    tag  = "title"
+    tag = "title"
     default_heading = "Title"
 
     has_text = True
     has_children = False
 
     def make_tex(self):
-        return '',[]
+        return '', []
 
     def make_xhtml(self):
         return u'<h1>{}</h1>'.format(data2xhtml(self.data)), []
 
 
 class QMLsection(QMLobject):
-    tag  = "section"
+    tag = "section"
     default_heading = "Section"
 
     has_text = True
@@ -520,14 +547,16 @@ class QMLsection(QMLobject):
 
     def tex_begin(self):
         return u'\\subsubsection*{'
+
     def tex_end(self):
         return '}\n\n'
 
     def make_xhtml(self):
         return u'<h3>{}</h3>'.format(data2xhtml(self.data)), []
 
+
 class QMLpart(QMLobject):
-    tag  = "part"
+    tag = "part"
     default_heading = "Part"
     default_attributes = {'points': ''}
 
@@ -536,14 +565,16 @@ class QMLpart(QMLobject):
 
     def tex_begin(self):
         return u'\\PT{'
+
     def tex_end(self):
         return '}{%s}\n\n' % self.attributes['points']
 
     def make_xhtml(self):
         return u'<h2>{}</h2>'.format(data2xhtml(self.data)), []
 
+
 class QMLparagraph(QMLobject):
-    tag  = "paragraph"
+    tag = "paragraph"
 
     has_text = True
     has_children = False
@@ -553,11 +584,13 @@ class QMLparagraph(QMLobject):
 
     def xhtml_begin(self):
         return u'<p>'
+
     def xhtml_end(self):
         return u'</p>'
 
+
 class QMLfigure(QMLobject):
-    tag  = "figure"
+    tag = "figure"
     default_heading = "Figure"
 
     has_text = False
@@ -573,6 +606,7 @@ class QMLfigure(QMLobject):
             if c.tag == 'param':
                 query[c.attributes['name']] = c.data.encode('utf-8')
         return query
+
     def fig_url(self, output_format='svg'):
         if output_format == 'svg':
             if self.lang is None:
@@ -592,7 +626,9 @@ class QMLfigure(QMLobject):
 
     def content_html(self):
         img_src = self.fig_url()
-        return u'<div class="field-figure text-center"><a data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{0}"><img src="{0}" /></a></div>'.format(img_src)
+        return u'<div class="field-figure text-center"><a data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{0}"><img src="{0}" /></a></div>'.format(
+            img_src
+        )
 
     def get_trans_extra_html(self):
         figid = self.attributes['figid']
@@ -601,7 +637,9 @@ class QMLfigure(QMLobject):
         else:
             img_src = reverse('exam:figure-lang-export', args=[figid, self.lang.pk])
         param_ids = dict([(c.attributes['name'], c.id) for c in self.children if c.tag == 'param'])
-        ret = u'<div class="field-figure text-center"><button type="button" class="btn btn-link" data-toggle="modal" data-target="#figure-modal" data-remote="false" data-figparams=\'{0}\' data-base-url="{1}"><img src="{1}" /></button></div>'.format(json.dumps(param_ids),img_src)
+        ret = u'<div class="field-figure text-center"><button type="button" class="btn btn-link" data-toggle="modal" data-target="#figure-modal" data-remote="false" data-figparams=\'{0}\' data-base-url="{1}"><img src="{1}" /></button></div>'.format(
+            json.dumps(param_ids), img_src
+        )
         return {self.id: ret}
 
     def make_tex(self):
@@ -612,10 +650,10 @@ class QMLfigure(QMLobject):
             if c.tag == 'caption':
                 caption_text = data2tex(c.data)
                 caption_text = caption_text.strip('\n')
-                caption_text = caption_text.replace('\n','\\')
+                caption_text = caption_text.replace('\n', '\\')
                 fig_caption += caption_text
 
-        width = self.attributes.get('width', 0.9) # 0.9 is the default value
+        width = self.attributes.get('width', 0.9)  # 0.9 is the default value
 
         texout = u''
         texout += str(r'\vspace{0.5cm}\begin{minipage}{\textwidth}\centering') + u'\n'
@@ -636,7 +674,7 @@ class QMLfigure(QMLobject):
                 caption_text = data2xhtml(c.data)
                 fig_caption += caption_text
 
-        width = self.attributes.get('width', 0.9) # 0.9 is the default value
+        width = self.attributes.get('width', 0.9)  # 0.9 is the default value
 
         fig = Figure.objects.get(id=self.attributes['figid'])
         fig_content, content_type = fig.to_inline(query=self.fig_query(), lang=self.lang)
@@ -644,15 +682,18 @@ class QMLfigure(QMLobject):
         if content_type == 'svg+xml':
             xhtmlout = fig_content
         else:
-            xhtmlout = u'<img src="data:image/{content_type};base64,{fig_content}"/>\n'.format(content_type=content_type, fig_content=binascii.b2a_base64(fig_content))
+            xhtmlout = u'<img src="data:image/{content_type};base64,{fig_content}"/>\n'.format(
+                content_type=content_type, fig_content=binascii.b2a_base64(fig_content)
+            )
         if len(fig_caption) > 0:
             xhtmlout += u'<div>{}</div>\n'.format(fig_caption)
 
         externals = []
         return xhtmlout, externals
 
+
 class QMLfigureText(QMLobject):
-    tag  = "param"
+    tag = "param"
     display_name = "Figure Text"
 
     has_text = True
@@ -665,7 +706,7 @@ class QMLfigureText(QMLobject):
 
 
 class QMLfigureCaption(QMLobject):
-    tag  = "caption"
+    tag = "caption"
     display_name = "Figure Caption"
     default_heading = "Caption"
 
@@ -675,8 +716,9 @@ class QMLfigureCaption(QMLobject):
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
 
+
 class QMLequation(QMLobject):
-    tag  = "equation"
+    tag = "equation"
     default_heading = "Equation"
 
     has_text = True
@@ -684,32 +726,35 @@ class QMLequation(QMLobject):
 
     def tex_begin(self):
         return u'\\begin{equation}\n'
+
     def tex_end(self):
         return u'\\end{equation}\n\n'
 
 
 class QMLlist(QMLobject):
-    tag  = "list"
+    tag = "list"
     display_name = "Bullet list"
     default_heading = "Bullet list"
 
     has_text = False
     has_children = True
-    valid_children = ('item',)
+    valid_children = ('item', )
 
     def tex_begin(self):
         return u'\\begin{itemize}\n'
+
     def tex_end(self):
         return u'\\end{itemize}\n\n'
 
     def xhtml_begin(self):
         return u'<ul>'
+
     def xhtml_end(self):
         return u'</ul>'
 
 
 class QMLlistItem(QMLobject):
-    tag  = "item"
+    tag = "item"
 
     has_text = True
     has_children = False
@@ -732,19 +777,20 @@ class QMLlistItem(QMLobject):
     def make_xhtml(self):
         return u'<li>{}</li>'.format(data2xhtml(self.data)), []
 
+
 class QMLlatex(QMLobject):
-    tag  = "texfield"
+    tag = "texfield"
     display_name = "Latex Replacement Template"
 
     has_text = False
     has_children = True
-    valid_children = ('texparam',)
+    valid_children = ('texparam', )
 
     default_attributes = {'content': ''}
 
     def make_tex(self):
         content = str(self.attributes['content']) + u'\n\n'
-        content = content.replace(u'\\n',u'\n')
+        content = content.replace(u'\\n', u'\n')
 
         query = {}
         for c in self.children:
@@ -753,8 +799,9 @@ class QMLlatex(QMLobject):
                 content.replace(u'{{ %s }}' % c.attributes['name'], c.data)
         return content, []
 
+
 class QMLlatexParam(QMLobject):
-    tag  = "texparam"
+    tag = "texparam"
     display_name = "Latex Replacement Parameter"
 
     has_text = True
@@ -762,11 +809,12 @@ class QMLlatexParam(QMLobject):
 
     default_attributes = {'name': 'tba'}
 
+
 class QMLlatexEnv(QMLobject):
     tag = "texenv"
     display_name = "Latex Environment"
 
-    has_text=False
+    has_text = False
     has_children = True
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
                     ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer')
@@ -774,13 +822,11 @@ class QMLlatexEnv(QMLobject):
     default_attributes = {'name': ''}
 
     def tex_begin(self):
-        return str(r'\begin{{{}}}{}'.format(
-            self.attributes['name'],
-            self.attributes.get('arguments', '')
-        ))
+        return str(r'\begin{{{}}}{}'.format(self.attributes['name'], self.attributes.get('arguments', '')))
 
     def tex_end(self):
         return str(r'\end{{{}}}'.format(self.attributes['name']))
+
 
 class QMLtable(QMLobject):
     tag = "table"
@@ -807,9 +853,7 @@ class QMLtable(QMLobject):
         except KeyError:
             return (
                 u'|' * int(self.attributes.get('left_line', 1)) +
-                (int(self.attributes.get('grid_lines', 1)) * u'|').join(
-                    [u'l'] * int(self.attributes['width'])
-                ) +
+                (int(self.attributes.get('grid_lines', 1)) * u'|').join([u'l'] * int(self.attributes['width'])) +
                 u'|' * int(self.attributes.get('right_line', 1))
             )
 
@@ -828,10 +872,8 @@ class QMLtable(QMLobject):
 
     def tex_begin(self):
         return (
-            str(r'\vspace{0.5cm}') +
-            u'\\begin{center}' + self._arraystretch +
-            '\\begin{tabular}{' + self._columns + u'}' +
-            int(self.attributes['top_line']) * u'\\hline' + u'\n'
+            str(r'\vspace{0.5cm}') + u'\\begin{center}' + self._arraystretch + '\\begin{tabular}{' + self._columns +
+            u'}' + int(self.attributes['top_line']) * u'\\hline' + u'\n'
         )
 
     def tex_end(self):
@@ -842,8 +884,10 @@ class QMLtable(QMLobject):
 
     def xhtml_begin(self):
         return u'<table>'
+
     def xhtml_end(self):
         return u'</table>'
+
 
 class QMLtableRow(QMLobject):
     tag = "row"
@@ -851,7 +895,7 @@ class QMLtableRow(QMLobject):
 
     has_text = False
     has_children = True
-    valid_children = ('cell',)
+    valid_children = ('cell', )
 
     default_attributes = {'bottom_line': '1'}
 
@@ -861,10 +905,13 @@ class QMLtableRow(QMLobject):
         texout += u' & '.join(data2tex(c.data) for c in self.children)
         texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
         return texout * multiplier, []
+
     def xhtml_begin(self):
         return u'<tr>'
+
     def xhtml_end(self):
         return u'</tr>'
+
 
 class QMLtableCell(QMLobject):
     tag = "cell"
@@ -874,13 +921,16 @@ class QMLtableCell(QMLobject):
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
+
     def xhtml_begin(self):
         return u'<td>'
+
     def xhtml_end(self):
         return u'</td>'
 
+
 class QMLtableCaption(QMLobject):
-    tag  = "tablecaption"
+    tag = "tablecaption"
     default_heading = "Table Caption"
 
     has_text = True
@@ -895,8 +945,9 @@ class QMLtableCaption(QMLobject):
     def tex_end(self):
         return u'\\end{center}\n\n'
 
+
 class QMLpageBreak(QMLobject):
-    tag  = "pagebreak"
+    tag = "pagebreak"
 
     has_text = False
     has_children = False
@@ -905,6 +956,7 @@ class QMLpageBreak(QMLobject):
         if bool(self.attributes.get('skip', False)):
             return u'\n', []
         return r'~ \clearpage' + u'\n', []
+
 
 class QMLException(Exception):
     pass

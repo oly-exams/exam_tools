@@ -20,9 +20,8 @@ class Migration(migrations.Migration):
                 ('country', models.CharField(unique=True, max_length=100)),
                 ('members', models.ManyToManyField(to=settings.AUTH_USER_MODEL)),
             ],
-            options={
-            },
-            bases=(models.Model,),
+            options={},
+            bases=(models.Model, ),
         ),
         migrations.CreateModel(
             name='Student',
@@ -32,8 +31,7 @@ class Migration(migrations.Migration):
                 ('lastname', models.CharField(max_length=200)),
                 ('delegation', models.ForeignKey(to='ipho_core.Delegation')),
             ],
-            options={
-            },
-            bases=(models.Model,),
+            options={},
+            bases=(models.Model, ),
         ),
     ]

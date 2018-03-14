@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 ## how to call this script
 ##
 ## fix the TEXBIN config variable in  exam_tools/settings.py  to the location of latex on your machine
@@ -48,7 +47,6 @@ from ipho_exam.models import Exam, Question, Student, Language
 from hashlib import md5
 import requests
 
-
 exam = Exam()
 exam.code = 'E'
 exam.name = 'Test template'
@@ -70,7 +68,6 @@ language.style = 'chinese'
 language.polyglossia_options = ''
 language.polyglossia = 'custom'
 language.extraheader = ''
-
 
 # Exported from Exam Tools
 doc_content = r"""
@@ -240,7 +237,6 @@ F_C = 2 m v \omega_{ss}  \sin \phi\ ,\end{equation}
 
 \end{PR}
 """
-
 
 answer_content = r"""
 
@@ -486,22 +482,21 @@ def compile_cover():
         pdf_file.write(page)
 
 
-
 def compile_question(qml_trans, pdf_name='test_question'):
     ext_resources = []
     ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
     context = {
-                'polyglossia' : language.polyglossia,
-                'polyglossia_options' : language.polyglossia_options,
-                'font'        : fonts.ipho[language.font],
-                'extraheader' : language.extraheader,
-                'lang_name'   : u'{} ({})'.format(language.name, 'Country'),
-                'exam_name'   : u'{}'.format(exam.name),
-                'code'        : u'{}{}'.format(question.code, question.position),
-                'title'       : u'{} - {}'.format(exam.name, question.name),
-                'is_answer'   : True,
-                'document'    : qml_trans,
-              }
+        'polyglossia': language.polyglossia,
+        'polyglossia_options': language.polyglossia_options,
+        'font': fonts.ipho[language.font],
+        'extraheader': language.extraheader,
+        'lang_name': u'{} ({})'.format(language.name, 'Country'),
+        'exam_name': u'{}'.format(exam.name),
+        'code': u'{}{}'.format(question.code, question.position),
+        'title': u'{} - {}'.format(exam.name, question.name),
+        'is_answer': True,
+        'document': qml_trans,
+    }
     body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
     question_pdf = _compile_tex(body, ext_resources)
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
@@ -513,20 +508,18 @@ def compile_question(qml_trans, pdf_name='test_question'):
 def compile_blank():
     pages = 3
     context = {
-                'polyglossia' : 'english',
-                'polyglossia_options' : '',
-                'font'        : fonts.ipho['notosans'],
-                'extraheader' : '',
-                'exam_name'   : u'{}'.format(exam.name),
-                'code'        : u'W2',
-                'title'       : u'{} - {}'.format(exam.name, question.name),
-                'is_answer'   : True,
-                'pages'       : range(pages),
-              }
+        'polyglossia': 'english',
+        'polyglossia_options': '',
+        'font': fonts.ipho['notosans'],
+        'extraheader': '',
+        'exam_name': u'{}'.format(exam.name),
+        'code': u'W2',
+        'title': u'{} - {}'.format(exam.name, question.name),
+        'is_answer': True,
+        'pages': range(pages),
+    }
     body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-    question_pdf = _compile_tex(body, [
-        tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
-    ])
+    question_pdf = _compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='W')
     page = pdf.add_barcode(question_pdf, bgenerator)
     with open('test_blank.pdf', 'wb') as pdf_file:
@@ -536,24 +529,23 @@ def compile_blank():
 def compile_graph():
     pages = 3
     context = {
-                'polyglossia' : 'english',
-                'polyglossia_options' : '',
-                'font'        : fonts.ipho['notosans'],
-                'extraheader' : '',
-                'exam_name'   : u'{}'.format(exam.name),
-                'code'        : u'W2',
-                'title'       : u'{} - {}'.format(exam.name, question.name),
-                'is_answer'   : True,
-                'pages'       : range(pages),
-              }
+        'polyglossia': 'english',
+        'polyglossia_options': '',
+        'font': fonts.ipho['notosans'],
+        'extraheader': '',
+        'exam_name': u'{}'.format(exam.name),
+        'code': u'W2',
+        'title': u'{} - {}'.format(exam.name, question.name),
+        'is_answer': True,
+        'pages': range(pages),
+    }
     body = render_to_string('ipho_exam/tex/exam_graph.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-    question_pdf = _compile_tex(body, [
-        tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
-    ])
+    question_pdf = _compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='W')
     page = pdf.add_barcode(question_pdf, bgenerator)
     with open('test_graph.pdf', 'wb') as pdf_file:
         pdf_file.write(page)
+
 
 if __name__ == '__main__':
     print('cover')

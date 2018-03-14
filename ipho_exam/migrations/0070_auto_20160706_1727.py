@@ -5,6 +5,7 @@ from django.db import migrations, models
 
 from ipho_exam import qml
 
+
 def update_question(root):
     for obj in root.children:
         if isinstance(obj, qml.QMLpart):
@@ -14,6 +15,7 @@ def update_question(root):
             if not 'points' in obj.data:
                 obj.data = u'{} ({} points)'.format(obj.data, 10)
         update_question(obj)
+
 
 def forwards_func(apps, schema_editor):
     db_alias = schema_editor.connection.alias
@@ -29,6 +31,7 @@ def forwards_func(apps, schema_editor):
             except:
                 pass
 
+
 def backwards_func(*args, **kwargs):
     pass
 
@@ -40,5 +43,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-            migrations.RunPython(forwards_func, backwards_func),
+        migrations.RunPython(forwards_func, backwards_func),
     ]

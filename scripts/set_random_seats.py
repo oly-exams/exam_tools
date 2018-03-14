@@ -28,19 +28,20 @@ from ipho_exam.models import Place, Exam
 
 import random
 
+
 def main():
     exams = Exam.objects.all()
     print('\nFor which exam you want to generate random seats.')
     exams_ix = []
     for i, exam in enumerate(exams):
-        print('[{}] {}'.format(i+1, exam.name))
+        print('[{}] {}'.format(i + 1, exam.name))
     ix = int(input('Select index > '))
     if ix <= 0 or ix > len(exams):
         print('Index is invalid.')
         return
-    exam = exams[ix-1]
+    exam = exams[ix - 1]
     Place.objects.filter(exam=exam).delete()
-    
+
     for student in Student.objects.all():
         seat = '{}-{}{}'.format(
             random.choice(['M', 'N']),

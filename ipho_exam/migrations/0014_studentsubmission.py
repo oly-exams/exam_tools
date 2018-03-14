@@ -20,8 +20,7 @@ class Migration(migrations.Migration):
                 ('language', models.ForeignKey(to='ipho_exam.Language')),
                 ('student', models.ForeignKey(to='ipho_core.Student')),
             ],
-            options={
-            },
-            bases=(models.Model,),
+            options={},
+            bases=(models.Model, ),
         ),
     ]

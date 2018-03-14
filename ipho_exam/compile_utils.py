@@ -38,9 +38,11 @@ import requests
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
+
 ## utils
 def all_same(items):
     return all(x == items[0] for x in items)
+
 
 def student_exam_document(questions, student_languages, cover=None, job_task=None):
     meta = {}
@@ -70,7 +72,9 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                 continue
 
             print('Prepare {} in {}.'.format(question, sl.language))
-            trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
+            trans = qquery.latest_version(
+                question.pk, sl.language.pk
+            )  ## TODO: simplify latest_version, because question and language are already in memory
             if not trans.lang.is_pdf:
                 trans_content, ext_resources = trans.qml.make_tex()
                 for r in ext_resources:
@@ -78,18 +82,19 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                         r.lang = sl.language
                 ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
                 context = {
-                            'polyglossia' : sl.language.polyglossia,
-                            'polyglossia_options' : sl.language.polyglossia_options,
-                            'font'        : fonts.ipho[sl.language.font],
-                            'extraheader' : sl.language.extraheader,
-                            'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
-                            'exam_name'   : u'{}'.format(question.exam.name),
-                            'code'        : u'{}{}'.format(question.code, question.position),
-                            'title'       : u'{} - {}'.format(question.exam.name, question.name),
-                            'is_answer'   : question.is_answer_sheet(),
-                            'document'    : trans_content,
-                          }
-                body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
+                    'polyglossia': sl.language.polyglossia,
+                    'polyglossia_options': sl.language.polyglossia_options,
+                    'font': fonts.ipho[sl.language.font],
+                    'extraheader': sl.language.extraheader,
+                    'lang_name': u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
+                    'exam_name': u'{}'.format(question.exam.name),
+                    'code': u'{}{}'.format(question.code, question.position),
+                    'title': u'{} - {}'.format(question.exam.name, question.name),
+                    'is_answer': question.is_answer_sheet(),
+                    'document': trans_content,
+                }
+                body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(),
+                                                                                          context)).encode("utf-8")
                 print('Compile {} {}.'.format(question, sl.language))
                 question_pdf = pdf.compile_tex(body, ext_resources)
             else:
@@ -102,27 +107,26 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                 page = pdf.add_barcode(question_pdf, bgenerator)
                 meta['barcode_num_pages'] += doc_pages
                 all_barcodes.append(bgenerator.base)
-                all_docs.append( page )
+                all_docs.append(page)
             else:
                 all_docs.append(question_pdf)
 
             if question.is_answer_sheet() and question.working_pages > 0:
                 context = {
-                            'polyglossia' : 'english',
-                            'polyglossia_options' : '',
-                            'font'        : fonts.ipho['notosans'],
-                            'extraheader' : '',
-                            # 'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
-                            'exam_name'   : u'{}'.format(question.exam.name),
-                            'code'        : u'{}{}'.format('W', question.position),
-                            'title'       : u'{} - {}'.format(question.exam.name, question.name),
-                            'is_answer'   : question.is_answer_sheet(),
-                            'pages'       : range(question.working_pages),
-                          }
-                body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-                question_pdf = pdf.compile_tex(body, [
-                    tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
-                ])
+                    'polyglossia': 'english',
+                    'polyglossia_options': '',
+                    'font': fonts.ipho['notosans'],
+                    'extraheader': '',
+                    # 'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
+                    'exam_name': u'{}'.format(question.exam.name),
+                    'code': u'{}{}'.format('W', question.position),
+                    'title': u'{} - {}'.format(question.exam.name, question.name),
+                    'is_answer': question.is_answer_sheet(),
+                    'pages': range(question.working_pages),
+                }
+                body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(),
+                                                                                       context)).encode("utf-8")
+                question_pdf = pdf.compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
                 page = pdf.add_barcode(question_pdf, bgenerator)
 
@@ -150,16 +154,18 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
             doc_task = DocumentTask.objects.get(task_id=job_task)
             doc = doc_task.document
             api_url = settings.SITE_URL + reverse('api-exam:document-detail', kwargs=dict(pk=doc.pk))
-            r = requests.patch(api_url, allow_redirects=False, headers={
-                'ApiKey': settings.EXAM_TOOLS_API_KEYS['PDF Worker']
-            }, files={
-                'file': (meta['filename'], final_doc)
-            }, data={
-                'num_pages': meta['num_pages'],
-                'barcode_num_pages': meta['barcode_num_pages'],
-                'barcode_base': meta['barcode_base'],
-            })
-            r.raise_for_status() # or, if r.status_code == requests.codes.ok:
+            r = requests.patch(
+                api_url,
+                allow_redirects=False,
+                headers={'ApiKey': settings.EXAM_TOOLS_API_KEYS['PDF Worker']},
+                files={'file': (meta['filename'], final_doc)},
+                data={
+                    'num_pages': meta['num_pages'],
+                    'barcode_num_pages': meta['barcode_num_pages'],
+                    'barcode_base': meta['barcode_base'],
+                }
+            )
+            r.raise_for_status()  # or, if r.status_code == requests.codes.ok:
             doc_task.delete()
             print('Doc committed: {} {}{}'.format(sl.student.code, exam_code, position))
         except DocumentTask.DoesNotExist:

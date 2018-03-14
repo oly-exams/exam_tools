@@ -28,6 +28,7 @@ from ipho_core.forms import AccountRequestForm
 DEMO_MODE = getattr(settings, 'DEMO_MODE')
 DEMO_SIGN_UP = getattr(settings, 'DEMO_SIGN_UP')
 
+
 def autologin(request, token):
     if not DEMO_MODE and not request.user.has_perm('ipho_core.is_staff'):
         return HttpResponseForbidden('Only the staff can use autologin.')
@@ -37,7 +38,8 @@ def autologin(request, token):
         login(request, user)
         return redirect(redirect_to)
     else:
-        return redirect(settings.LOGIN_URL+'?next={}'.format(redirect_to))
+        return redirect(settings.LOGIN_URL + '?next={}'.format(redirect_to))
+
 
 def account_request(request):
     if not DEMO_SIGN_UP and not request.user.has_perm('ipho_core.is_staff'):
@@ -54,9 +56,10 @@ def account_request(request):
 
     return render(request, 'registration/account_request.html', {'form': form})
 
+
 @permission_required('ipho_core.is_staff')
 def list_impersonate(request):
     users = User.objects.exclude(delegation__isnull=True).exclude(autologin__isnull=True).order_by('username')
     chunk_size = max(len(users) / 6 + 1, 1)
-    grouped_users = [users[x:x+chunk_size] for x in range(0, len(users), chunk_size)]
-    return render(request, 'ipho_core/impersonate.html', {'grouped_users' : grouped_users})
+    grouped_users = [users[x:x + chunk_size] for x in range(0, len(users), chunk_size)]
+    return render(request, 'ipho_core/impersonate.html', {'grouped_users': grouped_users})

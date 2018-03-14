@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
             options={
                 'permissions': (('is_leader', 'Is a leader'), ('is_staff', 'Is an organizer')),
             },
-            bases=(models.Model,),
+            bases=(models.Model, ),
         ),
     ]

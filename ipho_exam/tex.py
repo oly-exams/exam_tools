@@ -37,7 +37,6 @@ from hashlib import md5
 from ipho_exam.models import Figure
 from exam_tools.settings import TEMPLATE_PATH
 
-
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
 CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
 CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 60)  # 1 min
@@ -51,21 +50,21 @@ def html2tex(el):
         ## Span styling
         if sel.tag in ["span"]:
             for att in sel.attrib.keys():
-                if att =='style':
+                if att == 'style':
                     if 'font-style:italic' in sel.attrib[att]:
                         result.append(u'\\textit{%s}' % (html2tex(sel)))
                     elif 'font-weight:bold' in sel.attrib[att]:
                         result.append(u'\\textbf{%s}' % (html2tex(sel)))
-                elif att =='class' and 'math-tex' in sel.attrib[att]:
+                elif att == 'class' and 'math-tex' in sel.attrib[att]:
                     if sel.text is not None and sel.text[:2] == '\(':
                         sel.text = unescape_entities(sel.text)
                         if sel.tail is not None:
                             sel.tail = unescape_entities(sel.tail)
-                        result.append( html2tex(sel) )
-                elif att =='class' and 'lang-ltr' in sel.attrib[att]:
+                        result.append(html2tex(sel))
+                elif att == 'class' and 'lang-ltr' in sel.attrib[att]:
                     result.append(u'\\textenglish{%s}' % (html2tex(sel)))
         ## Bold
-        elif sel.tag in ["b","strong"]:
+        elif sel.tag in ["b", "strong"]:
             result.append(u'\\textbf{%s}' % (html2tex(sel)))
         ## Italic
         elif sel.tag in ["i"]:
@@ -87,6 +86,7 @@ def html2tex(el):
             result.append(sel.tail)
     return u"".join(result)
 
+
 def html2tex_bs4(el):
     result = []
     if isinstance(el, NavigableString):
@@ -97,21 +97,21 @@ def html2tex_bs4(el):
         ## Span styling
         elif sel.name in ["span"]:
             for att in sel.attrs.keys():
-                if att =='style':
+                if att == 'style':
                     if 'font-style:italic' in sel.attrs[att]:
                         result.append(u'\\textit{%s}' % (html2tex_bs4(sel)))
                     elif 'font-weight:bold' in sel.attrs[att]:
                         result.append(u'\\textbf{%s}' % (html2tex(sel)))
-                elif att =='class' and 'math-tex' in sel.attrs[att]:
+                elif att == 'class' and 'math-tex' in sel.attrs[att]:
                     if sel.string is not None and sel.string[:2] == '\(':
                         if len(sel.contents) > 1:
                             print('WARNING:', 'Math with nested tags!!')
                             print(sel)
-                        result.append( unescape_entities(sel.string) )
-                elif att =='class' and 'lang-ltr' in sel.attrs[att]:
+                        result.append(unescape_entities(sel.string))
+                elif att == 'class' and 'lang-ltr' in sel.attrs[att]:
                     result.append(u'\\textenglish{%s}' % (html2tex_bs4(sel)))
         ## Bold
-        elif sel.name in ["b","strong"]:
+        elif sel.name in ["b", "strong"]:
             result.append(u'\\textbf{%s}' % (html2tex_bs4(sel)))
         ## Italic
         elif sel.name in ["i"]:
@@ -138,13 +138,16 @@ class FigureExport(object):
         self.figid = figid
         self.query = query
         self.lang = lang
+
     def save(self, dirname):
         fig = Figure.objects.get(id=self.figid)
         fig.to_file(fig_name='%s/%s' % (dirname, self.figname), query=self.query, lang=self.lang)
 
+
 class StaticExport(object):
     def __init__(self, origin):
         self.origin = origin
+
     def save(self, dirname):
         src = os.path.join(TEMPLATE_PATH, self.origin)
         dst = os.path.join(dirname, os.path.basename(src))
@@ -153,9 +156,11 @@ class StaticExport(object):
         else:
             shutil.copy2(src, dst)
 
+
 class TemplateExport(object):
     def __init__(self, origin):
         self.origin = origin
+
     def save(self, dirname):
         src = os.path.join(TEMPLATE_PATH, self.origin)
         dst = os.path.join(dirname, os.path.basename(src))

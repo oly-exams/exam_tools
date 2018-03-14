@@ -39,14 +39,15 @@ from ipho_exam.models import Feedback
 from .forms import QuestionForm, ChoiceForm, VoteForm, EndDateForm
 from .forms import ChoiceFormHelper, VoteFormHelper
 
-
 #staff views
+
 
 @login_required
 @permission_required('ipho_core.is_staff')
 @ensure_csrf_cookie
 def staffIndex(request):
     return render(request, 'ipho_poll/staffIndex.html')
+
 
 @login_required
 @permission_required('ipho_core.is_staff')
@@ -62,16 +63,16 @@ def staffIndexPartial(request, qtype):
         raise RuntimeError('No valid qtype')
     choices_list = Choice.objects.all()
 
-    return render(request, 'ipho_poll/tables/{}_questions.html'.format(qtype),
-            {
-                'questions_list'            : questions_list,
-                'choices_list'              : choices_list,
-                'VOTE_ACCEPTED'             : Question.VOTE_RESULT_META.ACCEPTED,
-                'VOTE_REJECTED'             : Question.VOTE_RESULT_META.REJECTED,
-                'VOTE_IMPLEMENTED'          : Question.IMPLEMENTATION_META.IMPL,
-                'VOTE_NOT_IMPLEMENTED'      : Question.IMPLEMENTATION_META.NOT_IMPL,
-            }
-        )
+    return render(
+        request, 'ipho_poll/tables/{}_questions.html'.format(qtype), {
+            'questions_list': questions_list,
+            'choices_list': choices_list,
+            'VOTE_ACCEPTED': Question.VOTE_RESULT_META.ACCEPTED,
+            'VOTE_REJECTED': Question.VOTE_RESULT_META.REJECTED,
+            'VOTE_IMPLEMENTED': Question.IMPLEMENTATION_META.IMPL,
+            'VOTE_NOT_IMPLEMENTED': Question.IMPLEMENTATION_META.NOT_IMPL,
+        }
+    )
 
 
 @login_required
@@ -81,7 +82,7 @@ def question(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
     choices = question.choice_set.all()
     voting_rights = VotingRight.objects.all()
-    users = User.objects.filter(votingright = voting_rights).distinct().order_by('username')
+    users = User.objects.filter(votingright=voting_rights).distinct().order_by('username')
     votes = Vote.objects.filter(choice__question=question)
     if question.is_draft():
         status = 'draft'
@@ -91,23 +92,23 @@ def question(request, question_pk):
         status = 'closed'
     ncols = 3
     num_users = len(users)
-    col_step = max(1, int(num_users/ncols))
-    cols = [users[i:i+col_step] for i in range(0, num_users, col_step)]
+    col_step = max(1, int(num_users / ncols))
+    cols = [users[i:i + col_step] for i in range(0, num_users, col_step)]
 
-
-    return render(request, 'ipho_poll/question.html',
-            {
-                'question'      : question,
-                'choices'       : choices,
-                'voting_rights' : voting_rights,
-                'cols'          : cols,
-                'votes'         : votes,
-                'status'        : status,
-                'VOTE_ACCEPTED' : Question.VOTE_RESULT_META.ACCEPTED,
-                'result_choices' : Question.VOTE_RESULT_META.choices,
-                'implementation_choices': Question.IMPLEMENTATION_META.choices,
-            }
+    return render(
+        request, 'ipho_poll/question.html', {
+            'question': question,
+            'choices': choices,
+            'voting_rights': voting_rights,
+            'cols': cols,
+            'votes': votes,
+            'status': status,
+            'VOTE_ACCEPTED': Question.VOTE_RESULT_META.ACCEPTED,
+            'result_choices': Question.VOTE_RESULT_META.choices,
+            'implementation_choices': Question.IMPLEMENTATION_META.choices,
+        }
     )
+
 
 @login_required
 @permission_required('ipho_core.is_staff')
@@ -115,7 +116,8 @@ def staff_setResult(request, question_pk, result):
     question = get_object_or_404(Question, pk=question_pk)
     question.vote_result = result
     question.save()
-    return HttpResponseRedirect(reverse('poll:question', args=(question.pk,)))
+    return HttpResponseRedirect(reverse('poll:question', args=(question.pk, )))
+
 
 @login_required
 @permission_required('ipho_core.is_staff')
@@ -123,7 +125,7 @@ def staff_setImpl(request, question_pk, impl):
     question = get_object_or_404(Question, pk=question_pk)
     question.implementation = impl
     question.save()
-    return HttpResponseRedirect(reverse('poll:question', args=(question.pk,)))
+    return HttpResponseRedirect(reverse('poll:question', args=(question.pk, )))
 
 
 @login_required
@@ -140,36 +142,20 @@ def question_large(request, question_pk):
         status = 'closed'
 
     feedbacks = question.feedbacks.all().annotate(
-         num_likes=Sum(
-             Case(When(like__status='L', then=1),
-                  output_field=IntegerField(),
-                  default=0)
-         ),
-         num_unlikes=Sum(
-             Case(When(like__status='U', then=1),
-                  output_field=IntegerField(),
-                  default=0)
-         )
+        num_likes=Sum(Case(When(like__status='L', then=1), output_field=IntegerField(), default=0)),
+        num_unlikes=Sum(Case(When(like__status='U', then=1), output_field=IntegerField(), default=0))
     ).values(
-        'num_likes',
-        'num_unlikes',
-        'pk',
-        'question__name',
-        'delegation__name',
-        'delegation__country',
-        'status',
-        'timestamp',
-        'part',
-        'comment'
+        'num_likes', 'num_unlikes', 'pk', 'question__name', 'delegation__name', 'delegation__country', 'status',
+        'timestamp', 'part', 'comment'
     )
 
-    return render(request, 'ipho_poll/question_large.html',
-            {
-                'question'      : question,
-                'choices'       : choices,
-                'status'        : status,
-                'feedbacks'     : feedbacks,
-            }
+    return render(
+        request, 'ipho_poll/question_large.html', {
+            'question': question,
+            'choices': choices,
+            'status': status,
+            'feedbacks': feedbacks,
+        }
     )
 
 
@@ -179,7 +165,9 @@ def question_large(request, question_pk):
 def addQuestion(request):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    ChoiceFormset = inlineformset_factory(Question, Choice, form=ChoiceForm, extra=0, can_delete=False, min_num=2, validate_min=True)
+    ChoiceFormset = inlineformset_factory(
+        Question, Choice, form=ChoiceForm, extra=0, can_delete=False, min_num=2, validate_min=True
+    )
     if request.method == 'POST':
         questionForm = QuestionForm(request.POST, prefix='question')
         choiceFormset = ChoiceFormset(request.POST, prefix='choices')
@@ -189,7 +177,7 @@ def addQuestion(request):
     if questionForm.is_valid() and choiceFormset.is_valid():
         new_question = questionForm.save()
         for fb in Feedback.objects.filter(vote=new_question):
-            fb.status = 'V' # scheduled for voting
+            fb.status = 'V'  # scheduled for voting
             fb.save()
         choiceFormset.instance = new_question
         choice_list = choiceFormset.save(commit=False)
@@ -199,29 +187,25 @@ def addQuestion(request):
             choice.save()
             choice_text_list.append(choice.choice_text)
         return JsonResponse({
-                    'success'           : True,
-                    'message'           : '<strong> The voting has successfully been added!</strong>',
-                    'new_title' : new_question.title,
-                    'new_question_pk'   : new_question.pk,
-                    'choice_text_list'  : choice_text_list,
-                    'type'              : 'add',
-                })
+            'success': True,
+            'message': '<strong> The voting has successfully been added!</strong>',
+            'new_title': new_question.title,
+            'new_question_pk': new_question.pk,
+            'choice_text_list': choice_text_list,
+            'type': 'add',
+        })
     else:
         context = {}
         context.update(csrf(request))
         form_html = (
-                    render_crispy_form(questionForm, context=context) +
-                    render_crispy_form(
-                                        choiceFormset,
-                                        helper=ChoiceFormHelper,
-                                        context=context
-                                        )
-                    )
+            render_crispy_form(questionForm, context=context) +
+            render_crispy_form(choiceFormset, helper=ChoiceFormHelper, context=context)
+        )
         return JsonResponse({
-                    'title'         : 'Create new voting',
-                    'form'          : form_html,
-                    'success'       : False,
-                })
+            'title': 'Create new voting',
+            'form': form_html,
+            'success': False,
+        })
 
 
 @login_required
@@ -243,29 +227,25 @@ def editQuestion(request, question_pk):
         for choice in choices:
             choice_text_list.append(choice.choice_text)
         return JsonResponse({
-                    'success'           : True,
-                    'message'           : '<strong> The voting has successfully been added!</strong>',
-                    'new_title' : question.title,
-                    'new_question_pk'   : question.pk,
-                    'choice_text_list'  : choice_text_list,
-                    'type'              : 'edit',
-                })
+            'success': True,
+            'message': '<strong> The voting has successfully been added!</strong>',
+            'new_title': question.title,
+            'new_question_pk': question.pk,
+            'choice_text_list': choice_text_list,
+            'type': 'edit',
+        })
     else:
         context = {}
         context.update(csrf(request))
         form_html = (
-                    render_crispy_form(questionForm, context=context) +
-                    render_crispy_form(
-                                        choiceFormset,
-                                        helper=ChoiceFormHelper,
-                                        context=context
-                                        )
-                    )
+            render_crispy_form(questionForm, context=context) +
+            render_crispy_form(choiceFormset, helper=ChoiceFormHelper, context=context)
+        )
         return JsonResponse({
-                    'title'         : 'Edit voting',
-                    'form'          : form_html,
-                    'success'       : False,
-                })
+            'title': 'Edit voting',
+            'form': form_html,
+            'success': False,
+        })
 
 
 @login_required
@@ -286,10 +266,9 @@ def deleteQuestion(request, question_pk):
     #
 
     return JsonResponse({
-                'success'   : True,
-                'message'   : "<strong>The voting #" + question_pk + " has been deleted successfully.</strong>"
-                })
-
+        'success': True,
+        'message': "<strong>The voting #" + question_pk + " has been deleted successfully.</strong>"
+    })
 
 
 @login_required
@@ -299,7 +278,7 @@ def setEndDate(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
     endDateForm = EndDateForm(request.POST or None, instance=question)
     if endDateForm.is_valid():
-        tzuser = tz.tzoffset(None, endDateForm.cleaned_data['utc_offset']*60)
+        tzuser = tz.tzoffset(None, endDateForm.cleaned_data['utc_offset'] * 60)
         end_date = endDateForm.cleaned_data['end_date']
         end_date = end_date.replace(tzinfo=None)
         end_date = end_date.replace(tzinfo=tzuser)
@@ -310,11 +289,11 @@ def setEndDate(request, question_pk):
         for choice in Choice.objects.filter(question=question):
             choice_text_list.append(choice.choice_text)
         return JsonResponse({
-                        'success'           : True,
-                        'message'           : '<strong> The voting is now open!</strong>',
-                        'new_title' : question.title,
-                        'new_question_pk'   : question.pk,
-                        'choice_text_list'  : choice_text_list,
+            'success': True,
+            'message': '<strong> The voting is now open!</strong>',
+            'new_title': question.title,
+            'new_question_pk': question.pk,
+            'choice_text_list': choice_text_list,
         })
     else:
         if not question.is_closed():
@@ -322,13 +301,14 @@ def setEndDate(request, question_pk):
             context.update(csrf(request))
             form_html = render_crispy_form(endDateForm, context=context)
             return JsonResponse({
-                        'success'           : False,
-                        'title'             : 'Open Vote',
-                        'form'              : form_html,
-                        'modal_body_text'   : "Select the deadline for the voting.",
+                'success': False,
+                'title': 'Open Vote',
+                'form': form_html,
+                'modal_body_text': "Select the deadline for the voting.",
             })
         else:
             raise Http404("Action not allowed")
+
 
 @login_required
 @permission_required('ipho_core.is_staff')
@@ -341,15 +321,6 @@ def removeEndDate(request, question_pk):
         question.end_date = None
         question.save()
         return HttpResponseRedirect(reverse('poll:staffIndex'))
-
-
-
-
-
-
-
-
-
 
 
 #delegation views
@@ -367,53 +338,47 @@ def voterIndex(request):
     for question in unvoted_questions_list:
         # gather voting_rights that could still be used
         voting_rights = user.votingright_set.exclude(vote__question=question)
-        VoteFormsetFactory = inlineformset_factory(Question, Vote, form=VoteForm, extra = len(voting_rights), can_delete = False)
+        VoteFormsetFactory = inlineformset_factory(
+            Question, Vote, form=VoteForm, extra=len(voting_rights), can_delete=False
+        )
         postReqest = None
         if request.POST is not None and 'q{}-TOTAL_FORMS'.format(question.pk) in request.POST:
             postReqest = request.POST
-        voteFormset = VoteFormsetFactory(postReqest, prefix='q{}'.format(question.pk), instance = question, queryset=Vote.objects.filter(voting_right__user=user), initial=[{'voting_right': vt} for vt in voting_rights])
+        voteFormset = VoteFormsetFactory(
+            postReqest,
+            prefix='q{}'.format(question.pk),
+            instance=question,
+            queryset=Vote.objects.filter(voting_right__user=user),
+            initial=[{
+                'voting_right': vt
+            } for vt in voting_rights]
+        )
         for voteForm in voteFormset:
             voteForm.fields['choice'].queryset = question.choice_set.all()
         if voteFormset.is_valid():
             if timezone.now() < question.end_date:
                 voteFormset.save()
-            just_voted += (question.pk,)
+            just_voted += (question.pk, )
             return HttpResponseRedirect(reverse('poll:voted'))
-
 
         else:
             formset_html_dict[question.pk] = render_crispy_form(voteFormset, helper=VoteFormHelper)
 
         question.feedbacks_list = question.feedbacks.all().annotate(
-             num_likes=Sum(
-                 Case(When(like__status='L', then=1),
-                      output_field=IntegerField(),
-                      default=0)
-             ),
-             num_unlikes=Sum(
-                 Case(When(like__status='U', then=1),
-                      output_field=IntegerField(),
-                      default=0)
-             )
+            num_likes=Sum(Case(When(like__status='L', then=1), output_field=IntegerField(), default=0)),
+            num_unlikes=Sum(Case(When(like__status='U', then=1), output_field=IntegerField(), default=0))
         ).values(
-            'num_likes',
-            'num_unlikes',
-            'pk',
-            'question__name',
-            'delegation__name',
-            'delegation__country',
-            'status',
-            'timestamp',
-            'part',
-            'comment'
+            'num_likes', 'num_unlikes', 'pk', 'question__name', 'delegation__name', 'delegation__country', 'status',
+            'timestamp', 'part', 'comment'
         )
     unvoted_questions_list = filter(lambda q: q.pk not in just_voted, unvoted_questions_list)
-    return render(request, 'ipho_poll/voterIndex.html',
-                {
-                    'unvoted_questions_list'    : unvoted_questions_list,
-                    'formset_list'              : formset_html_dict,
-                }
-            )
+    return render(
+        request, 'ipho_poll/voterIndex.html', {
+            'unvoted_questions_list': unvoted_questions_list,
+            'formset_list': formset_html_dict,
+        }
+    )
+
 
 def voted(request):
     return render(request, 'ipho_poll/voted.html')

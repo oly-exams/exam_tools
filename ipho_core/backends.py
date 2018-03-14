@@ -17,6 +17,7 @@
 
 from ipho_core.models import AutoLogin, User
 
+
 class TokenLoginBackend(object):
     def authenticate(self, token=None):
         if token is None:

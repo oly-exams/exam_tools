@@ -28,7 +28,8 @@ from ipho_core.models import User, AccountRequest
 
 class AccountRequestForm(ModelForm):
     user = forms.ModelChoiceField(
-        queryset=User.objects.exclude(delegation__isnull=True).exclude(autologin__isnull=True).exclude(is_superuser=True).order_by('username'),
+        queryset=User.objects.exclude(delegation__isnull=True
+                                      ).exclude(autologin__isnull=True).exclude(is_superuser=True).order_by('username'),
         to_field_name='username',
         label='Delegation'
     )
@@ -36,13 +37,7 @@ class AccountRequestForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(AccountRequestForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Field('email'),
-            Field('user'),
-            FormActions(
-                Submit('submit', 'Submit')
-            )
-        )
+        self.helper.layout = Layout(Field('email'), Field('user'), FormActions(Submit('submit', 'Submit')))
         self.helper.html5_required = True
         self.helper.form_show_labels = True
 

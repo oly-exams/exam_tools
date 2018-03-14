@@ -27,6 +27,7 @@ from crispy_forms.bootstrap import Accordion, AccordionGroup
 from ipho_exam.models import Exam
 from .models import MarkingMeta, Marking
 
+
 class ImportForm(Form):
     exam = forms.ModelChoiceField(queryset=Exam.objects.all(), label='Select exam')
 
@@ -39,10 +40,13 @@ class ImportForm(Form):
         self.helper.form_show_labels = True
         self.form_tag = True
 
+
 class PointsForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(PointsForm, self).__init__(*args, **kwargs)
-        self.fields['points'].label = '{} ({})'.format(self.instance.marking_meta.name, self.instance.marking_meta.max_points)
+        self.fields['points'].label = '{} ({})'.format(
+            self.instance.marking_meta.name, self.instance.marking_meta.max_points
+        )
         self.fields['points'].required = True
 
         self.helper = FormHelper()
@@ -51,7 +55,10 @@ class PointsForm(ModelForm):
         # self.helper.disable_csrf = False
         # self.disable_csrf = False
         self.helper.form_tag = False
+
     class Meta:
         model = Marking
-        fields = ['points',]
+        fields = [
+            'points',
+        ]
         widgets = {'points': forms.TextInput(attrs={'style': 'width:50px', 'class': 'form-control'})}

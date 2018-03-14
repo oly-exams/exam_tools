@@ -22,28 +22,44 @@ from django.contrib.auth.models import User
 
 # Register your models here.
 
+
 class AutoLoginInline(admin.StackedInline):
     model = AutoLogin
     can_delete = False
     verbose_name_plural = 'autologin'
+
+
 class UserAdmin(BaseUserAdmin):
     inlines = (AutoLoginInline, )
 
+
 class DelegationAdmin(admin.ModelAdmin):
     list_display = ('name', 'country')
-    filter_horizontal = ('members',)
+    filter_horizontal = ('members', )
+
 
 class StudentAdmin(admin.ModelAdmin):
-    fields = ('code', ('first_name', 'last_name'), 'delegation',)
-    list_display = ('code', 'last_name', 'first_name', 'delegation',)
+    fields = (
+        'code',
+        ('first_name', 'last_name'),
+        'delegation',
+    )
+    list_display = (
+        'code',
+        'last_name',
+        'first_name',
+        'delegation',
+    )
     search_fields = ('last_name', 'first_name')
     list_editable = ('first_name', 'last_name', 'delegation')
-    list_filter = ('delegation',)
+    list_filter = ('delegation', )
+
 
 class AccountRequestAdmin(admin.ModelAdmin):
     list_display = ('email', 'user', 'timestamp')
     search_fields = ('user', 'email')
-    list_filter = ('user',)
+    list_filter = ('user', )
+
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)

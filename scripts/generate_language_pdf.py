@@ -49,6 +49,7 @@ from celery.result import AsyncResult
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
+
 def compile_question(question, language):
     print('Prepare', question, 'in', language)
     try:
@@ -62,17 +63,17 @@ def compile_question(question, language):
             r.lang = language
     ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
     context = {
-                'polyglossia' : language.polyglossia,
-                'polyglossia_options' : language.polyglossia_options,
-                'font'        : fonts.ipho[language.font],
-                'extraheader' : language.extraheader,
-                'lang_name'   : u'{} ({})'.format(language.name, language.delegation.country),
-                'exam_name'   : u'{}'.format(question.exam.name),
-                'code'        : u'{}{}'.format(question.code, question.position),
-                'title'       : u'{} - {}'.format(question.exam.name, question.name),
-                'is_answer'   : question.is_answer_sheet(),
-                'document'    : trans_content.encode('utf-8'),
-              }
+        'polyglossia': language.polyglossia,
+        'polyglossia_options': language.polyglossia_options,
+        'font': fonts.ipho[language.font],
+        'extraheader': language.extraheader,
+        'lang_name': u'{} ({})'.format(language.name, language.delegation.country),
+        'exam_name': u'{}'.format(question.exam.name),
+        'code': u'{}{}'.format(question.code, question.position),
+        'title': u'{} - {}'.format(question.exam.name, question.name),
+        'is_answer': question.is_answer_sheet(),
+        'document': trans_content.encode('utf-8'),
+    }
     body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
     print('Compile...')
     try:
@@ -81,7 +82,9 @@ def compile_question(question, language):
         position = question.position
         question_code = question.code
 
-        filename = u'TRANSLATION-{}{}-{}-{}-{}.pdf'.format(exam_code, position, question_code, language.delegation.name, language.name.replace(u' ',u'_'))
+        filename = u'TRANSLATION-{}{}-{}-{}-{}.pdf'.format(
+            exam_code, position, question_code, language.delegation.name, language.name.replace(u' ', u'_')
+        )
         with open(filename.encode('utf8'), 'wb') as fp:
             fp.write(question_pdf)
         print(filename, 'DONE')
@@ -109,52 +112,54 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                 continue
 
             print('Prepare', question, 'in', sl.language)
-            trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
+            trans = qquery.latest_version(
+                question.pk, sl.language.pk
+            )  ## TODO: simplify latest_version, because question and language are already in memory
             trans_content, ext_resources = trans.qml.make_tex()
             for r in ext_resources:
                 if isinstance(r, tex.FigureExport):
                     r.lang = sl.language
             ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
             context = {
-                        'polyglossia' : sl.language.polyglossia,
-                        'polyglossia_options' : sl.language.polyglossia_options,
-                        'font'        : fonts.ipho[sl.language.font],
-                        'extraheader' : sl.language.extraheader,
-                        'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
-                        'exam_name'   : u'{}'.format(question.exam.name),
-                        'code'        : u'{}{}'.format(question.code, question.position),
-                        'title'       : u'{} - {}'.format(question.exam.name, question.name),
-                        'is_answer'   : question.is_answer_sheet(),
-                        'document'    : trans_content,
-                      }
-            body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
+                'polyglossia': sl.language.polyglossia,
+                'polyglossia_options': sl.language.polyglossia_options,
+                'font': fonts.ipho[sl.language.font],
+                'extraheader': sl.language.extraheader,
+                'lang_name': u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
+                'exam_name': u'{}'.format(question.exam.name),
+                'code': u'{}{}'.format(question.code, question.position),
+                'title': u'{} - {}'.format(question.exam.name, question.name),
+                'is_answer': question.is_answer_sheet(),
+                'document': trans_content,
+            }
+            body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(),
+                                                                                      context)).encode("utf-8")
             print('Compile', question, student, sl.language)
             question_pdf = pdf.compile_tex(body, ext_resources)
 
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student)
                 page = pdf.add_barcode(question_pdf, bgenerator)
-                all_docs.append( page )
+                all_docs.append(page)
             else:
                 all_docs.append(question_pdf)
 
             if question.is_answer_sheet() and question.working_pages > 0:
                 context = {
-                            'polyglossia' : 'english',
-                            'polyglossia_options' : '',
-                            'font'        : fonts.ipho['notosans'],
-                            'extraheader' : '',
-                            # 'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
-                            'exam_name'   : u'{}'.format(question.exam.name),
-                            'code'        : u'{}{}'.format('W', question.position),
-                            'title'       : u'{} - {}'.format(question.exam.name, question.name),
-                            'is_answer'   : question.is_answer_sheet(),
-                            'pages'       : range(question.working_pages),
-                          }
-                body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-                question_pdf = pdf.compile_tex(body, [
-                    tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
-                ])
+                    'polyglossia': 'english',
+                    'polyglossia_options': '',
+                    'font': fonts.ipho['notosans'],
+                    'extraheader': '',
+                    # 'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
+                    'exam_name': u'{}'.format(question.exam.name),
+                    'code': u'{}{}'.format('W', question.position),
+                    'title': u'{} - {}'.format(question.exam.name, question.name),
+                    'is_answer': question.is_answer_sheet(),
+                    'pages': range(question.working_pages),
+                }
+                body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(),
+                                                                                       context)).encode("utf-8")
+                question_pdf = pdf.compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
                 page = pdf.add_barcode(question_pdf, bgenerator)
                 all_docs.append(page)
@@ -171,18 +176,16 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
 
 def generate_extra_sheets(student, question, startnum, npages):
     context = {
-                'polyglossia' : 'english',
-                'polyglossia_options' : '',
-                'font'        : fonts.ipho['notosans'],
-                'exam_name'   : u'{}'.format(question.exam.name),
-                'code'        : u'{}{}'.format('Z', question.position),
-                'pages'       : range(npages),
-                'startnum'    : startnum+1,
-              }
+        'polyglossia': 'english',
+        'polyglossia_options': '',
+        'font': fonts.ipho['notosans'],
+        'exam_name': u'{}'.format(question.exam.name),
+        'code': u'{}{}'.format('Z', question.position),
+        'pages': range(npages),
+        'startnum': startnum + 1,
+    }
     body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-    question_pdf = pdf.compile_tex(body, [
-        tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')
-    ])
+    question_pdf = pdf.compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
     bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, student, qcode='Z', startnum=startnum)
     doc_pdf = pdf.add_barcode(question_pdf, bgenerator)
     return doc_pdf
@@ -190,13 +193,17 @@ def generate_extra_sheets(student, question, startnum, npages):
 
 ## Main functions
 
+
 def missing_submissions():
-    missing = Delegation.objects.filter(exam_status__exam__name='Experiment', exam_status__action=ExamAction.TRANSLATION, exam_status__status=ExamAction.OPEN).exclude(name=settings.OFFICIAL_DELEGATION)
+    missing = Delegation.objects.filter(
+        exam_status__exam__name='Experiment',
+        exam_status__action=ExamAction.TRANSLATION,
+        exam_status__status=ExamAction.OPEN
+    ).exclude(name=settings.OFFICIAL_DELEGATION)
 
     exam = Exam.objects.get(name='Experiment')
     questions = exam.question_set.all()
-    grouped_questions = {k: list(g) for k,g in itertools.groupby(questions, key=lambda q: q.position) }
-
+    grouped_questions = {k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)}
 
     for d in missing:
         students = d.student_set.all()
@@ -207,15 +214,17 @@ def missing_submissions():
                 cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat.name}
                 compile_stud_exam_question(questions, student_languages, cover=cover_ctx, commit=False)
 
+
 def compile_all():
     exams = Exam.objects.filter(name='Theory')
-    questions = Question.objects.filter(exam=exams, position__in=[1,2,3])
+    questions = Question.objects.filter(exam=exams, position__in=[1, 2, 3])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
     print('Going to compile in {} languages.'.format(len(languages)))
     for q in questions:
         for lang in languages:
             compile_question(q, lang)
     print('COMPLETED')
+
 
 if __name__ == '__main__':
     compile_all()

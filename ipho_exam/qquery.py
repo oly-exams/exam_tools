@@ -24,7 +24,6 @@ from django.template.loader import render_to_string
 from copy import deepcopy
 from collections import OrderedDict
 
-
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction
 from ipho_exam import qml
@@ -32,6 +31,7 @@ from ipho_exam import qml
 
 class Qwrapper(object):
     pass
+
 
 def latest_version(question_id, lang_id):
     q = Qwrapper()
@@ -51,6 +51,7 @@ def latest_version(question_id, lang_id):
     q.qml = qml.make_qml(q.node) if '<question' in q.node.text else qml.QMLquestion('<question id="q0" />')
 
     return q
+
 
 def get_version(question_id, lang_id, version_num):
     q = Qwrapper()

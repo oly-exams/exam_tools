@@ -19,7 +19,6 @@ from __future__ import print_function
 
 # Django settings for exam_tools project.
 
-
 # Import the OS module and work out our project's paths
 import os
 SETTINGS_DIR = os.path.dirname(__file__)
@@ -28,7 +27,7 @@ PROJECT_PATH = os.path.join(SETTINGS_DIR, os.pardir)
 PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 
 TEMPLATE_PATH = os.path.join(PROJECT_PATH, 'templates')
-STATIC_PATH   = os.path.join(PROJECT_PATH, 'static')
+STATIC_PATH = os.path.join(PROJECT_PATH, 'static')
 
 # Printing paths for sanity's sake
 if False:
@@ -37,12 +36,9 @@ if False:
     print("Templates:", TEMPLATE_PATH)
     print("Static:", STATIC_PATH)
 
-
-
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ['.uzh.ch', '.uzh.ch.']
-
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
@@ -101,7 +97,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 TEMPLATES = [
@@ -152,11 +148,9 @@ INSTALLED_APPS = (
     'ipho_core',
     'ipho_exam',
     # 'django_extensions', # Some useful utils, e.g. graph models
-
 )
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
-
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -176,7 +170,6 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-
         },
         # Log to a text file that can be rotated by logrotate
         'logfile': {
@@ -199,9 +192,8 @@ LOGGING = {
         # Your own app - this assumes all your logger names start with "myapp."
         'exam_tools': {
             'handlers': ['logfile'],
-            'level': 'DEBUG', # Or maybe INFO or DEBUG
+            'level': 'DEBUG',  # Or maybe INFO or DEBUG
             'propagate': False
         },
-
     }
 }

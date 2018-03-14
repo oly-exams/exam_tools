@@ -14,7 +14,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='examdelegationsubmission',
             name='action',
-            field=models.CharField(default='T', max_length=2, choices=[(b'T', b'Translation submission'), (b'P', b'Points submission')]),
+            field=models.CharField(
+                default='T', max_length=2, choices=[(b'T', b'Translation submission'), (b'P', b'Points submission')]
+            ),
             preserve_default=False,
         ),
         migrations.AlterUniqueTogether(

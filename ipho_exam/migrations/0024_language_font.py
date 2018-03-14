@@ -14,6 +14,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='language',
             name='font',
-            field=models.CharField(default=b'Arial Unicode MS', max_length=100, choices=[(b'Arial Unicode MS', b'Arial'), (b'Amiri', b'Amiri')]),
+            field=models.CharField(
+                default=b'Arial Unicode MS',
+                max_length=100,
+                choices=[(b'Arial Unicode MS', b'Arial'), (b'Amiri', b'Amiri')]
+            ),
         ),
     ]

@@ -13,6 +13,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='iphoperm',
-            options={'permissions': (('is_delegation', 'Is a delegation'), ('is_marker', 'Is a marker'), ('can_vote', 'Can vote'), ('is_staff', 'Is an organizer'), ('print_technopark', 'Can print in Technopark'), ('print_irchel', 'Can print in Irchel'), ('is_printstaff', 'Is a print staff'))},
+            options={
+                'permissions': (('is_delegation', 'Is a delegation'), ('is_marker',
+                                                                       'Is a marker'), ('can_vote', 'Can vote'),
+                                ('is_staff', 'Is an organizer'), ('print_technopark', 'Can print in Technopark'),
+                                ('print_irchel', 'Can print in Irchel'), ('is_printstaff', 'Is a print staff'))
+            },
         ),
     ]

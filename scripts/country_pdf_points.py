@@ -36,7 +36,6 @@ from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 from django.db.models import Sum
 
-
 from django.conf import settings
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction
@@ -47,7 +46,6 @@ OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 
-
 def compile_all():
     for delegation in Delegation.objects.exclude(name=settings.OFFICIAL_DELEGATION):
         students = Student.objects.filter(delegation=delegation).values('id', 'pk', 'code', 'first_name', 'last_name')
@@ -56,37 +54,23 @@ def compile_all():
         for student in students:
             stud_exam_points_list = Marking.objects.filter(
                 version=vid, student=student['id']
-            ).values(
-                'marking_meta__question'
-            ).annotate(
-                exam_points=Sum('points')
-            ).values(
-                'exam_points'
-            ).order_by(
-                'marking_meta__question__exam',
-                'marking_meta__question'
+            ).values('marking_meta__question').annotate(exam_points=Sum('points')).values('exam_points').order_by(
+                'marking_meta__question__exam', 'marking_meta__question'
             )
-            total = sum([ st_points['exam_points'] for st_points in stud_exam_points_list if st_points['exam_points'] is not None ])
-            points_per_student.append( (student, stud_exam_points_list, total) )
+            total = sum([
+                st_points['exam_points'] for st_points in stud_exam_points_list if st_points['exam_points'] is not None
+            ])
+            points_per_student.append((student, stud_exam_points_list, total))
 
-        exams = MarkingMeta.objects.filter(question__exam__hidden=False).values(
-            'question__exam'
-        ).annotate(
-            exam_points=Sum('max_points')
-        ).values(
-            'question__exam__code',
-            'question__position',
-            'question__exam__name',
-            'exam_points'
-        ).order_by(
-            'question__exam',
-            'question'
-        ).distinct()
-
+        exams = MarkingMeta.objects.filter(question__exam__hidden=False
+                                           ).values('question__exam').annotate(exam_points=Sum('max_points')).values(
+                                               'question__exam__code', 'question__position', 'question__exam__name',
+                                               'exam_points'
+                                           ).order_by('question__exam', 'question').distinct()
 
         results = u''
         results += u'\\vspace{2em}\n\\begin{center}\n'
-        results += u'\\begin{tabular}{'+''.join(['p{3cm}']+['p{1cm}']*(len(exams)+1))+'}\n'
+        results += u'\\begin{tabular}{' + ''.join(['p{3cm}'] + ['p{1cm}'] * (len(exams) + 1)) + '}\n'
         for i, ex in enumerate(exams):
             results += u' & '
             results += u'\\textbf{{{}-{}}}'.format(ex['question__exam__code'], ex['question__position'])
@@ -100,14 +84,15 @@ def compile_all():
         results += u'\\end{center}\n'
 
         context = {
-                    'polyglossia' : 'english',
-                    'polyglossia_options' : '',
-                    'font'        : fonts.ipho['notosans'],
-                    'extraheader' : '',
-                    'delegation'    : delegation,
-                    'results'    : results,
-                  }
-        body = render_to_string('ipho_marking/tex/exam_points.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
+            'polyglossia': 'english',
+            'polyglossia_options': '',
+            'font': fonts.ipho['notosans'],
+            'extraheader': '',
+            'delegation': delegation,
+            'results': results,
+        }
+        body = render_to_string('ipho_marking/tex/exam_points.tex', RequestContext(HttpRequest(),
+                                                                                   context)).encode("utf-8")
         with open(u'FINALPOINTS-{}.tex'.format(delegation.name), 'w') as fp:
             fp.write(body)
         continue

@@ -10,6 +10,4 @@ class Migration(migrations.Migration):
         ('ipho_exam', '0033_auto_20160505_1109'),
     ]
 
-    operations = [
-        migrations.RenameModel('ExamDelegationSubmission', 'ExamAction')
-    ]
+    operations = [migrations.RenameModel('ExamDelegationSubmission', 'ExamAction')]

@@ -19,6 +19,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='document',
             name='scan_status',
-            field=models.CharField(blank=True, max_length=10, null=True, choices=[(b'S', b'Success'), (b'W', b'Warning'), (b'M', b'Missing pages')]),
+            field=models.CharField(
+                blank=True,
+                max_length=10,
+                null=True,
+                choices=[(b'S', b'Success'), (b'W', b'Warning'), (b'M', b'Missing pages')]
+            ),
         ),
     ]

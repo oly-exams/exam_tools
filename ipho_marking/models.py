@@ -21,6 +21,7 @@ from ipho_core.models import Student
 from ipho_exam.models import Exam, Question
 from collections import OrderedDict
 
+
 class MarkingMeta(models.Model):
     question = models.ForeignKey(Question)
     name = models.CharField(max_length=10)
@@ -32,7 +33,8 @@ class MarkingMeta(models.Model):
 
     class Meta:
         ordering = ['position']
-        unique_together = index_together = (('question', 'name'),)
+        unique_together = index_together = (('question', 'name'), )
+
 
 class Marking(models.Model):
     marking_meta = models.ForeignKey(MarkingMeta)
@@ -53,4 +55,4 @@ class Marking(models.Model):
         return u'{} [{} / {}]'.format(self.marking_meta.name, self.points, self.marking_meta.max_points)
 
     class Meta:
-        unique_together = (('marking_meta', 'student', 'version'),)
+        unique_together = (('marking_meta', 'student', 'version'), )

@@ -26,29 +26,31 @@ from ipho_exam.models import *
 import json
 from io import StringIO
 
+
 def save(objs, stream):
     if type(stream) == str:
         stream = open(stream, 'w')
-    serializers.serialize('json', objs, indent=2,
-            use_natural_foreign_keys=True,
-            use_natural_primary_keys=True,
-            stream=stream)
+    serializers.serialize(
+        'json', objs, indent=2, use_natural_foreign_keys=True, use_natural_primary_keys=True, stream=stream
+    )
+
 
 def save_with_pk(objs, stream):
     if type(stream) == str:
         stream = open(stream, 'w')
-    serializers.serialize('json', objs, indent=2,
-            use_natural_foreign_keys=False,
-            use_natural_primary_keys=False,
-            stream=stream)
+    serializers.serialize(
+        'json', objs, indent=2, use_natural_foreign_keys=False, use_natural_primary_keys=False, stream=stream
+    )
+
 
 def serialize(objs, with_pk):
-  ss = StringIO()
-  if with_pk:
-    save_with_pk(objs, ss)
-  else:
-    save(objs, ss)
-  return ss.getvalue()
+    ss = StringIO()
+    if with_pk:
+        save_with_pk(objs, ss)
+    else:
+        save(objs, ss)
+    return ss.getvalue()
+
 
 orig_exam = 'Experiment - 2016'
 dest_exam = 'Experiment - Short'
@@ -69,6 +71,5 @@ nodes = VersionNode.objects.filter(question=questions).order_by('-version')
 s = serialize(nodes, with_pk=False)
 s = s.replace(orig_exam, dest_exam)
 all_data += json.loads(s)
-
 
 json.dump(all_data, open('duplicate_question.json', 'w'), indent=2)

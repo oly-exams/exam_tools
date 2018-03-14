@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
@@ -32,6 +31,7 @@ from dbbackup.storage import Storage, StorageError
 import logging
 logger = logging.getLogger('exam_tools.backups')
 
+
 def clean_old_backups():
     storage = Storage()
     keep_delta = datetime.timedelta(hours=13)
@@ -39,10 +39,11 @@ def clean_old_backups():
     now = datetime.datetime.now()
     files = sorted(files, key=utils.filename_to_date, reverse=True)
     files_to_delete = [fi for fi in files if (now - utils.filename_to_date(fi)) > keep_delta]
-    logger.info('Deleting {} files on {}. keep_delta={}'.format( len(files_to_delete), len(files), keep_delta))
+    logger.info('Deleting {} files on {}. keep_delta={}'.format(len(files_to_delete), len(files), keep_delta))
     for filename in files_to_delete:
-        logger.info('Removing ' +filename)
+        logger.info('Removing ' + filename)
         storage.delete_file(filename)
+
 
 if __name__ == '__main__':
     clean_old_backups()

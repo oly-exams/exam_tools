@@ -41,23 +41,50 @@ MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
 GOOD_OUTPUT_DIR = os.path.join(MEDIA_ROOT, 'scans-evaluated')
 BAD_OUTPUT_DIR = os.path.join(MEDIA_ROOT, 'scans-problems')
 
+
 def tiff_header_for_CCITT(width, height, img_size, CCITT_group=4):
     tiff_header_struct = '<' + '2s' + 'h' + 'l' + 'h' + 'hhll' * 8 + 'h'
-    return struct.pack(tiff_header_struct,
-                       b'II',  # Byte order indication: Little indian
-                       42,  # Version number (always 42)
-                       8,  # Offset to first IFD
-                       8,  # Number of tags in IFD
-                       256, 4, 1, width,  # ImageWidth, LONG, 1, width
-                       257, 4, 1, height,  # ImageLength, LONG, 1, lenght
-                       258, 3, 1, 1,  # BitsPerSample, SHORT, 1, 1
-                       259, 3, 1, CCITT_group,  # Compression, SHORT, 1, 4 = CCITT Group 4 fax encoding
-                       262, 3, 1, 0,  # Threshholding, SHORT, 1, 0 = WhiteIsZero
-                       273, 4, 1, struct.calcsize(tiff_header_struct),  # StripOffsets, LONG, 1, len of header
-                       278, 4, 1, height,  # RowsPerStrip, LONG, 1, lenght
-                       279, 4, 1, img_size,  # StripByteCounts, LONG, 1, size of image
-                       0  # last IFD
-                       )
+    return struct.pack(
+        tiff_header_struct,
+        b'II',  # Byte order indication: Little indian
+        42,  # Version number (always 42)
+        8,  # Offset to first IFD
+        8,  # Number of tags in IFD
+        256,
+        4,
+        1,
+        width,  # ImageWidth, LONG, 1, width
+        257,
+        4,
+        1,
+        height,  # ImageLength, LONG, 1, lenght
+        258,
+        3,
+        1,
+        1,  # BitsPerSample, SHORT, 1, 1
+        259,
+        3,
+        1,
+        CCITT_group,  # Compression, SHORT, 1, 4 = CCITT Group 4 fax encoding
+        262,
+        3,
+        1,
+        0,  # Threshholding, SHORT, 1, 0 = WhiteIsZero
+        273,
+        4,
+        1,
+        struct.calcsize(tiff_header_struct),  # StripOffsets, LONG, 1, len of header
+        278,
+        4,
+        1,
+        height,  # RowsPerStrip, LONG, 1, lenght
+        279,
+        4,
+        1,
+        img_size,  # StripByteCounts, LONG, 1, size of image
+        0  # last IFD
+    )
+
 
 def extract_tiff(obj, xObject):
     try:
@@ -76,10 +103,13 @@ def extract_tiff(obj, xObject):
     # print(img_name)
     # with open(img_name, 'wb') as img_file:
     #     img_file.write(tiff_header + data)
-    return tiff_header+data
+    return tiff_header + data
+
 
 def all_same(items):
     return all(x == items[0] for x in items)
+
+
 def detect_barcode(tiff_img):
     im = Image.open(io.BytesIO(tiff_img)).convert('L')
     width, height = im.size
@@ -99,6 +129,7 @@ def detect_barcode(tiff_img):
         raise RuntimeError('Multiple barcodes detected and they are different! {}'.format(symbols))
     else:
         return symbols[0].data
+
 
 def other_fig_formats():
     if xObject[obj]['/Filter'] == '/FlateDecode':
@@ -120,16 +151,18 @@ def other_fig_formats():
         img.write(data)
         img.close()
 
+
 def crop_page_head(tiff_img, pg):
     im = Image.open(io.BytesIO(tiff_img))
     width, height = im.size
 
     left = top = 0
     right = width
-    bottom = 0.16*height
+    bottom = 0.16 * height
     cropped_example = im.crop((left, top, right, bottom))
 
     cropped_example.save(open('page{:02d}.png'.format(pg), 'wb'), 'png')
+
 
 def page2img(fname, pg):
     with WImage(blob=page, format='pdf') as img:
@@ -137,6 +170,7 @@ def page2img(fname, pg):
         img.save(filename='pageConverted{:02d}.png'.format(pg))
         png_bytes = img.make_blob()
     return png_bytes
+
 
 def inspect_file(input):
     pages = []
@@ -152,16 +186,17 @@ def inspect_file(input):
                 pages.append((pg, converted, code))
     return pages
 
+
 def get_timestamp():
     return datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
+
 def main(input):
     pages = inspect_file(input)
-    for i,page,code in pages:
+    for i, page, code in pages:
         if code is not None:
             print(code)
     print('got', len(pages), 'pages')
-
 
 
 if __name__ == '__main__':

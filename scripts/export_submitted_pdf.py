@@ -26,11 +26,13 @@ import django
 
 from ipho_exam.models import *
 
+
 def get_id(doc):
     stud = doc.student.code
     exam = doc.exam.code
     question = doc.position
     return '{}_{}_{}'.format(stud, exam, question)
+
 
 def move_doc(doc, dest_folder):
     doc_id = get_id(doc)
@@ -40,6 +42,7 @@ def move_doc(doc, dest_folder):
         print('exported', doc_id)
     except ValueError:
         print('could not export', doc_id)
+
 
 if __name__ == '__main__':
     dest_folder = '/srv/exam_tools/backups/submission_pdf_export'

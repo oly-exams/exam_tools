@@ -1,0 +1,5 @@
+yapf
+pre-commit
+prospector
+pylint
+pylint-django
