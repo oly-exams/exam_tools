@@ -17,10 +17,8 @@
 
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# Author:  Dominik Gresch <greschd@gmx.ch>
-# Date:    14.07.2016 15:25:38 CEST
-# File:    character_count.py
+
+from __future__ import print_function
 
 import re
 import os
@@ -55,15 +53,15 @@ def count_all(language):
         language=language
     )
     return sum(get_count(t) for t in translations)
-    
+
 def get_submitted_langs():
     submissions = StudentSubmission.objects.filter(exam__name='Theory')
     return set(s.language for s in submissions)
-    
+
 if __name__ == '__main__':
     langs = get_submitted_langs()
     Result = collections.namedtuple('Result', ['lang', 'count'])
     res = [Result(lang=l, count=count_all(l)) for l in langs]
-    
+
     for x in sorted(res, key=operator.attrgetter('count')):
-        print '{0.lang}: {0.count}'.format(x)
+        print('{0.lang}: {0.count}'.format(x))

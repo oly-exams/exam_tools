@@ -17,6 +17,8 @@
 
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
@@ -28,7 +30,7 @@ from PyPDF2 import PdfFileWriter, PdfFileReader
 import io, struct, zbar
 from PIL import Image
 from wand.image import Image as WImage
-from StringIO import StringIO
+from io import StringIO
 import shutil, os
 import datetime
 
@@ -71,7 +73,7 @@ def extract_tiff(obj, xObject):
     img_size = len(data)
     tiff_header = tiff_header_for_CCITT(width, height, img_size, CCITT_group)
     img_name = obj[1:] + '.tiff'
-    # print img_name
+    # print(img_name)
     # with open(img_name, 'wb') as img_file:
     #     img_file.write(tiff_header + data)
     return tiff_header+data
@@ -121,12 +123,12 @@ def other_fig_formats():
 def crop_page_head(tiff_img, pg):
     im = Image.open(io.BytesIO(tiff_img))
     width, height = im.size
-    
+
     left = top = 0
     right = width
     bottom = 0.16*height
     cropped_example = im.crop((left, top, right, bottom))
-    
+
     cropped_example.save(open('page{:02d}.png'.format(pg), 'wb'), 'png')
 
 def page2img(fname, pg):
@@ -140,8 +142,8 @@ def inspect_file(input):
     pages = []
     with WImage(blob=input, format='pdf', resolution=300) as img:
         npages = len(img.sequence)
-        print 'npages:', npages
-        for pg in xrange(npages):
+        print('npages:', npages)
+        for pg in range(npages):
             with WImage(img.sequence[pg]).convert('png') as converted:
                 # converted.save(filename='pageConverted{:02d}.png'.format(pg))
                 img_bytes = converted.make_blob()
@@ -157,8 +159,8 @@ def main(input):
     pages = inspect_file(input)
     for i,page,code in pages:
         if code is not None:
-            print code
-    print 'got', len(pages), 'pages'
+            print(code)
+    print('got', len(pages), 'pages')
 
 
 

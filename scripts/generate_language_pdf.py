@@ -17,8 +17,11 @@
 
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+import itertools
 
 import django
 django.setup()
@@ -47,11 +50,11 @@ OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 def compile_question(question, language):
-    print 'Prepare', question, 'in', language
+    print('Prepare', question, 'in', language)
     try:
         trans = qquery.latest_version(question.pk, language.pk)
     except:
-        print 'NOT-FOUND'
+        print('NOT-FOUND')
         return
     trans_content, ext_resources = trans.qml.make_tex()
     for r in ext_resources:
@@ -71,7 +74,7 @@ def compile_question(question, language):
                 'document'    : trans_content.encode('utf-8'),
               }
     body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-    print 'Compile...'
+    print('Compile...')
     try:
         question_pdf = pdf.compile_tex(body, ext_resources)
         exam_code = question.exam.code
@@ -81,10 +84,10 @@ def compile_question(question, language):
         filename = u'TRANSLATION-{}{}-{}-{}-{}.pdf'.format(exam_code, position, question_code, language.delegation.name, language.name.replace(u' ',u'_'))
         with open(filename.encode('utf8'), 'wb') as fp:
             fp.write(question_pdf)
-        print filename, 'DONE'
+        print(filename, 'DONE')
     except Exception as e:
-        print 'ERROR'
-        print e
+        print('ERROR')
+        print(e)
 
 
 def compile_stud_exam_question(questions, student_languages, cover=None, commit=False):
@@ -105,7 +108,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
             if question.is_answer_sheet() and not sl.with_answer:
                 continue
 
-            print 'Prepare', question, 'in', sl.language
+            print('Prepare', question, 'in', sl.language)
             trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
             trans_content, ext_resources = trans.qml.make_tex()
             for r in ext_resources:
@@ -125,7 +128,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                         'document'    : trans_content,
                       }
             body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
-            print 'Compile', question, student, sl.language
+            print('Compile', question, student, sl.language)
             question_pdf = pdf.compile_tex(body, ext_resources)
 
             if question.is_answer_sheet():
@@ -163,7 +166,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
     final_doc = pdf.concatenate_documents(all_docs)
     with open(filename, 'wb') as fp:
         fp.write(final_doc)
-    print filename, 'DONE'
+    print(filename, 'DONE')
 
 
 def generate_extra_sheets(student, question, startnum, npages):
@@ -208,11 +211,11 @@ def compile_all():
     exams = Exam.objects.filter(name='Theory')
     questions = Question.objects.filter(exam=exams, position__in=[1,2,3])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
-    print 'Going to compile in {} languages.'.format(len(languages))
+    print('Going to compile in {} languages.'.format(len(languages)))
     for q in questions:
         for lang in languages:
             compile_question(q, lang)
-    print 'COMPLETED'
+    print('COMPLETED')
 
 if __name__ == '__main__':
     compile_all()

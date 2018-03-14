@@ -92,7 +92,7 @@ def question(request, question_pk):
     ncols = 3
     num_users = len(users)
     col_step = max(1, int(num_users/ncols))
-    cols = [users[i:i+col_step] for i in xrange(0, num_users, col_step)]
+    cols = [users[i:i+col_step] for i in range(0, num_users, col_step)]
 
 
     return render(request, 'ipho_poll/question.html',

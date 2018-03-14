@@ -25,7 +25,7 @@ from django.conf import settings
 from django.core import serializers
 from ipho_exam.models import *
 import json
-from StringIO import StringIO
+from io import StringIO
 
 def save(objs, stream):
     if type(stream) == str:

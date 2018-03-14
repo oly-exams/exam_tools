@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
@@ -38,8 +39,8 @@ def main():
         marking.points = round(r * marking.marking_meta.max_points, 1)
         marking.save()
         if i%100 == 1:
-            print "markings changed:", i
+            print("markings changed:", i)
         i += 1
 
 if __name__ == '__main__':
-    print main()
+    print(main())

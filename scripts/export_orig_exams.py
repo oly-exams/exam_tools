@@ -26,7 +26,7 @@ from django.core import serializers
 from ipho_core.models import Delegation
 from ipho_exam.models import *
 import json
-from StringIO import StringIO
+from io import StringIO
 
 def save(objs, stream):
     if type(stream) == str:

@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import str
+
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User, Group
@@ -43,7 +45,7 @@ class AutoLogin(models.Model):
     token = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
 
     def __unicode__(self):
-        return unicode(self.token)
+        return str(self.token)
 
     def natural_key(self):
         return self.user.natural_key()

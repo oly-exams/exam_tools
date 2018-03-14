@@ -20,7 +20,7 @@ from barcode.writer import ImageWriter, SVGWriter
 import qrcode
 import qrcode.image.svg
 from lxml import etree
-from StringIO import StringIO
+from io import StringIO
 import cairosvg
 
 class QuestionBarcodeGen(object):

@@ -15,14 +15,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 # Django settings for exam_tools project.
 from settings_common import *
 
 # Printing paths for sanity's sake
-print "Settings directory:", SETTINGS_DIR
-print "Project root:", PROJECT_PATH
-print "Templates:", TEMPLATE_PATH
-print "Static:", STATIC_PATH
+print("Settings directory:", SETTINGS_DIR)
+print("Project root:", PROJECT_PATH)
+print("Templates:", TEMPLATE_PATH)
+print("Static:", STATIC_PATH)
 
 
 DEBUG = True
@@ -49,5 +51,3 @@ DATABASES = {
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '^t-a=sbo_05wq!*(x4mpv7kw&u_n=5js$lwadn_yx(bzx*fzjw'
-
-

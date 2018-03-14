@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
+from builtins import str 
+
 import logging
 
 # coding=utf-8
@@ -654,7 +658,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
     ])
 
     for row in feedbacks:
-        writer.writerow([c.encode('utf8') if type(c)==unicode else c for c in row])
+        writer.writerow([c.encode('utf8') if isinstance(c, str) else c for c in row])
 
     return response
 
@@ -1843,7 +1847,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
         question_task = question_utils.compile_stud_exam_question(qgroup, student_languages)
         result = question_task.delay()
         all_tasks.append(result)
-        print 'Group', position, 'done.'
+        print('Group', position, 'done.')
     filename = u'Exam - {} - {}.pdf'.format(exam.name, student.code)
     chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
     #chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()

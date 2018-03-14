@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
@@ -61,7 +63,7 @@ def main(input):
                     language=language,
                     defaults={'text': '<question id="q0" />'}
                 )
-        print row['Username'], '...', 'imported.'
+        print(row['Username'], '...', 'imported.')
 
 
 if __name__ == '__main__':

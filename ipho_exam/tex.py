@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
+from builtins import str
+
 from django.template.loader import get_template, render_to_string
 from django.template import TemplateDoesNotExist, Context
 from django.http import HttpResponse, Http404, HttpResponseNotModified
@@ -86,10 +90,10 @@ def html2tex(el):
 def html2tex_bs4(el):
     result = []
     if isinstance(el, NavigableString):
-        return unicode(el)
+        return str(el)
     for sel in el.children:
         if isinstance(sel, NavigableString):
-            result.append(unicode(sel))
+            result.append(str(sel))
         ## Span styling
         elif sel.name in ["span"]:
             for att in sel.attrs.keys():
@@ -101,8 +105,8 @@ def html2tex_bs4(el):
                 elif att =='class' and 'math-tex' in sel.attrs[att]:
                     if sel.string is not None and sel.string[:2] == '\(':
                         if len(sel.contents) > 1:
-                            print 'WARNING:', 'Math with nested tags!!'
-                            print sel
+                            print('WARNING:', 'Math with nested tags!!')
+                            print(sel)
                         result.append( unescape_entities(sel.string) )
                 elif att =='class' and 'lang-ltr' in sel.attrs[att]:
                     result.append(u'\\textenglish{%s}' % (html2tex_bs4(sel)))

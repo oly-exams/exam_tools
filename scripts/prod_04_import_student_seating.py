@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
@@ -37,9 +39,9 @@ def main(input):
             Place.objects.get_or_create(student=student, exam=theory, name=row['seat_theory'])
             Place.objects.get_or_create(student=student, exam=experiment, name=row['seat_experiment'])
 
-            print row['individual_id'], '.....', 'imported.'
+            print(row['individual_id'], '.....', 'imported.')
         except Student.DoesNotExist:
-            print 'Skip', row['individual_id'], 'because delegation does not exist.'
+            print('Skip', row['individual_id'], 'because delegation does not exist.')
 
 
 if __name__ == '__main__':

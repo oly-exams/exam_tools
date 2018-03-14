@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
+from builtins import str, bytes
+
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import ParseError
 from bs4 import BeautifulSoup
@@ -102,12 +106,12 @@ def content2string(node):
     return ''.join(filter(None, parts))
 
 def normalize_html(data):
-    data = unicode(data).replace('<p>&nbsp;</p>', '__EMPTYPP__').replace('<p>&#160;</p>', '__EMPTYPP__').replace(u'<p>{}</p>'.format(unichr(160)), '__EMPTYPP__').replace('&nbsp;', ' ').replace('&#160;', ' ').replace(unichr(160), u' ').replace('__EMPTYPP__', '<p>&nbsp;</p>')
+    data = str(data).replace('<p>&nbsp;</p>', '__EMPTYPP__').replace('<p>&#160;</p>', '__EMPTYPP__').replace(u'<p>{}</p>'.format(unichr(160)), '__EMPTYPP__').replace('&nbsp;', ' ').replace('&#160;', ' ').replace(unichr(160), u' ').replace('__EMPTYPP__', '<p>&nbsp;</p>')
     xhtmlout = BeautifulSoup(data, "html5lib")
     try:
-        return ''.join([unicode(el) for el in xhtmlout.body.contents])
+        return ''.join([str(el) for el in xhtmlout.body.contents])
     except:
-        return unicode(xhtmlout)
+        return str(xhtmlout)
 
 mathtex_pattern = re.compile(r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</span>')
 def escape_equations(txt):
@@ -193,9 +197,9 @@ class QMLobject(object):
         self.tag : Tag to be used by the class.
         self.parse(xml) : Parser of xml object. Default implementation.
         """
-        if type(xml) == str:
+        if isinstance(xml, bytes):
             root = ET.fromstring(xml)
-        elif type(xml) == unicode:
+        elif isinstance(xml, str):
             root = ET.fromstring(xml.encode('utf-8'))
         else:
             root = xml
@@ -610,12 +614,12 @@ class QMLfigure(QMLobject):
         width = self.attributes.get('width', 0.9) # 0.9 is the default value
 
         texout = u''
-        texout += unicode(r'\vspace{0.5cm}\begin{minipage}{\textwidth}\centering') + u'\n'
+        texout += str(r'\vspace{0.5cm}\begin{minipage}{\textwidth}\centering') + u'\n'
         texout += u'\\includegraphics[width={}\\textwidth]{{{}}}\n'.format(width, figname)
         if len(fig_caption) > 0:
-            texout += unicode('\n' + r'\vspace{0.1cm}' + '\n')
+            texout += str('\n' + r'\vspace{0.1cm}' + '\n')
             texout += u'\\pbox[b]{0.9\\textwidth}{%s}\n' % fig_caption
-        texout += unicode(r'\end{minipage}\vspace{0.5cm}') + u'\n\n'
+        texout += str(r'\end{minipage}\vspace{0.5cm}') + u'\n\n'
 
         externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
 
@@ -735,13 +739,13 @@ class QMLlatex(QMLobject):
     default_attributes = {'content': ''}
 
     def make_tex(self):
-        content = unicode(self.attributes['content']) + u'\n\n'
+        content = str(self.attributes['content']) + u'\n\n'
         content = content.replace(u'\\n',u'\n')
 
         query = {}
         for c in self.children:
             if c.tag == 'texparam':
-                content = re.sub(ur'({{ *%s *}})' % c.attributes['name'], c.data, content)
+                content = re.sub(r'({{ *%s *}})' % c.attributes['name'], c.data, content)
                 content.replace(u'{{ %s }}' % c.attributes['name'], c.data)
         return content, []
 
@@ -766,13 +770,13 @@ class QMLlatexEnv(QMLobject):
     default_attributes = {'name': ''}
 
     def tex_begin(self):
-        return unicode(r'\begin{{{}}}{}'.format(
+        return str(r'\begin{{{}}}{}'.format(
             self.attributes['name'],
             self.attributes.get('arguments', '')
         ))
 
     def tex_end(self):
-        return unicode(r'\end{{{}}}'.format(self.attributes['name']))
+        return str(r'\end{{{}}}'.format(self.attributes['name']))
 
 class QMLtable(QMLobject):
     tag = "table"
@@ -794,7 +798,7 @@ class QMLtable(QMLobject):
     def _columns(self):
         try:
             # The rows attribute is a plain tex specifier, like |l|r|l|
-            return unicode(self.attributes['columns'])
+            return str(self.attributes['columns'])
         # If this is not given, the width must be set.
         except KeyError:
             return (
@@ -808,7 +812,7 @@ class QMLtable(QMLobject):
     @property
     def _arraystretch(self):
         try:
-            return unicode(r'\renewcommand{{\arraystretch}}{{{}}}'.format(self.attributes['arraystretch']))
+            return str(r'\renewcommand{{\arraystretch}}{{{}}}'.format(self.attributes['arraystretch']))
         except KeyError:
             return u''
 
@@ -820,16 +824,16 @@ class QMLtable(QMLobject):
 
     def tex_begin(self):
         return (
-            unicode(r'\vspace{0.5cm}') +
+            str(r'\vspace{0.5cm}') +
             u'\\begin{center}' + self._arraystretch +
             '\\begin{tabular}{' + self._columns + u'}' +
             int(self.attributes['top_line']) * u'\\hline' + u'\n'
         )
 
     def tex_end(self):
-        tex = unicode(r'\end{tabular}\end{center}')
+        tex = str(r'\end{tabular}\end{center}')
         tex += u''.join(c.make_tex()[0] for c in self.captions)
-        tex += unicode(r'\vspace{0.5cm}') + u'\n\n'
+        tex += str(r'\vspace{0.5cm}') + u'\n\n'
         return tex
 
     def xhtml_begin(self):

@@ -17,6 +17,8 @@
 
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 import shutil
@@ -51,11 +53,11 @@ BASE_PATH = u'../media/language_tex'
 REPLACEMENTS = [('/srv/exam_tools/app/static/noto', '.'), ('/srv/exam_tools/app/static', '.')]
 
 def compile_question(question, language, logo_file):
-    print 'Prepare', question, 'in', language
+    print('Prepare', question, 'in', language)
     try:
         trans = qquery.latest_version(question.pk, language.pk)
     except:
-        print 'NOT-FOUND'
+        print('NOT-FOUND')
         return
     trans_content, ext_resources = trans.qml.make_tex()
     for r in ext_resources:
@@ -119,17 +121,17 @@ def compile_question(question, language, logo_file):
         shutil.copyfile('/srv/exam_tools/static/' + logo_file, os.path.join(folder, logo_file))
         shutil.make_archive(folder, 'zip', root_dir=BASE_PATH, base_dir=base_folder)
     except Exception as e:
-        print 'ERROR', e
+        print('ERROR', e)
 
 def export_all(logo_file):
     exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
     questions = Question.objects.filter(exam=exams, position__in=[1,2,3])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
-    print 'Going to export in {} languages.'.format(len(languages))
+    print('Going to export in {} languages.'.format(len(languages)))
     for q in questions:
         for lang in languages:
             compile_question(q, lang, logo_file)
-    print 'COMPLETED'
+    print('COMPLETED')
 
 if __name__ == '__main__':
     export_all('apho17_logo_bw.pdf')
