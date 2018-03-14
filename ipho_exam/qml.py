@@ -20,7 +20,7 @@ from __future__ import unicode_literals, absolute_import
 from builtins import str, bytes, chr
 
 from future.standard_library import install_aliases
-install_aliases
+install_aliases()
 
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import ParseError
