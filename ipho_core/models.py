@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
 from builtins import str
 
 from django.db import models
@@ -24,7 +25,7 @@ import uuid
 
 class IphoPerm(models.Model):
     pass
-    class Meta:
+    class Meta(object):
             permissions = (
                 ('is_delegation', 'Is a delegation'),
                 ('is_marker', 'Is a marker'),
@@ -60,7 +61,7 @@ class Delegation(models.Model):
     country = models.CharField(unique=True,max_length=100)
     members = models.ManyToManyField(User, blank=True)
 
-    class Meta:
+    class Meta(object):
         ordering = ['name']
 
     def natural_key(self):
@@ -81,7 +82,7 @@ class Student(models.Model):
     delegation     = models.ForeignKey(Delegation)
     # exam_languages = models.ManyToManyField(Language)
 
-    class Meta:
+    class Meta(object):
         ordering = ['code']
 
     def natural_key(self):
@@ -95,7 +96,7 @@ class AccountRequest(models.Model):
     user      = models.ForeignKey(User)
     timestamp = models.DateTimeField(auto_now=True)
 
-    class Meta:
+    class Meta(object):
         ordering = ['-timestamp']
 
     def __unicode__(self):

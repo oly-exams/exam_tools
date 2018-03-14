@@ -28,6 +28,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
+from builtins import range
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
@@ -522,7 +523,7 @@ def compile_blank():
                 'code'        : u'W2',
                 'title'       : u'{} - {}'.format(exam.name, question.name),
                 'is_answer'   : True,
-                'pages'       : range(pages),
+                'pages'       : list(range(pages)),
               }
     body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
     question_pdf = _compile_tex(body, [
@@ -545,7 +546,7 @@ def compile_graph():
                 'code'        : u'W2',
                 'title'       : u'{} - {}'.format(exam.name, question.name),
                 'is_answer'   : True,
-                'pages'       : range(pages),
+                'pages'       : list(range(pages)),
               }
     body = render_to_string('ipho_exam/tex/exam_graph.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
     question_pdf = _compile_tex(body, [

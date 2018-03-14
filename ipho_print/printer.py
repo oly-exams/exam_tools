@@ -15,12 +15,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from future import standard_library
+standard_library.install_aliases()
 import os
 import requests
 from django.conf import settings
 import json
 from copy import deepcopy
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from future.standard_library import install_aliases
 install_aliases()

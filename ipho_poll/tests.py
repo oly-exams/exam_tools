@@ -1,3 +1,4 @@
+from __future__ import division
 # Exam Tools
 #
 # Copyright (C) 2014 - 2017 Oly Exams Team
@@ -47,6 +48,7 @@
 
 
 
+from past.utils import old_div
 import datetime
 
 from django.utils import timezone
@@ -110,7 +112,7 @@ class QuestionMethodTests(TestCase):
         was_published_recently() should return True for questions whose pub_date
         is within the last day.
         """
-        recent_question = create_question(title="Recent Question.", days=-1/24)
+        recent_question = create_question(title="Recent Question.", days=old_div(-1,24))
         self.assertEqual(recent_question.was_published_recently(), True)
 
 

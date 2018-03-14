@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
 from django import forms
 from django.forms import ModelForm, Form, HiddenInput, DateInput, RadioSelect
 from crispy_forms.helper import FormHelper
@@ -37,7 +38,7 @@ class QuestionForm(ModelForm):
         self.helper.form_tag = False
         self.helper.disable_csrf = True
 
-    class Meta:
+    class Meta(object):
         model = Question
         fields = ['title', 'content', 'feedbacks']
 
@@ -60,14 +61,14 @@ class EndDateForm(ModelForm):
         self.helper.form_tag = False
         self.helper.disable_csrf = True
         self.helper.include_media = True
-    class Meta:
+    class Meta(object):
         model = Question
         fields = ['end_date']
         widgets={'end_date': HiddenInput()}
 
 
 class ChoiceForm(ModelForm):
-    class Meta:
+    class Meta(object):
         model = Choice
         fields = ['label', 'choice_text']
         widgets = {
@@ -101,7 +102,7 @@ class VoteForm(ModelForm):
         elif not self.is_bound:
             self.fields['choice'].label = self.initial['voting_right']
         ## Note: in the case of a bound form the label will still be "Choice". Unfortunately I didn't find a workaround
-    class Meta:
+    class Meta(object):
         model = Vote
         fields = ['choice', 'question', 'voting_right']
         widgets={'choice': RadioSelect(), 'voting_right': HiddenInput()}

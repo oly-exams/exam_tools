@@ -26,7 +26,7 @@ def main():
         student_seat = Place.objects.get(exam=exam, student=student)
         questions = exam.question_set.all()
         grouped_questions = {k: list(g) for k,g in itertools.groupby(questions, key=lambda q: q.position) }
-        for position, qgroup in grouped_questions.items():
+        for position, qgroup in list(grouped_questions.items()):
             doc,_ = Document.objects.get_or_create(exam=exam, student=student, position=position)
             cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat.name}
             question_task = tasks.student_exam_document.s(qgroup, student_languages, cover=cover_ctx, commit=True)
@@ -38,7 +38,7 @@ def main():
 
 
 if __name__ == '__main__':
-  c = input('Do you want to proceed? Yes/No > ')
+  c = eval(input('Do you want to proceed? Yes/No > '))
   if not c in ['y', 'yes', 'Y', 'Yes']:
     sys.exit()
   main()

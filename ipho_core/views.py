@@ -1,3 +1,4 @@
+from __future__ import division
 # Exam Tools
 #
 # Copyright (C) 2014 - 2017 Oly Exams Team
@@ -15,6 +16,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import range
+from past.utils import old_div
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import HttpResponseForbidden
@@ -57,6 +60,6 @@ def account_request(request):
 @permission_required('ipho_core.is_staff')
 def list_impersonate(request):
     users = User.objects.exclude(delegation__isnull=True).exclude(autologin__isnull=True).order_by('username')
-    chunk_size = max(len(users) / 6 + 1, 1)
+    chunk_size = max(old_div(len(users), 6) + 1, 1)
     grouped_users = [users[x:x+chunk_size] for x in range(0, len(users), chunk_size)]
     return render(request, 'ipho_core/impersonate.html', {'grouped_users' : grouped_users})

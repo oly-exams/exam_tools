@@ -17,6 +17,9 @@
 
 from __future__ import unicode_literals, absolute_import
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 from builtins import str, bytes, chr
 
 from future.standard_library import install_aliases
@@ -37,7 +40,7 @@ from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.utils.text import unescape_entities
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from django.core.urlresolvers import reverse
 
 from .models import Figure
@@ -107,7 +110,7 @@ def content2string(node):
               # We assume that `node` is a pure QML tag, therefore we don't consider the tail.
               # +[node.tail])
     # filter removes possible Nones in texts and tails
-    return ''.join(filter(None, parts))
+    return ''.join([_f for _f in parts if _f])
 
 def normalize_html(data):
     data = str(data).replace('<p>&nbsp;</p>', '__EMPTYPP__').replace('<p>&#160;</p>', '__EMPTYPP__').replace(u'<p>{}</p>'.format(chr(160)), '__EMPTYPP__').replace('&nbsp;', ' ').replace('&#160;', ' ').replace(chr(160), u' ').replace('__EMPTYPP__', '<p>&nbsp;</p>')
@@ -391,7 +394,7 @@ class QMLobject(object):
         return ix
 
     def delete(self, search_id):
-        self.children = filter(lambda c: c.id != search_id, self.children)
+        self.children = [c for c in self.children if c.id != search_id]
         for c in self.children:
             c.delete(search_id)
 

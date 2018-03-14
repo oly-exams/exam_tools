@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import chr
+from builtins import object
 from django.utils import timezone
 from django.db import models
 from ipho_core.models import Delegation
@@ -43,7 +45,7 @@ class QuestionManager(models.Manager):
 
 
 class Question(models.Model):
-    class VOTE_RESULT_META:
+    class VOTE_RESULT_META(object):
         OPEN     = 0
         REJECTED = 1
         ACCEPTED = 2
@@ -52,7 +54,7 @@ class Question(models.Model):
             (REJECTED, 'Rejected'),
             (ACCEPTED, 'Accepted'),
         )
-    class IMPLEMENTATION_META:
+    class IMPLEMENTATION_META(object):
         NOT_IMPL = 0
         IMPL     = 1
         choices = (
@@ -111,7 +113,7 @@ class Choice(models.Model):
         return Vote.objects.filter(choice = self).count()
     votes = property(calculateVotes)
 
-    class Meta:
+    class Meta(object):
         ordering = ['label']
 
 class VotingRight(models.Model):
@@ -129,5 +131,5 @@ class Vote(models.Model):
     def __str__(self):
         return self.choice.__str__()
 
-    class Meta:
+    class Meta(object):
         unique_together = (('question', 'voting_right'))

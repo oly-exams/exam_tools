@@ -106,8 +106,8 @@ def compile_question(question, language, logo_file):
         with open(os.path.join(folder, 'ipho2016.cls'), 'w') as f:
             f.write(tex_cls)
 
-        used_fonts = [v for k, v in fonts.ipho[language.font].items() if isinstance(v, str) and v.endswith('.ttf')]
-        used_fonts.extend([v for k, v in fonts.ipho['notosans'].items() if isinstance(v, str) and v.endswith('.ttf')])
+        used_fonts = [v for k, v in list(fonts.ipho[language.font].items()) if isinstance(v, str) and v.endswith('.ttf')]
+        used_fonts.extend([v for k, v in list(fonts.ipho['notosans'].items()) if isinstance(v, str) and v.endswith('.ttf')])
         used_fonts = set(used_fonts)
 
         for f in used_fonts:

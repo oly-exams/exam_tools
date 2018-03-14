@@ -1,3 +1,4 @@
+from __future__ import division
 # Exam Tools
 #
 # Copyright (C) 2014 - 2017 Oly Exams Team
@@ -15,6 +16,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import range
+from past.utils import old_div
 import barcode
 from barcode.writer import ImageWriter, SVGWriter
 import qrcode
@@ -38,7 +41,7 @@ h = float(bcode_raw.attrib['height'].replace('mm',''))
 img_h = h+5
 img.save('outcode_raw.svg')
 bcode_raw.tag = 'g'
-bcode_raw.attrib['transform'] = 'translate({}mm,0)'.format((img_w-w)/2.)
+bcode_raw.attrib['transform'] = 'translate({}mm,0)'.format(old_div((img_w-w),2.))
 del bcode_raw.attrib['height']
 del bcode_raw.attrib['width']
 del bcode_raw.attrib['version']
@@ -53,7 +56,7 @@ bcode_xml = etree.Element('svg', {
 
 text_xml = etree.Element('text')
 text_xml.attrib['text-anchor'] = 'middle'
-text_xml.attrib['x'] = '{}mm'.format((img_w-w)/2. + w/2.)
+text_xml.attrib['x'] = '{}mm'.format(old_div((img_w-w),2.) + old_div(w,2.))
 text_xml.attrib['y'] = '{}mm'.format(h+2)
 text_xml.attrib['font-size'] = '14'
 text_xml.attrib['font-family'] = 'Verdana'
@@ -87,7 +90,7 @@ def add_barcode(fname):
         page = pdfdoc.getPage(i)
         pbox = page.artBox
         pwidth = (pbox.upperRight[0] - pbox.upperLeft[0])
-        x = float(pbox.upperLeft[0]) + float(pwidth-wwidth) / 2.
+        x = float(pbox.upperLeft[0]) + old_div(float(pwidth-wwidth), 2.)
         page.mergeTranslatedPage(watermark, x, pbox.upperLeft[1]-wbox.upperLeft[1]-20)
         output.addPage(page)
 

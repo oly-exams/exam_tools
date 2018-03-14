@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
 from rest_framework import serializers
 from ipho_exam.models import Document
 
@@ -22,6 +23,6 @@ from ipho_exam.models import Document
 class DocumentSerializer(serializers.ModelSerializer):
     student = serializers.SlugRelatedField(slug_field='code', read_only=True)
     exam    = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    class Meta:
+    class Meta(object):
         model = Document
         fields = '__all__'

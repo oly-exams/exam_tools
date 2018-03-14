@@ -17,6 +17,7 @@
 
 from __future__ import print_function
 
+from builtins import object
 from builtins import str
 
 from django.template.loader import get_template, render_to_string
@@ -50,7 +51,7 @@ def html2tex(el):
     for sel in el:
         ## Span styling
         if sel.tag in ["span"]:
-            for att in sel.attrib.keys():
+            for att in list(sel.attrib.keys()):
                 if att =='style':
                     if 'font-style:italic' in sel.attrib[att]:
                         result.append(u'\\textit{%s}' % (html2tex(sel)))
@@ -96,7 +97,7 @@ def html2tex_bs4(el):
             result.append(str(sel))
         ## Span styling
         elif sel.name in ["span"]:
-            for att in sel.attrs.keys():
+            for att in list(sel.attrs.keys()):
                 if att =='style':
                     if 'font-style:italic' in sel.attrs[att]:
                         result.append(u'\\textit{%s}' % (html2tex_bs4(sel)))

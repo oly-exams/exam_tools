@@ -19,6 +19,7 @@
 
 from __future__ import print_function
 
+from builtins import range
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 import itertools
@@ -149,7 +150,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                             'code'        : u'{}{}'.format('W', question.position),
                             'title'       : u'{} - {}'.format(question.exam.name, question.name),
                             'is_answer'   : question.is_answer_sheet(),
-                            'pages'       : range(question.working_pages),
+                            'pages'       : list(range(question.working_pages)),
                           }
                 body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
                 question_pdf = pdf.compile_tex(body, [
@@ -176,7 +177,7 @@ def generate_extra_sheets(student, question, startnum, npages):
                 'font'        : fonts.ipho['notosans'],
                 'exam_name'   : u'{}'.format(question.exam.name),
                 'code'        : u'{}{}'.format('Z', question.position),
-                'pages'       : range(npages),
+                'pages'       : list(range(npages)),
                 'startnum'    : startnum+1,
               }
     body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context)).encode("utf-8")
@@ -202,7 +203,7 @@ def missing_submissions():
         students = d.student_set.all()
         for student in students:
             student_seat = Place.objects.get(student=student, exam=exam)
-            for position, qgroup in grouped_questions.items():
+            for position, qgroup in list(grouped_questions.items()):
                 student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
                 cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat.name}
                 compile_stud_exam_question(questions, student_languages, cover=cover_ctx, commit=False)
