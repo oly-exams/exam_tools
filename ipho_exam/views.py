@@ -907,7 +907,7 @@ def admin_new_version(request, exam_id, question_id):
         if VersionNode.objects.filter(question=question, language=lang).count() > 0:
             node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
         else:
-            node = VersionNode(question=question, language=lang, version=0, text='<question id="q0" />'.format(question.pk))
+            node = VersionNode(question=question, language=lang, version=0, text='<question id="q0" />')
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
@@ -934,7 +934,7 @@ def admin_import_version(request, question_id):
                 node = VersionNode.objects.filter(question=question, language=language).order_by('-version')[0]
             else:
                 node = VersionNode(question=question, language=language, version=0,
-                                   text='<question id="q0" />'.format(question.pk))
+                                   text='<question id="q0" />')
         else:
             node = get_object_or_404(TranslationNode, question=question, language=language)
 

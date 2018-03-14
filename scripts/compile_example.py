@@ -25,6 +25,7 @@
 ## call the testing script
 ## ```python scripts/compile_example.py```
 
+from __future__ import unicode_literals
 
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
@@ -72,7 +73,7 @@ language.extraheader = ''
 
 
 # Exported from Exam Tools
-doc_content = ur"""
+doc_content = r"""
 \begin{PR}{兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題兩個力學問題(10分)}{10}
 
 在開始作答之前，請先細讀另一信封袋內的「理論考試通用指引」。
@@ -241,7 +242,7 @@ F_C = 2 m v \omega_{ss}  \sin \phi\ ,\end{equation}
 """
 
 
-answer_content = ur"""
+answer_content = r"""
 
 \begin{PR}{Two Problems in Mechanics (10 points)}{10}
 

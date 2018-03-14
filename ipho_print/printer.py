@@ -22,6 +22,9 @@ import json
 from copy import deepcopy
 import urllib
 
+from future.standard_library import install_aliases
+install_aliases()
+
 SUCCESS = 0
 FAILED = 1
 PRINTER_QUEUES = getattr(settings, 'PRINTER_QUEUES')

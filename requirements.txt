@@ -22,3 +22,4 @@ qrcode
 Wand
 django-filter
 python-dateutil
+cssutils

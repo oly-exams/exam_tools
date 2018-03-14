@@ -370,7 +370,7 @@ def delegation_edit_all(request, question_id):
         formset.save()
         ctx['msg'].append( ('alert-success', '<strong>Success.</strong> Points have been saved. <a href="{}" class="btn btn-default btn-xs">back to summary</a>'.format(reverse('marking:delegation-summary'))) )
     if formset.total_error_count() > 0:
-        ctx['msg'].append( ('alert-danger', '<strong>Error.</strong> The submission could not be completed. See below for the errors.'.format(reverse('marking:delegation-summary'))) )
+        ctx['msg'].append( ('alert-danger', '<strong>Error.</strong> The submission could not be completed. See below for the errors.') )
 
     documents = Document.objects.filter(exam=question.exam, position=question.position, student=students).order_by('student__code')
 

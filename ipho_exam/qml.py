@@ -19,6 +19,9 @@ from __future__ import unicode_literals, absolute_import
 
 from builtins import str, bytes, chr
 
+from future.standard_library import install_aliases
+install_aliases
+
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import ParseError
 from bs4 import BeautifulSoup
@@ -244,7 +247,7 @@ class QMLobject(object):
         else:
             ix = self.child_index(after_id)
             if ix is None:
-                raise RuntimeError('after_id={} not found. len={}'.format(after_id, len(ll)))
+                raise RuntimeError('after_id={} not found.'.format(after_id))
             self.children.insert(ix+1, child_node)
         return child_node
 
@@ -583,7 +586,7 @@ class QMLfigure(QMLobject):
                 img_src = reverse('exam:figure-lang-export-pdf', args=[self.attributes['figid'], self.lang.pk])
 
         query = self.fig_query()
-        if len(query) > 0: img_src += '?' + urllib.urlencode(query)
+        if len(query) > 0: img_src += '?' + urllib.parse.urlencode(query)
 
         return img_src
 
@@ -720,7 +723,7 @@ class QMLlistItem(QMLobject):
     def tex_begin(self):
         texout = u'\\item'
         try:
-            texout += u'[]'.format(self.attributes['label'])
+            texout += u'[{}]'.format(self.attributes['label'])
         except KeyError:
             pass
         texout += u' '
