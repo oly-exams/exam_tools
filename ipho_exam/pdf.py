@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 from django.http import HttpResponse, Http404, HttpResponseNotModified
 from django.core.cache import cache
 from django.conf import settings
@@ -26,7 +28,7 @@ import shutil
 from hashlib import md5
 
 from PyPDF2 import PdfFileWriter, PdfFileReader
-from StringIO import StringIO
+from io import StringIO
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
 CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
@@ -79,7 +81,7 @@ def compile_tex(body, ext_resources=[]):
             with open("%s/%s.pdf" % (tmp, doc)) as f:
                 pdf = f.read()
         finally:
-            # print 'Compiled in', tmp
+            # print('Compiled in', tmp)
             shutil.rmtree(tmp)
 
         if pdf:
@@ -90,7 +92,7 @@ def add_barcode(doc, bgenerator):
     pdfdoc = PdfFileReader(StringIO(doc))
 
     output = PdfFileWriter()
-    for i in xrange(pdfdoc.getNumPages()):
+    for i in range(pdfdoc.getNumPages()):
         barpdf = PdfFileReader(StringIO(bgenerator(i+1)))
         watermark = barpdf.getPage(0)
         wbox = watermark.artBox
@@ -120,7 +122,7 @@ def concatenate_documents(all_documents):
     output = PdfFileWriter()
     for doc in  all_documents:
         pdfdoc = PdfFileReader(StringIO(doc))
-        for i in xrange(pdfdoc.getNumPages()):
+        for i in range(pdfdoc.getNumPages()):
             output.addPage(pdfdoc.getPage(i))
     output_pdf = StringIO()
     output.write(output_pdf)
@@ -132,7 +134,7 @@ def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'
         return HttpResponseNotModified()
 
     try:
-        # print 'Trying to spawn task'
+        # print('Trying to spawn task')
         # job = tasks.compile_tex.delay(body, ext_resources)
         # if not job.ready():
         #     return HttpResponse('Computing...')

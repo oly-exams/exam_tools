@@ -16,6 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # coding=utf-8
+
+from __future__ import print_function
+
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
 from django.template import RequestContext
@@ -56,7 +59,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
             if question.is_answer_sheet() and not sl.with_answer:
                 continue
 
-            print 'Prepare', question, 'in', sl.language
+            print('Prepare', question, 'in', sl.language)
             trans = qquery.latest_version(question.pk, sl.language.pk) ## TODO: simplify latest_version, because question and language are already in memory
             if not trans.lang.is_pdf:
                 trans_content, ext_resources = trans.qml.make_tex()

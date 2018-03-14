@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
+from builtins import str
+
 from django.db import models
 from django import forms
 from django.db.models.signals import post_save
@@ -306,7 +310,7 @@ class CompiledFigure(Figure):
         for pl in placeholders:
             if pl in query:
                 repl = query[pl]
-                if type(repl) != unicode:
+                if not isinstance(repl, str):
                     repl = repl.decode('utf-8')
                 fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
         return fig_svg
@@ -332,7 +336,7 @@ class CompiledFigure(Figure):
             stdout=open(os.devnull, "wb")
         ).wait()
         if error:
-            print 'Got error', error
+            print('Got error', error)
             raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
 
     # @staticmethod
@@ -350,7 +354,7 @@ class CompiledFigure(Figure):
     #         stdout=open(os.devnull, "wb")
     #     ).wait()
     #     if error:
-    #         print 'Got error', error
+    #         print('Got error', error)
     #         raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
 
 class RawFigure(Figure):
@@ -436,7 +440,7 @@ class Feedback(models.Model):
         try:
             i = all_parts.index(txt)
         except:
-            print 'Problem'
+            print('Problem')
             i = len(all_parts)
         return i
 
@@ -445,9 +449,9 @@ class Like(models.Model):
         ('L', 'Liked'),
         ('U', 'Unliked'),
     )
-    status = models.CharField(max_length=1, choices=CHOICES);
-    delegation = models.ForeignKey(Delegation);
-    feedback = models.ForeignKey(Feedback);
+    status = models.CharField(max_length=1, choices=CHOICES)
+    delegation = models.ForeignKey(Delegation)
+    feedback = models.ForeignKey(Feedback)
 
     class Meta:
         unique_together = index_together = ('delegation', 'feedback')

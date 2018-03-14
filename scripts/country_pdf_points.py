@@ -17,6 +17,8 @@
 
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
@@ -110,13 +112,13 @@ def compile_all():
             fp.write(body)
         continue
         filename = u'FINALPOINTS-{}.pdf'.format(delegation.name)
-        print 'Compile', filename
+        print('Compile', filename)
         question_pdf = pdf.compile_tex(body, [])
         #question_pdf = pdf.compile_tex(body, ext_resources)
-        print 'Compile Success'
+        print('Compile Success')
         with open(filename, 'wb') as fp:
             fp.write(question_pdf)
-        print filename, 'DONE'
+        print(filename, 'DONE')
 
 
 if __name__ == '__main__':

@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 import re
 import sys, os
 from cssutils import css, stylesheets
@@ -34,7 +36,7 @@ for css_file in flist:
                 # 'font': None,
                 'cjk': int(name in cjk_list),
               }
-    
+
     sheet = css.CSSStyleSheet()
     sheet.cssText = open(css_file).read()
     for rule in sheet:
@@ -52,7 +54,7 @@ for css_file in flist:
                         cssdict['font_bold'] = font_file
                     elif rule.style.fontWeight == '700' and rule.style.fontStyle == 'italic':
                         cssdict['font_bolditalic'] = font_file
-    
+
     if 'font_regular' in cssdict:
         results.append(cssdict)
     else:
@@ -61,4 +63,4 @@ for css_file in flist:
 results = {v['name']:v for v in results}
 import json
 
-print 'noto =', json.dumps(results, indent=2)
+print('noto =', json.dumps(results, indent=2))

@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
+from builtins import str, chr
+
 import logging
 
 # coding=utf-8
@@ -211,9 +215,9 @@ def list_all_translations(request):
             self.get = get
         def __call__(self, **kwargs):
             qdict = QueryDict('', mutable=True)
-            for k,v in self.get.iteritems():
+            for k,v in self.get.items():
                 qdict[k] = v
-            for k,v in kwargs.iteritems():
+            for k,v in kwargs.items():
                 if v is None:
                     if k in qdict: del qdict[k]
                 else:
@@ -654,7 +658,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
     ])
 
     for row in feedbacks:
-        writer.writerow([c.encode('utf8') if type(c)==unicode else c for c in row])
+        writer.writerow([c.encode('utf8') if isinstance(c, str) else c for c in row])
 
     return response
 
@@ -903,7 +907,7 @@ def admin_new_version(request, exam_id, question_id):
         if VersionNode.objects.filter(question=question, language=lang).count() > 0:
             node = VersionNode.objects.filter(question=question, language=lang).order_by('-version')[0]
         else:
-            node = VersionNode(question=question, language=lang, version=0, text='<question id="q0" />'.format(question.pk))
+            node = VersionNode(question=question, language=lang, version=0, text='<question id="q0" />')
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
@@ -930,7 +934,7 @@ def admin_import_version(request, question_id):
                 node = VersionNode.objects.filter(question=question, language=language).order_by('-version')[0]
             else:
                 node = VersionNode(question=question, language=language, version=0,
-                                   text='<question id="q0" />'.format(question.pk))
+                                   text='<question id="q0" />')
         else:
             node = get_object_or_404(TranslationNode, question=question, language=language)
 
@@ -1424,7 +1428,7 @@ def submission_exam_assign(request, exam_id):
             student_seat = Place.objects.get(exam=exam, student=student)
             questions = exam.question_set.all()
             grouped_questions = {k: list(g) for k,g in itertools.groupby(questions, key=lambda q: q.position) }
-            for position, qgroup in grouped_questions.iteritems():
+            for position, qgroup in grouped_questions.items():
                 doc,_ = Document.objects.get_or_create(exam=exam, student=student, position=position)
                 cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat.name}
                 question_task = tasks.student_exam_document.s(qgroup, student_languages, cover=cover_ctx, commit=True)
@@ -1665,7 +1669,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         orig_q_raw = qml.make_qml(orig_node)
         orig_q = deepcopy(official_question.qml)
         orig_q_raw_data = orig_q_raw.get_data()
-        orig_q_raw_data = {k:v for k,v in orig_q_raw_data.iteritems() if v}
+        orig_q_raw_data = {k:v for k,v in orig_q_raw_data.items() if v}
         orig_q.update(orig_q_raw_data)
         orig_q.set_lang(orig_lang)
 
@@ -1716,7 +1720,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 q = deepcopy(orig_q)
                 cleaned_data = form.cleaned_data
                 for k in cleaned_data.keys():
-                    cleaned_data[k] = cleaned_data[k].replace(unichr(8), u'').replace(unichr(29), u'')
+                    cleaned_data[k] = cleaned_data[k].replace(chr(8), u'').replace(chr(29), u'')
                 q.update(cleaned_data, set_blanks=True)
                 trans_node.text = qml.xml2string(q.make_xml())
                 trans_node.save()
@@ -1838,12 +1842,12 @@ def pdf_exam_for_student(request, exam_id, student_id):
     student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
     questions = exam.question_set.all()
     grouped_questions = {k: list(g) for k,g in itertools.groupby(questions, key=lambda q: q.position) }
-    grouped_questions = OrderedDict(sorted(grouped_questions.iteritems()))
-    for position, qgroup in grouped_questions.iteritems():
+    grouped_questions = OrderedDict(sorted(grouped_questions.items()))
+    for position, qgroup in grouped_questions.items():
         question_task = question_utils.compile_stud_exam_question(qgroup, student_languages)
         result = question_task.delay()
         all_tasks.append(result)
-        print 'Group', position, 'done.'
+        print('Group', position, 'done.')
     filename = u'Exam - {} - {}.pdf'.format(exam.name, student.code)
     chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
     #chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
@@ -2027,9 +2031,9 @@ def bulk_print(request):
             self.get = get
         def __call__(self, **kwargs):
             qdict = QueryDict('', mutable=True)
-            for k,v in self.get.iteritems():
+            for k,v in self.get.items():
                 qdict[k] = v
-            for k,v in kwargs.iteritems():
+            for k,v in kwargs.items():
                 if v is None:
                     if k in qdict: del qdict[k]
                 else:

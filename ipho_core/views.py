@@ -58,5 +58,5 @@ def account_request(request):
 def list_impersonate(request):
     users = User.objects.exclude(delegation__isnull=True).exclude(autologin__isnull=True).order_by('username')
     chunk_size = max(len(users) / 6 + 1, 1)
-    grouped_users = [users[x:x+chunk_size] for x in xrange(0, len(users), chunk_size)]
+    grouped_users = [users[x:x+chunk_size] for x in range(0, len(users), chunk_size)]
     return render(request, 'ipho_core/impersonate.html', {'grouped_users' : grouped_users})

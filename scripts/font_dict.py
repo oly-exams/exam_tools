@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 import re
 import sys, os
 
@@ -40,4 +42,4 @@ for css_file in flist:
 results = {v['name']:v for v in results}
 import json
 
-print 'noto =', json.dumps(results, indent=2)
+print('noto =', json.dumps(results, indent=2))

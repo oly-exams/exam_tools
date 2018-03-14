@@ -24,7 +24,7 @@ django.setup()
 from django.core import serializers
 from ipho_exam.models import *
 import json
-from StringIO import StringIO
+from io import StringIO
 
 def save(objs, stream):
     if type(stream) == str:
@@ -45,10 +45,10 @@ def save_with_pk(objs, stream):
 def serialize(objs, with_pk):
   ss = StringIO()
   if with_pk:
-    save_pk(objs, ss)
+    save_with_pk(objs, ss)
   else:
     save(objs, ss)
-  return ss.getvalue()  
+  return ss.getvalue()
 
 orig_exam = 'Experiment - 2016'
 dest_exam = 'Experiment - Short'

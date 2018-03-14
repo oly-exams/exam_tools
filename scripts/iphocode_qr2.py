@@ -20,7 +20,7 @@ from barcode.writer import ImageWriter, SVGWriter
 import qrcode
 import qrcode.image.svg
 from lxml import etree
-from StringIO import StringIO
+from io import StringIO
 import cairosvg
 
 
@@ -63,7 +63,7 @@ bcode_xml.append(bcode_raw)
 bcode_xml.append(text_xml)
 
 bcode_svg = etree.tostring(bcode_xml)
-# print bcode_svg
+# print(bcode_svg)
 with open('outcode.svg', 'w') as fp:
     fp.write(bcode_svg)
 bcode_pdf = cairosvg.svg2pdf(bcode_svg)
@@ -77,7 +77,7 @@ def add_barcode(fname):
     pdfdoc = PdfFileReader(open(fname, 'rb'))
 
     output = PdfFileWriter()
-    for i in xrange(pdfdoc.getNumPages()):
+    for i in range(pdfdoc.getNumPages()):
         barpdf = PdfFileReader(open('outcode.pdf', 'rb'))
         watermark = barpdf.getPage(0)
         # wbox = watermark.artBox

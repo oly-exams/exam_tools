@@ -1,9 +1,11 @@
+future
 Django >= 1.8, < 1.9
 django-crispy-forms
 django-ace
-djangorestframework
+djangorestframework < 3.7
 django-rest-swagger
-django-polymorphic
+django-polymorphic < 2
+django-dbbackup
 CairoSVG==1.*
 hg+https://bitbucket.org/whitie/python-barcode
 PyPDF2
@@ -12,7 +14,7 @@ Celery==3.*
 django-celery
 flower
 requests
-appy
+appypod
 Pillow
 lxml
 html5lib
@@ -21,3 +23,4 @@ qrcode
 Wand
 django-filter
 python-dateutil
+cssutils
