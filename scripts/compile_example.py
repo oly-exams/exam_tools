@@ -25,6 +25,7 @@
 ## ```python scripts/compile_example.py```
 
 from __future__ import unicode_literals
+from __future__ import print_function
 
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'

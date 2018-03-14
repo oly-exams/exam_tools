@@ -16,9 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+from __future__ import absolute_import
 
 # Django settings for exam_tools project.
-from settings_common import *
+from .settings_common import *
 
 # Printing paths for sanity's sake
 print("Settings directory:", SETTINGS_DIR)
