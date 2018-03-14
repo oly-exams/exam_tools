@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Exam Tools
 #
 # Copyright (C) 2014 - 2017 Oly Exams Team
