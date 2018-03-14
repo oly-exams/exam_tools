@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import zip
+from builtins import range
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, HttpResponseForbidden, JsonResponse, Http404
 from django.template import RequestContext
@@ -70,7 +72,7 @@ def import_exam(request):
                 num_tot += 1
 
                 for student in Student.objects.all():
-                    for version_id, version_name in Marking.MARKING_VERSIONS.items():
+                    for version_id, version_name in list(Marking.MARKING_VERSIONS.items()):
                         marking, created = Marking.objects.get_or_create(
                             marking_meta=mmeta, student=student, version=version_id
                         )
@@ -189,7 +191,7 @@ def export(request):
                            'points', flat=True
                        )
             row += markings
-            row = map(lambda v: '-' if v is None else v, row)
+            row = ['-' if v is None else v for v in row]
             writer.writerow(row)
 
     return response
@@ -239,7 +241,7 @@ def delegation_export(request, exam_id):
                 if marking is not None:
                     totals[i] += marking
                 i += 1
-        row = map(lambda v: '-' if v is None else v, row)
+        row = ['-' if v is None else v for v in row]
         writer.writerow(row)
 
     row = ['Total']
@@ -625,7 +627,7 @@ def progress(request):
     if request.user.has_perm('ipho_core.is_staff'):
         all_versions = Marking.MARKING_VERSIONS
     elif request.user.has_perm('ipho_core.is_marker'):
-        all_versions = OrderedDict([(k, v) for k, v in Marking.MARKING_VERSIONS.items() if k != 'D'])
+        all_versions = OrderedDict([(k, v) for k, v in list(Marking.MARKING_VERSIONS.items()) if k != 'D'])
         if vid not in all_versions:
             return HttpResponseForbidden('Only the staff can see this page.')
     else:

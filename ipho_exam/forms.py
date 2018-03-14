@@ -16,6 +16,7 @@ from __future__ import print_function
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
 from django import forms
 from django.forms import ModelForm, Form
 from django.forms.formsets import formset_factory
@@ -94,7 +95,7 @@ class LanguageForm(ModelForm):
         # Always return cleaned_data
         return cleaned_data
 
-    class Meta:
+    class Meta(object):
         model = Language
         fields = ['name', 'style', 'direction', 'polyglossia', 'polyglossia_options', 'font']
         labels = {
@@ -135,7 +136,7 @@ class FigureForm(ModelForm):
         self.form_tag = False
         self.helper.disable_csrf = True
 
-    class Meta:
+    class Meta(object):
         model = Figure
         fields = ['name']
 
@@ -157,7 +158,7 @@ class TranslationForm(forms.Form):
         # self.helper.form_action = 'exam:index'
         # self.helper.add_input(Submit('submit', 'Create'))
 
-    class Meta:
+    class Meta(object):
         fields = ['language']
         labels = {
             'language':
@@ -174,7 +175,7 @@ class ExamQuestionForm(ModelForm):
         self.form_tag = False
         self.helper.disable_csrf = True
 
-    class Meta:
+    class Meta(object):
         model = Question
         fields = ['code', 'name', 'position', 'type', 'working_pages']
         labels = {
@@ -208,7 +209,7 @@ class VersionNodeForm(ModelForm):
         self.form_tag = False
         self.helper.disable_csrf = True
 
-    class Meta:
+    class Meta(object):
         model = VersionNode
         fields = ['tag']
         labels = {
@@ -226,7 +227,7 @@ class PDFNodeForm(ModelForm):
         self.form_tag = False
         self.helper.disable_csrf = True
 
-    class Meta:
+    class Meta(object):
         model = PDFNode
         fields = [
             'pdf',
@@ -250,7 +251,7 @@ class TranslationImportForm(ModelForm):
         self.form_tag = False
         self.helper.disable_csrf = True
 
-    class Meta:
+    class Meta(object):
         model = TranslationImportTmp
         fields = []
 
@@ -283,7 +284,7 @@ class FeedbackForm(ModelForm):
         self.form_tag = False
         self.helper.disable_csrf = True
 
-    class Meta:
+    class Meta(object):
         model = Feedback
         fields = ['question', 'comment']
         # labels = {'part': 'Question part'}
@@ -302,7 +303,7 @@ class SubmissionAssignForm(ModelForm):
         self.helper.form_tag = False
         #self.form_tag = False
 
-    class Meta:
+    class Meta(object):
         model = StudentSubmission
         fields = ['student', 'language', 'with_answer']
 

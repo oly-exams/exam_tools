@@ -17,6 +17,8 @@
 
 from __future__ import print_function
 
+from builtins import str
+from builtins import range
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 

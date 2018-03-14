@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
 from django import forms
 from django.forms import ModelForm, Form
 from django.forms.formsets import formset_factory
@@ -56,7 +57,7 @@ class PointsForm(ModelForm):
         # self.disable_csrf = False
         self.helper.form_tag = False
 
-    class Meta:
+    class Meta(object):
         model = Marking
         fields = [
             'points',

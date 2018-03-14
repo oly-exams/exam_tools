@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
 from django.contrib import admin
 from django import forms
 import json
@@ -27,7 +28,7 @@ from django_ace import AceWidget
 class VersionNodeAdminForm(forms.ModelForm):
     text = forms.CharField(widget=AceWidget(mode='xml', wordwrap=True, width='100%'))
 
-    class Meta:
+    class Meta(object):
         model = VersionNode
         fields = '__all__'
 
@@ -38,13 +39,13 @@ class VersionNodeAdminForm(forms.ModelForm):
 class FigureAdminForm(forms.ModelForm):
     content = forms.CharField(widget=AceWidget(mode='xml', wordwrap=True, width='100%'))
 
-    class Meta:
+    class Meta(object):
         model = Figure
         fields = '__all__'
 
 
 class AttributeChangeForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = AttributeChange
         fields = '__all__'
 

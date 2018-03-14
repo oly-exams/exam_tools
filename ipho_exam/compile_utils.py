@@ -19,6 +19,7 @@
 
 from __future__ import print_function
 
+from builtins import range
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
 from django.template import RequestContext
@@ -122,7 +123,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                     'code': u'{}{}'.format('W', question.position),
                     'title': u'{} - {}'.format(question.exam.name, question.name),
                     'is_answer': question.is_answer_sheet(),
-                    'pages': range(question.working_pages),
+                    'pages': list(range(question.working_pages)),
                 }
                 body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(),
                                                                                        context)).encode("utf-8")

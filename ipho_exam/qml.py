@@ -19,12 +19,15 @@
 
 from __future__ import unicode_literals, absolute_import
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 from builtins import str, bytes, chr
 
 import re
 import uuid
 import json
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import binascii
 from copy import deepcopy
 from xml.etree import ElementTree as ET
@@ -110,7 +113,7 @@ def content2string(node):
     # We assume that `node` is a pure QML tag, therefore we don't consider the tail.
     # +[node.tail])
     # filter removes possible Nones in texts and tails
-    return ''.join(filter(None, parts))
+    return ''.join([_f for _f in parts if _f])
 
 
 def normalize_html(data):
@@ -412,7 +415,7 @@ class QMLobject(object):
         return ix
 
     def delete(self, search_id):
-        self.children = filter(lambda c: c.id != search_id, self.children)
+        self.children = [c for c in self.children if c.id != search_id]
         for c in self.children:
             c.delete(search_id)
 

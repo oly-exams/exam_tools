@@ -17,6 +17,7 @@
 
 from __future__ import print_function
 
+from builtins import input
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
@@ -35,7 +36,7 @@ def main():
     exams_ix = []
     for i, exam in enumerate(exams):
         print('[{}] {}'.format(i + 1, exam.name))
-    ix = int(input('Select index > '))
+    ix = int(eval(input('Select index > ')))
     if ix <= 0 or ix > len(exams):
         print('Index is invalid.')
         return

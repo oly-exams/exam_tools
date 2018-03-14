@@ -16,7 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+from __future__ import division
 
+from builtins import range
+from past.utils import old_div
 from django.http import HttpResponse, Http404, HttpResponseNotModified
 from django.core.cache import cache
 from django.conf import settings
@@ -107,7 +110,7 @@ def add_barcode(doc, bgenerator):
 
         scale = 1.66
         yshift = 83
-        x = float(pbox.upperLeft[0]) + (float(pwidth) - float(wwidth) * scale) / 2.
+        x = float(pbox.upperLeft[0]) + old_div((float(pwidth) - float(wwidth) * scale), 2.)
         y = float(pbox.upperLeft[1]) - float(wbox.upperLeft[1]) - yshift
 
         page.mergeScaledTranslatedPage(watermark, scale, x, y)

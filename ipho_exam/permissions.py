@@ -7,7 +7,7 @@ class HasValidApiKey(permissions.BasePermission):
 
     def has_permission(self, request, view):
         api_key = request.META.get('HTTP_APIKEY', '')
-        for name, key in settings.EXAM_TOOLS_API_KEYS.items():
+        for name, key in list(settings.EXAM_TOOLS_API_KEYS.items()):
             if api_key == key:
                 return True
         return False

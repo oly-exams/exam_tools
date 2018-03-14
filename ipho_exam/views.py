@@ -17,6 +17,8 @@
 
 from __future__ import print_function
 
+from builtins import range
+from builtins import object
 from builtins import str, chr
 
 import logging
@@ -244,9 +246,9 @@ def list_all_translations(request):
 
         def __call__(self, **kwargs):
             qdict = QueryDict('', mutable=True)
-            for k, v in self.get.items():
+            for k, v in list(self.get.items()):
                 qdict[k] = v
-            for k, v in kwargs.items():
+            for k, v in list(kwargs.items()):
                 if v is None:
                     if k in qdict: del qdict[k]
                 else:
@@ -261,7 +263,7 @@ def list_all_translations(request):
             'delegations': delegations,
             'delegation': delegation,
             'node_list': node_list,
-            'all_pages': range(1, paginator.num_pages + 1),
+            'all_pages': list(range(1, paginator.num_pages + 1)),
             'this_url_builder': url_builder(reverse('exam:list-all'), request.GET),
         }
     )
@@ -307,7 +309,7 @@ def add_translation(request, exam_id):
                     language=translation_form.cleaned_data['language'], question=question, defaults={'status': 'O'}
                 )
                 trans = deepcopy(qquery.latest_version(question_id=question.pk, lang_id=OFFICIAL_LANGUAGE))
-                data = {key: u'\xa0' for key in trans.qml.get_data().keys()}
+                data = {key: u'\xa0' for key in list(trans.qml.get_data().keys())}
                 trans.qml.update(data)
                 node.text = qml.xml2string(trans.qml.make_xml())
                 node.save()
@@ -1254,7 +1256,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
         request.POST or None, initial=[{
             'key': k,
             'value': v
-        } for k, v in block.attributes.items()]
+        } for k, v in list(block.attributes.items())]
     )
     if form.is_valid() and attrs_form.is_valid():
         if 'block_content' in form.cleaned_data:
@@ -1532,7 +1534,7 @@ def submission_exam_assign(request, exam_id):
             student_seat = Place.objects.get(exam=exam, student=student)
             questions = exam.question_set.all()
             grouped_questions = {k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)}
-            for position, qgroup in grouped_questions.items():
+            for position, qgroup in list(grouped_questions.items()):
                 doc, _ = Document.objects.get_or_create(exam=exam, student=student, position=position)
                 cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat.name}
                 question_task = tasks.student_exam_document.s(qgroup, student_languages, cover=cover_ctx, commit=True)
@@ -1809,7 +1811,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         orig_q_raw = qml.make_qml(orig_node)
         orig_q = deepcopy(official_question.qml)
         orig_q_raw_data = orig_q_raw.get_data()
-        orig_q_raw_data = {k: v for k, v in orig_q_raw_data.items() if v}
+        orig_q_raw_data = {k: v for k, v in list(orig_q_raw_data.items()) if v}
         orig_q.update(orig_q_raw_data)
         orig_q.set_lang(orig_lang)
 
@@ -1866,7 +1868,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 ## TODO: we could keep track of orig_v in the submission and, in case of updates, show a diff in the original language.
                 q = deepcopy(orig_q)
                 cleaned_data = form.cleaned_data
-                for k in cleaned_data.keys():
+                for k in list(cleaned_data.keys()):
                     cleaned_data[k] = cleaned_data[k].replace(chr(8), u'').replace(chr(29), u'')
                 q.update(cleaned_data, set_blanks=True)
                 trans_node.text = qml.xml2string(q.make_xml())
@@ -1999,7 +2001,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
     questions = exam.question_set.all()
     grouped_questions = {k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)}
     grouped_questions = OrderedDict(sorted(grouped_questions.items()))
-    for position, qgroup in grouped_questions.items():
+    for position, qgroup in list(grouped_questions.items()):
         question_task = question_utils.compile_stud_exam_question(qgroup, student_languages)
         result = question_task.delay()
         all_tasks.append(result)
@@ -2177,9 +2179,9 @@ def bulk_print(request):
 
         def __call__(self, **kwargs):
             qdict = QueryDict('', mutable=True)
-            for k, v in self.get.items():
+            for k, v in list(self.get.items()):
                 qdict[k] = v
-            for k, v in kwargs.items():
+            for k, v in list(kwargs.items()):
                 if v is None:
                     if k in qdict: del qdict[k]
                 else:
@@ -2197,7 +2199,7 @@ def bulk_print(request):
             'queue_list': queue_list,
             'docs_list': docs_list,
             'scan_status_choices': Document.SCAN_STATUS_CHOICES,
-            'all_pages': range(1, paginator.num_pages + 1),
+            'all_pages': list(range(1, paginator.num_pages + 1)),
             'form': form,
             'this_url_builder': url_builder(reverse('exam:bulk-print'), request.GET),
         }

@@ -1,3 +1,4 @@
+from __future__ import division
 # Exam Tools
 #
 # Copyright (C) 2014 - 2017 Oly Exams Team
@@ -15,6 +16,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import range
+from past.utils import old_div
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponseForbidden
 from django.core.urlresolvers import reverse
@@ -92,7 +95,7 @@ def question(request, question_pk):
         status = 'closed'
     ncols = 3
     num_users = len(users)
-    col_step = max(1, int(num_users / ncols))
+    col_step = max(1, int(old_div(num_users, ncols)))
     cols = [users[i:i + col_step] for i in range(0, num_users, col_step)]
 
     return render(
@@ -371,7 +374,7 @@ def voterIndex(request):
             'num_likes', 'num_unlikes', 'pk', 'question__name', 'delegation__name', 'delegation__country', 'status',
             'timestamp', 'part', 'comment'
         )
-    unvoted_questions_list = filter(lambda q: q.pk not in just_voted, unvoted_questions_list)
+    unvoted_questions_list = [q for q in unvoted_questions_list if q.pk not in just_voted]
     return render(
         request, 'ipho_poll/voterIndex.html', {
             'unvoted_questions_list': unvoted_questions_list,
