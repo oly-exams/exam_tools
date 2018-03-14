@@ -26,25 +26,16 @@ import itertools
 import django
 django.setup()
 from django.conf import settings
-
-from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
 from django.template import RequestContext
-
-from django.core.urlresolvers import reverse
-from django.core.context_processors import csrf
-from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 
-from django.conf import settings
-from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction
+from ipho_core.models import Delegation
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, Place
 from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
 
 import ipho_exam
 from ipho_exam import tasks
-import celery
-from celery.result import AsyncResult
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
@@ -134,7 +125,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
             }
             body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(),
                                                                                       context)).encode("utf-8")
-            print('Compile', question, student, sl.language)
+            print('Compile', question, sl.language)
             question_pdf = pdf.compile_tex(body, ext_resources)
 
             if question.is_answer_sheet():

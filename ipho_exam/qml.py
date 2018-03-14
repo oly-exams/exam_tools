@@ -15,28 +15,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=no-member
+
 from __future__ import unicode_literals, absolute_import
 
 from builtins import str, bytes, chr
 
+import re
+import uuid
+import json
+import urllib
+import binascii
+from copy import deepcopy
+from xml.etree import ElementTree as ET
+
 from future.standard_library import install_aliases
 install_aliases()
 
-from xml.etree import ElementTree as ET
-from xml.etree.ElementTree import ParseError
 from bs4 import BeautifulSoup
-import re
-import binascii
-from copy import deepcopy
-import uuid
-import json
-#import lxml.etree as lxmltree
 
 from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.utils.text import unescape_entities
-import urllib
 from django.core.urlresolvers import reverse
 
 from .models import Figure
@@ -49,7 +50,7 @@ DEFAULT_BLOCKS = ('texfield', 'texenv')
 
 
 def make_content(root):
-    assert (root.tag == 'question')
+    assert root.tag == 'question'
     ret = []
     for node in root.children:
         ret.append(make_content_node(node))
@@ -127,7 +128,7 @@ mathtex_pattern = re.compile(r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</s
 
 
 def escape_equations(txt):
-    return mathtex_pattern.sub(lambda m: u'<span class="math-tex">\({}\)</span>'.format(escape(m.group(1))), txt)
+    return mathtex_pattern.sub(lambda m: r'<span class="math-tex">\({}\)</span>'.format(escape(m.group(1))), txt)
 
 
 def data2tex(data):
@@ -143,7 +144,7 @@ def question_points(root):
     ## This function is not too geenric, but it should fit our needs
     ret = []
     for obj in root.children:
-        if isinstance(obj, QMLsubquestion) or isinstance(obj, QMLsubanswer):
+        if isinstance(obj, (QMLsubquestion, QMLsubanswer)):
             points = float(obj.attributes.get('points', 0.))
             name = '{}.{}'.format(obj.attributes.get('part_nr', ''), obj.attributes.get('question_nr', ''))
             ret.append((name, points))
@@ -192,8 +193,8 @@ class QMLobject(object):
     default_heading = None
 
     @_classproperty
-    def display_name(cls):
-        name = cls.__name__.replace('QML', '')
+    def display_name(cls):  # pylint: disable=no-self-argument
+        name = cls.__name__.replace('QML', '')  # pylint: disable=no-member
         split_pattern = re.compile('(^[^A-Z]*|[A-Z][^A-Z]*)')
         name = ' '.join([ni.capitalize() for ni in split_pattern.findall(name) if ni is not None])
         return name
@@ -902,7 +903,7 @@ class QMLtableRow(QMLobject):
     def make_tex(self):
         multiplier = int(self.attributes.get('multiplier', 1))
         texout = u''
-        texout += u' & '.join(data2tex(c.data) for c in self.children)
+        texout += u' & '.join(data2tex(c.data) for c in self.children)  # pylint: disable=no-member
         texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
         return texout * multiplier, []
 
