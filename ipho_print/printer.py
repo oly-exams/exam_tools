@@ -32,7 +32,7 @@ class PrinterError(RuntimeError):
     super(PrinterError, self).__init__('Print error: '+self.msg)
 
 def allowed_choices(user):
-  return [(k, q['name']) for k,q in sorted(PRINTER_QUEUES.iteritems()) if user.has_perm(q['required_perm'])]
+  return [(k, q['name']) for k,q in sorted(PRINTER_QUEUES.items()) if user.has_perm(q['required_perm'])]
 
 def send2queue(file, queue, user=None, user_opts={}):
   url = 'http://{host}/print/{queue}'.format(**PRINTER_QUEUES[queue])

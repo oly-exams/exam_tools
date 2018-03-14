@@ -17,7 +17,7 @@
 
 from __future__ import print_function
 
-from builtinss import str
+from builtins import str
 
 from django.db import models
 from django import forms

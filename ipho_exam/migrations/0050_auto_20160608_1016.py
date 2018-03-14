@@ -25,7 +25,7 @@ def forwards_func(apps, schema_editor):
     for node_name in ['VersionNode', 'TranslationNode']:
         NodeType = apps.get_model("ipho_exam", node_name)
         for node in NodeType.objects.using(db_alias).all():
-        if not '<question' in node.text: continue
+            if not '<question' in node.text: continue
             q = qml.QMLquestion(node.text)
             question_points(q)
             node.text = qml.xml2string(q.make_xml())

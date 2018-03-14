@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import
 
-from builtins import str, bytes
+from builtins import str, bytes, chr
 
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import ParseError
@@ -25,11 +25,10 @@ from bs4 import BeautifulSoup
 import re
 import binascii
 from copy import deepcopy
-#import lxml.etree as lxmltree
-import tex
 import uuid
-import simplediff
 import json
+#import lxml.etree as lxmltree
+
 
 from django import forms
 from django.utils.safestring import mark_safe
@@ -38,7 +37,9 @@ from django.utils.text import unescape_entities
 import urllib
 from django.core.urlresolvers import reverse
 
-from ipho_exam.models import Figure
+from .models import Figure
+from . import tex
+from . import simplediff
 
 #block groups
 PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'table', 'equation', 'figure', 'box')
@@ -106,7 +107,7 @@ def content2string(node):
     return ''.join(filter(None, parts))
 
 def normalize_html(data):
-    data = str(data).replace('<p>&nbsp;</p>', '__EMPTYPP__').replace('<p>&#160;</p>', '__EMPTYPP__').replace(u'<p>{}</p>'.format(unichr(160)), '__EMPTYPP__').replace('&nbsp;', ' ').replace('&#160;', ' ').replace(unichr(160), u' ').replace('__EMPTYPP__', '<p>&nbsp;</p>')
+    data = str(data).replace('<p>&nbsp;</p>', '__EMPTYPP__').replace('<p>&#160;</p>', '__EMPTYPP__').replace(u'<p>{}</p>'.format(chr(160)), '__EMPTYPP__').replace('&nbsp;', ' ').replace('&#160;', ' ').replace(chr(160), u' ').replace('__EMPTYPP__', '<p>&nbsp;</p>')
     xhtmlout = BeautifulSoup(data, "html5lib")
     try:
         return ''.join([str(el) for el in xhtmlout.body.contents])
@@ -900,7 +901,7 @@ class QMLpageBreak(QMLobject):
     def make_tex(self):
         if bool(self.attributes.get('skip', False)):
             return u'\n', []
-        return ur'~ \clearpage' + u'\n', []
+        return r'~ \clearpage' + u'\n', []
 
 class QMLException(Exception):
     pass

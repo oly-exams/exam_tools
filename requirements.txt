@@ -1,3 +1,4 @@
+future
 Django >= 1.8, < 1.9
 django-crispy-forms
 django-ace
@@ -12,7 +13,7 @@ Celery==3.*
 django-celery
 flower
 requests
-appy
+appypod
 Pillow
 lxml
 html5lib

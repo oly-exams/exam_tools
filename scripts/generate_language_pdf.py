@@ -202,7 +202,7 @@ def missing_submissions():
         students = d.student_set.all()
         for student in students:
             student_seat = Place.objects.get(student=student, exam=exam)
-            for position, qgroup in grouped_questions.iteritems():
+            for position, qgroup in grouped_questions.items():
                 student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
                 cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat.name}
                 compile_stud_exam_question(questions, student_languages, cover=cover_ctx, commit=False)

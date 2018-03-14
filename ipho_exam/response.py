@@ -15,6 +15,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
+
+import os, shutil
+import logging
+from tempfile import mkdtemp
+
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
 try:
     from django.template.loader import find_template
@@ -23,14 +29,9 @@ except:
     find_template = engines['django'].engine.find_template
 from django.conf import settings
 
-from ipho_exam import tex
-
 from appy.pod.renderer import Renderer as ODTRenderer
-from appy.pod import PodError
 
-import os, shutil
-import logging
-from tempfile import mkdtemp
+from . import tex
 
 TEMPLATE_PATH = getattr(settings, 'TEMPLATE_PATH')
 TEMP_PREFIX = getattr(settings, 'ODT_TEMP_PREFIX', 'render_odt-')

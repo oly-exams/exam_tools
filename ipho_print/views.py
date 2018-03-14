@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
@@ -25,7 +27,7 @@ from django.conf import settings
 
 from .forms import PrintForm
 
-import printer
+from . import printer
 
 PRINTER_QUEUES = getattr(settings, 'PRINTER_QUEUES')
 

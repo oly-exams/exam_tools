@@ -44,7 +44,7 @@ class Marking(models.Model):
         ('D', 'Delegation'),
         ('F', 'Final'),
     ])
-    version = models.CharField(max_length=1, choices=MARKING_VERSIONS.iteritems())
+    version = models.CharField(max_length=1, choices=MARKING_VERSIONS.items())
 
     def exam_question(self):
         return self.marking_meta.question
