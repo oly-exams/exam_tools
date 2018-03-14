@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
+
 def forwards_func(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     Exam = apps.get_model("ipho_exam", "Exam")
@@ -12,8 +13,10 @@ def forwards_func(apps, schema_editor):
         for student in Student.objects.using(db_alias).all():
             Place(exam=exam, student=student, name='CHANGEME').save()
 
+
 def backwards_func(*args, **kwargs):
     pass
+
 
 class Migration(migrations.Migration):
 
@@ -22,5 +25,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-            migrations.RunPython(forwards_func, backwards_func),
+        migrations.RunPython(forwards_func, backwards_func),
     ]

@@ -31,11 +31,12 @@ flist = sys.argv[1:]
 for css_file in flist:
     css_name = os.path.basename(css_file)
     name = css_name.replace('.css', '')
-    cssdict = { 'css': css_name,
-                'name': name,
-                # 'font': None,
-                'cjk': int(name in cjk_list),
-              }
+    cssdict = {
+        'css': css_name,
+        'name': name,
+        # 'font': None,
+        'cjk': int(name in cjk_list),
+    }
 
     sheet = css.CSSStyleSheet()
     sheet.cssText = open(css_file).read()
@@ -60,7 +61,7 @@ for css_file in flist:
     else:
         sys.stderr.write('Error with {}. Font regular not found.\n'.format(css_name))
 
-results = {v['name']:v for v in results}
+results = {v['name']: v for v in results}
 import json
 
 print('noto =', json.dumps(results, indent=2))

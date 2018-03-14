@@ -11,5 +11,4 @@ class Migration(migrations.Migration):
         ('ipho_exam', '0036_create_default_actions_20160505_1725'),
     ]
 
-    operations = [
-    ]
+    operations = []

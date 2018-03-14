@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
+
 def forwards_func(apps, schema_editor):
     Figure = apps.get_model('ipho_exam', 'Figure')
     CompiledFigure = apps.get_model('ipho_exam', 'CompiledFigure')
@@ -15,6 +16,7 @@ def forwards_func(apps, schema_editor):
 def backwards_func(apps, schema_editor):
     pass
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -26,7 +28,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='figure',
             name='polymorphic_ctype',
-            field=models.ForeignKey(related_name='polymorphic_ipho_exam.figure_set+', editable=False, to='contenttypes.ContentType', null=True),
+            field=models.ForeignKey(
+                related_name='polymorphic_ipho_exam.figure_set+',
+                editable=False,
+                to='contenttypes.ContentType',
+                null=True
+            ),
         ),
         migrations.RunPython(forwards_func, backwards_func),
     ]

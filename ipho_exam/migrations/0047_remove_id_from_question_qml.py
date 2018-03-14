@@ -6,6 +6,8 @@ import re
 
 qpattern = re.compile(r'id="q(\d+)_')
 qpattern2 = re.compile(r'id="q(\d+)"')
+
+
 def forwards_func(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     for node_name in ['VersionNode', 'TranslationNode']:
@@ -14,6 +16,7 @@ def forwards_func(apps, schema_editor):
             node.text = qpattern.sub('id="q0_', node.text)
             node.text = qpattern2.sub('id="q0"', node.text)
             node.save()
+
 
 def backwards_func(apps, schema_editor):
     pass

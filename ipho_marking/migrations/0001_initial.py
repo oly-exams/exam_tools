@@ -18,7 +18,12 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('points', models.FloatField()),
                 ('comment', models.TextField()),
-                ('version', models.CharField(max_length=1, choices=[(b'O', b'Organizers'), (b'D', b'Delegation'), (b'F', b'Final')])),
+                (
+                    'version',
+                    models.CharField(
+                        max_length=1, choices=[(b'O', b'Organizers'), (b'D', b'Delegation'), (b'F', b'Final')]
+                    )
+                ),
             ],
         ),
         migrations.CreateModel(

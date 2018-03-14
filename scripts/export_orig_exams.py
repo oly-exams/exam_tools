@@ -28,33 +28,32 @@ from ipho_exam.models import *
 import json
 from io import StringIO
 
+
 def save(objs, stream):
     if type(stream) == str:
         stream = open(stream, 'w')
-    serializers.serialize('json', objs, indent=2,
-            use_natural_foreign_keys=True,
-            use_natural_primary_keys=True,
-            stream=stream)
+    serializers.serialize(
+        'json', objs, indent=2, use_natural_foreign_keys=True, use_natural_primary_keys=True, stream=stream
+    )
+
 
 def save_with_pk(objs, stream):
     if type(stream) == str:
         stream = open(stream, 'w')
-    serializers.serialize('json', objs, indent=2,
-            use_natural_foreign_keys=True,
-            use_natural_primary_keys=False,
-            stream=stream)
+    serializers.serialize(
+        'json', objs, indent=2, use_natural_foreign_keys=True, use_natural_primary_keys=False, stream=stream
+    )
 
 
 ## Official delegation
 objs = []
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
-objs.append( Delegation.objects.get(name=OFFICIAL_DELEGATION) )
+objs.append(Delegation.objects.get(name=OFFICIAL_DELEGATION))
 
 languages = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION, versioned=True)
 objs += list(languages)
 
 save_with_pk(objs, '030_official_delagation.json')
-
 
 ## Exams
 

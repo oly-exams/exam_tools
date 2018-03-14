@@ -11,8 +11,10 @@ def forwards_func(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     for delegation in Delegation.objects.using(db_alias).all():
         for exam in Exam.objects.using(db_alias).all():
-            for action in ['T', 'P']: # would be nicer to have ExamAction.ACTION_CHOICES, but it is not accessible
-                exam_action, _ = ExamAction.objects.using(db_alias).get_or_create(exam=exam, delegation=delegation, action=action)
+            for action in ['T', 'P']:  # would be nicer to have ExamAction.ACTION_CHOICES, but it is not accessible
+                exam_action, _ = ExamAction.objects.using(db_alias).get_or_create(
+                    exam=exam, delegation=delegation, action=action
+                )
 
 
 class Migration(migrations.Migration):

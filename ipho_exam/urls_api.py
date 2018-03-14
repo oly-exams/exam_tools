@@ -23,7 +23,8 @@ from ipho_exam import views_api
 router = DefaultRouter()
 router.register(r'documents', views_api.DocumentViewSet)
 
-urlpatterns = patterns('ipho_exam.views_api',
+urlpatterns = patterns(
+    'ipho_exam.views_api',
     url(r'^', include(router.urls)),
     url(r'^schema', views_api.SwaggerSchemaView.as_view(), name='schema'),
 

@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import chr
+from builtins import object
 from django.utils import timezone
 from django.db import models
 from ipho_core.models import Delegation
@@ -24,51 +26,59 @@ from itertools import chain
 
 from ipho_exam.models import Feedback
 
+
 class QuestionManager(models.Manager):
     def is_draft(self):
-        queryset = Question.objects.filter(end_date__isnull = True)
+        queryset = Question.objects.filter(end_date__isnull=True)
         return queryset
+
     def is_open(self):
-        queryset = Question.objects.filter(end_date__gt = timezone.now)
+        queryset = Question.objects.filter(end_date__gt=timezone.now)
         return queryset
+
     def is_closed(self):
-        queryset = Question.objects.filter(end_date__lte = timezone.now)
+        queryset = Question.objects.filter(end_date__lte=timezone.now)
         return queryset
+
     def not_voted_upon_by(self, user):
         user_tot_votes = user.votingright_set.all().count()
-        qNotFull = Question.objects.is_open().filter(vote__voting_right__user=user).annotate(user_votes=Count('vote')).filter(user_votes__lt=user_tot_votes)
+        qNotFull = Question.objects.is_open().filter(vote__voting_right__user=user
+                                                     ).annotate(user_votes=Count('vote')
+                                                                ).filter(user_votes__lt=user_tot_votes)
         qNoVotes = Question.objects.is_open().exclude(vote__voting_right__user=user)
         return list(chain(qNotFull, qNoVotes))
 
 
-
 class Question(models.Model):
-    class VOTE_RESULT_META:
-        OPEN     = 0
+    class VOTE_RESULT_META(object):
+        OPEN = 0
         REJECTED = 1
         ACCEPTED = 2
         choices = (
-            (OPEN,     'In progress'),
+            (OPEN, 'In progress'),
             (REJECTED, 'Rejected'),
             (ACCEPTED, 'Accepted'),
         )
-    class IMPLEMENTATION_META:
+
+    class IMPLEMENTATION_META(object):
         NOT_IMPL = 0
-        IMPL     = 1
+        IMPL = 1
         choices = (
             (NOT_IMPL, 'Not implemented'),
-            (IMPL,     'Implemented'),
+            (IMPL, 'Implemented'),
         )
-
 
     title = models.CharField(max_length=200)
     content = models.TextField(blank=True, null=True)
     pub_date = models.DateTimeField('date published', default=timezone.now)
     end_date = models.DateTimeField('end date', blank=True, null=True)
     vote_result = models.PositiveSmallIntegerField(choices=VOTE_RESULT_META.choices, default=VOTE_RESULT_META.OPEN)
-    implementation = models.PositiveSmallIntegerField(choices=IMPLEMENTATION_META.choices, default=IMPLEMENTATION_META.NOT_IMPL)
+    implementation = models.PositiveSmallIntegerField(
+        choices=IMPLEMENTATION_META.choices, default=IMPLEMENTATION_META.NOT_IMPL
+    )
     feedbacks = models.ManyToManyField(Feedback, blank=True, related_name='vote')
     objects = QuestionManager()
+
     def __str__(self):
         return self.title
 
@@ -93,26 +103,27 @@ class Question(models.Model):
     def choice_dict(self):
         choice_set = self.choice_set.all()
         choice_dict = {}
-        for i,choice in enumerate(choice_set)   :
-            choice_dict[choice] = chr(ord('A')+i)
+        for i, choice in enumerate(choice_set):
+            choice_dict[choice] = chr(ord('A') + i)
         return choice_dict
-
-
 
 
 class Choice(models.Model):
     question = models.ForeignKey(Question)
     label = models.CharField(max_length=3, blank=True, null=True)
     choice_text = models.CharField(max_length=200)
+
     def __str__(self):
-        return '{}. {}'.format( self.label,self.choice_text)
+        return '{}. {}'.format(self.label, self.choice_text)
 
     def calculateVotes(self):
-        return Vote.objects.filter(choice = self).count()
+        return Vote.objects.filter(choice=self).count()
+
     votes = property(calculateVotes)
 
-    class Meta:
+    class Meta(object):
         ordering = ['label']
+
 
 class VotingRight(models.Model):
     user = models.ForeignKey(User)
@@ -120,6 +131,7 @@ class VotingRight(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Vote(models.Model):
     question = models.ForeignKey(Question)
@@ -129,5 +141,5 @@ class Vote(models.Model):
     def __str__(self):
         return self.choice.__str__()
 
-    class Meta:
+    class Meta(object):
         unique_together = (('question', 'voting_right'))

@@ -34,12 +34,13 @@ for css_file in flist:
         if match:
             css_name = os.path.basename(css_file)
             name = css_name.replace('.css', '')
-            results.append({'css': css_name,
-                            'name': name.replace('.css', ''),
-                            'font': match.group(1),
-                            'cjk': int(name in cjk_list),
-                            })
-results = {v['name']:v for v in results}
+            results.append({
+                'css': css_name,
+                'name': name.replace('.css', ''),
+                'font': match.group(1),
+                'cjk': int(name in cjk_list),
+            })
+results = {v['name']: v for v in results}
 import json
 
 print('noto =', json.dumps(results, indent=2))

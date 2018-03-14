@@ -38,10 +38,12 @@ TEMP_PREFIX = getattr(settings, 'ODT_TEMP_PREFIX', 'render_odt-')
 
 logger = logging.getLogger('ipho_exam')
 
+
 def render_odt_response(tpl_name, context, filename, ext_resources):
-    origin = os.path.join(TEMPLATE_PATH,tpl_name)
+    origin = os.path.join(TEMPLATE_PATH, tpl_name)
     contextdict = {}
-    for d in context: contextdict.update(**d)
+    for d in context:
+        contextdict.update(**d)
     result = None
     output = None
     try:

@@ -19,9 +19,8 @@ class Migration(migrations.Migration):
                 ('active', models.BooleanField(default=True, help_text=b'Only active exams are editable.')),
                 ('hidden', models.BooleanField(default=False, help_text=b'Is the exam hidden for the delegations?')),
             ],
-            options={
-            },
-            bases=(models.Model,),
+            options={},
+            bases=(models.Model, ),
         ),
         migrations.CreateModel(
             name='Language',
@@ -32,9 +31,8 @@ class Migration(migrations.Migration):
                 ('versioned', models.BooleanField(default=False)),
                 ('delegation', models.ManyToManyField(to='ipho_core.Delegation')),
             ],
-            options={
-            },
-            bases=(models.Model,),
+            options={},
+            bases=(models.Model, ),
         ),
         migrations.CreateModel(
             name='Question',
@@ -47,21 +45,23 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ['position'],
             },
-            bases=(models.Model,),
+            bases=(models.Model, ),
         ),
         migrations.CreateModel(
             name='TranslationNode',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('text', models.TextField()),
-                ('status', models.CharField(max_length=1, choices=[(b'O', b'open'), (b'L', b'locked'), (b'S', b'submitted')])),
+                (
+                    'status',
+                    models.CharField(max_length=1, choices=[(b'O', b'open'), (b'L', b'locked'), (b'S', b'submitted')])
+                ),
                 ('timestamp', models.DateTimeField(auto_now=True)),
                 ('language', models.ForeignKey(to='ipho_exam.Language')),
                 ('question', models.ForeignKey(to='ipho_exam.Question')),
             ],
-            options={
-            },
-            bases=(models.Model,),
+            options={},
+            bases=(models.Model, ),
         ),
         migrations.CreateModel(
             name='VersionNode',
@@ -74,8 +74,7 @@ class Migration(migrations.Migration):
                 ('language', models.ForeignKey(to='ipho_exam.Language')),
                 ('question', models.ForeignKey(to='ipho_exam.Question')),
             ],
-            options={
-            },
-            bases=(models.Model,),
+            options={},
+            bases=(models.Model, ),
         ),
     ]

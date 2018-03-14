@@ -14,8 +14,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CompiledFigure',
             fields=[
-                ('figure_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='ipho_exam.Figure')),
+                (
+                    'figure_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False, to='ipho_exam.Figure'
+                    )
+                ),
             ],
-            bases=('ipho_exam.figure',),
+            bases=('ipho_exam.figure', ),
         ),
     ]

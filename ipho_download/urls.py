@@ -15,12 +15,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from django.conf.urls import url
 
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.main, {'url': '', 'type': 'd'},name='main'),
+    url(r'^$', views.main, {
+        'url': '',
+        'type': 'd'
+    }, name='main'),
     url(r'^(?P<type>[fd])/(?P<url>.*)$', views.main, name='path'),
 ]

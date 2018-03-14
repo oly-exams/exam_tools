@@ -14,7 +14,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 '''
 Simple Diff for Python version 1.0
 
@@ -72,11 +71,11 @@ def diff(old, new):
     # Create a map from old values to their indices
     old_index_map = dict()
     for i, val in enumerate(old):
-        old_index_map.setdefault(val,list()).append(i)
+        old_index_map.setdefault(val, list()).append(i)
 
     # Find the largest substring common to old and new.
     # We use a dynamic programming approach here.
-    # 
+    #
     # We iterate over each value in the `new` list, calling the
     # index `inew`. At each iteration, `overlap[i]` is the
     # length of the largest suffix of `old[:i]` equal to a suffix
@@ -103,11 +102,11 @@ def diff(old, new):
 
     for inew, val in enumerate(new):
         _overlap = dict()
-        for iold in old_index_map.get(val,list()):
+        for iold in old_index_map.get(val, list()):
             # now we are considering all values of iold such that
             # `old[iold] == new[inew]`.
             _overlap[iold] = (iold and overlap.get(iold - 1, 0)) + 1
-            if(_overlap[iold] > sub_length):
+            if (_overlap[iold] > sub_length):
                 # this is the largest substring seen so far, so store its
                 # indices
                 sub_length = _overlap[iold]
@@ -177,9 +176,7 @@ def html_diff(old, new):
         >>> html_diff('The quick brown fox', 'The fast blue fox')
         'The <del>quick brown</del> <ins>fast blue</ins> fox'
     '''
-    con = {'=': (lambda x: x),
-           '+': (lambda x: "<ins>" + x + "</ins>"),
-           '-': (lambda x: "<del>" + x + "</del>")}
+    con = {'=': (lambda x: x), '+': (lambda x: "<ins>" + x + "</ins>"), '-': (lambda x: "<del>" + x + "</del>")}
     return " ".join([(con[a])(" ".join(b)) for a, b in string_diff(old, new)])
 
 
@@ -212,5 +209,3 @@ def check_diff(old, new):
     assert old == _old, 'Expected %s, got %s' % (old, _old)
     _new = [val for (a, vals) in result if (a in '=+') for val in vals]
     assert new == _new, 'Expected %s, got %s' % (new, _new)
-
-

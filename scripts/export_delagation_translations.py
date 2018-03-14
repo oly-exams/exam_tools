@@ -27,31 +27,31 @@ from ipho_exam.models import *
 import json
 from io import StringIO
 
+
 def save(objs, stream):
     if type(stream) == str:
         stream = open(stream, 'w')
-    serializers.serialize('json', objs, indent=2,
-            use_natural_foreign_keys=True,
-            use_natural_primary_keys=True,
-            stream=stream)
+    serializers.serialize(
+        'json', objs, indent=2, use_natural_foreign_keys=True, use_natural_primary_keys=True, stream=stream
+    )
 
 
 def save_with_pk(objs, stream):
     if type(stream) == str:
         stream = open(stream, 'w')
-    serializers.serialize('json', objs, indent=2,
-            use_natural_foreign_keys=False,
-            use_natural_primary_keys=False,
-            stream=stream)
+    serializers.serialize(
+        'json', objs, indent=2, use_natural_foreign_keys=False, use_natural_primary_keys=False, stream=stream
+    )
+
 
 # exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
 exams = Exam.objects.all()
 
 questions = Question.objects.filter(exam=exams)
 
-languages = Language.objects.exclude(delegation__name__in=[settings.OFFICIAL_DELEGATION]).exclude(delegation__name__contains='-')
+languages = Language.objects.exclude(delegation__name__in=[settings.OFFICIAL_DELEGATION]
+                                     ).exclude(delegation__name__contains='-')
 save(languages, '037_delegation_langs.json')
-
 
 nodes = TranslationNode.objects.filter(question=questions, language=languages)
 ss = StringIO()

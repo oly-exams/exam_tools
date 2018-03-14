@@ -14,6 +14,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='language',
             name='direction',
-            field=models.CharField(default=b'ltr', max_length=3, choices=[(b'ltr', b'Left-to-right'), (b'rtl', b'Right-to-left')]),
+            field=models.CharField(
+                default=b'ltr', max_length=3, choices=[(b'ltr', b'Left-to-right'), (b'rtl', b'Right-to-left')]
+            ),
         ),
     ]

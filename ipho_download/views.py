@@ -28,12 +28,13 @@ from hashlib import md5
 
 MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
 
+
 @login_required
 def main(request, type, url):
     url = os.path.normpath(url)
 
-    basedir = os.path.join(MEDIA_ROOT,'downloads')
-    path = os.path.join(basedir,url).encode('utf8')
+    basedir = os.path.join(MEDIA_ROOT, 'downloads')
+    path = os.path.join(basedir, url).encode('utf8')
     rel_url = os.path.relpath(path, basedir)
     if rel_url[0] == '.' and '/' in rel_url:
         raise Http404('File path not valid.')
@@ -47,7 +48,7 @@ def main(request, type, url):
             return HttpResponseNotModified()
 
         filename = os.path.basename(path)
-        content_type,encoding = mimetypes.guess_type(path)
+        content_type, encoding = mimetypes.guess_type(path)
         res = HttpResponse(open(path), content_type=content_type)
         res['content-disposition'] = 'inline; filename="{}"'.format(filename)
         res['ETag'] = etag
@@ -75,7 +76,7 @@ def main(request, type, url):
     cur_split = url.split('/')
     for p in cur_split:
         if p == '.': continue
-        cur_url += p+'/'
+        cur_url += p + '/'
         cur_path.append((p, cur_url))
     return render(request, 'ipho_download/main.html', {
         'flist': flist,

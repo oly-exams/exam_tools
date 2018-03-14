@@ -17,9 +17,8 @@
 
 from django.conf.urls import patterns, include, url
 
-
-
-urlpatterns = patterns('ipho_exam.views_test',
+urlpatterns = patterns(
+    'ipho_exam.views_test',
     url(r'^$', 'index'),
     url(r'^view$', 'view', name='view'),
     url(r'^edit$', 'edit', name='edit'),
@@ -28,4 +27,3 @@ urlpatterns = patterns('ipho_exam.views_test',
     url(r'^mathquill_toolbar$', 'mathquill_toolbar', name='mathquill_toolbar'),
     # url(r'^(?P<rep_id>\d+)/submit/?$', 'submit'),
 )
-

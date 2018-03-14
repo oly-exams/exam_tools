@@ -19,6 +19,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='question',
             name='vote_result',
-            field=models.PositiveSmallIntegerField(default=0, choices=[(0, b'In progress'), (1, b'Rejected'), (2, b'Accepted')]),
+            field=models.PositiveSmallIntegerField(
+                default=0, choices=[(0, b'In progress'), (1, b'Rejected'), (2, b'Accepted')]
+            ),
         ),
     ]

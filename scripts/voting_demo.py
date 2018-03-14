@@ -21,8 +21,8 @@ import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 import sys
 
-root_dir=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
-sys.path.insert(0,root_dir)
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, root_dir)
 
 import django
 django.setup()
@@ -34,26 +34,14 @@ import random
 def main():
     votingRights = VotingRight.objects.all()
     question_dict = {
-    'title' :   'How do you do?',
-    'content'   :   'Please answer the question',
-    'end_date'  :   '2016-04-27T13:57:00+00:00',
+        'title': 'How do you do?',
+        'content': 'Please answer the question',
+        'end_date': '2016-04-27T13:57:00+00:00',
     }
     question = Question.objects.create(**question_dict)
-    choice1_dict = {
-    'question'      :   question,
-    'label'         :   'A',
-    'choice_text'   :   'Fine, thanks.'
-    }
-    choice2_dict = {
-    'question'      :   question,
-    'label'         :   'B',
-    'choice_text'   :   'Comme ci, comme ca.'
-    }
-    choice3_dict = {
-    'question'      :   question,
-    'label'         :   'C',
-    'choice_text'   :   'What ever, maaan...'
-    }
+    choice1_dict = {'question': question, 'label': 'A', 'choice_text': 'Fine, thanks.'}
+    choice2_dict = {'question': question, 'label': 'B', 'choice_text': 'Comme ci, comme ca.'}
+    choice3_dict = {'question': question, 'label': 'C', 'choice_text': 'What ever, maaan...'}
     choice1 = Choice.objects.create(**choice1_dict)
     choice2 = Choice.objects.create(**choice2_dict)
     choice3 = Choice.objects.create(**choice3_dict)

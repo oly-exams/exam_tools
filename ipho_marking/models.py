@@ -15,11 +15,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
 from django.db import models
 
 from ipho_core.models import Student
 from ipho_exam.models import Exam, Question
 from collections import OrderedDict
+
 
 class MarkingMeta(models.Model):
     question = models.ForeignKey(Question)
@@ -30,9 +32,10 @@ class MarkingMeta(models.Model):
     def __unicode__(self):
         return u'{} [{}] {} points'.format(self.name, self.question.name, self.max_points)
 
-    class Meta:
+    class Meta(object):
         ordering = ['position']
-        unique_together = index_together = (('question', 'name'),)
+        unique_together = index_together = (('question', 'name'), )
+
 
 class Marking(models.Model):
     marking_meta = models.ForeignKey(MarkingMeta)
@@ -44,7 +47,7 @@ class Marking(models.Model):
         ('D', 'Delegation'),
         ('F', 'Final'),
     ])
-    version = models.CharField(max_length=1, choices=MARKING_VERSIONS.items())
+    version = models.CharField(max_length=1, choices=list(MARKING_VERSIONS.items()))
 
     def exam_question(self):
         return self.marking_meta.question
@@ -52,5 +55,5 @@ class Marking(models.Model):
     def __unicode__(self):
         return u'{} [{} / {}]'.format(self.marking_meta.name, self.points, self.marking_meta.max_points)
 
-    class Meta:
-        unique_together = (('marking_meta', 'student', 'version'),)
+    class Meta(object):
+        unique_together = (('marking_meta', 'student', 'version'), )

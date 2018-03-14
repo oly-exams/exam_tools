@@ -16,7 +16,14 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('pdf', models.FileField(upload_to=b'', blank=True)),
-                ('status', models.CharField(default=b'O', max_length=1, choices=[(b'O', b'In progress'), (b'L', b'Locked'), (b'S', b'Submitted')])),
+                (
+                    'status',
+                    models.CharField(
+                        default=b'O',
+                        max_length=1,
+                        choices=[(b'O', b'In progress'), (b'L', b'Locked'), (b'S', b'Submitted')]
+                    )
+                ),
                 ('timestamp', models.DateTimeField(auto_now=True)),
             ],
         ),

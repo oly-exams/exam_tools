@@ -23,12 +23,14 @@ from ipho_exam import pdf, compile_utils, models
 from hashlib import md5
 from django.utils import timezone
 
+
 ## utils
 def all_same(items):
     return all(x == items[0] for x in items)
 
 
 ## tasks
+
 
 @shared_task
 def compile_tex(body, ext_resources, filename='question.pdf', etag=None):
@@ -44,6 +46,7 @@ def compile_tex(body, ext_resources, filename='question.pdf', etag=None):
     }
     return doc_pdf, meta
 
+
 @shared_task
 def serve_pdfnode(question_pdf, filename='question.pdf'):
     etag = md5(question_pdf).hexdigest()
@@ -56,6 +59,7 @@ def serve_pdfnode(question_pdf, filename='question.pdf'):
     }
     return question_pdf, meta
 
+
 @shared_task
 def add_barcode(compiled_pdf, bgenerator):
     question_pdf, meta = compiled_pdf
@@ -64,20 +68,22 @@ def add_barcode(compiled_pdf, bgenerator):
     meta['barcode_base'] = bgenerator.base
     return doc_pdf, meta
 
+
 @shared_task
 def concatenate_documents(all_pages, filename='exam.pdf'):
-    doc_pdf = pdf.concatenate_documents([question_pdf for question_pdf,_ in all_pages])
+    doc_pdf = pdf.concatenate_documents([question_pdf for question_pdf, _ in all_pages])
     meta = {}
     meta['filename'] = filename
-    meta['etag'] = md5(''.join([meta['etag'] for _,meta in all_pages])).hexdigest()
-    meta['num_pages'] = sum([meta['num_pages'] for _,meta in all_pages])
-    meta['barcode_num_pages'] = sum([meta['barcode_num_pages'] for _,meta in all_pages])
-    all_codes = [meta['barcode_base'] for _,meta in all_pages if meta['barcode_base'] is not None]
+    meta['etag'] = md5(''.join([meta['etag'] for _, meta in all_pages])).hexdigest()
+    meta['num_pages'] = sum([meta['num_pages'] for _, meta in all_pages])
+    meta['barcode_num_pages'] = sum([meta['barcode_num_pages'] for _, meta in all_pages])
+    all_codes = [meta['barcode_base'] for _, meta in all_pages if meta['barcode_base'] is not None]
     if all_same(all_codes):
         meta['barcode_base'] = all_codes[0] if len(all_codes) > 0 else ''
     else:
         meta['barcode_base'] = ','.join(all_codes)
     return doc_pdf, meta
+
 
 @shared_task(bind=True)
 def wait_and_concatenate(self, all_tasks, filename='exam.pdf'):
@@ -87,19 +93,20 @@ def wait_and_concatenate(self, all_tasks, filename='exam.pdf'):
         elif t.failed():
             raise t.result
     all_pages = [t.result for t in all_tasks]
-    doc_pdf = pdf.concatenate_documents([question_pdf for question_pdf,_ in all_pages])
+    doc_pdf = pdf.concatenate_documents([question_pdf for question_pdf, _ in all_pages])
 
     meta = {}
     meta['filename'] = filename
-    meta['etag'] = md5(''.join([meta['etag'] for _,meta in all_pages])).hexdigest()
-    meta['num_pages'] = sum([meta['num_pages'] for _,meta in all_pages])
-    meta['barcode_num_pages'] = sum([meta['barcode_num_pages'] for _,meta in all_pages])
-    all_codes = [meta['barcode_base'] for _,meta in all_pages if meta['barcode_base'] is not None]
+    meta['etag'] = md5(''.join([meta['etag'] for _, meta in all_pages])).hexdigest()
+    meta['num_pages'] = sum([meta['num_pages'] for _, meta in all_pages])
+    meta['barcode_num_pages'] = sum([meta['barcode_num_pages'] for _, meta in all_pages])
+    all_codes = [meta['barcode_base'] for _, meta in all_pages if meta['barcode_base'] is not None]
     if all_same(all_codes):
         meta['barcode_base'] = all_codes[0] or None
     else:
         meta['barcode_base'] = ','.join(all_codes)
     return doc_pdf, meta
+
 
 @shared_task(bind=True)
 def commit_compiled_exam(self, compile_job):
@@ -120,14 +127,17 @@ def commit_compiled_exam(self, compile_job):
     except models.DocumentTask.DoesNotExist:
         pass
 
+
 @shared_task(bind=True)
 def identity_args(self, prev_task):
     return prev_task
+
 
 @shared_task(bind=True)
 def student_exam_document(self, questions, student_languages, cover=None, commit=False):
     job_task = self.request.id if commit else None
     return compile_utils.student_exam_document(questions, student_languages, cover, job_task=job_task)
+
 
 @shared_task(bind=True)
 def cleanup_meta(self):

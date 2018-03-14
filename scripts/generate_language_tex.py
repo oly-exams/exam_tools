@@ -52,6 +52,7 @@ OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 BASE_PATH = u'../media/language_tex'
 REPLACEMENTS = [('/srv/exam_tools/app/static/noto', '.'), ('/srv/exam_tools/app/static', '.')]
 
+
 def compile_question(question, language, logo_file):
     print('Prepare', question, 'in', language)
     try:
@@ -65,24 +66,28 @@ def compile_question(question, language, logo_file):
             r.lang = language
     ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
     context = {
-                'polyglossia' : language.polyglossia,
-                'polyglossia_options' : language.polyglossia_options,
-                'font'        : fonts.ipho[language.font],
-                'extraheader' : language.extraheader,
-                'lang_name'   : u'{} ({})'.format(language.name, language.delegation.country),
-                'exam_name'   : u'{}'.format(question.exam.name),
-                'code'        : u'{}{}'.format(question.code, question.position),
-                'title'       : u'{} - {}'.format(question.exam.name, question.name),
-                'is_answer'   : question.is_answer_sheet(),
-                'document'    : trans_content.encode('utf-8'),
-                'STATIC_PATH' : '.'
-              }
-    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context)).replace(u'/srv/exam_tools/app/static/noto', u'.').encode("utf-8")
+        'polyglossia': language.polyglossia,
+        'polyglossia_options': language.polyglossia_options,
+        'font': fonts.ipho[language.font],
+        'extraheader': language.extraheader,
+        'lang_name': u'{} ({})'.format(language.name, language.delegation.country),
+        'exam_name': u'{}'.format(question.exam.name),
+        'code': u'{}{}'.format(question.code, question.position),
+        'title': u'{} - {}'.format(question.exam.name, question.name),
+        'is_answer': question.is_answer_sheet(),
+        'document': trans_content.encode('utf-8'),
+        'STATIC_PATH': '.'
+    }
+    body = render_to_string('ipho_exam/tex/exam_question.tex',
+                            RequestContext(HttpRequest(), context)).replace(u'/srv/exam_tools/app/static/noto',
+                                                                            u'.').encode("utf-8")
     try:
         exam_code = question.exam.code
         position = question.position
         question_code = question.code
-        folder = u'Translation-{}{}-{}-{}-{}'.format(exam_code, position, question_code, language.delegation.name, language.name.replace(u' ', u'_'))
+        folder = u'Translation-{}{}-{}-{}-{}'.format(
+            exam_code, position, question_code, language.delegation.name, language.name.replace(u' ', u'_')
+        )
 
         base_folder = folder
         folder = os.path.join(BASE_PATH, folder)
@@ -106,8 +111,8 @@ def compile_question(question, language, logo_file):
         with open(os.path.join(folder, 'ipho2016.cls'), 'w') as f:
             f.write(tex_cls)
 
-        used_fonts = [v for k, v in fonts.ipho[language.font].items() if isinstance(v, str) and v.endswith('.ttf')]
-        used_fonts.extend([v for k, v in fonts.ipho['notosans'].items() if isinstance(v, str) and v.endswith('.ttf')])
+        used_fonts = [v for k, v in list(fonts.ipho[language.font].items()) if isinstance(v, str) and v.endswith('.ttf')]
+        used_fonts.extend([v for k, v in list(fonts.ipho['notosans'].items()) if isinstance(v, str) and v.endswith('.ttf')])
         used_fonts = set(used_fonts)
 
         for f in used_fonts:
@@ -123,15 +128,17 @@ def compile_question(question, language, logo_file):
     except Exception as e:
         print('ERROR', e)
 
+
 def export_all(logo_file):
     exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
-    questions = Question.objects.filter(exam=exams, position__in=[1,2,3])
+    questions = Question.objects.filter(exam=exams, position__in=[1, 2, 3])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
     print('Going to export in {} languages.'.format(len(languages)))
     for q in questions:
         for lang in languages:
             compile_question(q, lang, logo_file)
     print('COMPLETED')
+
 
 if __name__ == '__main__':
     export_all('apho17_logo_bw.pdf')

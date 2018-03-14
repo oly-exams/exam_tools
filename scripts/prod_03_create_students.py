@@ -30,17 +30,19 @@ from ipho_core.models import Delegation, Student
 def main(input):
     reader = csv.DictReader(input)
 
-
-    for i,row in enumerate(reader):
+    for i, row in enumerate(reader):
         try:
             ## Delegation
             delegation = Delegation.objects.get(name=row['delegation'])
 
-            student,created = Student.objects.get_or_create(code=row['code'], defaults={
-                'first_name': row['first_name'],
-                'last_name': row['last_name'],
-                'delegation': delegation,
-            })
+            student, created = Student.objects.get_or_create(
+                code=row['code'],
+                defaults={
+                    'first_name': row['first_name'],
+                    'last_name': row['last_name'],
+                    'delegation': delegation,
+                }
+            )
             if created: print(student, '..', 'created')
 
         except Delegation.DoesNotExist:

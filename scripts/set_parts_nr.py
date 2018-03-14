@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import chr
+from builtins import str
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
@@ -25,8 +27,9 @@ import csv
 from ipho_exam.models import TranslationNode, VersionNode
 from ipho_exam import qml
 
+
 def question_points(root, part_num=-1, subq_num=0):
-    part_code = lambda num: chr(65+num)
+    part_code = lambda num: chr(65 + num)
     for obj in root.children:
         if isinstance(obj, qml.QMLpart):
             part_num += 1

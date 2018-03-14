@@ -27,12 +27,13 @@ import csv
 from ipho_core.models import Student
 from ipho_exam.models import Place, Exam
 
+
 def main(input):
     reader = csv.DictReader(input)
 
     theory = Exam.objects.get(name='Theory')
     experiment = Exam.objects.get(name='Experiment')
-    for i,row in enumerate(reader):
+    for i, row in enumerate(reader):
         try:
             student = Student.objects.get(code=row['individual_id'])
 

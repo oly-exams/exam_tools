@@ -14,6 +14,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='versionnode',
             name='status',
-            field=models.CharField(max_length=1, choices=[(b'P', b'Proposal'), (b'S', b'Staged'), (b'C', b'Confirmed')]),
+            field=models.CharField(
+                max_length=1, choices=[(b'P', b'Proposal'), (b'S', b'Staged'), (b'C', b'Confirmed')]
+            ),
         ),
     ]

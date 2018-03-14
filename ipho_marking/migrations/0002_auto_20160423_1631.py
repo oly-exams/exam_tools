@@ -31,7 +31,5 @@ class Migration(migrations.Migration):
             name='question_points',
             field=models.ForeignKey(to='ipho_marking.MarkingMeta'),
         ),
-        migrations.DeleteModel(
-            name='QuestionPoints',
-        ),
+        migrations.DeleteModel(name='QuestionPoints', ),
     ]

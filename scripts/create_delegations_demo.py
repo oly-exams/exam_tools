@@ -17,6 +17,8 @@
 
 from __future__ import print_function
 
+from builtins import str
+from builtins import range
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 
@@ -26,10 +28,11 @@ django.setup()
 import csv
 from ipho_core.models import Delegation, Student
 
+
 def main(input):
     reader = csv.DictReader(input)
 
-    for i,row in enumerate(reader):
+    for i, row in enumerate(reader):
         delegation = Delegation(name=row['Country code'], country=row['Country name'])
         nk = delegation.natural_key()
         try:
@@ -41,8 +44,8 @@ def main(input):
         delegation.save()
 
         for j in range(5):
-            code = '{}-S-{}'.format(delegation.name, j+1)
-            student = Student(code=code, first_name='Student', last_name=str(j+1), delegation=delegation)
+            code = '{}-S-{}'.format(delegation.name, j + 1)
+            student = Student(code=code, first_name='Student', last_name=str(j + 1), delegation=delegation)
             student.save()
 
         print(row['Country code'], '...', 'imported.')

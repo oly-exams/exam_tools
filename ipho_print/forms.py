@@ -25,6 +25,7 @@ from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
 
 from django.core.exceptions import ValidationError
 
+
 def build_extension_validator(valid_extensions):
     def validate_file_extension(value):
         import os
@@ -32,6 +33,7 @@ def build_extension_validator(valid_extensions):
         # valid_extensions = ['.svg', '.svgz']
         if not ext in valid_extensions:
             raise ValidationError(u'Unsupported file extension.')
+
     return validate_file_extension
 
 
@@ -52,23 +54,11 @@ class PrintForm(forms.Form):
         self.helper = FormHelper()
         if enable_opts:
             self.helper.layout = Layout(
-                Field('file'),
-                Field('queue'),
-                Field('duplex'),
-                Field('color'),
-                Field('staple'),
-                FormActions(
-                    Submit('submit', 'Submit')
-                )
+                Field('file'), Field('queue'), Field('duplex'), Field('color'), Field('staple'),
+                FormActions(Submit('submit', 'Submit'))
             )
         else:
-            self.helper.layout = Layout(
-                Field('file'),
-                Field('queue'),
-                FormActions(
-                    Submit('submit', 'Submit')
-                )
-            )
+            self.helper.layout = Layout(Field('file'), Field('queue'), FormActions(Submit('submit', 'Submit')))
 
         self.helper.html5_required = True
         self.helper.form_show_labels = True

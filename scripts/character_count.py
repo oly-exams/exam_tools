@@ -32,8 +32,8 @@ django.setup()
 from ipho_exam.models import *
 from ipho_exam import qml
 
-
 REPLACE_TOKENS = ['<[^<>]*>', r'\\raisebox{[^{}]*}\[[^\[\]]*\]\[[^\[\]]*\]', r'\\vspace{[^{}]*}*']
+
 
 def get_count(translation):
     def get_text(xml_element):
@@ -41,22 +41,22 @@ def get_count(translation):
         for c in xml_element.getchildren():
             res += get_text(c)
         return res
+
     text = get_text(qml.make_qml(translation).make_xml())
     for token in REPLACE_TOKENS:
         text = re.sub(token, u'', text)
     return len(text)
 
+
 def count_all(language):
-    translations = TranslationNode.objects.filter(
-        question__exam__name='Theory',
-        question__code='Q',
-        language=language
-    )
+    translations = TranslationNode.objects.filter(question__exam__name='Theory', question__code='Q', language=language)
     return sum(get_count(t) for t in translations)
+
 
 def get_submitted_langs():
     submissions = StudentSubmission.objects.filter(exam__name='Theory')
     return set(s.language for s in submissions)
+
 
 if __name__ == '__main__':
     langs = get_submitted_langs()

@@ -14,7 +14,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='question',
             name='code',
-            field=models.CharField(help_text=b'e.g. Q for Question, A for Answer Sheet, G for General Instruction', max_length=8),
+            field=models.CharField(
+                help_text=b'e.g. Q for Question, A for Answer Sheet, G for General Instruction', max_length=8
+            ),
         ),
         migrations.AlterField(
             model_name='versionnode',

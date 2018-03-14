@@ -1,3 +1,4 @@
+from __future__ import division
 # Exam Tools
 #
 # Copyright (C) 2014 - 2017 Oly Exams Team
@@ -15,6 +16,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from builtins import object
+from past.utils import old_div
 import barcode
 from barcode.writer import ImageWriter, SVGWriter
 import qrcode
@@ -22,6 +25,7 @@ import qrcode.image.svg
 from lxml import etree
 from io import StringIO
 import cairosvg
+
 
 class QuestionBarcodeGen(object):
     def __init__(self, exam, question, student, qcode=None, startnum=0, format='qr'):
@@ -33,7 +37,7 @@ class QuestionBarcodeGen(object):
         self.startnum = startnum
 
     def __call__(self, pg):
-        code = self.text.format(pg=self.startnum+pg)
+        code = self.text.format(pg=self.startnum + pg)
         if self.format == 'code128':
             bcode = barcode.codex.Code128(code=code, writer=SVGWriter())
             bcode_svg = bcode.render(dict(module_width=.3))
@@ -46,28 +50,30 @@ class QuestionBarcodeGen(object):
                 error_correction=qrcode.constants.ERROR_CORRECT_H
             )
             bcode_raw = img.get_image()
-            w = float(bcode_raw.attrib['width'].replace('mm',''))
-            h = float(bcode_raw.attrib['height'].replace('mm',''))
-            img_h = h+5
+            w = float(bcode_raw.attrib['width'].replace('mm', ''))
+            h = float(bcode_raw.attrib['height'].replace('mm', ''))
+            img_h = h + 5
             img.save('outcode_raw.svg')
             bcode_raw.tag = 'g'
-            bcode_raw.attrib['transform'] = 'translate({}mm,0)'.format((img_w-w)/2.)
+            bcode_raw.attrib['transform'] = 'translate({}mm,0)'.format(old_div((img_w - w), 2.))
             del bcode_raw.attrib['height']
             del bcode_raw.attrib['width']
             del bcode_raw.attrib['version']
             del bcode_raw.attrib['xmlns']
 
-            bcode_xml = etree.Element('svg', {
-                'width': "{}mm".format(img_w),
-                'height': "{}mm".format(img_h),
-                'version': "1.1",
-                'xmlns': "http://www.w3.org/2000/svg",
-            })
+            bcode_xml = etree.Element(
+                'svg', {
+                    'width': "{}mm".format(img_w),
+                    'height': "{}mm".format(img_h),
+                    'version': "1.1",
+                    'xmlns': "http://www.w3.org/2000/svg",
+                }
+            )
 
             text_xml = etree.Element('text')
             text_xml.attrib['text-anchor'] = 'middle'
-            text_xml.attrib['x'] = '{}mm'.format((img_w-w)/2. + w/2.)
-            text_xml.attrib['y'] = '{}mm'.format(h+2)
+            text_xml.attrib['x'] = '{}mm'.format(old_div((img_w - w), 2.) + old_div(w, 2.))
+            text_xml.attrib['y'] = '{}mm'.format(h + 2)
             text_xml.attrib['font-size'] = '14'
             text_xml.attrib['font-family'] = 'Verdana'
             text_xml.text = code

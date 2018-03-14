@@ -17,6 +17,7 @@
 
 from django.conf import settings
 
+
 def ipho_context(request):
     return {
         'DEMO_MODE': settings.DEMO_MODE,

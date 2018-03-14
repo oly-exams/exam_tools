@@ -16,7 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+from __future__ import division
 
+from builtins import range
+from past.utils import old_div
 from django.http import HttpResponse, Http404, HttpResponseNotModified
 from django.core.cache import cache
 from django.conf import settings
@@ -66,7 +69,9 @@ def compile_tex(body, ext_resources=[]):
             error = subprocess.Popen(
                 ["xelatex", "%s.tex" % doc],
                 cwd=tmp,
-                env={'PATH':'{}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(TEXBIN)},
+                env={
+                    'PATH': '{}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(TEXBIN)
+                },
                 stdin=open(os.devnull, "r"),
                 stderr=open(os.devnull, "wb"),
                 stdout=open(os.devnull, "wb")
@@ -76,7 +81,7 @@ def compile_tex(body, ext_resources=[]):
                 if not os.path.exists("%s/%s.log" % (tmp, doc)):
                     raise RuntimeError('Error in PDF. Errocode {}. Log does not exists.'.format(error))
                 log = open("%s/%s.log" % (tmp, doc)).read()
-                raise TexCompileException(error, "%s/%s.tex"%(tmp, doc), log)
+                raise TexCompileException(error, "%s/%s.tex" % (tmp, doc), log)
 
             with open("%s/%s.pdf" % (tmp, doc)) as f:
                 pdf = f.read()
@@ -88,12 +93,13 @@ def compile_tex(body, ext_resources=[]):
             cache.set(cache_key, pdf, CACHE_TIMEOUT)
     return pdf
 
+
 def add_barcode(doc, bgenerator):
     pdfdoc = PdfFileReader(StringIO(doc))
 
     output = PdfFileWriter()
     for i in range(pdfdoc.getNumPages()):
-        barpdf = PdfFileReader(StringIO(bgenerator(i+1)))
+        barpdf = PdfFileReader(StringIO(bgenerator(i + 1)))
         watermark = barpdf.getPage(0)
         wbox = watermark.artBox
         wwidth = (wbox.upperRight[0] - wbox.upperLeft[0])
@@ -104,8 +110,8 @@ def add_barcode(doc, bgenerator):
 
         scale = 1.66
         yshift = 83
-        x = float(pbox.upperLeft[0]) + (float(pwidth) - float(wwidth)*scale) / 2.
-        y = float(pbox.upperLeft[1]) -  float(wbox.upperLeft[1]) - yshift
+        x = float(pbox.upperLeft[0]) + old_div((float(pwidth) - float(wwidth) * scale), 2.)
+        y = float(pbox.upperLeft[1]) - float(wbox.upperLeft[1]) - yshift
 
         page.mergeScaledTranslatedPage(watermark, scale, x, y)
         output.addPage(page)
@@ -114,19 +120,22 @@ def add_barcode(doc, bgenerator):
     output.write(output_pdf)
     return output_pdf.getvalue()
 
+
 def get_num_pages(doc):
     pdfdoc = PdfFileReader(StringIO(doc))
     return pdfdoc.getNumPages()
 
+
 def concatenate_documents(all_documents):
     output = PdfFileWriter()
-    for doc in  all_documents:
+    for doc in all_documents:
         pdfdoc = PdfFileReader(StringIO(doc))
         for i in range(pdfdoc.getNumPages()):
             output.addPage(pdfdoc.getPage(i))
     output_pdf = StringIO()
     output.write(output_pdf)
     return output_pdf.getvalue()
+
 
 def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'):
     etag = md5(body).hexdigest()

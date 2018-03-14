@@ -14,6 +14,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='feedback',
             name='status',
-            field=models.CharField(default=b'S', max_length=1, choices=[(b'S', b'Submitted'), (b'V', b'Scheduled for voting'), (b'I', b'Implemented'), (b'T', b'Settle')]),
+            field=models.CharField(
+                default=b'S',
+                max_length=1,
+                choices=[(b'S', b'Submitted'), (b'V', b'Scheduled for voting'), (b'I', b'Implemented'),
+                         (b'T', b'Settle')]
+            ),
         ),
     ]

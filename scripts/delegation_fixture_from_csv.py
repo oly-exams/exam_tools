@@ -20,20 +20,22 @@ from __future__ import print_function
 import csv
 import json
 
+
 def parse(input):
     indata = csv.reader(input)
 
     data = []
     for row in indata:
         entry = {}
-        entry['model']  = 'ipho_core.delegation'
+        entry['model'] = 'ipho_core.delegation'
         entry['fields'] = {
-                            'name'    : row[1],
-                            'country' : row[0],
-                           }
+            'name': row[1],
+            'country': row[0],
+        }
         data.append(entry)
 
     print(json.dumps(data, sort_keys=True, indent=4, separators=(',', ': ')))
+
 
 if __name__ == '__main__':
     import argparse

@@ -19,9 +19,8 @@ class Migration(migrations.Migration):
                 ('content', models.TextField(blank=True)),
                 ('params', models.TextField(blank=True)),
             ],
-            options={
-            },
-            bases=(models.Model,),
+            options={},
+            bases=(models.Model, ),
         ),
         migrations.AlterField(
             model_name='language',
