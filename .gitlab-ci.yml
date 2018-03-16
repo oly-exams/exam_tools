@@ -1,17 +1,5 @@
 image: docker:latest
 services:
-  - docker:dind
-stage: build
-
-build:
-  script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker build -t registry.gitlab.com/oly-exams/exam_tools/master:latest -f docker/Dockerfile.master .
-    - docker push registry.gitlab.com/oly-exams/exam_tools/master:latest
-
-
-image: docker:latest
-services:
 - docker:dind
 
 stages:
