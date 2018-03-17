@@ -637,13 +637,13 @@
     "polyglossia": null, 
     "polyglossia_options": null
   }, 
-  "norwegian bokm\\u00e5l": {
+  "norwegian bokmål": {
     "direction": "ltr", 
     "fonts": [
       "notosans", 
       "notoserif"
     ], 
-    "language": "Norwegian Bokm\\u00e5l", 
+    "language": "Norwegian Bokmål", 
     "polyglossia": "norsk", 
     "polyglossia_options": null
   }, 
