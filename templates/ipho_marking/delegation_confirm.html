@@ -26,19 +26,41 @@
           {% for item in metas|lookup:question.pk %}
             <th>{{ item.name }}</th>
           {% endfor %}
+          <th>Total</th>
         </tr>
         {% regroup markings|lookup:question.pk by student as markings_list %}
         {% for marking in markings_list %}
         <tr>
           <td>{{ marking.grouper.first_name }} {{ marking.grouper.last_name }}  ({{ marking.grouper.code }})</td>
           {% for item in marking.list %}
-            <td>{{ item.points|default_if_none:"-" }}</td>
+            <td>{{ item.points|floatformat:2|default_if_none:"-" }}</td>
           {% endfor %}
+          <td><b>{{ totals_questions|lookup:question.pk|lookup:marking.list.0.student.pk|floatformat:2|default_if_none:"-" }}</b></td>
         </tr>
         {% endfor %}
       </table>
     </div>
   {% endfor %}
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Total points</h2>
+    </div>
+
+    <table class="table table-strided">
+      <tr>
+        <th>Student</th>
+        <th>Total</th>
+      </tr>
+      {% regroup markings|lookup:questions.0.pk by student as markings_list %}
+      {% for marking in markings_list %}
+      <tr>
+        <td>{{ marking.grouper.first_name }} {{ marking.grouper.last_name }}  ({{ marking.grouper.code }})</td>
+        <td><b>{{ totals|lookup:marking.list.0.student.pk|floatformat:2|default_if_none:"-" }}</b></td>
+      </tr>
+      {% endfor %}
+    </table>
+    </div>
 
   <hr />
 
