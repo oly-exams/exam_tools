@@ -157,6 +157,11 @@ $(function() {
             });
             exam_tbody.find('.panel-collapse').on('hide.bs.collapse', toggleChevron);
             exam_tbody.find('.panel-collapse').on('show.bs.collapse', toggleChevron);
+            $("time[data-format]").each(function () {
+                var el = $(this);
+                var dt = moment(el.attr("datetime"));
+                el.text(dt.format(el.data("format")));
+            });
         });
     }
 
