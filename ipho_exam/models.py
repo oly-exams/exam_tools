@@ -26,6 +26,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from ipho_core.models import Delegation, Student
 from django.shortcuts import get_object_or_404
 from ipho_exam import fonts
@@ -46,6 +47,7 @@ class LanguageManager(models.Manager):
         return self.get(name=name, delegation=Delegation.objects.get_by_natural_key(delegation_name))
 
 
+@python_2_unicode_compatible
 class Language(models.Model):
     objects = LanguageManager()
     DIRECTION_CHOICES = (('ltr', 'Left-to-right'), ('rtl', 'Right-to-left'))
@@ -203,7 +205,7 @@ class Language(models.Model):
     def natural_key(self):
         return (self.name, ) + self.delegation.natural_key()
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s (%s)' % (self.name, self.delegation.country)
 
     def check_permission(self, user):
@@ -221,6 +223,7 @@ class ExamManager(models.Manager):
         return self.get(name=name)
 
 
+@python_2_unicode_compatible
 class Exam(models.Model):
     objects = ExamManager()
 
@@ -231,7 +234,7 @@ class Exam(models.Model):
     marking_active = models.BooleanField(default=False, help_text='Allow marking submission from delegations.')
     moderation_active = models.BooleanField(default=False, help_text='Allow access to moderation interface.')
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % (self.name)
 
     def natural_key(self):
@@ -243,6 +246,7 @@ class QuestionManager(models.Manager):
         return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam_name))
 
 
+@python_2_unicode_compatible
 class Question(models.Model):
     objects = QuestionManager()
 
@@ -274,7 +278,7 @@ class Question(models.Model):
     def exam_name(self):
         return self.exam.name
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} [#{} in {}]'.format(self.name, self.position, self.exam.name)
 
     def natural_key(self):
@@ -301,6 +305,7 @@ class VersionNodeManager(models.Manager):
         )
 
 
+@python_2_unicode_compatible
 class VersionNode(models.Model):
     objects = VersionNodeManager()
     STATUS_CHOICES = (
@@ -324,7 +329,7 @@ class VersionNode(models.Model):
     def question_name(self):
         return self.question.name
 
-    def __unicode__(self):
+    def __str__(self):
         return u'vnode: {} [{}, v{} {}, {}] - {}'.format(
             self.question.name, self.language, self.version, self.tag, self.timestamp, self.status
         )
@@ -343,6 +348,7 @@ class TranslationNodeManager(models.Manager):
         )
 
 
+@python_2_unicode_compatible
 class TranslationNode(models.Model):
     objects = TranslationNodeManager()
     STATUS_CHOICES = (
@@ -363,7 +369,7 @@ class TranslationNode(models.Model):
     def question_name(self):
         return self.question.name
 
-    def __unicode__(self):
+    def __str__(self):
         return u'node: {} [{}, {}] - {}'.format(self.question.name, self.language, self.timestamp, self.status)
 
     def natural_key(self):
@@ -377,12 +383,13 @@ class AttributeChangeManager(models.Manager):
         return self.get(node=TranslationNode.objects.get_by_natural_key(*args, **kwargs))
 
 
+@python_2_unicode_compatible
 class AttributeChange(models.Model):
     objects = AttributeChangeManager()
     content = models.TextField(blank=True)
     node = models.OneToOneField(TranslationNode)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'attrs:{}'.format(self.node)
 
     def natural_key(self):
@@ -407,6 +414,7 @@ def get_file_path(instance, filename):
     return os.path.join('pdfnodes/Lang{}Q{}'.format(instance.question.pk, instance.language.pk), filename)
 
 
+@python_2_unicode_compatible
 class PDFNode(models.Model):
     objects = PDFNodeManager()
     STATUS_CHOICES = (
@@ -427,7 +435,7 @@ class PDFNode(models.Model):
     def question_name(self):
         return self.question.name
 
-    def __unicode__(self):
+    def __str__(self):
         return u'pdfNode: {} [{}, {}] - {}'.format(self.question.name, self.language, self.timestamp, self.status)
 
     def natural_key(self):
@@ -436,13 +444,14 @@ class PDFNode(models.Model):
     natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
 
 
+@python_2_unicode_compatible
 class TranslationImportTmp(models.Model):
     slug = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
     question = models.ForeignKey(Question)
     language = models.ForeignKey(Language)
     content = models.TextField(blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s, %s' % (self.slug, self.question, self.language)
 
 
@@ -451,6 +460,7 @@ class FigureManager(PolymorphicManager):
         return self.get(name=name)
 
 
+@python_2_unicode_compatible
 class Figure(PolymorphicModel):
     objects = FigureManager()
     name = models.CharField(max_length=100, db_index=True)
@@ -458,7 +468,7 @@ class Figure(PolymorphicModel):
     def natural_key(self):
         return self.name
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % (self.name)
 
 
@@ -556,6 +566,7 @@ class PlaceManager(models.Manager):
         return self.get(name=name, exam__name=exam_name)
 
 
+@python_2_unicode_compatible
 class Place(models.Model):
     objects = PlaceManager()
 
@@ -563,7 +574,7 @@ class Place(models.Model):
     exam = models.ForeignKey(Exam)
     name = models.CharField(max_length=20)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} [{} {}]'.format(self.name, self.exam.name, self.student.code)
 
     def natural_key(self):
@@ -573,6 +584,7 @@ class Place(models.Model):
         unique_together = index_together = ('student', 'exam')
 
 
+@python_2_unicode_compatible
 class Feedback(models.Model):
     STATUS_CHOICES = (
         ('S', 'Submitted'),
@@ -611,7 +623,7 @@ class Feedback(models.Model):
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='S')
     timestamp = models.DateTimeField(auto_now=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'#{} {} - {} ({})'.format(self.pk, self.question.name, self.question.exam.name, self.delegation.name)
 
     @staticmethod
@@ -738,6 +750,7 @@ def exam_scans_orig_filename(obj, fname):
     return basestr.format(obj.barcode_base, timestamp)
 
 
+@python_2_unicode_compatible
 class Document(models.Model):
     SCAN_STATUS_CHOICES = (
         ('S', 'Success'),
@@ -781,23 +794,25 @@ class Document(models.Model):
     def question_name(self):
         return self.question.name
 
-    def __unicode__(self):
+    def __str__(self):
         return u'Document: {} #{} [{}]'.format(self.exam.name, self.position, self.student.code)
 
 
+@python_2_unicode_compatible
 class DocumentTask(models.Model):
     task_id = models.CharField(unique=True, max_length=255)
     document = models.OneToOneField(Document)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} --> {}'.format(self.task_id, self.document)
 
 
+@python_2_unicode_compatible
 class PrintLog(models.Model):
     TYPE_CHOICES = (('P', 'Printout'), ('S', 'Scan'))
     document = models.ForeignKey(Document)
     type = models.CharField(max_length=1, choices=TYPE_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{}-{} ({}) {}'.format(self.document.exam.code, self.document.position, self.type, self.timestamp)
