@@ -317,6 +317,7 @@ def delegation_stud_edit(request, stud_id, question_id):
     if student.delegation != delegation:
         return HttpResponseForbidden('You do not have permission to access this student.')
 
+
     question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
     version = 'D'
 
@@ -343,9 +344,17 @@ def delegation_stud_edit(request, stud_id, question_id):
     )
     if form.is_valid():
         form.save()
+        students = delegation.student_set.all()
+        stud_id_list = [str(s.id) for s in students]
+        next_stud_index = stud_id_list.index(stud_id)+1
+        next_stud_button = ''
+        if next_stud_index < len(stud_id_list):
+            next_stud_id = stud_id_list[next_stud_index]
+            next_stud_button = ' <a href="{}" class="btn btn-default btn-xs">next student</a> '.format(reverse('marking:delegation-stud-detail-edit',  kwargs={'stud_id':next_stud_id, 'question_id':question_id}))
+
         ctx['msg'].append((
             'alert-success',
-            '<strong>Success.</strong> Points have been saved. <a href="{}" class="btn btn-default btn-xs">back to summary</a>'.
+            '<strong>Success.</strong> Points have been saved.'+ next_stud_button + ' <a href="{}" class="btn btn-default btn-xs">back to summary</a> '.
             format(reverse('marking:delegation-summary'))
         ))
 
