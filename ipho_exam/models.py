@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Exam Tools
 #
 # Copyright (C) 2014 - 2017 Oly Exams Team
