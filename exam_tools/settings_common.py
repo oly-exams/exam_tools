@@ -35,11 +35,11 @@ VERSION = '2.0.0'
 
 try:
     GIT_HEAD_DATE = str(subprocess.check_output(["git", "log", "-1", "--date=short", "--pretty=format:%ci"]), 'utf-8').strip()
-except FileNotFoundError:
+except Exception:
     GIT_HEAD_DATE = ''
 try:
     GIT_HEAD_SHA = '({})'.format(str(subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]), 'utf-8').strip())
-except FileNotFoundError:
+except Exception:
     GIT_HEAD_SHA = ''
 
 VERSION_DATE = '{} {}'.format(GIT_HEAD_DATE, GIT_HEAD_SHA)
