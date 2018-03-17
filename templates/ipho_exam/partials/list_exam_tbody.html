@@ -3,7 +3,7 @@
 <tr>
     <td>{{ node.question.name }}</td>
     <td>{{ node.language.name }}</td>
-    <td>{{ node.timestamp }}</td>
+    <td><time datetime="{{ node.timestamp|date:"c" }}" data-format="MMM Do, h:mm:ss A"></time></td>
     <td>{{ exam_active|yesno:'In progress,Closed' }}</td>
     <td>
       <div class="btn-toolbar">
@@ -50,7 +50,7 @@
 <tr>
     <td>{{ node.question.name }}</td>
     <td>{{ node.language.name }} (Official)</td>
-    <td>{{ node.timestamp }}</td>
+    <td><time datetime="{{ node.timestamp|date:"c" }}" data-format="MMM Do, h:mm:ss A"></time></td>
     <td></td>
     <td>
       <div class="btn-toolbar">
