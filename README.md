@@ -107,3 +107,10 @@ For building the static docs
 ```bash
 mkdocs build
 ```
+
+## Docker images
+To build the docker images:
+
+```bash
+docker build -f docker/Dockerfile.master .
+```
