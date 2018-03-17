@@ -23,7 +23,7 @@
     <td>{{ fb.question__name }}</td>
     <td>{{ fb.part }}</td>
     <td>{{ fb.comment }}</td>
-    <td>{{ fb.timestamp }}</td>
+    <td><time datetime="{{ fb.timestamp|date:"c" }}" data-format="hh:mm A"></time></td>
     <td>
       <div class="btn-toolbar">
         <a href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="btn btn-info {{ fb.enable_likes|yesno:',disabled' }}">
