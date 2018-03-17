@@ -32,7 +32,17 @@ STATIC_PATH = os.path.join(PROJECT_PATH, 'static')
 SITE_URL = 'http://127.0.0.1:8000'
 
 VERSION = '2.0.0'
-VERSION_DATE = '{} ({})'.format(str(subprocess.check_output(["git", "log", "-1", "--date=short", "--pretty=format:%ci"]).strip(), 'utf-8'), str(subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]), 'utf-8').strip())
+
+try:
+    GIT_HEAD_DATE = str(subprocess.check_output(["git", "log", "-1", "--date=short", "--pretty=format:%ci"]), 'utf-8').strip()
+except FileNotFoundError:
+    GIT_HEAD_DATE = ''
+try:
+    GIT_HEAD_SHA = '({})'.format(str(subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]), 'utf-8').strip())
+except FileNotFoundError:
+    GIT_HEAD_SHA = ''
+
+VERSION_DATE = '{} {}'.format(GIT_HEAD_DATE, GIT_HEAD_SHA)
 
 OFFICIAL_DELEGATION = 'Official'
 
