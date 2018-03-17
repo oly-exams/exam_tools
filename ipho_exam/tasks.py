@@ -35,7 +35,7 @@ def all_same(items):
 @shared_task
 def compile_tex(body, ext_resources, filename='question.pdf', etag=None):
     if etag is None:
-        etag = md5(body).hexdigest()
+        etag = md5(body.encode('utf8')).hexdigest()
     doc_pdf = pdf.compile_tex(body, ext_resources)
     meta = {
         'etag': etag,

@@ -223,7 +223,7 @@ class QMLobject(object):
         if isinstance(xml, bytes):
             root = ET.fromstring(xml)
         elif isinstance(xml, str):
-            root = ET.fromstring(xml.encode('utf-8'))
+            root = ET.fromstring(xml)
         else:
             root = xml
 
@@ -608,7 +608,7 @@ class QMLfigure(QMLobject):
         query = {}
         for c in self.children:
             if c.tag == 'param':
-                query[c.attributes['name']] = c.data.encode('utf-8')
+                query[c.attributes['name']] = c.data
         return query
 
     def fig_url(self, output_format='svg'):

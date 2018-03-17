@@ -75,12 +75,12 @@ def compile_question(question, language, logo_file):
         'code': u'{}{}'.format(question.code, question.position),
         'title': u'{} - {}'.format(question.exam.name, question.name),
         'is_answer': question.is_answer_sheet(),
-        'document': trans_content.encode('utf-8'),
+        'document': trans_content,
         'STATIC_PATH': '.'
     }
     body = render_to_string('ipho_exam/tex/exam_question.tex',
                             RequestContext(HttpRequest(), context)).replace(u'/srv/exam_tools/app/static/noto',
-                                                                            u'.').encode("utf-8")
+                                                                            u'.')
     try:
         exam_code = question.exam.code
         position = question.position
