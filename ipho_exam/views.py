@@ -1851,8 +1851,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
             if request.POST and request.POST.get('checksum', None) != checksum:
                 logger.warning(
-                    "Sync lost. incoming checksum '{}', existing checksum '{}'.\n\nThe POST request was:\n{}\n\nThe locals are:\n{}\n\n".
-                    format(request.POST.get('checksum', None), checksum, request.POST, locals())
+                    "Sync lost. incoming checksum '{}', existing checksum '{}'.\n\nThe POST request was:\n{}\n\n".
+                    format(request.POST.get('checksum', None), checksum, request.POST)
                 )
                 return JsonResponse({
                     'success': False,

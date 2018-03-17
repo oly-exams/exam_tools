@@ -105,11 +105,11 @@ def make_qml(node):
 
 
 def xml2string(xml):
-    return ET.tostring(xml)
+    return ET.tostring(xml, encoding='unicode')
 
 
 def content2string(node):
-    parts = ([node.text] + [ET.tostring(c) for c in node])
+    parts = ([node.text] + [ET.tostring(c, encoding='unicode') for c in node])
     # We assume that `node` is a pure QML tag, therefore we don't consider the tail.
     # +[node.tail])
     # filter removes possible Nones in texts and tails
