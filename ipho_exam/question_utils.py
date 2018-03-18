@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2017 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -47,7 +47,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
     all_tasks = []
 
     if cover is not None:
-        body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover)).encode("utf-8")
+        body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover))
         compile_task = tasks.compile_tex.s(body, [])
         q = questions[0]
         s = student_languages[0].student
@@ -83,7 +83,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                     'document': trans_content,
                 }
                 body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(),
-                                                                                          context)).encode("utf-8")
+                                                                                          context))
                 compile_task = tasks.compile_tex.s(body, ext_resources)
             else:
                 compile_task = tasks.serve_pdfnode.s(trans.node.pdf.read())
@@ -108,7 +108,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                     'pages': list(range(question.working_pages)),
                 }
                 body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(),
-                                                                                       context)).encode("utf-8")
+                                                                                       context))
                 compile_task = tasks.compile_tex.s(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
                 barcode_task = tasks.add_barcode.s(bgenerator)
@@ -138,7 +138,7 @@ def generate_extra_sheets(student, question, startnum, npages, template_name='ex
         'startnum': startnum + 1,
     }
     body = render_to_string('ipho_exam/tex/{}'.format(template_name), RequestContext(HttpRequest(),
-                                                                                     context)).encode("utf-8")
+                                                                                     context))
     question_pdf = pdf.compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
     bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, student, qcode='Z', startnum=startnum)
     doc_pdf = pdf.add_barcode(question_pdf, bgenerator)

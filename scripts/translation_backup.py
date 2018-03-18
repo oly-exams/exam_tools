@@ -2,7 +2,7 @@
 
 # Exam Tools
 #
-# Copyright (C) 2014 - 2017 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -21,6 +21,7 @@ import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 import sys
 import datetime
+from io import open 
 
 import django
 django.setup()
@@ -67,7 +68,7 @@ def make_backups(backup_folder):
         if node.text:
             export = qml.unescape_entities(qml.xml2string(qml.make_qml(node).make_xml()))
             with open(export_file, 'w') as f:
-                f.write(export.encode('utf8'))
+                f.write(export)
 
 
 def clean_old_backups(backup_folder, timedelta):

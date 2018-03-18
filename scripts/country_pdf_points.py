@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2017 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -21,6 +21,7 @@ from __future__ import print_function
 
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+from io import open 
 
 import django
 django.setup()
@@ -92,7 +93,7 @@ def compile_all():
             'results': results,
         }
         body = render_to_string('ipho_marking/tex/exam_points.tex', RequestContext(HttpRequest(),
-                                                                                   context)).encode("utf-8")
+                                                                                   context))
         with open(u'FINALPOINTS-{}.tex'.format(delegation.name), 'w') as fp:
             fp.write(body)
         continue

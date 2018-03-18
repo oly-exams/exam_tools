@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2017 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -525,7 +525,19 @@ def delegation_confirm(request, exam_id):
         k: list(sorted(g, key=lambda m: m.student.pk))
         for k, g in itertools.groupby(markings_query, key=lambda m: m.marking_meta.question.pk)
     }
-    ctx = {'exam': exam, 'questions': questions, 'markings': markings, 'metas': metas, 'form_error': form_error}
+    #totals is of the form {question.pk:{student.pk:total, ...}, ...}
+    totals_questions = {
+        k: { #s is a list of markings for student p
+            p: sum(m.points for m in s)
+            for p, s in itertools.groupby(sorted(g, key=lambda m: m.student.pk), key=lambda m: m.student.pk)}
+        for k, g in itertools.groupby(markings_query, key=lambda m: m.marking_meta.question.pk)
+    }
+
+    totals = {p: sum(totals_questions[k][p] for k in totals_questions)
+            for p in list(totals_questions.values())[0]}
+
+    ctx = {'exam': exam, 'questions': questions, 'markings': markings, 'metas': metas,
+        'totals_questions':totals_questions, 'totals':totals, 'form_error': form_error}
     return render(request, 'ipho_marking/delegation_confirm.html', ctx)
 
 

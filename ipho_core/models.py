@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2017 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,11 +15,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 from builtins import object
 from builtins import str
 
 from django.db import models
 from django.conf import settings
+from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User, Group
 import uuid
 
@@ -44,13 +47,14 @@ class AutoLoginManager(models.Manager):
         return self.get(user=User.objects.get_by_natural_key(username))
 
 
+@python_2_unicode_compatible
 class AutoLogin(models.Model):
     objects = AutoLoginManager()
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     token = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.token)
 
     def natural_key(self):
@@ -62,6 +66,7 @@ class DelegationManager(models.Manager):
         return self.get(name=name)
 
 
+@python_2_unicode_compatible
 class Delegation(models.Model):
     objects = DelegationManager()
 
@@ -75,7 +80,7 @@ class Delegation(models.Model):
     def natural_key(self):
         return (self.name, )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} ({})'.format(self.country, self.name)
 
 
@@ -84,6 +89,7 @@ class StudentManager(models.Manager):
         return self.get(code=code)
 
 
+@python_2_unicode_compatible
 class Student(models.Model):
     objects = StudentManager()
 
@@ -100,10 +106,11 @@ class Student(models.Model):
     def natural_key(self):
         return (self.code, )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{}'.format(self.code)
 
 
+@python_2_unicode_compatible
 class AccountRequest(models.Model):
     email = models.EmailField()
     user = models.ForeignKey(User)
@@ -112,5 +119,5 @@ class AccountRequest(models.Model):
     class Meta(object):
         ordering = ['-timestamp']
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} ({}) - {}'.format(self.email, self.user, self.timestamp)

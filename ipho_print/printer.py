@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2017 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -44,7 +44,7 @@ def allowed_choices(user):
 
 def send2queue(file, queue, user=None, user_opts={}):
     url = 'http://{host}/print/{queue}'.format(**PRINTER_QUEUES[queue])
-    files = {'file': (urllib.parse.quote(os.path.basename(file.name).encode('utf8')), file, 'application/pdf')}
+    files = {'file': (urllib.parse.quote(os.path.basename(file.name)), file, 'application/pdf')}
     headers = {'Authorization': 'IPhOToken {auth_token}'.format(**PRINTER_QUEUES[queue])}
     data = {}
     if user is not None:

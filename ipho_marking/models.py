@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2017 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -17,19 +17,21 @@
 
 from builtins import object
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 from ipho_core.models import Student
 from ipho_exam.models import Exam, Question
 from collections import OrderedDict
 
 
+@python_2_unicode_compatible
 class MarkingMeta(models.Model):
     question = models.ForeignKey(Question)
     name = models.CharField(max_length=10)
     max_points = models.DecimalField(max_digits=8, decimal_places=2)
     position = models.PositiveSmallIntegerField(default=10, help_text='Sorting index inside one question')
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} [{}] {} points'.format(self.name, self.question.name, self.max_points)
 
     class Meta(object):
@@ -37,6 +39,7 @@ class MarkingMeta(models.Model):
         unique_together = index_together = (('question', 'name'), )
 
 
+@python_2_unicode_compatible
 class Marking(models.Model):
     marking_meta = models.ForeignKey(MarkingMeta)
     student = models.ForeignKey(Student)
@@ -52,7 +55,7 @@ class Marking(models.Model):
     def exam_question(self):
         return self.marking_meta.question
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} [{} / {}]'.format(self.marking_meta.name, self.points, self.marking_meta.max_points)
 
     class Meta(object):

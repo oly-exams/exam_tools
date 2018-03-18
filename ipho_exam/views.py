@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2017 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -418,7 +418,10 @@ def translation_import(request, question_id, lang_id):
     if form.is_valid():
         obj = form.save(commit=False)
         txt = request.FILES['file'].read()
-        txt = txt.decode('utf8')
+        try:
+            txt = txt.decode('utf8')
+        except AttributeError:
+            pass
         obj.content = qml.normalize_html(txt)
         obj.question = question
         obj.language = language
@@ -687,7 +690,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
     ])
 
     for row in feedbacks:
-        writer.writerow([c.encode('utf8') if isinstance(c, str) else c for c in row])
+        writer.writerow(row)
 
     return response
 
@@ -988,7 +991,10 @@ def admin_import_version(request, question_id):
     form = AdminImportForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         txt = request.FILES['file'].read()
-        txt = txt.decode('utf8')
+        try:
+            txt = txt.decode('utf8')
+        except AttributeError:
+            pass
         if language.versioned:
             if VersionNode.objects.filter(question=question, language=language).exists():
                 node = VersionNode.objects.filter(question=question, language=language).order_by('-version')[0]
@@ -1851,8 +1857,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
             if request.POST and request.POST.get('checksum', None) != checksum:
                 logger.warning(
-                    "Sync lost. incoming checksum '{}', existing checksum '{}'.\n\nThe POST request was:\n{}\n\nThe locals are:\n{}\n\n".
-                    format(request.POST.get('checksum', None), checksum, request.POST, locals())
+                    "Sync lost. incoming checksum '{}', existing checksum '{}'.\n\nThe POST request was:\n{}\n\n".
+                    format(request.POST.get('checksum', None), checksum, request.POST)
                 )
                 return JsonResponse({
                     'success': False,
@@ -1925,7 +1931,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         # if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
         #     return HttpResponseNotModified()
         res = HttpResponse(trans.node.pdf, content_type="application/pdf")
-        res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
+        res['content-disposition'] = 'inline; filename="{}"'.format(filename)
         # res['ETag'] = etag
         return res
 
@@ -1946,7 +1952,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         'is_answer': trans.question.is_answer_sheet(),
         'document': trans_content,
     }
-    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request, context)).encode("utf-8")
+    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request, context))
 
     if raw_tex:
         return HttpResponse(body, content_type="text/plain; charset=utf-8", charset="utf-8")
@@ -2084,7 +2090,7 @@ def pdf_task(request, token):
                 return HttpResponseNotModified()
 
             res = HttpResponse(doc_pdf, content_type="application/pdf")
-            res['content-disposition'] = 'inline; filename="{}"'.format(meta['filename'].encode('utf-8'))
+            res['content-disposition'] = 'inline; filename="{}"'.format(meta['filename'])
             res['ETag'] = meta['etag']
             return res
         else:

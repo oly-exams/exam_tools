@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2017 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -75,12 +75,12 @@ def compile_question(question, language, logo_file):
         'code': u'{}{}'.format(question.code, question.position),
         'title': u'{} - {}'.format(question.exam.name, question.name),
         'is_answer': question.is_answer_sheet(),
-        'document': trans_content.encode('utf-8'),
+        'document': trans_content,
         'STATIC_PATH': '.'
     }
     body = render_to_string('ipho_exam/tex/exam_question.tex',
                             RequestContext(HttpRequest(), context)).replace(u'/srv/exam_tools/app/static/noto',
-                                                                            u'.').encode("utf-8")
+                                                                            u'.')
     try:
         exam_code = question.exam.code
         position = question.position

@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2017 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -55,7 +55,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
     all_barcodes = []
     all_docs = []
     if cover is not None:
-        body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover)).encode("utf-8")
+        body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover))
         question_pdf = pdf.compile_tex(body, [])
         q = questions[0]
         s = student_languages[0].student
@@ -95,7 +95,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                     'document': trans_content,
                 }
                 body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(),
-                                                                                          context)).encode("utf-8")
+                                                                                          context))
                 print('Compile {} {}.'.format(question, sl.language))
                 question_pdf = pdf.compile_tex(body, ext_resources)
             else:
@@ -126,7 +126,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                     'pages': list(range(question.working_pages)),
                 }
                 body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(),
-                                                                                       context)).encode("utf-8")
+                                                                                       context))
                 question_pdf = pdf.compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
                 page = pdf.add_barcode(question_pdf, bgenerator)
