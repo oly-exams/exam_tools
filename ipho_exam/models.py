@@ -342,7 +342,7 @@ class Figure(PolymorphicModel):
     fig_id = models.URLField(max_length=100, db_index=True, default=natural_id.generate_id, unique=True, blank=False)
 
     def natural_key(self):
-        return self.fig_id
+        return (self.fig_id, )
 
     def __str__(self):
         return u'%s' % (self.name)
