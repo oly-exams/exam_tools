@@ -31,6 +31,7 @@ import urllib.request, urllib.parse, urllib.error
 import binascii
 from copy import deepcopy
 from xml.etree import ElementTree as ET
+from decimal import Decimal
 
 from future.standard_library import install_aliases
 install_aliases()
@@ -148,7 +149,8 @@ def question_points(root):
     ret = []
     for obj in root.children:
         if isinstance(obj, (QMLsubquestion, QMLsubanswer)):
-            points = float(obj.attributes.get('points', 0.))
+            #TWOPLACES = Decimal(10) ** -2
+            points = Decimal(obj.attributes.get('points', 0.))#.quantize(TWOPLACES)
             name = '{}.{}'.format(obj.attributes.get('part_nr', ''), obj.attributes.get('question_nr', ''))
             ret.append((name, points))
         child_points = question_points(obj)

@@ -317,7 +317,6 @@ def delegation_stud_edit(request, stud_id, question_id):
     if student.delegation != delegation:
         return HttpResponseForbidden('You do not have permission to access this student.')
 
-
     question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
     version = 'D'
 
