@@ -1,4 +1,3 @@
-from __future__ import division
 # Exam Tools
 #
 # Copyright (C) 2014 - 2018 Oly Exams Team
@@ -15,6 +14,8 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import division
 
 from builtins import range
 from past.utils import old_div

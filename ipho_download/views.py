@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals, absolute_import
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse, HttpResponseNotModified, Http404
@@ -34,7 +36,7 @@ def main(request, type, url):
     url = os.path.normpath(url)
 
     basedir = os.path.join(MEDIA_ROOT, 'downloads')
-    path = os.path.join(basedir, url).encode('utf8')
+    path = os.path.join(basedir, url)
     rel_url = os.path.relpath(path, basedir)
     if rel_url[0] == '.' and '/' in rel_url:
         raise Http404('File path not valid.')
@@ -42,14 +44,14 @@ def main(request, type, url):
         raise Http404('File not found.')
 
     if type == 'f':
-        etag = md5(path).hexdigest()
+        etag = md5(path.encode('utf8')).hexdigest()
 
         if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
             return HttpResponseNotModified()
 
         filename = os.path.basename(path)
         content_type, encoding = mimetypes.guess_type(path)
-        res = HttpResponse(open(path), content_type=content_type)
+        res = HttpResponse(open(path, 'rb'), content_type=content_type)
         res['content-disposition'] = 'inline; filename="{}"'.format(filename)
         res['ETag'] = etag
         return res
@@ -57,7 +59,7 @@ def main(request, type, url):
     flist = []
     for f in os.listdir(path):
         if f[0] == '.': continue
-        fullpath = os.path.join(path, f.decode('utf8')).encode('utf8')
+        fullpath = os.path.join(path, f)
         fpath = os.path.relpath(fullpath, basedir)
         tt = 'f'
         t = 'file'

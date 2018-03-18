@@ -687,7 +687,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
     ])
 
     for row in feedbacks:
-        writer.writerow([c.encode('utf8') if isinstance(c, str) else c for c in row])
+        writer.writerow(row)
 
     return response
 
@@ -1851,8 +1851,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
             if request.POST and request.POST.get('checksum', None) != checksum:
                 logger.warning(
-                    "Sync lost. incoming checksum '{}', existing checksum '{}'.\n\nThe POST request was:\n{}\n\nThe locals are:\n{}\n\n".
-                    format(request.POST.get('checksum', None), checksum, request.POST, locals())
+                    "Sync lost. incoming checksum '{}', existing checksum '{}'.\n\nThe POST request was:\n{}\n\n".
+                    format(request.POST.get('checksum', None), checksum, request.POST)
                 )
                 return JsonResponse({
                     'success': False,
@@ -1946,7 +1946,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         'is_answer': trans.question.is_answer_sheet(),
         'document': trans_content,
     }
-    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request, context)).encode("utf-8")
+    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request, context))
 
     if raw_tex:
         return HttpResponse(body, content_type="text/plain; charset=utf-8", charset="utf-8")

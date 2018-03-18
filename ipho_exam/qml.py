@@ -105,11 +105,11 @@ def make_qml(node):
 
 
 def xml2string(xml):
-    return ET.tostring(xml)
+    return ET.tostring(xml, encoding='unicode')
 
 
 def content2string(node):
-    parts = ([node.text] + [ET.tostring(c) for c in node])
+    parts = ([node.text] + [ET.tostring(c, encoding='unicode') for c in node])
     # We assume that `node` is a pure QML tag, therefore we don't consider the tail.
     # +[node.tail])
     # filter removes possible Nones in texts and tails
@@ -223,7 +223,7 @@ class QMLobject(object):
         if isinstance(xml, bytes):
             root = ET.fromstring(xml)
         elif isinstance(xml, str):
-            root = ET.fromstring(xml.encode('utf-8'))
+            root = ET.fromstring(xml)
         else:
             root = xml
 
@@ -608,7 +608,7 @@ class QMLfigure(QMLobject):
         query = {}
         for c in self.children:
             if c.tag == 'param':
-                query[c.attributes['name']] = c.data.encode('utf-8')
+                query[c.attributes['name']] = c.data
         return query
 
     def fig_url(self, output_format='svg'):

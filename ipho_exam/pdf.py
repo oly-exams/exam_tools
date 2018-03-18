@@ -31,7 +31,7 @@ import shutil
 from hashlib import md5
 
 from PyPDF2 import PdfFileWriter, PdfFileReader
-from io import StringIO
+from io import StringIO, BytesIO
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
 CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
@@ -49,7 +49,7 @@ class TexCompileException(Exception):
 
 def compile_tex(body, ext_resources=[]):
     doc = 'question'
-    etag = md5(body).hexdigest()
+    etag = md5(body.encode('utf8')).hexdigest()
 
     cache_key = "%s:%s" % (CACHE_PREFIX, etag)
     pdf = cache.get(cache_key)
@@ -83,7 +83,7 @@ def compile_tex(body, ext_resources=[]):
                 log = open("%s/%s.log" % (tmp, doc)).read()
                 raise TexCompileException(error, "%s/%s.tex" % (tmp, doc), log)
 
-            with open("%s/%s.pdf" % (tmp, doc)) as f:
+            with open("%s/%s.pdf" % (tmp, doc), 'rb') as f:
                 pdf = f.read()
         finally:
             # print('Compiled in', tmp)
@@ -95,11 +95,11 @@ def compile_tex(body, ext_resources=[]):
 
 
 def add_barcode(doc, bgenerator):
-    pdfdoc = PdfFileReader(StringIO(doc))
+    pdfdoc = PdfFileReader(BytesIO(doc))
 
     output = PdfFileWriter()
     for i in range(pdfdoc.getNumPages()):
-        barpdf = PdfFileReader(StringIO(bgenerator(i + 1)))
+        barpdf = PdfFileReader(BytesIO(bgenerator(i + 1)))
         watermark = barpdf.getPage(0)
         wbox = watermark.artBox
         wwidth = (wbox.upperRight[0] - wbox.upperLeft[0])
@@ -116,29 +116,29 @@ def add_barcode(doc, bgenerator):
         page.mergeScaledTranslatedPage(watermark, scale, x, y)
         output.addPage(page)
 
-    output_pdf = StringIO()
+    output_pdf = BytesIO()
     output.write(output_pdf)
     return output_pdf.getvalue()
 
 
 def get_num_pages(doc):
-    pdfdoc = PdfFileReader(StringIO(doc))
+    pdfdoc = PdfFileReader(BytesIO(doc))
     return pdfdoc.getNumPages()
 
 
 def concatenate_documents(all_documents):
     output = PdfFileWriter()
     for doc in all_documents:
-        pdfdoc = PdfFileReader(StringIO(doc))
+        pdfdoc = PdfFileReader(BytesIO(doc))
         for i in range(pdfdoc.getNumPages()):
             output.addPage(pdfdoc.getPage(i))
-    output_pdf = StringIO()
+    output_pdf = BytesIO()
     output.write(output_pdf)
     return output_pdf.getvalue()
 
 
 def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'):
-    etag = md5(body).hexdigest()
+    etag = md5(body.encode('utf8')).hexdigest()
     if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
         return HttpResponseNotModified()
 
