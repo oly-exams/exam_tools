@@ -145,4 +145,4 @@ def export_all(logo_file):
 
 
 if __name__ == '__main__':
-    export_all('apho17_logo_bw.pdf')
+    export_all('examtools_logo_bw.pdf')
