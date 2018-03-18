@@ -339,12 +339,9 @@ class FigureManager(PolymorphicManager):
 class Figure(PolymorphicModel):
     objects = FigureManager()
     name = models.CharField(max_length=100, db_index=True)
-    natural_key = models.CharField(
+    natural_key = models.URLField(
         max_length=100, db_index=True, default=natural_id.generate_id, unique=True, blank=False
     )
-
-    # def natural_key(self):
-    #     return self.name
 
     def __str__(self):
         return u'%s' % (self.name)

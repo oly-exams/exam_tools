@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='figure',
             name='natural_key',
-            field=models.CharField(
+            field=models.URLField(
                 max_length=100,
                 db_index=True,
                 blank=True
@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='figure',
             name='natural_key',
-            field=models.CharField(
+            field=models.URLField(
                 max_length=100,
                 db_index=True,
                 blank=False,

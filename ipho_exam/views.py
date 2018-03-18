@@ -699,7 +699,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
 @ensure_csrf_cookie
 def figure_list(request):
     figure_list = Figure.objects.all()
-
+    print(figure_list)
     return render(request, 'ipho_exam/figures.html', {
         'figure_list': figure_list,
     })
@@ -733,12 +733,12 @@ def figure_add(request):
 
         return JsonResponse({
             'type': 'add',
-            'figid': obj.pk,
+            'figid': obj.natural_key,
             'name': obj.name,
             'params': obj.params,
-            'src': reverse('exam:figure-export', args=[obj.pk]),
-            'edit-href': reverse('exam:figure-edit', args=[obj.pk]),
-            'delete-href': reverse('exam:figure-delete', args=[obj.pk]),
+            'src': reverse('exam:figure-export', args=[obj.natural_key]),
+            'edit-href': reverse('exam:figure-edit', args=[obj.natural_key]),
+            'delete-href': reverse('exam:figure-delete', args=[obj.natural_key]),
             'success': True,
             'message': '<strong>Figure added!</strong> The new figure has successfully been created.',
         })
