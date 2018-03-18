@@ -116,7 +116,7 @@ def add_barcode(doc, bgenerator):
         page.mergeScaledTranslatedPage(watermark, scale, x, y)
         output.addPage(page)
 
-    output_pdf = StringIO()
+    output_pdf = BytesIO()
     output.write(output_pdf)
     return output_pdf.getvalue()
 
@@ -132,13 +132,13 @@ def concatenate_documents(all_documents):
         pdfdoc = PdfFileReader(BytesIO(doc))
         for i in range(pdfdoc.getNumPages()):
             output.addPage(pdfdoc.getPage(i))
-    output_pdf = StringIO()
+    output_pdf = BytesIO()
     output.write(output_pdf)
     return output_pdf.getvalue()
 
 
 def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'):
-    etag = md5(body).hexdigest()
+    etag = md5(body.encode('utf8')).hexdigest()
     if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
         return HttpResponseNotModified()
 
