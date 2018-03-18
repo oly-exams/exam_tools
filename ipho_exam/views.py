@@ -757,7 +757,7 @@ def figure_edit(request, fig_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
 
-    instance = get_object_or_404(Figure, pk=fig_id)
+    instance = get_object_or_404(Figure, natural_key=fig_id)
     if isinstance(instance, RawFigure):
         compiled = False
         valid_extensions = ('.' + instance.filetype, )
@@ -812,7 +812,7 @@ def figure_edit(request, fig_id):
 def figure_delete(request, fig_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    obj = get_object_or_404(Figure, pk=fig_id)
+    obj = get_object_or_404(Figure, natural_key=fig_id)
     obj.delete()
     return JsonResponse({
         'success': True,
@@ -822,7 +822,7 @@ def figure_delete(request, fig_id):
 @login_required
 def figure_export(request, fig_id, lang_id=None):
     lang = get_object_or_404(Language, pk=lang_id) if lang_id is not None else None
-    fig = get_object_or_404(Figure, pk=fig_id)
+    fig = get_object_or_404(Figure, natural_key=fig_id)
     figure_content, content_type = fig.to_inline(query=request.GET, lang=lang)
     return HttpResponse(figure_content, content_type="image/{}".format(content_type))
 

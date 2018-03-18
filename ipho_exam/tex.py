@@ -141,7 +141,7 @@ class FigureExport(object):
         self.lang = lang
 
     def save(self, dirname):
-        fig = Figure.objects.get(id=self.figid)
+        fig = Figure.objects.get(natural_key=self.figid)
         fig.to_file(fig_name='%s/%s' % (dirname, self.figname), query=self.query, lang=self.lang)
 
 
