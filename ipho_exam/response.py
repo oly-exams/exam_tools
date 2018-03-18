@@ -67,5 +67,5 @@ def render_odt_response(tpl_name, context, filename, ext_resources):
             shutil.rmtree(tmp)
 
     res = HttpResponse(result, content_type="application/vnd.oasis.opendocument.text", charset="utf-8")
-    res['content-disposition'] = 'attachment; filename="{}"'.format(filename.encode('utf-8'))
+    res['content-disposition'] = 'attachment; filename="{}"'.format(filename)
     return res

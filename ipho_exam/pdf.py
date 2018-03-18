@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2018 Oly Exams Team
+# Copyright (C) 2014 - 2017 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -157,6 +157,6 @@ def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'
             raise RuntimeError("pdflatex error (code %s) in %s." % (e.code, e.doc_fname))
 
     res = HttpResponse(pdf, content_type="application/pdf")
-    res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
+    res['content-disposition'] = 'inline; filename="{}"'.format(filename)
     res['ETag'] = etag
     return res

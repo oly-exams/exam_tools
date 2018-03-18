@@ -1925,7 +1925,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         # if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
         #     return HttpResponseNotModified()
         res = HttpResponse(trans.node.pdf, content_type="application/pdf")
-        res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
+        res['content-disposition'] = 'inline; filename="{}"'.format(filename)
         # res['ETag'] = etag
         return res
 
