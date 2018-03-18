@@ -17,7 +17,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals
+from __future__ import print_function, unicode_literals, absolute_import
+
+import os, uuid
+import subprocess
 
 from builtins import object
 from builtins import str
@@ -36,8 +39,7 @@ from .exceptions import IphoExamException, IphoExamForbidden
 from polymorphic.models import PolymorphicModel
 from polymorphic.manager import PolymorphicManager
 
-import os, uuid
-import subprocess
+from .utils import natural_id
 
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 SITE_URL = getattr(settings, 'SITE_URL')
@@ -337,9 +339,12 @@ class FigureManager(PolymorphicManager):
 class Figure(PolymorphicModel):
     objects = FigureManager()
     name = models.CharField(max_length=100, db_index=True)
+    natural_key = models.CharField(
+        max_length=100, db_index=True, default=natural_id.generate_id, unique=True, blank=False
+    )
 
-    def natural_key(self):
-        return self.name
+    # def natural_key(self):
+    #     return self.name
 
     def __str__(self):
         return u'%s' % (self.name)
