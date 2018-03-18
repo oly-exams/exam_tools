@@ -418,7 +418,10 @@ def translation_import(request, question_id, lang_id):
     if form.is_valid():
         obj = form.save(commit=False)
         txt = request.FILES['file'].read()
-        txt = txt.decode('utf8')
+        try:
+            txt = txt.decode('utf8')
+        except AttributeError:
+            pass
         obj.content = qml.normalize_html(txt)
         obj.question = question
         obj.language = language
@@ -988,7 +991,10 @@ def admin_import_version(request, question_id):
     form = AdminImportForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         txt = request.FILES['file'].read()
-        txt = txt.decode('utf8')
+        try:
+            txt = txt.decode('utf8')
+        except AttributeError:
+            pass
         if language.versioned:
             if VersionNode.objects.filter(question=question, language=language).exists():
                 node = VersionNode.objects.filter(question=question, language=language).order_by('-version')[0]
@@ -1925,7 +1931,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         # if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
         #     return HttpResponseNotModified()
         res = HttpResponse(trans.node.pdf, content_type="application/pdf")
-        res['content-disposition'] = 'inline; filename="{}"'.format(filename.encode('utf-8'))
+        res['content-disposition'] = 'inline; filename="{}"'.format(filename)
         # res['ETag'] = etag
         return res
 
@@ -2084,7 +2090,7 @@ def pdf_task(request, token):
                 return HttpResponseNotModified()
 
             res = HttpResponse(doc_pdf, content_type="application/pdf")
-            res['content-disposition'] = 'inline; filename="{}"'.format(meta['filename'].encode('utf-8'))
+            res['content-disposition'] = 'inline; filename="{}"'.format(meta['filename'])
             res['ETag'] = meta['etag']
             return res
         else:

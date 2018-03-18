@@ -400,7 +400,7 @@ class CompiledFigure(Figure):
     # @staticmethod
     # def _to_png(fig_svg, fig_name):
     #     with open('%s.svg' % (fig_name), 'w') as fp:
-    #         fp.write(fig_svg.encode('utf8'))
+    #         fp.write(fig_svg)
     #     error = subprocess.Popen(
     #         [INKSCAPE_BIN,
     #          '--without-gui',
