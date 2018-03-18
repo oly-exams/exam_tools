@@ -12,7 +12,7 @@ from ipho_exam.qml import QMLfigure, make_qml
 def get_updated_figid(apps, figid):
     Figure = apps.get_model('ipho_exam', 'Figure')
     fig = Figure.objects.get(pk=int(figid))
-    return fig.natural_key
+    return fig.fig_id
 
 def migrate_version_node(apps, qml_obj):
     if isinstance(qml_obj, QMLfigure):
@@ -30,7 +30,7 @@ def migrate_attr_change(apps, mapping):
 def forwards_func(apps, schema_editor):
     Figure = apps.get_model('ipho_exam', 'Figure')
     for fig in Figure.objects.all():
-        fig.natural_key = ipho_exam.utils.natural_id.generate_id()
+        fig.fig_id = ipho_exam.utils.natural_id.generate_id()
         fig.save()
 
     VersionNode = apps.get_model('ipho_exam', 'VersionNode')
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
         # non-unique
         migrations.AddField(
             model_name='figure',
-            name='natural_key',
+            name='fig_id',
             field=models.URLField(
                 max_length=100,
                 db_index=True,
@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
         migrations.RunPython(forwards_func, backwards_func),
         migrations.AlterField(
             model_name='figure',
-            name='natural_key',
+            name='fig_id',
             field=models.URLField(
                 max_length=100,
                 db_index=True,

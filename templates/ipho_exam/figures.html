@@ -93,15 +93,15 @@
           <th>Actions</th>
       </tr>
       {% for fig in figure_list %}
-          <tr id="fig-{{ fig.natural_key }}">
-              <td>{{ fig.natural_key }}</td>
-              <td id="fig-{{ fig.natural_key }}-name">{{ fig.name }}</td>
-              <td id="fig-{{ fig.natural_key }}-params">{{ fig.params }}</td>
-              <td><a data-toggle="modal" data-target="#preview-modal" data-remote="false" href="{% url 'exam:figure-export' fig_id=fig.natural_key %}" data-figid="{{ fig.natural_key }}"><img src="{% url 'exam:figure-export' fig_id=fig.natural_key %}" alt="{{ fig.name }}" /></a></td>
+          <tr id="fig-{{ fig.fig_id }}">
+              <td>{{ fig.fig_id }}</td>
+              <td id="fig-{{ fig.fig_id }}-name">{{ fig.name }}</td>
+              <td id="fig-{{ fig.fig_id }}-params">{{ fig.params }}</td>
+              <td><a data-toggle="modal" data-target="#preview-modal" data-remote="false" href="{% url 'exam:figure-export' fig_id=fig.fig_id %}" data-figid="{{ fig.fig_id }}"><img src="{% url 'exam:figure-export' fig_id=fig.fig_id %}" alt="{{ fig.name }}" /></a></td>
               <td>
                 <div class="btn-toolbar">
-                  <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{% url 'exam:figure-edit' fig_id=fig.natural_key %}"><i class="fa fa-pencil fa-fw"></i></a>
-                  <a class="btn btn-sm btn-danger" href="{% url 'exam:figure-delete' fig_id=fig.natural_key %}" data-figid="{{ fig.natural_key }}" data-toggle="modal" data-target="#delete-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a>
+                  <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{% url 'exam:figure-edit' fig_id=fig.fig_id %}"><i class="fa fa-pencil fa-fw"></i></a>
+                  <a class="btn btn-sm btn-danger" href="{% url 'exam:figure-delete' fig_id=fig.fig_id %}" data-figid="{{ fig.fig_id }}" data-toggle="modal" data-target="#delete-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a>
                 </div>
               </td>
           </tr>

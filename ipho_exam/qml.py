@@ -677,7 +677,7 @@ class QMLfigure(QMLobject):
 
         width = self.attributes.get('width', 0.9)  # 0.9 is the default value
 
-        fig = Figure.objects.get(natural_key=self.attributes['figid'])
+        fig = Figure.objects.get(fig_id=self.attributes['figid'])
         fig_content, content_type = fig.to_inline(query=self.fig_query(), lang=self.lang)
 
         if content_type == 'svg+xml':
