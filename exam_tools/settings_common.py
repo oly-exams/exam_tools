@@ -55,7 +55,10 @@ DEMO_SIGN_UP = False
 DOCS_URL = '/docs'
 
 # Path to tex binaries and Inkscape binary
-TEXBIN = '/opt/texbin'
+try:
+    TEXBIN = os.path.dirname(str(subprocess.check_output(["which", "xelatex"]), 'utf-8').strip())
+except:
+    TEXBIN = '/opt/texbin'
 INKSCAPE_BIN = 'inkscape'
 
 # Celery SETTINGS_DIR
