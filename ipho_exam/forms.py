@@ -25,6 +25,8 @@ from crispy_forms.layout import Submit, Layout, Field, MultiField, Div, Fieldset
 from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
 from django.utils.safestring import mark_safe
 
+from decimal import Decimal, Context, ROUND_HALF_EVEN, Inexact, Overflow, InvalidOperation, setcontext, getcontext
+
 from django.core.exceptions import ValidationError
 
 from ipho_exam.models import Language, Question, Student, Figure, VersionNode, TranslationNode, PDFNode, Feedback, StudentSubmission, TranslationImportTmp, Document
@@ -367,6 +369,22 @@ class AdminBlockAttributeForm(forms.Form):
         super(AdminBlockAttributeForm, self).__init__(*args, **kwargs)
         self.disable_csrf = True
 
+    def clean(self):
+        cleaned_data = super(AdminBlockAttributeForm, self).clean()
+        if cleaned_data['key'] == 'points':
+            try:
+                cont = Context(prec=28, rounding=ROUND_HALF_EVEN, Emin=-999999, Emax=999999,
+                        capitals=1, clamp=0, flags=[], traps=[Overflow,
+                        InvalidOperation, Inexact])
+                setcontext(cont)
+                getcontext().clear_flags()
+                points = Decimal(cleaned_data['value']).quantize(Decimal('0.01')) #constraints given from marking model Decimal field
+                if points>= Decimal('1000000'):
+                    raise ValueError('points too large')
+            except (Inexact, Overflow, InvalidOperation, ValueError) as e:
+                msg = "'points' can only have 2 decimal places and need to be smaller than 1000000 . (e.g. 1.25)"
+                self.add_error('value', msg)
+        return cleaned_data
 
 class AdminBlockAttributeHelper(FormHelper):
     def __init__(self, *args, **kwargs):
