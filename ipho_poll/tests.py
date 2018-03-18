@@ -1,7 +1,7 @@
 from __future__ import division
 # Exam Tools
 #
-# Copyright (C) 2014 - 2017 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
