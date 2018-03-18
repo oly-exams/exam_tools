@@ -167,13 +167,14 @@
       <div class="footer">
           <hr />
           <div class="container">
-              <p class="text-muted">Copyright © 2014 - 2017 <a href="http://oly-exams.org/">Oly Exams Team</a>. Version {{ VERSION }} - {{ VERSION_DATE }}.</p>
+              <p class="text-muted">Copyright © 2014 - 2018 <a href="http://oly-exams.org/">Oly Exams Team</a>. Version {{ VERSION }} - {{ VERSION_DATE }}.</p>
           </div>
       </div>
 
     <script src="{% static "jquery/js/jquery-1.11.2.min.js" %}"></script>
     <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
     <script src="{% static "bootstrap-ckeditor-modal-fix.js" %}"></script>
+    <script src="{% static "moment.min.js" %}"></script>
     {% block extra-script %}{% endblock %}
   </body>
 </html>
