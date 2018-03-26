@@ -377,6 +377,7 @@ body { margin-bottom: 70px; }
 
 {% block extra-script %}
 
+    <script>document.getElementById('question-form').reset()</script>
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({
             showMathMenu: false,
@@ -756,7 +757,7 @@ body { margin-bottom: 70px; }
                           $('#checksum-modal').modal({backdrop: 'static', keyboard: false});
                         }
                       }
-                      
+
                       documentStatus = 'SAVED';
                       updateDocumentStatus();
                     },
@@ -773,7 +774,7 @@ body { margin-bottom: 70px; }
                         documentStatus = 'FAILED';
                         updateDocumentStatus();
                       }
-                      
+
                     },
                     // complete: function(jqXHR, textStatus) {
                     //     console.log(new Date() + ' Ajax save request completed.');
