@@ -339,7 +339,7 @@ class Figure(PolymorphicModel):
     name = models.CharField(max_length=100, db_index=True)
 
     def natural_key(self):
-        return self.name
+        return (self.name, )
 
     def __str__(self):
         return u'%s' % (self.name)
@@ -449,7 +449,7 @@ class Place(models.Model):
         return u'{} [{} {}]'.format(self.name, self.exam.name, self.student.code)
 
     def natural_key(self):
-        return self.name, self.exam.name
+        return (self.name, self.exam.name)
 
     class Meta(object):
         unique_together = index_together = ('student', 'exam')
