@@ -377,6 +377,7 @@ body { margin-bottom: 70px; }
 
 {% block extra-script %}
 
+    <script>document.getElementById('question-form').reset()</script>
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({
             showMathMenu: false,
@@ -684,9 +685,16 @@ body { margin-bottom: 70px; }
             });
 
             var last_saved = new Date("{{ last_saved.isoformat }}");
-            var saving = false;
+            var documentStatus = 'SAVED'; // SAVED, SAVING, FAILED
             function updateDocumentStatus() {
-                var status_text = (saving) ? 'Saving...' : 'Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).from(moment()+server_offset+1000)+'</abbr>.';
+                var status_text = '';
+                if (documentStatus == 'SAVED') {
+                    status_text = 'Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).from(moment()+server_offset+1000)+'</abbr>.';
+                } else if (documentStatus == 'SAVING') {
+                    status_text = 'Saving...';
+                } else if (documentStatus == 'FAILED') {
+                    status_text = '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Failed to save';
+                }
                 $('#save-status')
                     .html(status_text)
                     .find('[data-toggle="tooltip"]').tooltip();
@@ -711,12 +719,12 @@ body { margin-bottom: 70px; }
                 var $button = $form.find('button[type="submit"]');
                 evt.preventDefault();
 
-                if (saving) {
+                if (documentStatus == 'SAVING') {
                     console.log(new Date() + ' Save still in progress. Skipping.');
                     return;
                 }
 
-                saving = true;
+                documentStatus = 'SAVING';
                 $button.prop('disabled', true);
                 $button.tooltip('destroy');
                 $form.dirtyForms('setClean');
@@ -731,29 +739,47 @@ body { margin-bottom: 70px; }
                     cache: false,
                     processData: false,
                     contentType: false,
+                    tryCount : 0,
+                    retryLimit : 3,
                     timeout: Math.max(autoSaveInterval - 5000, 10000),
                     success: function(data, textStatus, jqXHR) {
-                        console.log(new Date() + ' Ajax save request successful.');
-                        if (data['success']) {
-                            console.log(new Date() + ' Save successful.');
-                            last_saved = new Date(data['last_saved']);
-                            $('input[name="checksum"]').val(data['checksum']);
-                        } else {
-                          console.log(new Date() + ' Save failed.');
-                          if (data['checksum'] != $('input[name="checksum"]').val()) {
-                            clearInterval(autoSaveTimer);
-                            $('#checksum-modal').modal({backdrop: 'static', keyboard: false});
-                          }
+                      console.log(new Date() + ' Ajax save request successful.');
+                      /// TODO: if checksum does't change, it could be that the
+                      /// save failed and we should communicate it!
+                      if (data['success']) {
+                          console.log(new Date() + ' Save successful.');
+                          last_saved = new Date(data['last_saved']);
+                          $('input[name="checksum"]').val(data['checksum']);
+                      } else {
+                        console.log(new Date() + ' Save failed.');
+                        if (data['checksum'] != $('input[name="checksum"]').val()) {
+                          clearInterval(autoSaveTimer);
+                          $('#checksum-modal').modal({backdrop: 'static', keyboard: false});
                         }
+                      }
+
+                      documentStatus = 'SAVED';
+                      updateDocumentStatus();
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
-                        console.log(new Date() + ' Ajax save error: ' + textStatus + ' (' + errorThrown + ')');
-                    },
-                    complete: function(jqXHR, textStatus) {
-                        console.log(new Date() + ' Ajax save request completed.');
-                        saving = false;
+                      console.log(new Date() + ' Ajax save error: ' + textStatus + ' (' + errorThrown + ')');
+                      this.tryCount++;
+                      if (this.tryCount <= this.retryLimit) {
+                          console.log(new Date() + ' Retry saving ('+this.tryCount+')...');
+                          $.ajax(this);
+                          return;
+                      } else {
+                        // TODO: notify problem during save!
+                        console.log(new Date() + ' This is continous error, giving up!');
+                        documentStatus = 'FAILED';
                         updateDocumentStatus();
-                    }
+                      }
+
+                    },
+                    // complete: function(jqXHR, textStatus) {
+                    //     console.log(new Date() + ' Ajax save request completed.');
+                    //     if (onComplete !== undefined) onComplete(jqXHR, textStatus);
+                    // }
                 });
 
                 if ($('#auto-save-checkbox').bootstrapSwitch('state')) {

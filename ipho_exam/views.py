@@ -1855,38 +1855,50 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             checksum = md5(trans_node.text.encode('utf8')).hexdigest()
             form = qml.QMLForm(orig_q, trans_content, request.POST or None)
 
-            if request.POST and request.POST.get('checksum', None) != checksum:
-                logger.warning(
-                    "Sync lost. incoming checksum '{}', existing checksum '{}'.\n\nThe POST request was:\n{}\n\n".
-                    format(request.POST.get('checksum', None), checksum, request.POST)
-                )
-                return JsonResponse({
-                    'success': False,
-                    'checksum': checksum,
-                })
-
             if form.is_valid():
-                if trans_node.status == 'L':
-                    raise Exception('The question cannot be modified. It is locked.')
-                if trans_node.status == 'S':
-                    raise Exception('The question cannot be modified. It is already submitted.')
-                ## update the content in the original XML.
-                ## TODO: we could keep track of orig_v in the submission and, in case of updates, show a diff in the original language.
                 q = deepcopy(orig_q)
                 cleaned_data = form.cleaned_data
                 for k in list(cleaned_data.keys()):
                     cleaned_data[k] = cleaned_data[k].replace(chr(8), u'').replace(chr(29), u'')
                 q.update(cleaned_data, set_blanks=True)
-                trans_node.text = qml.xml2string(q.make_xml())
-                trans_node.save()
-                checksum = md5(trans_node.text.encode('utf8')).hexdigest()
+                new_text = qml.xml2string(q.make_xml())
+                new_checksum = md5(new_text.encode('utf8')).hexdigest()
 
-                ## Respond via Ajax
-                if request.is_ajax:
+                ## Nothing to do, the checksum is still the same
+                if checksum == new_checksum:
                     return JsonResponse({
                         'last_saved': trans_node.timestamp.isoformat(),
-                        'checksum': checksum,
                         'success': True,
+                        'checksum': checksum,
+                    })
+                ## It is good to save
+                elif request.POST.get('checksum', None) == checksum:
+                    if trans_node.status == 'L':
+                        raise Exception('The question cannot be modified. It is locked.')
+                    if trans_node.status == 'S':
+                        raise Exception('The question cannot be modified. It is already submitted.')
+                    ## update the content in the original XML.
+                    ## TODO: we could keep track of orig_v in the submission and, in case of updates, show a diff in the original language.
+                    trans_node.text = new_text
+                    trans_node.save()
+                    checksum = new_checksum
+
+                    ## Respond via Ajax: Saved and with new checksum
+                    if request.is_ajax:
+                        return JsonResponse({
+                            'last_saved': trans_node.timestamp.isoformat(),
+                            'checksum': checksum,
+                            'success': True,
+                        })
+                ## Checksums mistach we have to abort and notify out-of-sync
+                else:
+                    logger.warning(
+                        "Sync lost. incoming checksum '{}', existing checksum '{}'.\n\nThe POST request was:\n{}\n\n".
+                        format(request.POST.get('checksum', None), checksum, request.POST)
+                    )
+                    return JsonResponse({
+                        'success': False,
+                        'checksum': checksum,
                     })
 
             last_saved = trans_node.timestamp
