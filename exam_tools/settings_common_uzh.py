@@ -21,6 +21,7 @@ from __future__ import print_function
 
 # Import the OS module and work out our project's paths
 import os
+import sys
 SETTINGS_DIR = os.path.dirname(__file__)
 
 PROJECT_PATH = os.path.join(SETTINGS_DIR, os.pardir)
@@ -31,10 +32,10 @@ STATIC_PATH = os.path.join(PROJECT_PATH, 'static')
 
 # Printing paths for sanity's sake
 if False:
-    print("Settings directory:", SETTINGS_DIR)
-    print("Project root:", PROJECT_PATH)
-    print("Templates:", TEMPLATE_PATH)
-    print("Static:", STATIC_PATH)
+    print("Settings directory:", SETTINGS_DIR, file=sys.stderr)
+    print("Project root:", PROJECT_PATH, file=sys.stderr)
+    print("Templates:", TEMPLATE_PATH, file=sys.stderr)
+    print("Static:", STATIC_PATH, file=sys.stderr)
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
