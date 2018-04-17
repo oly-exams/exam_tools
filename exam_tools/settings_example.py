@@ -17,15 +17,16 @@
 
 from __future__ import print_function
 from __future__ import absolute_import
+import sys
 
 # Django settings for exam_tools project.
 from .settings_common import *
 
 # Printing paths for sanity's sake
-print("Settings directory:", SETTINGS_DIR)
-print("Project root:", PROJECT_PATH)
-print("Templates:", TEMPLATE_PATH)
-print("Static:", STATIC_PATH)
+print("Settings directory:", SETTINGS_DIR, file=sys.stderr)
+print("Project root:", PROJECT_PATH, file=sys.stderr)
+print("Templates:", TEMPLATE_PATH, file=sys.stderr)
+print("Static:", STATIC_PATH, file=sys.stderr)
 
 DEBUG = True
 #TEMPLATE_DEBUG = DEBUG
