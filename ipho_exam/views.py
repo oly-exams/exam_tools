@@ -1975,10 +1975,13 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
 
 
 @login_required
-def compiled_question_odt(request, question_id, lang_id, raw_tex=False):
+def compiled_question_odt(request, question_id, lang_id, version_num=None):
     if not Question.objects.get(pk=question_id).check_permission(request.user):
         return HttpResponseForbidden('You do not have the permissions to view this question.')
-    trans = qquery.latest_version(question_id, lang_id)
+    if version_num is not None and request.user.has_perm('ipho_core.is_staff'):
+        trans = qquery.get_version(question_id, lang_id, version_num)
+    else:
+        trans = qquery.latest_version(question_id, lang_id)
     filename = u'Exam - {} Q{} - {}.odt'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
 
     trans_content, ext_resources = trans.qml.make_xhtml()
