@@ -59,7 +59,7 @@
                   <li class="divider"></li>
                   <li class="dropdown-header">Translations</li>
                   <li><a href="{% url 'exam:language-list' %}">Define languages</a></li>
-                  <li><a href="{% url 'exam:list' %}">Your translations</a></li>
+                  <li><a href="{% url 'exam:list' %}">My translations</a></li>
                   <li><a href="{% url 'exam:submission-exam-list' %}">Final submission</a></li>
                   <li class="divider"></li>
                   {% endif %}
@@ -90,7 +90,7 @@
                   <li class="dropdown-header">Exam</li>
                   <li><a href="{% url 'exam:admin' %}">Exam management</a></li>
                   <li><a href="{% url 'exam:figures' %}">Figures management</a></li>
-                  <li><a href="{% url 'exam:admin-submissions-translation' %}">Translation Submissions</a></li>
+                  <li><a href="{% url 'exam:admin-submissions-translation' %}">Translation submissions</a></li>
                   <li class="divider"></li>
                   <li class="dropdown-header">Feedbacks</li>
                   <li><a href="{% url 'exam:admin-feedbacks-export-main' %}">Export feedbacks</a></li>
@@ -116,7 +116,7 @@
                   <li class="dropdown-header">Marking</li>
                   {% if perms.ipho_core.is_staff %}
                   <li><a href="{% url 'marking:import-exam' %}">Import exam</a></li>
-                  <li><a href="{% url 'marking:marking-submissions' %}">Marking Submissions</a></li>
+                  <li><a href="{% url 'marking:marking-submissions' %}">Marking submissions</a></li>
                   {% endif %}
                   <li><a href="{% url 'marking:summary' %}">Summary</a></li>
                   <li><a href="{% url 'marking:moderation-index' %}">Moderation</a></li>

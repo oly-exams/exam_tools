@@ -7,7 +7,7 @@
             {{ question.name }}
         </a>
         <span class="glyphicon glyphicon-chevron-down"></span>
-        <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'exam:admin-edit-question' exam_id=exam.pk question_id=question.pk %}"><i class="fa fa-pencil fa-fw"></i> edit</button>
+        <button class="btn btn-sm btn-warning" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'exam:admin-edit-question' exam_id=exam.pk question_id=question.pk %}"><i class="fa fa-pencil fa-fw"></i> edit</button>
         <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-modal" data-remote="false" href="{% url 'exam:admin-delete-question' exam_id=exam.pk question_id=question.pk %}" title="Delete question"><i class="fa fa-trash-o"></i> delete</button>
         </h4>
         <div class="panel-title pull-right">Position {{ question.position }}</div>
@@ -42,21 +42,22 @@
                 </td>
                 <td><time datetime="{{ node.timestamp|date:"c" }}" data-format="YYYY MMM Do, h:mm:ss A"></td>
                 <td>
-                    <div class="btn-toolbar">
+                    <div class="btn-group">
                       {% if node.status == 'P' %}
-                        <a class="btn btn-xs btn-default" href="{% url 'exam:admin-editor' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Edit version"><i class="fa fa-pencil fa-fw"></i> edit</a>
+                        <a class="btn btn-xs btn-warning" href="{% url 'exam:admin-editor' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Edit version"><i class="fa fa-pencil fa-fw"></i> edit</a>
                       {% endif %}
                       <a class="btn btn-xs btn-success" href="{% url 'exam:pdf-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="View PDF"><i class="fa fa-file-pdf-o fa-fw"></i> PDF</a>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">advanced <span class="caret"></span>
+                            <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">advanced <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a target="_blank" href="{% url 'exam:export-translation-version' question_id=node.question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question"><i class="fa fa-fw fa-download"></i> export</a></li>
-                                <li><a target="_blank" href="{% url 'exam:tex-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="Export TeX"><i class="fa fa-fw fa-download"></i> TeX</a></li>
+                                <li><a target="_blank" href="{% url 'exam:export-translation-version' question_id=node.question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as QML"><i class="fa fa-fw fa-download"></i> export QML</a></li>
+                                <li><a target="_blank" href="{% url 'exam:tex-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as TeX"><i class="fa fa-fw fa-download"></i> export TeX</a></li>
+                                <li><a target="_blank" href="{% url 'exam:odt-version' question_id=node.question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as ODT"><i class="fa fa-fw fa-download"></i> export ODT</a></li>
                             </ul>
                         </div>
                       {% if node.status == 'P' %}
-                        <a class="btn btn-xs btn-danger" data-toggle="modal" data-target="#delete-modal" data-remote="false" href="{% url 'exam:admin-delete-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Delete version"><i class="fa fa-trash-o"></i>delete</a>
+                        <a class="btn btn-xs btn-danger" data-toggle="modal" data-target="#delete-modal" data-remote="false" href="{% url 'exam:admin-delete-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Delete version"><i class="fa fa-trash-o"></i> delete</a>
                         <a class="btn btn-xs btn-info" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> diff/accept</a>
                       {% endif %}
                       {% if node.status == 'S' %}
