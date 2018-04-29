@@ -80,7 +80,7 @@ def import_exam(request):
                         num_marking_tot += 1
 
         ctx['alerts'].append(
-            '<div class="alert alert-success"><strong>Success.</strong> {} marking subquestion were imported.<ul><li> {} created</li><li>{} updated</li><li>{} student marking created</li><li>{} student marking already found</li>.</div>'.
+            '<div class="alert alert-success"><p><strong>Success.</strong></p><p>{} marking subquestion were imported.<p><ul><li>{} created</li><li>{} updated</li></ul><p>{} student marking created.</p><ul><li>{} student marking already found</li></ul></div>'.
             format(
                 num_tot, num_created, num_tot - num_created, num_marking_created, num_marking_tot - num_marking_created
             )
