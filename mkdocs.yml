@@ -8,7 +8,7 @@ pages:
     - "Step-by-step guide": step_by_step.md
     - "Language settings": language_settings.md
     - "Translations":
-      - "Your translations": translations.md
+      - "My translations": translations.md
       - "Exam editor": exam_editor.md
       - "Exam editor - FAQ": exam_editor_faq.md
     - "Assign exams and submit": assign_exams.md

@@ -6,38 +6,36 @@
     <td><time datetime="{{ node.timestamp|date:"c" }}" data-format="MMM Do, h:mm:ss A"></time></td>
     <td>{{ exam_active|yesno:'In progress,Closed' }}</td>
     <td>
-      <div class="btn-toolbar">
+      <div class="btn-group">
         {% if exam_active %}
           {% if node.language.is_pdf %}
-          <div class="btn-group">
-            <a class="btn btn-xs btn-default" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="{% url 'exam:upload-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Upload"><i class="fa fa-upload fa-fw"></i> upload</a>
-          </div>
+
+            <a class="btn btn-xs btn-warning" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="{% url 'exam:upload-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Upload"><i class="fa fa-upload fa-fw"></i> upload</a>
+
           {% else %}
-          <div class="btn-group">
-            <a class="btn btn-xs btn-default" href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=node.question.pk orig_id=1 lang_id=node.language.pk %}" title="Edit question"><i class="fa fa-pencil fa-fw"></i> edit</a>
-          </div>
+
+            <a class="btn btn-xs btn-warning" href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=node.question.pk orig_id=1 lang_id=node.language.pk %}" title="Edit question"><i class="fa fa-pencil fa-fw"></i> edit</a>
+
           {% endif %}
         {% endif %}
-        <div class="btn-group">
-          <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
-        </div>
-        {% if user.is_superuser %}
-        <div class="btn-group">
-          <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="View ODT"><i class="fa fa-fw fa-file-text-o"></i> ODT</a>
-        </div>
-        <div class="btn-group">
-          <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:tex' question_id=node.question.pk lang_id=node.language.pk %}" title="View TeX"><i class="fa fa-fw fa-file-text-o"></i> TeX</a>
-        </div>
-        {% endif %}
-        {% if not node.language.is_pdf %}
+
+        <a class="btn btn-xs btn-success" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+
+        {% if user.is_superuser or not node.language.is_pdf %}
         <div class="btn-group">
           <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
             advanced <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
-            <li><a target="_blank" href="{% url 'exam:export-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question"><i class="fa fa-fw fa-download"></i> export</a></li>
+            {% if user.is_superuser %}
+            <li><a target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as ODT"><i class="fa fa-fw fa-file-text-o"></i> export ODT</a></li>
+            <li><a target="_blank" href="{% url 'exam:tex' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as TeX"><i class="fa fa-fw fa-file-text-o"></i> export TeX</a></li>
+            {% endif %}
+            {% if not node.language.is_pdf %}
+            <li><a target="_blank" href="{% url 'exam:export-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as QML"><i class="fa fa-fw fa-download"></i> export QML</a></li>
             {% if exam_active %}
-            <li><a data-toggle="modal" data-target="#import-modal" data-remote="false" href="{% url 'exam:import-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Import question"><i class="fa fa-fw fa-upload"></i> import</a></li>
+            <li><a data-toggle="modal" data-target="#import-modal" data-remote="false" href="{% url 'exam:import-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Import question from QML"><i class="fa fa-fw fa-upload"></i> import QML</a></li>
+            {% endif %}
             {% endif %}
           </ul>
         </div>
@@ -53,11 +51,18 @@
     <td><time datetime="{{ node.timestamp|date:"c" }}" data-format="MMM Do, h:mm:ss A"></time></td>
     <td></td>
     <td>
-      <div class="btn-toolbar">
-        <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+      <div class="btn-group">
+        <a class="btn btn-xs btn-success" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
         {% if user.is_superuser %}
-        <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="View ODT"><i class="fa fa-fw fa-file-text-o"></i> ODT</a>
-        <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:tex' question_id=node.question.pk lang_id=node.language.pk %}" title="View TeX"><i class="fa fa-fw fa-file-text-o"></i> TeX</a>
+        <div class="btn-group">
+          <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">
+            advanced <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as ODT"><i class="fa fa-fw fa-file-text-o"></i> export ODT</a></li>
+            <li><a target="_blank" href="{% url 'exam:tex' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as TeX"><i class="fa fa-fw fa-file-text-o"></i> export TeX</a></li>
+          </ul>
+        </div>
         {% endif %}
       </div>
     </td>

@@ -90,6 +90,11 @@ urlpatterns = patterns(
         name='tex-version'
     ),
     url(r'^odt/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', 'compiled_question_odt', name='odt'),
+    url(
+        r'^odt/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<version_num>\d+)$',
+        'compiled_question_odt',
+        name='odt-version'
+    ),
     url(r'^html/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)$', 'compiled_question_html', name='html'),
     url(
         r'^html/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<version_num>\d+)$',

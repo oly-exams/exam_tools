@@ -1,4 +1,4 @@
-# Your translations
+# My translations
 
 <style>
 figure {
@@ -9,9 +9,9 @@ figure {
 
 <figure>
   <p align="center">
-      <img src="/img/menu_exam_translations.png" alt="Your translations menu" />
+      <img src="/img/menu_exam_translations.png" alt="My translations menu" />
   </p>
-  <figcaption>You can access the list of translations from the main navigation menu <em>Exam &gt; Translations &gt; Your translations</em></figcaption>
+  <figcaption>You can access the list of translations from the main navigation menu <em>Exam &gt; Translations &gt; My translations</em></figcaption>
 </figure>
 
 

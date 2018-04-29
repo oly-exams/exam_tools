@@ -1,6 +1,6 @@
-# Boardmeetings
+# Board meetings
 
-This is a description of the tasks and procedures during the boardmeetings at IPhO 2016 in Switzerland.
+This is a description of the tasks and procedures during the board meetings of an International Physics Olympiad.
 
 ## Division of Labor
 The administrative tasks of the board meetings was distributed between the following parties:
@@ -19,7 +19,7 @@ The administrative tasks of the board meetings was distributed between the follo
 
 * **Moderation**
 
-  The moderator leads through the boardmeeting. He is in close contact with with all the other parties and is responsible for adjusting the schedule live such that idling can be avoided.
+  The moderator leads through the board meeting. He is in close contact with with all the other parties and is responsible for adjusting the schedule live such that idling can be avoided.
 
 
 

@@ -19,7 +19,7 @@
 <li class="active">All translations</li>
 {% endblock %}
 
-{% block pageheader %}<h1>All Translations</h1>{% endblock %}
+{% block pageheader %}<h1>All translations</h1>{% endblock %}
 
 {% block exam-content %}
 
@@ -60,6 +60,7 @@
       </div>
 
   </div>
+    <br/>
 
     <table class="table table-striped">
       <tr>
@@ -68,7 +69,7 @@
           <th>Delegation</th>
           <th>Language</th>
           <th>Last modified</th>
-          <th></th>
+          <th>Actions</th>
       </tr>
       <tbody>
         {% for node in node_list %}
@@ -78,15 +79,21 @@
             <td>{{ node.language.delegation.country }} ({{ node.language.delegation.name }})</td>
             <td>{{ node.language.name }}</td>
             <td>{{ node.timestamp }}</td>
-            <td>
-              <div class="btn-toolbar">
-                <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
-              {% if user.is_superuser %}
-                <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="View ODT"><i class="fa fa-fw fa-file-text-o"></i> ODT</a>
-                <a class="btn btn-xs btn-default" target="_blank" href="{% url 'exam:tex' question_id=node.question.pk lang_id=node.language.pk %}" title="View TeX"><i class="fa fa-fw fa-file-text-o"></i> TeX</a>
+            <td style="min-width: 8.5em;">
+              <div class="btn-group">
+                <a class="btn btn-xs btn-success" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+                {% if user.is_superuser %}
+                <div class="btn-group">
+                  <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">
+                    adv. <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="Export as ODT"><i class="fa fa-fw fa-file-text-o"></i> export ODT</a></li>
+                    <li><a target="_blank" href="{% url 'exam:tex' question_id=node.question.pk lang_id=node.language.pk %}" title="Export as TeX"><i class="fa fa-fw fa-file-text-o"></i> export TeX</a></li>
+                  </ul>
+                </div>
+                {% endif %}
               </div>
-              {% endif %}
-
             </td>
           </tr>
         {% endfor %}
