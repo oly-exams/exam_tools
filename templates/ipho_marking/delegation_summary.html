@@ -115,12 +115,16 @@
             <tr>
                 <th>Student</th>
                 {% for question in questions %}
-                  <th>{{ question.name }}</th>
+                  <th style="max-width: 10em;">{{ question.name }}</th>
                 {% endfor %}
             </tr>
             {% for student,scans_list in scans_of_students %}
             <tr>
-                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
+                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})
+                  {% if scans_list %}
+                  <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=student.pk position=scans_list.0.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> full scan</a>
+                  {% endif %}
+                </td>
                 {% for doc in scans_list %}
                   <td>
                   {% if doc.scan_file and doc.scan_status == 'S' %}
