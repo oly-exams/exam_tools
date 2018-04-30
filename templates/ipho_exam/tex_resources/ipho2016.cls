@@ -17,11 +17,11 @@
                 pdfcreator={Xelatex}]{hyperref}
 
 % Page options
-\RequirePackage{geometry}
-\setlength{\headheight}{2.5cm}
+\RequirePackage[headheight=4cm]{geometry}  % the headheight parameter sets how much vertical space the header can accomodate
+%\setlength{\headheight}{2.5cm}
 \geometry{left=2cm}
 \geometry{right=2cm}
-\geometry{top=5.5cm}
+\geometry{top=5.5cm}  % change this to change the header height (i.e. if the QR code size is changed)
 \geometry{bottom=2cm}
 
 %Paragraph spacing

@@ -74,7 +74,7 @@ class QuestionBarcodeGen(object):
             text_xml.attrib['text-anchor'] = 'middle'
             text_xml.attrib['x'] = '{}mm'.format(old_div((img_w - w), 2.) + old_div(w, 2.))
             text_xml.attrib['y'] = '{}mm'.format(h + 2)
-            text_xml.attrib['font-size'] = '14'
+            text_xml.attrib['font-size'] = '10'
             text_xml.attrib['font-family'] = 'Verdana'
             text_xml.text = code
 
