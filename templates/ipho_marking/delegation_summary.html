@@ -125,7 +125,7 @@
                 {% for doc in scans_list %}
                   <td>
                   {% if doc.scan_file and doc.scan_status == 'S' %}
-                    <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> View</a>
+                    <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> View scan</a>
                   {% else %}
                     <span class="label label-default">pending</span>
                   {% endif %}
