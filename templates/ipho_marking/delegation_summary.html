@@ -34,7 +34,7 @@
                 <th>Student</th>
                 {% for question in psubs.exam.question_set.all %}
                     {% if question.is_answer_sheet %}
-                    <th>{{ question.name }}</th>
+                    <th style="max-width: 10em;">{{ question.name }}</th>
                     {% endif %}
                 {% endfor %}
             </tr>
@@ -44,9 +44,9 @@
                 {% for question in psubs.exam.question_set.all %}
                     {% if question.is_answer_sheet %}
                         {% if psubs.status == OPEN_STATUS %}
-                        <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> edit</a></td>
+                        <td><a class="btn btn-warning btn-xs" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit</a></td>
                         {% else %}
-                        <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> view</a></td>
+                        <td><a class="btn btn-success btn-xs" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> View</a></td>
                         {% endif %}
                     {% endif %}
                 {% endfor %}
@@ -57,9 +57,9 @@
                 {% for question in psubs.exam.question_set.all %}
                     {% if question.is_answer_sheet %}
                         {% if psubs.status == OPEN_STATUS %}
-                        <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> edit all</a></td>
+                        <td><a class="btn btn-warning btn-xs" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit all</a></td>
                         {% else %}
-                        <td><a class="btn btn-default btn-xs" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> view all</a></td>
+                        <td><a class="btn btn-success btn-xs" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> View all</a></td>
                         {% endif %}
                     {% endif %}
                 {% endfor %}
@@ -115,18 +115,22 @@
             <tr>
                 <th>Student</th>
                 {% for question in questions %}
-                  <th>{{ question.name }}</th>
+                  <th style="max-width: 10em;">{{ question.name }}</th>
                 {% endfor %}
             </tr>
             {% for student,scans_list in scans_of_students %}
             <tr>
-                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
+                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})
+                </td>
                 {% for doc in scans_list %}
                   <td>
                   {% if doc.scan_file and doc.scan_status == 'S' %}
-                    <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> view</a>
+                    <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> View scan</a>
                   {% else %}
                     <span class="label label-default">pending</span>
+                  {% endif %}
+                  {% if doc.scan_file_orig %}
+                  <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> View full scan</a>
                   {% endif %}
                   </td>
                 {% endfor %}
