@@ -121,9 +121,6 @@
             {% for student,scans_list in scans_of_students %}
             <tr>
                 <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})
-                  {% if scans_list and scans_list.0.scan_file_orig %}
-                  <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=student.pk position=scans_list.0.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> Full scan</a>
-                  {% endif %}
                 </td>
                 {% for doc in scans_list %}
                   <td>
@@ -131,6 +128,9 @@
                     <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> View</a>
                   {% else %}
                     <span class="label label-default">pending</span>
+                  {% endif %}
+                  {% if doc.scan_file_orig %}
+                  <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> View full scan</a>
                   {% endif %}
                   </td>
                 {% endfor %}
