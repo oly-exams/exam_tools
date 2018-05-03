@@ -1537,12 +1537,15 @@ def submission_exam_assign(request, exam_id):
         for student in delegation.student_set.all():
             all_tasks = []
             student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
-            student_seat = Place.objects.get(exam=exam, student=student)
+            try:
+                student_seat = Place.objects.get(exam=exam, student=student).name
+            except Place.DoesNotExist:
+                student_seat = ""
             questions = exam.question_set.all()
             grouped_questions = {k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)}
             for position, qgroup in list(grouped_questions.items()):
                 doc, _ = Document.objects.get_or_create(exam=exam, student=student, position=position)
-                cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat.name}
+                cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat}
                 question_task = tasks.student_exam_document.s(qgroup, student_languages, cover=cover_ctx, commit=True)
                 # question_task = question_utils.compile_stud_exam_question(qgroup, student_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
