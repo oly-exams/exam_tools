@@ -110,7 +110,9 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                 all_barcodes.append(bgenerator.base)
                 all_docs.append(page)
             else:
-                all_docs.append(question_pdf)
+                bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, suppress_code=True)
+                page = pdf.add_barcode(question_pdf, bgenerator)
+                all_docs.append(page)
 
             if question.is_answer_sheet() and question.working_pages > 0:
                 context = {
