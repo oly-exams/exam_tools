@@ -1448,7 +1448,7 @@ def _get_submission_languages(exam, delegation):
     ).filter(
         Q(delegation__name=OFFICIAL_DELEGATION) & Q(hidden_from_submission=False)
         | (Q(delegation=delegation) & (Q(num_translation=num_questions) | Q(num_pdf=num_questions)))
-    )
+    ).order_by('name')
 
 
 @permission_required('ipho_core.is_staff')
@@ -1574,7 +1574,7 @@ def submission_exam_assign(request, exam_id):
                 default=0
             )
         )
-    ).filter(Q(num_translation__lt=num_questions) | Q(num_pdf__lt=num_questions))
+    ).filter(Q(num_translation__lt=num_questions) | Q(num_pdf__lt=num_questions)).order_by('name')
 
     return render(
         request, 'ipho_exam/submission_assign.html', {
