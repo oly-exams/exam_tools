@@ -115,7 +115,7 @@
                   <li class="divider"></li>
                   <li class="dropdown-header">Marking</li>
                   {% if perms.ipho_core.is_staff %}
-                  <li><a href="{% url 'marking:import-exam' %}">Import exam</a></li>
+                  <li><a href="{% url 'marking:import-exam' %}">Import exam into marking system</a></li>
                   <li><a href="{% url 'marking:marking-submissions' %}">Marking submissions</a></li>
                   {% endif %}
                   <li><a href="{% url 'marking:summary' %}">Summary</a></li>
