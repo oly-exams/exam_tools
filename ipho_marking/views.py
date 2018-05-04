@@ -567,11 +567,13 @@ def moderation_detail(request, question_id, delegation_id):
     delegation = get_object_or_404(Delegation, id=delegation_id)
 
     metas = MarkingMeta.objects.filter(question=question)
+    students = delegation.student_set.all()
 
     student_forms = []
+    marking_forms = []
     all_valid = True
     with_errors = False
-    for student in delegation.student_set.all():
+    for i, student in enumerate(students):
         markings_official = Marking.objects.filter(
             student=student, marking_meta=metas, version='O'
         ).order_by('marking_meta__position')
@@ -587,15 +589,18 @@ def moderation_detail(request, question_id, delegation_id):
             prefix='Stud-{}'.format(student.pk),
             queryset=Marking.objects.filter(marking_meta=metas, student=student, version='F')
         )
+        for j, f in enumerate(form):
+            f.fields['points'].widget.attrs['tabindex'] = i*len(metas) + j + 1
 
         # TODO: accept only submission without None
         all_valid = all_valid and form.is_valid()
         with_errors = with_errors or form.errors
 
-        student_forms.append((student, markings_official, markings_delegation, form))
+        student_forms.append((student, form, markings_official))
+        marking_forms.append(zip(markings_official, markings_delegation, form))
 
     if all_valid:
-        for _, _, _, form in student_forms:
+        for _, form, _ in student_forms:
             form.save()
         return HttpResponseRedirect(
             reverse(
@@ -606,8 +611,80 @@ def moderation_detail(request, question_id, delegation_id):
             )
         )
     # TODO: display errors
-    ctx = {'metas': metas, 'question': question, 'delegation': delegation, 'student_forms': student_forms}
+    ctx = {'question': question, 'delegation': delegation, 'student_forms': student_forms, 'marking_forms': zip(metas, zip(*marking_forms)), 'request': request}
     return render(request, 'ipho_marking/moderation_detail.html', ctx)
+
+
+@permission_required('ipho_core.is_marker')
+def official_marking_index(request, question_id=None):
+    questions = Question.objects.filter(
+        exam__hidden=False, type=Question.ANSWER
+    ).order_by('exam__code', 'position')
+    question = None if question_id is None else get_object_or_404(Question, id=question_id)
+    delegations = Delegation.objects.all()
+    ctx = {'questions': questions, 'question': question, 'delegations': delegations}
+    return render(request, 'ipho_marking/official_marking_index.html', ctx)
+
+
+@permission_required('ipho_core.is_marker')
+def official_marking_detail(request, question_id, delegation_id):
+    question = get_object_or_404(Question, id=question_id, exam__hidden=False)
+    delegation = get_object_or_404(Delegation, id=delegation_id)
+
+    metas = MarkingMeta.objects.filter(question=question)
+    students = delegation.student_set.all()
+
+    student_forms = []
+    marking_forms = []
+    all_valid = True
+    with_errors = False
+    for i, student in enumerate(students):
+        FormSet = modelformset_factory(
+            Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False
+        )
+        form = FormSet(
+            request.POST or None,
+            prefix='Stud-{}'.format(student.pk),
+            queryset=Marking.objects.filter(marking_meta=metas, student=student, version='O')
+        )
+        for j, f in enumerate(form):
+            f.fields['points'].widget.attrs['tabindex'] = i*len(metas) + j + 1
+
+        # TODO: accept only submission without None
+        all_valid = all_valid and form.is_valid()
+        with_errors = with_errors or form.errors
+
+        student_forms.append((student, form))
+
+    if all_valid:
+        for _, form in student_forms:
+            form.save()
+        return HttpResponseRedirect(
+            reverse(
+                'marking:official-marking-confirmed', kwargs={
+                    'question_id': question.pk,
+                    'delegation_id': delegation.pk
+                }
+            )
+        )
+    # TODO: display errors
+    ctx = {'question': question, 'delegation': delegation, 'student_forms': student_forms, 'marking_forms': zip(metas, zip(*(f[1] for f in student_forms))), 'request': request}
+    return render(request, 'ipho_marking/official_marking_detail.html', ctx)
+
+
+@permission_required('ipho_core.is_marker')
+def official_marking_confirmed(request, question_id, delegation_id):
+    question = get_object_or_404(Question, id=question_id, exam__hidden=False, exam__moderation_active=True)
+    delegation = get_object_or_404(Delegation, id=delegation_id)
+
+    markings = Marking.objects.filter(
+        marking_meta__question=question, version='O', student__delegation=delegation
+    ).values('student').annotate(total=Sum('points')).order_by('student').values(
+        'student__first_name', 'student__last_name', 'student__code', 'total'
+    )
+
+    ctx = {'question': question, 'delegation': delegation, 'markings': markings}
+    return render(request, 'ipho_marking/official_marking_confirmed.html', ctx)
 
 
 @permission_required('ipho_core.is_marker')

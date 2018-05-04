@@ -14,7 +14,7 @@ td {
   border-top: none !important;
 }
 
-#firstrow th {
+th {
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
   border-top: 1px solid lightgrey !important;
@@ -23,18 +23,35 @@ td {
 }
 
 .thexpart {
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
+  background-color: initial;
 }
 
 .thdnone {
   background-color: initial;
   border: none !important;
 }
+
+@media print {
+  .body, .table, .container {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    float: none !important;
+  }
+
+  thead, tbody {
+    border: 3px solid black !important;
+  }
+  
+  button, i {
+    display: none !important;
+  }
+}
 </style>
 {% endblock %}
 
-{% block pageheader %}<h1>Moderation {{ delegation.country }} ({{ delegation.name }})</h1>{% endblock %}
+{% block pageheader %}<h1>Entering of official marks {{ delegation.country }} ({{ delegation.name }})</h1>{% endblock %}
 
 {% block page-content %}
 
@@ -43,38 +60,22 @@ td {
   <form method="POST">
   {% csrf_token %}
   <table class="table table-sm table-bordered">
-    <thead id="firstrow">
-      <tr>
-        <td class="thdnone"></td>
-        {% for student, forms, markings_official in student_forms %}
-          <td class="thdnone"></td>
-          <th colspan=3>
-            <h4>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</h4>
-            <button class="btn btn-default btn-xs" data-action="copy" data-student="{{ student.pk }}" title="Copy from official"><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i><i class="fa fa-arrow-right" aria-hidden="true"></i><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i></button>
-          </th>
-        {% endfor %}
-      </tr>
-    </thead>
     <thead>
       <tr>
         <th class="thexpart">Problem part</th>
-        {% for student, forms, markings_official in student_forms %}
+        {% for student, forms in student_forms %}
           {{ forms.management_form }}
           <td class="thdnone"></td>
-          <th>O</th>
-          <th>D</th>
-          <th>M</th>
+          <th><h4>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</h4></th>
         {% endfor %}
       </tr>
     </thead>
     <tbody>
-      {% for meta, zp in marking_forms %}
+      {% for meta, forms in marking_forms %}
         <tr>
           <td>{{ meta.name }} ({{ meta.max_points }})</td>
-          {% for marking_official, marking_delegation, form in zp %}
+          {% for form in forms %}
             <td class="thdnone"></td>
-            <td>{{ marking_official.points|default_if_none:"-" }}</td>
-            <td>{{ marking_delegation.points|default_if_none:"-" }}</td>
             <td>{{ form.id }}<div class="{{ form.errors|yesno:"has-error," }}">{{ form.points }}</div></td>
           {% endfor %}
         </tr>
@@ -94,26 +95,11 @@ td {
 
 <script>
 $(function () {
-
-  results_official = new Array();
-  {% for student, forms, markings_official in student_forms %}
-  results_official[{{ student.pk }}] = [ {% for item in markings_official %}{{ item.points|default_if_none:"0" }},{% endfor %} ];
-  {% endfor %}
-  
   {% if request.method == "POST" %}
   window.dirty_form = true;
   {% else %}
   window.dirty_form = false;
   {% endif %}
-
-  $('button[data-action="copy"]').click(function (evt) {
-    evt.preventDefault();
-    window.dirty_form = true;
-    var stud_id = $(this).data('student');
-    for (k in results_official[stud_id]) {
-      $('#id_Stud-'+stud_id+'-'+k+'-points').val(results_official[stud_id][k]);
-    }
-  });
 
   $('input[id^="id_Stud-"][id$="-points"]').change(function () {
     window.dirty_form = true;
