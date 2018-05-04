@@ -37,7 +37,7 @@ def build_extension_validator(valid_extensions):
         import os
         ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
         # valid_extensions = ['.svg', '.svgz']
-        if not ext.lower() in valid_extensions:
+        if not ext.lower() in set(ex.lower() for ex in valid_extensions):
             raise ValidationError(u'Unsupported file extension.')
 
     return validate_file_extension
