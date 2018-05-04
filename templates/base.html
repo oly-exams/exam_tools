@@ -116,12 +116,15 @@
                   <li class="dropdown-header">Marking</li>
                   {% if perms.ipho_core.is_staff %}
                   <li><a href="{% url 'marking:import-exam' %}">Import exam into marking system</a></li>
-                  <li><a href="{% url 'marking:marking-submissions' %}">Marking submissions</a></li>
                   {% endif %}
                   <li><a href="{% url 'marking:summary' %}">Summary</a></li>
+                  <li><a href="{% url 'marking:progress' %}">Marking progress</a></li>
+                  {% if perms.ipho_core.is_staff %}
+                  <li><a href="{% url 'marking:marking-submissions' %}">Delegation marking subm. progress</a></li>
+                  {% endif %}
                   <li><a href="{% url 'marking:moderation-index' %}">Moderation</a></li>
                   <li><a href="{% url 'marking:export' %}">Export markings</a></li>
-                  <li><a href="{% url 'marking:progress' %}">Progress</a></li>
+
                   {% endif %}
                   {% if perms.ipho_core.is_staff %}
                   <li class="divider"></li>
