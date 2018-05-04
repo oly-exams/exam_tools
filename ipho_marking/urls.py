@@ -42,7 +42,19 @@ urlpatterns = [
     url(r'^confirm/(?P<exam_id>\d+)$', views.delegation_confirm, name='delegation-confirm'),
 
     ## Markers
-    # TODO
+    url(r'^official/?$', views.official_marking_index, name='official-marking-index'),
+    url(r'^official/question/(?P<question_id>\d+)$', views.official_marking_index, name='official-marking-index-question'),
+    url(
+        r'^official/question/(?P<question_id>\d+)/delegation/(?P<delegation_id>\d+)$',
+        views.official_marking_detail,
+        name='official-marking-detail'
+    ),
+    url(
+        r'^official/question/(?P<question_id>\d+)/delegation/(?P<delegation_id>\d+)/confirmed$',
+        views.official_marking_confirmed,
+        name='official-marking-confirmed'
+    ),
+
     ## Moderations views
     url(r'^moderate/?$', views.moderation_index, name='moderation-index'),
     url(r'^moderate/question/(?P<question_id>\d+)$', views.moderation_index, name='moderation-index-question'),
