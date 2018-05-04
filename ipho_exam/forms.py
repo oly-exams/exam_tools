@@ -371,6 +371,8 @@ class AdminBlockAttributeForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(AdminBlockAttributeForm, self).clean()
+        if not cleaned_data['key'] or not cleaned_data['key'].isidentifier():
+            self.add_error('value', 'The key can only ontain alphanumeric characters or underscores.')
         if cleaned_data['key'] == 'points':
             try:
                 cont = decimal.Context(prec=28, rounding=decimal.ROUND_HALF_EVEN, Emin=-999999, Emax=999999,
