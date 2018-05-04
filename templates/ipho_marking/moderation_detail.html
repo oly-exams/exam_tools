@@ -31,6 +31,24 @@ td {
   background-color: initial;
   border: none !important;
 }
+
+@media print {
+  .body, .table, .container {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    float: none !important;
+  }
+
+  thead, tbody {
+    border: 3px solid black !important;
+  }
+  
+  button, i {
+    display: none !important;
+  }
+}
 </style>
 {% endblock %}
 

@@ -591,6 +591,7 @@ def moderation_detail(request, question_id, delegation_id):
         )
         for j, f in enumerate(form):
             f.fields['points'].widget.attrs['tabindex'] = i*len(metas) + j + 1
+            f.fields['points'].widget.attrs['style'] = 'width:60px'
 
         # TODO: accept only submission without None
         all_valid = all_valid and form.is_valid()
@@ -649,6 +650,7 @@ def official_marking_detail(request, question_id, delegation_id):
         )
         for j, f in enumerate(form):
             f.fields['points'].widget.attrs['tabindex'] = i*len(metas) + j + 1
+            f.fields['points'].widget.attrs['style'] = 'width:100px'
 
         # TODO: accept only submission without None
         all_valid = all_valid and form.is_valid()
