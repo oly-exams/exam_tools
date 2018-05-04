@@ -721,7 +721,7 @@ def figure_add(request):
 
         if ext in ['.svg', '.svgz']:
             obj = CompiledFigure.objects.create(name=obj.name)
-            obj.content = request.FILES['file'].read()
+            obj.content = str(request.FILES['file'].read(), 'utf-8')
             placeholders = figparam_placeholder.findall(obj.content)
             obj.params = ','.join(placeholders)
             obj.save()
