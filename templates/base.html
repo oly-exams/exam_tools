@@ -53,7 +53,7 @@
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Exam <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
-                  {% if perms.ipho_core.is_delegation %}
+                  {% if perms.ipho_core.is_delegation and not user.is_superuser %}
                   <li class="dropdown-header">Step-by-step guide</li>
                   <li><a href="{% url 'exam:wizard' %}">Get started!</a></li>
                   <li class="divider"></li>
@@ -115,14 +115,17 @@
                   <li class="divider"></li>
                   <li class="dropdown-header">Marking</li>
                   {% if perms.ipho_core.is_staff %}
-                  <li><a href="{% url 'marking:import-exam' %}">Import exam</a></li>
-                  <li><a href="{% url 'marking:marking-submissions' %}">Marking submissions</a></li>
+                  <li><a href="{% url 'marking:import-exam' %}">Import exam into marking system</a></li>
                   {% endif %}
                   <li><a href="{% url 'marking:official-marking-index' %}">Official marking</a></li>
                   <li><a href="{% url 'marking:summary' %}">(Advanced marking editing)</a></li>
+                  <li><a href="{% url 'marking:progress' %}">Marking progress</a></li>
+                  {% if perms.ipho_core.is_staff %}
+                  <li><a href="{% url 'marking:marking-submissions' %}">Delegation marking subm. progress</a></li>
+                  {% endif %}
                   <li><a href="{% url 'marking:moderation-index' %}">Moderation</a></li>
                   <li><a href="{% url 'marking:export' %}">Export markings</a></li>
-                  <li><a href="{% url 'marking:progress' %}">Progress</a></li>
+
                   {% endif %}
                   {% if perms.ipho_core.is_staff %}
                   <li class="divider"></li>

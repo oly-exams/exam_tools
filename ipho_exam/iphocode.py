@@ -28,9 +28,10 @@ import cairosvg
 
 
 class QuestionBarcodeGen(object):
-    def __init__(self, exam, question, student, qcode=None, startnum=0, format='qr'):
+    def __init__(self, exam, question, student, qcode=None, startnum=0, format='qr', suppress_code=False):
         if qcode is None:
             qcode = question.code
+        self.suppress_code = suppress_code
         self.base = u'{stud} {ex}-{qpos}'.format(stud=student.code, ex=exam.code, qpos=question.position)
         self.text = self.base + u' {qcode}'.format(qcode=qcode) + u'-{pg}'
         self.format = format
@@ -78,7 +79,8 @@ class QuestionBarcodeGen(object):
             text_xml.attrib['font-family'] = 'Verdana'
             text_xml.text = code
 
-            bcode_xml.append(bcode_raw)
+            if not self.suppress_code:
+                bcode_xml.append(bcode_raw)
             bcode_xml.append(text_xml)
             bcode_svg = etree.tostring(bcode_xml)
         bcode_pdf = cairosvg.svg2pdf(bcode_svg)

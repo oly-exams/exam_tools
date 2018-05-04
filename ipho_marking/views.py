@@ -21,7 +21,7 @@ from django.shortcuts import get_object_or_404, render_to_response, render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, HttpResponseForbidden, JsonResponse, Http404
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
@@ -165,7 +165,8 @@ def staff_stud_detail(request, version, stud_id, question_id):
     return render(request, 'ipho_marking/staff_edit.html', ctx)
 
 
-@permission_required('ipho_core.is_marker')
+#@permission_required('ipho_core.is_marker')
+@user_passes_test(lambda u: any(u.has_perm(perm) for perm in ['ipho_core.is_marker', 'ipho_core.is_staff']))
 def export(request):
     versions = request.GET.get('v', 'O,D,F').split(',')
     exam_id = request.GET.get('exam', False)

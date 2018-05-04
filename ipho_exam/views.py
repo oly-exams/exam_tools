@@ -1537,12 +1537,15 @@ def submission_exam_assign(request, exam_id):
         for student in delegation.student_set.all():
             all_tasks = []
             student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
-            student_seat = Place.objects.get(exam=exam, student=student)
+            try:
+                student_seat = Place.objects.get(exam=exam, student=student).name
+            except Place.DoesNotExist:
+                student_seat = ""
             questions = exam.question_set.all()
             grouped_questions = {k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)}
             for position, qgroup in list(grouped_questions.items()):
                 doc, _ = Document.objects.get_or_create(exam=exam, student=student, position=position)
-                cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat.name}
+                cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat}
                 question_task = tasks.student_exam_document.s(qgroup, student_languages, cover=cover_ctx, commit=True)
                 # question_task = question_utils.compile_stud_exam_question(qgroup, student_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
@@ -2092,7 +2095,21 @@ def task_log(request, token):
         else:
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})
     except ipho_exam.pdf.TexCompileException as e:
-        return HttpResponse(e.log, content_type="text/plain")
+        #return HttpResponse(e.log, content_type="text/plain")
+        lines = e.log.splitlines()
+        error_lines = []
+        for i in range(len(lines)):
+            l = lines[i]
+            i += 1
+            if l.startswith('!'):
+                while l.strip() != "":
+                    error_lines.append(l)
+                    l = lines[i]
+                    i += 1
+                error_lines.append('')
+        errors = '\n'.join(error_lines)
+        return render(request, 'ipho_exam/tex_error_log.html', {'errors': errors, 'full_log': e.log})
+
 
 
 @login_required
@@ -2111,10 +2128,7 @@ def pdf_task(request, token):
         else:
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})
     except ipho_exam.pdf.TexCompileException as e:
-        if request.user.is_superuser:
-            return HttpResponse(e.log, content_type="text/plain")
-        else:
-            return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)
+        return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)
 
 
 @permission_required('ipho_core.is_printstaff')
