@@ -2095,7 +2095,21 @@ def task_log(request, token):
         else:
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})
     except ipho_exam.pdf.TexCompileException as e:
-        return HttpResponse(e.log, content_type="text/plain")
+        #return HttpResponse(e.log, content_type="text/plain")
+        lines = e.log.splitlines()
+        error_lines = []
+        for i in range(len(lines)):
+            l = lines[i]
+            i += 1
+            if l.startswith('!'):
+                while l.strip() != "":
+                    error_lines.append(l)
+                    l = lines[i]
+                    i += 1
+                error_lines.append('')
+        errors = '\n'.join(error_lines)
+        return render(request, 'ipho_exam/tex_error_log.html', {'errors': errors, 'full_log': e.log})
+
 
 
 @login_required
@@ -2114,10 +2128,7 @@ def pdf_task(request, token):
         else:
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})
     except ipho_exam.pdf.TexCompileException as e:
-        if request.user.is_superuser:
-            return HttpResponse(e.log, content_type="text/plain")
-        else:
-            return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)
+        return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)
 
 
 @permission_required('ipho_core.is_printstaff')

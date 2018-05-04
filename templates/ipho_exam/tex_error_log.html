@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+
+<h1>TeX errors</h1>
+<pre class="text-danger">
+{{ errors}}
+</pre>
+
+<h1>Full log</h1>
+<pre>
+{{ full_log }}
+</pre>
+
+</div> <!-- /container -->
+
+{% endblock %}
