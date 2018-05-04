@@ -42,9 +42,9 @@ td {
   }
 
   thead, tbody {
-    border: 3px solid black !important;
+    border: 2px solid black !important;
   }
-  
+
   button, i {
     display: none !important;
   }
@@ -117,7 +117,7 @@ $(function () {
   {% for student, forms, markings_official in student_forms %}
   results_official[{{ student.pk }}] = [ {% for item in markings_official %}{{ item.points|default_if_none:"0" }},{% endfor %} ];
   {% endfor %}
-  
+
   {% if request.method == "POST" %}
   window.dirty_form = true;
   {% else %}
