@@ -461,7 +461,7 @@ class QMLsubquestion(QMLobject):
     has_children = True
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
 
-    default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
+    default_attributes = {'points': '0.0', 'part_nr': 'A', 'question_nr': '1'}
 
     def heading(self):
         return 'Subquestion %s.%s, %spt' % (
@@ -489,7 +489,7 @@ class QMLsubanswer(QMLobject):
     has_children = True
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
 
-    default_attributes = {'points': '', 'part_nr': '', 'question_nr': ''}
+    default_attributes = {'points': '0.0', 'part_nr': 'A', 'question_nr': '1'}
 
     def heading(self):
         return 'Subquestion %s.%s, %spt' % (
@@ -564,7 +564,7 @@ class QMLsection(QMLobject):
 class QMLpart(QMLobject):
     tag = "part"
     default_heading = "Part"
-    default_attributes = {'points': ''}
+    default_attributes = {'points': '0.0'}
 
     has_text = True
     has_children = False
@@ -604,7 +604,7 @@ class QMLfigure(QMLobject):
     lang = None
     valid_children = ('caption', 'param')
 
-    default_attributes = {'figid': ''}
+    default_attributes = {'figid': '0', 'width': '0.5'}
 
     def fig_query(self):
         query = {}
@@ -792,7 +792,7 @@ class QMLlatex(QMLobject):
     has_children = True
     valid_children = ('texparam', )
 
-    default_attributes = {'content': ''}
+    default_attributes = {'content': '\\bf{ {{ myparam }} }'}
 
     def make_tex(self):
         content = str(self.attributes['content']) + u'\n\n'
@@ -801,8 +801,11 @@ class QMLlatex(QMLobject):
         query = {}
         for c in self.children:
             if c.tag == 'texparam':
-                content = re.sub(r'({{ *%s *}})' % c.attributes['name'], c.data, content)
-                content.replace(u'{{ %s }}' % c.attributes['name'], c.data)
+                # we escape backslashes here since we do not want to allow backreference in replacement string.
+                content = re.sub(r'({{ *%s *}})' % c.attributes['name'], data2tex(c.data).replace("\\", "\\\\"), content)
+
+                # try to replace once more in case regex failed
+                content.replace(u'{{ %s }}' % c.attributes['name'], data2tex(c.data))
         return content, []
 
 
@@ -813,7 +816,16 @@ class QMLlatexParam(QMLobject):
     has_text = True
     has_children = False
 
-    default_attributes = {'name': 'tba'}
+    default_attributes = {'name': 'tbd'}
+
+    def form_element(self):
+        return forms.CharField(widget=forms.Textarea)
+
+    def xhtml_begin(self):
+        return u''
+
+    def xhtml_end(self):
+        return u''
 
 
 class QMLlatexEnv(QMLobject):
@@ -825,7 +837,7 @@ class QMLlatexEnv(QMLobject):
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
                     ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer')
 
-    default_attributes = {'name': ''}
+    default_attributes = {'name': 'myparam'}
 
     def tex_begin(self):
         return str(r'\begin{{{}}}{}'.format(self.attributes['name'], self.attributes.get('arguments', '')))
@@ -844,6 +856,7 @@ class QMLtable(QMLobject):
 
     default_attributes = {
         #~ 'width': '',
+        'columns': '|l|c|',
         'top_line': '1',
         #~ 'left_line': '1',
         #~ 'right_line': '1',
@@ -901,14 +914,15 @@ class QMLtableRow(QMLobject):
 
     has_text = False
     has_children = True
-    valid_children = ('cell', )
+    valid_children = ('cell', 'texfield')
 
     default_attributes = {'bottom_line': '1'}
 
     def make_tex(self):
         multiplier = int(self.attributes.get('multiplier', 1))
         texout = u''
-        texout += u' & '.join(data2tex(c.data) for c in self.children)  # pylint: disable=no-member
+        texout += u' & '.join(data2tex(c.data) for c in self.children if c.tag == 'cell')  # pylint: disable=no-member
+        texout += u' '.join(c.make_tex()[0] for c in self.children if c.tag == 'texfield')
         texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
         return texout * multiplier, []
 
