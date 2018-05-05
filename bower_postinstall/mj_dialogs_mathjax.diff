@@ -15,11 +15,11 @@
 > 			texValue = '',
 > 			// Is the editor loaded and ready to work.
 > 			isInit = false,
->
+> 
 > 			// Function called when MathJax is loaded.
 > 			loadedHandler = CKEDITOR.tools.addFunction( function() {
 > 				mathEditor = doc.getById( 'editor' );
->
+> 
 > 				var height = Math.max( doc.$.body.offsetHeight, doc.$.documentElement.offsetHeight ),
 > 					width = Math.max( mathEditor.$.offsetWidth, doc.$.body.scrollWidth );
 > 				iFrame.setStyles( {
@@ -33,31 +33,31 @@
 > 			} ),
 > 			updateHandler = CKEDITOR.tools.addFunction( function(value) {
 > 				texValue = value;
->
+> 
 > 				var height = Math.max( doc.$.body.offsetHeight, doc.$.documentElement.offsetHeight );
 > 				iFrame.setStyles( {
 > 					height: height + 'px',
 > 				} );
->
+> 
 > 				if (preview) preview(texValue, 'editor');
 > 			} );
->
+> 
 > 		iFrame.on( 'load', load );
->
+> 
 > 		load();
->
+> 
 > 		function load() {
 > 			doc = iFrame.getFrameDocument();
->
+> 
 > 			if ( doc.getById( 'editor' ) )
 > 				return;
->
+> 
 > 			// Because of IE9 bug in a src attribute can not be javascript
 > 			// when you undo (#10930). If you have iFrame with javascript in src
 > 			// and call insertBefore on such element then IE9 will see crash.
 > 			if ( CKEDITOR.env.ie )
 > 				iFrame.removeAttribute( 'src' );
->
+> 
 > 			doc.write( '<!DOCTYPE html>' +
 > 						'<html>' +
 > 						'<head>' +
@@ -76,14 +76,14 @@
 > 								'function update(value) {' +
 > 									'mathEditor.mathquill("latex", value);' +
 > 								'}' +
->
+> 
 > 							'</script>' +
->
+> 
 > 							// Load libs.
 > 							'<link href="' + ( editor.config.MathQuillCss ) + '" rel="stylesheet">' +
 > 							'<script src="' + ( editor.config.MathQuilljQuery) + '"></script>' +
 > 							'<script src="' + ( editor.config.MathQuillLib ) + '"></script>' +
->
+> 
 > 							'<script type="text/javascript">' +
 > 								'jQuery(function(){' +
 > 									'mathEditor = jQuery("#editor").on("keyup mathquill.toolbarInput", function(){' +
@@ -98,7 +98,7 @@
 > 						'</body>' +
 > 						'</html>' );
 > 		}
->
+> 
 > 		return {
 > 			/**
 > 			 * Sets the TeX value to be displayed in the `iframe` element inside
@@ -125,7 +125,7 @@
 11a124,134
 > 	var mathquillEditor;
 > 	var simpleTextarea;
->
+> 
 > 	var updatePreview = function (texValue, mode) {
 > 		preview.setValue( '\\(' + texValue + '\\)' );
 > 		if (mode == 'editor') {
@@ -152,7 +152,7 @@
 > 							'</div>',
 27,34c154,155
 < 							var that = this;
-<
+< 
 < 							if ( !( CKEDITOR.env.ie && CKEDITOR.env.version == 8 ) ) {
 < 								this.getInputElement().on( 'keyup', function() {
 < 									// Add \( and \) for preview.
@@ -192,18 +192,18 @@
 > 						id: 'equation',
 > 						type: 'textarea',
 > 						label: lang.dialogInput,
->
+> 
 > 						onLoad: function() {
 > 							var that = this;
 > 							simpleTextarea = that.getInputElement();
->
+> 
 > 							if ( !( CKEDITOR.env.ie && CKEDITOR.env.version == 8 ) ) {
 > 								this.getInputElement().on( 'keyup', function() {
 > 									updatePreview(that.getInputElement().getValue(), 'advanced');
 > 								} );
 > 							}
 > 						},
->
+> 
 > 						setup: function( widget ) {
 > 							// Remove \( and \).
 > 							this.setValue( CKEDITOR.plugins.mathjax.trim( widget.data.math ) );
@@ -242,11 +242,11 @@
 > 			this.on('selectPage', function (e) {
 > 				var currentPage = e.data.currentPage;
 > 				var destPage = e.data.page;
->
+> 
 > 				var domId_old = this.getContentElement(currentPage, 'preview').domId;
 > 				var iFrame = CKEDITOR.document.getById( domId_old ).getChild( 0 );
 > 				var domId_new = this.getContentElement(destPage, 'preview').domId;
->
+> 
 > 				CKEDITOR.document.getById( domId_new ).$.appendChild( iFrame.$ );
 > 			});
 > 		}
