@@ -837,7 +837,7 @@ class QMLlatexEnv(QMLobject):
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
                     ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer')
 
-    default_attributes = {'name': 'myparam'}
+    default_attributes = {'name': 'centering'}
 
     def tex_begin(self):
         return str(r'\begin{{{}}}{}'.format(self.attributes['name'], self.attributes.get('arguments', '')))
