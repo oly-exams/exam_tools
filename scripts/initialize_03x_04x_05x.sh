@@ -12,7 +12,7 @@ echo "Official translations..."
 python scripts/export_trans_exams.py
 
 # echo "Delegation translations"
-# python scripts/export_delagation_translations.py
+# python scripts/export_delegation_translations.py
 
 echo "Student seats..."
 # python scripts/prod_04_import_student_seating.py "$INPUT_DIR/040_students_seats.csv"
