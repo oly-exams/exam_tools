@@ -32,6 +32,10 @@ td {
   border: none !important;
 }
 
+.tdtotal {
+    border-top: 1px solid black !important;
+}
+
 @media print {
   .body, .table, .container {
     width: auto;
@@ -64,7 +68,7 @@ td {
     <thead id="firstrow">
       <tr>
         <td class="thdnone"></td>
-        {% for student, forms, markings_official in student_forms %}
+        {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
           <td class="thdnone"></td>
           <th colspan=3>
             <h4>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</h4>
@@ -76,7 +80,7 @@ td {
     <thead>
       <tr>
         <th class="thexpart">Problem part</th>
-        {% for student, forms, markings_official in student_forms %}
+        {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
           {{ forms.management_form }}
           <td class="thdnone"></td>
           <th>O</th>
@@ -97,6 +101,15 @@ td {
           {% endfor %}
         </tr>
       {% endfor %}
+      <tr>
+        <td class="tdtotal">Total ({{ max_points_sum }})</td>
+        {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
+          <td class="thdnone"></td>
+          <td>{{ sum_official }}</td>
+          <td>{{ sum_delegation }}</td>
+          <td class="tdtotal" id="cell_total_{{ forloop.counter0 }}"></td>
+        {% endfor %}
+      </tr>
     </tbody>
   </table>
 
@@ -111,10 +124,38 @@ td {
 {% block extra-script %}
 
 <script>
+student_pks = new Array();
+{% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
+student_pks[{{ forloop.counter0 }}] = {{ student.pk }};
+{% endfor %}
+
+function update_totals () {
+  for (i = 0; i < {{ student_forms|length }}; i++) {
+    var t = 0.0;
+    var failed = false;
+    for (j = 0; j < {{ marking_forms|length }}; j++) {
+      var x = parseFloat($('#id_Stud-' + student_pks[i] + '-' + j + '-points').val());
+      if (isNaN(x)) {
+        failed = true;
+        break;
+      }
+      else {
+        t += x;
+      }
+    }
+    if (failed) {
+      $('#cell_total_' + i).text('-');
+    }
+    else {
+      $('#cell_total_' + i).text(t.toFixed(2));
+    }
+  }
+}
+
 $(function () {
 
   results_official = new Array();
-  {% for student, forms, markings_official in student_forms %}
+  {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
   results_official[{{ student.pk }}] = [ {% for item in markings_official %}{{ item.points|default_if_none:"0" }},{% endfor %} ];
   {% endfor %}
 
@@ -131,14 +172,18 @@ $(function () {
     for (k in results_official[stud_id]) {
       $('#id_Stud-'+stud_id+'-'+k+'-points').val(results_official[stud_id][k]);
     }
+    update_totals();
   });
 
   $('input[id^="id_Stud-"][id$="-points"]').change(function () {
     window.dirty_form = true;
+    update_totals();
   });
   $('#submit_button').click(function (e) {
     window.dirty_form = false;
   });
+
+  update_totals();
 });
 
 window.addEventListener("beforeunload", function (e) {

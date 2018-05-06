@@ -31,6 +31,10 @@ th {
   border: none !important;
 }
 
+.tdtotal {
+    border-top: 1px solid black !important;
+}
+
 @media print {
   .body, .table, .container {
     width: auto;
@@ -80,6 +84,13 @@ th {
           {% endfor %}
         </tr>
       {% endfor %}
+      <tr>
+        <td class="tdtotal">Total ({{ max_points_sum }})</td>
+        {% for it in student_forms %}
+          <td class="thdnone"></td>
+          <td class="tdtotal" id="cell_total_{{ forloop.counter0 }}"></td>
+        {% endfor %}
+      </tr>
     </tbody>
   </table>
 
@@ -94,6 +105,34 @@ th {
 {% block extra-script %}
 
 <script>
+student_pks = new Array();
+{% for student, forms in student_forms %}
+student_pks[{{ forloop.counter0 }}] = {{ student.pk }};
+{% endfor %}
+
+function update_totals () {
+  for (i = 0; i < {{ student_forms|length }}; i++) {
+    var t = 0.0;
+    var failed = false;
+    for (j = 0; j < {{ marking_forms|length }}; j++) {
+      var x = parseFloat($('#id_Stud-' + student_pks[i] + '-' + j + '-points').val());
+      if (isNaN(x)) {
+        failed = true;
+        break;
+      }
+      else {
+        t += x;
+      }
+    }
+    if (failed) {
+      $('#cell_total_' + i).text('-');
+    }
+    else {
+      $('#cell_total_' + i).text(t.toFixed(2));
+    }
+  }
+}
+
 $(function () {
   {% if request.method == "POST" %}
   window.dirty_form = true;
@@ -103,10 +142,13 @@ $(function () {
 
   $('input[id^="id_Stud-"][id$="-points"]').change(function () {
     window.dirty_form = true;
+    update_totals();
   });
   $('#submit_button').click(function (e) {
     window.dirty_form = false;
   });
+
+  update_totals();
 });
 
 window.addEventListener("beforeunload", function (e) {

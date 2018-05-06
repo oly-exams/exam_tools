@@ -597,7 +597,10 @@ def moderation_detail(request, question_id, delegation_id):
         all_valid = all_valid and form.is_valid()
         with_errors = with_errors or form.errors
 
-        student_forms.append((student, form, markings_official))
+        student_forms.append((
+            student, form, markings_official,
+            sum((m.points for m in markings_official if m.points is not None), 0.0),
+            sum((m.points for m in markings_delegation if m.points is not None), 0.0)))
         marking_forms.append(zip(markings_official, markings_delegation, form))
 
     if all_valid:
@@ -612,7 +615,7 @@ def moderation_detail(request, question_id, delegation_id):
             )
         )
     # TODO: display errors
-    ctx = {'question': question, 'delegation': delegation, 'student_forms': student_forms, 'marking_forms': zip(metas, zip(*marking_forms)), 'request': request}
+    ctx = {'question': question, 'delegation': delegation, 'student_forms': student_forms, 'marking_forms': list(zip(metas, zip(*marking_forms))), 'request': request, 'max_points_sum': sum(m.max_points for m in metas)}
     return render(request, 'ipho_marking/moderation_detail.html', ctx)
 
 
@@ -636,7 +639,6 @@ def official_marking_detail(request, question_id, delegation_id):
     students = delegation.student_set.all()
 
     student_forms = []
-    marking_forms = []
     all_valid = True
     with_errors = False
     for i, student in enumerate(students):
@@ -670,7 +672,7 @@ def official_marking_detail(request, question_id, delegation_id):
             )
         )
     # TODO: display errors
-    ctx = {'question': question, 'delegation': delegation, 'student_forms': student_forms, 'marking_forms': zip(metas, zip(*(f[1] for f in student_forms))), 'request': request}
+    ctx = {'question': question, 'delegation': delegation, 'student_forms': student_forms, 'marking_forms': list(zip(metas, zip(*(f[1] for f in student_forms)))), 'request': request, 'max_points_sum': sum(m.max_points for m in metas)}
     return render(request, 'ipho_marking/official_marking_detail.html', ctx)
 
 
