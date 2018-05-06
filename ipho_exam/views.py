@@ -37,6 +37,7 @@ from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
+from django.db.models.functions import Lower
 
 import os
 from copy import deepcopy
@@ -1804,7 +1805,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
                 'order':
                 1,
                 'list':
-                Language.objects.filter(translationnode__question=question, delegation=delegation)
+                Language.objects.filter(translationnode__question=question, delegation=delegation).order_by(Lower('delegation__country'), Lower('name'))
             })
         ## others
         question_langs.append({
@@ -1814,7 +1815,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             2,
             'list':
             Language.objects.filter(translationnode__question=question
-                                    ).exclude(delegation=delegation).exclude(delegation__name=OFFICIAL_DELEGATION)
+                                    ).exclude(delegation=delegation).exclude(delegation__name=OFFICIAL_DELEGATION).order_by(Lower('delegation__country'), Lower('name'))
         })
 
         orig_q_raw = qml.make_qml(orig_node)
