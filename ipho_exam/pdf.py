@@ -80,7 +80,7 @@ def compile_tex(body, ext_resources=[]):
             if error:
                 if not os.path.exists("%s/%s.log" % (tmp, doc)):
                     raise RuntimeError('Error in PDF. Errocode {}. Log does not exists.'.format(error))
-                log = open("%s/%s.log" % (tmp, doc)).read()
+                log = open("%s/%s.log" % (tmp, doc), errors='replace').read()
                 raise TexCompileException(error, "%s/%s.tex" % (tmp, doc), log)
 
             with open("%s/%s.pdf" % (tmp, doc), 'rb') as f:
