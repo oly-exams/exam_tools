@@ -89,6 +89,14 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin tools <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
                   {% if perms.ipho_core.is_staff %}
+                  <li class="dropdown-header">Django admin</li>
+                  {% if user.is_superuser %}
+                  <li><a href="{% url 'admin:index' %}">Admin interface</a></li>
+                  {% endif %}
+                  <li><a href="{% url 'impersonate' %}">Impersonate delegation</a></li>
+                  <li class="divider"></li>
+                  {% endif %}
+                  {% if perms.ipho_core.is_staff %}
                   <li class="dropdown-header">Exam</li>
                   <li><a href="{% url 'exam:admin' %}">Exam management</a></li>
                   <li><a href="{% url 'exam:figures' %}">Figure management</a></li>
@@ -128,12 +136,6 @@
                   <li><a href="{% url 'marking:moderation-index' %}">Moderation</a></li>
                   <li><a href="{% url 'marking:export' %}">Export markings</a></li>
 
-                  {% endif %}
-                  {% if perms.ipho_core.is_staff %}
-                  <li class="divider"></li>
-                  <li class="dropdown-header">Django admin</li>
-                  <li><a href="{% url 'admin:index' %}">Admin interface</a></li>
-                  <li><a href="{% url 'impersonate' %}">Impersonate delegation</a></li>
                   {% endif %}
                 </ul>
               </li>
