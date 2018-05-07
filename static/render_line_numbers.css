@@ -1,0 +1,20 @@
+pre {
+  padding: 10px 16px;
+
+  counter-reset: line;
+}
+pre span {
+  display: block;
+  line-height: 1.5rem;
+}
+pre span:before {
+  counter-increment: line;
+  width: 4.0em; /* Fixed width */
+  content: counter(line);
+  text-align: right;
+  display: inline-block;
+  border-right: 1px solid #ddd;
+  padding: 0 .5em;
+  margin-right: .5em;
+  color: #888
+}

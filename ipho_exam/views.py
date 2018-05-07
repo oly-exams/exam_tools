@@ -2079,6 +2079,10 @@ def task_status(request, token):
     return JsonResponse({'status': task.status, 'ready': task.ready()})
 
 
+def _wrap_pre(s):
+    return ''.join('<span>{}</span>'.format(l) for l in s.split('\n'))
+
+
 @login_required
 def task_log(request, token):
     task = AsyncResult(token)
@@ -2102,7 +2106,7 @@ def task_log(request, token):
                     i += 1
                 error_lines.append('')
         errors = '\n'.join(error_lines)
-        return render(request, 'ipho_exam/tex_error_log.html', {'errors': errors, 'full_log': e.log})
+        return render(request, 'ipho_exam/tex_error_log.html', {'errors': _wrap_pre(errors), 'full_log': _wrap_pre(e.log), 'doc_tex': _wrap_pre(e.doc_tex)})
 
 
 
