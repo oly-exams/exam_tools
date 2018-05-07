@@ -37,6 +37,8 @@ from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
+from django.db.models.functions import Lower
+from django.template.defaultfilters import slugify
 
 import os
 from copy import deepcopy
@@ -1762,7 +1764,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         orig_lang = get_object_or_404(Language, id=orig_id)
 
         if delegation.count() > 0:
-            own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
+            own_lang = Language.objects.filter(hidden=False, translationnode__question=question, delegation=delegation).order_by('name')
         elif request.user.is_superuser:
             own_lang = Language.objects.all().order_by('name')
 
@@ -1939,7 +1941,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     else:
         trans = qquery.latest_version(question_id, lang_id)
 
-    filename = u'Exam - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
+    filename = u'exam-{}-{}{}-{}.pdf'.format(slugify(trans.question.exam.name), trans.question.code, trans.question.position, slugify(trans.lang.name))
 
     if trans.lang.is_pdf:
         # etag = md5(trans.node.pdf).hexdigest()
@@ -2030,7 +2032,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
         result = question_task.delay()
         all_tasks.append(result)
         print('Group', position, 'done.')
-    filename = u'Exam - {} - {}.pdf'.format(exam.name, student.code)
+    filename = u'exam-{}-{}.pdf'.format(slugify(exam.name), student.code)
     chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
     #chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
     return HttpResponseRedirect(reverse('exam:pdf-task', args=[chord_task.id]))
@@ -2319,7 +2321,7 @@ def extra_sheets(request, exam_id=None):
         doc.save()
 
         res = HttpResponse(doc_pdf, content_type="application/pdf")
-        res['content-disposition'] = 'attachment; filename="{} {} Z.pdf"'.format(student.code, exam.code)
+        res['content-disposition'] = 'attachment; filename="{}.pdf"'.format("{}_{}_Z".format(student.code, exam.code))
         return res
 
     return render(request, 'ipho_exam/extra_sheets.html', {'form': form, 'messages': messages})

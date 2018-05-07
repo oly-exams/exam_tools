@@ -78,13 +78,8 @@ class LanguageForm(ModelForm):
         data = self.cleaned_data['name']
         if "_" in data:
             raise forms.ValidationError("Underscore '_' symbols are forbidden in language names.")
-        return data
-
-    def clean(self):
-        cleaned_data = super(LanguageForm, self).clean()
-
         try:
-            Language.objects.get(name=cleaned_data['name'], delegation=self.user_delegation)
+            Language.objects.get(name=data, delegation=self.user_delegation)
         except Language.DoesNotExist:
             pass
         else:
@@ -93,9 +88,7 @@ class LanguageForm(ModelForm):
                     'This language already exist for delegation ' + self.user_delegation.name +
                     '. Enter a different name.'
                 )
-
-        # Always return cleaned_data
-        return cleaned_data
+        return data
 
     class Meta(object):
         model = Language
