@@ -40,10 +40,11 @@ TEXBIN = getattr(settings, 'TEXBIN', '/usr/bin')
 
 
 class TexCompileException(Exception):
-    def __init__(self, code, doc_fname='', log=''):
+    def __init__(self, code, doc_fname='', log='', doc_tex=''):
         self.log = log
         self.code = code
         self.doc_fname = doc_fname
+        self.doc_tex = doc_tex
         super(TexCompileException, self).__init__("pdflatex error (code %s) in %s" % (code, doc_fname))
 
 
@@ -64,7 +65,6 @@ def compile_tex(body, ext_resources=[]):
 
             with open("%s/%s.tex" % (tmp, doc), "w") as f:
                 f.write(body)
-            del body
 
             error = subprocess.Popen(
                 ["xelatex", "%s.tex" % doc],
@@ -81,7 +81,9 @@ def compile_tex(body, ext_resources=[]):
                 if not os.path.exists("%s/%s.log" % (tmp, doc)):
                     raise RuntimeError('Error in PDF. Errocode {}. Log does not exists.'.format(error))
                 log = open("%s/%s.log" % (tmp, doc), errors='replace').read()
-                raise TexCompileException(error, "%s/%s.tex" % (tmp, doc), log)
+                raise TexCompileException(error, "%s/%s.tex" % (tmp, doc), log, doc_tex=body)
+
+            del body
 
             with open("%s/%s.pdf" % (tmp, doc), 'rb') as f:
                 pdf = f.read()

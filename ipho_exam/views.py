@@ -994,7 +994,8 @@ def admin_import_version(request, question_id):
             node.pk = None
             node.version += 1
             node.status = 'P'
-        node.text = qml.escape_equations(txt)
+        #node.text = qml.escape_equations(txt)
+        node.text = qml.normalize_html(txt)
         node.save()
         return JsonResponse({'success': True})
 
@@ -1207,7 +1208,10 @@ def admin_editor(request, exam_id, question_id, version_num):
     q = qml.make_qml(node)
     #content_set = qml.make_content(q)
 
-    qml_types = [(qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()]
+    # TODO: find some better sorting way?
+    qml_types = sorted(
+        ((qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()),
+        key=lambda t: t[1])
     context = {
         'exam': exam,
         'question': question,
@@ -1335,7 +1339,10 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
     node.text = qml.xml2string(q.make_xml())
     node.save()
 
-    qml_types = [(qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()]
+    # TODO: find some better sorting way?
+    qml_types = sorted(
+        ((qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()),
+        key=lambda t: t[1])
     ctx = {
         'fields_set': [newblock],
         'parent': block,
@@ -2072,6 +2079,10 @@ def task_status(request, token):
     return JsonResponse({'status': task.status, 'ready': task.ready()})
 
 
+def _wrap_pre(s):
+    return ''.join('<span>{}</span>'.format(l) for l in s.split('\n'))
+
+
 @login_required
 def task_log(request, token):
     task = AsyncResult(token)
@@ -2095,7 +2106,7 @@ def task_log(request, token):
                     i += 1
                 error_lines.append('')
         errors = '\n'.join(error_lines)
-        return render(request, 'ipho_exam/tex_error_log.html', {'errors': errors, 'full_log': e.log})
+        return render(request, 'ipho_exam/tex_error_log.html', {'errors': _wrap_pre(errors), 'full_log': _wrap_pre(e.log), 'doc_tex': _wrap_pre(e.doc_tex)})
 
 
 
