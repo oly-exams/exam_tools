@@ -49,6 +49,7 @@ from hashlib import md5
 import itertools
 
 from django.conf import settings
+from ipho_core.views import any_permission_required
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, CompiledFigure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog, Place
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
@@ -65,22 +66,6 @@ from celery.result import AsyncResult
 logger = logging.getLogger('ipho_exam')
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
-
-
-def any_permission_required(*args):
-    """
-    A decorator which checks user has any of the given permissions.
-    permission required can not be used in its place as that takes only a
-    single permission.
-    """
-
-    def test_func(user):
-        for perm in args:
-            if user.has_perm(perm):
-                return True
-        return False
-
-    return user_passes_test(test_func)
 
 
 @login_required

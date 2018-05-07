@@ -22,7 +22,7 @@ from past.utils import old_div
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import HttpResponseForbidden
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth import authenticate, login
 from django.core.urlresolvers import reverse
 
@@ -31,6 +31,22 @@ from ipho_core.forms import AccountRequestForm
 
 DEMO_MODE = getattr(settings, 'DEMO_MODE')
 DEMO_SIGN_UP = getattr(settings, 'DEMO_SIGN_UP')
+
+
+def any_permission_required(*args):
+    """
+    A decorator which checks user has any of the given permissions.
+    permission required can not be used in its place as that takes only a
+    single permission.
+    """
+
+    def test_func(user):
+        for perm in args:
+            if user.has_perm(perm):
+                return True
+        return False
+
+    return user_passes_test(test_func)
 
 
 def autologin(request, token):
