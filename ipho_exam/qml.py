@@ -37,6 +37,7 @@ from future.standard_library import install_aliases
 install_aliases()
 
 from bs4 import BeautifulSoup
+import tidylib
 
 from django import forms
 from django.utils.safestring import mark_safe
@@ -51,6 +52,42 @@ from . import simplediff
 #block groups
 PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'table', 'equation', 'figure', 'box')
 DEFAULT_BLOCKS = ('texfield', 'texenv')
+
+TIDYOPTIONS={
+"indent": "auto",
+"indent-spaces": 2,
+"wrap": 0,
+"drop-empty-paras": False,
+"join-styles": False,
+"literal-attributes": False,
+"lower-literals": False,
+"merge-divs": "no",
+#"merge-spans": "no",
+#"preserve-entities": True,  # check if this is a useful option
+"markup": True,
+"output-xml": False,
+"output-xhtml": True,
+"input-xml": False,
+"show-warnings": False,
+"numeric-entities": True,
+"quote-marks": False,
+"quote-nbsp": True,
+"quote-ampersand": False,
+"break-before-br": False,
+"uppercase-tags": False,
+"uppercase-attributes": False,
+"quiet": True,
+"show-errors": 0,
+"force-output": True,
+"input-encoding": "utf8",
+"output-encoding": "utf8",
+"word-2000": True,
+"clean": True,
+"bare": True,
+"new-blocklevel-tags": "question,subquestion,subanswer,box,section,part,figure,list,texfield,texparam,texenv,table,row",
+"new-inline-tags": "title,paragraph,param,caption,equation,item,texparam,cell,tablecaption",
+"new-empty-tags": "pagebreak"
+}
 
 
 def make_content(root):
@@ -106,7 +143,9 @@ def make_qml(node):
 
 
 def xml2string(xml):
-    return ET.tostring(xml, encoding='unicode')
+    s = ET.tostring(xml, encoding='unicode')
+    #s, errors = tidylib.tidy_fragment(s, options=TIDYOPTIONS)
+    return s
 
 
 def content2string(node):
@@ -281,7 +320,11 @@ class QMLobject(object):
         assert ('id' in self.attributes)
         elem = ET.Element(self.tag, self.attributes)
         if self.__class__.has_text:
-            elem.text = self.data
+            s = self.data
+            #print("data={}".format(self.data))
+            #print("tidy")
+            #s, errors = tidylib.tidy_fragment(s, options=TIDYOPTIONS)
+            elem.text = s
 
         for c in self.children:
             elem.append(c.make_xml())
