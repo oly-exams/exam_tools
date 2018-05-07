@@ -792,20 +792,18 @@ class QMLlatex(QMLobject):
     has_children = True
     valid_children = ('texparam', )
 
-    default_attributes = {'content': '\\bf{ {{ myparam }} }'}
+    default_attributes = {'content': '\\textbf{ {{ myparam }} }'}
 
     def make_tex(self):
         content = str(self.attributes['content']) + u'\n\n'
-        content = content.replace(u'\\n', u'\n')
+
+        # allow one special Django-template-style command {% newline %} to insert newline in LaTeX
+        content = content.replace(u'{% newline %}', u'\n')
 
         query = {}
         for c in self.children:
             if c.tag == 'texparam':
-                # we escape backslashes here since we do not want to allow backreference in replacement string.
-                content = re.sub(r'({{ *%s *}})' % c.attributes['name'], data2tex(c.data).replace("\\", "\\\\"), content)
-
-                # try to replace once more in case regex failed
-                content.replace(u'{{ %s }}' % c.attributes['name'], data2tex(c.data))
+                content = content.replace(u'{{ %s }}' % c.attributes['name'], data2tex(c.data))
         return content, []
 
 
