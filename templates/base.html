@@ -91,7 +91,7 @@
                   {% if perms.ipho_core.is_staff %}
                   <li class="dropdown-header">Django admin</li>
                   {% if user.is_superuser %}
-                  <li><a href="{% url 'admin:index' %}">Admin interface</a></li>
+                  <li><a href="{% url 'admin:index' %}">Admin 
                   {% endif %}
                   <li><a href="{% url 'impersonate' %}">Impersonate delegation</a></li>
                   <li class="divider"></li>
@@ -137,6 +137,10 @@
                   <li><a href="{% url 'marking:export' %}">Export markings</a></li>
 
                   {% endif %}
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/show-orig-tex-in-error
                 </ul>
               </li>
               {% endif %}
