@@ -24,3 +24,4 @@ Wand
 django-filter
 python-dateutil
 cssutils
+pytidylib >= 0.3.2, < 0.4
