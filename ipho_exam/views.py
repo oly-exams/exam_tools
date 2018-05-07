@@ -1338,7 +1338,10 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
     node.text = qml.xml2string(q.make_xml())
     node.save()
 
-    qml_types = [(qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()]
+    # TODO: find some better sorting way?
+    qml_types = sorted(
+        ((qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()),
+        key=lambda t: t[1])
     ctx = {
         'fields_set': [newblock],
         'parent': block,
