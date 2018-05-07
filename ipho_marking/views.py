@@ -165,8 +165,7 @@ def staff_stud_detail(request, version, stud_id, question_id):
     return render(request, 'ipho_marking/staff_edit.html', ctx)
 
 
-#@permission_required('ipho_core.is_marker')
-@user_passes_test(lambda u: any(u.has_perm(perm) for perm in ['ipho_core.is_marker', 'ipho_core.is_staff']))
+@permission_required('ipho_core.is_marker')
 def export(request):
     versions = request.GET.get('v', 'O,D,F').split(',')
     exam_id = request.GET.get('exam', False)
