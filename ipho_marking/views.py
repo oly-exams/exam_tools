@@ -31,6 +31,7 @@ from django.db.models import Sum
 from django.forms import modelformset_factory, inlineformset_factory
 
 import itertools
+import decimal
 from collections import OrderedDict
 
 from django.conf import settings
@@ -599,8 +600,8 @@ def moderation_detail(request, question_id, delegation_id):
 
         student_forms.append((
             student, form, markings_official,
-            sum((m.points for m in markings_official if m.points is not None), 0.0),
-            sum((m.points for m in markings_delegation if m.points is not None), 0.0)))
+            sum((m.points for m in markings_official if m.points is not None), decimal.Decimal(0)),
+            sum((m.points for m in markings_delegation if m.points is not None), decimal.Decimal(0))))
         marking_forms.append(zip(markings_official, markings_delegation, form))
 
     if all_valid:
