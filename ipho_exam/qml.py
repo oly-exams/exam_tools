@@ -814,7 +814,7 @@ class QMLlatexParam(QMLobject):
     has_text = True
     has_children = False
 
-    default_attributes = {'name': 'tbd'}
+    default_attributes = {'name': 'myparam'}
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
@@ -914,7 +914,7 @@ class QMLtableRow(QMLobject):
     has_children = True
     valid_children = ('cell', 'texfield')
 
-    default_attributes = {'bottom_line': '1'}
+    default_attributes = {'bottom_line': '1', 'multiplier': '1'}
 
     def make_tex(self):
         multiplier = int(self.attributes.get('multiplier', 1))
