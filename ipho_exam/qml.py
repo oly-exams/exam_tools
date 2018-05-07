@@ -430,7 +430,6 @@ class QMLobject(object):
 
 class QMLquestion(QMLobject):
     tag = "question"
-    default_attributes = {'points': ''}
 
     has_text = False
     has_children = True
@@ -445,10 +444,7 @@ class QMLquestion(QMLobject):
         return tt.strip()
 
     def tex_begin(self):
-        points = ''
-        if 'points' in self.attributes:
-            points = self.attributes['points']
-        return u'\\begin{PR}{%s}{%s}\n\n' % (self.title(), points)
+        return u'\\begin{PR}{%s}{%s}\n\n' % (self.title(), self.attributes.get('points', ''))
 
     def tex_end(self):
         return u'\\end{PR}\n\n'
@@ -564,7 +560,6 @@ class QMLsection(QMLobject):
 class QMLpart(QMLobject):
     tag = "part"
     default_heading = "Part"
-    default_attributes = {'points': '0.0'}
 
     has_text = True
     has_children = False
@@ -573,7 +568,7 @@ class QMLpart(QMLobject):
         return u'\\PT{'
 
     def tex_end(self):
-        return '}{%s}\n\n' % self.attributes['points']
+        return '}{%s}\n\n' % self.attributes.get('points', '')
 
     def make_xhtml(self):
         return u'<h2>{}</h2>'.format(data2xhtml(self.data)), []
