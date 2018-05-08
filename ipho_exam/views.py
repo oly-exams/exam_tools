@@ -387,7 +387,7 @@ def translation_export(request, question_id, lang_id, version_num=None):
         trans = qquery.get_version(question_id, lang_id, version_num)
 
     content = qml.xml2string(trans.qml.make_xml())
-    content = qml.unescape_entities(content)
+    #content = qml.unescape_entities(content)  # original: remove escapes here - not safe!
 
     res = HttpResponse(content, content_type="application/ipho+qml+xml")
     res['content-disposition'] = 'attachment; filename="{}"'.format(
@@ -417,7 +417,9 @@ def translation_import(request, question_id, lang_id):
             txt = txt.decode('utf8')
         except AttributeError:
             pass
-        obj.content = qml.normalize_html(txt)
+        #obj.content = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
+        #obj.content = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
+        obj.content = txt                         # safest, but does not look nice: all < and > escaped
         obj.question = question
         obj.language = language
         obj.save()
@@ -1003,8 +1005,9 @@ def admin_import_version(request, question_id):
             node.pk = None
             node.version += 1
             node.status = 'P'
-        #node.text = qml.escape_equations(txt)
-        node.text = qml.normalize_html(txt)
+        #node.text = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
+        #node.text = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
+        node.text = txt                         # safest, but does not look nice: all < and > escaped
         node.save()
         return JsonResponse({'success': True})
 
