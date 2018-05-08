@@ -50,7 +50,7 @@ from . import tex
 from . import simplediff
 
 #block groups
-PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'table', 'equation', 'figure', 'box')
+PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'enumerate', 'table', 'equation', 'figure', 'box')
 DEFAULT_BLOCKS = ('texfield', 'texenv')
 
 TIDYOPTIONS={
@@ -813,6 +813,28 @@ class QMLlist(QMLobject):
 
     def xhtml_end(self):
         return u'</ul>'
+
+class QMLenumerate(QMLobject):
+    tag = "enumerate"
+    display_name = "Numbered list"
+    default_heading = "Numbered list"
+    sort_order = 210
+
+    has_text = False
+    has_children = True
+    valid_children = ('item', )
+
+    def tex_begin(self):
+        return u'\\begin{enumerate}\n'
+
+    def tex_end(self):
+        return u'\\end{enumerate}\n\n'
+
+    def xhtml_begin(self):
+        return u'<ol>'
+
+    def xhtml_end(self):
+        return u'</ol>'
 
 
 class QMLlistItem(QMLobject):
