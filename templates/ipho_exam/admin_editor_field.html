@@ -1,8 +1,34 @@
+
+
+
 {% for field in fields_set %}
 <div id="{{ field.id }}-container">
+
+  {% if parent %}
+  <div class="row add-block-front" {% if not forloop.first %}style="display:none"{% endif %}>
+      <div class="col-xs-12">
+          <div class="dropdown">
+            <a class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" title="New block">
+              <i class="fa fa-plus fa-fw"></i>
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              {% for qtag, qname in qml_types %}
+                  {% if qtag in parent.valid_children %}
+                    <li><a data-action="add-block-front" data-block-id="{{ parent.id }}" data-after-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk version_num=node_version block_id=parent.id tag_name=qtag %}">{{ qname }}</a></li>
+                  {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+      </div>
+  </div>
+  {% endif %}
+
   <div class="field-content">
       <div class="row">
           <div class="col-xs-12">
+              <a class="btn btn-xs btn-default" title="Edit block" data-toggle="modal" data-target="#block-modal" data-block-id="{{ field.id }}" data-remote="false" href="{% url 'exam:admin-editor-block' question_id=question.pk exam_id=exam.pk block_id=field.id version_num=node_version %}"><i class="fa fa-pencil fa-fw"></i></a>
+              <a class="btn btn-xs btn-danger" href="{% url 'exam:admin-editor-delete-block' question_id=question.pk exam_id=exam.pk block_id=field.id version_num=node_version %}" title="Delete block" data-toggle="modal" data-target="#delete-modal" data-block-id="{{ field.id }}" data-remote="false" data-block-id="{{ field.id }}"><i class="fa fa-trash-o fa-fw"></i></a>
               {% if parent %}
               <div class="btn-group">
                 <a href="{% url 'exam:admin-editor-moveup-block' question_id=question.pk exam_id=exam.pk parent_id=parent.id block_id=field.id version_num=node_version %}" data-action="move" data-block-id="{{ field.id }}" class="btn btn-default btn-xs"><i class="fa fa-arrow-up"></i></a>
@@ -13,8 +39,6 @@
               <span id="{{ field.id }}-attributes">
               {% include 'ipho_exam/partials/admin_editor_attributes.html' with attributes=field.attributes %}
               </span>
-              <a class="btn btn-xs btn-default" title="Edit block" data-toggle="modal" data-target="#block-modal" data-block-id="{{ field.id }}" data-remote="false" href="{% url 'exam:admin-editor-block' question_id=question.pk exam_id=exam.pk block_id=field.id version_num=node_version %}"><i class="fa fa-pencil fa-fw"></i></a>
-              <a class="btn btn-xs btn-danger" href="{% url 'exam:admin-editor-delete-block' question_id=question.pk exam_id=exam.pk block_id=field.id version_num=node_version %}" title="Delete block" data-toggle="modal" data-target="#delete-modal" data-block-id="{{ field.id }}" data-remote="false" data-block-id="{{ field.id }}"><i class="fa fa-trash-o fa-fw"></i></a>
               {% if field.description %} <p>{{ field.description }}</p> {% endif %}
           </div>
       </div>
@@ -29,7 +53,7 @@
           </div>
       </div>
 
-  {% if field.has_children %}
+      {% if field.has_children %}
       <div class="row">
           <div class="col-xs-12 content-field-nested" id="{{ field.id }}-children">
               {% if field.children %}
@@ -38,8 +62,7 @@
           </div>
       </div>
 
-      {% if not field.children %}
-      <div class="row no-child-add">
+      <div class="row no-child-add" {% if field.children %}style="display:none"{% endif %}>
           <div class="col-xs-12">
               <div class="dropdown">
                 <a class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" title="New block">
@@ -49,7 +72,7 @@
                 <ul class="dropdown-menu">
                   {% for qtag, qname in qml_types %}
                       {% if qtag in field.valid_children %}
-                          <li><a data-action="add-block" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk version_num=node_version block_id=field.id tag_name=qtag %}">{{ qname }}</a></li>
+                          <li><a data-action="add-block-first" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk version_num=node_version block_id=field.id tag_name=qtag %}">{{ qname }}</a></li>
                       {% endif %}
                   {% endfor %}
                 </ul>
@@ -57,7 +80,6 @@
           </div>
       </div>
       {% endif %}
-  {% endif %}
   </div>
 
   {% if parent %}
@@ -71,7 +93,7 @@
             <ul class="dropdown-menu">
               {% for qtag, qname in qml_types %}
                   {% if qtag in parent.valid_children %}
-                    <li><a data-action="add-block" data-block-id="{{ parent.id }}"  data-after-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block-after' question_id=question.pk exam_id=exam.pk version_num=node_version block_id=parent.id tag_name=qtag after_id=field.id %}">{{ qname }}</a></li>
+                    <li><a data-action="add-block-after" data-block-id="{{ parent.id }}"  data-after-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block-after' question_id=question.pk exam_id=exam.pk version_num=node_version block_id=parent.id tag_name=qtag after_id=field.id %}">{{ qname }}</a></li>
                   {% endif %}
               {% endfor %}
             </ul>
