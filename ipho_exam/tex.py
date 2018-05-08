@@ -43,10 +43,33 @@ CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
 CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 60)  # 1 min
 
 
+def fix_tex_parens(s, add_warning_comment=False):
+    if type(s) is not str:
+        return s
+    count = 0
+    out_s = ''
+    fix_required = False
+    for e in s:
+        if e == "{":
+            count += 1
+        elif e == "}":
+            count -= 1
+        if count >= 0:
+            out_s += e
+        else:
+            fix_required = True
+    if count > 0:
+        out_s += '}'*count
+        fix_required = True
+    if fix_required and add_warning_comment:
+        out_s += " % %%% non-matching curly braces removed by fix_tex_parens in QML export %%%\n\n"
+    return out_s
+
+
 def html2tex(el):
     result = []
     if el.text:
-        result.append(el.text)
+        result.append(fix_tex_parens(el.text, add_warning_comment=True))
     for sel in el:
         ## Span styling
         if sel.tag in ["span"]:
@@ -76,6 +99,12 @@ def html2tex(el):
         ## Underline
         elif sel.tag in ["u"]:
             result.append(u'\\underline{%s}' % (html2tex(sel)))
+        elif sel.name in ["ul"]:
+            result.append(u'\\begin{itemize}\n{%s}\n\\end{itemize}' % (html2tex(sel)))
+        elif sel.name in ["ol"]:
+            result.append(u'\\begin{enumerate}\n{%s}\n\\end{enumerate}' % (html2tex(sel)))
+        elif sel.name in ["li"]:
+            result.append(u'\\item %s\n' % (html2tex(sel)))
         ## English in RTL
         elif 'dir' in sel.attrib and sel.attrib['dir'] == 'ltr':
             result.append(u'\\begin{english}\n%s\n\\end{english}' % (html2tex(sel)))
@@ -84,17 +113,17 @@ def html2tex(el):
         else:
             result.append(html2tex(sel))
         if sel.tail:
-            result.append(sel.tail)
+            result.append(fix_tex_parens(el.tail, add_warning_comment=True))
     return u"".join(result)
 
 
 def html2tex_bs4(el):
     result = []
     if isinstance(el, NavigableString):
-        return str(el)
+        return fix_tex_parens(str(el), add_warning_comment=True)
     for sel in el.children:
         if isinstance(sel, NavigableString):
-            result.append(str(sel))
+            result.append(fix_tex_parens(str(sel), add_warning_comment=True))
         ## Span styling
         elif sel.name in ["span"]:
             for att in list(sel.attrs.keys()):

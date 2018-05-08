@@ -165,7 +165,7 @@ def normalize_html(data):
         return ''.join([str(el) for el in xhtmlout.body.contents])
     except:
         return str(xhtmlout)
-
+        
 
 mathtex_pattern = re.compile(r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</span>')
 
