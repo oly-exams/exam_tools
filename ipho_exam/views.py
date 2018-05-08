@@ -1749,9 +1749,6 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.first()
 
-    if not question.check_permission(request.user):
-        return HttpResponseForbidden('You do not have the permissions to view this question.')
-
     delegation = Delegation.objects.filter(members=request.user)
     should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
     if should_forbid is not None:
@@ -1766,6 +1763,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     ## * deal with errors when node not found: no content
 
     if question:
+        if not question.check_permission(request.user):
+            return HttpResponseForbidden('You do not have the permissions to view this question.')
+
         orig_lang = get_object_or_404(Language, id=orig_id)
 
         if delegation.count() > 0:
