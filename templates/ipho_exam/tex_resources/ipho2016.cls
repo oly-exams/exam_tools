@@ -56,7 +56,11 @@
 \RequirePackage{framed}
 \RequirePackage{xcolor}
 
-
+% Fix fontenc problem with hbar display that appears for e.g. for CJK fonts (necessary for Texlive 2015, but not for e.g. 2018)
+\AtBeginDocument{%
+  \let\hbar\relax
+  \DeclareRobustCommand{\hbar}{\text{\normalfont\fontfamily{lmr}\itshape\symbol{295}}}%
+}
 
 %Definitions
 \definecolor{color1}{rgb}{0,0,.7}
