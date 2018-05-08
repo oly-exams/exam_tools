@@ -83,20 +83,8 @@
     CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
 
     CKEDITOR.config.toolbar = [
-    	{ name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
-    	{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ], items: [ 'Scayt' ] },
-    	{ name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
-      { name: 'equation', items: ['Mathjax-mathquill']},
-    	{ name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
-    	{ name: 'tools', items: [ 'Maximize' ] },
-    	{ name: 'document', groups: [ 'mode', 'document', 'doctools' ], items: [ 'Source' ] },
-    	{ name: 'others', items: [ '-' ] },
-    	'/',
-    	{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup'], items: [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat' ] },
-    	{ name: 'colors', items: [ 'TextColor', 'BGColor' ] },
-    	{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] },
-    	{ name: 'styles', items: [ 'Styles', 'Format' ] }
-    ];
+            [ 'Bold', 'Italic', 'Underline', 'RemoveFormat', 'Styles', 'NumberedList', 'BulletedList', 'Table', '-', 'Mathjax-mathquill', 'Jsvk', '-', 'Source']
+        ];
 
     CKEDITOR.config.forcePasteAsPlainText = true;
     CKEDITOR.config.resize_enabled = false;
@@ -186,7 +174,7 @@ $('document').ready(function(){
                 modal.find('.quick-end-time').each(function() {
                   var $this=$(this);
                   var minutes = $this.data('min');
-                  $this.append('<button class="btn btn-default btn-sm">In '+minutes+' minutes</button>').on('click', function (evt){
+                  $this.append('<button class="btn btn-default btn-sm">In '+minutes+' minutes</button> ').on('click', function (evt){
                     evt.preventDefault();
                     $('#modal-datetimepicker').data("DateTimePicker").date(moment().add(minutes, 'minutes'));
                   });
