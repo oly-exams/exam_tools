@@ -568,9 +568,10 @@ class ExamAction(models.Model):
     @staticmethod
     def require_in_progress(action, exam, delegation):
         if not ExamAction.is_in_progress(action, exam, delegation):
-            raise IphoExamForbidden(
-                'You cannot perfom this action more than once. Contact the staff if you have good reasons to request a reset.'
+            return IphoExamForbidden(
+                'You cannot perfom this action: this exam is submitted. Contact the staff if you have good reasons to request a reset.'
             )
+        return None
 
 
 @receiver(post_save, sender=Exam, dispatch_uid='create_actions_on_exam_creation')
