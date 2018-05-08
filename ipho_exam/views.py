@@ -2098,6 +2098,8 @@ def _wrap_pre(s):
 
 @login_required
 def task_log(request, token):
+    CONTEXT_LINES = 6
+
     task = AsyncResult(token)
     try:
         if task.ready():
@@ -2113,11 +2115,13 @@ def task_log(request, token):
             l = lines[i]
             i += 1
             if l.startswith('!'):
+                error_lines += lines[i-CONTEXT_LINES: i-1]
                 while l.strip() != "":
                     error_lines.append(l)
                     l = lines[i]
                     i += 1
-                error_lines.append('')
+                error_lines += lines[i+1: i+CONTEXT_LINES]
+                error_lines += ['', '---------------------------------', '']
         errors = '\n'.join(error_lines)
         return render(request, 'ipho_exam/tex_error_log.html', {'errors': _wrap_pre(errors), 'full_log': _wrap_pre(e.log), 'doc_tex': _wrap_pre(e.doc_tex)})
 
