@@ -1216,10 +1216,9 @@ def admin_editor(request, exam_id, question_id, version_num):
     q = qml.make_qml(node)
     #content_set = qml.make_content(q)
 
-    # TODO: find some better sorting way?
     qml_types = sorted(
-        ((qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()),
-        key=lambda t: t[1])
+        ((qobj.tag, qobj.display_name, qobj.sort_order) for qobj in qml.QMLobject.all_objects()),
+        key=lambda t: t[2])
     context = {
         'exam': exam,
         'question': question,
@@ -1349,8 +1348,8 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
 
     # TODO: find some better sorting way?
     qml_types = sorted(
-        ((qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()),
-        key=lambda t: t[1])
+        ((qobj.tag, qobj.display_name, qobj.sort_order) for qobj in qml.QMLobject.all_objects()),
+        key=lambda t: t[2])
     ctx = {
         'fields_set': [newblock],
         'parent': block,
