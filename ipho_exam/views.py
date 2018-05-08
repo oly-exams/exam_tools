@@ -1854,12 +1854,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             trans_lang = get_object_or_404(Language, id=lang_id)
             if not trans_lang.check_permission(request.user):
                 return HttpResponseForbidden('You do not have the permissions to edit this language.')
-            trans_node, created = TranslationNode.objects.get_or_create(
-                question=question, language_id=lang_id, defaults={
-                    'text': '',
-                    'status': 'O'
-                }
-            )  ## TODO: check permissions for this.
+            ## TODO: check permissions for this.
+            trans_node = get_object_or_404(
+                TranslationNode, question=question, language_id=lang_id)
             if len(trans_node.text) > 0:
                 trans_q = qml.make_qml(trans_node)
                 trans_q.set_lang(trans_lang)
