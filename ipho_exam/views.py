@@ -1722,7 +1722,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context = {
         'exam_id': exam_id,
         'question_id': question_id,
-        'lang_id': question_id,
+        'lang_id': lang_id,
         'orig_id': orig_id,
         'orig_diff': orig_diff,
     }
