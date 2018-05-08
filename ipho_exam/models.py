@@ -569,7 +569,7 @@ class ExamAction(models.Model):
     def require_in_progress(action, exam, delegation):
         if not ExamAction.is_in_progress(action, exam, delegation):
             raise IphoExamForbidden(
-                'You cannot perfom this action more than once. Contact the staff if have good reasons to request a reset.'
+                'You cannot perfom this action more than once. Contact the staff if you have good reasons to request a reset.'
             )
 
 
