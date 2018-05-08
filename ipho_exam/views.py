@@ -398,7 +398,7 @@ def translation_export(request, question_id, lang_id, version_num=None):
 
 @permission_required('ipho_core.is_delegation')
 def translation_import(request, question_id, lang_id):
-    """ Traslation import (only for delegations) """
+    """ Translation import (only for delegations) """
     delegation = Delegation.objects.filter(members=request.user)
     language = get_object_or_404(Language, id=lang_id)
     question = get_object_or_404(Question, id=question_id)
@@ -980,6 +980,7 @@ def admin_new_version(request, exam_id, question_id):
 
 @permission_required('ipho_core.is_staff')
 def admin_import_version(request, question_id):
+    """ Translation import for admin """
     language = get_object_or_404(Language, id=OFFICIAL_LANGUAGE)
     question = get_object_or_404(Question, id=question_id)
 
