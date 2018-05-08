@@ -52,6 +52,9 @@
                             <a class="btn btn-warning" href="{% url 'poll:removeEndDate' question_pk=question.pk %}" title="draft vote"><i class="fa fa-level-down fa-fw"></i></a>
                           </span>
                           <span class="parent">
+                            <a class="btn btn-success" href="{% url 'poll:closeQuestion' question_pk=question.pk %}" title="close vote"><i class="fa fa-check-square fa-fw"></i></a>
+                          </span>
+                          <span class="parent">
                               <a class="btn btn-default" target="_blank" href="{% url 'poll:question_large' question_pk=question.pk %}" title="fullscreen"><i class="fa fa-expand fa-fw" aria-hidden="true"></i></a >
                           </span>
 

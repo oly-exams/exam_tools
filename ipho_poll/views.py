@@ -307,7 +307,7 @@ def setEndDate(request, question_pk):
                 'success': False,
                 'title': 'Open Vote',
                 'form': form_html,
-                'modal_body_text': "Select the deadline for the voting.",
+                'modal_body_text': '<p>Select the deadline for the voting.</p><span id="deadline-buttons"></span>',
             })
         else:
             raise Http404("Action not allowed")
@@ -322,6 +322,19 @@ def removeEndDate(request, question_pk):
         raise Http404("Action not allowed")
     else:
         question.end_date = None
+        question.save()
+        return HttpResponseRedirect(reverse('poll:staffIndex'))
+
+
+@login_required
+@permission_required('ipho_core.is_staff')
+@ensure_csrf_cookie
+def closeQuestion(request, question_pk):
+    question = get_object_or_404(Question, pk=question_pk)
+    if not question.is_open():
+        raise Http404("Action not allowed")
+    else:
+        question.end_date = timezone.now()
         question.save()
         return HttpResponseRedirect(reverse('poll:staffIndex'))
 

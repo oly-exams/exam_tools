@@ -9,7 +9,7 @@
                 <a href="{% url 'exam:admin-editor-movedown-block' question_id=question.pk exam_id=exam.pk parent_id=parent.id block_id=field.id version_num=node_version %}" data-action="move" data-block-id="{{ field.id }}" class="btn btn-default btn-xs"><i class="fa fa-arrow-down"></i></a>
               </div>
               {% endif %}
-              <span class="label label-info">{{ field.display_name }}</span>
+              <span class="label label-info">{{ field.heading|default:field.display_name }}</span>
               <span id="{{ field.id }}-attributes">
               {% include 'ipho_exam/partials/admin_editor_attributes.html' with attributes=field.attributes %}
               </span>
@@ -37,7 +37,7 @@
               {% endif %}
           </div>
       </div>
-      
+
       {% if not field.children %}
       <div class="row no-child-add">
           <div class="col-xs-12">
