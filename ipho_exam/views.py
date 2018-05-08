@@ -262,7 +262,9 @@ def add_translation(request, exam_id):
         raise Exception('TODO: implement small template page for handling without Ajax.')
     delegation = Delegation.objects.get(members=request.user)
     exam = get_object_or_404(Exam, id=exam_id)
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
 
     num_questions = exam.question_set.count()
     translation_form = TranslationForm(request.POST or None)
@@ -348,7 +350,9 @@ def add_pdf_node(request, question_id, lang_id):
     if not lang.check_permission(request.user):
         return HttpResponseForbidden('You do not have the permissions to edit this language.')
 
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
 
     node = get_object_or_404(PDFNode, question=question, language=lang)
     ## Language section
@@ -401,7 +405,9 @@ def translation_import(request, question_id, lang_id):
     if not language.check_permission(request.user):
         return HttpResponseForbidden('You do not have the permissions to edit this language.')
 
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
 
     form = TranslationImportForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -1721,8 +1727,6 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         'orig_id': orig_id,
         'orig_diff': orig_diff,
     }
-    exam_list = Exam.objects.filter(hidden=False, active=True)  # TODO: allow admin to see all exams
-    context['exam_list'] = exam_list
 
     exam = None
     question = None
@@ -1749,7 +1753,14 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         return HttpResponseForbidden('You do not have the permissions to view this question.')
 
     delegation = Delegation.objects.filter(members=request.user)
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
+
+    exam_list = [
+        ex for ex in Exam.objects.filter(hidden=False, active=True)
+        if ExamAction.is_in_progress(ExamAction.TRANSLATION, exam=ex, delegation=delegation)] # TODO: allow admin to see all exams
+    context['exam_list'] = exam_list
 
     ## TODO:
     ## * deal with errors when node not found: no content
