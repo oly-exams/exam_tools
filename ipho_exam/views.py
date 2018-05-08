@@ -301,10 +301,10 @@ def add_translation(request, exam_id):
                 node.text = qml.xml2string(trans.qml.make_xml())
                 node.save()
             else:
-                failed_questions.append(question.name)
+                #failed_questions.append(question.name)
+                pass  # TU: 2018/05/08: to my logic having questions with unpublished versions is not an error -> do not show this as error
 
         if failed_questions:
-            # raise ValueError(failed_questions)
             return JsonResponse({
                 'success':
                 True,
@@ -376,6 +376,7 @@ def add_pdf_node(request, question_id, lang_id):
 
 @login_required
 def translation_export(request, question_id, lang_id, version_num=None):
+    """ Translation export, both for normal editor and admin editor """
     if version_num is None:
         trans = qquery.latest_version(question_id, lang_id)
     else:
@@ -393,6 +394,7 @@ def translation_export(request, question_id, lang_id, version_num=None):
 
 @permission_required('ipho_core.is_delegation')
 def translation_import(request, question_id, lang_id):
+    """ Traslation import (only for delegations) """
     delegation = Delegation.objects.filter(members=request.user)
     language = get_object_or_404(Language, id=lang_id)
     question = get_object_or_404(Question, id=question_id)
