@@ -1342,7 +1342,7 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
     if block is None:
         raise Http404('block_id not found')
 
-    newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)), after_id=after_id)
+    newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)), after_id=after_id, insert_at_front=True)
     node.text = qml.xml2string(q.make_xml())
     node.save()
 

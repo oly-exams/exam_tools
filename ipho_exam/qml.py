@@ -295,7 +295,7 @@ class QMLobject(object):
             for elem in root:
                 self.add_child(elem)
 
-    def add_child(self, elem, after_id=None):
+    def add_child(self, elem, after_id=None, insert_at_front=False):
         child_qml = QMLobject.get_qml(elem.tag)
 
         child_id = None
@@ -303,7 +303,10 @@ class QMLobject(object):
             child_id = uuid.uuid4().hex
         child_node = child_qml(elem, force_id=child_id)
         if after_id is None:
-            self.children.append(child_node)
+            if insert_at_front:
+                self.children.insert(0, child_node)
+            else:
+                self.children.append(child_node)
         else:
             ix = self.child_index(after_id)
             if ix is None:
