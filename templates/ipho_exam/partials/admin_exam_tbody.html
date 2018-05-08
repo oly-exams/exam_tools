@@ -46,7 +46,7 @@
                       {% if node.status == 'P' %}
                         <a class="btn btn-xs btn-warning" href="{% url 'exam:admin-editor' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Edit version"><i class="fa fa-pencil fa-fw"></i> edit</a>
                       {% endif %}
-                      <a class="btn btn-xs btn-success" href="{% url 'exam:pdf-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="View PDF"><i class="fa fa-file-pdf-o fa-fw"></i> PDF</a>
+                      <a class="btn btn-xs btn-success" target="_blank" href="{% url 'exam:pdf-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="View PDF"><i class="fa fa-file-pdf-o fa-fw"></i> PDF</a>
                         <div class="btn-group">
                             <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">advanced <span class="caret"></span>
                             </button>
