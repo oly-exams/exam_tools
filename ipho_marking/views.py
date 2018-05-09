@@ -678,7 +678,7 @@ def official_marking_detail(request, question_id, delegation_id):
 
 @permission_required('ipho_core.is_marker')
 def official_marking_confirmed(request, question_id, delegation_id):
-    question = get_object_or_404(Question, id=question_id, exam__hidden=False, exam__moderation_active=True)
+    question = get_object_or_404(Question, id=question_id, exam__hidden=False)
     delegation = get_object_or_404(Delegation, id=delegation_id)
 
     markings = Marking.objects.filter(
