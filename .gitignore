@@ -17,3 +17,4 @@ static_bower
 .spyderproject
 test_*.pdf
 docs/*.html
+out/*.pdf
