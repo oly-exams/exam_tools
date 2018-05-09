@@ -7,14 +7,14 @@
 
 <style>
 .content-field-nested .field-content {
-    margin-left: 1em;
-    margin-right: 1em;
+    margin-left: 0.6em;
+    margin-right: 0.3em;
 }
 .field-content {
-    border: 2px solid #717171;
-    border-radius: 5px;
-    margin: 1em 0;
-    padding: 5px;
+    border: 1px solid #717171;
+    border-radius: 3px;
+    margin: 0.3em 0;
+    padding: 3px;
 }
 .cke_textarea_inline {
 /*    border:1px #000 solid;*/
@@ -165,7 +165,7 @@ body { margin-bottom: 70px; }
         CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
 
         CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'RemoveFormat', '-', 'Mathjax-mathquill', 'Jsvk', '-', 'BidiLtr', 'BidiRtl', '-', 'Source']
+                [ 'Bold', 'Italic', 'Underline', '-', 'RemoveFormat', '-', 'Mathjax-mathquill', 'Jsvk', 'BulletedList', 'NumberedList', '-', 'BidiLtr', 'BidiRtl', '-', 'Source']
             ];
         CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
@@ -243,7 +243,19 @@ body { margin-bottom: 70px; }
             $('.translate-foreign textarea').each(function() {
                 myid = $(this).parent().attr('id').replace('-translate', '');
                 // all_editors[myid] = CKEDITOR.replace(this);
-                all_editors[myid] = $(this).ckeditor().ckeditorGet();
+                all_editors[myid] = $(this).ckeditor(
+                  function ()
+                  {
+
+                    this.addCommand('mySaveCommand', {
+                        exec : function(editor, data) {
+                            alert("Hello world!");
+                        }
+                    });
+                    this.keystrokeHandler.keystrokes[CKEDITOR.CTRL + 83 /* s */] = 'mySaveCommand';
+                    this.keystrokeHandler.keystrokes[CKEDITOR.META + 83 /* s */] = 'mySaveCommand';
+                  }
+                ).ckeditorGet();
             })
 
             // Figure preview
@@ -282,8 +294,16 @@ body { margin-bottom: 70px; }
                     success: function(data) {
                       $el = $('#'+block_id+'-container');
                       if (data['success'] && data['direction'] == 'up') {
+                        if ($el.prev().find('.add-block-front').is(':visible')) { // element to be deleted was the first
+                            $el.find('.add-block-front').show();
+                            $el.prev().find('.add-block-front').hide();
+                        }
                         $el.insertBefore($el.prev());
                       } else if (data['success'] && data['direction'] == 'down') {
+                        if ($el.find('.add-block-front').is(':visible')) { // element to be deleted was the first
+                            $el.next().find('.add-block-front').show();
+                            $el.find('.add-block-front').hide();
+                        }
                         $el.insertAfter($el.next());
                       } else {
                         console.log('Element not moved correctly');
@@ -296,8 +316,8 @@ body { margin-bottom: 70px; }
                 });
             });
 
-            // Block add
-            $(document).on('click', 'a[data-action="add-block"]', function(evt) {
+            // Block add after another
+            $(document).on('click', 'a[data-action="add-block-after"]', function(evt) {
                 evt.preventDefault();
 
                 var button = $(this);
@@ -309,12 +329,48 @@ body { margin-bottom: 70px; }
                     url: href,
                     dataType: 'json',
                     success: function(data) {
-                        if (after_id != undefined) {
-                          $('#'+after_id+'-container').after(data['new_block']);
-                        } else {
-                          $('#'+block_id+'-container .no-child-add').remove();
-                          $('#'+block_id+'-children').append(data['new_block']);
-                        }
+                            var elem = $('#'+after_id+'-container')
+                            elem.after(data['new_block']);
+                            elem.next().find('.add-block-front').hide();
+                    },
+                });
+            });
+
+            // Block add in front
+            $(document).on('click', 'a[data-action="add-block-front"]', function(evt) {
+                evt.preventDefault();
+
+                var button = $(this);
+                var href = button.attr('href');
+                var block_id = button.data('block-id');
+                var after_id = button.data('after-id');
+
+                $.ajax({
+                    url: href,
+                    dataType: 'json',
+                    success: function(data) {
+                            var elem = $('#'+after_id+'-container')
+                            elem.before(data['new_block']);
+                            elem.find('.add-block-front').hide();
+                            //elem.prev().find('.add-block-front').show(); // already shown
+                    },
+                });
+            });
+
+            // Block add in case list is still ready
+            $(document).on('click', 'a[data-action="add-block-first"]', function(evt) {
+                evt.preventDefault();
+
+                var button = $(this);
+                var href = button.attr('href');
+                var block_id = button.data('block-id');
+
+                $.ajax({
+                    url: href,
+                    dataType: 'json',
+                    success: function(data) {
+                            $('#'+block_id+'-container .no-child-add').hide();
+                            $('#'+block_id+'-children').append(data['new_block']);
                     },
                 });
             });
@@ -397,7 +453,15 @@ body { margin-bottom: 70px; }
                     contentType: false,
                     success: function(data) {
                         if (data['success']) {
-                            $('#'+modal.data('block-id')+'-container').remove();
+                            var elem = $('#'+modal.data('block-id')+'-container');
+                            var next = elem.next();
+                            if (elem.find('.add-block-front').is(':visible')) { // element to be deleted was the first
+                                next.find('.add-block-front').show();
+                            }
+                            if (elem.prev().length == 0 && elem.next().length == 0) {
+                              elem.closest('.field-content').find('.no-child-add').show();
+                            }
+                            elem.remove();
                         }
                         modal.data('block-id', null);
                         modal.data('delete-href', null);
@@ -410,6 +474,17 @@ body { margin-bottom: 70px; }
                 var button = $(event.relatedTarget); // Button that triggered the modal
                 modal.data('block-id', button.data('block-id'));
                 modal.data('delete-href',button.attr('href'));
+            });
+
+            $(document).bind('keydown', function(event) {
+                if (event.ctrlKey || event.metaKey) {
+                    switch (String.fromCharCode(event.which).toLowerCase()) {
+                    case 's':
+                        event.preventDefault();
+                        alert('ctrl-s');
+                        break;
+                    }
+                }
             });
 
         });

@@ -28,6 +28,6 @@ class IphoExamException(Exception):
         return u'IPhO Exam Exception. Reponse: {}'.format(self.response)
 
 
-class IphoExamForbidden(Exception):
+class IphoExamForbidden(HttpResponseForbidden):
     def __init__(self, msg):
-        super(IphoExamForbidden, self).__init__(HttpResponseForbidden(msg))
+        super(IphoExamForbidden, self).__init__(msg)

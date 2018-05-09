@@ -262,7 +262,9 @@ def add_translation(request, exam_id):
         raise Exception('TODO: implement small template page for handling without Ajax.')
     delegation = Delegation.objects.get(members=request.user)
     exam = get_object_or_404(Exam, id=exam_id)
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
 
     num_questions = exam.question_set.count()
     translation_form = TranslationForm(request.POST or None)
@@ -301,10 +303,10 @@ def add_translation(request, exam_id):
                 node.text = qml.xml2string(trans.qml.make_xml())
                 node.save()
             else:
-                failed_questions.append(question.name)
+                #failed_questions.append(question.name)
+                pass  # TU: 2018/05/08: to my logic having questions with unpublished versions is not an error -> do not show this as error
 
         if failed_questions:
-            # raise ValueError(failed_questions)
             return JsonResponse({
                 'success':
                 True,
@@ -348,7 +350,9 @@ def add_pdf_node(request, question_id, lang_id):
     if not lang.check_permission(request.user):
         return HttpResponseForbidden('You do not have the permissions to edit this language.')
 
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
 
     node = get_object_or_404(PDFNode, question=question, language=lang)
     ## Language section
@@ -376,13 +380,14 @@ def add_pdf_node(request, question_id, lang_id):
 
 @login_required
 def translation_export(request, question_id, lang_id, version_num=None):
+    """ Translation export, both for normal editor and admin editor """
     if version_num is None:
         trans = qquery.latest_version(question_id, lang_id)
     else:
         trans = qquery.get_version(question_id, lang_id, version_num)
 
     content = qml.xml2string(trans.qml.make_xml())
-    content = qml.unescape_entities(content)
+    #content = qml.unescape_entities(content)  # original: remove escapes here - not safe!
 
     res = HttpResponse(content, content_type="application/ipho+qml+xml")
     res['content-disposition'] = 'attachment; filename="{}"'.format(
@@ -393,13 +398,16 @@ def translation_export(request, question_id, lang_id, version_num=None):
 
 @permission_required('ipho_core.is_delegation')
 def translation_import(request, question_id, lang_id):
+    """ Translation import (only for delegations) """
     delegation = Delegation.objects.filter(members=request.user)
     language = get_object_or_404(Language, id=lang_id)
     question = get_object_or_404(Question, id=question_id)
     if not language.check_permission(request.user):
         return HttpResponseForbidden('You do not have the permissions to edit this language.')
 
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
 
     form = TranslationImportForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -409,7 +417,9 @@ def translation_import(request, question_id, lang_id):
             txt = txt.decode('utf8')
         except AttributeError:
             pass
-        obj.content = qml.normalize_html(txt)
+        #obj.content = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
+        #obj.content = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
+        obj.content = txt                         # safest, but does not look nice: all < and > escaped
         obj.question = question
         obj.language = language
         obj.save()
@@ -972,6 +982,7 @@ def admin_new_version(request, exam_id, question_id):
 
 @permission_required('ipho_core.is_staff')
 def admin_import_version(request, question_id):
+    """ Translation import for admin """
     language = get_object_or_404(Language, id=OFFICIAL_LANGUAGE)
     question = get_object_or_404(Question, id=question_id)
 
@@ -994,8 +1005,9 @@ def admin_import_version(request, question_id):
             node.pk = None
             node.version += 1
             node.status = 'P'
-        #node.text = qml.escape_equations(txt)
-        node.text = qml.normalize_html(txt)
+        #node.text = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
+        #node.text = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
+        node.text = txt                         # safest, but does not look nice: all < and > escaped
         node.save()
         return JsonResponse({'success': True})
 
@@ -1208,10 +1220,9 @@ def admin_editor(request, exam_id, question_id, version_num):
     q = qml.make_qml(node)
     #content_set = qml.make_content(q)
 
-    # TODO: find some better sorting way?
     qml_types = sorted(
-        ((qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()),
-        key=lambda t: t[1])
+        ((qobj.tag, qobj.display_name, qobj.sort_order) for qobj in qml.QMLobject.all_objects()),
+        key=lambda t: t[2])
     context = {
         'exam': exam,
         'question': question,
@@ -1335,14 +1346,14 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
     if block is None:
         raise Http404('block_id not found')
 
-    newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)), after_id=after_id)
+    newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)), after_id=after_id, insert_at_front=True)
     node.text = qml.xml2string(q.make_xml())
     node.save()
 
     # TODO: find some better sorting way?
     qml_types = sorted(
-        ((qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()),
-        key=lambda t: t[1])
+        ((qobj.tag, qobj.display_name, qobj.sort_order) for qobj in qml.QMLobject.all_objects()),
+        key=lambda t: t[2])
     ctx = {
         'fields_set': [newblock],
         'parent': block,
@@ -1715,12 +1726,10 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context = {
         'exam_id': exam_id,
         'question_id': question_id,
-        'lang_id': question_id,
+        'lang_id': lang_id,
         'orig_id': orig_id,
         'orig_diff': orig_diff,
     }
-    exam_list = Exam.objects.filter(hidden=False, active=True)  # TODO: allow admin to see all exams
-    context['exam_list'] = exam_list
 
     exam = None
     question = None
@@ -1743,16 +1752,23 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.first()
 
-    if not question.check_permission(request.user):
-        return HttpResponseForbidden('You do not have the permissions to view this question.')
-
     delegation = Delegation.objects.filter(members=request.user)
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
+
+    exam_list = [
+        ex for ex in Exam.objects.filter(hidden=False, active=True)
+        if ExamAction.is_in_progress(ExamAction.TRANSLATION, exam=ex, delegation=delegation)] # TODO: allow admin to see all exams
+    context['exam_list'] = exam_list
 
     ## TODO:
     ## * deal with errors when node not found: no content
 
     if question:
+        if not question.check_permission(request.user):
+            return HttpResponseForbidden('You do not have the permissions to view this question.')
+
         orig_lang = get_object_or_404(Language, id=orig_id)
 
         if delegation.count() > 0:
@@ -1838,12 +1854,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             trans_lang = get_object_or_404(Language, id=lang_id)
             if not trans_lang.check_permission(request.user):
                 return HttpResponseForbidden('You do not have the permissions to edit this language.')
-            trans_node, created = TranslationNode.objects.get_or_create(
-                question=question, language_id=lang_id, defaults={
-                    'text': '',
-                    'status': 'O'
-                }
-            )  ## TODO: check permissions for this.
+            ## TODO: check permissions for this.
+            trans_node = get_object_or_404(
+                TranslationNode, question=question, language_id=lang_id)
             if len(trans_node.text) > 0:
                 trans_q = qml.make_qml(trans_node)
                 trans_q.set_lang(trans_lang)
@@ -2085,6 +2098,8 @@ def _wrap_pre(s):
 
 @login_required
 def task_log(request, token):
+    CONTEXT_LINES = 6
+
     task = AsyncResult(token)
     try:
         if task.ready():
@@ -2100,11 +2115,13 @@ def task_log(request, token):
             l = lines[i]
             i += 1
             if l.startswith('!'):
+                error_lines += lines[i-CONTEXT_LINES: i-1]
                 while l.strip() != "":
                     error_lines.append(l)
                     l = lines[i]
                     i += 1
-                error_lines.append('')
+                error_lines += lines[i+1: i+CONTEXT_LINES]
+                error_lines += ['', '---------------------------------', '']
         errors = '\n'.join(error_lines)
         return render(request, 'ipho_exam/tex_error_log.html', {'errors': _wrap_pre(errors), 'full_log': _wrap_pre(e.log), 'doc_tex': _wrap_pre(e.doc_tex)})
 

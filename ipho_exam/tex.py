@@ -152,6 +152,12 @@ def html2tex_bs4(el):
         ## Underline
         elif sel.name in ["u"]:
             result.append(u'\\underline{%s}' % (html2tex_bs4(sel)))
+        elif sel.name in ["ul"]:
+            result.append(u'\\begin{itemize}\n{%s}\n\\end{itemize}' % (html2tex_bs4(sel)))
+        elif sel.name in ["ol"]:
+            result.append(u'\\begin{enumerate}\n{%s}\n\\end{enumerate}' % (html2tex_bs4(sel)))
+        elif sel.name in ["li"]:
+            result.append(u'\\item %s\n' % (html2tex_bs4(sel)))
         ## English in RTL
         elif 'dir' in sel.attrs and sel.attrs['dir'] == 'ltr':
             result.append(u'\\begin{english}\n%s\n\\end{english}' % (html2tex_bs4(sel)))

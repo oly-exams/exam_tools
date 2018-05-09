@@ -73,10 +73,10 @@
                 </ul>
               </li>
 
-              {% if perms.ipho_core.is_delegation %}
+              {% if perms.ipho_core.is_delegation and not user.is_superuser %}
               <li><a href="{% url 'marking:delegation-summary' %}">Results</a></li>
               {% endif %}
-              {% if perms.ipho_core.can_vote %}
+              {% if perms.ipho_core.can_vote and not user.is_superuser %}
               <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
               {% endif %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
@@ -91,7 +91,7 @@
                   {% if perms.ipho_core.is_staff %}
                   <li class="dropdown-header">Django admin</li>
                   {% if user.is_superuser %}
-                  <li><a href="{% url 'admin:index' %}">Admin 
+                  <li><a href="{% url 'admin:index' %}">Admin
                   {% endif %}
                   <li><a href="{% url 'impersonate' %}">Impersonate delegation</a></li>
                   <li class="divider"></li>

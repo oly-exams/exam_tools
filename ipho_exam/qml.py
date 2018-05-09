@@ -50,7 +50,7 @@ from . import tex
 from . import simplediff
 
 #block groups
-PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'table', 'equation', 'figure', 'box')
+PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'enumerate', 'table', 'equation', 'figure', 'box')
 DEFAULT_BLOCKS = ('texfield', 'texenv')
 
 TIDYOPTIONS={
@@ -295,7 +295,7 @@ class QMLobject(object):
             for elem in root:
                 self.add_child(elem)
 
-    def add_child(self, elem, after_id=None):
+    def add_child(self, elem, after_id=None, insert_at_front=False):
         child_qml = QMLobject.get_qml(elem.tag)
 
         child_id = None
@@ -303,7 +303,10 @@ class QMLobject(object):
             child_id = uuid.uuid4().hex
         child_node = child_qml(elem, force_id=child_id)
         if after_id is None:
-            self.children.append(child_node)
+            if insert_at_front:
+                self.children.insert(0, child_node)
+            else:
+                self.children.append(child_node)
         else:
             ix = self.child_index(after_id)
             if ix is None:
@@ -473,6 +476,7 @@ class QMLobject(object):
 
 class QMLquestion(QMLobject):
     tag = "question"
+    sort_order = -1
 
     has_text = False
     has_children = True
@@ -495,6 +499,9 @@ class QMLquestion(QMLobject):
 
 class QMLsubquestion(QMLobject):
     tag = "subquestion"
+    display_name = "Task box (use for question sheets)"
+    default_heading = "Task box"
+    sort_order = 500
 
     has_text = False
     has_children = True
@@ -521,8 +528,9 @@ class QMLsubquestion(QMLobject):
 
 class QMLsubanswer(QMLobject):
     tag = "subanswer"
-    display_name = "Answer"
-    default_heading = "Answer"
+    display_name = "Answer box (use for answer sheets)"
+    default_heading = "Answer box"
+    sort_order = 510
 
     has_text = False
     has_children = True
@@ -551,6 +559,7 @@ class QMLsubanswer(QMLobject):
 class QMLbox(QMLobject):
     tag = "box"
     default_heading = "Box"
+    sort_order = 130
 
     has_text = False
     has_children = True
@@ -571,7 +580,9 @@ class QMLbox(QMLobject):
 
 class QMLtitle(QMLobject):
     tag = "title"
+    display_name = "Title (Level 0)"
     default_heading = "Title"
+    sort_order = 10
 
     has_text = True
     has_children = False
@@ -583,26 +594,11 @@ class QMLtitle(QMLobject):
         return u'<h1>{}</h1>'.format(data2xhtml(self.data)), []
 
 
-class QMLsection(QMLobject):
-    tag = "section"
-    default_heading = "Section"
-
-    has_text = True
-    has_children = False
-
-    def tex_begin(self):
-        return u'\\subsubsection*{'
-
-    def tex_end(self):
-        return '}\n\n'
-
-    def make_xhtml(self):
-        return u'<h3>{}</h3>'.format(data2xhtml(self.data)), []
-
-
 class QMLpart(QMLobject):
     tag = "part"
+    display_name = "Part (Level 1)"
     default_heading = "Part"
+    sort_order = 100
 
     has_text = True
     has_children = False
@@ -617,8 +613,28 @@ class QMLpart(QMLobject):
         return u'<h2>{}</h2>'.format(data2xhtml(self.data)), []
 
 
+class QMLsection(QMLobject):
+    tag = "section"
+    display_name = "Section (Level 2)"
+    default_heading = "Section"
+    sort_order = 110
+
+    has_text = True
+    has_children = False
+
+    def tex_begin(self):
+        return u'\\subsubsection*{'
+
+    def tex_end(self):
+        return '}\n\n'
+
+    def make_xhtml(self):
+        return u'<h3>{}</h3>'.format(data2xhtml(self.data)), []
+
+
 class QMLparagraph(QMLobject):
     tag = "paragraph"
+    sort_order = 120
 
     has_text = True
     has_children = False
@@ -636,6 +652,7 @@ class QMLparagraph(QMLobject):
 class QMLfigure(QMLobject):
     tag = "figure"
     default_heading = "Figure"
+    sort_order = 200
 
     has_text = False
     has_children = True
@@ -738,7 +755,8 @@ class QMLfigure(QMLobject):
 
 class QMLfigureText(QMLobject):
     tag = "param"
-    display_name = "Figure Text"
+    display_name = "Figure Replacement Text"
+    sort_order = 202
 
     has_text = True
     has_children = False
@@ -753,6 +771,7 @@ class QMLfigureCaption(QMLobject):
     tag = "caption"
     display_name = "Figure Caption"
     default_heading = "Caption"
+    sort_order = 201
 
     has_text = True
     has_children = False
@@ -764,6 +783,7 @@ class QMLfigureCaption(QMLobject):
 class QMLequation(QMLobject):
     tag = "equation"
     default_heading = "Equation"
+    sort_order = 300
 
     has_text = True
     has_children = False
@@ -779,6 +799,7 @@ class QMLlist(QMLobject):
     tag = "list"
     display_name = "Bullet list"
     default_heading = "Bullet list"
+    sort_order = 200
 
     has_text = False
     has_children = True
@@ -796,9 +817,32 @@ class QMLlist(QMLobject):
     def xhtml_end(self):
         return u'</ul>'
 
+class QMLenumerate(QMLobject):
+    tag = "enumerate"
+    display_name = "Numbered list"
+    default_heading = "Numbered list"
+    sort_order = 210
+
+    has_text = False
+    has_children = True
+    valid_children = ('item', )
+
+    def tex_begin(self):
+        return u'\\begin{enumerate}\n'
+
+    def tex_end(self):
+        return u'\\end{enumerate}\n\n'
+
+    def xhtml_begin(self):
+        return u'<ol>'
+
+    def xhtml_end(self):
+        return u'</ol>'
+
 
 class QMLlistItem(QMLobject):
     tag = "item"
+    sort_order = 201
 
     has_text = True
     has_children = False
@@ -825,6 +869,7 @@ class QMLlistItem(QMLobject):
 class QMLlatex(QMLobject):
     tag = "texfield"
     display_name = "Latex Replacement Template"
+    sort_order = 900
 
     has_text = False
     has_children = True
@@ -848,6 +893,7 @@ class QMLlatex(QMLobject):
 class QMLlatexParam(QMLobject):
     tag = "texparam"
     display_name = "Latex Replacement Parameter"
+    sort_order = 901
 
     has_text = True
     has_children = False
@@ -867,6 +913,7 @@ class QMLlatexParam(QMLobject):
 class QMLlatexEnv(QMLobject):
     tag = "texenv"
     display_name = "Latex Environment"
+    sort_order = 910
 
     has_text = False
     has_children = True
@@ -885,6 +932,7 @@ class QMLlatexEnv(QMLobject):
 class QMLtable(QMLobject):
     tag = "table"
     default_heading = 'Table'
+    sort_order = 400
 
     has_text = False
     has_children = True
@@ -947,6 +995,7 @@ class QMLtable(QMLobject):
 class QMLtableRow(QMLobject):
     tag = "row"
     default_heading = 'Row'
+    sort_order = 401
 
     has_text = False
     has_children = True
@@ -971,6 +1020,7 @@ class QMLtableRow(QMLobject):
 
 class QMLtableCell(QMLobject):
     tag = "cell"
+    sort_order = 402
 
     has_text = True
     has_children = False
@@ -988,6 +1038,7 @@ class QMLtableCell(QMLobject):
 class QMLtableCaption(QMLobject):
     tag = "tablecaption"
     default_heading = "Table Caption"
+    sort_order = 410
 
     has_text = True
     has_children = False
@@ -1004,6 +1055,7 @@ class QMLtableCaption(QMLobject):
 
 class QMLpageBreak(QMLobject):
     tag = "pagebreak"
+    sort_order = 140
 
     has_text = False
     has_children = False
