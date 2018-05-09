@@ -240,7 +240,7 @@ def delegation_export(request, exam_id):
                 ).points
                 row.append(marking)
                 if marking is not None:
-                    totals[i] += float(marking)
+                    totals[i] += marking
                 i += 1
         row = ['-' if v is None else v for v in row]
         writer.writerow(row)
