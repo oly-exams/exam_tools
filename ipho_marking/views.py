@@ -153,7 +153,7 @@ def staff_stud_detail(request, version, stud_id, question_id):
         form.save()
         ctx['msg'].append((
             'alert-success',
-            '<strong>Succses.</strong> Points have been saved. <a href="{}" class="btn btn-default btn-xs">back to summary</a>'.
+            '<strong>Succses.</strong> Points have been saved. <a href="{}#details" class="btn btn-default btn-xs">back to summary</a>'.
             format(reverse('marking:summary'))
         ))
 
@@ -354,7 +354,7 @@ def delegation_stud_edit(request, stud_id, question_id):
 
         ctx['msg'].append((
             'alert-success',
-            '<strong>Success.</strong> Points have been saved.'+ next_stud_button + ' <a href="{}" class="btn btn-default btn-xs">back to summary</a> '.
+            '<strong>Success.</strong> Points have been saved.'+ next_stud_button + ' <a href="{}#details" class="btn btn-default btn-xs">back to summary</a> '.
             format(reverse('marking:delegation-summary'))
         ))
 
@@ -399,7 +399,7 @@ def delegation_edit_all(request, question_id):
         formset.save()
         ctx['msg'].append((
             'alert-success',
-            '<strong>Success.</strong> Points have been saved. <a href="{}" class="btn btn-default btn-xs">back to summary</a>'.
+            '<strong>Success.</strong> Points have been saved. <a href="{}#details" class="btn btn-default btn-xs">back to summary</a>'.
             format(reverse('marking:delegation-summary'))
         ))
     if formset.total_error_count() > 0:
