@@ -227,7 +227,7 @@ def delegation_export(request, exam_id):
             row2.append(Marking.MARKING_VERSIONS[version])
     writer.writerow(row1)
     writer.writerow(row2)
-    totals = [0.0] * (len(row1) - 1)
+    totals = [decimal.Decimal(0)] * (len(row1) - 1)
 
     mmeta = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
     for m in mmeta:
