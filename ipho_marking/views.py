@@ -516,6 +516,17 @@ def delegation_confirm(request, exam_id):
     if points_submissions.status == ExamAction.SUBMITTED:
         return HttpResponseRedirect(reverse('marking:delegation-summary'))
 
+    questions = Question.objects.filter(exam=exam, type=Question.ANSWER)
+    metas_query = MarkingMeta.objects.filter(question=questions).order_by('question', 'position')
+    markings_query = Marking.objects.filter(
+        student__delegation=delegation, marking_meta=metas_query, version='D'
+    ).order_by('marking_meta__question', 'marking_meta__position', 'student')
+
+    if any(m.points is None for m in markings_query):
+        return HttpResponseForbidden(
+            'Some marks for {} are missing, please submit marks for all questions, subquestions and students before confirming!'.format(
+                exam.name))
+
     if request.POST:
         if 'agree-submit' in request.POST:
             points_submissions.status = ExamAction.SUBMITTED
@@ -524,11 +535,6 @@ def delegation_confirm(request, exam_id):
         else:
             form_error = '<strong>Error:</strong> You have to confirm the marking before continuing.'
 
-    questions = Question.objects.filter(exam=exam, type=Question.ANSWER)
-    metas_query = MarkingMeta.objects.filter(question=questions).order_by('question', 'position')
-    markings_query = Marking.objects.filter(
-        student__delegation=delegation, marking_meta=metas_query, version='D'
-    ).order_by('marking_meta__question', 'marking_meta__position', 'student')
     metas = {k: list(g) for k, g in itertools.groupby(metas_query, key=lambda m: m.question.pk)}
     markings = {
         k: list(sorted(g, key=lambda m: m.student.pk))
