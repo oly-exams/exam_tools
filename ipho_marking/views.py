@@ -610,7 +610,7 @@ def moderation_detail(request, question_id, delegation_id):
         marking_forms.append(zip(markings_official, markings_delegation, form))
 
     if all_valid:
-        for _, form, _ in student_forms:
+        for _, form, _, _, _ in student_forms:
             form.save()
         return HttpResponseRedirect(
             reverse(
