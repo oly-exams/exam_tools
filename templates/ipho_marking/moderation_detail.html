@@ -36,21 +36,37 @@ td {
     border-top: 1px solid black !important;
 }
 
+@media screen {
+  .onlyprint {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+
 @media print {
   .body, .table, .container {
     width: auto;
     margin: 0;
     padding: 0;
-    border: 0;
+    border: none !important;
     float: none !important;
   }
 
-  thead, tbody {
+  .thead-bordered, .tbody-bordered {
     border: 2px solid black !important;
   }
 
   button, i {
     display: none !important;
+  }
+
+  .onlyprint {
+    display: block;
+    visibility: visible;
+  }
+
+  .table-onlyprint {
+    border: none !important;
   }
 }
 </style>
@@ -65,7 +81,7 @@ td {
   <form method="POST">
   {% csrf_token %}
   <table class="table table-sm table-bordered">
-    <thead id="firstrow">
+    <thead class="thead-bordered" id="firstrow">
       <tr>
         <td class="thdnone"></td>
         {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
@@ -89,7 +105,7 @@ td {
         {% endfor %}
       </tr>
     </thead>
-    <tbody>
+    <tbody class="tbody-bordered">
       {% for meta, zp in marking_forms %}
         <tr>
           <td>{{ meta.name }} ({{ meta.max_points }})</td>
@@ -118,6 +134,21 @@ td {
   </div>
 
   </form>
+
+  <div class="onlyprint" style="height:50px;"></div>
+
+  <table class="table onlyprint table-onlyprint">
+    <tr>
+      <td><h4>Signature of the delegation:</h4></td>
+      <td><textarea rows="3" cols="50" class="form-control"></textarea></td>
+    </tr>
+    <tr>
+      <td><h4>Signature of the marker:</h4></td>
+      <td><textarea rows="3" cols="50" class="form-control"></textarea></td>
+    </tr>
+  </table>
+
+  <div class="onlyprint" style="height:50px;"></div>
 
 {% endblock %}
 
