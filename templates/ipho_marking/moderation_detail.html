@@ -105,8 +105,8 @@ td {
         <td class="tdtotal">Total ({{ max_points_sum }})</td>
         {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
           <td class="thdnone"></td>
-          <td>{{ sum_official }}</td>
-          <td>{{ sum_delegation }}</td>
+          <td class="tdtotal">{{ sum_official }}</td>
+          <td class="tdtotal">{{ sum_delegation }}</td>
           <td class="tdtotal" id="cell_total_{{ forloop.counter0 }}"></td>
         {% endfor %}
       </tr>
