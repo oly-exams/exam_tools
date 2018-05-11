@@ -46,26 +46,28 @@
   <div class="col-md-12">
 
         <div class="jumbotron">
+            {% for k, v in exams.items %}
             <h1>Submission progress</h1>
+            <h3>{{ k }}</h3>
             <div class="jumbotron">
-                <p><strong>In Progress:</strong> {{ open_exams }}</p>
-                <p><strong>Submitted:</strong> {{ submitted_exams }}</p>
+                <p><strong>In Progress:</strong> {{ v.open_translations }}</p>
+                <p><strong>Submitted:</strong> {{ v.submitted_translations }}</p>
                 <br>
                 <p><strong>Remaining:</strong></p>
                 <div class="flex">
-                {% for country in remaining_countries %}
+                {% for country in v.remaining_countries %}
                     <span>{{ country }}</span>
                 {% endfor %}
                 </div>
                 <br>
                 <p><strong>Submitted:</strong></p>
                 <div class="flex">
-                {% for country in submitted_countries %}
+                {% for country in v.submitted_countries %}
                     <span>{{ country }}</span>
                 {% endfor %}
                 </div>
             </div>
-
+            {% endfor %}
 
         </div>
 
