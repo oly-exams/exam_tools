@@ -96,7 +96,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         question_pdf = pdf.compile_tex(body, [])
         q = questions[0]
         s = student_languages[0].student
-        bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C')
+        bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C', suppress_code=True)
         page = pdf.add_barcode(question_pdf, bgenerator)
 
         all_docs.append(page)

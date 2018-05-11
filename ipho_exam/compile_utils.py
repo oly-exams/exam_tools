@@ -59,7 +59,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
         question_pdf = pdf.compile_tex(body, [])
         q = questions[0]
         s = student_languages[0].student
-        bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C')
+        bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C', suppress_code=True)
         page = pdf.add_barcode(question_pdf, bgenerator)
         doc_pages = pdf.get_num_pages(page)
         meta['num_pages'] += doc_pages
