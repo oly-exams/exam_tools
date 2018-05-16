@@ -1458,33 +1458,39 @@ def _get_submission_languages(exam, delegation):
 
 @permission_required('ipho_core.is_staff')
 def admin_submissions_translation(request):
-    remaining_countries = ExamAction.objects.filter(
-        exam__active=True, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
-    ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).values_list('delegation__country')
+    exams = {}
+    for exam in Exam.objects.filter(active=True):
+        remaining_countries = ExamAction.objects.filter(
+            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
+        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).values_list('delegation__country')
 
-    remaining_countries = [country[0] + ',' for country in remaining_countries]
-    if remaining_countries:
-        remaining_countries[-1] = remaining_countries[-1][:-1]
+        remaining_countries = [country[0] + ',' for country in remaining_countries]
+        if remaining_countries:
+            remaining_countries[-1] = remaining_countries[-1][:-1]
 
-    open_exams = len(remaining_countries)
+        open_translations = len(remaining_countries)
 
-    submitted_countries = ExamAction.objects.filter(
-        exam__active=True, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
-    ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
-              ).order_by('timestamp').values_list('delegation__country')
+        submitted_countries = ExamAction.objects.filter(
+            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
+        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
+                  ).order_by('timestamp').values_list('delegation__country')
 
-    submitted_countries = [country[0] + ',' for country in submitted_countries]
-    if submitted_countries:
-        submitted_countries[-1] = submitted_countries[-1][:-1]
+        submitted_countries = [country[0] + ',' for country in submitted_countries]
+        if submitted_countries:
+            submitted_countries[-1] = submitted_countries[-1][:-1]
 
-    submitted_exams = len(submitted_countries)
+        submitted_translations = len(submitted_countries)
+
+        exams[exam.name] = {
+                'open_translations': open_translations,
+                'submitted_translations': submitted_translations,
+                'remaining_countries': remaining_countries,
+                'submitted_countries': submitted_countries,
+            }
 
     return render(
         request, 'ipho_exam/admin_submissions_translation.html', {
-            'open_exams': open_exams,
-            'submitted_exams': submitted_exams,
-            'remaining_countries': remaining_countries,
-            'submitted_countries': submitted_countries,
+            'exams': exams,
         }
     )
 

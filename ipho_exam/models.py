@@ -461,7 +461,7 @@ class Feedback(models.Model):
         ('S', 'Submitted'),
         ('V', 'Scheduled for voting'),
         ('I', 'Implemented'),
-        ('T', 'Settle'),
+        ('T', 'Settled'),
     )
     PARTS_CHOICES = (
         ('General', 'General'),

@@ -14,7 +14,7 @@ td {
   border-top: none !important;
 }
 
-#firstrow th {
+#firstrow tr:first-child th {
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
   border-top: 1px solid lightgrey !important;
@@ -92,8 +92,6 @@ td {
           </th>
         {% endfor %}
       </tr>
-    </thead>
-    <thead>
       <tr>
         <th class="thexpart">Problem part</th>
         {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
@@ -118,7 +116,7 @@ td {
         </tr>
       {% endfor %}
       <tr>
-        <td class="tdtotal">Total ({{ max_points_sum }})</td>
+        <td class="tdtotal"><strong>Total ({{ max_points_sum }})</strong></td>
         {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
           <td class="thdnone"></td>
           <td class="tdtotal">{{ sum_official }}</td>

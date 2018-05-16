@@ -478,7 +478,7 @@ def compile_cover():
     cover = {'student': student, 'exam': exam, 'question': question, 'place': 'M439'}
     body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover))
     question_pdf = _compile_tex(body, [])
-    bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='C')
+    bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='C', suppress_code=True)
     page = pdf.add_barcode(question_pdf, bgenerator)
     with open('test_cover.pdf', 'wb') as pdf_file:
         pdf_file.write(page)
