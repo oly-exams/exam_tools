@@ -33,9 +33,6 @@ from copy import deepcopy
 from xml.etree import ElementTree as ET
 from decimal import Decimal
 
-from future.standard_library import install_aliases
-install_aliases()
-
 from bs4 import BeautifulSoup
 # import tidylib
 
@@ -737,7 +734,7 @@ class QMLfigure(QMLobject):
 
         width = self.attributes.get('width', 0.9)  # 0.9 is the default value
 
-        fig = Figure.objects.get(id=self.attributes['figid'])
+        fig = Figure.objects.get(fig_id=self.attributes['figid'])
         fig_content, content_type = fig.to_inline(query=self.fig_query(), lang=self.lang)
 
         if content_type == 'svg+xml':

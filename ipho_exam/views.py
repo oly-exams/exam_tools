@@ -696,7 +696,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
 @ensure_csrf_cookie
 def figure_list(request):
     figure_list = Figure.objects.all()
-
+    print(figure_list)
     return render(request, 'ipho_exam/figures.html', {
         'figure_list': figure_list,
     })
@@ -730,12 +730,12 @@ def figure_add(request):
 
         return JsonResponse({
             'type': 'add',
-            'figid': obj.pk,
+            'figid': obj.fig_id,
             'name': obj.name,
             'params': obj.params,
-            'src': reverse('exam:figure-export', args=[obj.pk]),
-            'edit-href': reverse('exam:figure-edit', args=[obj.pk]),
-            'delete-href': reverse('exam:figure-delete', args=[obj.pk]),
+            'src': reverse('exam:figure-export', args=[obj.fig_id]),
+            'edit-href': reverse('exam:figure-edit', args=[obj.fig_id]),
+            'delete-href': reverse('exam:figure-delete', args=[obj.fig_id]),
             'success': True,
             'message': '<strong>Figure added!</strong> The new figure has successfully been created.',
         })
@@ -754,7 +754,7 @@ def figure_edit(request, fig_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
 
-    instance = get_object_or_404(Figure, pk=fig_id)
+    instance = get_object_or_404(Figure, fig_id=fig_id)
     if isinstance(instance, RawFigure):
         compiled = False
         valid_extensions = ('.' + instance.filetype, )
@@ -809,7 +809,7 @@ def figure_edit(request, fig_id):
 def figure_delete(request, fig_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    obj = get_object_or_404(Figure, pk=fig_id)
+    obj = get_object_or_404(Figure, fig_id=fig_id)
     obj.delete()
     return JsonResponse({
         'success': True,
@@ -819,7 +819,7 @@ def figure_delete(request, fig_id):
 @login_required
 def figure_export(request, fig_id, lang_id=None):
     lang = get_object_or_404(Language, pk=lang_id) if lang_id is not None else None
-    fig = get_object_or_404(Figure, pk=fig_id)
+    fig = get_object_or_404(Figure, fig_id=fig_id)
     figure_content, content_type = fig.to_inline(query=request.GET, lang=lang)
     return HttpResponse(figure_content, content_type="image/{}".format(content_type))
 

@@ -17,7 +17,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals
+from __future__ import print_function, unicode_literals, absolute_import
+
+import os, uuid
+import subprocess
 
 from builtins import object
 from builtins import str
@@ -36,8 +39,7 @@ from .exceptions import IphoExamException, IphoExamForbidden
 from polymorphic.models import PolymorphicModel
 from polymorphic.manager import PolymorphicManager
 
-import os, uuid
-import subprocess
+from .utils import natural_id
 
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 SITE_URL = getattr(settings, 'SITE_URL')
@@ -329,17 +331,18 @@ class TranslationImportTmp(models.Model):
 
 
 class FigureManager(PolymorphicManager):
-    def get_by_natural_key(self, name):
-        return self.get(name=name)
+    def get_by_natural_key(self, fig_id):
+        return self.get(fig_id=fig_id)
 
 
 @python_2_unicode_compatible
 class Figure(PolymorphicModel):
     objects = FigureManager()
     name = models.CharField(max_length=100, db_index=True)
+    fig_id = models.URLField(max_length=100, db_index=True, default=natural_id.generate_id, unique=True, blank=False)
 
     def natural_key(self):
-        return (self.name, )
+        return (self.fig_id, )
 
     def __str__(self):
         return u'%s' % (self.name)

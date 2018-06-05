@@ -87,22 +87,22 @@
 
     <table id="figure-list" class="table table-striped">
       <tr>
-          <th>#</th>
+          <th>ID</th>
           <th>Name</th>
           <th>Parameters</th>
           <th>Preview</th>
           <th>Actions</th>
       </tr>
       {% for fig in figure_list %}
-          <tr id="fig-{{ fig.pk }}">
-              <td>{{ fig.pk }}</td>
-              <td id="fig-{{ fig.pk }}-name">{{ fig.name }}</td>
-              <td id="fig-{{ fig.pk }}-params">{{ fig.params }}</td>
-              <td><a data-toggle="modal" data-target="#preview-modal" data-remote="false" href="{% url 'exam:figure-export' fig_id=fig.pk %}" data-figid="{{ fig.pk }}"><img src="{% url 'exam:figure-export' fig_id=fig.pk %}" alt="{{ fig.name }}" /></a></td>
+          <tr id="fig-{{ fig.fig_id }}">
+              <td>{{ fig.fig_id }}</td>
+              <td id="fig-{{ fig.fig_id }}-name">{{ fig.name }}</td>
+              <td id="fig-{{ fig.fig_id }}-params">{{ fig.params }}</td>
+              <td><a data-toggle="modal" data-target="#preview-modal" data-remote="false" href="{% url 'exam:figure-export' fig_id=fig.fig_id %}" data-figid="{{ fig.fig_id }}"><img src="{% url 'exam:figure-export' fig_id=fig.fig_id %}" alt="{{ fig.name }}" /></a></td>
               <td>
                 <div class="btn-toolbar">
-                  <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{% url 'exam:figure-edit' fig_id=fig.pk %}"><i class="fa fa-pencil fa-fw"></i></a>
-                  <a class="btn btn-sm btn-danger" href="{% url 'exam:figure-delete' fig_id=fig.pk %}" data-figid="{{ fig.pk }}" data-toggle="modal" data-target="#delete-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a>
+                  <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#figure-modal" data-remote="false" href="{% url 'exam:figure-edit' fig_id=fig.fig_id %}"><i class="fa fa-pencil fa-fw"></i></a>
+                  <a class="btn btn-sm btn-danger" href="{% url 'exam:figure-delete' fig_id=fig.fig_id %}" data-figid="{{ fig.fig_id }}" data-toggle="modal" data-target="#delete-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a>
                 </div>
               </td>
           </tr>
