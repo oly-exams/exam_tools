@@ -37,7 +37,7 @@ from future.standard_library import install_aliases
 install_aliases()
 
 from bs4 import BeautifulSoup
-import tidylib
+# import tidylib
 
 from django import forms
 from django.utils.safestring import mark_safe
@@ -165,7 +165,7 @@ def normalize_html(data):
         return ''.join([str(el) for el in xhtmlout.body.contents])
     except:
         return str(xhtmlout)
-        
+
 
 mathtex_pattern = re.compile(r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</span>')
 
