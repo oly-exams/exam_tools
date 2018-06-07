@@ -79,8 +79,7 @@ def compile_question(question, language, logo_file):
         'STATIC_PATH': '.'
     }
     body = render_to_string('ipho_exam/tex/exam_question.tex',
-                            RequestContext(HttpRequest(), context)).replace(u'/srv/exam_tools/app/static/noto',
-                                                                            u'.')
+                            RequestContext(HttpRequest(), context)).replace(u'/srv/exam_tools/app/static/noto', u'.')
     try:
         exam_code = question.exam.code
         position = question.position
@@ -145,4 +144,4 @@ def export_all(logo_file):
 
 
 if __name__ == '__main__':
-    export_all('apho18_logo.png')
+    export_all('ipho18_logo.png')
