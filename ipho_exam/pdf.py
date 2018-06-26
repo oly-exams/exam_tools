@@ -45,7 +45,7 @@ class TexCompileException(Exception):
         self.code = code
         self.doc_fname = doc_fname
         self.doc_tex = doc_tex
-        super(TexCompileException, self).__init__("pdflatex error (code %s) in %s" % (code, doc_fname))
+        super(TexCompileException, self).__init__("pdflatex error (code %s) in %s, log:\n %s." % (code, doc_fname, log))
 
 
 def compile_tex(body, ext_resources=[]):
