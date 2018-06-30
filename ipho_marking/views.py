@@ -136,7 +136,7 @@ def staff_stud_detail(request, version, stud_id, question_id):
     ctx = RequestContext(request)
     ctx['msg'] = []
 
-    if not request.user.has_perm('ipho_core.is_marker') and version != 'O':
+    if not request.user.has_perm('ipho_core.is_marker') or version != 'O':
         raise RuntimeError('You cannot modify these markings!')
 
     question = get_object_or_404(Question, id=question_id)
