@@ -17,7 +17,7 @@
                 pdfcreator={Xelatex}]{hyperref}
 
 % Page options
-\RequirePackage[headheight=4cm]{geometry}  % the headheight parameter sets how much vertical space the header can accomodate
+\RequirePackage[headheight=5cm]{geometry}  % the headheight parameter sets how much vertical space the header can accomodate
 %\setlength{\headheight}{2.5cm}
 \geometry{left=2cm}
 \geometry{right=2cm}

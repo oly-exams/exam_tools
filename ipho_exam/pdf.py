@@ -18,6 +18,7 @@
 from __future__ import print_function
 from __future__ import division
 
+import codecs
 from builtins import range
 from past.utils import old_div
 from django.http import HttpResponse, Http404, HttpResponseNotModified
@@ -63,7 +64,7 @@ def compile_tex(body, ext_resources=[]):
             for res in ext_resources:
                 res.save(tmp)
 
-            with open("%s/%s.tex" % (tmp, doc), "w") as f:
+            with codecs.open("%s/%s.tex" % (tmp, doc), "w", encoding='utf-8') as f:
                 f.write(body)
 
             error = subprocess.Popen(

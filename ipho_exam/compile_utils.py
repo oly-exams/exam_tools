@@ -63,7 +63,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
         page = pdf.add_barcode(question_pdf, bgenerator)
         doc_pages = pdf.get_num_pages(page)
         meta['num_pages'] += doc_pages
-        meta['barcode_num_pages'] += doc_pages
+        # meta['barcode_num_pages'] += doc_pages
         all_barcodes.append(bgenerator.base)
         all_docs.append(page)
 
@@ -94,8 +94,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                     'is_answer': question.is_answer_sheet(),
                     'document': trans_content,
                 }
-                body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(),
-                                                                                          context))
+                body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context))
                 print('Compile {} {}.'.format(question, sl.language))
                 question_pdf = pdf.compile_tex(body, ext_resources)
             else:
@@ -127,8 +126,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                     'is_answer': question.is_answer_sheet(),
                     'pages': list(range(question.working_pages)),
                 }
-                body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(),
-                                                                                       context))
+                body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context))
                 question_pdf = pdf.compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
                 page = pdf.add_barcode(question_pdf, bgenerator)
