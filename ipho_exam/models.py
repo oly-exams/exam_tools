@@ -387,7 +387,7 @@ class CompiledFigure(Figure):
 
     @staticmethod
     def _to_pdf(fig_svg, fig_name):
-        with codecs.open("%s/%s.tex" % (tmp, doc), "w", encoding='utf-8') as fp:
+        with codecs.open('%s.svg' % (fig_name), "w", encoding='utf-8') as fp:
             fp.write(fig_svg)
         error = subprocess.Popen(
             [INKSCAPE_BIN, '--without-gui',
