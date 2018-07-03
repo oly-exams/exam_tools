@@ -1494,6 +1494,48 @@ def admin_submissions_translation(request):
         }
     )
 
+@permission_required('ipho_core.is_printstaff')
+def print_submissions_translation(request):
+    exams = {}
+    for exam in Exam.objects.filter(active=True):
+
+        remaining_countries = ExamAction.objects.filter(
+            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
+        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).values_list('delegation__country')
+
+        remaining_countries = [country[0] + ',' for country in remaining_countries]
+        if remaining_countries:
+            remaining_countries[-1] = remaining_countries[-1][:-1]
+
+        open_translations = len(remaining_countries)
+
+        submitted_countries_actions = ExamAction.objects.filter(
+            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
+        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
+        ).order_by('timestamp')
+        submitted_countries = submitted_countries_actions.values_list('delegation__country')
+        submitted_timestamps_raw = submitted_countries_actions.values_list('timestamp')
+        submitted_timestamps = [ts[0] for ts in submitted_timestamps_raw]#.strftime('%H:%M:%S')
+        submitted_countries = [country[0] for country in submitted_countries]
+
+        submitted_list = [{'name':n, 'timestamp':ts} for n, ts in zip(submitted_countries, submitted_timestamps)]
+        submitted_list = submitted_list[::-1]
+        submitted_translations = len(submitted_countries)
+        exams[exam.name] = {
+                'open_translations': open_translations,
+                'submitted_translations': submitted_translations,
+                'remaining_countries': remaining_countries,
+                'submitted_list': submitted_list,
+            }
+
+    return render(
+        request, 'ipho_exam/print_submissions_translation.html', {
+            'exams': exams,
+        }
+    )
+
+
+
 
 @permission_required('ipho_core.is_delegation')
 def submission_exam_assign(request, exam_id):

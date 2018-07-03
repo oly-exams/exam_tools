@@ -21,6 +21,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 import os, uuid
 import subprocess
+import codecs
 
 from builtins import object
 from builtins import str
@@ -386,7 +387,7 @@ class CompiledFigure(Figure):
 
     @staticmethod
     def _to_pdf(fig_svg, fig_name):
-        with open('%s.svg' % (fig_name), 'w') as fp:
+        with codecs.open('%s.svg' % (fig_name), "w", encoding='utf-8') as fp:
             fp.write(fig_svg)
         error = subprocess.Popen(
             [INKSCAPE_BIN, '--without-gui',

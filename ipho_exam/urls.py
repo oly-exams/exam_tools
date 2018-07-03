@@ -225,6 +225,7 @@ urlpatterns = patterns(
         name='admin-feedbacks-export-csv'
     ),
     url(r'^admin/submissions/translation$', 'admin_submissions_translation', name='admin-submissions-translation'),
+    url(r'^admin/print/submissions/translation$', 'print_submissions_translation', name='print-submissions-translation'),
     url(r'^admin/submissions/list/(?P<exam_id>\d+)$', 'admin_submission_list', name='admin-submission-list'),
     url(r'^admin/submissions/assign/(?P<exam_id>\d+)$', 'admin_submission_assign', name='admin-submission-assign'),
     url(
