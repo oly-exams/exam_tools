@@ -72,7 +72,7 @@ This list shows only documents that have been submitted by the delegations.
   </div>
 
   <br/>
-  
+
     <form method="POST">
     <table class="table table-striped">
       <tr>
@@ -110,7 +110,7 @@ This list shows only documents that have been submitted by the delegations.
                 </ul>
               </div>
               <br />
-              {{ d.last_print_p|date:"SHORT_DATETIME_FORMAT" }}
+              <time datetime="{{ d.last_print_p|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
             </td>
             <td align="center">
               {% if d.scan_file %}
@@ -129,7 +129,7 @@ This list shows only documents that have been submitted by the delegations.
                   </ul>
                 </div>
                 <br />
-                {{ d.last_print_s|date:"SHORT_DATETIME_FORMAT" }}
+                <time datetime="{{ d.last_print_s|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
               {% endif %}
             </td>
             <td>
@@ -208,5 +208,12 @@ This list shows only documents that have been submitted by the delegations.
   $(function () {
   $('[data-toggle="popover"]').popover()
 })
+$('document').ready(function(){
+    $("time[data-format]").each(function () {
+      var el = $(this);
+      var dt = moment(el.attr("datetime"));
+      el.text(dt.format(el.data("format")));
+    });
+});
 </script>
 {% endblock %}
