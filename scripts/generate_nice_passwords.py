@@ -2,6 +2,9 @@
 
 """
 Simple module to create passwords that do not contain certain characters.
+
+Note that due to avoiding 'problematic' characters, the actual number of bytes
+will be slightly lower than the target value.
 """
 
 import sys
