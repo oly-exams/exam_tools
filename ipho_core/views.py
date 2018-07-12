@@ -19,14 +19,15 @@ from __future__ import division
 
 from builtins import range
 from past.utils import old_div
+import json
 from django.conf import settings
 from django.shortcuts import render, redirect
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth import authenticate, login
 from django.core.urlresolvers import reverse
 
-from ipho_core.models import AutoLogin, User
+from ipho_core.models import AutoLogin, User, PushSubscription
 from ipho_core.forms import AccountRequestForm
 
 DEMO_MODE = getattr(settings, 'DEMO_MODE')
@@ -76,6 +77,82 @@ def account_request(request):
 
     return render(request, 'registration/account_request.html', {'form': form})
 
+
+def test_push(request):
+    from pywebpush import webpush, WebPushException
+    slist = PushSubscription.objects.all()
+    data = {'body':'Test, blabla', 'url':'https://www.google.com'}
+
+    for s in slist:
+        sub_data = json.loads(s.data)
+        try:
+            claims = {'sub':'mailto:noreply@oly-exams.org'}
+            webpush(sub_data,
+                json.dumps(data),
+                vapid_claims=claims,
+                vapid_private_key="lpgwf4kxdypAQFQlwCOhYkGOmsqF0s0W7RC0uemS8iE",
+                )
+        except WebPushException as ex:
+            print("ex: {}".format(ex))
+            print(ex.response)
+            # Mozilla returns additional information in the body of the response.
+            if ex.response and ex.response.json():
+                extra = ex.response.json()
+                print(extra)
+                #print("Remote service replied with a {}:{}, {}".format(
+                #      extra.code,
+                #      extra.errno,
+                #      extra.message
+                #      )
+    return HttpResponse('done?')
+
+@login_required
+def service_worker(request):
+    if request.method == 'GET':
+        return render(request, 'service_worker.js', content_type="application/x-javascript")
+    return HttpResponseForbidden('Nothing to see here')
+
+@login_required
+def register_push_submission(request):
+    if request.method == 'POST':
+        data = request.POST.copy()
+        del data['csrfmiddlewaretoken']
+        newdata = {}
+        def get_nd(d, keys):
+            for key in keys:
+                d = d[key]
+            return d
+
+        def set_nd(d, keys, value):
+            try:
+                d = get_nd(d, keys[:-1])
+            except KeyError as e:
+                set_nd(d, keys[:-1],{})
+                d = get_nd(d, keys[:-1])
+            d[keys[-1]] = value
+
+        for k in data:
+            val = data[k]
+            nk = k.strip('subs')
+            klist = []
+            i = nk.find(']')
+            while i>0:
+                klist.append(nk[1:i])
+                nk = nk[i+1:]
+                i = nk.find(']')
+            print(klist)
+            set_nd(newdata, klist, val)
+        print(newdata)
+        if newdata:
+            user = request.user
+
+            data = json.dumps(newdata)
+            print(newdata)
+            subs, cre = PushSubscription.objects.get_or_create(user=user, data=data)
+            subs.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'error':'No data'})
+    return HttpResponseForbidden('Nothing to see here')
 
 @permission_required('ipho_core.is_staff')
 def list_impersonate(request):

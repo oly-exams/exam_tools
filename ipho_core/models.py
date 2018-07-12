@@ -109,6 +109,10 @@ class Student(models.Model):
     def __str__(self):
         return u'{}'.format(self.code)
 
+class PushSubscription(models.Model):
+    user = models.ForeignKey(User)
+    data = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now=True)
 
 @python_2_unicode_compatible
 class AccountRequest(models.Model):

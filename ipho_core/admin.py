@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib import admin
-from ipho_core.models import Delegation, Student, AutoLogin, AccountRequest
+from ipho_core.models import Delegation, Student, AutoLogin, AccountRequest, PushSubscription
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
@@ -60,9 +60,12 @@ class AccountRequestAdmin(admin.ModelAdmin):
     search_fields = ('user', 'email')
     list_filter = ('user', )
 
+class PushSubscriptionAdmin(admin.ModelAdmin):
+    pass
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Delegation, DelegationAdmin)
 admin.site.register(Student, StudentAdmin)
 admin.site.register(AccountRequest, AccountRequestAdmin)
+admin.site.register(PushSubscription, PushSubscriptionAdmin)
