@@ -114,6 +114,23 @@ class PushSubscription(models.Model):
     data = models.TextField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return u'Push data of {}'.format(user)
+
+    def send(self, data):
+        from pywebpush import webpush, WebPushException
+        import json
+        sub_data = json.loads(self.data)
+        claims = {'sub':'mailto:noreply@oly-exams.org'}
+        res = webpush(sub_data,
+                    json.dumps(data),
+                    vapid_claims=claims,
+                    vapid_private_key="lpgwf4kxdypAQFQlwCOhYkGOmsqF0s0W7RC0uemS8iE",
+                    )
+        #TODO: maybe make separate keys for each object, or put them into vault/settings
+        return res
+
+
 @python_2_unicode_compatible
 class AccountRequest(models.Model):
     email = models.EmailField()

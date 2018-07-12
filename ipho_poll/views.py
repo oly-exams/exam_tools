@@ -291,6 +291,15 @@ def setEndDate(request, question_pk):
         choice_text_list = []
         for choice in Choice.objects.filter(question=question):
             choice_text_list.append(choice.choice_text)
+
+        #send push messages
+        for user in User.objects.all():
+            if len(user.votingright_set.all()) > 0:
+                for sub in user.pushsubscription_set.all():
+                    data = {'body':'A vote has just opened, click here to go to the voting page',
+                    'url':reverse('poll:voterIndex')}
+                    sub.send(data)
+
         return JsonResponse({
             'success': True,
             'message': '<strong> The voting is now open!</strong>',
