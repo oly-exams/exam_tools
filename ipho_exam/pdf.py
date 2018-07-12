@@ -105,16 +105,16 @@ def add_barcode(doc, bgenerator):
         barpdf = PdfFileReader(BytesIO(bgenerator(i + 1)))
         watermark = barpdf.getPage(0)
         wbox = watermark.artBox
-        wwidth = (wbox.upperRight[0] - wbox.upperLeft[0])
+        wwidth = wbox.getWidth()
 
         page = pdfdoc.getPage(i)
         pbox = page.artBox
-        pwidth = (pbox.upperRight[0] - pbox.upperLeft[0])
+        pwidth = pbox.getWidth()
 
         scale = 1.5  # size of the QR code (scaling factor)
-        yshift = 70  # distance from page top
-        x = float(pbox.upperLeft[0]) + old_div((float(pwidth) - float(wwidth) * scale), 2.)
-        y = float(pbox.upperLeft[1]) - float(wbox.upperLeft[1]) - yshift
+        yshift = 20  # distance from page top
+        x = float(pbox.getUpperLeft_x()) + (float(pwidth) - float(wwidth) * scale) / 2
+        y = float(pbox.getUpperLeft_y()) - float(wbox.getHeight()) * scale - yshift
 
         page.mergeScaledTranslatedPage(watermark, scale, x, y)
         output.addPage(page)
