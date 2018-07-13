@@ -354,7 +354,7 @@ def add_pdf_node(request, question_id, lang_id):
     if should_forbid is not None:
         return should_forbid
 
-    node = get_object_or_404(PDFNode, question=question, language=lang)
+    node, _ = PDFNode.objects.get_or_create(question=question, language=lang)
     ## Language section
     node_form = PDFNodeForm(request.POST or None, request.FILES or None, instance=node)
     if node_form.is_valid():
@@ -419,7 +419,7 @@ def translation_import(request, question_id, lang_id):
             pass
         #obj.content = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
         #obj.content = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
-        obj.content = txt                         # safest, but does not look nice: all < and > escaped
+        obj.content = txt  # safest, but does not look nice: all < and > escaped
         obj.question = question
         obj.language = language
         obj.save()
@@ -1007,7 +1007,7 @@ def admin_import_version(request, question_id):
             node.status = 'P'
         #node.text = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
         #node.text = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
-        node.text = txt                         # safest, but does not look nice: all < and > escaped
+        node.text = txt  # safest, but does not look nice: all < and > escaped
         node.save()
         return JsonResponse({'success': True})
 
@@ -1220,9 +1220,8 @@ def admin_editor(request, exam_id, question_id, version_num):
     q = qml.make_qml(node)
     #content_set = qml.make_content(q)
 
-    qml_types = sorted(
-        ((qobj.tag, qobj.display_name, qobj.sort_order) for qobj in qml.QMLobject.all_objects()),
-        key=lambda t: t[2])
+    qml_types = sorted(((qobj.tag, qobj.display_name, qobj.sort_order) for qobj in qml.QMLobject.all_objects()),
+                       key=lambda t: t[2])
     context = {
         'exam': exam,
         'question': question,
@@ -1351,9 +1350,8 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
     node.save()
 
     # TODO: find some better sorting way?
-    qml_types = sorted(
-        ((qobj.tag, qobj.display_name, qobj.sort_order) for qobj in qml.QMLobject.all_objects()),
-        key=lambda t: t[2])
+    qml_types = sorted(((qobj.tag, qobj.display_name, qobj.sort_order) for qobj in qml.QMLobject.all_objects()),
+                       key=lambda t: t[2])
     ctx = {
         'fields_set': [newblock],
         'parent': block,
@@ -1482,17 +1480,16 @@ def admin_submissions_translation(request):
         submitted_translations = len(submitted_countries)
 
         exams[exam.name] = {
-                'open_translations': open_translations,
-                'submitted_translations': submitted_translations,
-                'remaining_countries': remaining_countries,
-                'submitted_countries': submitted_countries,
-            }
-
-    return render(
-        request, 'ipho_exam/admin_submissions_translation.html', {
-            'exams': exams,
+            'open_translations': open_translations,
+            'submitted_translations': submitted_translations,
+            'remaining_countries': remaining_countries,
+            'submitted_countries': submitted_countries,
         }
-    )
+
+    return render(request, 'ipho_exam/admin_submissions_translation.html', {
+        'exams': exams,
+    })
+
 
 @permission_required('ipho_core.is_printstaff')
 def print_submissions_translation(request):
@@ -1511,30 +1508,25 @@ def print_submissions_translation(request):
 
         submitted_countries_actions = ExamAction.objects.filter(
             exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
-        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
-        ).order_by('timestamp')
+        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).order_by('timestamp')
         submitted_countries = submitted_countries_actions.values_list('delegation__country')
         submitted_timestamps_raw = submitted_countries_actions.values_list('timestamp')
-        submitted_timestamps = [ts[0] for ts in submitted_timestamps_raw]#.strftime('%H:%M:%S')
+        submitted_timestamps = [ts[0] for ts in submitted_timestamps_raw]  #.strftime('%H:%M:%S')
         submitted_countries = [country[0] for country in submitted_countries]
 
-        submitted_list = [{'name':n, 'timestamp':ts} for n, ts in zip(submitted_countries, submitted_timestamps)]
+        submitted_list = [{'name': n, 'timestamp': ts} for n, ts in zip(submitted_countries, submitted_timestamps)]
         submitted_list = submitted_list[::-1]
         submitted_translations = len(submitted_countries)
         exams[exam.name] = {
-                'open_translations': open_translations,
-                'submitted_translations': submitted_translations,
-                'remaining_countries': remaining_countries,
-                'submitted_list': submitted_list,
-            }
-
-    return render(
-        request, 'ipho_exam/print_submissions_translation.html', {
-            'exams': exams,
+            'open_translations': open_translations,
+            'submitted_translations': submitted_translations,
+            'remaining_countries': remaining_countries,
+            'submitted_list': submitted_list,
         }
-    )
 
-
+    return render(request, 'ipho_exam/print_submissions_translation.html', {
+        'exams': exams,
+    })
 
 
 @permission_required('ipho_core.is_delegation')
@@ -1807,7 +1799,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
 
     exam_list = [
         ex for ex in Exam.objects.filter(hidden=False, active=True)
-        if ExamAction.is_in_progress(ExamAction.TRANSLATION, exam=ex, delegation=delegation)] # TODO: allow admin to see all exams
+        if ExamAction.is_in_progress(ExamAction.TRANSLATION, exam=ex, delegation=delegation)
+    ]  # TODO: allow admin to see all exams
     context['exam_list'] = exam_list
 
     ## TODO:
@@ -1820,7 +1813,9 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         orig_lang = get_object_or_404(Language, id=orig_id)
 
         if delegation.count() > 0:
-            own_lang = Language.objects.filter(hidden=False, translationnode__question=question, delegation=delegation).order_by('name')
+            own_lang = Language.objects.filter(
+                hidden=False, translationnode__question=question, delegation=delegation
+            ).order_by('name')
         elif request.user.is_superuser:
             own_lang = Language.objects.all().order_by('name')
 
@@ -1903,8 +1898,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             if not trans_lang.check_permission(request.user):
                 return HttpResponseForbidden('You do not have the permissions to edit this language.')
             ## TODO: check permissions for this.
-            trans_node = get_object_or_404(
-                TranslationNode, question=question, language_id=lang_id)
+            trans_node = get_object_or_404(TranslationNode, question=question, language_id=lang_id)
             if len(trans_node.text) > 0:
                 trans_q = qml.make_qml(trans_node)
                 trans_q.set_lang(trans_lang)
@@ -1994,15 +1988,14 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     else:
         trans = qquery.latest_version(question_id, lang_id)
 
-    filename = u'exam-{}-{}{}-{}.pdf'.format(slugify(trans.question.exam.name), trans.question.code, trans.question.position, slugify(trans.lang.name))
+    filename = u'exam-{}-{}{}-{}.pdf'.format(
+        slugify(trans.question.exam.name), trans.question.code, trans.question.position, slugify(trans.lang.name)
+    )
 
     if trans.lang.is_pdf:
-        # etag = md5(trans.node.pdf).hexdigest()
-        # if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
-        #     return HttpResponseNotModified()
-        res = HttpResponse(trans.node.pdf, content_type="application/pdf")
+        output_pdf = pdf.check_add_watermark(request, trans.node.pdf.read())
+        res = HttpResponse(output_pdf, content_type="application/pdf")
         res['content-disposition'] = 'inline; filename="{}"'.format(filename)
-        # res['ETag'] = etag
         return res
 
     trans_content, ext_resources = trans.qml.make_tex()
@@ -2102,19 +2095,22 @@ def pdf_exam_pos_student(request, exam_id, position, student_id, type='P'):
             task = AsyncResult(doc.documenttask.task_id)
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})
         if doc.file:
-            response = HttpResponse(doc.file, content_type='application/pdf')
+            output_pdf = pdf.check_add_watermark(request, doc.file.read())
+            response = HttpResponse(output_pdf, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename=%s' % doc.file.name
             return response
     elif type == 'S':  ## look for scans
         if doc.scan_file:
-            response = HttpResponse(doc.scan_file, content_type='application/pdf')
+            output_pdf = pdf.check_add_watermark(request, doc.scan_file.read())
+            response = HttpResponse(output_pdf, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename=%s' % doc.scan_file.name
             return response
         else:
             raise Http404('Scan document not found')
     elif type == 'O':  ## look for scans
         if doc.scan_file_orig:
-            response = HttpResponse(doc.scan_file_orig, content_type='application/pdf')
+            output_pdf = pdf.check_add_watermark(request, doc.scan_file_orig.read())
+            response = HttpResponse(output_pdf, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename=%s' % doc.scan_file_orig.name.replace(' ', '_')
             return response
         else:
@@ -2163,16 +2159,21 @@ def task_log(request, token):
             l = lines[i]
             i += 1
             if l.startswith('!'):
-                error_lines += lines[i-CONTEXT_LINES: i-1]
+                error_lines += lines[i - CONTEXT_LINES:i - 1]
                 while l.strip() != "":
                     error_lines.append(l)
                     l = lines[i]
                     i += 1
-                error_lines += lines[i+1: i+CONTEXT_LINES]
+                error_lines += lines[i + 1:i + CONTEXT_LINES]
                 error_lines += ['', '---------------------------------', '']
         errors = '\n'.join(error_lines)
-        return render(request, 'ipho_exam/tex_error_log.html', {'errors': _wrap_pre(errors), 'full_log': _wrap_pre(e.log), 'doc_tex': _wrap_pre(e.doc_tex)})
-
+        return render(
+            request, 'ipho_exam/tex_error_log.html', {
+                'errors': _wrap_pre(errors),
+                'full_log': _wrap_pre(e.log),
+                'doc_tex': _wrap_pre(e.doc_tex)
+            }
+        )
 
 
 @login_required
@@ -2184,7 +2185,8 @@ def pdf_task(request, token):
             if request.META.get('HTTP_IF_NONE_MATCH', '') == meta['etag']:
                 return HttpResponseNotModified()
 
-            res = HttpResponse(doc_pdf, content_type="application/pdf")
+            output_pdf = pdf.check_add_watermark(request, doc_pdf)
+            res = HttpResponse(output_pdf, content_type="application/pdf")
             res['content-disposition'] = 'inline; filename="{}"'.format(meta['filename'])
             res['ETag'] = meta['etag']
             return res
@@ -2248,10 +2250,8 @@ def bulk_print(request, page=None, tot_print=None):
         page = request.GET.get('page')
         if not page:
             page = 1
-        response["Location"] = reverse('exam:bulk-print_prg',
-                        args=(page, tot_printed))
+        response["Location"] = reverse('exam:bulk-print_prg', args=(page, tot_printed))
         return response
-
 
     all_docs = Document.objects.filter(
         student__delegation=filter_dg,

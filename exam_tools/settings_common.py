@@ -34,7 +34,8 @@ SITE_URL = 'http://127.0.0.1:8000'
 VERSION = '2.0.0'
 
 try:
-    GIT_HEAD_DATE = str(subprocess.check_output(["git", "log", "-1", "--date=short", "--pretty=format:%ci"]), 'utf-8').strip()
+    GIT_HEAD_DATE = str(subprocess.check_output(["git", "log", "-1", "--date=short", "--pretty=format:%ci"]),
+                        'utf-8').strip()
 except Exception:
     GIT_HEAD_DATE = ''
 try:
@@ -50,6 +51,9 @@ OFFICIAL_DELEGATION = 'Official'
 DEMO_MODE = False
 # Allow user sign-up for demo
 DEMO_SIGN_UP = False
+
+# Adds a watermark to PDFs shown to non-staff
+ADD_DELEGATION_WATERMARK = False
 
 # Url of documentation
 DOCS_URL = '/docs'
