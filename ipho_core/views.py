@@ -77,35 +77,6 @@ def account_request(request):
 
     return render(request, 'registration/account_request.html', {'form': form})
 
-
-def test_push(request):
-    from pywebpush import webpush, WebPushException
-    slist = PushSubscription.objects.all()
-    data = {'body':'Test, blabla', 'url':'https://www.google.com'}
-
-    for s in slist:
-        sub_data = json.loads(s.data)
-        try:
-            claims = {'sub':'mailto:noreply@oly-exams.org'}
-            webpush(sub_data,
-                json.dumps(data),
-                vapid_claims=claims,
-                vapid_private_key="lpgwf4kxdypAQFQlwCOhYkGOmsqF0s0W7RC0uemS8iE",
-                )
-        except WebPushException as ex:
-            print("ex: {}".format(ex))
-            print(ex.response)
-            # Mozilla returns additional information in the body of the response.
-            if ex.response and ex.response.json():
-                extra = ex.response.json()
-                print(extra)
-                #print("Remote service replied with a {}:{}, {}".format(
-                #      extra.code,
-                #      extra.errno,
-                #      extra.message
-                #      )
-    return HttpResponse('done?')
-
 @login_required
 def service_worker(request):
     if request.method == 'GET':

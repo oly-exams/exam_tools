@@ -187,3 +187,109 @@
 
 
 {% endblock %}
+
+{% block extra-script %}
+<script>
+// Utils functions:
+
+let isSubscribed = false;
+let swRegistration = null;
+
+function urlB64ToUint8Array (base64String) {
+    var padding = '='.repeat((4 - base64String.length % 4) % 4)
+    var base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/')
+    var rawData = window.atob(base64)
+    var outputArray = new Uint8Array(rawData.length)
+    for (var i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i)
+    }
+    return outputArray;
+};
+/*    function initializeUI() {
+// Set the initial subscription value
+swRegistration.pushManager.getSubscription()
+.then(function(subscription) {
+  isSubscribed = !(subscription === null);
+
+  if (isSubscribed) {
+    console.log('User IS subscribed.');
+  } else {
+    console.log('User is NOT subscribed.');
+  }
+
+  //updateBtn();
+});
+}*/
+
+function checkStatus() {
+  return new Promise((resolve, reject) => {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      console.log('Service Worker and Push is supported');
+      navigator.serviceWorker.register("{% url 'service_worker' %}")
+      .then(function(swReg) {
+        console.log('Service Worker is registered', swReg);
+        swRegistration = swReg;
+        resolve('SUCCESS');
+        //initializeUI();
+      })
+      .catch(function(error) {
+        console.error('Service Worker Error', error);
+        resolve(error);
+      });
+    } else {
+      console.warn('Push messaging is not supported');
+      reject("NOT SUPPORTED");
+      //pushButton.textContent = 'Push Not Supported';
+    }
+  })
+}
+
+var applicationServerPublicKey = "BOUACj_qKghcQDk6TyHf34Y8j-fxjsTJNeSanR3bgIzWo37k5RHUQtcshHR17yruQlRQ8Sb3ggLjVSpyAbmLpKY";
+// In your ready listener
+function subscribeUser() {
+  const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
+  console.log('subscribing...');
+  swRegistration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: applicationServerKey
+  })
+  .then(function(subscription) {
+    console.log('User is subscribed.');
+    data = {};
+    data.subs = subscription.toJSON();
+    console.log(data);
+    data.csrfmiddlewaretoken = '{{ csrf_token }}';
+    $.ajax({
+        url: "{% url 'push_submission' %}",
+        type: 'POST',
+        //TODO: move to voting page?
+        //TODO: implement server-side push messages
+        //TODO: new api-keys
+        //TODO: check tojson,
+        data: data,
+        success: function(data) {
+            if (!data['success']) {
+                console.log('subscription could not be saved');
+                console.log(data);
+            }
+      }
+    });
+    isSubscribed = true;
+    //updateBtn();
+  })
+  .catch(function(err) {
+    console.log('Failed to subscribe the user: ', err);
+    //updateBtn();
+  });
+}
+$(document).ready(function() {
+  checkStatus().then(function () {
+    console.log('then');
+    subscribeUser();
+  });
+});
+
+</script>
+{% endblock %}
