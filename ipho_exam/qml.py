@@ -84,7 +84,7 @@ TIDYOPTIONS={
 "new-blocklevel-tags": "question,subquestion,subanswer,box,section,part,figure,list,texfield,texparam,texenv,table,row",
 "new-inline-tags": "title,paragraph,param,caption,equation,item,texparam,cell,tablecaption",
 "new-empty-tags": "pagebreak"
-}
+}  # yapf:disable
 
 
 def make_content(root):
