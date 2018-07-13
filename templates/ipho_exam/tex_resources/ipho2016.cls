@@ -127,6 +127,18 @@
     \end{minipage}\end{framed}
 }
 
+% Subanswer continuation (QMLsubanswercontinuation)
+\newenvironment{QSAC}[3]
+{
+    \renewcommand{\arraystretch}{2.}
+    \begin{framed}\noindent\begin{minipage}[t][#3][t]{\textwidth}
+    {\noindent\textbf{ \begin{english} #1.#2 (cont.) \end{english}}}
+
+}
+{
+    \end{minipage}\end{framed}
+}
+
 % Box (QMLbox)
 \newenvironment{QBO}[1]
 {
