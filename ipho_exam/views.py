@@ -2195,9 +2195,14 @@ def pdf_task(request, token):
 
 
 @permission_required('ipho_core.is_printstaff')
-def bulk_print(request):
+def bulk_print(request, page=None, tot_print=None):
     messages = []
-
+    if tot_print:
+        messages.append((
+            'alert-success',
+            '<strong>Success</strong> {} print job submitted. Please pickup your document at the printing station.'.
+            format(tot_print)
+        ))
     exams = Exam.objects.filter(hidden=False)
     delegations = Delegation.objects.all()
 
@@ -2239,11 +2244,14 @@ def bulk_print(request):
                 tot_printed += 1
                 l = PrintLog(document=d, type='S')
                 l.save()
-        messages.append((
-            'alert-success',
-            '<strong>Success</strong> {} print job submitted. Please pickup your document at the printing station.'.
-            format(tot_printed)
-        ))
+        response = HttpResponse(content="", status=303)
+        page = request.GET.get('page')
+        if not page:
+            page = 1
+        response["Location"] = reverse('exam:bulk-print_prg',
+                        args=(page, tot_printed))
+        return response
+
 
     all_docs = Document.objects.filter(
         student__delegation=filter_dg,
@@ -2261,8 +2269,8 @@ def bulk_print(request):
     ).order_by('student_id', 'position')
 
     paginator = Paginator(all_docs, 50)
-
-    page = request.GET.get('page')
+    if not page:
+        page = request.GET.get('page')
     try:
         docs_list = paginator.page(page)
     except PageNotAnInteger:
