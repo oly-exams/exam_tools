@@ -636,6 +636,7 @@ class Document(models.Model):
 
     exam = models.ForeignKey(Exam, help_text='Exam')
     student = models.ForeignKey(Student, help_text='Student')
+    timestamp = models.DateTimeField(auto_now=True, null=True)
     position = models.IntegerField(
         help_text='Question grouping position, e.g. 0 for cover sheet / instructions, 1 for the first question, etc'
     )

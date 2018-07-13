@@ -110,7 +110,12 @@ This list shows only documents that have been submitted by the delegations.
                 </ul>
               </div>
               <br />
+              Print time:
+              {% if d.last_print_p %}
               <time datetime="{{ d.last_print_p|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+              {% else %}
+              --:--
+              {% endif %}
             </td>
             <td align="center">
               {% if d.scan_file %}
@@ -129,7 +134,19 @@ This list shows only documents that have been submitted by the delegations.
                   </ul>
                 </div>
                 <br />
+                Print time:
+                {% if d.last_print_s %}
                 <time datetime="{{ d.last_print_s|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+                {% else %}
+                --:--
+                {% endif %}
+                <br />
+                Scan time:
+                {% if d.timestamp %}
+                <time datetime="{{ d.timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+                {% else %}
+                --:--
+                {% endif %}
               {% endif %}
             </td>
             <td>

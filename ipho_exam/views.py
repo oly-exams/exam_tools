@@ -2265,7 +2265,7 @@ def bulk_print(request, page=None, tot_print=None):
     ).values(
         'pk', 'exam__name', 'exam__id', 'position', 'student__delegation__name', 'student__code', 'student__id',
         'num_pages', 'barcode_base', 'barcode_num_pages', 'extra_num_pages', 'scan_file', 'scan_status',
-        'scan_file_orig', 'scan_msg', 'last_print_p', 'last_print_s'
+        'scan_file_orig', 'scan_msg', 'last_print_p', 'last_print_s', 'timestamp'
     ).order_by('student_id', 'position')
 
     paginator = Paginator(all_docs, 50)
