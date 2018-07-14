@@ -26,9 +26,10 @@ from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth import authenticate, login
 from django.core.urlresolvers import reverse
+from pywebpush import WebPushException
 
 from ipho_core.models import AutoLogin, User, PushSubscription
-from ipho_core.forms import AccountRequestForm
+from ipho_core.forms import AccountRequestForm, SendPushForm
 
 DEMO_MODE = getattr(settings, 'DEMO_MODE')
 DEMO_SIGN_UP = getattr(settings, 'DEMO_SIGN_UP')
@@ -85,7 +86,7 @@ def service_worker(request):
 
 @login_required
 def register_push_submission(request):
-    if request.method == 'POST':
+    if request.method == 'POST' and settings.ENABLE_PUSH:
         data = request.POST.copy()
         del data['csrfmiddlewaretoken']
         newdata = {}
@@ -124,6 +125,35 @@ def register_push_submission(request):
             return JsonResponse({'success': True})
         return JsonResponse({'success': False, 'error':'No data'})
     return HttpResponseForbidden('Nothing to see here')
+
+@permission_required('ipho_core.is_staff')
+def send_push(request):
+    if not settings.ENABLE_PUSH:
+        return HttpResponseForbidden('Push not enabled')
+    if request.method == 'POST':
+        form = SendPushForm(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['to_all']:
+                ulist = User.objects.all()
+            else:
+                ulist = form.cleaned_data['users'].all()
+            for user in ulist:
+                for sub in user.pushsubscription_set.all():
+                    data = {'body': form.cleaned_data['message']}
+                    if form.cleaned_data['url']:
+                        data['url'] = form.cleaned_data['url']
+                    try:
+                        sub.send(data)
+                    except WebPushException as ex:
+                        pass
+        response = HttpResponse(content="", status=303)
+        response["Location"] = reverse('send_push')
+        return response
+
+    else:
+        form = SendPushForm()
+    return render(request, 'ipho_core/send_push.html', {'form':form})
+
 
 @permission_required('ipho_core.is_staff')
 def list_impersonate(request):

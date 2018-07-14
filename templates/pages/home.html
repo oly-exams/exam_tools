@@ -246,7 +246,7 @@ function checkStatus() {
   })
 }
 
-var applicationServerPublicKey = "BOUACj_qKghcQDk6TyHf34Y8j-fxjsTJNeSanR3bgIzWo37k5RHUQtcshHR17yruQlRQ8Sb3ggLjVSpyAbmLpKY";
+var applicationServerPublicKey = "{{ push_key }}";
 // In your ready listener
 function subscribeUser() {
   const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
@@ -264,10 +264,6 @@ function subscribeUser() {
     $.ajax({
         url: "{% url 'push_submission' %}",
         type: 'POST',
-        //TODO: move to voting page?
-        //TODO: implement server-side push messages
-        //TODO: new api-keys
-        //TODO: check tojson,
         data: data,
         success: function(data) {
             if (!data['success']) {
@@ -287,7 +283,9 @@ function subscribeUser() {
 $(document).ready(function() {
   checkStatus().then(function () {
     console.log('then');
+    {% if push %}
     subscribeUser();
+    {% endif %}
   });
 });
 

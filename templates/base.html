@@ -88,12 +88,17 @@
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin tools <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
-                  {% if perms.ipho_core.is_staff %}
+                  {% if perms.ipho_core.is_staff and perms.ipho_core.can_impersonate %}
                   <li class="dropdown-header">Django admin</li>
                   {% if user.is_superuser %}
                   <li><a href="{% url 'admin:index' %}">Admin
                   {% endif %}
+                  {% if perms.ipho_core.can_impersonate %}
                   <li><a href="{% url 'impersonate' %}">Impersonate delegation</a></li>
+                  {% endif %}
+                  {% if perms.ipho_core.is_staff %}
+                  <li><a href="{% url 'send_push' %}">Send push notifications</a></li>
+                  {% endif %}
                   <li class="divider"></li>
                   {% endif %}
                   {% if perms.ipho_core.is_staff %}
@@ -136,6 +141,7 @@
                   {% endif %}
                   <li><a href="{% url 'marking:moderation-index' %}">Moderation</a></li>
                   <li><a href="{% url 'marking:export' %}">Export markings</a></li>
+                  <!--<li><a href=" url 'marking:export-total' %}">Export markings (with totals)</a></li>-->
 
                   {% endif %}
                 </ul>
@@ -184,7 +190,6 @@
     <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
     <script src="{% static "bootstrap-ckeditor-modal-fix.js" %}"></script>
     <script src="{% static "moment.min.js" %}"></script>
-  
     {% block extra-script %}{% endblock %}
   </body>
 </html>

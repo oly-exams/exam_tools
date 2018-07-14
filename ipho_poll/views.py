@@ -31,6 +31,7 @@ from django.template import RequestContext
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
+from pywebpush import WebPushException
 
 from dateutil import tz
 
@@ -292,14 +293,18 @@ def setEndDate(request, question_pk):
         for choice in Choice.objects.filter(question=question):
             choice_text_list.append(choice.choice_text)
 
-        #send push messages
-        for user in User.objects.all():
-            if len(user.votingright_set.all()) > 0:
-                for sub in user.pushsubscription_set.all():
-                    data = {'body':'A vote has just opened, click here to go to the voting page',
-                    'url':reverse('poll:voterIndex')}
-                    sub.send(data)
-
+        if settings.ENABLE_PUSH:
+            #send push messages
+            for user in User.objects.all():
+                if len(user.votingright_set.all()) > 0:
+                    for sub in user.pushsubscription_set.all():
+                        data = {'body':'A vote has just opened, click here to go to the voting page',
+                        'url':reverse('poll:voterIndex')}
+                        try:
+                            sub.send(data)
+                        except WebPushException as ex:
+                            #TODO: do some error handling?
+                            pass
         return JsonResponse({
             'success': True,
             'message': '<strong> The voting is now open!</strong>',

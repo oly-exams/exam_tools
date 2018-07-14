@@ -115,7 +115,7 @@ class PushSubscription(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return u'Push data of {}'.format(user)
+        return u'Push data of {}'.format(self.user)
 
     def send(self, data):
         from pywebpush import webpush, WebPushException
@@ -125,9 +125,8 @@ class PushSubscription(models.Model):
         res = webpush(sub_data,
                     json.dumps(data),
                     vapid_claims=claims,
-                    vapid_private_key="lpgwf4kxdypAQFQlwCOhYkGOmsqF0s0W7RC0uemS8iE",
+                    vapid_private_key=setting.PUSH_PRIVATE_KEY,
                     )
-        #TODO: maybe make separate keys for each object, or put them into vault/settings
         return res
 
 
