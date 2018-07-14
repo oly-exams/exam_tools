@@ -55,15 +55,17 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
     all_barcodes = []
     all_docs = []
     if cover is not None:
+        suppress_cover_code = not settings.get('CODE_ON_COVER_SHEET', False)
         body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover))
         question_pdf = pdf.compile_tex(body, [])
         q = questions[0]
         s = student_languages[0].student
-        bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C', suppress_code=True)
+        bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C', suppress_code=suppress_cover_code)
         page = pdf.add_barcode(question_pdf, bgenerator)
         doc_pages = pdf.get_num_pages(page)
         meta['num_pages'] += doc_pages
-        # meta['barcode_num_pages'] += doc_pages
+        if not suppress_cover_code:
+            meta['barcode_num_pages'] += doc_pages
         all_barcodes.append(bgenerator.base)
         all_docs.append(page)
 

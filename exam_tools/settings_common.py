@@ -55,6 +55,9 @@ DEMO_SIGN_UP = False
 # Adds a watermark to PDFs shown to non-staff
 ADD_DELEGATION_WATERMARK = False
 
+# Defines whether a QR code should be printed on the cover sheets
+CODE_ON_COVER_SHEET = False
+
 # Url of documentation
 DOCS_URL = '/docs'
 
