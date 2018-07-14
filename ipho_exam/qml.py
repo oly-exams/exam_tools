@@ -186,7 +186,7 @@ def question_points(root):
     for obj in root.children:
         if isinstance(obj, (QMLsubquestion, QMLsubanswer)):
             #TWOPLACES = Decimal(10) ** -2
-            points = Decimal(obj.attributes.get('points', 0.))#.quantize(TWOPLACES)
+            points = Decimal(obj.attributes.get('points', 0.))  #.quantize(TWOPLACES)
             name = '{}.{}'.format(obj.attributes.get('part_nr', ''), obj.attributes.get('question_nr', ''))
             ret.append((name, points))
         child_points = question_points(obj)
@@ -478,7 +478,7 @@ class QMLquestion(QMLobject):
     has_text = False
     has_children = True
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
-                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer')
+                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer', 'subanswercontinuation')
 
     def title(self):
         tt = ''
@@ -551,6 +551,34 @@ class QMLsubanswer(QMLobject):
 
     def xhtml_begin(self):
         return u'<h4>Answer ({} pt)</h4>'.format(self.attributes['points'])
+
+class QMLsubanswercontinuation(QMLobject):
+    tag = "subanswercontinuation"
+    display_name = "Answer box (use for answer sheets), continuation (no points)"
+    default_heading = "Answer box"
+    sort_order = 511
+
+    has_text = False
+    has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
+
+    default_attributes = {'part_nr': 'A', 'question_nr': '1'}
+
+    def heading(self):
+        return 'Subquestion %s.%s, cont.' % (
+            self.attributes['part_nr'], self.attributes['question_nr']
+        )
+
+    def tex_begin(self):
+        return u'\\begin{QSAC}{%s}{%s}{%s}\n' % (
+            self.attributes['part_nr'], self.attributes['question_nr'], self.attributes.get('height', '')
+        )
+
+    def tex_end(self):
+        return u'\\end{QSAC}\n\n'
+
+    def xhtml_begin(self):
+        return u'<h4>Answer, cont.</h4>'
 
 
 class QMLbox(QMLobject):
@@ -813,6 +841,7 @@ class QMLlist(QMLobject):
 
     def xhtml_end(self):
         return u'</ul>'
+
 
 class QMLenumerate(QMLobject):
     tag = "enumerate"

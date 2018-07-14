@@ -43,7 +43,11 @@ urlpatterns = [
 
     ## Markers
     url(r'^official/?$', views.official_marking_index, name='official-marking-index'),
-    url(r'^official/question/(?P<question_id>\d+)$', views.official_marking_index, name='official-marking-index-question'),
+    url(
+        r'^official/question/(?P<question_id>\d+)$',
+        views.official_marking_index,
+        name='official-marking-index-question'
+    ),
     url(
         r'^official/question/(?P<question_id>\d+)/delegation/(?P<delegation_id>\d+)$',
         views.official_marking_detail,
@@ -78,6 +82,7 @@ urlpatterns = [
         name='staff-stud-detail'
     ),
     url(r'^all/export.csv$', views.export, name='export'),
+    url(r'^all/export-total.csv$', views.export_with_total, name='export-total'),
     url(r'^marking-submissions$', views.marking_submissions, name='marking-submissions'),
     url(r'^progress$', views.progress, name='progress'),
 ]

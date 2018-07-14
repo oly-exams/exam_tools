@@ -38,6 +38,7 @@ TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
 CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
 CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 300)  # 1 min
 TEXBIN = getattr(settings, 'TEXBIN', '/usr/bin')
+WATERMARK_PATH = getattr(settings, 'WATERMARK_PATH', os.path.join(settings.STATIC_PATH, 'watermark.pdf'))
 
 
 class TexCompileException(Exception):
@@ -105,16 +106,16 @@ def add_barcode(doc, bgenerator):
         barpdf = PdfFileReader(BytesIO(bgenerator(i + 1)))
         watermark = barpdf.getPage(0)
         wbox = watermark.artBox
-        wwidth = (wbox.upperRight[0] - wbox.upperLeft[0])
+        wwidth = wbox.getWidth()
 
         page = pdfdoc.getPage(i)
         pbox = page.artBox
-        pwidth = (pbox.upperRight[0] - pbox.upperLeft[0])
+        pwidth = pbox.getWidth()
 
         scale = 1.5  # size of the QR code (scaling factor)
-        yshift = 70  # distance from page top
-        x = float(pbox.upperLeft[0]) + old_div((float(pwidth) - float(wwidth) * scale), 2.)
-        y = float(pbox.upperLeft[1]) - float(wbox.upperLeft[1]) - yshift
+        yshift = 20  # distance from page top
+        x = float(pbox.getUpperLeft_x()) + (float(pwidth) - float(wwidth) * scale) / 2
+        y = float(pbox.getUpperLeft_y()) - float(wbox.getHeight()) * scale - yshift
 
         page.mergeScaledTranslatedPage(watermark, scale, x, y)
         output.addPage(page)
@@ -159,7 +160,38 @@ def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'
         else:
             raise RuntimeError("pdflatex error (code %s) in %s." % (e.code, e.doc_fname))
 
-    res = HttpResponse(pdf, content_type="application/pdf")
+    output_pdf = check_add_watermark(request, pdf)
+    res = HttpResponse(output_pdf, content_type="application/pdf")
     res['content-disposition'] = 'inline; filename="{}"'.format(filename)
     res['ETag'] = etag
     return res
+
+
+def check_add_watermark(request, doc):
+    """
+    Checks if the 'delegation print' watermark needs to be added to the document,
+    and return the appropriate PDF (with / without watermark).
+    """
+    if settings.ADD_DELEGATION_WATERMARK and not request.user.is_staff:
+        return add_watermark(doc)
+    return doc
+
+
+def add_watermark(doc):
+    """
+    Adds the 'delegation print' watermark to the given PDF document.
+    """
+    with open(WATERMARK_PATH, 'rb') as wm_f:
+        watermark = PdfFileReader(BytesIO(wm_f.read()))
+        watermark_page = watermark.getPage(0)
+
+    output = PdfFileWriter()
+    pdfdoc = PdfFileReader(BytesIO(doc))
+    for idx in range(pdfdoc.getNumPages()):
+        page = pdfdoc.getPage(idx)
+        page.mergePage(watermark_page)
+        output.addPage(page)
+
+    output_pdf = BytesIO()
+    output.write(output_pdf)
+    return output_pdf.getvalue()

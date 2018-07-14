@@ -36,6 +36,7 @@ class IphoPerm(models.Model):
             ('is_marker', 'Is a marker'),
             ('can_vote', 'Can vote'),
             ('is_staff', 'Is an organizer'),
+            ('can_impersonate', 'Can impersonate delegations'),
             ('print_technopark', 'Can print in Technopark'),
             ('print_irchel', 'Can print in Irchel'),
             ('is_printstaff', 'Is a print staff'),

@@ -156,6 +156,7 @@ def send_push(request):
 
 
 @permission_required('ipho_core.is_staff')
+@permission_required('ipho_core.can_impersonate')
 def list_impersonate(request):
     users = User.objects.exclude(delegation__isnull=True).exclude(autologin__isnull=True).order_by('username')
     chunk_size = max(old_div(len(users), 6) + 1, 1)

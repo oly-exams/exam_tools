@@ -53,6 +53,7 @@ Valid children:
 [Part](admin_exam_editor.md#part)
 [Subquestion](admin_exam_editor.md#subquestion)
 [Answer](admin_exam_editor.md#answer)
+[Answer continuation](admin_exam_editor.md#answer-continuation)
 [Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
 [Box](admin_exam_editor.md#box)
 [Pagebreak](admin_exam_editor.md#pagebreak)
@@ -111,6 +112,22 @@ Attributes:
 | Key         | Specification                                            |
 | ----------- | -------------------------------------------------------- |
 | points      | Number of points for the answer.                         |
+| part_nr     | Part the answer belongs to, e.g "A".                     |
+| question_nr | Question the answer belongs, to e.g "1".                 |
+| height      | Define space available to write the answer, e.g. "4 cm". |
+
+Valid children:
+[Paragraph like blocks](admin_exam_editor.md#paragraph-like-blocks)
+[Latex blocks](admin_exam_editor.md#latex-blocks)
+
+### Answer continuation
+
+No block content.
+
+Attributes:
+
+| Key         | Specification                                            |
+| ----------- | -------------------------------------------------------- |
 | part_nr     | Part the answer belongs to, e.g "A".                     |
 | question_nr | Question the answer belongs, to e.g "1".                 |
 | height      | Define space available to write the answer, e.g. "4 cm". |

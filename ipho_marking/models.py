@@ -45,7 +45,9 @@ class MarkingMeta(models.Model):
 class Marking(models.Model):
     marking_meta = models.ForeignKey(MarkingMeta)
     student = models.ForeignKey(Student)
-    points = models.DecimalField(null=True, blank=True, max_digits=8, decimal_places=2, validators=[MinValueValidator(0.)])
+    points = models.DecimalField(
+        null=True, blank=True, max_digits=8, decimal_places=2, validators=[MinValueValidator(0.)]
+    )
     comment = models.TextField(null=True, blank=True)
     MARKING_VERSIONS = OrderedDict([
         ('O', 'Organizers'),
@@ -55,8 +57,11 @@ class Marking(models.Model):
     version = models.CharField(max_length=1, choices=list(MARKING_VERSIONS.items()))
 
     def clean(self):
-        if self.points > self.marking_meta.max_points:
-            raise ValidationError('The number of points cannot exceed the maximum.')
+        try:
+            if self.points > self.marking_meta.max_points:
+                raise ValidationError('The number of points cannot exceed the maximum.')
+        except TypeError:
+            raise ValidationError('The number of points must be a number.')
 
     def exam_question(self):
         return self.marking_meta.question
