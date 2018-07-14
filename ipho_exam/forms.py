@@ -30,6 +30,7 @@ import decimal
 from django.core.exceptions import ValidationError
 
 from ipho_exam.models import Language, Question, Student, Figure, VersionNode, TranslationNode, PDFNode, Feedback, StudentSubmission, TranslationImportTmp, Document
+from ipho_print import printer
 
 
 def build_extension_validator(valid_extensions):
@@ -431,7 +432,11 @@ class PrintDocsForm(forms.Form):
         super(PrintDocsForm, self).__init__(*args, **kwargs)
 
         self.fields['queue'].choices = queue_list
-
+        default_opts = printer.allowed_opts(queue_list[0][0])
+        opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
+        for k in opts_map:
+            self.fields[k].default = default_opts[opts_map[k]]
+            
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field('queue'), Field('duplex'), Field('color'), Field('staple'), FormActions(Submit('submit', 'Print'))
@@ -440,6 +445,17 @@ class PrintDocsForm(forms.Form):
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.form_tag = False
+
+    def clean(self):
+        cleaned_data = super(PrintDocsForm, self).clean()
+        queue = cleaned_data.get("queue")
+        allowed_opts = printer.allowed_opts(queue)
+        opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
+        for k in opts_map:
+            if cleaned_data.get(k) not in ['None', 'Grayscale']:
+                if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
+                    msg = 'The current printer does not support this option.'
+                    self.add_error(k, msg)
 
 
 class ScanForm(forms.Form):
