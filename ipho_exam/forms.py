@@ -432,11 +432,11 @@ class PrintDocsForm(forms.Form):
         super(PrintDocsForm, self).__init__(*args, **kwargs)
 
         self.fields['queue'].choices = queue_list
-        default_opts = printer.allowed_opts(queue_list[0][0])
+        default_opts = printer.default_opts()
         opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
         for k in opts_map:
-            self.fields[k].default = default_opts[opts_map[k]]
-            
+            self.fields[k].initial = default_opts[opts_map[k]]
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field('queue'), Field('duplex'), Field('color'), Field('staple'), FormActions(Submit('submit', 'Print'))

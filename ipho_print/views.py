@@ -62,7 +62,7 @@ def main(request):
                 + e.msg
             ))
         form = PrintForm(queue_list=queue_list, enable_opts=enable_opts)
-
+    print(form)
     form_html = render_crispy_form(form, context=csrf(request))
     if request.is_ajax():
         return JsonResponse({

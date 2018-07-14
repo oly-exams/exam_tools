@@ -25,6 +25,7 @@ from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
 
 from django.core.exceptions import ValidationError
 
+from . import printer
 
 def build_extension_validator(valid_extensions):
     def validate_file_extension(value):
@@ -50,6 +51,13 @@ class PrintForm(forms.Form):
         super(PrintForm, self).__init__(*args, **kwargs)
 
         self.fields['queue'].choices = queue_list
+        default_opts = printer.default_opts()
+        opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
+        for k in opts_map:
+            self.fields[k].initial = default_opts[opts_map[k]]
+        for k in opts_map:
+            print(k)
+            print(self.fields[k].initial)
 
         self.helper = FormHelper()
         if enable_opts:
@@ -63,3 +71,14 @@ class PrintForm(forms.Form):
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.form_tag = True
+
+    def clean(self):
+        cleaned_data = super(PrintForm, self).clean()
+        queue = cleaned_data.get("queue")
+        allowed_opts = printer.allowed_opts(queue)
+        opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
+        for k in opts_map:
+            if cleaned_data.get(k) not in ['None', 'Grayscale']:
+                if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
+                    msg = 'The current printer does not support this option.'
+                    self.add_error(k, msg)
