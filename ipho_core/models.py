@@ -126,7 +126,7 @@ class PushSubscription(models.Model):
         res = webpush(sub_data,
                     json.dumps(data),
                     vapid_claims=claims,
-                    vapid_private_key=setting.PUSH_PRIVATE_KEY,
+                    vapid_private_key=settings.PUSH_PRIVATE_KEY,
                     )
         return res
 

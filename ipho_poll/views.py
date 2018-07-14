@@ -29,6 +29,7 @@ from crispy_forms.utils import render_crispy_form
 from django.forms import formset_factory, inlineformset_factory
 from django.template import RequestContext
 from django.core.exceptions import PermissionDenied
+from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
 from pywebpush import WebPushException
