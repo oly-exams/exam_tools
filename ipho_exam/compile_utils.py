@@ -55,7 +55,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
     all_barcodes = []
     all_docs = []
     if cover is not None:
-        suppress_cover_code = not settings.get('CODE_ON_COVER_SHEET', False)
+        suppress_cover_code = not settings.CODE_ON_COVER_SHEET
         body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover))
         question_pdf = pdf.compile_tex(body, [])
         q = questions[0]
