@@ -426,7 +426,7 @@ class PrintDocsForm(forms.Form):
     duplex = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('DuplexNoTumble', 'Yes')])
     color = forms.ChoiceField(initial='Colour', choices=[('Colour', 'Yes'), ('Grayscale', 'No')])
     staple = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('1PLU', 'Yes')])
-
+    copies = forms.IntegerField(initial=1, min_value=1, max_value=10)
     def __init__(self, *args, **kwargs):
         queue_list = kwargs.pop('queue_list')
         super(PrintDocsForm, self).__init__(*args, **kwargs)
@@ -439,7 +439,7 @@ class PrintDocsForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field('queue'), Field('duplex'), Field('color'), Field('staple'), FormActions(Submit('submit', 'Print'))
+            Field('queue'), Field('duplex'), Field('color'), Field('staple'), Field('copies'), FormActions(Submit('submit', 'Print'))
         )
 
         self.helper.html5_required = True
