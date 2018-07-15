@@ -178,7 +178,7 @@ def addQuestion(request):
         choiceFormset = ChoiceFormset(request.POST, prefix='choices')
     else:
         questionForm = QuestionForm(None, prefix='question')
-        choiceFormset = ChoiceFormset(None, prefix='choices', initial=[{'label':'abs' ,'choice_text':'abstain from this vote'},])
+        choiceFormset = ChoiceFormset(None, prefix='choices', initial=[{},{}, {'label':'zab' ,'choice_text':'abstain from this vote'},])
     if questionForm.is_valid() and choiceFormset.is_valid():
         new_question = questionForm.save()
         for fb in Feedback.objects.filter(vote=new_question):

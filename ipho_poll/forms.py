@@ -86,7 +86,11 @@ class ChoiceForm(ModelForm):
             linit = kwargs['initial']['label']
         except KeyError:
             linit = ''
-        if linit == 'abs':
+        try:
+            linst = kwargs['instance'].label
+        except (KeyError, TypeError):
+            linst = ''
+        if linit == 'zab' or linst == 'zab':
             self.fields['label'].widget.attrs['readonly'] = True
             self.fields['choice_text'].widget.attrs['readonly'] = True
 
