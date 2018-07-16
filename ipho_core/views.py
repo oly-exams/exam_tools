@@ -128,6 +128,45 @@ def register_push_submission(request):
         return JsonResponse({'success': False, 'error':'No data'})
     return HttpResponseForbidden('Nothing to see here')
 
+def delete_push_submission(request):
+    if request.method == 'POST':
+        data = request.POST.copy()
+        del data['csrfmiddlewaretoken']
+        newdata = {}
+        def get_nd(d, keys):
+            for key in keys:
+                d = d[key]
+            return d
+
+        def set_nd(d, keys, value):
+            try:
+                d = get_nd(d, keys[:-1])
+            except KeyError as e:
+                set_nd(d, keys[:-1],{})
+                d = get_nd(d, keys[:-1])
+            d[keys[-1]] = value
+
+        for k in data:
+            val = data[k]
+            nk = k.strip('subs')
+            klist = []
+            i = nk.find(']')
+            while i>0:
+                klist.append(nk[1:i])
+                nk = nk[i+1:]
+                i = nk.find(']')
+            set_nd(newdata, klist, val)
+        if newdata:
+            data = json.dumps(newdata)
+            subs_qset = PushSubscription.objects.get_by_data(data=data)
+            print('------qset-----------------------------------------')
+            print(subs_qset)
+            subs_qset.all().delete()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'error':'No data'})
+    return HttpResponseForbidden('Nothing to see here')
+
+
 @permission_required('ipho_core.is_staff')
 def send_push(request):
     if not settings.ENABLE_PUSH:
@@ -155,6 +194,7 @@ def send_push(request):
     else:
         form = SendPushForm()
     return render(request, 'ipho_core/send_push.html', {'form':form})
+
 
 
 @permission_required('ipho_core.is_staff')

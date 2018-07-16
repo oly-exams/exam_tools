@@ -43,6 +43,7 @@ urlpatterns = patterns(
     url(r'^accounts/impersonate$', 'ipho_core.views.list_impersonate', name='impersonate'),
     url(r'^accounts/account_request$', 'ipho_core.views.account_request', name='account_request'),
     url(r'^push/subscription$', 'ipho_core.views.register_push_submission', name='push_submission'),
+    url(r'^push/unsubscribe$', 'ipho_core.views.delete_push_submission', name='push_unsub'),
     url(r'^push/send$', 'ipho_core.views.send_push', name='send_push'),
     url(r'^service_worker$', 'ipho_core.views.service_worker', name='service_worker'),
     url(r'^api/exam/', include('ipho_exam.urls_api', namespace='api-exam')),

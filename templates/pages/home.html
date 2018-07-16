@@ -282,7 +282,6 @@ function subscribeUser() {
 }
 $(document).ready(function() {
   checkStatus().then(function () {
-    console.log('then');
     {% if push %}
     subscribeUser();
     {% endif %}
