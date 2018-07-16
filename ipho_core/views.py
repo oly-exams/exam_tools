@@ -112,16 +112,18 @@ def register_push_submission(request):
                 klist.append(nk[1:i])
                 nk = nk[i+1:]
                 i = nk.find(']')
-            print(klist)
             set_nd(newdata, klist, val)
-        print(newdata)
         if newdata:
             user = request.user
 
             data = json.dumps(newdata)
-            print(newdata)
-            subs, cre = PushSubscription.objects.get_or_create(user=user, data=data)
-            subs.save()
+            print(data)
+            subs_qset = PushSubscription.objects.get_by_data(data=data)
+            print('------qset-----------------------------------------')
+            print(subs_qset)
+            if len(subs_qset) == 0:
+                subs = PushSubscription(user=user, data=data)
+                subs.save()
             return JsonResponse({'success': True})
         return JsonResponse({'success': False, 'error':'No data'})
     return HttpResponseForbidden('Nothing to see here')
