@@ -16,11 +16,43 @@ self.addEventListener('push', function(event) {
 
 self.addEventListener('notificationclick', function(event) {
   console.log('[Service Worker] Notification click Received.');
-
-  event.notification.close();
-  if(self.data['url']){
-    event.waitUntil(
-      clients.openWindow(self.data['url'])
-    );
-  }
+  event.waitUntil(
+    clients.matchAll({includeUncontrolled: true}).then(function(clientsArr){
+      console.log(clientsArr);
+      return new Promise(function(resolve){
+        var found = false;
+        var cli = 0;
+        for (i = 0; i < clientsArr.length; i++) {
+          console.log(clientsArr[i].url);
+          const url = new URL(clientsArr[i].url);
+          if (url.pathname === self.data['url']) {
+              // We already have a window to use, focus it.
+              console.log('found');
+              found = true;
+              cli = clientsArr[i];
+              resolve(cli);
+            }
+          }
+        resolve(0);
+      })
+    }).then(function(cli){
+      if (cli === 0) {
+        console.log('not found, opening');
+        console.log(self.data['url']);
+        // Create a new window.
+        event.waitUntil(
+          console.log(clients.openWindow(self.data['url']))
+        );
+      }else{
+        if (self.data['reload_client']) {
+          console.log('sending reload message');
+          cli.postMessage("reload");
+        }
+        console.log('focus');
+        event.waitUntil(
+          console.log(cli.focus())
+        );
+      }
+    })
+  );
 });

@@ -300,7 +300,7 @@ def setEndDate(request, question_pk):
                 if len(user.votingright_set.all()) > 0:
                     for sub in user.pushsubscription_set.all():
                         data = {'body':'A vote has just opened, click here to go to the voting page',
-                        'url':reverse('poll:voterIndex')}
+                        'url':reverse('poll:voterIndex'), 'reload_client':True}
                         try:
                             sub.send(data)
                         except WebPushException as ex:
