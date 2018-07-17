@@ -297,19 +297,28 @@ def setEndDate(request, question_pk):
 
         if settings.ENABLE_PUSH:
             #send push messages
+            data = {'body':'A vote has just opened, click here to go to the voting page',
+            'url':reverse('poll:voterIndex'), 'reload_client':True}
+            psub_list = []
+            import concurrent.futures
             for user in User.objects.all():
                 if len(user.votingright_set.all()) > 0:
-                    for sub in user.pushsubscription_set.all():
-                        data = {'body':'A vote has just opened, click here to go to the voting page',
-                        'url':reverse('poll:voterIndex'), 'reload_client':True}
-                        print(user, sub)
-                        def send_push():
-                            try:
-                                sub.send(data)
-                            except WebPushException as ex:
-                                #TODO: do some error handling?
-                                pass
-                        _thread.start_new_thread(send_push,())
+                    psub_list.extend(user.pushsubscription_set.all())
+            def send_push(sub):
+                try:
+                    sub.send(data)
+                except WebPushException as ex:
+                    #TODO: do some error handling?
+                    pass
+            #from multiprocessing import Pool
+            #func_list = map(send_push, psub_list)
+            #with Pool(processes=350) as pool:
+            #    res = pool.map_async(work, func_list, 1)
+            #    res.get(20)
+            if len(psub_list) > 700:
+                psub_list = psub_list[:700]
+            with concurrent.futures.ThreadPoolExecutor(max_workers=700) as executor:
+                executor.map(send_push, psub_list)
         return JsonResponse({
             'success': True,
             'message': '<strong> The voting is now open!</strong>',
