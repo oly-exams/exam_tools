@@ -37,5 +37,6 @@ urlpatterns = patterns(
 
     #delegation urls
     url(r'^$', 'voterIndex', name='voterIndex'),
+    url(r'^err/(?P<err_id>\d+)$', 'voterIndex', name='voterIndex_err'),
     url(r'^voted/$', 'voted', name='voted'),
 )

@@ -80,6 +80,19 @@ class ChoiceForm(ModelForm):
                 'maxlength': 3
             }),
         }
+    def __init__(self, *args, **kwargs):
+        super(ChoiceForm, self).__init__(*args, **kwargs)
+        try:
+            linit = kwargs['initial']['label']
+        except KeyError:
+            linit = ''
+        try:
+            linst = kwargs['instance'].label
+        except (KeyError, TypeError):
+            linst = ''
+        if linit == 'zab' or linst == 'zab':
+            self.fields['label'].widget.attrs['readonly'] = True
+            self.fields['choice_text'].widget.attrs['readonly'] = True
 
 
 class ChoiceFormHelper(FormHelper):
