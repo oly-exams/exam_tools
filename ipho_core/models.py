@@ -26,6 +26,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User, Group
 import uuid
 import json
+from pywebpush import webpush, WebPushException
+
 
 
 class IphoPerm(models.Model):
@@ -133,10 +135,10 @@ class PushSubscription(models.Model):
         return u'Push data of {}'.format(self.user)
 
     def send(self, data):
-        from pywebpush import webpush, WebPushException
-        import json
         sub_data = json.loads(self.data)
         claims = {'sub':'mailto:noreply@oly-exams.org'}
+        #import cProfile as profile
+        #profile.runctx('webpush(sub_data,json.dumps(data),vapid_claims=claims,vapid_private_key=settings.PUSH_PRIVATE_KEY,)', globals(), locals(),"webpush.prof")
         res = webpush(sub_data,
                     json.dumps(data),
                     vapid_claims=claims,

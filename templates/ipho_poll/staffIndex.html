@@ -189,6 +189,8 @@ $('document').ready(function(){
         event.preventDefault();
         var form = event.target;
         var $form = $(form);
+        $form.find(':submit').attr("disabled", true);
+        
         $.ajax({
             url: form.action,
             type: form.method,
@@ -197,6 +199,7 @@ $('document').ready(function(){
             processData: false,
             contentType: false,
             success: function(data) {
+                $form.find(':submit').attr("disabled", false);
                 if (!data['success']) {
                     $('#question-modal .modal-body').html(data['form']);
                     $('#question-modal .modal-body textarea').ckeditor();
@@ -242,7 +245,12 @@ $('document').ready(function(){
 
                     $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
                 }
-            }
+            },
+            error: function (jqXHR, exception) {
+              console.log(jqXHR);
+              console.log(exception);
+              $form.find(':submit').attr("disabled", false);
+            },
         });
     });
 

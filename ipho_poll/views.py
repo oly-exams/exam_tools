@@ -33,6 +33,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
 from pywebpush import WebPushException
+import _thread
 
 from dateutil import tz
 
@@ -301,11 +302,14 @@ def setEndDate(request, question_pk):
                     for sub in user.pushsubscription_set.all():
                         data = {'body':'A vote has just opened, click here to go to the voting page',
                         'url':reverse('poll:voterIndex'), 'reload_client':True}
-                        try:
-                            sub.send(data)
-                        except WebPushException as ex:
-                            #TODO: do some error handling?
-                            pass
+                        print(user, sub)
+                        def send_push():
+                            try:
+                                sub.send(data)
+                            except WebPushException as ex:
+                                #TODO: do some error handling?
+                                pass
+                        _thread.start_new_thread(send_push,())
         return JsonResponse({
             'success': True,
             'message': '<strong> The voting is now open!</strong>',

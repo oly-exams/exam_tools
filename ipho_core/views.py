@@ -20,6 +20,7 @@ from __future__ import division
 from builtins import range
 from past.utils import old_div
 import json
+import _thread
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
@@ -178,15 +179,19 @@ def send_push(request):
                 ulist = User.objects.all()
             else:
                 ulist = form.cleaned_data['users'].all()
+            data = {'body': form.cleaned_data['message']}
+            if form.cleaned_data['url']:
+                data['url'] = form.cleaned_data['url']
+
             for user in ulist:
                 for sub in user.pushsubscription_set.all():
-                    data = {'body': form.cleaned_data['message']}
-                    if form.cleaned_data['url']:
-                        data['url'] = form.cleaned_data['url']
-                    try:
-                        sub.send(data)
-                    except WebPushException as ex:
-                        pass
+                    def send_push():
+                        try:
+                            sub.send(data)
+                        except WebPushException as ex:
+                            pass
+                    _thread.start_new_thread(send_push,())
+            
         response = HttpResponse(content="", status=303)
         response["Location"] = reverse('send_push')
         return response
