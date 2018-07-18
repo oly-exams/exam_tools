@@ -19,15 +19,17 @@ from __future__ import division
 
 from builtins import range
 from past.utils import old_div
+import json
 from django.conf import settings
 from django.shortcuts import render, redirect
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth import authenticate, login
 from django.core.urlresolvers import reverse
+from pywebpush import WebPushException
 
-from ipho_core.models import AutoLogin, User
-from ipho_core.forms import AccountRequestForm
+from ipho_core.models import AutoLogin, User, PushSubscription
+from ipho_core.forms import AccountRequestForm, SendPushForm
 
 DEMO_MODE = getattr(settings, 'DEMO_MODE')
 DEMO_SIGN_UP = getattr(settings, 'DEMO_SIGN_UP')
@@ -75,6 +77,140 @@ def account_request(request):
         return redirect(redirect_to)
 
     return render(request, 'registration/account_request.html', {'form': form})
+
+@login_required
+def service_worker(request):
+    if request.method == 'GET':
+        return render(request, 'service_worker.js', content_type="application/x-javascript")
+    return HttpResponseForbidden('Nothing to see here')
+
+@login_required
+def register_push_submission(request):
+    if request.method == 'POST' and settings.ENABLE_PUSH:
+        data = request.POST.copy()
+        del data['csrfmiddlewaretoken']
+        newdata = {}
+        def get_nd(d, keys):
+            for key in keys:
+                d = d[key]
+            return d
+
+        def set_nd(d, keys, value):
+            try:
+                d = get_nd(d, keys[:-1])
+            except KeyError as e:
+                set_nd(d, keys[:-1],{})
+                d = get_nd(d, keys[:-1])
+            d[keys[-1]] = value
+
+        for k in data:
+            val = data[k]
+            nk = k.strip('subs')
+            klist = []
+            i = nk.find(']')
+            while i>0:
+                klist.append(nk[1:i])
+                nk = nk[i+1:]
+                i = nk.find(']')
+            set_nd(newdata, klist, val)
+        if newdata:
+            user = request.user
+
+            data = json.dumps(newdata)
+            print(data)
+            subs_qset = PushSubscription.objects.get_by_data(data=data)
+            print('------qset-----------------------------------------')
+            print(subs_qset)
+            if len(subs_qset) == 0:
+                subs = PushSubscription(user=user, data=data)
+                subs.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'error':'No data'})
+    return HttpResponseForbidden('Nothing to see here')
+
+def delete_push_submission(request):
+    if request.method == 'POST':
+        data = request.POST.copy()
+        del data['csrfmiddlewaretoken']
+        newdata = {}
+        def get_nd(d, keys):
+            for key in keys:
+                d = d[key]
+            return d
+
+        def set_nd(d, keys, value):
+            try:
+                d = get_nd(d, keys[:-1])
+            except KeyError as e:
+                set_nd(d, keys[:-1],{})
+                d = get_nd(d, keys[:-1])
+            d[keys[-1]] = value
+
+        for k in data:
+            val = data[k]
+            nk = k.strip('subs')
+            klist = []
+            i = nk.find(']')
+            while i>0:
+                klist.append(nk[1:i])
+                nk = nk[i+1:]
+                i = nk.find(']')
+            set_nd(newdata, klist, val)
+        if newdata:
+            data = json.dumps(newdata)
+            subs_qset = PushSubscription.objects.get_by_data(data=data)
+            print('------qset-----------------------------------------')
+            print(subs_qset)
+            subs_qset.all().delete()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'error':'No data'})
+    return HttpResponseForbidden('Nothing to see here')
+
+
+@permission_required('ipho_core.is_staff')
+def send_push(request):
+    if not settings.ENABLE_PUSH:
+        return HttpResponseForbidden('Push not enabled')
+    if request.method == 'POST':
+        form = SendPushForm(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['to_all']:
+                ulist = User.objects.all()
+            else:
+                ulist = form.cleaned_data['users'].all()
+            data = {'body': form.cleaned_data['message']}
+            if form.cleaned_data['url']:
+                data['url'] = form.cleaned_data['url']
+
+            psub_list = []
+            import concurrent.futures
+            for user in User.objects.all():
+                if len(user.votingright_set.all()) > 0:
+                    psub_list.extend(user.pushsubscription_set.all())
+            def send_push(sub):
+                try:
+                    sub.send(data)
+                except WebPushException as ex:
+                    #TODO: do some error handling?
+                    pass
+            #from multiprocessing import Pool
+            #func_list = map(send_push, psub_list)
+            #with Pool(processes=350) as pool:
+            #    res = pool.map_async(work, func_list, 1)
+            #    res.get(20)
+            if len(psub_list) > 700:
+                psub_list = psub_list[:700]
+            with concurrent.futures.ThreadPoolExecutor(max_workers=700) as executor:
+                executor.map(send_push, psub_list)
+
+        response = HttpResponse(content="", status=303)
+        response["Location"] = reverse('send_push')
+        return response
+
+    else:
+        form = SendPushForm()
+    return render(request, 'ipho_core/send_push.html', {'form':form})
+
 
 
 @permission_required('ipho_core.is_staff')

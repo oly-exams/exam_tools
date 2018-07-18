@@ -25,6 +25,9 @@ from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User, Group
 import uuid
+import json
+from pywebpush import webpush, WebPushException
+
 
 
 class IphoPerm(models.Model):
@@ -109,6 +112,39 @@ class Student(models.Model):
 
     def __str__(self):
         return u'{}'.format(self.code)
+
+class PushSubscriptionManager(models.Manager):
+    def get_by_data(self, data):
+        subs_list = super(PushSubscriptionManager, self).get_queryset().all()
+        def compare_json(d1, d2):
+            return json.loads(d1) == json.loads(d2)
+        pk_list = []
+        for subs in subs_list:
+            if compare_json(subs.data, data):
+                pk_list.append(subs.pk)
+        qset = super(PushSubscriptionManager, self).get_queryset().filter(pk__in=pk_list)
+        return qset
+
+class PushSubscription(models.Model):
+    user = models.ForeignKey(User)
+    data = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    objects = PushSubscriptionManager()
+    def __str__(self):
+        return u'Push data of {}'.format(self.user)
+
+    def send(self, data):
+        sub_data = json.loads(self.data)
+        claims = {'sub':'mailto:noreply@oly-exams.org'}
+        #import cProfile as profile
+        #profile.runctx('webpush(sub_data,json.dumps(data),vapid_claims=claims,vapid_private_key=settings.PUSH_PRIVATE_KEY,)', globals(), locals(),"webpush.prof")
+        res = webpush(sub_data,
+                    json.dumps(data),
+                    vapid_claims=claims,
+                    vapid_private_key=settings.PUSH_PRIVATE_KEY,
+                    )
+        return res
 
 
 @python_2_unicode_compatible

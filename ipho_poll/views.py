@@ -19,7 +19,7 @@ from __future__ import division
 from builtins import range
 from past.utils import old_div
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponseForbidden
+from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponseForbidden, HttpResponse
 from django.core.urlresolvers import reverse
 from django.core import serializers
 from django.core.context_processors import csrf
@@ -29,8 +29,11 @@ from crispy_forms.utils import render_crispy_form
 from django.forms import formset_factory, inlineformset_factory
 from django.template import RequestContext
 from django.core.exceptions import PermissionDenied
+from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
+from pywebpush import WebPushException
+import _thread
 
 from dateutil import tz
 
@@ -169,14 +172,14 @@ def addQuestion(request):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
     ChoiceFormset = inlineformset_factory(
-        Question, Choice, form=ChoiceForm, extra=0, can_delete=False, min_num=2, validate_min=True
+        Question, Choice, form=ChoiceForm, extra=1, can_delete=False, min_num=2, validate_min=True
     )
     if request.method == 'POST':
         questionForm = QuestionForm(request.POST, prefix='question')
         choiceFormset = ChoiceFormset(request.POST, prefix='choices')
     else:
         questionForm = QuestionForm(None, prefix='question')
-        choiceFormset = ChoiceFormset(None, prefix='choices')
+        choiceFormset = ChoiceFormset(None, prefix='choices', initial=[{},{}, {'label':'zab' ,'choice_text':'abstain from this vote'},])
     if questionForm.is_valid() and choiceFormset.is_valid():
         new_question = questionForm.save()
         for fb in Feedback.objects.filter(vote=new_question):
@@ -291,6 +294,31 @@ def setEndDate(request, question_pk):
         choice_text_list = []
         for choice in Choice.objects.filter(question=question):
             choice_text_list.append(choice.choice_text)
+
+        if settings.ENABLE_PUSH:
+            #send push messages
+            data = {'body':'A vote has just opened, click here to go to the voting page',
+            'url':reverse('poll:voterIndex'), 'reload_client':True}
+            psub_list = []
+            import concurrent.futures
+            for user in User.objects.all():
+                if len(user.votingright_set.all()) > 0:
+                    psub_list.extend(user.pushsubscription_set.all())
+            def send_push(sub):
+                try:
+                    sub.send(data)
+                except WebPushException as ex:
+                    #TODO: do some error handling?
+                    pass
+            #from multiprocessing import Pool
+            #func_list = map(send_push, psub_list)
+            #with Pool(processes=350) as pool:
+            #    res = pool.map_async(work, func_list, 1)
+            #    res.get(20)
+            if len(psub_list) > 700:
+                psub_list = psub_list[:700]
+            with concurrent.futures.ThreadPoolExecutor(max_workers=700) as executor:
+                executor.map(send_push, psub_list)
         return JsonResponse({
             'success': True,
             'message': '<strong> The voting is now open!</strong>',
@@ -344,7 +372,7 @@ def closeQuestion(request, question_pk):
 
 @login_required
 @ensure_csrf_cookie
-def voterIndex(request):
+def voterIndex(request, err_id=None):
     user = request.user
     if len(user.votingright_set.all()) <= 0:
         raise PermissionDenied
@@ -364,7 +392,7 @@ def voterIndex(request):
             postReqest,
             prefix='q{}'.format(question.pk),
             instance=question,
-            queryset=Vote.objects.filter(voting_right__user=user),
+            queryset=Vote.objects.none(),#.filter(voting_right__user=user),
             initial=[{
                 'voting_right': vt
             } for vt in voting_rights]
@@ -377,6 +405,11 @@ def voterIndex(request):
             just_voted += (question.pk, )
             return HttpResponseRedirect(reverse('poll:voted'))
 
+        elif request.method == 'POST':
+            response = HttpResponse(content="", status=303)
+            err_id = 42
+            response["Location"] = reverse('poll:voterIndex_err', args=(42, ))
+            return response
         else:
             formset_html_dict[question.pk] = render_crispy_form(voteFormset, helper=VoteFormHelper)
 
@@ -388,10 +421,15 @@ def voterIndex(request):
             'timestamp', 'part', 'comment'
         )
     unvoted_questions_list = [q for q in unvoted_questions_list if q.pk not in just_voted]
+    if err_id == '42':
+        err_msg = 'Vote could not be saved (did you try to override a vote ?), please try again.'
+    else:
+        err_msg = None
     return render(
         request, 'ipho_poll/voterIndex.html', {
             'unvoted_questions_list': unvoted_questions_list,
             'formset_list': formset_html_dict,
+            'err': err_msg
         }
     )
 

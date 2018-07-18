@@ -6,6 +6,7 @@ djangorestframework < 3.7
 django-rest-swagger
 django-polymorphic < 2
 django-dbbackup
+pywebpush
 CairoSVG==1.*
 hg+https://bitbucket.org/whitie/python-barcode
 PyPDF2

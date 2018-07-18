@@ -2230,6 +2230,7 @@ def bulk_print(request, page=None, tot_print=None):
             'ColourModel': form.cleaned_data['color'],
             'Staple': form.cleaned_data['staple'],
             'Duplex': form.cleaned_data['duplex'],
+            'num-copies': form.cleaned_data['copies'],
         }
         tot_printed = 0
         for pk in request.POST.getlist('printouts[]', []):
@@ -2252,7 +2253,13 @@ def bulk_print(request, page=None, tot_print=None):
             page = 1
         response["Location"] = reverse('exam:bulk-print_prg', args=(page, tot_printed))
         return response
-
+    elif request.method == 'POST':
+        messages = [m for m in messages if m[0] != 'alert-success']
+        messages.append((
+            'alert-danger',
+            '<strong>No jobs sent</strong> Invalid form, please check below'
+        ))
+    print(messages)
     all_docs = Document.objects.filter(
         student__delegation=filter_dg,
         exam=filter_ex,

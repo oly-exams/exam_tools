@@ -30,6 +30,7 @@ import decimal
 from django.core.exceptions import ValidationError
 
 from ipho_exam.models import Language, Question, Student, Figure, VersionNode, TranslationNode, PDFNode, Feedback, StudentSubmission, TranslationImportTmp, Document
+from ipho_print import printer
 
 
 def build_extension_validator(valid_extensions):
@@ -425,21 +426,36 @@ class PrintDocsForm(forms.Form):
     duplex = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('DuplexNoTumble', 'Yes')])
     color = forms.ChoiceField(initial='Colour', choices=[('Colour', 'Yes'), ('Grayscale', 'No')])
     staple = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('1PLU', 'Yes')])
-
+    copies = forms.IntegerField(initial=1, min_value=1, max_value=10)
     def __init__(self, *args, **kwargs):
         queue_list = kwargs.pop('queue_list')
         super(PrintDocsForm, self).__init__(*args, **kwargs)
 
         self.fields['queue'].choices = queue_list
+        default_opts = printer.default_opts()
+        opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
+        for k in opts_map:
+            self.fields[k].initial = default_opts[opts_map[k]]
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field('queue'), Field('duplex'), Field('color'), Field('staple'), FormActions(Submit('submit', 'Print'))
+            Field('queue'), Field('duplex'), Field('color'), Field('staple'), Field('copies'), FormActions(Submit('submit', 'Print'))
         )
 
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.form_tag = False
+
+    def clean(self):
+        cleaned_data = super(PrintDocsForm, self).clean()
+        queue = cleaned_data.get("queue")
+        allowed_opts = printer.allowed_opts(queue)
+        opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
+        for k in opts_map:
+            if cleaned_data.get(k) not in ['None', 'Grayscale']:
+                if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
+                    msg = 'The current printer does not support this option.'
+                    self.add_error(k, msg)
 
 
 class ScanForm(forms.Form):

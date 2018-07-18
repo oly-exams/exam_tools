@@ -18,6 +18,7 @@
 from __future__ import absolute_import
 
 from django.conf.urls import patterns, include, url
+from django.conf import settings
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -30,7 +31,7 @@ urlpatterns = patterns(
     # Examples:
     # url(r'^$', 'exam_tools.views.home', name='home'),
     # url(r'^exam_tools/', include('exam_tools.foo.urls')),
-    url(r'^/?$', static_views.render_page, {'p': 'pages/home.html'}, name='home'),
+    url(r'^/?$', static_views.render_page, {'p': 'pages/home.html', 'context':{'push':settings.ENABLE_PUSH, 'push_key':settings.PUSH_PUBLIC_KEY}}, name='home'),
     url(r'^exam/', include('ipho_exam.urls', namespace='exam')),
     url(r'^poll/', include('ipho_poll.urls', namespace='poll')),
     url(r'^marking/', include('ipho_marking.urls', namespace='marking')),
@@ -41,6 +42,10 @@ urlpatterns = patterns(
     url(r'^accounts/autologin/(?P<token>[0-9a-z\-]+)/?$', 'ipho_core.views.autologin', name='autologin'),
     url(r'^accounts/impersonate$', 'ipho_core.views.list_impersonate', name='impersonate'),
     url(r'^accounts/account_request$', 'ipho_core.views.account_request', name='account_request'),
+    url(r'^push/subscription$', 'ipho_core.views.register_push_submission', name='push_submission'),
+    url(r'^push/unsubscribe$', 'ipho_core.views.delete_push_submission', name='push_unsub'),
+    url(r'^push/send$', 'ipho_core.views.send_push', name='send_push'),
+    url(r'^service_worker$', 'ipho_core.views.service_worker', name='service_worker'),
     url(r'^api/exam/', include('ipho_exam.urls_api', namespace='api-exam')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

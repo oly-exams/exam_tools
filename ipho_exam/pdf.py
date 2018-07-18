@@ -172,8 +172,10 @@ def check_add_watermark(request, doc):
     Checks if the 'delegation print' watermark needs to be added to the document,
     and return the appropriate PDF (with / without watermark).
     """
-    if settings.ADD_DELEGATION_WATERMARK and not request.user.is_staff:
-        return add_watermark(doc)
+    if settings.ADD_DELEGATION_WATERMARK:
+        user = request.user
+        if not (user.is_staff or user.has_perm('ipho_core.is_printstaff') or user.has_perm('ipho_core.is_marker')):
+            return add_watermark(doc)
     return doc
 
 

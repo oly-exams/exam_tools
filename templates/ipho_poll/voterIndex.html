@@ -11,9 +11,15 @@
         <div class="alert alert-warning">
             <strong>Votes can not be changed once submitted. The two Leaders are advised to vote together from the same laptop.</strong>
         </div>
+        {% if err %}
+        <div class="alert alert-danger">
+            <strong>{{ err }}</strong>
+        </div>
+        {% endif %}
     </div>
 
     <div id="alerts-container"></div>
+
     {% if not unvoted_questions_list%}
         <div class="alert alert-danger">
             <strong>Sorry but there are no votings at the moment.</strong>
@@ -156,5 +162,16 @@ $('document').ready(function(){
   $(".math-tex").each(content2math);
 
 });
+
+if('serviceWorker' in navigator){
+    // Handler for messages coming from the service worker
+    navigator.serviceWorker.addEventListener('message', function(event){
+        if(event.data=='reload'){
+          location.reload();
+        }
+    });
+}
+
+
 </script>
 {% endblock %}

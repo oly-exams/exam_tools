@@ -55,7 +55,7 @@
         <h2 class="form-signin-heading">Please sign in</h2>
         <input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
         <input type="password" name="password" class="form-control" placeholder="Password" required>
-        
+
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
         <input type="hidden" name="next" value="{{ next }}" />
         {% if DEMO_SIGN_UP %}
@@ -77,4 +77,53 @@
 </tr>
 </table> -->
 
+{% endblock %}
+
+{% block extra-script %}
+<script>
+$(document).ready(function() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register("{% url 'service_worker' %}", { scope: '/' }).then(function(registration) {
+      //get registration object
+      //console.log('Registration succeeded.');
+      console.log(registration)
+      registration.pushManager.getSubscription().then(function(pushSubscription){
+        data = {};
+        data.subs = pushSubscription.toJSON();
+        console.log(data);
+        data.csrfmiddlewaretoken = '{{ csrf_token }}';
+        $.ajax({
+            url: "{% url 'push_unsub' %}",
+            type: 'POST',
+            data: data,
+            success: function(data) {
+                pushSubscription.unsubscribe().then(function(boolean) {
+                  if(boolean){
+                    console.log('unsub local');
+                  }else{
+                    console.log('could not unsubscribe local')
+                  }
+                });
+                if (!data['success']) {
+                    console.log('could not be unsubscribed server');
+                    console.log(data);
+                }
+          }
+        });
+      });
+      registration.unregister().then(function(boolean) {
+        if(boolean){
+          console.log('service Worker unregistered on logout');
+        }else {
+          console.log('service Worker could not be unregistered');
+        }
+      });
+    }).catch(function(error) {
+      // registration failed
+      console.log('Registration failed with ' + error);
+    });
+
+  };
+});
+</script>
 {% endblock %}
