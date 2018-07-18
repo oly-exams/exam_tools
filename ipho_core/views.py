@@ -178,15 +178,31 @@ def send_push(request):
                 ulist = User.objects.all()
             else:
                 ulist = form.cleaned_data['users'].all()
-            for user in ulist:
-                for sub in user.pushsubscription_set.all():
-                    data = {'body': form.cleaned_data['message']}
-                    if form.cleaned_data['url']:
-                        data['url'] = form.cleaned_data['url']
-                    try:
-                        sub.send(data)
-                    except WebPushException as ex:
-                        pass
+            data = {'body': form.cleaned_data['message']}
+            if form.cleaned_data['url']:
+                data['url'] = form.cleaned_data['url']
+
+            psub_list = []
+            import concurrent.futures
+            for user in User.objects.all():
+                if len(user.votingright_set.all()) > 0:
+                    psub_list.extend(user.pushsubscription_set.all())
+            def send_push(sub):
+                try:
+                    sub.send(data)
+                except WebPushException as ex:
+                    #TODO: do some error handling?
+                    pass
+            #from multiprocessing import Pool
+            #func_list = map(send_push, psub_list)
+            #with Pool(processes=350) as pool:
+            #    res = pool.map_async(work, func_list, 1)
+            #    res.get(20)
+            if len(psub_list) > 700:
+                psub_list = psub_list[:700]
+            with concurrent.futures.ThreadPoolExecutor(max_workers=700) as executor:
+                executor.map(send_push, psub_list)
+
         response = HttpResponse(content="", status=303)
         response["Location"] = reverse('send_push')
         return response
