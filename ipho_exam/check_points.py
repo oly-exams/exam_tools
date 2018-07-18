@@ -20,10 +20,10 @@
 from decimal import Decimal
 
 from ipho_exam import qquery
-from ipho_exam.models import Exam, Question
+from ipho_exam.models import Question
 from ipho_exam.qml import QMLquestion, QMLpart, QMLsubquestion, QMLsubanswer, make_qml
 
-__all__ = ['check_question', 'check_exam', 'check_question_answer_consistency', 'check_sum_consistency']
+__all__ = ['check_version', 'check_exam', 'check_question_answer_consistency', 'check_sum_consistency']
 
 OFFICIAL_LANGUAGE_PK = 1
 
@@ -43,7 +43,7 @@ def check_version(version):
     check_sum_consistency(version)
     other_code = ({'Q', 'A'} - {code}).pop()
     other_question = Question.objects.get(exam=question.exam, code=other_code, position=question.position)
-    other_version = qquery.latest_version(other_question, lang_id=OFFICIAL_LANGUAGE_PK).node
+    other_version = qquery.latest_version(other_question.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
     check_question_answer_consistency(version, other_version)
 
 def check_exam(exam):
@@ -53,8 +53,8 @@ def check_exam(exam):
     """
     all_questions = Question.objects.filter(exam=exam, code__in=['Q', 'A']).order_by('position')
     for q1, q2 in zip(all_questions[::2], all_questions[1::2]):
-        version_1 = qquery.latest_version(q1, lang_id=OFFICIAL_LANGUAGE_PK).node
-        version_2 = qquery.latest_version(q2, lang_id=OFFICIAL_LANGUAGE_PK).node
+        version_1 = qquery.latest_version(q1.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
+        version_2 = qquery.latest_version(q2.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
         check_sum_consistency(version_1)
         check_sum_consistency(version_2)
         check_question_answer_consistency(version_1, version_2)
@@ -77,7 +77,7 @@ def check_question_answer_consistency(version_node_1, version_node_2):
     if len(flat_nodes_1) != len(flat_nodes_2):
         raise PointValidationError(
             "'{}' and '{}' in '{}' do not have the same number of objects with a 'points' attribute ({}, {})".format(
-                q1.name, q2.name, q1.exam.name, len(flat_nodes_1), len(flat_nodes_2)
+                version_node_1.question.name, version_node_2.question.name, version_node_1.question.exam.name, len(flat_nodes_1), len(flat_nodes_2)
             )
         )
     for node1, node2 in zip(flat_nodes_1, flat_nodes_2):
@@ -100,7 +100,7 @@ def check_sum_consistency(version_node):
     qml_tree = make_qml(version_node)
 
     nested_nodes = _get_nested_nodes(qml_tree)
-    print(_check_nested_sum_consistency(nested_nodes))
+    _check_nested_sum_consistency(nested_nodes)
 
 
 def _get_nested_nodes(qml_node):

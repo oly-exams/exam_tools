@@ -195,6 +195,17 @@ class DeleteForm(forms.Form):
 
     verify = forms.CharField(max_length=100, label='Please type in the name of the question to confirm.')
 
+class PublishForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(PublishForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.helper.disable_csrf = True
+
+    # Cannot have a completely empty form
+    hidden_input = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 class VersionNodeForm(ModelForm):
     def __init__(self, *args, **kwargs):

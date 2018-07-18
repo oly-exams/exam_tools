@@ -39,6 +39,7 @@ from django.template.loader import render_to_string
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
 from django.db.models.functions import Lower
 from django.template.defaultfilters import slugify
+from django.utils.html import escape
 
 import os
 from copy import deepcopy
@@ -55,8 +56,9 @@ from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNo
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
+from ipho_exam import check_points
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, ExamQuestionForm, DeleteForm, VersionNodeForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, ExamQuestionForm, DeleteForm, VersionNodeForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm, PublishForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -1156,14 +1158,56 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     question = get_object_or_404(Question, id=question_id)
     lang = get_object_or_404(Language, id=lang_id)
 
-    if lang.versioned:
-        node = get_object_or_404(VersionNode, question=question, language=lang, status='S', version=version_num)
-    else:
-        node = get_object_or_404(TranslationNode, question=question, language=lang)
+    assert lang.versioned
 
-    node.status = 'C'
-    node.save()
-    return HttpResponseRedirect(reverse('exam:admin'))
+    node = get_object_or_404(VersionNode, question=question, language=lang, status='S', version=version_num)
+
+    publish_form = PublishForm(request.POST or None)
+    if publish_form.is_valid():
+        node.status = 'C'
+        node.save()
+
+        exam_id = node.question.exam.id
+        return JsonResponse({
+            'type':
+            'submit',
+            'success':
+            True,
+            'message':
+            '<strong>Version published!</strong>',
+            'exam_id':
+            exam_id,
+        })
+
+    else:
+        form_html = render_crispy_form(publish_form)
+        try:
+            print('check start')
+            check_points.check_version(node)
+            print('check success')
+        except check_points.PointValidationError as exc:
+            print('check message', str(exc))
+            check_message = "<div>Point check identified the following issue:</div><div><strong>" + escape(str(exc)) + "</strong></div><div>Publish anyway?</div>"
+            return JsonResponse({
+                        'title'   : 'Inconsistent Points',
+                        'form' : check_message + form_html,
+                        'success' : False,
+                    })
+        except Exception as exc:
+            print(exc)
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({
+                'title': 'Error in point check.',
+                'form': '<div>An error has occurred while checking the points consistency.</div><div>Publish anyway?</div>' + form_html,
+                'success': False
+            })
+        check_message = 'The points are consistent with the corresponding question / answer sheet.'
+        return JsonResponse({
+            'title' : 'Point check successful!',
+            'form' : check_message + form_html,
+            'success' : False
+        })
 
 
 @permission_required('ipho_core.is_staff')
