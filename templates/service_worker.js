@@ -35,8 +35,7 @@ self.addEventListener('push', function(event) {
         cli.postMessage("reload");
       }
     }
-  })
-  );
+  });
 });
 
 self.addEventListener('notificationclick', function(event) {
@@ -69,9 +68,9 @@ self.addEventListener('notificationclick', function(event) {
           console.log(clients.openWindow(self.data['url']))
         );
       }else{
-        //if (self.data['reload_client']) {
-        //  console.log('sending reload message');
-        //  cli.postMessage("reload");
+        if (self.data['reload_client']) {
+          console.log('sending reload message');
+          cli.postMessage("reload");
         }
         console.log('focus');
         event.waitUntil(

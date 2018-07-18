@@ -179,7 +179,7 @@ def addQuestion(request):
         choiceFormset = ChoiceFormset(request.POST, prefix='choices')
     else:
         questionForm = QuestionForm(None, prefix='question')
-        choiceFormset = ChoiceFormset(None, prefix='choices', initial=[{},{}, {'label':'zab' ,'choice_text':'abstain from this vote'},])
+        choiceFormset = ChoiceFormset(None, prefix='choices', initial=[{},{}, {'label':'zab' ,'choice_text':'Abstain from this voting.'},])
     if questionForm.is_valid() and choiceFormset.is_valid():
         new_question = questionForm.save()
         for fb in Feedback.objects.filter(vote=new_question):
@@ -297,7 +297,7 @@ def setEndDate(request, question_pk):
 
         if settings.ENABLE_PUSH:
             #send push messages
-            data = {'body':'A vote has just opened, click here to go to the voting page',
+            data = {'body':'A voting has just opened, click here to go to the voting page',
             'url':reverse('poll:voterIndex'), 'reload_client':True}
             psub_list = []
             import concurrent.futures
