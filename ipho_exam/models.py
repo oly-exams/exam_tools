@@ -331,6 +331,11 @@ class TranslationImportTmp(models.Model):
         return u'%s - %s, %s' % (self.slug, self.question, self.language)
 
 
+
+VALID_RAW_FIGURE_EXTENSIONS = ( '.png', '.jpg', '.jpeg')
+VALID_COMPILED_FIGURE_EXTENSIONS = ('.svg', '.svgz' )
+VALID_FIGURE_EXTENSIONS = VALID_RAW_FIGURE_EXTENSIONS + VALID_COMPILED_FIGURE_EXTENSIONS
+
 class FigureManager(PolymorphicManager):
     def get_by_natural_key(self, fig_id):
         return self.get(fig_id=fig_id)
