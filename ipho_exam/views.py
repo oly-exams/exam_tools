@@ -22,6 +22,7 @@ from builtins import object
 from builtins import str, chr
 
 import logging
+import traceback
 
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
@@ -66,6 +67,7 @@ import celery
 from celery.result import AsyncResult
 
 logger = logging.getLogger('ipho_exam')
+django_logger = logging.getLogger('django.request')
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
@@ -1182,21 +1184,19 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     else:
         form_html = render_crispy_form(publish_form)
         try:
-            print('check start')
             check_points.check_version(node)
-            print('check success')
         except check_points.PointValidationError as exc:
-            print('check message', str(exc))
             check_message = "<div>Point check identified the following issue:</div><div><strong>" + escape(str(exc)) + "</strong></div><div>Publish anyway?</div>"
             return JsonResponse({
                         'title'   : 'Inconsistent Points',
                         'form' : check_message + form_html,
                         'success' : False,
                     })
-        except Exception as exc:
-            print(exc)
-            import traceback
-            traceback.print_exc()
+        except Exception:
+            error_msg = 'Error in checking points:\n{}'.format(traceback.format_exc())
+            logger.error(error_msg)
+            # to send e-mails
+            django_logger.error(error_msg)
             return JsonResponse({
                 'title': 'Error in point check.',
                 'form': '<div>An error has occurred while checking the points consistency.</div><div>Publish anyway?</div>' + form_html,
