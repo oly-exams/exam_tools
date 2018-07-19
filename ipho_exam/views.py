@@ -779,6 +779,7 @@ def figure_edit(request, fig_id):
     form = FigureForm(request.POST or None, request.FILES or None, instance=instance, valid_extensions=valid_extensions)
     if form.is_valid():
         obj = form.save(commit=False)
+        ext = os.path.splitext(str(request.FILES['file']))[1]
         if 'file' in request.FILES:
             if compiled:
                 obj.content = request.FILES['file'].read()
@@ -787,6 +788,7 @@ def figure_edit(request, fig_id):
                 obj.save()
             else:
                 obj.content = request.FILES['file'].read()
+                obj.filetype = ext
                 obj.save()
 
         return JsonResponse({
