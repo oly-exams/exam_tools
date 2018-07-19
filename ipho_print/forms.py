@@ -47,7 +47,7 @@ class PrintForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         queue_list = kwargs.pop('queue_list')
-        enable_opts = kwargs.pop('enable_opts') if 'enable_opts' in kwargs else False
+        self.enable_opts = kwargs.pop('enable_opts') if 'enable_opts' in kwargs else False
         super(PrintForm, self).__init__(*args, **kwargs)
 
         self.fields['queue'].choices = queue_list
@@ -55,12 +55,9 @@ class PrintForm(forms.Form):
         opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
         for k in opts_map:
             self.fields[k].initial = default_opts[opts_map[k]]
-        for k in opts_map:
-            print(k)
-            print(self.fields[k].initial)
-
+        
         self.helper = FormHelper()
-        if enable_opts:
+        if self.enable_opts:
             self.helper.layout = Layout(
                 Field('file'), Field('queue'), Field('duplex'), Field('color'), Field('staple'),
                 FormActions(Submit('submit', 'Submit'))
@@ -80,5 +77,9 @@ class PrintForm(forms.Form):
         for k in opts_map:
             if cleaned_data.get(k) not in ['None', 'Grayscale']:
                 if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
-                    msg = 'The current printer does not support this option.'
-                    self.add_error(k, msg)
+                    if self.enable_opts:
+                        msg = 'The current printer does not support this option.'
+                        self.add_error(k, msg)
+                    else:
+                        cleaned_data[k] = allowed_opts[opts_map[k]]
+        return cleaned_data

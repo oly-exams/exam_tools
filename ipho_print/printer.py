@@ -57,8 +57,12 @@ def send2queue(file, queue, user=None, user_opts={}):
     data = {}
     if user is not None:
         data['user'] = user.username
-    opts = deepcopy(PRINTER_QUEUES[queue]['opts'])
+    opts = deepcopy(default_opts())
     opts.update(user_opts)
+    al_opts = allowed_opts(queue)
+    for k in al_opts:
+        if opts.get(k) not in ['None', 'Grayscale'] and opts.get(k) != al_opts[k]:
+            opts[k] = al_opts[k]
     data['opts'] = json.dumps(opts)
     r = requests.post(url, files=files, headers=headers, data=data)
     if r.status_code == 200:

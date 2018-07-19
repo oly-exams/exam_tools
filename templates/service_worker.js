@@ -11,7 +11,31 @@ self.addEventListener('push', function(event) {
     //badge: event.data['badge']
   };
 
+
   event.waitUntil(self.registration.showNotification(title, options));
+  clients.matchAll({includeUncontrolled: true}).then(function(clientsArr){
+    console.log(clientsArr);
+    return new Promise(function(resolve){
+      var cli = 0;
+      for (i = 0; i < clientsArr.length; i++) {
+        const url = new URL(clientsArr[i].url);
+        if (url.pathname === self.data['url']) {
+            cli = clientsArr[i];
+            resolve(cli);
+          }
+        }
+      resolve(0);
+    })
+  }).then(function(cli){
+    if (cli === 0) {
+    }else{
+      if (self.data['reload_client']) {
+        //TODO: test
+        console.log('sending reload message');
+        cli.postMessage("reload");
+      }
+    }
+  });
 });
 
 self.addEventListener('notificationclick', function(event) {
