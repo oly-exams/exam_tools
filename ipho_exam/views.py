@@ -2275,7 +2275,7 @@ def bulk_print(request, page=None, tot_print=None):
             'Staple': form.cleaned_data['staple'],
             'Duplex': form.cleaned_data['duplex'],
             'copies': str(form.cleaned_data['copies']),
-            'collate': 'true',
+            'Collate': 'True',
         }
         tot_printed = 0
         for pk in request.POST.getlist('printouts[]', []):
