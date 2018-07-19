@@ -1171,14 +1171,10 @@ def admin_publish_version(request, exam_id, question_id, version_num):
 
         exam_id = node.question.exam.id
         return JsonResponse({
-            'type':
-            'submit',
-            'success':
-            True,
-            'message':
-            '<strong>Version published!</strong>',
-            'exam_id':
-            exam_id,
+            'type': 'submit',
+            'success': True,
+            'message': '<strong>Version published!</strong>',
+            'exam_id': exam_id,
         })
 
     else:
@@ -1186,28 +1182,30 @@ def admin_publish_version(request, exam_id, question_id, version_num):
         try:
             check_points.check_version(node)
         except check_points.PointValidationError as exc:
-            check_message = "<div>Point check identified the following issue:</div><div><strong>" + escape(str(exc)) + "</strong></div><div>Publish anyway?</div>"
+            check_message = "<div>Point check identified the following issue:</div><div><strong>" + escape(
+                str(exc)
+            ) + "</strong></div><div>Publish anyway?</div>"
             return JsonResponse({
-                        'title'   : 'Inconsistent Points',
-                        'form' : check_message + form_html,
-                        'success' : False,
-                    })
+                'title': 'Inconsistent Points',
+                'form': check_message + form_html,
+                'success': False,
+            })
         except Exception:
             error_msg = 'Error in checking points:\n{}'.format(traceback.format_exc())
             logger.error(error_msg)
             # to send e-mails
             django_logger.error(error_msg)
             return JsonResponse({
-                'title': 'Error in point check.',
-                'form': '<div>An error has occurred while checking the points consistency.</div><div>Publish anyway?</div>' + form_html,
-                'success': False
+                'title':
+                'Error in point check.',
+                'form':
+                '<div>An error has occurred while checking the points consistency.</div><div>Publish anyway?</div>' +
+                form_html,
+                'success':
+                False
             })
         check_message = 'The points are consistent with the corresponding question / answer sheet.'
-        return JsonResponse({
-            'title' : 'Point check successful!',
-            'form' : check_message + form_html,
-            'success' : False
-        })
+        return JsonResponse({'title': 'Point check successful!', 'form': check_message + form_html, 'success': False})
 
 
 @permission_required('ipho_core.is_staff')
@@ -2299,10 +2297,7 @@ def bulk_print(request, page=None, tot_print=None):
         return response
     elif request.method == 'POST':
         messages = [m for m in messages if m[0] != 'alert-success']
-        messages.append((
-            'alert-danger',
-            '<strong>No jobs sent</strong> Invalid form, please check below'
-        ))
+        messages.append(('alert-danger', '<strong>No jobs sent</strong> Invalid form, please check below'))
     print(messages)
     all_docs = Document.objects.filter(
         student__delegation=filter_dg,

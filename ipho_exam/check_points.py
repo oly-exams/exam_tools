@@ -29,8 +29,10 @@ OFFICIAL_LANGUAGE_PK = 1
 
 NESTING_LEVELS = [(QMLquestion), (QMLpart), (QMLsubquestion, QMLsubanswer)]
 
+
 class PointValidationError(ValueError):
     pass
+
 
 def check_version(version):
     """
@@ -46,9 +48,12 @@ def check_version(version):
         other_question = Question.objects.get(exam=question.exam, code=other_code, position=question.position)
     except Question.DoesNotExist:
         q_type = {'Q': 'question', 'A': 'answer'}
-        raise PointValidationError('The {} sheet corresponding to this {} does not exist'.format(q_type[other_code], q_type[code]))
+        raise PointValidationError(
+            'The {} sheet corresponding to this {} does not exist'.format(q_type[other_code], q_type[code])
+        )
     other_version = qquery.latest_version(other_question.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
     check_question_answer_consistency(version, other_version)
+
 
 def check_exam(exam):
     """
@@ -81,7 +86,8 @@ def check_question_answer_consistency(version_node_1, version_node_2):
     if len(flat_nodes_1) != len(flat_nodes_2):
         raise PointValidationError(
             "'{}' and '{}' in '{}' do not have the same number of objects with a 'points' attribute ({}, {})".format(
-                version_node_1.question.name, version_node_2.question.name, version_node_1.question.exam.name, len(flat_nodes_1), len(flat_nodes_2)
+                version_node_1.question.name, version_node_2.question.name, version_node_1.question.exam.name,
+                len(flat_nodes_1), len(flat_nodes_2)
             )
         )
     for node1, node2 in zip(flat_nodes_1, flat_nodes_2):
