@@ -27,9 +27,13 @@ import urllib.request, urllib.parse, urllib.error
 from future.standard_library import install_aliases
 install_aliases()
 
+from ipho_exam.models import Delegation
+
 SUCCESS = 0
 FAILED = 1
 PRINTER_QUEUES = getattr(settings, 'PRINTER_QUEUES')
+
+OFFICIAL_DELEGATION = Delegation.objects.get_by_natural_key('Official')
 
 
 class PrinterError(RuntimeError):
@@ -72,7 +76,10 @@ def send2queue(file, queue, user=None, user_opts={}):
     opts = deepcopy(default_opts())
     opts.update(user_opts)
     al_opts = allowed_opts(queue)
-    if user.has_perm('ipho_core.is_delegation') and getattr(settings, 'ADD_DELEGATION_PRINT_BANNER', False):
+    if (
+        getattr(settings, 'ADD_DELEGATION_PRINT_BANNER', False)
+        and (user.has_perm('ipho_core.is_delegation') and user not in OFFICIAL_DELEGATION.members.all())
+    ):
         title = 'DELEGATION: {}'.format(user.username)
         add_banner_page = True
     else:
