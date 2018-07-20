@@ -74,11 +74,15 @@ def send2queue(file, queue, user=None, user_opts={}):
     al_opts = allowed_opts(queue)
     if user.has_perm('ipho_core.is_delegation') and getattr(settings, 'ADD_DELEGATION_PRINT_BANNER', False):
         title = 'DELEGATION: {}'.format(user.username)
+        add_banner_page = True
+    else:
+        title = 'IPhO Print'
+        add_banner_page = False
     for k in al_opts:
         if opts.get(k) not in ['None', 'Grayscale'] and opts.get(k) != al_opts[k]:
             opts[k] = al_opts[k]
     data['opts'] = json.dumps(opts)
-    r = requests.post(url, files=files, headers=headers, data=data, title=title)
+    r = requests.post(url, files=files, headers=headers, data=data, title=title, add_banner_page=add_banner_page)
     if r.status_code == 200:
         return SUCCESS
     else:
