@@ -91,8 +91,8 @@ def check_question_answer_consistency(version_node_1, version_node_2):
             )
         )
     for node1, node2 in zip(flat_nodes_1, flat_nodes_2):
-        p1 = Decimal(node1.attributes['points'])
-        p2 = Decimal(node2.attributes['points'])
+        p1 = _get_points(node1)
+        p2 = _get_points(node2)
         if p1 != p2:
             raise PointValidationError(
                 "The number of points of {} '{}' ({}) and {} '{}' ({}) do not match".format(
@@ -166,7 +166,7 @@ def _check_nested_sum_consistency(root_dict):
 
 
 def _check_sum_consistency_recursive(root_node, children_dict):
-    root_points = Decimal(root_node.attributes['points'])
+    root_points = _get_points(root_node)
     if children_dict:
         sum_points = sum(_check_sum_consistency_recursive(key, value) for key, value in children_dict.items())
         if sum_points != root_points:
@@ -176,3 +176,12 @@ def _check_sum_consistency_recursive(root_node, children_dict):
                 )
             )
     return root_points
+
+
+def _get_points(node):
+    try:
+        return Decimal(node.attributes['points'])
+    except KeyError:
+        raise PointValidationError(
+            "{} {} is missing the 'points' attribute.".format(type(node).display_name, node.attributes['id'])
+        )
