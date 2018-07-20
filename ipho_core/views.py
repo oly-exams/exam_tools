@@ -36,7 +36,6 @@ DEMO_SIGN_UP = getattr(settings, 'DEMO_SIGN_UP')
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 
-
 def any_permission_required(*args):
     """
     A decorator which checks user has any of the given permissions.
@@ -80,11 +79,13 @@ def account_request(request):
 
     return render(request, 'registration/account_request.html', {'form': form})
 
+
 @login_required
 def service_worker(request):
     if request.method == 'GET':
         return render(request, 'service_worker.js', content_type="application/x-javascript")
     return HttpResponseForbidden('Nothing to see here')
+
 
 @login_required
 def register_push_submission(request):
@@ -92,6 +93,7 @@ def register_push_submission(request):
         data = request.POST.copy()
         del data['csrfmiddlewaretoken']
         newdata = {}
+
         def get_nd(d, keys):
             for key in keys:
                 d = d[key]
@@ -101,7 +103,7 @@ def register_push_submission(request):
             try:
                 d = get_nd(d, keys[:-1])
             except KeyError as e:
-                set_nd(d, keys[:-1],{})
+                set_nd(d, keys[:-1], {})
                 d = get_nd(d, keys[:-1])
             d[keys[-1]] = value
 
@@ -110,9 +112,9 @@ def register_push_submission(request):
             nk = k.strip('subs')
             klist = []
             i = nk.find(']')
-            while i>0:
+            while i > 0:
                 klist.append(nk[1:i])
-                nk = nk[i+1:]
+                nk = nk[i + 1:]
                 i = nk.find(']')
             set_nd(newdata, klist, val)
         if newdata:
@@ -127,14 +129,16 @@ def register_push_submission(request):
                 subs = PushSubscription(user=user, data=data)
                 subs.save()
             return JsonResponse({'success': True})
-        return JsonResponse({'success': False, 'error':'No data'})
+        return JsonResponse({'success': False, 'error': 'No data'})
     return HttpResponseForbidden('Nothing to see here')
+
 
 def delete_push_submission(request):
     if request.method == 'POST':
         data = request.POST.copy()
         del data['csrfmiddlewaretoken']
         newdata = {}
+
         def get_nd(d, keys):
             for key in keys:
                 d = d[key]
@@ -144,7 +148,7 @@ def delete_push_submission(request):
             try:
                 d = get_nd(d, keys[:-1])
             except KeyError as e:
-                set_nd(d, keys[:-1],{})
+                set_nd(d, keys[:-1], {})
                 d = get_nd(d, keys[:-1])
             d[keys[-1]] = value
 
@@ -153,9 +157,9 @@ def delete_push_submission(request):
             nk = k.strip('subs')
             klist = []
             i = nk.find(']')
-            while i>0:
+            while i > 0:
                 klist.append(nk[1:i])
-                nk = nk[i+1:]
+                nk = nk[i + 1:]
                 i = nk.find(']')
             set_nd(newdata, klist, val)
         if newdata:
@@ -165,7 +169,7 @@ def delete_push_submission(request):
             print(subs_qset)
             subs_qset.all().delete()
             return JsonResponse({'success': True})
-        return JsonResponse({'success': False, 'error':'No data'})
+        return JsonResponse({'success': False, 'error': 'No data'})
     return HttpResponseForbidden('Nothing to see here')
 
 
@@ -188,12 +192,14 @@ def send_push(request):
             import concurrent.futures
             for user in User.objects.all():
                 psub_list.extend(user.pushsubscription_set.all())
+
             def send_push(sub):
                 try:
                     sub.send(data)
                 except WebPushException as ex:
                     #TODO: do some error handling?
                     pass
+
             #from multiprocessing import Pool
             #func_list = map(send_push, psub_list)
             #with Pool(processes=350) as pool:
@@ -210,7 +216,8 @@ def send_push(request):
 
     else:
         form = SendPushForm()
-    return render(request, 'ipho_core/send_push.html', {'form':form})
+    return render(request, 'ipho_core/send_push.html', {'form': form})
+
 
 @permission_required('ipho_core.is_staff')
 def random_draw(request):
@@ -222,7 +229,6 @@ def random_draw(request):
         all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION)
         all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION).exclude(pk__in=drawn_delegations)
         all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION).all()
-
 
         all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION).exclude(pk__in=drawn_delegations).all()
 
@@ -236,15 +242,17 @@ def random_draw(request):
             drawn_del = temp_del
         RandomDrawLog(drawn_del).save()
         msg = '!!!!!! You have Won Chocolate !!!!!! <br> Please come to the Oly-Exams table to collect your prize.'
-        link = ''# TODO: reverse('')
-        data = {'body':msg, 'url':link}
+        link = ''  # TODO: reverse('')
+        data = {'body': msg, 'url': link}
         for s in subs_list:
             s.send(data)
 
-        return HttpResponse('{} was drawn as a winner, {} notifications have been sent'.format(drawn_del.country, len(subs_list)))
+        return HttpResponse(
+            '{} was drawn as a winner, {} notifications have been sent'.format(drawn_del.country, len(subs_list))
+        )
     else:
         form = RandomDrawForm()
-    return render(request, 'ipho_core/random_draw.html', {'form':form})
+    return render(request, 'ipho_core/random_draw.html', {'form': form})
 
 
 @permission_required('ipho_core.is_staff')
@@ -254,3 +262,17 @@ def list_impersonate(request):
     chunk_size = max(old_div(len(users), 6) + 1, 1)
     grouped_users = [users[x:x + chunk_size] for x in range(0, len(users), chunk_size)]
     return render(request, 'ipho_core/impersonate.html', {'grouped_users': grouped_users})
+
+
+def chocobunny(request):
+    delegation = Delegation.objects.filter(members=request.user).first()
+    if delegation is None:
+        name = request.user.username
+        message = "Wait, you're not in a delegation.. how did you get here?"
+    else:
+        name = delegation.country
+        if delegation.country.lower() == 'switzerland':
+            message = 'Bring the cholocate to the OlyExams desk!'
+        else:
+            message = 'Collect your chocolate at the OlyExams desk.'
+    return render(request, 'ipho_core/bunny.html', {'name': name, 'message': message})
