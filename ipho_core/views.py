@@ -236,7 +236,10 @@ def random_draw(request):
             else:
                 drawn_del = temp_del
         RandomDrawLog(delegation = drawn_del).save()
-        msg = '!!!!!! You have Won Chocolate !!!!!!     Please come to the Oly-Exams table to collect your prize.'
+        if 'switzerland' in draw_del.country.lower():
+            msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
+        else:
+            msg = '!!!!!! You have Won Chocolate !!!!!!     Please come to the Oly-Exams table to collect your prize.'
         link = ''# TODO: reverse('')
         data = {'body':msg, 'url':link}
         for s in subs_list:
