@@ -117,10 +117,10 @@ def register_push_submission(request):
             user = request.user
 
             data = json.dumps(newdata)
-            print(data)
+            #print(data)
             subs_qset = PushSubscription.objects.get_by_data(data=data)
-            print('------qset-----------------------------------------')
-            print(subs_qset)
+            #print('------qset-----------------------------------------')
+            #print(subs_qset)
             if len(subs_qset) == 0:
                 subs = PushSubscription(user=user, data=data)
                 subs.save()

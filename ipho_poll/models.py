@@ -114,6 +114,8 @@ class Choice(models.Model):
     choice_text = models.CharField(max_length=200)
 
     def __str__(self):
+        if self.label == 'zzz' and 'abstain' in self.choice_text.lower():
+            return self.choice_text
         return '{}. {}'.format(self.label, self.choice_text)
 
     def calculateVotes(self):

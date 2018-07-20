@@ -54,6 +54,7 @@ from django.conf import settings
 from ipho_core.views import any_permission_required
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, CompiledFigure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog, Place
+from ipho_exam.models import VALID_RAW_FIGURE_EXTENSIONS, VALID_COMPILED_FIGURE_EXTENSIONS, VALID_FIGURE_EXTENSIONS
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
@@ -720,17 +721,26 @@ def figure_add(request):
         obj = form.save(commit=False)
         ext = os.path.splitext(str(request.FILES['file']))[1]
 
-        if ext in ['.svg', '.svgz']:
+        if ext in VALID_COMPILED_FIGURE_EXTENSIONS:
             obj = CompiledFigure.objects.create(name=obj.name)
             obj.content = str(request.FILES['file'].read(), 'utf-8')
             placeholders = figparam_placeholder.findall(obj.content)
             obj.params = ','.join(placeholders)
             obj.save()
-        else:
+        elif VALID_RAW_FIGURE_EXTENSIONS:
             obj = RawFigure.objects.create(name=obj.name)
             obj.content = request.FILES['file'].read()
             obj.filetype = ext.lstrip('.')
             obj.save()
+        else:
+            form.add_error('file', 'Invalid extension.')
+            form_html = render_crispy_form(form)
+            return JsonResponse({
+                'title': 'Add new figure',
+                'form': form_html,
+                'submit': 'Upload',
+                'success': False,
+            })
 
         return JsonResponse({
             'type': 'add',
@@ -761,14 +771,15 @@ def figure_edit(request, fig_id):
     instance = get_object_or_404(Figure, fig_id=fig_id)
     if isinstance(instance, RawFigure):
         compiled = False
-        valid_extensions = ('.' + instance.filetype, )
+        valid_extensions = VALID_RAW_FIGURE_EXTENSIONS
     elif isinstance(instance, CompiledFigure):
         compiled = True
-        valid_extensions = ('.svg', '.svgz')
+        valid_extensions = VALID_COMPILED_FIGURE_EXTENSIONS
     # The 'else' case should produce an error, since Figures should never be neither Raw nor Compiled.
     form = FigureForm(request.POST or None, request.FILES or None, instance=instance, valid_extensions=valid_extensions)
     if form.is_valid():
         obj = form.save(commit=False)
+        ext = os.path.splitext(str(request.FILES['file']))[1]
         if 'file' in request.FILES:
             if compiled:
                 obj.content = request.FILES['file'].read()
@@ -777,6 +788,7 @@ def figure_edit(request, fig_id):
                 obj.save()
             else:
                 obj.content = request.FILES['file'].read()
+                obj.filetype = ext
                 obj.save()
 
         return JsonResponse({

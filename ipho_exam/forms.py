@@ -30,6 +30,7 @@ import decimal
 from django.core.exceptions import ValidationError
 
 from ipho_exam.models import Language, Question, Student, Figure, VersionNode, TranslationNode, PDFNode, Feedback, StudentSubmission, TranslationImportTmp, Document
+from ipho_exam.models import VALID_FIGURE_EXTENSIONS
 from ipho_print import printer
 
 
@@ -113,7 +114,7 @@ class LanguageForm(ModelForm):
 
 class FigureForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        valid_extensions = kwargs.pop('valid_extensions', ('.svg', '.svgz', '.png', '.jpg', '.jpeg'))
+        valid_extensions = kwargs.pop('valid_extensions', VALID_FIGURE_EXTENSIONS)
         super(FigureForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
         self.fields['file'] = forms.FileField(
