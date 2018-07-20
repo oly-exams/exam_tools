@@ -47,6 +47,7 @@ urlpatterns = patterns(
     url(r'^push/send$', 'ipho_core.views.send_push', name='send_push'),
     url(r'^service_worker$', 'ipho_core.views.service_worker', name='service_worker'),
     url(r'^api/exam/', include('ipho_exam.urls_api', namespace='api-exam')),
+    url(r'^easter$', 'ipho_core.views.random_draw', name='random-draw'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

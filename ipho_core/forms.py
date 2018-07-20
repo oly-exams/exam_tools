@@ -62,3 +62,13 @@ class SendPushForm(forms.Form):
     to_all = forms.BooleanField(required=False, label='send to all users (choose individual users below)')
     message = forms.CharField(label='Message to send')
     url = forms.URLField(label='url to redirect users to', required=False)
+
+class RandomDrawForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(RandomDrawForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(Field('do_it'), FormActions(Submit('submit', 'Submit')),)
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+
+    do_it = forms.BooleanField()

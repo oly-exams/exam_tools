@@ -158,3 +158,8 @@ class AccountRequest(models.Model):
 
     def __str__(self):
         return u'{} ({}) - {}'.format(self.email, self.user, self.timestamp)
+
+
+class RandomDrawLog(models.Model):
+    delegation = models.ForeignKey(Delegation)
+    timestamp = models.DateTimeField(auto_now=True)

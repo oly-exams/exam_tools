@@ -28,11 +28,13 @@ from django.contrib.auth import authenticate, login
 from django.core.urlresolvers import reverse
 from pywebpush import WebPushException
 
-from ipho_core.models import AutoLogin, User, PushSubscription
-from ipho_core.forms import AccountRequestForm, SendPushForm
+from ipho_core.models import AutoLogin, User, PushSubscription, RandomDrawLog, Delegation
+from ipho_core.forms import AccountRequestForm, SendPushForm, RandomDrawForm
 
 DEMO_MODE = getattr(settings, 'DEMO_MODE')
 DEMO_SIGN_UP = getattr(settings, 'DEMO_SIGN_UP')
+OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
+
 
 
 def any_permission_required(*args):
@@ -185,8 +187,7 @@ def send_push(request):
             psub_list = []
             import concurrent.futures
             for user in User.objects.all():
-                if len(user.votingright_set.all()) > 0:
-                    psub_list.extend(user.pushsubscription_set.all())
+                psub_list.extend(user.pushsubscription_set.all())
             def send_push(sub):
                 try:
                     sub.send(data)
@@ -211,6 +212,39 @@ def send_push(request):
         form = SendPushForm()
     return render(request, 'ipho_core/send_push.html', {'form':form})
 
+@permission_required('ipho_core.is_staff')
+def random_draw(request):
+    if not request.user.is_superuser:
+        return HttpResponse('It is not easter yet.')
+    if request.method == 'POST':
+        import random
+        drawn_delegations = RandomDrawLog.objects.values_list('delegation__pk', flat=True)
+        all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION)
+        all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION).exclude(pk__in=drawn_delegations)
+        all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION).all()
+
+
+        all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION).exclude(pk__in=drawn_delegations).all()
+
+        while not drawn_del:
+            if len(delegation_all) == 0:
+                return HttpResponse('Easter is over.')
+            temp_del = all_delegations[random.randint(len(all_delegations))]
+            subs_list = [u.pushsubscription_set.all() for u in temp_del.members.all()]
+            if len(subs_list) == 0:
+                all_delegations.remove(temp_del)
+            drawn_del = temp_del
+        RandomDrawLog(drawn_del).save()
+        msg = '!!!!!! You have Won Chocolate !!!!!! <br> Please come to the Oly-Exams table to collect your prize.'
+        link = ''# TODO: reverse('')
+        data = {'body':msg, 'url':link}
+        for s in subs_list:
+            s.send(data)
+
+        return HttpResponse('{} was drawn as a winner, {} notifications have been sent'.format(drawn_del.country, len(subs_list)))
+    else:
+        form = RandomDrawForm()
+    return render(request, 'ipho_core/random_draw.html', {'form':form})
 
 
 @permission_required('ipho_core.is_staff')
