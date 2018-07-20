@@ -226,22 +226,28 @@ def random_draw(request):
     if request.method == 'POST':
         import random
         drawn_delegations = RandomDrawLog.objects.values_list('delegation__pk', flat=True)
-        all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION)
-        all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION).exclude(pk__in=drawn_delegations)
-        all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION).all()
 
-        all_delegations = Delegation.objects.exclude(OFFICIAL_DELEGATION).exclude(pk__in=drawn_delegations).all()
-
+        off_pk = Delegation.objects.get_by_natural_key(OFFICIAL_DELEGATION).pk
+        exclude_delegations = list(drawn_delegations.all())
+        exclude_delegations.append(off_pk)
+        all_delegations = list(Delegation.objects.exclude(pk__in=exclude_delegations).all())
+        drawn_del = None
         while not drawn_del:
-            if len(delegation_all) == 0:
+            if len(all_delegations) == 0:
                 return HttpResponse('Easter is over.')
-            temp_del = all_delegations[random.randint(len(all_delegations))]
-            subs_list = [u.pushsubscription_set.all() for u in temp_del.members.all()]
+            temp_del = all_delegations[random.randrange(0, len(all_delegations))]
+            subs_list = []
+            for u in temp_del.members.all():
+                subs_list.extend(u.pushsubscription_set.all())
             if len(subs_list) == 0:
                 all_delegations.remove(temp_del)
-            drawn_del = temp_del
-        RandomDrawLog(drawn_del).save()
-        msg = '!!!!!! You have Won Chocolate !!!!!! <br> Please come to the Oly-Exams table to collect your prize.'
+            else:
+                drawn_del = temp_del
+        RandomDrawLog(delegation=drawn_del).save()
+        if 'switzerland' in draw_del.country.lower():
+            msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
+        else:
+            msg = '!!!!!! You have Won Chocolate !!!!!!     Please come to the Oly-Exams table to collect your prize.'
         link = ''  # TODO: reverse('')
         data = {'body': msg, 'url': link}
         for s in subs_list:

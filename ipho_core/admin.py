@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib import admin
-from ipho_core.models import Delegation, Student, AutoLogin, AccountRequest, PushSubscription
+from ipho_core.models import Delegation, Student, AutoLogin, AccountRequest, PushSubscription, RandomDrawLog
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
@@ -69,3 +69,4 @@ admin.site.register(Delegation, DelegationAdmin)
 admin.site.register(Student, StudentAdmin)
 admin.site.register(AccountRequest, AccountRequestAdmin)
 admin.site.register(PushSubscription, PushSubscriptionAdmin)
+admin.site.register(RandomDrawLog)
