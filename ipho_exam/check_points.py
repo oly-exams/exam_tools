@@ -96,8 +96,8 @@ def check_question_answer_consistency(version_node_1, version_node_2):
         if p1 != p2:
             raise PointValidationError(
                 "The number of points of {} '{}' ({}) and {} '{}' ({}) do not match".format(
-                    type(node1).default_heading, node1.attributes['id'], p1,
-                    type(node2).default_heading, node2.attributes['id'], p2
+                    _get_type_name(node1), node1.attributes['id'], p1,
+                    _get_type_name(node2), node2.attributes['id'], p2
                 )
             )
 
@@ -172,7 +172,7 @@ def _check_sum_consistency_recursive(root_node, children_dict):
         if sum_points != root_points:
             raise PointValidationError(
                 "The number of points for {} '{}' ({}) does not match the sum of its sub-parts ({})".format(
-                    type(root_node).default_heading, root_node.attributes['id'], root_points, sum_points
+                    _get_type_name(root_node), root_node.attributes['id'], root_points, sum_points
                 )
             )
     return root_points
@@ -183,5 +183,9 @@ def _get_points(node):
         return Decimal(node.attributes['points'])
     except KeyError:
         raise PointValidationError(
-            "{} {} is missing the 'points' attribute.".format(type(node).default_heading, node.attributes['id'])
+            "{} {} is missing the 'points' attribute.".format(_get_type_name(node), node.attributes['id'])
         )
+
+def _get_type_name(node):
+    cls = type(node)
+    return cls.default_heading or cls.display_name
