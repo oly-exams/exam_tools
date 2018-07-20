@@ -33,8 +33,6 @@ SUCCESS = 0
 FAILED = 1
 PRINTER_QUEUES = getattr(settings, 'PRINTER_QUEUES')
 
-OFFICIAL_DELEGATION = Delegation.objects.get_by_natural_key('Official')
-
 
 class PrinterError(RuntimeError):
     def __init__(self, msg):
@@ -77,8 +75,10 @@ def send2queue(file, queue, user=None, user_opts={}):
     opts.update(user_opts)
     al_opts = allowed_opts(queue)
     if (
-        getattr(settings, 'ADD_DELEGATION_PRINT_BANNER', False)
-        and (user.has_perm('ipho_core.is_delegation') and user not in OFFICIAL_DELEGATION.members.all())
+        getattr(settings, 'ADD_DELEGATION_PRINT_BANNER', False) and (
+            user.has_perm('ipho_core.is_delegation')
+            and user not in Delegation.objects.get_by_natural_key(settings.OFFICIAL_DELEGATION).members.all()
+        )
     ):
         title = 'DELEGATION: {}'.format(user.username)
         add_banner_page = True
