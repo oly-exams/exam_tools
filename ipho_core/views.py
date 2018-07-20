@@ -248,7 +248,7 @@ def random_draw(request):
             msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
         else:
             msg = '!!!!!! You have Won Chocolate !!!!!!     Please come to the Oly-Exams table to collect your prize.'
-        link = ''  # TODO: reverse('')
+        link = reverse('chocobunny')
         data = {'body': msg, 'url': link}
         for s in subs_list:
             s.send(data)
