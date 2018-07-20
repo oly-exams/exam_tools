@@ -31,7 +31,17 @@ urlpatterns = patterns(
     # Examples:
     # url(r'^$', 'exam_tools.views.home', name='home'),
     # url(r'^exam_tools/', include('exam_tools.foo.urls')),
-    url(r'^/?$', static_views.render_page, {'p': 'pages/home.html', 'context':{'push':settings.ENABLE_PUSH, 'push_key':settings.PUSH_PUBLIC_KEY}}, name='home'),
+    url(
+        r'^/?$',
+        static_views.render_page, {
+            'p': 'pages/home.html',
+            'context': {
+                'push': settings.ENABLE_PUSH,
+                'push_key': settings.PUSH_PUBLIC_KEY
+            }
+        },
+        name='home'
+    ),
     url(r'^exam/', include('ipho_exam.urls', namespace='exam')),
     url(r'^poll/', include('ipho_poll.urls', namespace='poll')),
     url(r'^marking/', include('ipho_marking.urls', namespace='marking')),
@@ -47,6 +57,8 @@ urlpatterns = patterns(
     url(r'^push/send$', 'ipho_core.views.send_push', name='send_push'),
     url(r'^service_worker$', 'ipho_core.views.service_worker', name='service_worker'),
     url(r'^api/exam/', include('ipho_exam.urls_api', namespace='api-exam')),
+    url(r'^easter$', 'ipho_core.views.random_draw', name='random-draw'),
+    url(r'^chocobunny$', 'ipho_core.views.chocobunny', name='chocobunny'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
