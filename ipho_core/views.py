@@ -270,6 +270,7 @@ def list_impersonate(request):
     return render(request, 'ipho_core/impersonate.html', {'grouped_users': grouped_users})
 
 
+@login_required
 def chocobunny(request):
     delegation = Delegation.objects.filter(members=request.user).first()
     if delegation is None:
@@ -277,8 +278,11 @@ def chocobunny(request):
         message = "Wait, you're not in a delegation.. how did you get here?"
     else:
         name = delegation.country
-        if delegation.country.lower() == 'switzerland':
-            message = 'Bring the cholocate to the OlyExams desk!'
+        if RandomDrawLog.objects.filter(delegation=delegation).exists():
+            if delegation.country.lower() == 'switzerland':
+                message = 'Bring the cholocate to the OlyExams desk!'
+            else:
+                message = 'Collect your chocolate at the OlyExams desk.'
         else:
-            message = 'Collect your chocolate at the OlyExams desk.'
+            message = "Wait.. you didn't actually win! This incident will be reported!!"
     return render(request, 'ipho_core/bunny.html', {'name': name, 'message': message})
