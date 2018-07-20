@@ -51,11 +51,14 @@ class PrintForm(forms.Form):
         super(PrintForm, self).__init__(*args, **kwargs)
 
         self.fields['queue'].choices = queue_list
-        default_opts = printer.default_opts()
+        if self.enable_opts:
+            default_opts = printer.default_opts()
+        else:
+            default_opts = printer.delegation_opts()
         opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
         for k in opts_map:
             self.fields[k].initial = default_opts[opts_map[k]]
-        
+
         self.helper = FormHelper()
         if self.enable_opts:
             self.helper.layout = Layout(

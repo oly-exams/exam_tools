@@ -50,6 +50,13 @@ def default_opts():
         opts = {'Duplex': 'None', 'ColourModel': 'Grayscale', 'Staple': 'None'}
     return opts
 
+def delegation_opts():
+    try:
+        opts = getattr(settings, 'PRINTER_DELEGATION_OPTS')
+    except AttributeError:
+        opts = {'Duplex': 'DuplexNoTumble', 'ColourModel': 'Grayscale', 'Staple': 'None'}
+    return opts
+
 def send2queue(file, queue, user=None, user_opts={}):
     url = 'http://{host}/print/{queue}'.format(**PRINTER_QUEUES[queue])
     files = {'file': (urllib.parse.quote(os.path.basename(file.name)), file, 'application/pdf')}
