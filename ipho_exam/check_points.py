@@ -49,9 +49,12 @@ def check_version(version):
     except Question.DoesNotExist:
         q_type = {'Q': 'question', 'A': 'answer'}
         raise PointValidationError(
-            'The {} sheet corresponding to this {} does not exist'.format(q_type[other_code], q_type[code])
+            'The {} sheet corresponding to this {} does not exist.'.format(q_type[other_code], q_type[code])
         )
-    other_version = qquery.latest_version(other_question.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
+    try:
+        other_version = qquery.latest_version(other_question.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
+    except IndexError:
+        raise PointValidationError('The {} sheet corresponding to this {} does not have a published version.'.format(q_type[other_code], q_type[code]))
     check_question_answer_consistency(version, other_version)
 
 
@@ -96,8 +99,7 @@ def check_question_answer_consistency(version_node_1, version_node_2):
         if p1 != p2:
             raise PointValidationError(
                 "The number of points of {} '{}' ({}) and {} '{}' ({}) do not match".format(
-                    _get_type_name(node1), node1.attributes['id'], p1,
-                    _get_type_name(node2), node2.attributes['id'], p2
+                    _get_type_name(node1), node1.attributes['id'], p1, _get_type_name(node2), node2.attributes['id'], p2
                 )
             )
 
@@ -185,6 +187,7 @@ def _get_points(node):
         raise PointValidationError(
             "{} {} is missing the 'points' attribute.".format(_get_type_name(node), node.attributes['id'])
         )
+
 
 def _get_type_name(node):
     cls = type(node)
