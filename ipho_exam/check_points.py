@@ -44,17 +44,21 @@ def check_version(version):
         return
     check_sum_consistency(version)
     other_code = ({'Q', 'A'} - {code}).pop()
+    q_type = {'Q': 'question', 'A': 'answer'}
     try:
         other_question = Question.objects.get(exam=question.exam, code=other_code, position=question.position)
     except Question.DoesNotExist:
-        q_type = {'Q': 'question', 'A': 'answer'}
         raise PointValidationError(
             'The {} sheet corresponding to this {} does not exist.'.format(q_type[other_code], q_type[code])
         )
     try:
         other_version = qquery.latest_version(other_question.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
     except IndexError:
-        raise PointValidationError('The {} sheet corresponding to this {} does not have a published version.'.format(q_type[other_code], q_type[code]))
+        raise PointValidationError(
+            'The {} sheet corresponding to this {} does not have a published version.'.format(
+                q_type[other_code], q_type[code]
+            )
+        )
     check_question_answer_consistency(version, other_version)
 
 
