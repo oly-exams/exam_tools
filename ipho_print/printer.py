@@ -82,7 +82,9 @@ def send2queue(file, queue, user=None, user_opts={}):
         if opts.get(k) not in ['None', 'Grayscale'] and opts.get(k) != al_opts[k]:
             opts[k] = al_opts[k]
     data['opts'] = json.dumps(opts)
-    r = requests.post(url, files=files, headers=headers, data=data, title=title, add_banner_page=add_banner_page)
+    data['title'] = json.dumps(title)
+    data['add_banner_page'] = json.dumps(add_banner_page)
+    r = requests.post(url, files=files, headers=headers, data=data)
     if r.status_code == 200:
         return SUCCESS
     else:
