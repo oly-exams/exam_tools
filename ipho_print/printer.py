@@ -72,7 +72,7 @@ def send2queue(file, queue, user=None, user_opts={}):
     opts = deepcopy(default_opts())
     opts.update(user_opts)
     al_opts = allowed_opts(queue)
-    if user.has_perm('ipho_core.is_delegation') and getattr(settings, 'DELEGATION_PRINT_COVERSHEET', False):
+    if user.has_perm('ipho_core.is_delegation') and getattr(settings, 'ADD_DELEGATION_PRINT_BANNER', False):
         title = 'DELEGATION: {}'.format(user.username)
     for k in al_opts:
         if opts.get(k) not in ['None', 'Grayscale'] and opts.get(k) != al_opts[k]:
