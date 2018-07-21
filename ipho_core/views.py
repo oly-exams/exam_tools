@@ -271,6 +271,7 @@ def list_impersonate(request):
 
 @login_required
 def chocobunny(request):
+    print('Yay, chocolate!')
     delegation = Delegation.objects.filter(members=request.user).first()
     if delegation is None:
         name = request.user.username

@@ -571,12 +571,61 @@ def edit_language(request, lang_id):
 def feedbacks_list(request):
     exam_list = Exam.objects.filter(hidden=False, active=True)
     delegation = Delegation.objects.filter(members=request.user)
+    delegations = Delegation.objects.all()
+
+    questions_f = Question.objects.filter(exam=exam_list).all()
+    def get_or_none(model, *args, **kwargs):
+        try:
+            return model.objects.get(*args, **kwargs)
+        except model.DoesNotExist:
+            return None
+
+    status_list = Feedback.STATUS_CHOICES
+    filter_st = [s[0] for s in status_list]
+    status = request.GET.get('st', None)
+    display_status = None
+    if status is not None:
+        status = status.rstrip('/')
+        display_status = dict(Feedback.STATUS_CHOICES)[status]
+        filter_st = status
+
+    filter_qu = questions_f
+    qf_pk = request.GET.get('qu', None)
+    if qf_pk is not None:
+        qf_pk = qf_pk.rstrip('/')
+    question_f = get_or_none(Question, pk=qf_pk)
+    if question_f is not None:
+        filter_qu = question_f
+
+    class url_builder(object):
+        def __init__(self, base_url, get={}):
+            self.url = base_url
+            self.get = get
+
+        def __call__(self, **kwargs):
+            qdict = QueryDict('', mutable=True)
+            for k, v in list(self.get.items()):
+                qdict[k] = v
+            for k, v in list(kwargs.items()):
+                if v is None:
+                    if k in qdict: del qdict[k]
+                else:
+                    qdict[k] = v
+            url = self.url + '?' + qdict.urlencode()
+            return url
+
+
 
     if 'exam_id' in request.GET:
         if not int(request.GET['exam_id']) in [ex.pk for ex in exam_list]:
             raise Http404('Not such active exam.')
+
+
         questions = Question.objects.filter(exam=request.GET['exam_id'])
-        feedbacks = Feedback.objects.filter(question=questions).annotate(
+        feedbacks = Feedback.objects.filter(question=questions
+            ).filter(
+            status__in=filter_st, question=filter_qu,
+            ).annotate(
             num_likes=Sum(Case(When(like__status='L', then=1), output_field=IntegerField())),
             num_unlikes=Sum(Case(When(like__status='U', then=1), output_field=IntegerField())),
             delegation_likes=Sum(
@@ -587,6 +636,7 @@ def feedbacks_list(request):
             'question__feedback_active', 'delegation__name', 'delegation__country', 'status', 'timestamp', 'part',
             'comment'
         ).order_by('question__position')
+
         choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
         for fb in feedbacks:
             fb['status_display'] = choices[fb['status']]
@@ -594,6 +644,7 @@ def feedbacks_list(request):
                ] = (fb['delegation_likes'] == 0) and fb['question__feedback_active'] and len(delegation) > 0
         feedbacks = list(feedbacks)
         feedbacks.sort(key=lambda fb: (fb['question__pk'], Feedback.part_id(fb['part'])))
+
         return render(
             request, 'ipho_exam/partials/feedbacks_tbody.html', {
                 'feedbacks': feedbacks,
@@ -606,7 +657,12 @@ def feedbacks_list(request):
         return render(
             request, 'ipho_exam/feedbacks.html', {
                 'exam_list': exam_list,
+                'status':display_status,
+                'status_choices': Feedback.STATUS_CHOICES,
+                'question':question_f,
+                'questions':questions_f,
                 'is_delegation': len(delegation) > 0 or request.user.has_perm('ipho_core.is_staff'),
+                'this_url_builder': url_builder(reverse('exam:feedbacks-list'), request.GET),
             }
         )
 

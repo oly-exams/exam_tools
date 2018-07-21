@@ -1,5 +1,7 @@
 {% extends "ipho_exam/base.html" %}
 {% load static %}
+{% load exam_utils_tags %}
+{% load crispy_forms_tags %}
 
 {% block extra-head %}
 <style>
@@ -49,6 +51,45 @@
 
     <div id="alerts-container"></div>
 
+
+    <div>
+          <div class="dropdown div-inline">
+            <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+          {% if status %}
+              {{ status }}
+          {% else %}
+              Filter Status
+          {% endif %}
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="{% this_url st=None %}">-- None --</a></li>
+          {% for st in status_choices %}
+              <li {% if status == st %} class="active" {% endif %}><a href="{% this_url st=st.0 %}">{{ st.1 }}</a></li>
+          {% endfor %}
+            </ul>
+          </div>
+   
+          <div class="dropdown div-inline">
+            <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+          {% if question %}
+              {{ question.name }}
+          {% else %}
+              Filter Question
+          {% endif %}
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="{% this_url qu=None %}">-- None --</a></li>
+          {% for qu in questions %}
+              <li {% if question == qu %} class="active" {% endif %}><a href="{% this_url qu=qu.pk %}">{{ qu.name }}</a></li>
+          {% endfor %}
+            </ul>
+          </div>
+    </div>
+  </br>
+
+
     {% for ex in exam_list %}
     <h3>
         {{ ex.name }}
@@ -62,7 +103,7 @@
           <th>Status</th>
           <th>Delegation</th>
           <th>Question</th>
-          <th></th>
+          <th>Part</th>
           <th>Comment</th>
           <th>Timestamp</th>
           <th style="width:170px">Actions</th>
@@ -159,7 +200,7 @@ $(function() {
     function update_feedbacks(tid) {
         $.ajax({
             method: "GET",
-            url: "{% url 'exam:feedbacks-list' %}/",
+            url: "{% this_url %}/",
             data:{exam_id:tid},
             dataType: "html",
         }).done(function( data ) {
