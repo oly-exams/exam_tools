@@ -60,13 +60,12 @@ def compile_tex_diff(old_body, new_body, ext_resources=[]):
         with codecs.open(os.path.join(tmpdir, 'old.tex'), "w", encoding='utf-8') as f:
             f.write(old_body)
         diff_body = subprocess.check_output(
-            ['latexdiff', 'old.tex', 'new.tex'],
+            ['latexdiff', '--encoding=utf-8', 'old.tex', 'new.tex'],
             cwd=tmpdir,
             env={
                 'PATH': '{}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(TEXBIN)
             },
         ).decode('utf-8')
-        print(diff_body)
     finally:
         shutil.rmtree(tmpdir)
     return compile_tex(diff_body, ext_resources=ext_resources)
