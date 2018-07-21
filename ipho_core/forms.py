@@ -55,7 +55,7 @@ class SendPushForm(forms.Form):
         self.helper.html5_required = True
         self.helper.form_show_labels = True
 
-    users = forms.ModelMultipleChoiceField(queryset=User.objects.exclude(is_superuser=True).all(),
+    users = forms.ModelMultipleChoiceField(queryset=User.objects.exclude(is_superuser=True).order_by('username').all(),
             label="select users", required = False,
             widget=forms.widgets.CheckboxSelectMultiple,
             )
