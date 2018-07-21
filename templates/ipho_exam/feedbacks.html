@@ -52,8 +52,8 @@
     <div id="alerts-container"></div>
 
 
-    <div>
-          <div class="dropdown div-inline">
+    <div style="">
+          <div class="dropdown div-inline" style="float: left;" >
             <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
           {% if status %}
               {{ status }}
@@ -69,8 +69,8 @@
           {% endfor %}
             </ul>
           </div>
-   
-          <div class="dropdown div-inline">
+
+          <div class="dropdown div-inline" style="float: left; padding-left: 5px;">
             <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
           {% if question %}
               {{ question.name }}
