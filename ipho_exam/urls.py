@@ -80,11 +80,6 @@ urlpatterns = patterns(
         name='pdf-version'
     ),
     url(
-        r'^pdf-diff/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<new_version_num>\d+)$',
-        'compiled_question_diff',
-        name='pdfdiff-version-previous'
-    ),
-    url(
         r'^pdf-diff/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<old_version_num>\d+)/v(?P<new_version_num>\d+)$',
         'compiled_question_diff',
         name='pdfdiff-version'
