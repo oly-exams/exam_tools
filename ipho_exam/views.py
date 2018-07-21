@@ -2079,6 +2079,74 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         return HttpResponse(e.log, content_type="text/plain")
 
 
+@permission_required('ipho_core.is_staff')
+def compiled_question_diff(request, question_id, lang_id, old_version_num=None, new_version_num=None):
+    if not Question.objects.get(pk=question_id).check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to view this question.')
+
+    if new_version_num is None:
+        trans_new = qquery.get_latest_version(question_id, lang_id)
+        new_version_num = trans_new.node.version
+    else:
+        trans_new = qquery.get_version(question_id, lang_id, new_version_num)
+
+    if old_version_num is None:
+        old_version_num = max(1, int(new_version_num) - 1)
+    trans_old = qquery.get_version(question_id, lang_id, old_version_num)
+
+    lang = trans_old.lang
+    question = trans_old.question
+
+    filename = u'exam-{}-{}{}-{}.pdf'.format(
+        slugify(trans_old.question.exam.name), trans_old.question.code, trans_old.question.position, slugify(lang.name)
+    )
+
+    if lang.is_pdf:
+        return HttpResponse(
+            'Diff cannot be created for PDF languages.', content_type="text/plain; charset=utf-8", charset="utf-8"
+        )
+
+    old_trans_content, old_ext_resources = trans_old.qml.make_tex()
+    new_trans_content, new_ext_resources = trans_new.qml.make_tex()
+
+    ext_resources = list(set(old_ext_resources) | set(new_ext_resources))
+    for r in ext_resources:
+        if isinstance(r, tex.FigureExport):
+            r.lang = lang
+    ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
+    old_context = {
+        'polyglossia': lang.polyglossia,
+        'polyglossia_options': lang.polyglossia_options,
+        'font': fonts.ipho[lang.font],
+        'extraheader': lang.extraheader,
+        'lang_name': u'{} ({})'.format(lang.name, lang.delegation.country),
+        'exam_name': u'{}'.format(question.exam.name),
+        'code': u'{}{}'.format(question.code, question.position),
+        'title': u'{} - {}'.format(question.exam.name, question.name),
+        'is_answer': question.is_answer_sheet(),
+        'document': old_trans_content,
+    }
+    new_context = {
+        'polyglossia': lang.polyglossia,
+        'polyglossia_options': lang.polyglossia_options,
+        'font': fonts.ipho[lang.font],
+        'extraheader': lang.extraheader,
+        'lang_name': u'{} ({})'.format(lang.name, lang.delegation.country),
+        'exam_name': u'{}'.format(question.exam.name),
+        'code': u'{}{}'.format(question.code, question.position),
+        'title': u'{} - {}'.format(question.exam.name, question.name),
+        'is_answer': question.is_answer_sheet(),
+        'document': new_trans_content,
+    }
+    old_body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request, old_context))
+    new_body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request, new_context))
+
+    try:
+        return cached_responses.compile_tex_diff(request, old_body, new_body, ext_resources, filename)
+    except pdf.TexCompileException as e:
+        return HttpResponse(e.log, content_type="text/plain")
+
+
 @login_required
 def compiled_question_odt(request, question_id, lang_id, version_num=None):
     if not Question.objects.get(pk=question_id).check_permission(request.user):

@@ -30,3 +30,12 @@ def compile_tex(request, body, ext_resources=[], filename='question.pdf'):
 
     job = tasks.compile_tex.delay(body, ext_resources, filename, etag)
     return HttpResponseRedirect(reverse('exam:pdf-task', args=[job.id]))
+
+
+def compile_tex_diff(request, old_body, new_body, ext_resources=[], filename='question.pdf'):
+    etag = md5((old_body + new_body).encode('utf8')).hexdigest()
+    if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
+        return HttpResponseNotModified()
+
+    job = tasks.compile_tex_diff.delay(old_body, new_body, ext_resources, filename, etag)
+    return HttpResponseRedirect(reverse('exam:pdf-task', args=[job.id]))
