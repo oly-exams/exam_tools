@@ -80,6 +80,11 @@ urlpatterns = patterns(
         name='pdf-version'
     ),
     url(
+        r'^pdf-diff/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<old_version_num>\d+)/v(?P<new_version_num>\d+)$',
+        'compiled_question_diff',
+        name='pdfdiff-version'
+    ),
+    url(
         r'^tex/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$',
         'compiled_question', {'raw_tex': True},
         name='tex'
@@ -225,7 +230,9 @@ urlpatterns = patterns(
         name='admin-feedbacks-export-csv'
     ),
     url(r'^admin/submissions/translation$', 'admin_submissions_translation', name='admin-submissions-translation'),
-    url(r'^admin/print/submissions/translation$', 'print_submissions_translation', name='print-submissions-translation'),
+    url(
+        r'^admin/print/submissions/translation$', 'print_submissions_translation', name='print-submissions-translation'
+    ),
     url(r'^admin/submissions/list/(?P<exam_id>\d+)$', 'admin_submission_list', name='admin-submission-list'),
     url(r'^admin/submissions/assign/(?P<exam_id>\d+)$', 'admin_submission_assign', name='admin-submission-assign'),
     url(

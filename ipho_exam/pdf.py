@@ -18,7 +18,9 @@
 from __future__ import print_function
 from __future__ import division
 
+import os
 import codecs
+import subprocess
 from builtins import range
 from past.utils import old_div
 from django.http import HttpResponse, Http404, HttpResponseNotModified
@@ -48,6 +50,25 @@ class TexCompileException(Exception):
         self.doc_fname = doc_fname
         self.doc_tex = doc_tex
         super(TexCompileException, self).__init__("pdflatex error (code %s) in %s, log:\n %s." % (code, doc_fname, log))
+
+
+def compile_tex_diff(old_body, new_body, ext_resources=[]):
+    tmpdir = mkdtemp(prefix=TEMP_PREFIX)
+    try:
+        with codecs.open(os.path.join(tmpdir, 'new.tex'), "w", encoding='utf-8') as f:
+            f.write(new_body)
+        with codecs.open(os.path.join(tmpdir, 'old.tex'), "w", encoding='utf-8') as f:
+            f.write(old_body)
+        diff_body = subprocess.check_output(
+            ['latexdiff', '--encoding=utf-8', 'old.tex', 'new.tex'],
+            cwd=tmpdir,
+            env={
+                'PATH': '{}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(TEXBIN)
+            },
+        ).decode('utf-8')
+    finally:
+        shutil.rmtree(tmpdir)
+    return compile_tex(diff_body, ext_resources=ext_resources)
 
 
 def compile_tex(body, ext_resources=[]):
