@@ -27,6 +27,8 @@ from django.contrib.auth.decorators import login_required, permission_required, 
 from django.contrib.auth import authenticate, login
 from django.core.urlresolvers import reverse
 from pywebpush import WebPushException
+import concurrent.futures
+
 
 from ipho_core.models import AutoLogin, User, PushSubscription, RandomDrawLog, Delegation
 from ipho_core.forms import AccountRequestForm, SendPushForm, RandomDrawForm
@@ -165,8 +167,6 @@ def delete_push_submission(request):
         if newdata:
             data = json.dumps(newdata)
             subs_qset = PushSubscription.objects.get_by_data(data=data)
-            print('------qset-----------------------------------------')
-            print(subs_qset)
             subs_qset.all().delete()
             return JsonResponse({'success': True})
         return JsonResponse({'success': False, 'error': 'No data'})
@@ -189,8 +189,7 @@ def send_push(request):
                 data['url'] = form.cleaned_data['url']
 
             psub_list = []
-            import concurrent.futures
-            for user in User.objects.all():
+            for user in ulist:
                 psub_list.extend(user.pushsubscription_set.all())
 
             def send_push(sub):
@@ -281,8 +280,10 @@ def chocobunny(request):
         if RandomDrawLog.objects.filter(delegation=delegation).exists():
             if delegation.country.lower() == 'switzerland':
                 message = 'Bring the cholocate to the OlyExams desk!'
-            else:
+            elif 'pending' in RandomDrawLog.objects.filter(delegation=delegation).first().status.lower():
                 message = 'Collect your chocolate at the OlyExams desk.'
+            else:
+                message = 'Wait.. you already collected your chocolate.'
         else:
             message = "Wait.. you didn't actually win! This incident will be reported!!"
     return render(request, 'ipho_core/bunny.html', {'name': name, 'message': message})

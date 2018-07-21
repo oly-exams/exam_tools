@@ -471,6 +471,7 @@ class Feedback(models.Model):
         ('V', 'Scheduled for voting'),
         ('I', 'Implemented'),
         ('T', 'Settled'),
+        ('R', 'Rejected'),
     )
     PARTS_CHOICES = (
         ('General', 'General'),

@@ -163,3 +163,7 @@ class AccountRequest(models.Model):
 class RandomDrawLog(models.Model):
     delegation = models.ForeignKey(Delegation)
     timestamp = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=200, default = 'pending', choices=(('pending','Pending'), ('received', 'Received')))
+
+    def __str__(self):
+        return u'{} - {}'.format(self.delegation, self.status)
