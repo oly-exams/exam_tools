@@ -65,11 +65,11 @@
                   {% endif %}
                   <li class="dropdown-header">All translations</li>
                   <li><a href="{% url 'exam:list-all' %}">View all translations</a></li>
-                  {% if perms.ipho_core.is_delegation or perms.ipho_core.is_staff %}
+
                   <li class="divider"></li>
                   <li class="dropdown-header">Exam feedbacks</li>
                   <li><a href="{% url 'exam:feedbacks-list' %}">{% if perms.ipho_core.is_delegation %}Submit{% else %}View{% endif %} feedbacks</a></li>
-                  {% endif %}
+                  
                 </ul>
               </li>
 
