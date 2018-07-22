@@ -195,7 +195,7 @@ def check_add_watermark(request, doc):
     """
     if settings.ADD_DELEGATION_WATERMARK:
         user = request.user
-        if not (user.is_staff or has_perm('ipho_core.is_staff') or user.has_perm('ipho_core.is_printstaff') or user.has_perm('ipho_core.is_marker')):
+        if not (user.is_staff or user.has_perm('ipho_core.is_staff') or user.has_perm('ipho_core.is_printstaff') or user.has_perm('ipho_core.is_marker')):
             return add_watermark(doc)
     return doc
 
