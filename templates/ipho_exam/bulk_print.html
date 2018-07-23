@@ -69,6 +69,24 @@ This list shows only documents that have been submitted by the delegations.
         </ul>
       </div>
 
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if exclude_gi %}
+          General Instructions excluded
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url exclude_gi=None page=1 %}">reset</a></li>
+        </ul>
+      {% else %}
+          Exclude General Instructions
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url exclude_gi='true' page=1 %}">apply</a></li>
+        </ul>
+      {% endif %}
+      </div>
 
       <div class="dropdown div-inline">
         <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
@@ -92,7 +110,9 @@ This list shows only documents that have been submitted by the delegations.
       {% if scan_status %}
         {% if scan_status == 'null' %}
           No scan
-        {% else %}
+        {% elif scan_status == 'any' %}
+          Scan exists
+        {% else %}}
           {{ scan_status }}
         {% endif %}
       {% else %}
@@ -102,10 +122,11 @@ This list shows only documents that have been submitted by the delegations.
         </a>
         <ul class="dropdown-menu">
           <li><a href="{% this_url st=None page=1 %}">-- no filter --</a></li>
-          <li><a href="{% this_url st='null' page=1 %}">-- no scan --</a></li>
-          <li {% if scan_status == 'S' %} class="active" {% endif %}><a href="{% this_url st='S' page=1 %}">S</a></li>
-          <li {% if scan_status == 'M' %} class="active" {% endif %}><a href="{% this_url st='M' page=1 %}">M</a></li>
-          <li {% if scan_status == 'W' %} class="active" {% endif %}><a href="{% this_url st='W' page=1 %}">W</a></li>
+          <li><a href="{% this_url st='null' page=1 %}">no scan</a></li>
+          <li><a href="{% this_url st='any' page=1 %}">any status</a></li>
+          {% for opt in scan_status_options %}
+            <li {% if scan_status == opt %} class="active" {% endif %}><a href="{% this_url st=opt page=1 %}">{{ opt }}</a></li>
+          {% endfor %}
         </ul>
       </div>
 

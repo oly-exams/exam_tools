@@ -21,6 +21,7 @@ from builtins import range
 from builtins import object
 from builtins import str, chr
 
+import json
 import logging
 import traceback
 
@@ -2448,12 +2449,17 @@ def bulk_print(request, page=None, tot_print=None):
         exam__delegation_status__delegation=F('student__delegation'),
         exam__delegation_status__status=ExamAction.SUBMITTED,
     )
+    exclude_gi = json.loads(request.GET.get('exclude_gi', 'false'))
+    if exclude_gi:
+        all_docs = all_docs.exclude(position=0)
 
     scan_status = request.GET.get('st', None)
-    scan_filter_options = [None, 'null', 'S', 'W', 'M']
+    scan_status_options = ['S', 'W', 'M']
     if scan_status is not None:
         if scan_status == 'null':
             all_docs = all_docs.filter(scan_status__isnull=True)
+        elif scan_status == 'any':
+            all_docs = all_docs.filter(scan_status__isnull=False)
         else:
             all_docs = all_docs.filter(scan_status=scan_status)
 
@@ -2518,6 +2524,8 @@ def bulk_print(request, page=None, tot_print=None):
             'exam': exam,
             'delegations': delegations,
             'delegation': delegation,
+            'exclude_gi': exclude_gi,
+            'scan_status_options': scan_status_options,
             'scan_status': scan_status,
             'exam_print_filter_options': exam_print_filter_options,
             'exam_print_filter': exam_print_filter,
