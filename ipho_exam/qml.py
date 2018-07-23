@@ -736,7 +736,7 @@ class QMLfigure(QMLobject):
             if c.tag == 'caption':
                 caption_text = data2tex(c.data)
                 caption_text = caption_text.strip('\n')
-                caption_text = caption_text.replace('\n', '\\')
+                caption_text = caption_text.replace('\n', u'\\\\')
                 fig_caption += caption_text
 
         width = self.attributes.get('width', 0.9)  # 0.9 is the default value
