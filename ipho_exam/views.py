@@ -635,7 +635,7 @@ def feedbacks_list(request):
             'num_likes', 'num_unlikes', 'delegation_likes', 'pk', 'question__pk', 'question__name',
             'question__feedback_active', 'delegation__name', 'delegation__country', 'status', 'timestamp', 'part',
             'comment'
-        ).order_by('question__position')
+        ).order_by('-pk')
 
         choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
         for fb in feedbacks:

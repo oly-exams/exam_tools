@@ -259,6 +259,16 @@
       "notoserif"
     ],
     "language": "Esperanto",
+    "polyglossia": "esperanto",
+    "polyglossia_options": null
+  },
+  "estonian": {
+    "direction": "ltr",
+    "fonts": [
+      "notosans",
+      "notoserif"
+    ],
+    "language": "Estonian",
     "polyglossia": "estonian",
     "polyglossia_options": null
   },
