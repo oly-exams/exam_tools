@@ -22,6 +22,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, ButtonHolder, Submit
 from crispy_forms.layout import Layout, Field, MultiField, Div
 from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
+import random
 
 from django.core.exceptions import ValidationError
 
@@ -49,15 +50,18 @@ class PrintForm(forms.Form):
         queue_list = kwargs.pop('queue_list')
         self.enable_opts = kwargs.pop('enable_opts') if 'enable_opts' in kwargs else False
         super(PrintForm, self).__init__(*args, **kwargs)
+        if not self.enable_opts:
+            random.shuffle(queue_list)
 
         self.fields['queue'].choices = queue_list
         if self.enable_opts:
             default_opts = printer.default_opts()
         else:
             default_opts = printer.delegation_opts()
+
         opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
         for k in opts_map:
-            self.fields[k].initial = default_opts[opts_map[k]]
+            self.initial[k] = default_opts[opts_map[k]]
 
         self.helper = FormHelper()
         if self.enable_opts:
@@ -66,7 +70,8 @@ class PrintForm(forms.Form):
                 FormActions(Submit('submit', 'Submit'))
             )
         else:
-            self.helper.layout = Layout(Field('file'), Field('queue'), FormActions(Submit('submit', 'Submit')))
+            self.helper.layout = Layout(Field('file'), Field('queue'), FormActions(Submit('submit', 'Submit')),
+                            Field('duplex', type="hidden"), Field('color', type="hidden"), Field('staple', type="hidden"),)
 
         self.helper.html5_required = True
         self.helper.form_show_labels = True
@@ -86,5 +91,5 @@ class PrintForm(forms.Form):
                         msg = 'The current printer does not support this option.'
                         self.add_error(k, msg)
                     else:
-                        cleaned_data[k] = printer.delegation_opts()[opts_map[k]]
+                        cleaned_data[k] = allowed_opts[opts_map[k]]
         return cleaned_data
