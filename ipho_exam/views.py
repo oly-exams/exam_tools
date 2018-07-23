@@ -2405,6 +2405,7 @@ def bulk_print(request, page=None, tot_print=None):
     delegation = get_or_none(Delegation, id=request.GET.get('dg', None))
     if delegation is not None:
         filter_dg = delegation
+    scan_status = request.GET.get('st', None)
 
     queue_list = printer.allowed_choices(request.user)
     form = PrintDocsForm(request.POST or None, queue_list=queue_list)
@@ -2446,8 +2447,14 @@ def bulk_print(request, page=None, tot_print=None):
         exam=filter_ex,
         exam__delegation_status__action=ExamAction.TRANSLATION,
         exam__delegation_status__delegation=F('student__delegation'),
-        exam__delegation_status__status=ExamAction.SUBMITTED
-    ).annotate(
+        exam__delegation_status__status=ExamAction.SUBMITTED,
+    )
+    if scan_status is not None:
+        if scan_status == 'null':
+            all_docs = all_docs.filter(scan_status__isnull=True)
+        else:
+            all_docs = all_docs.filter(scan_status=scan_status)
+    all_docs = all_docs.annotate(
         last_print_p=Max(Case(When(printlog__type='P', then=F('printlog__timestamp')))),
         last_print_s=Max(Case(When(printlog__type='S', then=F('printlog__timestamp')))),
     ).values(

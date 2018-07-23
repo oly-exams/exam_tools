@@ -69,6 +69,24 @@ This list shows only documents that have been submitted by the delegations.
         </ul>
       </div>
 
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if scan_status %}
+          {{ scan_status }}
+      {% else %}
+          Filter scan status
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url st=None page=1 %}">-- no filter --</a></li>
+          <li><a href="{% this_url st='null' page=1 %}">-- no scan --</a></li>
+          <li {% if scan_status == 'S' %} class="active" {% endif %}><a href="{% this_url st='S' page=1 %}">S</a></li>
+          <li {% if scan_status == 'M' %} class="active" {% endif %}><a href="{% this_url st='M' page=1 %}">M</a></li>
+          <li {% if scan_status == 'W' %} class="active" {% endif %}><a href="{% this_url st='W' page=1 %}">W</a></li>
+        </ul>
+      </div>
+
   </div>
 
   <br/>
