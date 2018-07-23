@@ -2103,7 +2103,16 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     )
 
     if trans.lang.is_pdf:
-        output_pdf = pdf.check_add_watermark(request, trans.node.pdf.read())
+        tmp_pdf = pdf.check_add_watermark(request, trans.node.pdf.read())
+        if trans.question.is_answer_sheet():
+            class MockStud(object):
+                pass
+            mockstud = MockStud()
+            mockstud.code = trans.lang.delegation.name + '-S-0'
+            bcgen = iphocode.QuestionBarcodeGen(trans.question.exam, trans.question, mockstud)
+            output_pdf = pdf.add_barcode(tmp_pdf, bcgen)
+        else:
+            output_pdf = tmp_pdf
         res = HttpResponse(output_pdf, content_type="application/pdf")
         res['content-disposition'] = 'inline; filename="{}"'.format(filename)
         return res
