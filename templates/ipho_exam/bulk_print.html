@@ -101,7 +101,7 @@ This list shows only documents that have been submitted by the delegations.
           <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
-          <li><a href="{% this_url prt=None page=1 %}">-- no filter --</a></li>
+          <li><a href="{% this_url ex_prt=None page=1 %}">-- no filter --</a></li>
           {% for opt in exam_print_filter_options %}
             <li {% if exam_print_filter == opt %} class="active" {% endif %}><a href="{% this_url ex_prt=opt page=1 %}">Exam {{ opt }}</a></li>
           {% endfor %}
@@ -118,7 +118,7 @@ This list shows only documents that have been submitted by the delegations.
           <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
-          <li><a href="{% this_url prt=None page=1 %}">-- no filter --</a></li>
+          <li><a href="{% this_url sc_prt=None page=1 %}">-- no filter --</a></li>
           {% for opt in scan_print_filter_options %}
             <li {% if scan_print_filter == opt %} class="active" {% endif %}><a href="{% this_url sc_prt=opt page=1 %}">Scan {{ opt }}</a></li>
           {% endfor %}
