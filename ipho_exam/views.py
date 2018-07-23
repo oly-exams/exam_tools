@@ -2271,6 +2271,10 @@ def pdf_exam_pos_student(request, exam_id, position, student_id, type='P'):
     if type == 'P':  ## for for printouts
         if hasattr(doc, 'documenttask'):
             task = AsyncResult(doc.documenttask.task_id)
+            try:
+                task.ready()
+            except ipho_exam.pdf.TexCompileException as e:
+                return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})
         if doc.file:
             output_pdf = pdf.check_add_watermark(request, doc.file.read())
