@@ -844,7 +844,7 @@ def figure_edit(request, fig_id):
                 obj.save()
             else:
                 obj.content = request.FILES['file'].read()
-                obj.filetype = ext
+                obj.filetype = ext.lstrip('.')
                 obj.save()
 
         return JsonResponse({

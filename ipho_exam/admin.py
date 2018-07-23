@@ -19,7 +19,7 @@ from builtins import object
 from django.contrib import admin
 from django import forms
 import json
-from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, Place, AttributeChange
+from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, Place, AttributeChange
 from django_ace import AceWidget
 
 # Register your models here.
@@ -155,6 +155,8 @@ admin.site.register(AttributeChange, AttributeChangeAdmin)
 admin.site.register(PDFNode, PDFNodeAdmin)
 admin.site.register(TranslationImportTmp)
 admin.site.register(Figure, FigureAdmin)
+admin.site.register(RawFigure)
+
 admin.site.register(ExamAction, ExamActionAdmin)
 admin.site.register(StudentSubmission, StudentSubmissionAdmin)
 admin.site.register(Place, PlaceAdmin)
