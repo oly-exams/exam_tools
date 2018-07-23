@@ -75,14 +75,16 @@ class PrintForm(forms.Form):
     def clean(self):
         cleaned_data = super(PrintForm, self).clean()
         queue = cleaned_data.get("queue")
+        print(cleaned_data)
         allowed_opts = printer.allowed_opts(queue)
         opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
         for k in opts_map:
             if cleaned_data.get(k) not in ['None', 'Grayscale']:
+
                 if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
                     if self.enable_opts:
                         msg = 'The current printer does not support this option.'
                         self.add_error(k, msg)
                     else:
-                        cleaned_data[k] = allowed_opts[opts_map[k]]
+                        cleaned_data[k] = printer.delegation_opts()[opts_map[k]]
         return cleaned_data
