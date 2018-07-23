@@ -41,6 +41,7 @@ def main(request):
     success = False
     form = PrintForm(request.POST or None, request.FILES or None, queue_list=queue_list, enable_opts=enable_opts)
     if form.is_valid():
+        print(form.cleaned_data)
         try:
             opts = {
                 'ColourModel': form.cleaned_data['color'],
