@@ -250,8 +250,10 @@ def random_draw(request):
         link = reverse('chocobunny')
         data = {'body': msg, 'url': link}
         for s in subs_list:
-            s.send(data)
-
+            try:
+                s.send(data)
+            except WebPushException as e:
+                pass
         return HttpResponse(
             '{} was drawn as a winner, {} notifications have been sent'.format(drawn_del.country, len(subs_list))
         )
