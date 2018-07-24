@@ -110,6 +110,7 @@ class Exam(models.Model):
     marking_active = models.BooleanField(default=False, help_text='Allow marking submission from delegations. Activate only after official marks are entered.')
     moderation_active = models.BooleanField(default=False, help_text='Allow access to moderation interface.')
     show_scans = models.BooleanField(default=False, help_text='Show successful scans to delegation.')
+    hide_feedback = models.BooleanField(default=False, help_text='Hide feedback from delegations')
 
     def __str__(self):
         return u'%s' % (self.name)
