@@ -2278,7 +2278,7 @@ def pdf_exam_pos_student(request, exam_id, position, student_id, type='P'):
     user = request.user
     if not user.has_perm('ipho_core.is_printstaff'):
         if not student.delegation.members.filter(pk=user.pk).exists():
-            raise PermissionError('You are not allowed to view this scan.')
+            return HttpResponseForbidden('You do not have permission to view this document.')
 
     doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
     if type == 'P':  ## for for printouts
