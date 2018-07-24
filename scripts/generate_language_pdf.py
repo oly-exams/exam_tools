@@ -77,7 +77,7 @@ def compile_question(question, language):
         position = question.position
         question_code = question.code
 
-        filename = u'out/TRANSLATION_{}{}_{}_{}_{}.pdf'.format(
+        filename = u'../media/language_pdf/TRANSLATION_{}{}_{}_{}_{}.pdf'.format(
             exam_code, position, question_code, language.delegation.name, slugify(language.name)
         )
         with open(filename, 'wb') as fp:
@@ -160,7 +160,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         exam_id = question.exam.pk
         position = question.position
 
-    filename = u'out/EXAM_{}_{}_{}.pdf'.format(sl.student.code, exam_id, position)
+    filename = u'../media/language_pdf/EXAM_{}_{}_{}.pdf'.format(sl.student.code, exam_id, position)
     final_doc = pdf.concatenate_documents(all_docs)
     with open(filename, 'wb') as fp:
         fp.write(final_doc)
