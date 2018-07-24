@@ -570,7 +570,7 @@ def edit_language(request, lang_id):
 @login_required
 @ensure_csrf_cookie
 def feedbacks_list(request):
-    exam_list = Exam.objects.filter(hidden=False, active=True)
+    exam_list = Exam.objects.filter(hidden=False, active=True, hide_feedback=False)
     delegation = Delegation.objects.filter(members=request.user)
     delegations = Delegation.objects.all()
 

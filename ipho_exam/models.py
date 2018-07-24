@@ -105,10 +105,12 @@ class Exam(models.Model):
 
     code = models.CharField(max_length=8)
     name = models.CharField(max_length=100, unique=True)
-    active = models.BooleanField(default=True, help_text='Only active exams are editable.')
-    hidden = models.BooleanField(default=False, help_text='Is the exam hidden for the delegations?')
-    marking_active = models.BooleanField(default=False, help_text='Allow marking submission from delegations.')
+    active = models.BooleanField(default=True, help_text='Exam is editable and viewable by delegations.')
+    hidden = models.BooleanField(default=False, help_text='Exam is hidden from everyone except superusers.')
+    marking_active = models.BooleanField(default=False, help_text='Allow marking submission from delegations. Activate only after official marks are entered.')
     moderation_active = models.BooleanField(default=False, help_text='Allow access to moderation interface.')
+    show_scans = models.BooleanField(default=False, help_text='Show successful scans to delegation.')
+    hide_feedback = models.BooleanField(default=False, help_text='Hide feedback from delegations')
 
     def __str__(self):
         return u'%s' % (self.name)
