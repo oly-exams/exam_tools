@@ -209,7 +209,7 @@ def missing_submissions():
 
 
 def compile_all():
-    exams = Exam.objects.filter(name='Theory')
+    exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
     questions = Question.objects.filter(exam=exams, position__in=[0, 1, 2, 3])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
     print('Going to compile in {} languages.'.format(len(languages)))
