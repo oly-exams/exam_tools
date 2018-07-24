@@ -17,6 +17,8 @@
 
 from __future__ import print_function
 
+import urllib
+
 from builtins import range
 from builtins import object
 from builtins import str, chr
@@ -27,7 +29,7 @@ import traceback
 
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.http.request import QueryDict
 
 from django.template import RequestContext
@@ -2459,12 +2461,17 @@ def bulk_print(request, page=None, tot_print=None):
                 tot_printed += 1
                 l = PrintLog(document=d, type='S')
                 l.save()
-        response = HttpResponse(content="", status=303)
-        page = request.GET.get('page')
-        if not page:
-            page = 1
-        response["Location"] = reverse('exam:bulk-print_prg', args=(page, tot_printed))
-        return response
+
+        page = request.GET.get('page') or 1
+
+        get_data = request.GET.dict()
+        get_data.pop('page', None)
+        get_data.pop('tot_printed', None)
+        url = "{}?{}".format(
+            reverse('exam:bulk-print_prg', args=(page, tot_printed)),
+            urllib.parse.urlencode(get_data)
+        )
+        return HttpResponseRedirect(redirect_to=url)
     elif request.method == 'POST':
         messages = [m for m in messages if m[0] != 'alert-success']
         messages.append(('alert-danger', '<strong>No jobs sent</strong> Invalid form, please check below'))
