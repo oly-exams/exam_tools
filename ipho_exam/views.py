@@ -575,6 +575,7 @@ def feedbacks_list(request):
     delegations = Delegation.objects.all()
 
     questions_f = Question.objects.filter(exam=exam_list).all()
+
     def get_or_none(model, *args, **kwargs):
         try:
             return model.objects.get(*args, **kwargs)
@@ -615,18 +616,15 @@ def feedbacks_list(request):
             url = self.url + '?' + qdict.urlencode()
             return url
 
-
-
     if 'exam_id' in request.GET:
         if not int(request.GET['exam_id']) in [ex.pk for ex in exam_list]:
             raise Http404('Not such active exam.')
 
-
         questions = Question.objects.filter(exam=request.GET['exam_id'])
-        feedbacks = Feedback.objects.filter(question=questions
-            ).filter(
-            status__in=filter_st, question=filter_qu,
-            ).annotate(
+        feedbacks = Feedback.objects.filter(question=questions).filter(
+            status__in=filter_st,
+            question=filter_qu,
+        ).annotate(
             num_likes=Sum(Case(When(like__status='L', then=1), output_field=IntegerField())),
             num_unlikes=Sum(Case(When(like__status='U', then=1), output_field=IntegerField())),
             delegation_likes=Sum(
@@ -658,10 +656,10 @@ def feedbacks_list(request):
         return render(
             request, 'ipho_exam/feedbacks.html', {
                 'exam_list': exam_list,
-                'status':display_status,
+                'status': display_status,
                 'status_choices': Feedback.STATUS_CHOICES,
-                'question':question_f,
-                'questions':questions_f,
+                'question': question_f,
+                'questions': questions_f,
                 'is_delegation': len(delegation) > 0 or request.user.has_perm('ipho_core.is_staff'),
                 'this_url_builder': url_builder(reverse('exam:feedbacks-list'), request.GET),
             }
@@ -2106,8 +2104,10 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     if trans.lang.is_pdf:
         tmp_pdf = pdf.check_add_watermark(request, trans.node.pdf.read())
         if trans.question.is_answer_sheet():
+
             class MockStud(object):
                 pass
+
             mockstud = MockStud()
             mockstud.code = trans.lang.delegation.name + '-S-0'
             bcgen = iphocode.QuestionBarcodeGen(trans.question.exam, trans.question, mockstud)
@@ -2274,8 +2274,11 @@ def pdf_exam_for_student(request, exam_id, student_id):
 
 @login_required
 def pdf_exam_pos_student(request, exam_id, position, student_id, type='P'):
-    exam = get_object_or_404(Exam, id=exam_id)
     student = get_object_or_404(Student, id=student_id)
+    user = request.user
+    if not user.has_perm('ipho_core.is_printstaff'):
+        if not student.delegation.members.filter(pk=user.pk).exists():
+            raise PermissionError('You are not allowed to view this scan.')
 
     doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
     if type == 'P':  ## for for printouts
@@ -2285,7 +2288,12 @@ def pdf_exam_pos_student(request, exam_id, position, student_id, type='P'):
                 if task.ready():
                     doc_pdf, meta = task.get()
             except ipho_exam.pdf.TexCompileException as e:
-                return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)
+                return render(
+                    request, 'ipho_exam/tex_error.html', {
+                        'error_code': e.code,
+                        'task_id': task.id
+                    }, status=500
+                )
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})
         if doc.file:
             output_pdf = pdf.check_add_watermark(request, doc.file.read())
