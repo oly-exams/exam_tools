@@ -214,13 +214,23 @@ def list_all_translations(request):
     if delegation is not None:
         filter_dg = delegation
 
+    official_translations_vnode = VersionNode.objects.filter(
+        question__exam=filter_ex, language__delegation__name=OFFICIAL_DELEGATION, status='C'
+    ).order_by('question', '-version')
+    official_nodes = []
+    qdone = set()
+    for node in official_translations_vnode:
+        if node.question not in qdone:
+            official_nodes.append(node)
+            qdone.add(node.question)
+
     trans_list = TranslationNode.objects.filter(
         question__exam=filter_ex, language__delegation=filter_dg
     ).order_by('language__delegation', 'question')
     pdf_list = PDFNode.objects.filter(
         question__exam=filter_ex, language__delegation=filter_dg
     ).order_by('language__delegation', 'question')
-    all_nodes = list(trans_list) + list(pdf_list)
+    all_nodes = list(trans_list) + list(pdf_list) + list(official_nodes)
 
     paginator = Paginator(all_nodes, 25)  # Show 25 contacts per page
 
