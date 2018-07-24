@@ -64,7 +64,7 @@ def delegation_opts():
     return opts
 
 
-def send2queue(file, queue, user=None, user_opts={}):
+def send2queue(file, queue, user=None, user_opts={}, title=None):
     url = 'http://{host}/print/{queue}'.format(**PRINTER_QUEUES[queue])
     files = {'file': (urllib.parse.quote(os.path.basename(file.name)), file, 'application/pdf')}
     headers = {'Authorization': 'IPhOToken {auth_token}'.format(**PRINTER_QUEUES[queue])}
@@ -83,7 +83,8 @@ def send2queue(file, queue, user=None, user_opts={}):
         title = 'DELEGATION: {}'.format(user.username)
         add_banner_page = True
     else:
-        title = 'IPhO Print'
+        if title is None:
+            title = 'IPhO Print'
         add_banner_page = False
     for k in al_opts:
         if opts.get(k) not in ['None', 'Grayscale'] and opts.get(k) != al_opts[k]:

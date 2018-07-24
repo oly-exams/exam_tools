@@ -2448,14 +2448,14 @@ def bulk_print(request, page=None, tot_print=None):
         for pk in request.POST.getlist('printouts[]', []):
             d = get_or_none(Document, pk=pk)
             if d is not None:
-                status = printer.send2queue(d.file, form.cleaned_data['queue'], user=request.user, user_opts=opts)
+                status = printer.send2queue(d.file, form.cleaned_data['queue'], user=request.user, user_opts=opts, title='P: {}'.format(d.barcode_base))
                 tot_printed += 1
                 l = PrintLog(document=d, type='P')
                 l.save()
         for pk in request.POST.getlist('scans[]', []):
             d = get_or_none(Document, pk=pk)
             if d is not None:
-                status = printer.send2queue(d.scan_file, form.cleaned_data['queue'], user=request.user, user_opts=opts)
+                status = printer.send2queue(d.scan_file, form.cleaned_data['queue'], user=request.user, user_opts=opts, title='S: {}'.format(d.barcode_base))
                 tot_printed += 1
                 l = PrintLog(document=d, type='S')
                 l.save()
@@ -2576,11 +2576,11 @@ def print_doc(request, type, exam_id, position, student_id, queue):
     doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
 
     if type == 'P':
-        status = printer.send2queue(doc.file, queue, user=request.user)
+        status = printer.send2queue(doc.file, queue, user=request.user, title='P: {}'.format(doc.barcode_base))
         l = PrintLog(document=doc, type='P')
         l.save()
     elif doc.scan_file:
-        status = printer.send2queue(doc.scan_file, queue, user=request.user)
+        status = printer.send2queue(doc.scan_file, queue, user=request.user, title='S: {}'.format(doc.barcode_base))
         l = PrintLog(document=doc, type='S')
         l.save()
     else:
