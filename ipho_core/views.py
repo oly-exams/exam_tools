@@ -230,8 +230,11 @@ def random_draw(request):
         exclude_delegations = list(drawn_delegations.all())
         exclude_delegations.append(off_pk)
         all_delegations = list(Delegation.objects.exclude(pk__in=exclude_delegations).all())
-        drawn_del = None
-        while not drawn_del:
+        success = False
+        subs_list = []
+        sent_n = 0
+        while not success:
+            sent_n = 0
             if len(all_delegations) == 0:
                 return HttpResponse('Easter is over.')
             temp_del = all_delegations[random.randrange(0, len(all_delegations))]
@@ -242,20 +245,27 @@ def random_draw(request):
                 all_delegations.remove(temp_del)
             else:
                 drawn_del = temp_del
+                if 'switzerland' in drawn_del.country.lower():
+                    msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
+                else:
+                    msg = '!!!!!! You have Won Chocolate !!!!!!     Please come to the Oly-Exams table to collect your prize.'
+                link = reverse('chocobunny')
+                data = {'body': msg, 'url': link}
+
+                for s in subs_list:
+                    try:
+                        s.send(data)
+                        sent_n += 1
+                    except WebPushException as e:
+                        pass
+                if sent_n == 0:
+                    all_delegations.remove(temp_del)
+                else:
+                    success = True
         RandomDrawLog(delegation=drawn_del).save()
-        if 'switzerland' in drawn_del.country.lower():
-            msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
-        else:
-            msg = '!!!!!! You have Won Chocolate !!!!!!     Please come to the Oly-Exams table to collect your prize.'
-        link = reverse('chocobunny')
-        data = {'body': msg, 'url': link}
-        for s in subs_list:
-            try:
-                s.send(data)
-            except WebPushException as e:
-                pass
+
         return HttpResponse(
-            '{} was drawn as a winner, {} notifications have been sent'.format(drawn_del.country, len(subs_list))
+            '{} was drawn as a winner, {} notifications have been sent'.format(drawn_del.country, sent_n)
         )
     else:
         form = RandomDrawForm()
