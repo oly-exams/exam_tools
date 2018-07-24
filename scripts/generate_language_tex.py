@@ -21,6 +21,7 @@ from __future__ import print_function
 
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+import sys
 import shutil
 
 import django
@@ -80,8 +81,8 @@ def compile_question(question, language, logo_file):
         'document': trans_content,
         'STATIC_PATH': '.'
     }
-    body = render_to_string('ipho_exam/tex/exam_question.tex',
-                            RequestContext(HttpRequest(), context)).replace(FONT_PATH, u'.')
+    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(),
+                                                                              context)).replace(FONT_PATH, u'.')
     try:
         exam_code = question.exam.code
         position = question.position
@@ -134,8 +135,8 @@ def compile_question(question, language, logo_file):
         print('ERROR', e)
 
 
-def export_all(logo_file):
-    exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
+def export_all(logo_file, names=('Theory', 'Experiment')):
+    exams = Exam.objects.filter(name__in=names)
     questions = Question.objects.filter(exam=exams, position__in=[1, 2, 3])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
     print('Going to export in {} languages.'.format(len(languages)))
@@ -146,4 +147,7 @@ def export_all(logo_file):
 
 
 if __name__ == '__main__':
-    export_all('ipho18_logo.png')
+    if len(sys.argv) > 1:
+        export_all(logo_file='ipho18_logo.png', names=sys.argv[1:])
+    else:
+        export_all(logo_file='ipho18_logo.png')

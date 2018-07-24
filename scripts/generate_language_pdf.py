@@ -208,8 +208,8 @@ def missing_submissions():
                 compile_stud_exam_question(questions, student_languages, cover=cover_ctx, commit=False)
 
 
-def compile_all():
-    exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
+def compile_all(names=('Theory', 'Experiment')):
+    exams = Exam.objects.filter(name__in=names)
     questions = Question.objects.filter(exam=exams, position__in=[0, 1, 2, 3])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
     print('Going to compile in {} languages.'.format(len(languages)))
@@ -220,4 +220,7 @@ def compile_all():
 
 
 if __name__ == '__main__':
-    compile_all()
+    if len(sys.argv) > 1:
+        compile_all(names=sys.argv[1:])
+    else:
+        compile_all()
