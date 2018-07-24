@@ -159,7 +159,7 @@ This list shows only documents that have been submitted by the delegations.
           <th>Student</th>
           <th>Num pages</th>
           <th>Barcode</th>
-          <th>Printouts</th>
+          <th>Printouts <button type="button" class="printouts-all">invert selection</button>
           <th>Scans</th>
           <th>Scan status</th>
           <th>Full scan</th>
@@ -175,7 +175,7 @@ This list shows only documents that have been submitted by the delegations.
             <td align="center">
               <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
               <br />
-              <input type="checkbox" name="printouts[]" value="{{ d.pk }}" />
+              <input class="printouts-single" type="checkbox" name="printouts[]" value="{{ d.pk }}" />
               <div class="btn-group">
                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
                   <i class="fa fa-print"></i>
@@ -310,5 +310,11 @@ $('document').ready(function(){
       el.text(dt.format(el.data("format")));
     });
 });
+$('.printouts-all').click(function() {
+  $('.printouts-single').each(function() {
+    $(this).click();
+  });
+});
+
 </script>
 {% endblock %}
