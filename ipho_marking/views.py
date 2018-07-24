@@ -304,13 +304,14 @@ def delegation_summary(request):
 
     active_exams = Exam.objects.filter(hidden=False, marking_active=True)
     scans_table_per_exam = []
-    for exam in active_exams:
+    scan_show_exams = Exam.objects.filter(hidden=False, show_scans=True)
+    for exam in scan_show_exams:
         questions = exam.question_set.filter(type=Question.ANSWER)
         scans_of_students = []
         for student in students:
             # Scans
             stud_exam_scans_list = Document.objects.filter(
-                student=student['pk'], exam=exam
+                student=student['pk'], exam=exam, scan_status='S'
             ).exclude(position=0  # remove general instructions
                       ).order_by('position')
 
