@@ -69,6 +69,84 @@ This list shows only documents that have been submitted by the delegations.
         </ul>
       </div>
 
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if exclude_gi %}
+          General Instructions excluded
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url exclude_gi=None page=1 %}">reset</a></li>
+        </ul>
+      {% else %}
+          Exclude General Instructions
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url exclude_gi='true' page=1 %}">apply</a></li>
+        </ul>
+      {% endif %}
+      </div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if exam_print_filter %}
+          Exam {{ exam_print_filter }}
+      {% else %}
+          Filter exam print
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url ex_prt=None page=1 %}">-- no filter --</a></li>
+          {% for opt in exam_print_filter_options %}
+            <li {% if exam_print_filter == opt %} class="active" {% endif %}><a href="{% this_url ex_prt=opt page=1 %}">Exam {{ opt }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if scan_status %}
+        {% if scan_status == 'null' %}
+          No scan
+        {% elif scan_status == 'any' %}
+          Scan exists
+        {% else %}
+          {{ scan_status }}
+        {% endif %}
+      {% else %}
+          Filter scan status
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url st=None page=1 %}">-- no filter --</a></li>
+          <li><a href="{% this_url st='null' page=1 %}">no scan</a></li>
+          <li><a href="{% this_url st='any' page=1 %}">any status</a></li>
+          {% for opt in scan_status_options %}
+            <li {% if scan_status == opt %} class="active" {% endif %}><a href="{% this_url st=opt page=1 %}">{{ opt }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if scan_print_filter %}
+          Scan {{ scan_print_filter }}
+      {% else %}
+          Filter scan print
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url sc_prt=None page=1 %}">-- no filter --</a></li>
+          {% for opt in scan_print_filter_options %}
+            <li {% if scan_print_filter == opt %} class="active" {% endif %}><a href="{% this_url sc_prt=opt page=1 %}">Scan {{ opt }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
   </div>
 
   <br/>

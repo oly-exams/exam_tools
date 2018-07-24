@@ -21,6 +21,7 @@ from builtins import range
 from builtins import object
 from builtins import str, chr
 
+import json
 import logging
 import traceback
 
@@ -2455,11 +2456,44 @@ def bulk_print(request, page=None, tot_print=None):
         exam=filter_ex,
         exam__delegation_status__action=ExamAction.TRANSLATION,
         exam__delegation_status__delegation=F('student__delegation'),
-        exam__delegation_status__status=ExamAction.SUBMITTED
-    ).annotate(
+        exam__delegation_status__status=ExamAction.SUBMITTED,
+    )
+    exclude_gi = json.loads(request.GET.get('exclude_gi', 'false'))
+    if exclude_gi:
+        all_docs = all_docs.exclude(position=0)
+
+    scan_status = request.GET.get('st', None)
+    scan_status_options = ['S', 'W', 'M']
+    if scan_status is not None:
+        if scan_status == 'null':
+            all_docs = all_docs.filter(scan_status__isnull=True)
+        elif scan_status == 'any':
+            all_docs = all_docs.filter(scan_status__isnull=False)
+        else:
+            all_docs = all_docs.filter(scan_status=scan_status)
+
+    all_docs = all_docs.annotate(
         last_print_p=Max(Case(When(printlog__type='P', then=F('printlog__timestamp')))),
         last_print_s=Max(Case(When(printlog__type='S', then=F('printlog__timestamp')))),
-    ).values(
+    )
+
+    exam_print_filter_options = ['not printed', 'printed']
+    exam_print_filter = request.GET.get('ex_prt', None)
+    if exam_print_filter is not None:
+        if exam_print_filter == 'not printed':
+            all_docs = all_docs.filter(last_print_p__isnull=True)
+        elif exam_print_filter == 'printed':
+            all_docs = all_docs.filter(last_print_p__isnull=False)
+
+    scan_print_filter_options = ['not printed', 'printed']
+    scan_print_filter = request.GET.get('sc_prt', None)
+    if scan_print_filter is not None:
+        if scan_print_filter == 'not printed':
+            all_docs = all_docs.filter(last_print_s__isnull=True)
+        elif scan_print_filter == 'printed':
+            all_docs = all_docs.filter(last_print_s__isnull=False)
+
+    all_docs = all_docs.values(
         'pk', 'exam__name', 'exam__id', 'position', 'student__delegation__name', 'student__code', 'student__id',
         'num_pages', 'barcode_base', 'barcode_num_pages', 'extra_num_pages', 'scan_file', 'scan_status',
         'scan_file_orig', 'scan_msg', 'last_print_p', 'last_print_s', 'timestamp'
@@ -2499,6 +2533,13 @@ def bulk_print(request, page=None, tot_print=None):
             'exam': exam,
             'delegations': delegations,
             'delegation': delegation,
+            'exclude_gi': exclude_gi,
+            'scan_status_options': scan_status_options,
+            'scan_status': scan_status,
+            'exam_print_filter_options': exam_print_filter_options,
+            'exam_print_filter': exam_print_filter,
+            'scan_print_filter_options': scan_print_filter_options,
+            'scan_print_filter': scan_print_filter,
             'queue_list': queue_list,
             'docs_list': docs_list,
             'scan_status_choices': Document.SCAN_STATUS_CHOICES,
