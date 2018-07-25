@@ -295,8 +295,10 @@ def chocobunny(request):
                 message = 'Bring the cholocate to the OlyExams desk!'
             elif 'pending' in RandomDrawLog.objects.filter(delegation=delegation).first().status.lower():
                 message = 'Collect your chocolate at the OlyExams desk.'
-            else:
+            elif 'received' in RandomDrawLog.objects.filter(delegation=delegation).first().status.lower():
                 message = 'Wait.. you already collected your chocolate.'
+            else:
+                message = '404...Easter not found, pleas contact your local Pope.'
         else:
             message = "Wait.. you didn't actually win! This incident will be reported!!"
     return render(request, 'ipho_core/bunny.html', {'name': name, 'message': message})

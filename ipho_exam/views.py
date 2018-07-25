@@ -52,10 +52,12 @@ from django.utils import timezone
 from tempfile import mkdtemp
 from hashlib import md5
 import itertools
+import random
+from pywebpush import WebPushException
 
 from django.conf import settings
 from ipho_core.views import any_permission_required
-from ipho_core.models import Delegation, Student
+from ipho_core.models import Delegation, Student, RandomDrawLog
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, CompiledFigure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog, Place
 from ipho_exam.models import VALID_RAW_FIGURE_EXTENSIONS, VALID_COMPILED_FIGURE_EXTENSIONS, VALID_FIGURE_EXTENSIONS
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
@@ -1832,6 +1834,44 @@ def submission_exam_submitted(request, exam_id):
     documents = Document.objects.filter(exam=exam, student__delegation=delegation).order_by('student', 'position')
     stud_documents = {k: list(g) for k, g in itertools.groupby(documents, key=lambda d: d.student.pk)}
 
+    msg = None
+    if getattr(settings, 'RANDOM_DRAW_ON_SUBMISSION', False):
+        remaining_countries = ExamAction.objects.filter(
+            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
+        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).count()
+        submitted_countries = ExamAction.objects.filter(
+            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
+        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
+                  ).count()
+        drawn = random.random()
+        total_countries = remaining_countries + submitted_countries
+        threshold = (submitted_countries/total_countries)^2 #about 30 portions for 100 delegations
+        if drawn > threshold and not RandomDrawLog.objects.filter(delegation=delegation).exists():
+            RandomDrawLog(delegation=delegation).save()
+            subs_list = []
+            for u in delegation.members.all():
+                subs_list.extend(u.pushsubscription_set.all())
+            if 'switzerland' in delegation.country.lower():
+                msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
+            else:
+                msg = '!!!!!! You have Won Chocolate !!!!!!     Please come to the Oly-Exams table to collect your prize.'
+            link = reverse('chocobunny')
+            data = {'body': msg, 'url': link}
+            for s in subs_list:
+                try:
+                    s.send(data)
+                except WebPushException as e:
+                    pass
+        elif 'pending' in RandomDrawLog.objects.filter(delegation=delegation).first().status.lower():
+            if 'switzerland' in delegation.country.lower():
+                msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
+            else:
+                msg = 'You have won Chocolate !!     Please come to the Oly-Exams table to collect your prize.'
+        elif 'received' in RandomDrawLog.objects.filter(delegation=delegation).first().status.lower():
+            msg = 'You already got your chocolate.'
+        else:
+            RandomDrawLog(delegation=delegation, status='failed').save()
+
     return render(
         request, 'ipho_exam/submission_submitted.html', {
             'exam': exam,
@@ -1840,6 +1880,7 @@ def submission_exam_submitted(request, exam_id):
             'stud_documents': stud_documents,
             'submission_status': ex_submission.status,
             'students_languages': assigned_student_language,
+            'msg':msg,
         }
     )
 
