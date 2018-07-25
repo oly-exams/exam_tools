@@ -1848,20 +1848,21 @@ def submission_exam_submitted(request, exam_id):
         threshold = (submitted_countries/total_countries)^2 #about 30 portions for 100 delegations
         if drawn > threshold and not RandomDrawLog.objects.filter(delegation=delegation).exists():
             RandomDrawLog(delegation=delegation).save()
-            subs_list = []
-            for u in delegation.members.all():
-                subs_list.extend(u.pushsubscription_set.all())
             if 'switzerland' in delegation.country.lower():
                 msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
             else:
-                msg = '!!!!!! You have Won Chocolate !!!!!!     Please come to the Oly-Exams table to collect your prize.'
-            link = reverse('chocobunny')
-            data = {'body': msg, 'url': link}
-            for s in subs_list:
-                try:
-                    s.send(data)
-                except WebPushException as e:
-                    pass
+                msg = 'You have won Chocolate !!     Please come to the Oly-Exams table to collect your prize.'
+            if settings.ENABLE_PUSH:
+                link = reverse('chocobunny')
+                data = {'body': msg, 'url': link}
+                subs_list = []
+                for u in delegation.members.all():
+                    subs_list.extend(u.pushsubscription_set.all())
+                for s in subs_list:
+                    try:
+                        s.send(data)
+                    except WebPushException as e:
+                        pass
         elif 'pending' in RandomDrawLog.objects.filter(delegation=delegation).first().status.lower():
             if 'switzerland' in delegation.country.lower():
                 msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'

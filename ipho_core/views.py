@@ -222,6 +222,8 @@ def send_push(request):
 def random_draw(request):
     if not request.user.is_superuser:
         return HttpResponse('It is not easter yet.')
+    if not settings.ENABLE_PUSH:
+        return HttpResponseForbidden('Push not enabled')
     if request.method == 'POST':
         import random
         drawn_delegations = RandomDrawLog.objects.values_list('delegation__pk', flat=True)
