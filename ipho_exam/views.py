@@ -1845,9 +1845,9 @@ def submission_exam_submitted(request, exam_id):
                   ).count()
         drawn = random.random()
         total_countries = remaining_countries + submitted_countries
-        threshold = (submitted_countries/total_countries)^2 #about 30 portions for 100 delegations
-        if drawn > threshold and not RandomDrawLog.objects.filter(delegation=delegation).exists():
-            RandomDrawLog(delegation=delegation).save()
+        threshold = (submitted_countries/total_countries)**2 #about 30 portions for 100 delegations
+        if drawn > threshold and not RandomDrawLog.objects.filter(delegation=delegation, tag=str(exam.pk)).exists():
+            RandomDrawLog(delegation=delegation, tag=str(exam.pk)).save()
             if 'switzerland' in delegation.country.lower():
                 msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
             else:
@@ -1863,15 +1863,15 @@ def submission_exam_submitted(request, exam_id):
                         s.send(data)
                     except WebPushException as e:
                         pass
-        elif 'pending' in RandomDrawLog.objects.filter(delegation=delegation).first().status.lower():
+        elif 'pending' in RandomDrawLog.objects.filter(delegation=delegation, tag=str(exam.pk)).first().status.lower():
             if 'switzerland' in delegation.country.lower():
                 msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
             else:
                 msg = 'You have won Chocolate !!     Please come to the Oly-Exams table to collect your prize.'
-        elif 'received' in RandomDrawLog.objects.filter(delegation=delegation).first().status.lower():
+        elif 'received' in RandomDrawLog.objects.filter(delegation=delegation, tag=str(exam.pk)).first().status.lower():
             msg = 'You already got your chocolate.'
         else:
-            RandomDrawLog(delegation=delegation, status='failed').save()
+            RandomDrawLog(delegation=delegation, status='failed', tag=str(exam.pk)).save()
 
     return render(
         request, 'ipho_exam/submission_submitted.html', {

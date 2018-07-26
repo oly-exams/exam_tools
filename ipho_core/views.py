@@ -226,7 +226,7 @@ def random_draw(request):
         return HttpResponseForbidden('Push not enabled')
     if request.method == 'POST':
         import random
-        drawn_delegations = RandomDrawLog.objects.values_list('delegation__pk', flat=True)
+        drawn_delegations = RandomDrawLog.objects.filter(tag='manual').values_list('delegation__pk', flat=True)
 
         off_pk = Delegation.objects.get_by_natural_key(OFFICIAL_DELEGATION).pk
         exclude_delegations = list(drawn_delegations.all())
@@ -264,7 +264,7 @@ def random_draw(request):
                     all_delegations.remove(temp_del)
                 else:
                     success = True
-        RandomDrawLog(delegation=drawn_del).save()
+        RandomDrawLog(delegation=drawn_del, tag='manual').save()
 
         return HttpResponse(
             '{} was drawn as a winner, {} notifications have been sent'.format(drawn_del.country, sent_n)
@@ -293,11 +293,13 @@ def chocobunny(request):
     else:
         name = delegation.country
         if RandomDrawLog.objects.filter(delegation=delegation).exists():
+            draw_logs = RandomDrawLog.objects.filter(delegation=delegation)
+            statuses = [s.lower() for s in draw_logs.values_list('status')]
             if delegation.country.lower() == 'switzerland':
                 message = 'Bring the cholocate to the OlyExams desk!'
-            elif 'pending' in RandomDrawLog.objects.filter(delegation=delegation).first().status.lower():
+            elif 'pending' in statuses:
                 message = 'Collect your chocolate at the OlyExams desk.'
-            elif 'received' in RandomDrawLog.objects.filter(delegation=delegation).first().status.lower():
+            elif 'received' in statuses:
                 message = 'Wait.. you already collected your chocolate.'
             else:
                 message = '404...Easter not found, pleas contact your local Pope.'
