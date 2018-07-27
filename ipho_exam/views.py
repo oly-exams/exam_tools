@@ -1775,6 +1775,39 @@ def submission_exam_confirm(request, exam_id):
         if 'agree-submit' in request.POST:
             ex_submission.status = ExamAction.SUBMITTED
             ex_submission.save()
+            if getattr(settings, 'RANDOM_DRAW_ON_SUBMISSION', False):
+                remaining_countries = ExamAction.objects.filter(
+                    exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
+                ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).count()
+                submitted_countries = ExamAction.objects.filter(
+                    exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
+                ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
+                          ).count()
+
+                drawn = random.random()
+                total_countries = remaining_countries + submitted_countries
+                threshold = (submitted_countries/total_countries)**2 #about 30 portions for 100 delegations
+                draw_exists = RandomDrawLog.objects.filter(delegation=delegation, tag=str(exam.pk)).exists()
+                if drawn > threshold and not draw_exists:
+                    RandomDrawLog(delegation=delegation, tag=str(exam.pk)).save()
+                    if 'switzerland' in delegation.country.lower():
+                        msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
+                    else:
+                        msg = 'You have won Chocolate !!     Please come to the Oly-Exams table to collect your prize.'
+                    if settings.ENABLE_PUSH:
+                        link = reverse('chocobunny')
+                        data = {'body': msg, 'url': link}
+                        subs_list = []
+                        for u in delegation.members.all():
+                            subs_list.extend(u.pushsubscription_set.all())
+                        for s in subs_list:
+                            try:
+                                s.send(data)
+                            except WebPushException as e:
+                                pass
+                elif not draw_exists:
+                    RandomDrawLog(delegation=delegation, status='failed', tag=str(exam.pk)).save()
+
             return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk, )))
         else:
             form_error = '<strong>Error:</strong> You have to agree on the final submission before continuing.'
@@ -1836,42 +1869,17 @@ def submission_exam_submitted(request, exam_id):
 
     msg = None
     if getattr(settings, 'RANDOM_DRAW_ON_SUBMISSION', False):
-        remaining_countries = ExamAction.objects.filter(
-            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
-        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).count()
-        submitted_countries = ExamAction.objects.filter(
-            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
-        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
-                  ).count()
-        drawn = random.random()
-        total_countries = remaining_countries + submitted_countries
-        threshold = (submitted_countries/total_countries)**2 #about 30 portions for 100 delegations
-        if drawn > threshold and not RandomDrawLog.objects.filter(delegation=delegation, tag=str(exam.pk)).exists():
-            RandomDrawLog(delegation=delegation, tag=str(exam.pk)).save()
-            if 'switzerland' in delegation.country.lower():
-                msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
-            else:
-                msg = 'You have won Chocolate !!     Please come to the Oly-Exams table to collect your prize.'
-            if settings.ENABLE_PUSH:
-                link = reverse('chocobunny')
-                data = {'body': msg, 'url': link}
-                subs_list = []
-                for u in delegation.members.all():
-                    subs_list.extend(u.pushsubscription_set.all())
-                for s in subs_list:
-                    try:
-                        s.send(data)
-                    except WebPushException as e:
-                        pass
-        elif 'pending' in RandomDrawLog.objects.filter(delegation=delegation, tag=str(exam.pk)).first().status.lower():
-            if 'switzerland' in delegation.country.lower():
-                msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
-            else:
-                msg = 'You have won Chocolate !!     Please come to the Oly-Exams table to collect your prize.'
-        elif 'received' in RandomDrawLog.objects.filter(delegation=delegation, tag=str(exam.pk)).first().status.lower():
-            msg = 'You already got your chocolate.'
-        else:
-            RandomDrawLog(delegation=delegation, status='failed', tag=str(exam.pk)).save()
+        draw_logs = RandomDrawLog.objects.filter(delegation=delegation, tag=str(exam.pk))
+        draw_exists = draw_logs.exists()
+        if draw_exists:
+            status = draw_logs.first().status.lower()
+            if 'pending' in status:
+                if 'switzerland' in delegation.country.lower():
+                    msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
+                else:
+                    msg = 'You have won Chocolate !!     Please come to the Oly-Exams table to collect your prize.'
+            elif 'received' in status:
+                msg = 'You already got your chocolate.'
 
     return render(
         request, 'ipho_exam/submission_submitted.html', {
