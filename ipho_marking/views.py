@@ -174,27 +174,23 @@ def export_with_total(request):
 @permission_required('ipho_core.is_marker')
 def export(request, include_totals=False):
     versions = request.GET.get('v', 'O,D,F').split(',')
-    exam_id = request.GET.get('exam', False)
 
-    import csv
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="markings.csv"'
-
-    writer = csv.writer(response)
+    csv_rows = []
     title_row = ['Student', 'Delegation', 'Version']
     mmeta = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
     for m in mmeta:
         title_row.append('{} - {} ({})'.format(m.question.name, m.name, m.max_points))
-    exams = Exam.objects.all()
-    questions = Question.objects.order_by('exam', 'position')
+    exams = Exam.objects.filter(hidden=False)
+    questions = Question.objects.filter(exam__hidden=False, code='A').order_by('exam', 'position')
     if include_totals:
         for question in questions:
+
             title_row.append('Question Total: {} - {}'.format(question.exam.name, question.name))
         for exam in exams:
             title_row.append('Exam Total: {}'.format(exam.name))
         title_row.append('Student Total')
 
-    writer.writerow(title_row)
+    csv_rows.append(title_row)
 
     for student in Student.objects.all():
         stud_markings = Marking.objects.filter(
@@ -221,7 +217,14 @@ def export(request, include_totals=False):
                 student_total = _get_total(markings)
                 row.append(student_total)
             row = ['-' if v is None else v for v in row]
-            writer.writerow(row)
+            csv_rows.append(row)
+
+    import csv
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="markings.csv"'
+
+    writer = csv.writer(response)
+    writer.writerows(csv_rows)
 
     return response
 
