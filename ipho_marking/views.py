@@ -166,17 +166,17 @@ def staff_stud_detail(request, version, stud_id, question_id):
     return render(request, 'ipho_marking/staff_edit.html', ctx)
 
 
-@permission_required('ipho_core.is_marker')
+@permission_required('ipho_core.is_staff')
 def export_with_total(request):
     return export(request, include_totals=True)
 
 
-@permission_required('ipho_core.is_marker')
+@permission_required('ipho_core.is_staff')
 def export(request, include_totals=False):
     versions = request.GET.get('v', 'O,D,F').split(',')
 
     csv_rows = []
-    title_row = ['Student', 'Delegation', 'Version']
+    title_row = ['Student', 'First_Name', 'Last_Name', 'Delegation', 'Version']
     mmeta = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
     for m in mmeta:
         title_row.append('{} - {} ({})'.format(m.question.name, m.name, m.max_points))
@@ -197,7 +197,7 @@ def export(request, include_totals=False):
             student=student
         )
         for version in versions:
-            row = [student.code, student.delegation.name, version]
+            row = [student.code, student.first_name, student.last_name, student.delegation.name, version]
             markings = stud_markings.filter(
                 version=version
             ).order_by('marking_meta__question__exam', 'marking_meta__question__position', 'marking_meta__position')
