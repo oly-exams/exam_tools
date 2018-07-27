@@ -275,7 +275,6 @@ def delegation_export(request, exam_id):
         writer.writerow(row)
 
     row = ['Total']
-    totals = [round(t, 1) for t in totals]
     writer.writerow(row + totals)
 
     return response
