@@ -197,14 +197,17 @@ def export(request, include_totals=False):
     writer.writerow(title_row)
 
     for student in Student.objects.all():
+        stud_markings = Marking.objects.filter(
+            student=student
+        )
         for version in versions:
             row = [student.code, student.delegation.name, version]
-            markings = Marking.objects.filter(
-                student=student, version=version
+            markings = stud_markings.filter(
+                version=version
             ).order_by('marking_meta__question__exam', 'marking_meta__question__position', 'marking_meta__position')
             points = markings.values_list('points', flat=True)
             for marking, meta in zip(markings, mmeta):
-                print(marking.marking_meta, meta)
+                # print(marking.marking_meta, meta)
                 assert marking.marking_meta == meta
             row += points
             if include_totals:
