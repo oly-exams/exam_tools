@@ -31,7 +31,7 @@ STATIC_PATH = os.path.join(PROJECT_PATH, 'static')
 
 SITE_URL = 'http://127.0.0.1:8000'
 
-VERSION = '2.0.0'
+VERSION = '2.1.0'
 
 try:
     GIT_HEAD_DATE = str(subprocess.check_output(["git", "log", "-1", "--date=short", "--pretty=format:%ci"]),
