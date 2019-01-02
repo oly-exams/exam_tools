@@ -148,6 +148,6 @@ def export_all(logo_file, names=('Theory', 'Experiment')):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        export_all(logo_file='ipho18_logo.png', names=sys.argv[1:])
+        export_all(logo_file='ipho19_logo.png', names=sys.argv[1:])
     else:
-        export_all(logo_file='ipho18_logo.png')
+        export_all(logo_file='ipho19_logo.png')
