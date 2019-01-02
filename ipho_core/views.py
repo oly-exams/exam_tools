@@ -73,7 +73,7 @@ def account_request(request):
     if form.is_valid():
         form.save()
         selected_user = form.cleaned_data['user']
-        ## Redirect authenticate user
+        ## Redirect authenticated user
         user = authenticate(token=selected_user.autologin.token)
         redirect_to = reverse('home')
         login(request, user)
