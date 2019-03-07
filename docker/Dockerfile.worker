@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y \
     sqlite3 \
     mercurial \
     inkscape imagemagick \
-    npm nodejs-legacy \
   --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 COPY ./requirements.txt /requirements.txt
@@ -17,9 +16,6 @@ RUN pip install --no-cache -r requirements.txt
 
 COPY . /app
 
-RUN cd app \
-  && npm -g install bower \
-  && bower --allow-root install
 
 RUN sed 's/ipho.db/db\/db.sqlite/g' /app/exam_tools/settings_example.py > /app/exam_tools/settings.py
 
