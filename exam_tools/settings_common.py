@@ -55,6 +55,9 @@ DEMO_SIGN_UP = False
 # Adds a watermark to PDFs shown to non-staff
 ADD_DELEGATION_WATERMARK = False
 
+# Defines if there is a 'banner' page for the delegation prints
+ADD_DELEGATION_PRINT_BANNER = False
+
 # Defines whether a QR code should be printed on the cover sheets
 CODE_ON_COVER_SHEET = False
 
@@ -132,6 +135,15 @@ EXAM_TOOLS_API_KEYS = {
     'PDF Worker': 'KeyChangeMe',
     'Scan Worker': 'KeyChangeMe',
 }
+
+# Random draw
+RANDOM_DRAW_ON_SUBMISSION = True
+
+# Push Notifications
+ENABLE_PUSH = False
+PUSH_PUBLIC_KEY = ''
+PUSH_PRIVATE_KEY = ''
+
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
