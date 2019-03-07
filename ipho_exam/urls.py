@@ -80,6 +80,11 @@ urlpatterns = patterns(
         name='pdf-version'
     ),
     url(
+        r'^pdf-diff/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<old_version_num>\d+)/v(?P<new_version_num>\d+)$',
+        'compiled_question_diff',
+        name='pdfdiff-version'
+    ),
+    url(
         r'^tex/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$',
         'compiled_question', {'raw_tex': True},
         name='tex'
@@ -140,10 +145,10 @@ urlpatterns = patterns(
     url(r'^submission/(?P<exam_id>\d+)/submitted$', 'submission_exam_submitted', name='submission-exam-submitted'),
     url(r'^figures/?$', 'figure_list', name='figures'),
     url(r'^figure/add$', 'figure_add', name='figure-add'),
-    url(r'^figure/(?P<fig_id>\d+)$', 'figure_edit', name='figure-edit'),
-    url(r'^figure/(?P<fig_id>\d+)/remove$', 'figure_delete', name='figure-delete'),
-    url(r'^figure/(?P<fig_id>\d+)/export$', 'figure_export', name='figure-export'),
-    url(r'^figure/(?P<fig_id>\d+)/(?P<lang_id>\d+)/export$', 'figure_export', name='figure-lang-export'),
+    url(r'^figure/(?P<fig_id>[^\/]+)$', 'figure_edit', name='figure-edit'),
+    url(r'^figure/(?P<fig_id>[^\/]+)/remove$', 'figure_delete', name='figure-delete'),
+    url(r'^figure/(?P<fig_id>[^\/]+)/export$', 'figure_export', name='figure-export'),
+    url(r'^figure/(?P<fig_id>[^\/]+)/(?P<lang_id>\d+)/export$', 'figure_export', name='figure-lang-export'),
     url(r'^admin/?$', 'admin_list', name='admin'),
     url(r'^admin/(?P<exam_id>\d+)/quesiton/add$', 'admin_add_question', name='admin-add-question'),
     url(
@@ -225,12 +230,16 @@ urlpatterns = patterns(
         name='admin-feedbacks-export-csv'
     ),
     url(r'^admin/submissions/translation$', 'admin_submissions_translation', name='admin-submissions-translation'),
+    url(
+        r'^admin/print/submissions/translation$', 'print_submissions_translation', name='print-submissions-translation'
+    ),
     url(r'^admin/submissions/list/(?P<exam_id>\d+)$', 'admin_submission_list', name='admin-submission-list'),
     url(r'^admin/submissions/assign/(?P<exam_id>\d+)$', 'admin_submission_assign', name='admin-submission-assign'),
     url(
         r'^admin/submissions/(?P<submission_id>\d+)/delete$', 'admin_submission_delete', name='admin-submission-delete'
     ),
     url(r'^admin/bulk-print/?$', 'bulk_print', name='bulk-print'),
+    url(r'^admin/bulk-print/(?P<page>\d+)/(?P<tot_print>\d+)$', 'bulk_print', name='bulk-print_prg'),
     url(r'^admin/extra-sheets/?$', 'extra_sheets', name='extra-sheets-select-exam'),
     url(r'^admin/extra-sheets/(?P<exam_id>\d+)$', 'extra_sheets', name='extra-sheets'),
     url(r'^admin/scan-status/(?P<doc_id>\d+)/(?P<status>\w)$', 'set_scan_status', name='set-scan-status'),

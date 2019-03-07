@@ -51,7 +51,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         compile_task = tasks.compile_tex.s(body, [])
         q = questions[0]
         s = student_languages[0].student
-        bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C')
+        bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C', suppress_code=True)
         barcode_task = tasks.add_barcode.s(bgenerator)
         all_tasks.append(celery.chain(compile_task, barcode_task))
 
@@ -92,7 +92,9 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                 barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
             else:
-                all_tasks.append(compile_task)
+                bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, suppress_code=True)
+                barcode_task = tasks.add_barcode.s(bgenerator)
+                all_tasks.append(celery.chain(compile_task, barcode_task))
 
             if question.is_answer_sheet() and question.working_pages > 0:
                 context = {

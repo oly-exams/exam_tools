@@ -43,9 +43,11 @@
             {% for qid,pp in points %}
             <td>
               {{ pp|default_if_none:'-' }}
+              {% if vid == "O" %}
               <a class="btn btn-default btn-xs" href="{% url 'marking:staff-stud-detail' question_id=qid version=vid stud_id=student.id %}">
                 <i class="fa fa-pencil" aria-hidden="true"></i>
               </a>
+              {% endif %}
             </td>
             {% endfor %}
             {% for ep in exam_points %}

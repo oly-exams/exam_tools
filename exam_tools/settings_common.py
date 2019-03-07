@@ -31,10 +31,11 @@ STATIC_PATH = os.path.join(PROJECT_PATH, 'static')
 
 SITE_URL = 'http://127.0.0.1:8000'
 
-VERSION = '2.0.0'
+VERSION = '2.1.0'
 
 try:
-    GIT_HEAD_DATE = str(subprocess.check_output(["git", "log", "-1", "--date=short", "--pretty=format:%ci"]), 'utf-8').strip()
+    GIT_HEAD_DATE = str(subprocess.check_output(["git", "log", "-1", "--date=short", "--pretty=format:%ci"]),
+                        'utf-8').strip()
 except Exception:
     GIT_HEAD_DATE = ''
 try:
@@ -50,6 +51,12 @@ OFFICIAL_DELEGATION = 'Official'
 DEMO_MODE = False
 # Allow user sign-up for demo
 DEMO_SIGN_UP = False
+
+# Adds a watermark to PDFs shown to non-staff
+ADD_DELEGATION_WATERMARK = False
+
+# Defines whether a QR code should be printed on the cover sheets
+CODE_ON_COVER_SHEET = False
 
 # Url of documentation
 DOCS_URL = '/docs'

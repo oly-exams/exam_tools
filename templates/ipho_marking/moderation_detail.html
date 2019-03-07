@@ -4,6 +4,72 @@
 {% load editor_extras %}
 
 {% block extra-head %}
+<style>
+.table-bordered {
+  border: none;
+  border-collapse: separate;
+}
+
+td {
+  border-top: none !important;
+}
+
+#firstrow tr:first-child th {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  border-top: 1px solid lightgrey !important;
+  border-right: 1px solid lightgrey;
+  background-color: #f9f9f9;
+}
+
+.thexpart {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.thdnone {
+  background-color: initial;
+  border: none !important;
+}
+
+.tdtotal {
+    border-top: 1px solid black !important;
+}
+
+@media screen {
+  .onlyprint {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+
+@media print {
+  .body, .table, .container {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    border: none !important;
+    float: none !important;
+  }
+
+  .thead-bordered, .tbody-bordered {
+    border: 2px solid black !important;
+  }
+
+  button, i {
+    display: none !important;
+  }
+
+  .onlyprint {
+    display: block;
+    visibility: visible;
+  }
+
+  .table-onlyprint {
+    border: none !important;
+  }
+}
+</style>
 {% endblock %}
 
 {% block pageheader %}<h1>Moderation {{ delegation.country }} ({{ delegation.name }})</h1>{% endblock %}
@@ -14,71 +80,150 @@
 
   <form method="POST">
   {% csrf_token %}
-  {% for student,markings_official,markings_delegation,forms in student_forms %}
-    {{ forms.management_form }}
-
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</h2>
-      </div>
-
-      <table class="table table-strided">
+  <table class="table table-sm table-bordered">
+    <thead class="thead-bordered" id="firstrow">
+      <tr>
+        <td class="thdnone"></td>
+        {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
+          <td class="thdnone"></td>
+          <th colspan=3>
+            <h4>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</h4>
+            <button class="btn btn-default btn-xs" data-action="copy" data-student="{{ student.pk }}" title="Copy from official"><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i><i class="fa fa-arrow-right" aria-hidden="true"></i><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i></button>
+          </th>
+        {% endfor %}
+      </tr>
+      <tr>
+        <th class="thexpart">Problem part</th>
+        {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
+          {{ forms.management_form }}
+          <td class="thdnone"></td>
+          <th>O</th>
+          <th>D</th>
+          <th>M</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody class="tbody-bordered">
+      {% for meta, zp in marking_forms %}
         <tr>
-          <th></th>
-          {% for item in metas %}
-            <th>{{ item.name }} ({{ item.max_points }})</th>
-          {% endfor %}
-        </tr>
-
-        <tr>
-          <th>Official <button class="btn btn-default btn-xs" data-action="copy" data-student="{{ student.pk }}" title="Copy from official"><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i><i class="fa fa-arrow-right" aria-hidden="true"></i><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i></button></th>
-          {% for item in markings_official %}
-            <td>{{ item.points|default_if_none:"-" }}</td>
-          {% endfor %}
-        </tr>
-
-        <tr>
-          <th>Delegation</th>
-          {% for item in markings_delegation %}
-            <td>{{ item.points|default_if_none:"-" }}</td>
-          {% endfor %}
-        </tr>
-
-        <tr>
-          <th>Moderation</th>
-          {% for form in forms %}
+          <td>{{ meta.name }} ({{ meta.max_points }})</td>
+          {% for marking_official, marking_delegation, form in zp %}
+            <td class="thdnone"></td>
+            <td>{{ marking_official.points|default_if_none:"-" }}</td>
+            <td>{{ marking_delegation.points|default_if_none:"-" }}</td>
             <td>{{ form.id }}<div class="{{ form.errors|yesno:"has-error," }}">{{ form.points }}</div></td>
           {% endfor %}
         </tr>
-      </table>
-    </div>
-  {% endfor %}
+      {% endfor %}
+      <tr>
+        <td class="tdtotal"><strong>Total ({{ max_points_sum }})</strong></td>
+        {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
+          <td class="thdnone"></td>
+          <td class="tdtotal">{{ sum_official }}</td>
+          <td class="tdtotal">{{ sum_delegation }}</td>
+          <td class="tdtotal" id="cell_total_{{ forloop.counter0 }}"></td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
 
   <div>
-    <button type="submit" class="btn btn-primary"><i class="fa fa-check" aria-hidden="true"></i> Submit</buton>
+    <button id="submit_button" type="submit" class="btn btn-primary"><i class="fa fa-check" aria-hidden="true"></i> Submit</button>
   </div>
 
   </form>
+
+  <div class="onlyprint" style="height:50px;"></div>
+
+  <table class="table onlyprint table-onlyprint">
+    <tr>
+      <td><h4>Signature of the delegation:</h4></td>
+      <td><textarea rows="3" cols="50" class="form-control"></textarea></td>
+    </tr>
+    <tr>
+      <td><h4>Signature of the marker:</h4></td>
+      <td><textarea rows="3" cols="50" class="form-control"></textarea></td>
+    </tr>
+  </table>
+
+  <div class="onlyprint" style="height:50px;"></div>
 
 {% endblock %}
 
 {% block extra-script %}
 
 <script>
+student_pks = new Array();
+{% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
+student_pks[{{ forloop.counter0 }}] = {{ student.pk }};
+{% endfor %}
+
+function update_totals () {
+  for (i = 0; i < {{ student_forms|length }}; i++) {
+    var t = 0.0;
+    var failed = false;
+    for (j = 0; j < {{ marking_forms|length }}; j++) {
+      var x = parseFloat($('#id_Stud-' + student_pks[i] + '-' + j + '-points').val());
+      if (isNaN(x)) {
+        failed = true;
+        break;
+      }
+      else {
+        t += x;
+      }
+    }
+    if (failed) {
+      $('#cell_total_' + i).text('-');
+    }
+    else {
+      $('#cell_total_' + i).text(t.toFixed(2));
+    }
+  }
+}
+
 $(function () {
 
   results_official = new Array();
-  {% for student,markings_official,markings_delegation,forms in student_forms %}
+  {% for student, forms, markings_official, sum_official, sum_delegation in student_forms %}
   results_official[{{ student.pk }}] = [ {% for item in markings_official %}{{ item.points|default_if_none:"0" }},{% endfor %} ];
   {% endfor %}
 
+  {% if request.method == "POST" %}
+  window.dirty_form = true;
+  {% else %}
+  window.dirty_form = false;
+  {% endif %}
+
   $('button[data-action="copy"]').click(function (evt) {
     evt.preventDefault();
+    window.dirty_form = true;
     var stud_id = $(this).data('student');
     for (k in results_official[stud_id]) {
       $('#id_Stud-'+stud_id+'-'+k+'-points').val(results_official[stud_id][k]);
     }
+    update_totals();
   });
+
+  $('input[id^="id_Stud-"][id$="-points"]').change(function () {
+    window.dirty_form = true;
+    update_totals();
+  });
+  $('#submit_button').click(function (e) {
+    window.dirty_form = false;
+  });
+
+  update_totals();
+});
+
+window.addEventListener("beforeunload", function (e) {
+  if (window.dirty_form) {
+    var confirmation_message = "Some data has not be saved. Quit anyways?";
+    e.returnValue = confirmation_message;
+    return confirmation_message;
+  }
+  else {
+    return null;
+  }
 });
 </script>
 {% endblock %}

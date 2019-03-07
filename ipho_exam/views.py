@@ -17,15 +17,19 @@
 
 from __future__ import print_function
 
+import urllib
+
 from builtins import range
 from builtins import object
 from builtins import str, chr
 
+import json
 import logging
+import traceback
 
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.http.request import QueryDict
 
 from django.template import RequestContext
@@ -37,6 +41,9 @@ from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
+from django.db.models.functions import Lower
+from django.template.defaultfilters import slugify
+from django.utils.html import escape
 
 import os
 from copy import deepcopy
@@ -45,15 +52,20 @@ from django.utils import timezone
 from tempfile import mkdtemp
 from hashlib import md5
 import itertools
+import random
+from pywebpush import WebPushException
 
 from django.conf import settings
-from ipho_core.models import Delegation, Student
+from ipho_core.views import any_permission_required
+from ipho_core.models import Delegation, Student, RandomDrawLog
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, CompiledFigure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog, Place
+from ipho_exam.models import VALID_RAW_FIGURE_EXTENSIONS, VALID_COMPILED_FIGURE_EXTENSIONS, VALID_FIGURE_EXTENSIONS
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 from ipho_exam.response import render_odt_response
 from ipho_print import printer
+from ipho_exam import check_points
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, ExamQuestionForm, DeleteForm, VersionNodeForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, ExamQuestionForm, DeleteForm, VersionNodeForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm, PublishForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -61,24 +73,9 @@ import celery
 from celery.result import AsyncResult
 
 logger = logging.getLogger('ipho_exam')
+django_logger = logging.getLogger('django.request')
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
-
-
-def any_permission_required(*args):
-    """
-    A decorator which checks user has any of the given permissions.
-    permission required can not be used in its place as that takes only a
-    single permission.
-    """
-
-    def test_func(user):
-        for perm in args:
-            if user.has_perm(perm):
-                return True
-        return False
-
-    return user_passes_test(test_func)
 
 
 @login_required
@@ -221,13 +218,23 @@ def list_all_translations(request):
     if delegation is not None:
         filter_dg = delegation
 
+    official_translations_vnode = VersionNode.objects.filter(
+        question__exam=filter_ex, language__delegation__name=OFFICIAL_DELEGATION, status='C'
+    ).order_by('question', '-version')
+    official_nodes = []
+    qdone = set()
+    for node in official_translations_vnode:
+        if node.question not in qdone:
+            official_nodes.append(node)
+            qdone.add(node.question)
+
     trans_list = TranslationNode.objects.filter(
         question__exam=filter_ex, language__delegation=filter_dg
     ).order_by('language__delegation', 'question')
     pdf_list = PDFNode.objects.filter(
         question__exam=filter_ex, language__delegation=filter_dg
     ).order_by('language__delegation', 'question')
-    all_nodes = list(trans_list) + list(pdf_list)
+    all_nodes = list(trans_list) + list(pdf_list) + list(official_nodes)
 
     paginator = Paginator(all_nodes, 25)  # Show 25 contacts per page
 
@@ -275,7 +282,9 @@ def add_translation(request, exam_id):
         raise Exception('TODO: implement small template page for handling without Ajax.')
     delegation = Delegation.objects.get(members=request.user)
     exam = get_object_or_404(Exam, id=exam_id)
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
 
     num_questions = exam.question_set.count()
     translation_form = TranslationForm(request.POST or None)
@@ -314,10 +323,10 @@ def add_translation(request, exam_id):
                 node.text = qml.xml2string(trans.qml.make_xml())
                 node.save()
             else:
-                failed_questions.append(question.name)
+                #failed_questions.append(question.name)
+                pass  # TU: 2018/05/08: to my logic having questions with unpublished versions is not an error -> do not show this as error
 
         if failed_questions:
-            # raise ValueError(failed_questions)
             return JsonResponse({
                 'success':
                 True,
@@ -361,9 +370,11 @@ def add_pdf_node(request, question_id, lang_id):
     if not lang.check_permission(request.user):
         return HttpResponseForbidden('You do not have the permissions to edit this language.')
 
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
 
-    node = get_object_or_404(PDFNode, question=question, language=lang)
+    node, _ = PDFNode.objects.get_or_create(question=question, language=lang)
     ## Language section
     node_form = PDFNodeForm(request.POST or None, request.FILES or None, instance=node)
     if node_form.is_valid():
@@ -389,13 +400,14 @@ def add_pdf_node(request, question_id, lang_id):
 
 @login_required
 def translation_export(request, question_id, lang_id, version_num=None):
+    """ Translation export, both for normal editor and admin editor """
     if version_num is None:
         trans = qquery.latest_version(question_id, lang_id)
     else:
         trans = qquery.get_version(question_id, lang_id, version_num)
 
     content = qml.xml2string(trans.qml.make_xml())
-    content = qml.unescape_entities(content)
+    #content = qml.unescape_entities(content)  # original: remove escapes here - not safe!
 
     res = HttpResponse(content, content_type="application/ipho+qml+xml")
     res['content-disposition'] = 'attachment; filename="{}"'.format(
@@ -406,13 +418,16 @@ def translation_export(request, question_id, lang_id, version_num=None):
 
 @permission_required('ipho_core.is_delegation')
 def translation_import(request, question_id, lang_id):
+    """ Translation import (only for delegations) """
     delegation = Delegation.objects.filter(members=request.user)
     language = get_object_or_404(Language, id=lang_id)
     question = get_object_or_404(Question, id=question_id)
     if not language.check_permission(request.user):
         return HttpResponseForbidden('You do not have the permissions to edit this language.')
 
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=question.exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
 
     form = TranslationImportForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -422,7 +437,9 @@ def translation_import(request, question_id, lang_id):
             txt = txt.decode('utf8')
         except AttributeError:
             pass
-        obj.content = qml.normalize_html(txt)
+        #obj.content = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
+        #obj.content = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
+        obj.content = txt  # safest, but does not look nice: all < and > escaped
         obj.question = question
         obj.language = language
         obj.save()
@@ -567,14 +584,61 @@ def edit_language(request, lang_id):
 @login_required
 @ensure_csrf_cookie
 def feedbacks_list(request):
-    exam_list = Exam.objects.filter(hidden=False, active=True)
+    exam_list = Exam.objects.filter(hidden=False, active=True, hide_feedback=False)
     delegation = Delegation.objects.filter(members=request.user)
+    delegations = Delegation.objects.all()
+
+    questions_f = Question.objects.filter(exam=exam_list).all()
+
+    def get_or_none(model, *args, **kwargs):
+        try:
+            return model.objects.get(*args, **kwargs)
+        except model.DoesNotExist:
+            return None
+
+    status_list = Feedback.STATUS_CHOICES
+    filter_st = [s[0] for s in status_list]
+    status = request.GET.get('st', None)
+    display_status = None
+    if status is not None:
+        status = status.rstrip('/')
+        display_status = dict(Feedback.STATUS_CHOICES)[status]
+        filter_st = status
+
+    filter_qu = questions_f
+    qf_pk = request.GET.get('qu', None)
+    if qf_pk is not None:
+        qf_pk = qf_pk.rstrip('/')
+    question_f = get_or_none(Question, pk=qf_pk)
+    if question_f is not None:
+        filter_qu = question_f
+
+    class url_builder(object):
+        def __init__(self, base_url, get={}):
+            self.url = base_url
+            self.get = get
+
+        def __call__(self, **kwargs):
+            qdict = QueryDict('', mutable=True)
+            for k, v in list(self.get.items()):
+                qdict[k] = v
+            for k, v in list(kwargs.items()):
+                if v is None:
+                    if k in qdict: del qdict[k]
+                else:
+                    qdict[k] = v
+            url = self.url + '?' + qdict.urlencode()
+            return url
 
     if 'exam_id' in request.GET:
         if not int(request.GET['exam_id']) in [ex.pk for ex in exam_list]:
             raise Http404('Not such active exam.')
+
         questions = Question.objects.filter(exam=request.GET['exam_id'])
-        feedbacks = Feedback.objects.filter(question=questions).annotate(
+        feedbacks = Feedback.objects.filter(question=questions).filter(
+            status__in=filter_st,
+            question=filter_qu,
+        ).annotate(
             num_likes=Sum(Case(When(like__status='L', then=1), output_field=IntegerField())),
             num_unlikes=Sum(Case(When(like__status='U', then=1), output_field=IntegerField())),
             delegation_likes=Sum(
@@ -584,7 +648,8 @@ def feedbacks_list(request):
             'num_likes', 'num_unlikes', 'delegation_likes', 'pk', 'question__pk', 'question__name',
             'question__feedback_active', 'delegation__name', 'delegation__country', 'status', 'timestamp', 'part',
             'comment'
-        ).order_by('question__position')
+        ).order_by('-pk')
+
         choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
         for fb in feedbacks:
             fb['status_display'] = choices[fb['status']]
@@ -592,6 +657,7 @@ def feedbacks_list(request):
                ] = (fb['delegation_likes'] == 0) and fb['question__feedback_active'] and len(delegation) > 0
         feedbacks = list(feedbacks)
         feedbacks.sort(key=lambda fb: (fb['question__pk'], Feedback.part_id(fb['part'])))
+
         return render(
             request, 'ipho_exam/partials/feedbacks_tbody.html', {
                 'feedbacks': feedbacks,
@@ -604,7 +670,12 @@ def feedbacks_list(request):
         return render(
             request, 'ipho_exam/feedbacks.html', {
                 'exam_list': exam_list,
+                'status': display_status,
+                'status_choices': Feedback.STATUS_CHOICES,
+                'question': question_f,
+                'questions': questions_f,
                 'is_delegation': len(delegation) > 0 or request.user.has_perm('ipho_core.is_staff'),
+                'this_url_builder': url_builder(reverse('exam:feedbacks-list'), request.GET),
             }
         )
 
@@ -699,7 +770,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
 @ensure_csrf_cookie
 def figure_list(request):
     figure_list = Figure.objects.all()
-
+    print(figure_list)
     return render(request, 'ipho_exam/figures.html', {
         'figure_list': figure_list,
     })
@@ -719,26 +790,35 @@ def figure_add(request):
         obj = form.save(commit=False)
         ext = os.path.splitext(str(request.FILES['file']))[1]
 
-        if ext in ['.svg', '.svgz']:
+        if ext in VALID_COMPILED_FIGURE_EXTENSIONS:
             obj = CompiledFigure.objects.create(name=obj.name)
-            obj.content = request.FILES['file'].read()
+            obj.content = str(request.FILES['file'].read(), 'utf-8')
             placeholders = figparam_placeholder.findall(obj.content)
             obj.params = ','.join(placeholders)
             obj.save()
-        else:
+        elif VALID_RAW_FIGURE_EXTENSIONS:
             obj = RawFigure.objects.create(name=obj.name)
             obj.content = request.FILES['file'].read()
             obj.filetype = ext.lstrip('.')
             obj.save()
+        else:
+            form.add_error('file', 'Invalid extension.')
+            form_html = render_crispy_form(form)
+            return JsonResponse({
+                'title': 'Add new figure',
+                'form': form_html,
+                'submit': 'Upload',
+                'success': False,
+            })
 
         return JsonResponse({
             'type': 'add',
-            'figid': obj.pk,
+            'figid': obj.fig_id,
             'name': obj.name,
             'params': obj.params,
-            'src': reverse('exam:figure-export', args=[obj.pk]),
-            'edit-href': reverse('exam:figure-edit', args=[obj.pk]),
-            'delete-href': reverse('exam:figure-delete', args=[obj.pk]),
+            'src': reverse('exam:figure-export', args=[obj.fig_id]),
+            'edit-href': reverse('exam:figure-edit', args=[obj.fig_id]),
+            'delete-href': reverse('exam:figure-delete', args=[obj.fig_id]),
             'success': True,
             'message': '<strong>Figure added!</strong> The new figure has successfully been created.',
         })
@@ -757,17 +837,18 @@ def figure_edit(request, fig_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
 
-    instance = get_object_or_404(Figure, pk=fig_id)
+    instance = get_object_or_404(Figure, fig_id=fig_id)
     if isinstance(instance, RawFigure):
         compiled = False
-        valid_extensions = ('.' + instance.filetype, )
+        valid_extensions = VALID_RAW_FIGURE_EXTENSIONS
     elif isinstance(instance, CompiledFigure):
         compiled = True
-        valid_extensions = ('.svg', '.svgz')
+        valid_extensions = VALID_COMPILED_FIGURE_EXTENSIONS
     # The 'else' case should produce an error, since Figures should never be neither Raw nor Compiled.
     form = FigureForm(request.POST or None, request.FILES or None, instance=instance, valid_extensions=valid_extensions)
     if form.is_valid():
         obj = form.save(commit=False)
+        ext = os.path.splitext(str(request.FILES['file']))[1]
         if 'file' in request.FILES:
             if compiled:
                 obj.content = request.FILES['file'].read()
@@ -776,6 +857,7 @@ def figure_edit(request, fig_id):
                 obj.save()
             else:
                 obj.content = request.FILES['file'].read()
+                obj.filetype = ext.lstrip('.')
                 obj.save()
 
         return JsonResponse({
@@ -812,7 +894,7 @@ def figure_edit(request, fig_id):
 def figure_delete(request, fig_id):
     if not request.is_ajax:
         raise Exception('TODO: implement small template page for handling without Ajax.')
-    obj = get_object_or_404(Figure, pk=fig_id)
+    obj = get_object_or_404(Figure, fig_id=fig_id)
     obj.delete()
     return JsonResponse({
         'success': True,
@@ -822,7 +904,7 @@ def figure_delete(request, fig_id):
 @login_required
 def figure_export(request, fig_id, lang_id=None):
     lang = get_object_or_404(Language, pk=lang_id) if lang_id is not None else None
-    fig = get_object_or_404(Figure, pk=fig_id)
+    fig = get_object_or_404(Figure, fig_id=fig_id)
     figure_content, content_type = fig.to_inline(query=request.GET, lang=lang)
     return HttpResponse(figure_content, content_type="image/{}".format(content_type))
 
@@ -985,6 +1067,7 @@ def admin_new_version(request, exam_id, question_id):
 
 @permission_required('ipho_core.is_staff')
 def admin_import_version(request, question_id):
+    """ Translation import for admin """
     language = get_object_or_404(Language, id=OFFICIAL_LANGUAGE)
     question = get_object_or_404(Question, id=question_id)
 
@@ -1007,7 +1090,9 @@ def admin_import_version(request, question_id):
             node.pk = None
             node.version += 1
             node.status = 'P'
-        node.text = qml.escape_equations(txt)
+        #node.text = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
+        #node.text = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
+        node.text = txt  # safest, but does not look nice: all < and > escaped
         node.save()
         return JsonResponse({'success': True})
 
@@ -1156,14 +1241,52 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     question = get_object_or_404(Question, id=question_id)
     lang = get_object_or_404(Language, id=lang_id)
 
-    if lang.versioned:
-        node = get_object_or_404(VersionNode, question=question, language=lang, status='S', version=version_num)
-    else:
-        node = get_object_or_404(TranslationNode, question=question, language=lang)
+    assert lang.versioned
 
-    node.status = 'C'
-    node.save()
-    return HttpResponseRedirect(reverse('exam:admin'))
+    node = get_object_or_404(VersionNode, question=question, language=lang, status='S', version=version_num)
+
+    publish_form = PublishForm(request.POST or None)
+    if publish_form.is_valid():
+        node.status = 'C'
+        node.save()
+
+        exam_id = node.question.exam.id
+        return JsonResponse({
+            'type': 'submit',
+            'success': True,
+            'message': '<strong>Version published!</strong>',
+            'exam_id': exam_id,
+        })
+
+    else:
+        form_html = render_crispy_form(publish_form)
+        try:
+            check_points.check_version(node)
+        except check_points.PointValidationError as exc:
+            check_message = "<div>Point check identified the following issue:</div><div><strong>" + escape(
+                str(exc)
+            ) + "</strong></div><div>Publish anyway?</div>"
+            return JsonResponse({
+                'title': 'Inconsistent Points',
+                'form': check_message + form_html,
+                'success': False,
+            })
+        except Exception:
+            error_msg = 'Error in checking points:\n{}'.format(traceback.format_exc())
+            logger.error(error_msg)
+            # to send e-mails
+            django_logger.error(error_msg)
+            return JsonResponse({
+                'title':
+                'Error in point check.',
+                'form':
+                '<div>An error has occurred while checking the points consistency.</div><div>Publish anyway?</div>' +
+                form_html,
+                'success':
+                False
+            })
+        check_message = 'The points are consistent with the corresponding question / answer sheet.'
+        return JsonResponse({'title': 'Point check successful!', 'form': check_message + form_html, 'success': False})
 
 
 @permission_required('ipho_core.is_staff')
@@ -1220,7 +1343,8 @@ def admin_editor(request, exam_id, question_id, version_num):
     q = qml.make_qml(node)
     #content_set = qml.make_content(q)
 
-    qml_types = [(qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()]
+    qml_types = sorted(((qobj.tag, qobj.display_name, qobj.sort_order) for qobj in qml.QMLobject.all_objects()),
+                       key=lambda t: t[2])
     context = {
         'exam': exam,
         'question': question,
@@ -1344,11 +1468,13 @@ def admin_editor_add_block(request, exam_id, question_id, version_num, block_id,
     if block is None:
         raise Http404('block_id not found')
 
-    newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)), after_id=after_id)
+    newblock = block.add_child(qml.ET.fromstring(u'<{} />'.format(tag_name)), after_id=after_id, insert_at_front=True)
     node.text = qml.xml2string(q.make_xml())
     node.save()
 
-    qml_types = [(qobj.tag, qobj.display_name) for qobj in qml.QMLobject.all_objects()]
+    # TODO: find some better sorting way?
+    qml_types = sorted(((qobj.tag, qobj.display_name, qobj.sort_order) for qobj in qml.QMLobject.all_objects()),
+                       key=lambda t: t[2])
     ctx = {
         'fields_set': [newblock],
         'parent': block,
@@ -1448,40 +1574,82 @@ def _get_submission_languages(exam, delegation):
     ).filter(
         Q(delegation__name=OFFICIAL_DELEGATION) & Q(hidden_from_submission=False)
         | (Q(delegation=delegation) & (Q(num_translation=num_questions) | Q(num_pdf=num_questions)))
-    )
+    ).order_by('name')
 
 
 @permission_required('ipho_core.is_staff')
 def admin_submissions_translation(request):
-    remaining_countries = ExamAction.objects.filter(
-        exam__active=True, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
-    ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).values_list('delegation__country')
+    exams = {}
+    for exam in Exam.objects.filter(active=True):
+        remaining_countries = ExamAction.objects.filter(
+            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
+        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).values_list('delegation__country')
 
-    remaining_countries = [country[0] + ',' for country in remaining_countries]
-    if remaining_countries:
-        remaining_countries[-1] = remaining_countries[-1][:-1]
+        remaining_countries = [country[0] + ',' for country in remaining_countries]
+        if remaining_countries:
+            remaining_countries[-1] = remaining_countries[-1][:-1]
 
-    open_exams = len(remaining_countries)
+        open_translations = len(remaining_countries)
 
-    submitted_countries = ExamAction.objects.filter(
-        exam__active=True, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
-    ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
-              ).order_by('timestamp').values_list('delegation__country')
+        submitted_countries = ExamAction.objects.filter(
+            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
+        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
+                  ).order_by('timestamp').values_list('delegation__country')
 
-    submitted_countries = [country[0] + ',' for country in submitted_countries]
-    if submitted_countries:
-        submitted_countries[-1] = submitted_countries[-1][:-1]
+        submitted_countries = [country[0] + ',' for country in submitted_countries]
+        if submitted_countries:
+            submitted_countries[-1] = submitted_countries[-1][:-1]
 
-    submitted_exams = len(submitted_countries)
+        submitted_translations = len(submitted_countries)
 
-    return render(
-        request, 'ipho_exam/admin_submissions_translation.html', {
-            'open_exams': open_exams,
-            'submitted_exams': submitted_exams,
+        exams[exam.name] = {
+            'open_translations': open_translations,
+            'submitted_translations': submitted_translations,
             'remaining_countries': remaining_countries,
             'submitted_countries': submitted_countries,
         }
-    )
+
+    return render(request, 'ipho_exam/admin_submissions_translation.html', {
+        'exams': exams,
+    })
+
+
+@permission_required('ipho_core.is_printstaff')
+def print_submissions_translation(request):
+    exams = {}
+    for exam in Exam.objects.filter(active=True):
+
+        remaining_countries = ExamAction.objects.filter(
+            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
+        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).values_list('delegation__country')
+
+        remaining_countries = [country[0] + ',' for country in remaining_countries]
+        if remaining_countries:
+            remaining_countries[-1] = remaining_countries[-1][:-1]
+
+        open_translations = len(remaining_countries)
+
+        submitted_countries_actions = ExamAction.objects.filter(
+            exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
+        ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).order_by('timestamp')
+        submitted_countries = submitted_countries_actions.values_list('delegation__country')
+        submitted_timestamps_raw = submitted_countries_actions.values_list('timestamp')
+        submitted_timestamps = [ts[0] for ts in submitted_timestamps_raw]  #.strftime('%H:%M:%S')
+        submitted_countries = [country[0] for country in submitted_countries]
+
+        submitted_list = [{'name': n, 'timestamp': ts} for n, ts in zip(submitted_countries, submitted_timestamps)]
+        submitted_list = submitted_list[::-1]
+        submitted_translations = len(submitted_countries)
+        exams[exam.name] = {
+            'open_translations': open_translations,
+            'submitted_translations': submitted_translations,
+            'remaining_countries': remaining_countries,
+            'submitted_list': submitted_list,
+        }
+
+    return render(request, 'ipho_exam/print_submissions_translation.html', {
+        'exams': exams,
+    })
 
 
 @permission_required('ipho_core.is_delegation')
@@ -1537,12 +1705,15 @@ def submission_exam_assign(request, exam_id):
         for student in delegation.student_set.all():
             all_tasks = []
             student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
-            student_seat = Place.objects.get(exam=exam, student=student)
+            try:
+                student_seat = Place.objects.get(exam=exam, student=student).name
+            except Place.DoesNotExist:
+                student_seat = ""
             questions = exam.question_set.all()
             grouped_questions = {k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)}
             for position, qgroup in list(grouped_questions.items()):
                 doc, _ = Document.objects.get_or_create(exam=exam, student=student, position=position)
-                cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat.name}
+                cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat}
                 question_task = tasks.student_exam_document.s(qgroup, student_languages, cover=cover_ctx, commit=True)
                 # question_task = question_utils.compile_stud_exam_question(qgroup, student_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
@@ -1571,7 +1742,7 @@ def submission_exam_assign(request, exam_id):
                 default=0
             )
         )
-    ).filter(Q(num_translation__lt=num_questions) | Q(num_pdf__lt=num_questions))
+    ).filter(Q(num_translation__lt=num_questions) | Q(num_pdf__lt=num_questions)).order_by('name')
 
     return render(
         request, 'ipho_exam/submission_assign.html', {
@@ -1604,6 +1775,39 @@ def submission_exam_confirm(request, exam_id):
         if 'agree-submit' in request.POST:
             ex_submission.status = ExamAction.SUBMITTED
             ex_submission.save()
+            if getattr(settings, 'RANDOM_DRAW_ON_SUBMISSION', False):
+                remaining_countries = ExamAction.objects.filter(
+                    exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
+                ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)).count()
+                submitted_countries = ExamAction.objects.filter(
+                    exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
+                ).exclude(delegation=Delegation.objects.get(name=OFFICIAL_DELEGATION)
+                          ).count()
+
+                drawn = random.random()
+                total_countries = remaining_countries + submitted_countries
+                threshold = (submitted_countries/total_countries)**2 #about 30 portions for 100 delegations
+                draw_exists = RandomDrawLog.objects.filter(delegation=delegation, tag=str(exam.pk)).exists()
+                if drawn > threshold and not draw_exists:
+                    RandomDrawLog(delegation=delegation, tag=str(exam.pk)).save()
+                    if 'switzerland' in delegation.country.lower():
+                        msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
+                    else:
+                        msg = 'You have won Chocolate !!     Please come to the Oly-Exams table to collect your prize.'
+                    if settings.ENABLE_PUSH:
+                        link = reverse('chocobunny')
+                        data = {'body': msg, 'url': link}
+                        subs_list = []
+                        for u in delegation.members.all():
+                            subs_list.extend(u.pushsubscription_set.all())
+                        for s in subs_list:
+                            try:
+                                s.send(data)
+                            except WebPushException as e:
+                                pass
+                elif not draw_exists:
+                    RandomDrawLog(delegation=delegation, status='failed', tag=str(exam.pk)).save()
+
             return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk, )))
         else:
             form_error = '<strong>Error:</strong> You have to agree on the final submission before continuing.'
@@ -1663,6 +1867,20 @@ def submission_exam_submitted(request, exam_id):
     documents = Document.objects.filter(exam=exam, student__delegation=delegation).order_by('student', 'position')
     stud_documents = {k: list(g) for k, g in itertools.groupby(documents, key=lambda d: d.student.pk)}
 
+    msg = None
+    if getattr(settings, 'RANDOM_DRAW_ON_SUBMISSION', False):
+        draw_logs = RandomDrawLog.objects.filter(delegation=delegation, tag=str(exam.pk))
+        draw_exists = draw_logs.exists()
+        if draw_exists:
+            status = draw_logs.first().status.lower()
+            if 'pending' in status:
+                if 'switzerland' in delegation.country.lower():
+                    msg = 'You have won the privilege of bringing chocolate to the Oly-Exams desk.'
+                else:
+                    msg = 'You have won Chocolate !!     Please come to the Oly-Exams table to collect your prize.'
+            elif 'received' in status:
+                msg = 'You already got your chocolate.'
+
     return render(
         request, 'ipho_exam/submission_submitted.html', {
             'exam': exam,
@@ -1671,6 +1889,7 @@ def submission_exam_submitted(request, exam_id):
             'stud_documents': stud_documents,
             'submission_status': ex_submission.status,
             'students_languages': assigned_student_language,
+            'msg':msg,
         }
     )
 
@@ -1718,12 +1937,10 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context = {
         'exam_id': exam_id,
         'question_id': question_id,
-        'lang_id': question_id,
+        'lang_id': lang_id,
         'orig_id': orig_id,
         'orig_diff': orig_diff,
     }
-    exam_list = Exam.objects.filter(hidden=False, active=True)  # TODO: allow admin to see all exams
-    context['exam_list'] = exam_list
 
     exam = None
     question = None
@@ -1746,20 +1963,30 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.first()
 
-    if not question.check_permission(request.user):
-        return HttpResponseForbidden('You do not have the permissions to view this question.')
-
     delegation = Delegation.objects.filter(members=request.user)
-    ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
+    if should_forbid is not None:
+        return should_forbid
+
+    exam_list = [
+        ex for ex in Exam.objects.filter(hidden=False, active=True)
+        if ExamAction.is_in_progress(ExamAction.TRANSLATION, exam=ex, delegation=delegation)
+    ]  # TODO: allow admin to see all exams
+    context['exam_list'] = exam_list
 
     ## TODO:
     ## * deal with errors when node not found: no content
 
     if question:
+        if not question.check_permission(request.user):
+            return HttpResponseForbidden('You do not have the permissions to view this question.')
+
         orig_lang = get_object_or_404(Language, id=orig_id)
 
         if delegation.count() > 0:
-            own_lang = Language.objects.filter(hidden=False, delegation=delegation).order_by('name')
+            own_lang = Language.objects.filter(
+                hidden=False, translationnode__question=question, delegation=delegation
+            ).order_by('name')
         elif request.user.is_superuser:
             own_lang = Language.objects.all().order_by('name')
 
@@ -1841,12 +2068,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             trans_lang = get_object_or_404(Language, id=lang_id)
             if not trans_lang.check_permission(request.user):
                 return HttpResponseForbidden('You do not have the permissions to edit this language.')
-            trans_node, created = TranslationNode.objects.get_or_create(
-                question=question, language_id=lang_id, defaults={
-                    'text': '',
-                    'status': 'O'
-                }
-            )  ## TODO: check permissions for this.
+            ## TODO: check permissions for this.
+            trans_node = get_object_or_404(TranslationNode, question=question, language_id=lang_id)
             if len(trans_node.text) > 0:
                 trans_q = qml.make_qml(trans_node)
                 trans_q.set_lang(trans_lang)
@@ -1936,15 +2159,25 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     else:
         trans = qquery.latest_version(question_id, lang_id)
 
-    filename = u'Exam - {} Q{} - {}.pdf'.format(trans.question.exam.name, trans.question.position, trans.lang.name)
+    filename = u'exam-{}-{}{}-{}.pdf'.format(
+        slugify(trans.question.exam.name), trans.question.code, trans.question.position, slugify(trans.lang.name)
+    )
 
     if trans.lang.is_pdf:
-        # etag = md5(trans.node.pdf).hexdigest()
-        # if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
-        #     return HttpResponseNotModified()
-        res = HttpResponse(trans.node.pdf, content_type="application/pdf")
+        tmp_pdf = pdf.check_add_watermark(request, trans.node.pdf.read())
+        if trans.question.is_answer_sheet():
+
+            class MockStud(object):
+                pass
+
+            mockstud = MockStud()
+            mockstud.code = trans.lang.delegation.name + '-S-0'
+            bcgen = iphocode.QuestionBarcodeGen(trans.question.exam, trans.question, mockstud)
+            output_pdf = pdf.add_barcode(tmp_pdf, bcgen)
+        else:
+            output_pdf = tmp_pdf
+        res = HttpResponse(output_pdf, content_type="application/pdf")
         res['content-disposition'] = 'inline; filename="{}"'.format(filename)
-        # res['ETag'] = etag
         return res
 
     trans_content, ext_resources = trans.qml.make_tex()
@@ -1970,6 +2203,74 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         return HttpResponse(body, content_type="text/plain; charset=utf-8", charset="utf-8")
     try:
         return cached_responses.compile_tex(request, body, ext_resources, filename)
+    except pdf.TexCompileException as e:
+        return HttpResponse(e.log, content_type="text/plain")
+
+
+@permission_required('ipho_core.is_staff')
+def compiled_question_diff(request, question_id, lang_id, old_version_num=None, new_version_num=None):
+    if not Question.objects.get(pk=question_id).check_permission(request.user):
+        return HttpResponseForbidden('You do not have the permissions to view this question.')
+
+    if new_version_num is None:
+        trans_new = qquery.get_latest_version(question_id, lang_id)
+        new_version_num = trans_new.node.version
+    else:
+        trans_new = qquery.get_version(question_id, lang_id, new_version_num)
+
+    if old_version_num is None:
+        old_version_num = max(1, int(new_version_num) - 1)
+    trans_old = qquery.get_version(question_id, lang_id, old_version_num)
+
+    lang = trans_old.lang
+    question = trans_old.question
+
+    filename = u'exam-{}-{}{}-{}.pdf'.format(
+        slugify(trans_old.question.exam.name), trans_old.question.code, trans_old.question.position, slugify(lang.name)
+    )
+
+    if lang.is_pdf:
+        return HttpResponse(
+            'Diff cannot be created for PDF languages.', content_type="text/plain; charset=utf-8", charset="utf-8"
+        )
+
+    old_trans_content, old_ext_resources = trans_old.qml.make_tex()
+    new_trans_content, new_ext_resources = trans_new.qml.make_tex()
+
+    ext_resources = list(set(old_ext_resources) | set(new_ext_resources))
+    for r in ext_resources:
+        if isinstance(r, tex.FigureExport):
+            r.lang = lang
+    ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
+    old_context = {
+        'polyglossia': lang.polyglossia,
+        'polyglossia_options': lang.polyglossia_options,
+        'font': fonts.ipho[lang.font],
+        'extraheader': lang.extraheader,
+        'lang_name': u'{} ({})'.format(lang.name, lang.delegation.country),
+        'exam_name': u'{}'.format(question.exam.name),
+        'code': u'{}{}'.format(question.code, question.position),
+        'title': u'{} - {}'.format(question.exam.name, question.name),
+        'is_answer': question.is_answer_sheet(),
+        'document': old_trans_content,
+    }
+    new_context = {
+        'polyglossia': lang.polyglossia,
+        'polyglossia_options': lang.polyglossia_options,
+        'font': fonts.ipho[lang.font],
+        'extraheader': lang.extraheader,
+        'lang_name': u'{} ({})'.format(lang.name, lang.delegation.country),
+        'exam_name': u'{}'.format(question.exam.name),
+        'code': u'{}{}'.format(question.code, question.position),
+        'title': u'{} - {}'.format(question.exam.name, question.name),
+        'is_answer': question.is_answer_sheet(),
+        'document': new_trans_content,
+    }
+    old_body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request, old_context))
+    new_body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request, new_context))
+
+    try:
+        return cached_responses.compile_tex_diff(request, old_body, new_body, ext_resources, filename)
     except pdf.TexCompileException as e:
         return HttpResponse(e.log, content_type="text/plain")
 
@@ -2027,7 +2328,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
         result = question_task.delay()
         all_tasks.append(result)
         print('Group', position, 'done.')
-    filename = u'Exam - {} - {}.pdf'.format(exam.name, student.code)
+    filename = u'exam-{}-{}.pdf'.format(slugify(exam.name), student.code)
     chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
     #chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
     return HttpResponseRedirect(reverse('exam:pdf-task', args=[chord_task.id]))
@@ -2035,28 +2336,44 @@ def pdf_exam_for_student(request, exam_id, student_id):
 
 @login_required
 def pdf_exam_pos_student(request, exam_id, position, student_id, type='P'):
-    exam = get_object_or_404(Exam, id=exam_id)
     student = get_object_or_404(Student, id=student_id)
+    user = request.user
+    if not user.has_perm('ipho_core.is_printstaff'):
+        if not student.delegation.members.filter(pk=user.pk).exists():
+            return HttpResponseForbidden('You do not have permission to view this document.')
 
     doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
     if type == 'P':  ## for for printouts
         if hasattr(doc, 'documenttask'):
             task = AsyncResult(doc.documenttask.task_id)
+            try:
+                if task.ready():
+                    doc_pdf, meta = task.get()
+            except ipho_exam.pdf.TexCompileException as e:
+                return render(
+                    request, 'ipho_exam/tex_error.html', {
+                        'error_code': e.code,
+                        'task_id': task.id
+                    }, status=500
+                )
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})
         if doc.file:
-            response = HttpResponse(doc.file, content_type='application/pdf')
+            output_pdf = pdf.check_add_watermark(request, doc.file.read())
+            response = HttpResponse(output_pdf, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename=%s' % doc.file.name
             return response
     elif type == 'S':  ## look for scans
         if doc.scan_file:
-            response = HttpResponse(doc.scan_file, content_type='application/pdf')
+            output_pdf = pdf.check_add_watermark(request, doc.scan_file.read())
+            response = HttpResponse(output_pdf, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename=%s' % doc.scan_file.name
             return response
         else:
             raise Http404('Scan document not found')
     elif type == 'O':  ## look for scans
         if doc.scan_file_orig:
-            response = HttpResponse(doc.scan_file_orig, content_type='application/pdf')
+            output_pdf = pdf.check_add_watermark(request, doc.scan_file_orig.read())
+            response = HttpResponse(output_pdf, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename=%s' % doc.scan_file_orig.name.replace(' ', '_')
             return response
         else:
@@ -2082,8 +2399,14 @@ def task_status(request, token):
     return JsonResponse({'status': task.status, 'ready': task.ready()})
 
 
+def _wrap_pre(s):
+    return ''.join('<span>{}</span>'.format(l) for l in s.split('\n'))
+
+
 @login_required
 def task_log(request, token):
+    CONTEXT_LINES = 6
+
     task = AsyncResult(token)
     try:
         if task.ready():
@@ -2092,7 +2415,28 @@ def task_log(request, token):
         else:
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})
     except ipho_exam.pdf.TexCompileException as e:
-        return HttpResponse(e.log, content_type="text/plain")
+        #return HttpResponse(e.log, content_type="text/plain")
+        lines = e.log.splitlines()
+        error_lines = []
+        for i in range(len(lines)):
+            l = lines[i]
+            i += 1
+            if l.startswith('!'):
+                error_lines += lines[i - CONTEXT_LINES:i - 1]
+                while l.strip() != "":
+                    error_lines.append(l)
+                    l = lines[i]
+                    i += 1
+                error_lines += lines[i + 1:i + CONTEXT_LINES]
+                error_lines += ['', '---------------------------------', '']
+        errors = '\n'.join(error_lines)
+        return render(
+            request, 'ipho_exam/tex_error_log.html', {
+                'errors': _wrap_pre(errors),
+                'full_log': _wrap_pre(e.log),
+                'doc_tex': _wrap_pre(e.doc_tex)
+            }
+        )
 
 
 @login_required
@@ -2104,23 +2448,26 @@ def pdf_task(request, token):
             if request.META.get('HTTP_IF_NONE_MATCH', '') == meta['etag']:
                 return HttpResponseNotModified()
 
-            res = HttpResponse(doc_pdf, content_type="application/pdf")
+            output_pdf = pdf.check_add_watermark(request, doc_pdf)
+            res = HttpResponse(output_pdf, content_type="application/pdf")
             res['content-disposition'] = 'inline; filename="{}"'.format(meta['filename'])
             res['ETag'] = meta['etag']
             return res
         else:
             return render(request, 'ipho_exam/pdf_task.html', {'task': task})
     except ipho_exam.pdf.TexCompileException as e:
-        if request.user.is_superuser:
-            return HttpResponse(e.log, content_type="text/plain")
-        else:
-            return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)
+        return render(request, 'ipho_exam/tex_error.html', {'error_code': e.code, 'task_id': task.id}, status=500)
 
 
 @permission_required('ipho_core.is_printstaff')
-def bulk_print(request):
+def bulk_print(request, page=None, tot_print=None):
     messages = []
-
+    if tot_print:
+        messages.append((
+            'alert-success',
+            '<strong>Success</strong> {} print job submitted. Please pickup your document at the printing station.'.
+            format(tot_print)
+        ))
     exams = Exam.objects.filter(hidden=False)
     delegations = Delegation.objects.all()
 
@@ -2146,46 +2493,90 @@ def bulk_print(request):
             'ColourModel': form.cleaned_data['color'],
             'Staple': form.cleaned_data['staple'],
             'Duplex': form.cleaned_data['duplex'],
+            'copies': str(form.cleaned_data['copies']),
+            'Collate': 'True',
         }
         tot_printed = 0
         for pk in request.POST.getlist('printouts[]', []):
             d = get_or_none(Document, pk=pk)
             if d is not None:
-                status = printer.send2queue(d.file, form.cleaned_data['queue'], user=request.user, user_opts=opts)
+                status = printer.send2queue(d.file, form.cleaned_data['queue'], user=request.user, user_opts=opts, title='P: {}'.format(d.barcode_base))
                 tot_printed += 1
                 l = PrintLog(document=d, type='P')
                 l.save()
         for pk in request.POST.getlist('scans[]', []):
             d = get_or_none(Document, pk=pk)
             if d is not None:
-                status = printer.send2queue(d.scan_file, form.cleaned_data['queue'], user=request.user, user_opts=opts)
+                status = printer.send2queue(d.scan_file, form.cleaned_data['queue'], user=request.user, user_opts=opts, title='S: {}'.format(d.barcode_base))
                 tot_printed += 1
                 l = PrintLog(document=d, type='S')
                 l.save()
-        messages.append((
-            'alert-success',
-            '<strong>Success</strong> {} print job submitted. Please pickup your document at the printing station.'.
-            format(tot_printed)
-        ))
 
+        page = request.GET.get('page') or 1
+
+        get_data = request.GET.dict()
+        get_data.pop('page', None)
+        get_data.pop('tot_printed', None)
+        url = "{}?{}".format(
+            reverse('exam:bulk-print_prg', args=(page, tot_printed)),
+            urllib.parse.urlencode(get_data)
+        )
+        return HttpResponseRedirect(redirect_to=url)
+    elif request.method == 'POST':
+        messages = [m for m in messages if m[0] != 'alert-success']
+        messages.append(('alert-danger', '<strong>No jobs sent</strong> Invalid form, please check below'))
+    print(messages)
     all_docs = Document.objects.filter(
         student__delegation=filter_dg,
         exam=filter_ex,
         exam__delegation_status__action=ExamAction.TRANSLATION,
         exam__delegation_status__delegation=F('student__delegation'),
-        exam__delegation_status__status=ExamAction.SUBMITTED
-    ).annotate(
+        exam__delegation_status__status=ExamAction.SUBMITTED,
+    )
+    exclude_gi = json.loads(request.GET.get('exclude_gi', 'false'))
+    if exclude_gi:
+        all_docs = all_docs.exclude(position=0)
+
+    scan_status = request.GET.get('st', None)
+    scan_status_options = ['S', 'W', 'M']
+    if scan_status is not None:
+        if scan_status == 'null':
+            all_docs = all_docs.filter(scan_status__isnull=True)
+        elif scan_status == 'any':
+            all_docs = all_docs.filter(scan_status__isnull=False)
+        else:
+            all_docs = all_docs.filter(scan_status=scan_status)
+
+    all_docs = all_docs.annotate(
         last_print_p=Max(Case(When(printlog__type='P', then=F('printlog__timestamp')))),
         last_print_s=Max(Case(When(printlog__type='S', then=F('printlog__timestamp')))),
-    ).values(
+    )
+
+    exam_print_filter_options = ['not printed', 'printed']
+    exam_print_filter = request.GET.get('ex_prt', None)
+    if exam_print_filter is not None:
+        if exam_print_filter == 'not printed':
+            all_docs = all_docs.filter(last_print_p__isnull=True)
+        elif exam_print_filter == 'printed':
+            all_docs = all_docs.filter(last_print_p__isnull=False)
+
+    scan_print_filter_options = ['not printed', 'printed']
+    scan_print_filter = request.GET.get('sc_prt', None)
+    if scan_print_filter is not None:
+        if scan_print_filter == 'not printed':
+            all_docs = all_docs.filter(last_print_s__isnull=True)
+        elif scan_print_filter == 'printed':
+            all_docs = all_docs.filter(last_print_s__isnull=False)
+
+    all_docs = all_docs.values(
         'pk', 'exam__name', 'exam__id', 'position', 'student__delegation__name', 'student__code', 'student__id',
         'num_pages', 'barcode_base', 'barcode_num_pages', 'extra_num_pages', 'scan_file', 'scan_status',
-        'scan_file_orig', 'scan_msg', 'last_print_p', 'last_print_s'
+        'scan_file_orig', 'scan_msg', 'last_print_p', 'last_print_s', 'timestamp'
     ).order_by('student_id', 'position')
 
     paginator = Paginator(all_docs, 50)
-
-    page = request.GET.get('page')
+    if not page:
+        page = request.GET.get('page')
     try:
         docs_list = paginator.page(page)
     except PageNotAnInteger:
@@ -2217,6 +2608,13 @@ def bulk_print(request):
             'exam': exam,
             'delegations': delegations,
             'delegation': delegation,
+            'exclude_gi': exclude_gi,
+            'scan_status_options': scan_status_options,
+            'scan_status': scan_status,
+            'exam_print_filter_options': exam_print_filter_options,
+            'exam_print_filter': exam_print_filter,
+            'scan_print_filter_options': scan_print_filter_options,
+            'scan_print_filter': scan_print_filter,
             'queue_list': queue_list,
             'docs_list': docs_list,
             'scan_status_choices': Document.SCAN_STATUS_CHOICES,
@@ -2235,11 +2633,11 @@ def print_doc(request, type, exam_id, position, student_id, queue):
     doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
 
     if type == 'P':
-        status = printer.send2queue(doc.file, queue, user=request.user)
+        status = printer.send2queue(doc.file, queue, user=request.user, title='P: {}'.format(doc.barcode_base))
         l = PrintLog(document=doc, type='P')
         l.save()
     elif doc.scan_file:
-        status = printer.send2queue(doc.scan_file, queue, user=request.user)
+        status = printer.send2queue(doc.scan_file, queue, user=request.user, title='S: {}'.format(doc.barcode_base))
         l = PrintLog(document=doc, type='S')
         l.save()
     else:
@@ -2305,7 +2703,7 @@ def extra_sheets(request, exam_id=None):
         doc.save()
 
         res = HttpResponse(doc_pdf, content_type="application/pdf")
-        res['content-disposition'] = 'attachment; filename="{} {} Z.pdf"'.format(student.code, exam.code)
+        res['content-disposition'] = 'attachment; filename="{}.pdf"'.format("{}_{}_Z".format(student.code, exam.code))
         return res
 
     return render(request, 'ipho_exam/extra_sheets.html', {'form': form, 'messages': messages})

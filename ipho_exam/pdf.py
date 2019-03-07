@@ -18,6 +18,9 @@
 from __future__ import print_function
 from __future__ import division
 
+import os
+import codecs
+import subprocess
 from builtins import range
 from past.utils import old_div
 from django.http import HttpResponse, Http404, HttpResponseNotModified
@@ -37,14 +40,35 @@ TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
 CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
 CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 300)  # 1 min
 TEXBIN = getattr(settings, 'TEXBIN', '/usr/bin')
+WATERMARK_PATH = getattr(settings, 'WATERMARK_PATH', os.path.join(settings.STATIC_PATH, 'watermark.pdf'))
 
 
 class TexCompileException(Exception):
-    def __init__(self, code, doc_fname='', log=''):
+    def __init__(self, code, doc_fname='', log='', doc_tex=''):
         self.log = log
         self.code = code
         self.doc_fname = doc_fname
-        super(TexCompileException, self).__init__("pdflatex error (code %s) in %s" % (code, doc_fname))
+        self.doc_tex = doc_tex
+        super(TexCompileException, self).__init__("pdflatex error (code %s) in %s, log:\n %s." % (code, doc_fname, log))
+
+
+def compile_tex_diff(old_body, new_body, ext_resources=[]):
+    tmpdir = mkdtemp(prefix=TEMP_PREFIX)
+    try:
+        with codecs.open(os.path.join(tmpdir, 'new.tex'), "w", encoding='utf-8') as f:
+            f.write(new_body)
+        with codecs.open(os.path.join(tmpdir, 'old.tex'), "w", encoding='utf-8') as f:
+            f.write(old_body)
+        diff_body = subprocess.check_output(
+            ['latexdiff', '--encoding=utf-8', 'old.tex', 'new.tex'],
+            cwd=tmpdir,
+            env={
+                'PATH': '{}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(TEXBIN)
+            },
+        ).decode('utf-8')
+    finally:
+        shutil.rmtree(tmpdir)
+    return compile_tex(diff_body, ext_resources=ext_resources)
 
 
 def compile_tex(body, ext_resources=[]):
@@ -62,9 +86,8 @@ def compile_tex(body, ext_resources=[]):
             for res in ext_resources:
                 res.save(tmp)
 
-            with open("%s/%s.tex" % (tmp, doc), "w") as f:
+            with codecs.open("%s/%s.tex" % (tmp, doc), "w", encoding='utf-8') as f:
                 f.write(body)
-            del body
 
             error = subprocess.Popen(
                 ["xelatex", "%s.tex" % doc],
@@ -80,8 +103,10 @@ def compile_tex(body, ext_resources=[]):
             if error:
                 if not os.path.exists("%s/%s.log" % (tmp, doc)):
                     raise RuntimeError('Error in PDF. Errocode {}. Log does not exists.'.format(error))
-                log = open("%s/%s.log" % (tmp, doc)).read()
-                raise TexCompileException(error, "%s/%s.tex" % (tmp, doc), log)
+                log = open("%s/%s.log" % (tmp, doc), errors='replace').read()
+                raise TexCompileException(error, "%s/%s.tex" % (tmp, doc), log, doc_tex=body)
+
+            del body
 
             with open("%s/%s.pdf" % (tmp, doc), 'rb') as f:
                 pdf = f.read()
@@ -102,16 +127,16 @@ def add_barcode(doc, bgenerator):
         barpdf = PdfFileReader(BytesIO(bgenerator(i + 1)))
         watermark = barpdf.getPage(0)
         wbox = watermark.artBox
-        wwidth = (wbox.upperRight[0] - wbox.upperLeft[0])
+        wwidth = wbox.getWidth()
 
         page = pdfdoc.getPage(i)
         pbox = page.artBox
-        pwidth = (pbox.upperRight[0] - pbox.upperLeft[0])
+        pwidth = pbox.getWidth()
 
-        scale = 1.5    # size of the QR code (scaling factor)
-        yshift = 70     # distance from page top
-        x = float(pbox.upperLeft[0]) + old_div((float(pwidth) - float(wwidth) * scale), 2.)
-        y = float(pbox.upperLeft[1]) - float(wbox.upperLeft[1]) - yshift
+        scale = 1.5  # size of the QR code (scaling factor)
+        yshift = 20  # distance from page top
+        x = float(pbox.getUpperLeft_x()) + (float(pwidth) - float(wwidth) * scale) / 2
+        y = float(pbox.getUpperLeft_y()) - float(wbox.getHeight()) * scale - yshift
 
         page.mergeScaledTranslatedPage(watermark, scale, x, y)
         output.addPage(page)
@@ -156,7 +181,40 @@ def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'
         else:
             raise RuntimeError("pdflatex error (code %s) in %s." % (e.code, e.doc_fname))
 
-    res = HttpResponse(pdf, content_type="application/pdf")
+    output_pdf = check_add_watermark(request, pdf)
+    res = HttpResponse(output_pdf, content_type="application/pdf")
     res['content-disposition'] = 'inline; filename="{}"'.format(filename)
     res['ETag'] = etag
     return res
+
+
+def check_add_watermark(request, doc):
+    """
+    Checks if the 'delegation print' watermark needs to be added to the document,
+    and return the appropriate PDF (with / without watermark).
+    """
+    if settings.ADD_DELEGATION_WATERMARK:
+        user = request.user
+        if not (user.is_staff or user.has_perm('ipho_core.is_staff') or user.has_perm('ipho_core.is_printstaff') or user.has_perm('ipho_core.is_marker')):
+            return add_watermark(doc)
+    return doc
+
+
+def add_watermark(doc):
+    """
+    Adds the 'delegation print' watermark to the given PDF document.
+    """
+    with open(WATERMARK_PATH, 'rb') as wm_f:
+        watermark = PdfFileReader(BytesIO(wm_f.read()))
+        watermark_page = watermark.getPage(0)
+
+    output = PdfFileWriter()
+    pdfdoc = PdfFileReader(BytesIO(doc))
+    for idx in range(pdfdoc.getNumPages()):
+        page = pdfdoc.getPage(idx)
+        page.mergePage(watermark_page)
+        output.addPage(page)
+
+    output_pdf = BytesIO()
+    output.write(output_pdf)
+    return output_pdf.getvalue()

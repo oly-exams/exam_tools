@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+sys.path.append(".")
 
 import django
 django.setup()
@@ -53,7 +55,7 @@ objs.append(Delegation.objects.get(name=OFFICIAL_DELEGATION))
 languages = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION, versioned=True)
 objs += list(languages)
 
-save_with_pk(objs, '030_official_delagation.json')
+save_with_pk(objs, '030_official_delegation.json')
 
 ## Exams
 

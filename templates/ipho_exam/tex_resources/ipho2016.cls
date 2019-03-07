@@ -17,7 +17,7 @@
                 pdfcreator={Xelatex}]{hyperref}
 
 % Page options
-\RequirePackage[headheight=4cm]{geometry}  % the headheight parameter sets how much vertical space the header can accomodate
+\RequirePackage[headheight=5cm]{geometry}  % the headheight parameter sets how much vertical space the header can accomodate
 %\setlength{\headheight}{2.5cm}
 \geometry{left=2cm}
 \geometry{right=2cm}
@@ -56,7 +56,11 @@
 \RequirePackage{framed}
 \RequirePackage{xcolor}
 
-
+% Fix fontenc problem with hbar display that appears for e.g. for CJK fonts (necessary for Texlive 2015, but not for e.g. 2018)
+\AtBeginDocument{%
+  \let\hbar\relax
+  \DeclareRobustCommand{\hbar}{\text{\normalfont\fontfamily{lmr}\itshape\symbol{295}}}%
+}
 
 %Definitions
 \definecolor{color1}{rgb}{0,0,.7}
@@ -117,6 +121,18 @@
     \renewcommand{\arraystretch}{2.}
     \begin{framed}\noindent\begin{minipage}[t][#4][t]{\textwidth}
     {\noindent\textbf{ \begin{english} #2.#3 $(\QSApoints ~\text{pt})$ \end{english}}}
+
+}
+{
+    \end{minipage}\end{framed}
+}
+
+% Subanswer continuation (QMLsubanswercontinuation)
+\newenvironment{QSAC}[3]
+{
+    \renewcommand{\arraystretch}{2.}
+    \begin{framed}\noindent\begin{minipage}[t][#3][t]{\textwidth}
+    {\noindent\textbf{ \begin{english} #1.#2 (cont.) \end{english}}}
 
 }
 {

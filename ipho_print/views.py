@@ -41,6 +41,7 @@ def main(request):
     success = False
     form = PrintForm(request.POST or None, request.FILES or None, queue_list=queue_list, enable_opts=enable_opts)
     if form.is_valid():
+        print(form.cleaned_data)
         try:
             opts = {
                 'ColourModel': form.cleaned_data['color'],
@@ -61,8 +62,7 @@ def main(request):
                 '<strong>Error</strong> The document was uploaded successfully, but an error occured while communicating with the print server. Please try again or report the problem to a staff member.<br /> Error was: '
                 + e.msg
             ))
-        form = PrintForm(queue_list=queue_list)
-
+        form = PrintForm(queue_list=queue_list, enable_opts=enable_opts)
     form_html = render_crispy_form(form, context=csrf(request))
     if request.is_ajax():
         return JsonResponse({

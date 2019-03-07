@@ -23,6 +23,8 @@ from builtins import range
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 import itertools
+import sys
+sys.path.append(".")
 
 import django
 django.setup()
@@ -30,6 +32,7 @@ from django.conf import settings
 from django.http import HttpRequest
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.template.defaultfilters import slugify
 
 from ipho_core.models import Delegation
 from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction, Place
@@ -74,8 +77,8 @@ def compile_question(question, language):
         position = question.position
         question_code = question.code
 
-        filename = u'TRANSLATION-{}{}-{}-{}-{}.pdf'.format(
-            exam_code, position, question_code, language.delegation.name, language.name.replace(u' ', u'_')
+        filename = u'../media/language_pdf/TRANSLATION_{}{}_{}_{}_{}.pdf'.format(
+            exam_code, position, question_code, language.delegation.name, slugify(language.name)
         )
         with open(filename, 'wb') as fp:
             fp.write(question_pdf)
@@ -93,7 +96,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         question_pdf = pdf.compile_tex(body, [])
         q = questions[0]
         s = student_languages[0].student
-        bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C')
+        bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C', suppress_code=True)
         page = pdf.add_barcode(question_pdf, bgenerator)
 
         all_docs.append(page)
@@ -157,7 +160,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         exam_id = question.exam.pk
         position = question.position
 
-    filename = u'{}_EXAM-{}-{}.pdf'.format(sl.student.code, exam_id, position)
+    filename = u'../media/language_pdf/EXAM_{}_{}_{}.pdf'.format(sl.student.code, exam_id, position)
     final_doc = pdf.concatenate_documents(all_docs)
     with open(filename, 'wb') as fp:
         fp.write(final_doc)
@@ -205,9 +208,9 @@ def missing_submissions():
                 compile_stud_exam_question(questions, student_languages, cover=cover_ctx, commit=False)
 
 
-def compile_all():
-    exams = Exam.objects.filter(name='Theory')
-    questions = Question.objects.filter(exam=exams, position__in=[1, 2, 3])
+def compile_all(names=('Theory', 'Experiment')):
+    exams = Exam.objects.filter(name__in=names)
+    questions = Question.objects.filter(exam=exams, position__in=[0, 1, 2, 3])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
     print('Going to compile in {} languages.'.format(len(languages)))
     for q in questions:
@@ -217,4 +220,7 @@ def compile_all():
 
 
 if __name__ == '__main__':
-    compile_all()
+    if len(sys.argv) > 1:
+        compile_all(names=sys.argv[1:])
+    else:
+        compile_all()

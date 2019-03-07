@@ -4,13 +4,19 @@
 {% load static %}
 
 {% block extra-head %}
+<meta http-equiv="refresh" content="5" />
 {% endblock %}
 
 {% block content %}
 
 <div class="container">
     <div class="page-header">
-      <h1>{{ question }}</h1>
+      <h1>{{ question }}
+          <button id="reload" title="Refresh Results" type="button" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+      </h1>
+      {% if status == 'open' %}
+          <p>Remaining Time: <span class="countdown" data-end-date="{{ question.end_date.isoformat }}"></span></p>
+      {% endif %}
     </div>
     <div class="row">
       <div class="col-sm-2">
@@ -48,13 +54,7 @@
 
     <h3>Content:</h3>
     <div>{{ question.content|safe }}</div>
-    {% if status == 'open' %}
-        <p>Remaining Time: <span class="countdown" data-end-date="{{ question.end_date.isoformat }}"></span></p>
-    {% endif %}
-    <div class="parent">
-        <button id="reload" title="Refresh Results" type="button" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-    </div>
-
+    <br/>
     <div class="panel panel-default">
         <div class="panel-heading"><h2>Choices Legend</h2></div>
         <table id="drafted-questions-table" class="table table-striped">
@@ -66,7 +66,11 @@
 
                 {% for choice in choices %}
                     <tr id="choice-{{ choice.pk }}">
+                        {% if choice.label == 'zzz' and 'abstain' in choice.choice_text.lower %}
+                        <td class="col-md-1"> </td>
+                        {% else %}
                         <td class="col-md-1"><strong>{{ choice.label }}</strong></td>
+                        {% endif %}
                         <td class="col-md-6", id="choice-{{ choice.pk }}-choice-text">
                             {{ choice.choice_text }}
                         </td>
@@ -81,9 +85,8 @@
 
 
 
-    {% if not votes %}
-        <div class="alert alert-info">There are no votes yet.</div>
-
+    <!-- {% if not votes %}
+    <div class="alert alert-info">There are no votes yet.</div>
     {% else %}
         <div class="panel panel-default">
             <div class="panel-heading"><h2>Votes</h2></div>
@@ -112,7 +115,7 @@
                 </div>
             </div>
         </div>
-    {% endif %}
+    {% endif %} -->
 
 </div>
 

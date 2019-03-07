@@ -6,6 +6,8 @@ djangorestframework < 3.7
 django-rest-swagger
 django-polymorphic < 2
 django-dbbackup
+pywebpush
+django-filter < 2
 CairoSVG==1.*
 hg+https://bitbucket.org/whitie/python-barcode
 PyPDF2
@@ -21,6 +23,6 @@ html5lib
 bs4
 qrcode
 Wand
-django-filter
 python-dateutil
 cssutils
+pytidylib >= 0.3.2, < 0.4

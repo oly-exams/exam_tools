@@ -4,6 +4,9 @@
 {% load static %}
 
 {% block extra-head %}
+
+<meta http-equiv="refresh" content="5" />
+
 <style>
   th{
     font-family: Arial;
@@ -80,7 +83,11 @@
 
                     {% for choice in choices %}
                         <tr id="choice-{{ choice.pk }}">
+                            {% if choice.label == 'zzz' and 'abstain' in choice.choice_text.lower %}
+                            <td class="col-md-1"> </td>
+                            {% else %}
                             <td class="col-md-1"><strong>{{ choice.label }}</strong></td>
+                            {% endif %}
                             <td class="col-md-6", id="choice-{{ choice.pk }}-choice-text">
                                 {{ choice.choice_text }}
                             </td>

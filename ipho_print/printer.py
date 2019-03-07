@@ -27,6 +27,8 @@ import urllib.request, urllib.parse, urllib.error
 from future.standard_library import install_aliases
 install_aliases()
 
+from ipho_exam.models import Delegation
+
 SUCCESS = 0
 FAILED = 1
 PRINTER_QUEUES = getattr(settings, 'PRINTER_QUEUES')
@@ -42,16 +44,54 @@ def allowed_choices(user):
     return [(k, q['name']) for k, q in sorted(PRINTER_QUEUES.items()) if user.has_perm(q['required_perm'])]
 
 
-def send2queue(file, queue, user=None, user_opts={}):
+def allowed_opts(queue):
+    return PRINTER_QUEUES[queue]['opts']
+
+
+def default_opts():
+    try:
+        opts = getattr(settings, 'PRINTER_DEFAULT_GLOBAL_OPTS')
+    except AttributeError:
+        opts = {'Duplex': 'None', 'ColourModel': 'Grayscale', 'Staple': 'None'}
+    return opts
+
+
+def delegation_opts():
+    try:
+        opts = getattr(settings, 'PRINTER_DELEGATION_OPTS')
+    except AttributeError:
+        opts = {'Duplex': 'DuplexNoTumble', 'ColourModel': 'Grayscale', 'Staple': 'None'}
+    return opts
+
+
+def send2queue(file, queue, user=None, user_opts={}, title=None):
     url = 'http://{host}/print/{queue}'.format(**PRINTER_QUEUES[queue])
     files = {'file': (urllib.parse.quote(os.path.basename(file.name)), file, 'application/pdf')}
     headers = {'Authorization': 'IPhOToken {auth_token}'.format(**PRINTER_QUEUES[queue])}
     data = {}
     if user is not None:
         data['user'] = user.username
-    opts = deepcopy(PRINTER_QUEUES[queue]['opts'])
+    opts = deepcopy(default_opts())
     opts.update(user_opts)
+    al_opts = allowed_opts(queue)
+    if (
+        getattr(settings, 'ADD_DELEGATION_PRINT_BANNER', False) and (
+            user.has_perm('ipho_core.is_delegation')
+            and user not in Delegation.objects.get_by_natural_key(settings.OFFICIAL_DELEGATION).members.all()
+        )
+    ):
+        title = 'DELEGATION: {}'.format(user.username)
+        add_banner_page = True
+    else:
+        if title is None:
+            title = 'IPhO Print'
+        add_banner_page = False
+    for k in al_opts:
+        if opts.get(k) not in ['None', 'Grayscale'] and opts.get(k) != al_opts[k]:
+            opts[k] = al_opts[k]
     data['opts'] = json.dumps(opts)
+    data['title'] = json.dumps(title)
+    data['add_banner_page'] = json.dumps(add_banner_page)
     r = requests.post(url, files=files, headers=headers, data=data)
     if r.status_code == 200:
         return SUCCESS

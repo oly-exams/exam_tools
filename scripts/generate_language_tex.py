@@ -21,6 +21,7 @@ from __future__ import print_function
 
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+import sys
 import shutil
 
 import django
@@ -43,6 +44,7 @@ from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
 
 import ipho_exam
 from ipho_exam import tasks
+from exam_tools.settings import STATIC_PATH
 import celery
 from celery.result import AsyncResult
 
@@ -50,7 +52,8 @@ OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
 BASE_PATH = u'../media/language_tex'
-REPLACEMENTS = [('/srv/exam_tools/app/static/noto', '.'), ('/srv/exam_tools/app/static', '.')]
+FONT_PATH = os.path.join(STATIC_PATH, 'noto')
+REPLACEMENTS = [(FONT_PATH, '.'), (STATIC_PATH, '.')]
 
 
 def compile_question(question, language, logo_file):
@@ -78,9 +81,8 @@ def compile_question(question, language, logo_file):
         'document': trans_content,
         'STATIC_PATH': '.'
     }
-    body = render_to_string('ipho_exam/tex/exam_question.tex',
-                            RequestContext(HttpRequest(), context)).replace(u'/srv/exam_tools/app/static/noto',
-                                                                            u'.')
+    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(),
+                                                                              context)).replace(FONT_PATH, u'.')
     try:
         exam_code = question.exam.code
         position = question.position
@@ -120,21 +122,21 @@ def compile_question(question, language, logo_file):
         used_fonts = set(used_fonts)
 
         for f in used_fonts:
-            source = os.path.join('/srv/exam_tools/app/static/noto', f)
+            source = os.path.join(FONT_PATH, f)
             shutil.copyfile(source, os.path.join(folder, f))
 
         for f in os.listdir(folder):
             if f.endswith('.pdf.svg'):
                 os.remove(os.path.join(folder, f))
 
-        shutil.copyfile('/srv/exam_tools/static/' + logo_file, os.path.join(folder, logo_file))
+        shutil.copyfile(os.path.join(STATIC_PATH, logo_file), os.path.join(folder, logo_file))
         shutil.make_archive(folder, 'zip', root_dir=BASE_PATH, base_dir=base_folder)
     except Exception as e:
         print('ERROR', e)
 
 
-def export_all(logo_file):
-    exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
+def export_all(logo_file, names=('Theory', 'Experiment')):
+    exams = Exam.objects.filter(name__in=names)
     questions = Question.objects.filter(exam=exams, position__in=[1, 2, 3])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
     print('Going to export in {} languages.'.format(len(languages)))
@@ -145,4 +147,7 @@ def export_all(logo_file):
 
 
 if __name__ == '__main__':
-    export_all('examtools_logo_bw.pdf')
+    if len(sys.argv) > 1:
+        export_all(logo_file='ipho19_logo.png', names=sys.argv[1:])
+    else:
+        export_all(logo_file='ipho19_logo.png')

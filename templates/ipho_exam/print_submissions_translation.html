@@ -1,0 +1,104 @@
+
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra-head %}
+<meta http-equiv="refresh" content="5" />
+
+<style>
+  th{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  td{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  table.feedbacks th{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  table.feedbacks td{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+
+  /*.large{
+    font-family: Arial;
+    font-size: 50pt;
+  }*/
+
+  .flex {
+    display: flex-inline;
+  }
+
+
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+  <div class="col-md-12">
+
+        <div class="jumbotron">
+            {% for k, v in exams.items %}
+            <h1>Submission progress</h1>
+            <h3>{{ k }}</h3>
+            <div class="jumbotron">
+                <p><strong>In Progress:</strong> {{ v.open_translations }}</p>
+                <p><strong>Submitted:</strong> {{ v.submitted_translations }}</p>
+                <br>
+                <p><strong>Remaining:</strong></p>
+                <div class="flex">
+                {% for country in v.remaining_countries %}
+                    <span>{{ country }}</span>
+                {% endfor %}
+                </div>
+                <br>
+                <p><strong>Submitted:</strong></p>
+                <div class="flex">
+                <table class="table">
+                {% for item in v.submitted_list %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td><time datetime="{{ item.timestamp|date:"c" }}" data-format="HH:mm:ss"></time></td>
+                    </tr>
+                {% endfor %}
+                </table>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+  </div>
+
+
+
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script>
+$('document').ready(function(){
+   $("time[data-format]").each(function () {
+              var el = $(this);
+              var dt = moment(el.attr("datetime"));
+              el.text(dt.format(el.data("format")));
+          });
+    $(document).on('click', '#reload', function(event){
+        location.reload();
+    });
+
+    // Activates tooltipls
+    $('.btn').tooltip({containter: ".parent"});
+
+}); // $(document).ready()
+</script>
+{% endblock %}

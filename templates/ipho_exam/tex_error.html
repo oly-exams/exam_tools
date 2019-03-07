@@ -7,14 +7,18 @@
     <p>
       An error occured when generating the PDF document. Please verify that you do not have errors in the Latex formulae.
     </p>
+    <div class="panel panel-default">
+        <div class="panel-body">
+          <p class="text-muted">
+            <i class="fa fa-lightbulb-o"></i> <a href="{% url 'exam:pdf-task-log' token=task_id %}">View the error log</a>
+          </p>
+          <p class="text-muted">
+            Error code: {{ error_code }}. Task id: {{ task_id }}.
+          </p>
+        </div>
+    </div>
     <p>
       If the error persist, please contact the exam tools team at <a href="mailto:exam-tools-users@oly-exams.org"><i class="fa fa-envelope-o"></i> exam-tools-users@oly-exams.org</a>.
-    </p>
-    <p class="text-left text-muted">
-      <a href="{% url 'exam:pdf-task-log' token=task_id %}"><i class="fa fa-lightbulb-o"></i> View the error log</a>
-    </p>
-    <p class="text-left text-muted">
-      Error code: {{ error_code }}. Task id: {{ task_id }}.
     </p>
   </div>
 </div>

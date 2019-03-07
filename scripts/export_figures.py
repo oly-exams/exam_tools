@@ -16,7 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import os.path
+import sys
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+sys.path.append(".")
 
 import django
 django.setup()
@@ -48,4 +51,10 @@ def save_with_pk(objs, stream):
 figures = []
 figures.extend(Figure.objects.non_polymorphic().all())
 figures.extend(Figure.objects.all())
-save_with_pk(figures, '033_figures.json')
+
+if len(sys.argv) >= 2:
+    d = sys.argv[1]
+else:
+    d = '.'
+fn = os.path.join(d, '033_figures.json')
+save_with_pk(figures, fn)

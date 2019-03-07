@@ -33,8 +33,10 @@ urlpatterns = patterns(
     url(r'^question/(?P<question_pk>\d+)/edit/$', 'editQuestion', name='editQuestion'),
     url(r'^question/(?P<question_pk>\d+)/$', 'setEndDate', name='setEndDate'),
     url(r'^question/(?P<question_pk>\d+)/removeEndDate$', 'removeEndDate', name='removeEndDate'),
+    url(r'^question/(?P<question_pk>\d+)/close$', 'closeQuestion', name='closeQuestion'),
 
     #delegation urls
     url(r'^$', 'voterIndex', name='voterIndex'),
+    url(r'^err/(?P<err_id>\d+)$', 'voterIndex', name='voterIndex_err'),
     url(r'^voted/$', 'voted', name='voted'),
 )

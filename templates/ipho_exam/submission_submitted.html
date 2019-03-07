@@ -16,6 +16,10 @@ The submission of the following exam has been completed.
 <div class="alert alert-info" role="alert"><strong>DEMO VERSION.</strong> In the demo version you are still allowed to edit the exam. In the real case this will no longer be possible.</div>
 {% endif %}
 
+{% if msg %}
+<div class="alert alert-danger" role="alert"><strong>{{ msg }}</strong> </div>
+{% endif %}
+
 <p>
 The exams will be printed shortly. Below you can see the final version that has been submitted.
 </p>

@@ -21,14 +21,23 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse, HttpResponseNotModified, Http404
 from django.conf import settings
+from django.utils.cache import patch_response_headers
 
 import os
 import operator
 from unicodedata import normalize
 import mimetypes
-from hashlib import md5
+import hashlib
 
 MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
+
+
+def hash(fname):
+    h = hashlib.sha256()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 @login_required
@@ -44,7 +53,7 @@ def main(request, type, url):
         raise Http404('File not found.')
 
     if type == 'f':
-        etag = md5(path.encode('utf8')).hexdigest()
+        etag = hash(path)
 
         if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
             return HttpResponseNotModified()
@@ -54,6 +63,7 @@ def main(request, type, url):
         res = HttpResponse(open(path, 'rb'), content_type=content_type)
         res['content-disposition'] = 'inline; filename="{}"'.format(filename)
         res['ETag'] = etag
+        patch_response_headers(res, cache_timeout=300)
         return res
 
     flist = []

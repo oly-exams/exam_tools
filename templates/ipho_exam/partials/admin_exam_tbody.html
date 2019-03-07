@@ -46,7 +46,7 @@
                       {% if node.status == 'P' %}
                         <a class="btn btn-xs btn-warning" href="{% url 'exam:admin-editor' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Edit version"><i class="fa fa-pencil fa-fw"></i> edit</a>
                       {% endif %}
-                      <a class="btn btn-xs btn-success" href="{% url 'exam:pdf-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="View PDF"><i class="fa fa-file-pdf-o fa-fw"></i> PDF</a>
+                      <a class="btn btn-xs btn-success" target="_blank" href="{% url 'exam:pdf-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="View PDF"><i class="fa fa-file-pdf-o fa-fw"></i> PDF</a>
                         <div class="btn-group">
                             <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">advanced <span class="caret"></span>
                             </button>
@@ -60,8 +60,19 @@
                         <a class="btn btn-xs btn-danger" data-toggle="modal" data-target="#delete-modal" data-remote="false" href="{% url 'exam:admin-delete-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Delete version"><i class="fa fa-trash-o"></i> delete</a>
                         <a class="btn btn-xs btn-info" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> diff/accept</a>
                       {% endif %}
+                      <div class="btn-group">
+                          <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">PDF compare <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu">
+                              {% for cmp_node in question.versionnode_set.all %}
+                                {% if cmp_node.version != node.version %}
+                                  <li><a target="_blank" href="{% url 'exam:pdfdiff-version' question_id=question.pk lang_id=node.language.pk new_version_num=node.version old_version_num=cmp_node.version %}" title="View PDF diff"><i class="fa fa-file-pdf-o fa-fw"></i> old: v{{ cmp_node.version }} new: v{{ node.version }}</a></li>
+                                {% endif %}
+                              {% endfor %}
+                          </ul>
+                      </div>
                       {% if node.status == 'S' %}
-                        <a class="btn btn-xs btn-primary" href="{% url 'exam:admin-publish-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="fa fa-play-circle"></i> publish</a>
+                        <a class="btn btn-xs btn-primary" data-toggle="modal" data-target="#publish-modal" data-remote="false" href="{% url 'exam:admin-publish-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="fa fa-play-circle"></i> publish</a>
                       {% endif %}
                     </div>
 

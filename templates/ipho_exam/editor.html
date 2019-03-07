@@ -397,7 +397,7 @@ body { margin-bottom: 70px; }
         CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
 
         CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'Mathjax-mathquill', '-', 'Styles', '-', 'BidiLtr', 'BidiRtl', '-', 'Jsvk']
+                [ 'Bold', 'Italic', 'Underline', '-', 'RemoveFormat', '-', 'Mathjax-mathquill', 'Jsvk', 'Source', '-', 'BulletedList', 'NumberedList', '-', 'BidiLtr', 'BidiRtl', 'Styles']
             ];
         CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
@@ -431,6 +431,10 @@ body { margin-bottom: 70px; }
         ] );
         CKEDITOR.config.stylesSet = 'my_styles';
 
+        // manually set text of Source button to empty to make it smaller
+        CKEDITOR.on('instanceReady', function() {
+            $(".cke_button__source_label").text("");
+        });
 
         all_editors = new Array();
 
@@ -553,7 +557,7 @@ body { margin-bottom: 70px; }
                 field_id =  $(this).attr('id').replace('-copy', '');
                 orig = '#' + $(this).attr('id').replace('-copy', '-original');
                 if (field_id in all_editors)
-                    all_editors[field_id].setData($(orig).data('original-text'));
+                    all_editors[field_id].setData(String($(orig).data('original-text')));
                 else
                     $('#'+field_id+'-translate input[type="text"]').val($(orig).data('original-text'));
                 event.preventDefault();

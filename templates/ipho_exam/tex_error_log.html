@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra-head %}
+<link href="{% static 'render_line_numbers.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+<h1>TeX errors</h1>
+<pre id="errors" class="text-danger">{{ errors|safe }}</pre>
+
+<h1>Input .tex</h1>
+<pre id="doc_text">{{ doc_tex|safe }}</pre>
+
+<h1>Full log</h1>
+<pre id="full_log">{{ full_log|safe }}</pre>
+
+</div> <!-- /container -->
+
+
+{% endblock %}

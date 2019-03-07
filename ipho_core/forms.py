@@ -45,3 +45,30 @@ class AccountRequestForm(ModelForm):
     class Meta(object):
         model = AccountRequest
         fields = ['email', 'user']
+
+class SendPushForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super(SendPushForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(Field('to_all'), Field('message'), Field('url'), FormActions(Submit('submit', 'Submit')), Field('users'))
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+
+    users = forms.ModelMultipleChoiceField(queryset=User.objects.exclude(is_superuser=True).order_by('username').all(),
+            label="select users", required = False,
+            widget=forms.widgets.CheckboxSelectMultiple,
+            )
+    to_all = forms.BooleanField(required=False, label='send to all users (choose individual users below)')
+    message = forms.CharField(label='Message to send')
+    url = forms.URLField(label='url to redirect users to', required=False)
+
+class RandomDrawForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(RandomDrawForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(Field('do_it'), FormActions(Submit('submit', 'Submit')),)
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+
+    do_it = forms.BooleanField()

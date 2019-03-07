@@ -31,6 +31,7 @@ def main(input):
     reader = csv.DictReader(input)
 
     for i, row in enumerate(reader):
+        #print(row)
         try:
             ## Delegation
             delegation = Delegation.objects.get(name=row['delegation'])
@@ -47,6 +48,9 @@ def main(input):
 
         except Delegation.DoesNotExist:
             print('Skip', row['code'], 'because delegation does not exist.')
+        except KeyError:
+            pass
+            #print(row['code'])
 
 
 if __name__ == '__main__':

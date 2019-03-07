@@ -1,0 +1,57 @@
+{% extends "ipho_marking/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block extra-head %}
+{% endblock %}
+
+{% block pageheader %}<h1>Entering of official marks</h1>{% endblock %}
+
+{% block page-content %}
+<p class="lead">Select the question and delegation.</p>
+
+  <div class="row">
+    <div class="col-md-6">
+      
+      {% if questions %}
+      <div class="dropdown">
+        <a class="btn {{ question|yesno:"btn-default,btn-primary" }} btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+          {% if question %}
+          {{ question.exam.code }}-{{ question.position }} {{ question.exam.name }} - {{ question.name }}
+          {% else %}
+          Select question
+          {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+      {% for q in questions %}
+          <li {% if question == q %} class="active" {% endif %}><a href="{% url 'marking:official-marking-index-question' question_id=q.pk %}">{{ q.exam.code }}-{{ q.position }} {{ q.exam.name }} - {{ q.name }}</a></li>
+      {% endfor %}
+        </ul>
+      </div>
+      {% else %}
+      <p class="alert alert-info">No exam is activated for marking entering.</p>
+      {% endif %}
+
+    </div>
+    <div class="col-md-6">
+
+      {% if question %}
+      <div class="dropdown">
+        <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+          Select delegation
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+        {% for delegation in delegations %}
+            <li><a href="{% url 'marking:official-marking-detail' question_id=question.pk delegation_id=delegation.pk %}">{{ delegation.country }} ({{ delegation.name }})</a></li>
+        {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra-script %}
+{% endblock %}

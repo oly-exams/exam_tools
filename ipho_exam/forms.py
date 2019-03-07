@@ -30,6 +30,8 @@ import decimal
 from django.core.exceptions import ValidationError
 
 from ipho_exam.models import Language, Question, Student, Figure, VersionNode, TranslationNode, PDFNode, Feedback, StudentSubmission, TranslationImportTmp, Document
+from ipho_exam.models import VALID_FIGURE_EXTENSIONS
+from ipho_print import printer
 
 
 def build_extension_validator(valid_extensions):
@@ -37,7 +39,7 @@ def build_extension_validator(valid_extensions):
         import os
         ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
         # valid_extensions = ['.svg', '.svgz']
-        if not ext in valid_extensions:
+        if not ext.lower() in set(ex.lower() for ex in valid_extensions):
             raise ValidationError(u'Unsupported file extension.')
 
     return validate_file_extension
@@ -78,13 +80,8 @@ class LanguageForm(ModelForm):
         data = self.cleaned_data['name']
         if "_" in data:
             raise forms.ValidationError("Underscore '_' symbols are forbidden in language names.")
-        return data
-
-    def clean(self):
-        cleaned_data = super(LanguageForm, self).clean()
-
         try:
-            Language.objects.get(name=cleaned_data['name'], delegation=self.user_delegation)
+            Language.objects.get(name=data, delegation=self.user_delegation)
         except Language.DoesNotExist:
             pass
         else:
@@ -93,9 +90,7 @@ class LanguageForm(ModelForm):
                     'This language already exist for delegation ' + self.user_delegation.name +
                     '. Enter a different name.'
                 )
-
-        # Always return cleaned_data
-        return cleaned_data
+        return data
 
     class Meta(object):
         model = Language
@@ -119,7 +114,7 @@ class LanguageForm(ModelForm):
 
 class FigureForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        valid_extensions = kwargs.pop('valid_extensions', ('.svg', '.svgz', '.png', '.jpg', '.jpeg'))
+        valid_extensions = kwargs.pop('valid_extensions', VALID_FIGURE_EXTENSIONS)
         super(FigureForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
         self.fields['file'] = forms.FileField(
@@ -201,6 +196,17 @@ class DeleteForm(forms.Form):
 
     verify = forms.CharField(max_length=100, label='Please type in the name of the question to confirm.')
 
+class PublishForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(PublishForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.helper.disable_csrf = True
+
+    # Cannot have a completely empty form
+    hidden_input = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 class VersionNodeForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -371,6 +377,8 @@ class AdminBlockAttributeForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(AdminBlockAttributeForm, self).clean()
+        if not cleaned_data['key'] or not cleaned_data['key'].isidentifier():
+            self.add_error('value', 'The key can only ontain alphanumeric characters or underscores.')
         if cleaned_data['key'] == 'points':
             try:
                 cont = decimal.Context(prec=28, rounding=decimal.ROUND_HALF_EVEN, Emin=-999999, Emax=999999,
@@ -430,21 +438,36 @@ class PrintDocsForm(forms.Form):
     duplex = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('DuplexNoTumble', 'Yes')])
     color = forms.ChoiceField(initial='Colour', choices=[('Colour', 'Yes'), ('Grayscale', 'No')])
     staple = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('1PLU', 'Yes')])
-
+    copies = forms.IntegerField(initial=1, min_value=1, max_value=10)
     def __init__(self, *args, **kwargs):
         queue_list = kwargs.pop('queue_list')
         super(PrintDocsForm, self).__init__(*args, **kwargs)
 
         self.fields['queue'].choices = queue_list
+        default_opts = printer.default_opts()
+        opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
+        for k in opts_map:
+            self.fields[k].initial = default_opts[opts_map[k]]
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field('queue'), Field('duplex'), Field('color'), Field('staple'), FormActions(Submit('submit', 'Print'))
+            Field('queue'), Field('duplex'), Field('color'), Field('staple'), Field('copies'), FormActions(Submit('submit', 'Print'))
         )
 
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.form_tag = False
+
+    def clean(self):
+        cleaned_data = super(PrintDocsForm, self).clean()
+        queue = cleaned_data.get("queue")
+        allowed_opts = printer.allowed_opts(queue)
+        opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
+        for k in opts_map:
+            if cleaned_data.get(k) not in ['None', 'Grayscale']:
+                if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
+                    msg = 'The current printer does not support this option.'
+                    self.add_error(k, msg)
 
 
 class ScanForm(forms.Form):

@@ -17,7 +17,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals
+from __future__ import print_function, unicode_literals, absolute_import
+
+import os, uuid
+import subprocess
+import codecs
 
 from builtins import object
 from builtins import str
@@ -36,8 +40,7 @@ from .exceptions import IphoExamException, IphoExamForbidden
 from polymorphic.models import PolymorphicModel
 from polymorphic.manager import PolymorphicManager
 
-import os, uuid
-import subprocess
+from .utils import natural_id
 
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 SITE_URL = getattr(settings, 'SITE_URL')
@@ -54,7 +57,7 @@ class Language(models.Model):
     objects = LanguageManager()
     DIRECTION_CHOICES = (('ltr', 'Left-to-right'), ('rtl', 'Right-to-left'))
     POLYGLOSSIA_CHOICES = (('albanian', 'Albanian'), ('amharic', 'Amharic'), ('arabic', 'Arabic'), ('armenian', 'Armenian'), ('asturian', 'Asturian'), ('bahasai', 'Bahasai'), ('bahasam', 'Bahasam'), ('basque', 'Basque'), ('bengali', 'Bengali'), ('brazilian', 'Brazilian'), ('breton', 'Breton'), ('bulgarian', 'Bulgarian'), ('catalan', 'Catalan'), ('coptic', 'Coptic'), ('croatian', 'Croatian'), ('czech', 'Czech'), ('danish', 'Danish'), ('divehi', 'Divehi'), ('dutch', 'Dutch'), ('english', 'English'), ('esperanto', 'Esperanto'), ('estonian', 'Estonian'), ('farsi', 'Farsi'), ('finnish', 'Finnish'), ('french', 'French'), ('friulan', 'Friulan'), ('galician', 'Galician'), ('german', 'German'), ('greek', 'Greek'), ('hebrew', 'Hebrew'), ('hindi', 'Hindi'), ('icelandic', 'Icelandic'), ('interlingua', 'Interlingua'), ('irish', 'Irish'), ('italian', 'Italian'), ('kannada', 'Kannada'), ('lao', 'Lao'), ('latin', 'Latin'), ('latvian', 'Latvian'), ('lithuanian', 'Lithuanian'), ('lsorbian', 'Lsorbian'), ('magyar', 'Magyar'), ('malayalam', 'Malayalam'), ('marathi', 'Marathi'), ('nko', 'Nko'), ('norsk', 'Norsk'), ('nynorsk', 'Nynorsk'), ('occitan', 'Occitan'), ('piedmontese', 'Piedmontese'), ('polish', 'Polish'), ('portuges', 'Portuges'), ('romanian', 'Romanian'), ('romansh', 'Romansh'), ('russian', 'Russian'), ('samin', 'Samin'), ('sanskrit', 'Sanskrit'), ('scottish', 'Scottish'), ('serbian', 'Serbian'), ('slovak', 'Slovak'), ('slovenian', 'Slovenian'), ('spanish', 'Spanish'), ('swedish', 'Swedish'), ('syriac', 'Syriac'), ('tamil', 'Tamil'), ('telugu', 'Telugu'), ('thai', 'Thai'), ('tibetan', 'Tibetan'), ('turkish', 'Turkish'), ('turkmen', 'Turkmen'), ('ukrainian', 'Ukrainian'), ('urdu', 'Urdu'), ('usorbian', 'Usorbian'), ('vietnamese', 'Vietnamese'), ('welsh', 'Welsh'), ('custom', 'Other')) # yapf:disable
-    STYLES_CHOICES = ((u'afrikaans', u'Afrikaans'), (u'albanian', u'Albanian'), (u'amharic', u'Amharic'), (u'arabic', u'Arabic'), (u'armenian', u'Armenian'), (u'asturian', u'Asturian'), (u'azerbaijani', u'Azerbaijani'), (u'basque', u'Basque'), (u'belarusian', u'Belarusian'), (u'bengali', u'Bengali'), (u'bosnian', u'Bosnian'), (u'breton', u'Breton'), (u'bulgarian', u'Bulgarian'), (u'burmese', u'Burmese'), (u'cantonese', u'Cantonese'), (u'catalan', u'Catalan'), (u'chinese', u'Chinese'), (u'coptic', u'Coptic'), (u'croatian', u'Croatian'), (u'czech', u'Czech'), (u'danish', u'Danish'), (u'divehi', u'Divehi'), (u'dutch', u'Dutch'), (u'english', u'English'), (u'esperanto', u'Esperanto'), (u'filipino', u'Filipino'), (u'finnish', u'Finnish'), (u'french', u'French'), (u'friulian', u'Friulian'), (u'galician', u'Galician'), (u'georgian', u'Georgian'), (u'german', u'German'), (u'greek', u'Greek'), (u'hebrew', u'Hebrew'), (u'hindi', u'Hindi'), (u'hungarian', u'Hungarian'), (u'icelandic', u'Icelandic'), (u'indonesian', u'Indonesian'), (u'interlingua', u'Interlingua'), (u'irish', u'Irish'), (u'italian', u'Italian'), (u'japanese', u'Japanese'), (u'kannada', u'Kannada'), (u'kazakh', u'Kazakh'), (u'khmer', u'Khmer'), (u'korean', u'Korean'), (u'kurdish', u'Kurdish'), (u'kyrgyz', u'Kyrgyz'), (u'lao', u'Lao'), (u'latin', u'Latin'), (u'latvian', u'Latvian'), (u'lithuanian', u'Lithuanian'), (u'luxembourgish', u'Luxembourgish'), (u'macedonian', u'Macedonian'), (u'magyar', u'Magyar'), (u'malay', u'Malay'), (u'malayalam', u'Malayalam'), (u'malaysian', u'Malaysian'), (u'mandarin', u'Mandarin'), (u'marathi', u'Marathi'), (u'mongolian', u'Mongolian'), (u'montenegrin', u'Montenegrin'), (u'nepali', u'Nepali'), (u'northern sotho', u'Northern Sotho'), (u'norwegian bokmål', u'Norwegian Bokmål'), (u'norwegian nynorsk', u'Norwegian Nynorsk'), (u'occitan', u'Occitan'), (u'persian', u'Persian'), (u'piedmontese', u'Piedmontese'), (u'polish', u'Polish'), (u'portuguese', u'Portuguese'), (u'romanian', u'Romanian'), (u'romansh', u'Romansh'), (u'russian', u'Russian'), (u'sanskrit', u'Sanskrit'), (u'scottish', u'Scottish'), (u'serbian', u'Serbian'), (u'sinhalese', u'Sinhalese'), (u'slovak', u'Slovak'), (u'slovenian', u'Slovenian'), (u'southern ndebele', u'Southern Ndebele'), (u'southern sotho', u'Southern Sotho'), (u'spanish', u'Spanish'), (u'swedish', u'Swedish'), (u'syriac', u'Syriac'), (u'tajik', u'Tajik'), (u'tamil', u'Tamil'), (u'telugu', u'Telugu'), (u'thai', u'Thai'), (u'tibetan', u'Tibetan'), (u'tsonga', u'Tsonga'), (u'tswana', u'Tswana'), (u'turkish', u'Turkish'), (u'turkmen', u'Turkmen'), (u'ukrainian', u'Ukrainian'), (u'urdu', u'Urdu'), (u'uzbek', u'Uzbek'), (u'venda', u'Venda'), (u'vietnamese', u'Vietnamese'), (u'welsh', u'Welsh'), (u'xhosa', u'Xhosa'), (u'zulu', u'Zulu')) # yapf:disable
+    STYLES_CHOICES = ((u'afrikaans', u'Afrikaans'), (u'albanian', u'Albanian'), (u'amharic', u'Amharic'), (u'arabic', u'Arabic'), (u'armenian', u'Armenian'), (u'asturian', u'Asturian'), (u'azerbaijani', u'Azerbaijani'), (u'basque', u'Basque'), (u'belarusian', u'Belarusian'), (u'bengali', u'Bengali'), (u'bosnian', u'Bosnian'), (u'breton', u'Breton'), (u'bulgarian', u'Bulgarian'), (u'burmese', u'Burmese'), (u'cantonese', u'Cantonese'), (u'catalan', u'Catalan'), (u'chinese', u'Chinese (simplified)'), (u'chinese_tc', u'Chinese (traditional)'), (u'coptic', u'Coptic'), (u'croatian', u'Croatian'), (u'czech', u'Czech'), (u'danish', u'Danish'), (u'divehi', u'Divehi'), (u'dutch', u'Dutch'), (u'english', u'English'), (u'esperanto', u'Esperanto'), (u'estonian', u'Estonian'), (u'filipino', u'Filipino'), (u'finnish', u'Finnish'), (u'french', u'French'), (u'friulian', u'Friulian'), (u'galician', u'Galician'), (u'georgian', u'Georgian'), (u'german', u'German'), (u'greek', u'Greek'), (u'hebrew', u'Hebrew'), (u'hindi', u'Hindi'), (u'hungarian', u'Hungarian'), (u'icelandic', u'Icelandic'), (u'indonesian', u'Indonesian'), (u'interlingua', u'Interlingua'), (u'irish', u'Irish'), (u'italian', u'Italian'), (u'japanese', u'Japanese'), (u'kannada', u'Kannada'), (u'kazakh', u'Kazakh'), (u'khmer', u'Khmer'), (u'korean', u'Korean'), (u'kurdish', u'Kurdish'), (u'kyrgyz', u'Kyrgyz'), (u'lao', u'Lao'), (u'latin', u'Latin'), (u'latvian', u'Latvian'), (u'lithuanian', u'Lithuanian'), (u'luxembourgish', u'Luxembourgish'), (u'macedonian', u'Macedonian'), (u'magyar', u'Magyar'), (u'malay', u'Malay'), (u'malayalam', u'Malayalam'), (u'malaysian', u'Malaysian'), (u'mandarin', u'Mandarin'), (u'marathi', u'Marathi'), (u'mongolian', u'Mongolian'), (u'montenegrin', u'Montenegrin'), (u'nepali', u'Nepali'), (u'northern sotho', u'Northern Sotho'), (u'norwegian bokmål', u'Norwegian Bokmål'), (u'norwegian nynorsk', u'Norwegian Nynorsk'), (u'occitan', u'Occitan'), (u'persian', u'Persian'), (u'piedmontese', u'Piedmontese'), (u'polish', u'Polish'), (u'portuguese', u'Portuguese'), (u'romanian', u'Romanian'), (u'romansh', u'Romansh'), (u'russian', u'Russian'), (u'sanskrit', u'Sanskrit'), (u'scottish', u'Scottish'), (u'serbian', u'Serbian'), (u'sinhalese', u'Sinhalese'), (u'slovak', u'Slovak'), (u'slovenian', u'Slovenian'), (u'southern ndebele', u'Southern Ndebele'), (u'southern sotho', u'Southern Sotho'), (u'spanish', u'Spanish'), (u'swedish', u'Swedish'), (u'syriac', u'Syriac'), (u'tajik', u'Tajik'), (u'tamil', u'Tamil'), (u'telugu', u'Telugu'), (u'thai', u'Thai'), (u'tibetan', u'Tibetan'), (u'tsonga', u'Tsonga'), (u'tswana', u'Tswana'), (u'turkish', u'Turkish'), (u'turkmen', u'Turkmen'), (u'ukrainian', u'Ukrainian'), (u'urdu', u'Urdu'), (u'uzbek', u'Uzbek'), (u'venda', u'Venda'), (u'vietnamese', u'Vietnamese'), (u'welsh', u'Welsh'), (u'xhosa', u'Xhosa'), (u'zulu', u'Zulu')) # yapf:disable
 
 
     name = models.CharField(max_length=100, db_index=True)
@@ -102,10 +105,12 @@ class Exam(models.Model):
 
     code = models.CharField(max_length=8)
     name = models.CharField(max_length=100, unique=True)
-    active = models.BooleanField(default=True, help_text='Only active exams are editable.')
-    hidden = models.BooleanField(default=False, help_text='Is the exam hidden for the delegations?')
-    marking_active = models.BooleanField(default=False, help_text='Allow marking submission from delegations.')
+    active = models.BooleanField(default=True, help_text='Exam is editable and viewable by delegations.')
+    hidden = models.BooleanField(default=False, help_text='Exam is hidden from everyone except superusers.')
+    marking_active = models.BooleanField(default=False, help_text='Allow marking submission from delegations. Activate only after official marks are entered.')
     moderation_active = models.BooleanField(default=False, help_text='Allow access to moderation interface.')
+    show_scans = models.BooleanField(default=False, help_text='Show successful scans to delegation.')
+    hide_feedback = models.BooleanField(default=False, help_text='Hide feedback from delegations')
 
     def __str__(self):
         return u'%s' % (self.name)
@@ -328,18 +333,24 @@ class TranslationImportTmp(models.Model):
         return u'%s - %s, %s' % (self.slug, self.question, self.language)
 
 
+VALID_RAW_FIGURE_EXTENSIONS = ('.png', '.jpg', '.jpeg')
+VALID_COMPILED_FIGURE_EXTENSIONS = ('.svg', '.svgz')
+VALID_FIGURE_EXTENSIONS = VALID_RAW_FIGURE_EXTENSIONS + VALID_COMPILED_FIGURE_EXTENSIONS
+
+
 class FigureManager(PolymorphicManager):
-    def get_by_natural_key(self, name):
-        return self.get(name=name)
+    def get_by_natural_key(self, fig_id):
+        return self.get(fig_id=fig_id)
 
 
 @python_2_unicode_compatible
 class Figure(PolymorphicModel):
     objects = FigureManager()
     name = models.CharField(max_length=100, db_index=True)
+    fig_id = models.URLField(max_length=100, db_index=True, default=natural_id.generate_id, unique=True, blank=False)
 
     def natural_key(self):
-        return (self.name, )
+        return (self.fig_id, )
 
     def __str__(self):
         return u'%s' % (self.name)
@@ -383,7 +394,7 @@ class CompiledFigure(Figure):
 
     @staticmethod
     def _to_pdf(fig_svg, fig_name):
-        with open('%s.svg' % (fig_name), 'w') as fp:
+        with codecs.open('%s.svg' % (fig_name), "w", encoding='utf-8') as fp:
             fp.write(fig_svg)
         error = subprocess.Popen(
             [INKSCAPE_BIN, '--without-gui',
@@ -461,7 +472,8 @@ class Feedback(models.Model):
         ('S', 'Submitted'),
         ('V', 'Scheduled for voting'),
         ('I', 'Implemented'),
-        ('T', 'Settle'),
+        ('T', 'Settled'),
+        ('R', 'Rejected'),
     )
     PARTS_CHOICES = (
         ('General', 'General'),
@@ -568,9 +580,10 @@ class ExamAction(models.Model):
     @staticmethod
     def require_in_progress(action, exam, delegation):
         if not ExamAction.is_in_progress(action, exam, delegation):
-            raise IphoExamForbidden(
-                'You cannot perfom this action more than once. Contact the staff if have good reasons to request a reset.'
+            return IphoExamForbidden(
+                'You cannot perfom this action: this exam is submitted. Contact the staff if you have good reasons to request a reset.'
             )
+        return None
 
 
 @receiver(post_save, sender=Exam, dispatch_uid='create_actions_on_exam_creation')
@@ -631,6 +644,7 @@ class Document(models.Model):
 
     exam = models.ForeignKey(Exam, help_text='Exam')
     student = models.ForeignKey(Student, help_text='Student')
+    timestamp = models.DateTimeField(auto_now=True, null=True)
     position = models.IntegerField(
         help_text='Question grouping position, e.g. 0 for cover sheet / instructions, 1 for the first question, etc'
     )

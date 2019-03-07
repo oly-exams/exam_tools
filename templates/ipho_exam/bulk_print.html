@@ -69,10 +69,88 @@ This list shows only documents that have been submitted by the delegations.
         </ul>
       </div>
 
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if exclude_gi %}
+          General Instructions excluded
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url exclude_gi=None page=1 %}">reset</a></li>
+        </ul>
+      {% else %}
+          Exclude General Instructions
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url exclude_gi='true' page=1 %}">apply</a></li>
+        </ul>
+      {% endif %}
+      </div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if exam_print_filter %}
+          Exam {{ exam_print_filter }}
+      {% else %}
+          Filter exam print
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url ex_prt=None page=1 %}">-- no filter --</a></li>
+          {% for opt in exam_print_filter_options %}
+            <li {% if exam_print_filter == opt %} class="active" {% endif %}><a href="{% this_url ex_prt=opt page=1 %}">Exam {{ opt }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if scan_status %}
+        {% if scan_status == 'null' %}
+          No scan
+        {% elif scan_status == 'any' %}
+          Scan exists
+        {% else %}
+          {{ scan_status }}
+        {% endif %}
+      {% else %}
+          Filter scan status
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url st=None page=1 %}">-- no filter --</a></li>
+          <li><a href="{% this_url st='null' page=1 %}">no scan</a></li>
+          <li><a href="{% this_url st='any' page=1 %}">any status</a></li>
+          {% for opt in scan_status_options %}
+            <li {% if scan_status == opt %} class="active" {% endif %}><a href="{% this_url st=opt page=1 %}">{{ opt }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if scan_print_filter %}
+          Scan {{ scan_print_filter }}
+      {% else %}
+          Filter scan print
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url sc_prt=None page=1 %}">-- no filter --</a></li>
+          {% for opt in scan_print_filter_options %}
+            <li {% if scan_print_filter == opt %} class="active" {% endif %}><a href="{% this_url sc_prt=opt page=1 %}">Scan {{ opt }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
   </div>
 
   <br/>
-  
+
     <form method="POST">
     <table class="table table-striped">
       <tr>
@@ -81,7 +159,7 @@ This list shows only documents that have been submitted by the delegations.
           <th>Student</th>
           <th>Num pages</th>
           <th>Barcode</th>
-          <th>Printouts</th>
+          <th>Printouts <button type="button" class="printouts-all">invert selection</button>
           <th>Scans</th>
           <th>Scan status</th>
           <th>Full scan</th>
@@ -97,7 +175,7 @@ This list shows only documents that have been submitted by the delegations.
             <td align="center">
               <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
               <br />
-              <input type="checkbox" name="printouts[]" value="{{ d.pk }}" />
+              <input class="printouts-single" type="checkbox" name="printouts[]" value="{{ d.pk }}" />
               <div class="btn-group">
                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
                   <i class="fa fa-print"></i>
@@ -110,7 +188,12 @@ This list shows only documents that have been submitted by the delegations.
                 </ul>
               </div>
               <br />
-              {{ d.last_print_p|date:"SHORT_DATETIME_FORMAT" }}
+              Print time:
+              {% if d.last_print_p %}
+              <time datetime="{{ d.last_print_p|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+              {% else %}
+              --:--
+              {% endif %}
             </td>
             <td align="center">
               {% if d.scan_file %}
@@ -129,7 +212,19 @@ This list shows only documents that have been submitted by the delegations.
                   </ul>
                 </div>
                 <br />
-                {{ d.last_print_s|date:"SHORT_DATETIME_FORMAT" }}
+                Print time:
+                {% if d.last_print_s %}
+                <time datetime="{{ d.last_print_s|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+                {% else %}
+                --:--
+                {% endif %}
+                <br />
+                Scan time:
+                {% if d.timestamp %}
+                <time datetime="{{ d.timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+                {% else %}
+                --:--
+                {% endif %}
               {% endif %}
             </td>
             <td>
@@ -208,5 +303,18 @@ This list shows only documents that have been submitted by the delegations.
   $(function () {
   $('[data-toggle="popover"]').popover()
 })
+$('document').ready(function(){
+    $("time[data-format]").each(function () {
+      var el = $(this);
+      var dt = moment(el.attr("datetime"));
+      el.text(dt.format(el.data("format")));
+    });
+});
+$('.printouts-all').click(function() {
+  $('.printouts-single').each(function() {
+    $(this).click();
+  });
+});
+
 </script>
 {% endblock %}

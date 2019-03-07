@@ -49,12 +49,14 @@ class EndDateForm(ModelForm):
         super(EndDateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            HTML('<span class="quick-end-time" data-min="1"></span>'),
+            HTML('<span class="quick-end-time" data-min="2"></span>'),
+            HTML('<span class="quick-end-time" data-min="5"></span>'),
+            HTML('<span class="quick-end-time" data-min="10"></span>'),
+            HTML('<p/><a href="#advanced" data-toggle="collapse">Advanced</a><div id="advanced" class="collapse">'),
             Field('utc_offset', id="modal-utc_offset"),
             Field('end_date', id="modal-datetimepicker"),
-            HTML('<div class="quick-end-time" data-min="1"></div>'),
-            HTML('<div class="quick-end-time" data-min="2"></div>'),
-            HTML('<div class="quick-end-time" data-min="5"></div>'),
-            HTML('<div class="quick-end-time" data-min="10"></div>'),
+            HTML('</div>'),
         )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
@@ -78,6 +80,19 @@ class ChoiceForm(ModelForm):
                 'maxlength': 3
             }),
         }
+    def __init__(self, *args, **kwargs):
+        super(ChoiceForm, self).__init__(*args, **kwargs)
+        try:
+            linit = kwargs['initial']['label']
+        except KeyError:
+            linit = ''
+        try:
+            linst = kwargs['instance'].label
+        except (KeyError, TypeError):
+            linst = ''
+        if linit == 'zzz' or linst == 'zzz':
+            self.fields['label'].widget.attrs['readonly'] = True
+            self.fields['choice_text'].widget.attrs['readonly'] = True
 
 
 class ChoiceFormHelper(FormHelper):

@@ -48,6 +48,21 @@ def compile_tex(body, ext_resources, filename='question.pdf', etag=None):
 
 
 @shared_task
+def compile_tex_diff(old_body, new_body, ext_resources, filename='question.pdf', etag=None):
+    if etag is None:
+        etag = md5((old_body + new_body).encode('utf8')).hexdigest()
+    doc_pdf = pdf.compile_tex_diff(old_body, new_body, ext_resources)
+    meta = {
+        'etag': etag,
+        'filename': filename,
+        'num_pages': pdf.get_num_pages(doc_pdf),
+        'barcode_num_pages': 0,
+        'barcode_base': None,
+    }
+    return doc_pdf, meta
+
+
+@shared_task
 def serve_pdfnode(question_pdf, filename='question.pdf'):
     etag = md5(question_pdf).hexdigest()
     meta = {
