@@ -15,28 +15,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-urlpatterns = patterns(
-    'ipho_poll.views',
+from . import views
+
+urlpatterns = [
     # staff urls
-    url(r'^staff/$', 'staffIndex', name='staffIndex'),
-    url(r'^staff/partials/(?P<qtype>\w+)$', 'staffIndexPartial', name='staff-index-partials'),
+    url(r'^staff/$', views.staffIndex, name='staffIndex'),
+    url(r'^staff/partials/(?P<qtype>\w+)$', views.staffIndexPartial, name='staff-index-partials'),
     url(
-        r'^staff/question/(?P<question_pk>\d+)/set/result/(?P<result>\d+)$', 'staff_setResult', name='staff-set-result'
+        r'^staff/question/(?P<question_pk>\d+)/set/result/(?P<result>\d+)$', views.staff_setResult, name='staff-set-result'
     ),
-    url(r'^staff/question/(?P<question_pk>\d+)/set/impl/(?P<impl>\d+)$', 'staff_setImpl', name='staff-set-impl'),
-    url(r'^question/detail/(?P<question_pk>\d+)/$', 'question', name='question'),
-    url(r'^question/large/(?P<question_pk>\d+)/$', 'question_large', name='question_large'),
-    url(r'^question/add/$', 'addQuestion', name='addQuestion'),
-    url(r'^question/(?P<question_pk>\d+)/delete/$', 'deleteQuestion', name='deleteQuestion'),
-    url(r'^question/(?P<question_pk>\d+)/edit/$', 'editQuestion', name='editQuestion'),
-    url(r'^question/(?P<question_pk>\d+)/$', 'setEndDate', name='setEndDate'),
-    url(r'^question/(?P<question_pk>\d+)/removeEndDate$', 'removeEndDate', name='removeEndDate'),
-    url(r'^question/(?P<question_pk>\d+)/close$', 'closeQuestion', name='closeQuestion'),
+    url(r'^staff/question/(?P<question_pk>\d+)/set/impl/(?P<impl>\d+)$', views.staff_setImpl, name='staff-set-impl'),
+    url(r'^question/detail/(?P<question_pk>\d+)/$', views.question, name='question'),
+    url(r'^question/large/(?P<question_pk>\d+)/$', views.question_large, name='question_large'),
+    url(r'^question/add/$', views.addQuestion, name='addQuestion'),
+    url(r'^question/(?P<question_pk>\d+)/delete/$', views.deleteQuestion, name='deleteQuestion'),
+    url(r'^question/(?P<question_pk>\d+)/edit/$', views.editQuestion, name='editQuestion'),
+    url(r'^question/(?P<question_pk>\d+)/$', views.setEndDate, name='setEndDate'),
+    url(r'^question/(?P<question_pk>\d+)/removeEndDate$', views.removeEndDate, name='removeEndDate'),
+    url(r'^question/(?P<question_pk>\d+)/close$', views.closeQuestion, name='closeQuestion'),
 
     #delegation urls
-    url(r'^$', 'voterIndex', name='voterIndex'),
-    url(r'^err/(?P<err_id>\d+)$', 'voterIndex', name='voterIndex_err'),
-    url(r'^voted/$', 'voted', name='voted'),
-)
+    url(r'^$', views.voterIndex, name='voterIndex'),
+    url(r'^err/(?P<err_id>\d+)$', views.voterIndex, name='voterIndex_err'),
+    url(r'^voted/$', views.voted, name='voted'),
+]

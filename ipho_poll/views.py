@@ -22,7 +22,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponseForbidden, HttpResponse
 from django.core.urlresolvers import reverse
 from django.core import serializers
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from crispy_forms.utils import render_crispy_form

@@ -15,15 +15,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 
-urlpatterns = patterns(
-    'ipho_exam.views_test',
-    url(r'^$', 'index'),
-    url(r'^view$', 'view', name='view'),
-    url(r'^edit$', 'edit', name='edit'),
-    url(r'^inline$', 'inline_edit', name='inline'),
-    url(r'^mathquill$', 'mathquill', name='mathquill'),
-    url(r'^mathquill_toolbar$', 'mathquill_toolbar', name='mathquill_toolbar'),
-    # url(r'^(?P<rep_id>\d+)/submit/?$', 'submit'),
-)
+from . import views_test
+
+urlpatterns = [
+    url(r'^$', views_test.index),
+    url(r'^view$', views_test.view, name='view'),
+    url(r'^edit$', views_test.edit, name='edit'),
+    url(r'^inline$', views_test.inline_edit, name='inline'),
+    url(r'^mathquill$', views_test.mathquill, name='mathquill'),
+    url(r'^mathquill_toolbar$', views_test.mathquill_toolbar, name='mathquill_toolbar'),
+]

@@ -21,7 +21,7 @@ from . import views
 
 urlpatterns = [
     ## Delegation views
-    url(r'^/?$', views.delegation_summary, name='delegation-summary'),
+    url(r'^$', views.delegation_summary, name='delegation-summary'),
     url(r'^export/exam/(?P<exam_id>\d+)$', views.delegation_export, name='delegation-export'),
     url(
         r'^detail/(?P<stud_id>\d+)/question/(?P<question_id>\d+)$',
