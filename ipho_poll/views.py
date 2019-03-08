@@ -205,7 +205,7 @@ def addQuestion(request):
         context.update(csrf(request))
         form_html = (
             render_crispy_form(questionForm, context=context) +
-            render_crispy_form(choiceFormset, helper=ChoiceFormHelper, context=context)
+            render_crispy_form(choiceFormset, helper=ChoiceFormHelper(can_delete=False), context=context)
         )
         return JsonResponse({
             'title': 'Create new voting',
@@ -245,7 +245,7 @@ def editQuestion(request, question_pk):
         context.update(csrf(request))
         form_html = (
             render_crispy_form(questionForm, context=context) +
-            render_crispy_form(choiceFormset, helper=ChoiceFormHelper, context=context)
+            render_crispy_form(choiceFormset, helper=ChoiceFormHelper(can_delete=True), context=context)
         )
         return JsonResponse({
             'title': 'Edit voting',
