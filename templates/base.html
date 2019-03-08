@@ -168,9 +168,9 @@
                 user
                 {% endif %}
                 </strong></li>
-              <li><a href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
+              <li><a href="{% url 'logout' %}">Logout</a></li>
             {% else %}
-              <li><a href="{% url 'django.contrib.auth.views.login' %}?next=/">Login</a></li>
+              <li><a href="{% url 'login' %}?next=/">Login</a></li>
             {% endif %}
             </ul>
           </div><!--/.nav-collapse -->

@@ -33,7 +33,7 @@ class EnhancedAdminEmailHandler(AdminEmailHandler):
             )
             filter = get_exception_reporter_filter(request)
             request_repr = '\n{}'.format(force_text(filter.get_request_repr(request)))
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 additional_info = "\n  Username: " + request.user.username
             else:
                 additional_info = "\n  Unauthenticated user"
@@ -57,4 +57,3 @@ class EnhancedAdminEmailHandler(AdminEmailHandler):
         reporter = ExceptionReporter(request, is_email=True, *exc_info)
         html_message = reporter.get_traceback_html() if self.include_html else None
         self.send_mail(subject, message, fail_silently=True, html_message=html_message)
-

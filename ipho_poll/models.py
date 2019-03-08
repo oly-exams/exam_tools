@@ -22,6 +22,7 @@ from django.db import models
 from ipho_core.models import Delegation
 from django.contrib.auth.models import User
 from django.db.models import Q, Count
+from django.db.models.functions import Now
 from itertools import chain
 
 from ipho_exam.models import Feedback
@@ -33,11 +34,11 @@ class QuestionManager(models.Manager):
         return queryset
 
     def is_open(self):
-        queryset = Question.objects.filter(end_date__gt=timezone.now)
+        queryset = Question.objects.filter(end_date__gt=timezone.now())
         return queryset
 
     def is_closed(self):
-        queryset = Question.objects.filter(end_date__lte=timezone.now)
+        queryset = Question.objects.filter(end_date__lte=timezone.now())
         return queryset
 
     def not_voted_upon_by(self, user):
