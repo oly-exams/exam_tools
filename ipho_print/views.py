@@ -21,7 +21,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
 from django.template import RequestContext
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.conf import settings
 

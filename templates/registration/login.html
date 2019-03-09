@@ -50,7 +50,7 @@
       Your username and password didn't match. Please try again.
     </div>
     {% endif %}
-      <form class="form-signin" role="form" action="{% url 'django.contrib.auth.views.login' %}" method="POST">
+      <form class="form-signin" role="form" action="{% url 'login' %}" method="POST">
         {% csrf_token %}
         <h2 class="form-signin-heading">Please sign in</h2>
         <input type="text" name="username" class="form-control" placeholder="Username" required autofocus>

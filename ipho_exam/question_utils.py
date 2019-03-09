@@ -25,7 +25,7 @@ from django.http import HttpRequest
 from django.template import RequestContext
 
 from django.core.urlresolvers import reverse
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 

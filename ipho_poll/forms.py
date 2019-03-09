@@ -97,14 +97,19 @@ class ChoiceForm(ModelForm):
 
 class ChoiceFormHelper(FormHelper):
     def __init__(self, *args, **kwargs):
+        can_delete = kwargs.pop('can_delete', True)
         super(ChoiceFormHelper, self).__init__(*args, **kwargs)
+
+        fields = [
+            Div(Field('label'), css_class='form-group'),
+            Div(Field('choice_text', placeholder='Enter choice text'), css_class='form-group'),
+        ]
+        if can_delete:
+            fields += [
+                Div(Field('DELETE'))
+            ]
         self.layout = Layout(
-            Div(
-                Div(Field('label'), css_class='form-group'),
-                Div(Field('choice_text', placeholder='Enter choice text'), css_class='form-group'),
-                Div(Field('DELETE')),
-                css_class='form-inline'
-            )
+            Div(*fields, css_class='form-inline')
         )
         self.form_show_labels = True
         self.html5_required = False
