@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -75,6 +75,8 @@ urlpatterns = [
         views.editor,
         name='editor-origdiff-lang'
     ),
+    url(r'^view/(?P<exam_id>\d+)$', views.exam_view, name='exam-view'),
+    url(r'^view/(?P<exam_id>\d+)/question/(?P<question_id>\d+)$', views.exam_view, name='exam-view'),
     url(r'^pdf/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$', views.compiled_question, name='pdf'),
     url(
         r'^pdf/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<version_num>\d+)$',
@@ -138,7 +140,8 @@ urlpatterns = [
     url(r'^pdf-task/(?P<token>[0-9a-z\-]+)/status$', views.task_status, name='pdf-task-status'),
     url(r'^pdf-task/(?P<token>[0-9a-z\-]+)/log$', views.task_log, name='pdf-task-log'),
     url(r'^feedbacks/list/?$', views.feedbacks_list, name='feedbacks-list'),
-    url(r'^feedbacks/add/(?P<exam_id>\d+)$', views.feedbacks_add, name='feedbacks-add'),
+    url(r'^feedbacks/add$', views.feedbacks_add_comment, name='feedback-add-comment'),
+    url(r'^feedbacks/add/(?P<feedback_id>\d+)$', views.feedbacks_add_comment, name='feedback-add-comment'),
     url(r'^feedbacks/(?P<status>(U|L))/(?P<feedback_id>\d+)$', views.feedback_like, name='feedback-like'),
     url(r'^feedbacks/(?P<feedback_id>\d+)/status/(?P<status>\w)$', views.feedback_set_status, name='feedback-set-status'),
     url(r'^submission/list$', views.submission_exam_list, name='submission-exam-list'),
@@ -248,7 +251,7 @@ urlpatterns = [
     url(r'^admin/scan/promote-full/(?P<doc_id>\d+)$', views.set_scan_full, name='set-scan-full'),
     url(r'^admin/scan/upload$', views.upload_scan, name='upload-scan'),
     url(r'^admin/api_keys$', views.api_keys, name='api-keys'),
-    url(r'^test/', include('ipho_exam.urls_test')),
+    url(r'^test/', include('ipho_exam.urls_test', namespace='test')),
 
     # url(r'^(?P<rep_id>\d+)/submit/?$', views.submit),
 ]

@@ -33,19 +33,23 @@
 
     <div class="modal fade" id="feedback-modal" tabindex="-1">
       <div class="modal-dialog">
+          <form method="post" action="">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            <h4 class="modal-title">Add translation</h4>
+            <h4 class="modal-title">Add organizer comment</h4>
           </div>
-          <form method="post" action="">
-              <div class="modal-body"></div>
+
+              <div class="modal-body">
+                {{ form }}
+              </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-primary">Add</button>
               </div>
-          </form>
+
         </div>
+          </form>
       </div>
     </div>
 
@@ -93,9 +97,7 @@
     {% for ex in exam_list %}
     <h3>
         {{ ex.name }}
-        {% if is_delegation %}
-        <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#feedback-modal" data-remote="false" href="{% url 'exam:feedbacks-add' exam_id=ex.pk %}"><i class="fa fa-plus"></i> Add feedback</a>
-        {% endif %}
+
     </h3>
     <table class="table table-striped">
       <tr>
@@ -107,6 +109,9 @@
           <th>Comment</th>
           <th>Timestamp</th>
           <th style="width:170px">Actions</th>
+          {% if perms.ipho_core.is_staff %}
+          <th>Commments</th>
+          {% endif %}
       </tr>
       <tbody id="exam-tbody-{{ ex.pk }}"></tbody>
     </table>
@@ -151,7 +156,6 @@ $(function() {
         var form = evt.target;
         var $form = $(form);
         evt.preventDefault();
-
         var data = new FormData($form.get(0));
         $.ajax({
             url: form.action,
@@ -178,23 +182,21 @@ $(function() {
 
     $('#feedback-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
-        var href = button.attr('href');
+        var fid = button.attr('id');
         var modal = $(this);
-
-        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
-        modal.find('.modal-body').html('');
+        var url =  "{% url 'exam:feedback-add-comment' %}/"+fid;
 
         $.ajax({
-            url: href,
-            dataType: 'json',
-            success: function(data) {
-                modal.find('.modal-title').text(data['title']);
-                modal.find('form').attr('action', href);
-                modal.find('.modal-body').html(data['form']);
-                modal.find('button[type="submit"]').text(data['submit_text']);
-                modal.find("[data-toggle=popover]").popover(); // activate popover
-            },
+            method: "GET",
+            url: url,
+        }).done(function( data ) {
+          modal.find("form").attr('action', url);
+          modal.find('.modal-body').html(data['form']);
+          modal.find('.modal-title').html(data['title']);
         });
+        //modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        //modal.find('.modal-body').html('');
+
     })
 
     function update_feedbacks(tid) {

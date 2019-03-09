@@ -1,7 +1,7 @@
 from __future__ import print_function
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2018 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -296,6 +296,16 @@ class FeedbackForm(ModelForm):
         model = Feedback
         fields = ['question', 'comment']
         # labels = {'part': 'Question part'}
+
+class FeedbackCommentForm(forms.Form):
+    comment = forms.CharField(widget=forms.Textarea)
+    def __init__(self, *args, **kwargs):
+        super(FeedbackCommentForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.form_tag = False
+        self.helper.disable_csrf = True
 
 
 class SubmissionAssignForm(ModelForm):
