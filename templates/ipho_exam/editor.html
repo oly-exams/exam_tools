@@ -616,9 +616,7 @@ body { margin-bottom: 70px; }
             });
 
             $('.translate-foreign textarea').each(function() {
-                myid = $(this).parent().attr('id').replace('-translate', '');
-                // all_editors[myid] = CKEDITOR.replace(this);
-                // all_editors[myid] = $(this).ckeditor().editor;
+                var myid = $(this).parent().attr('id').replace('-translate', '');
                 all_editors[myid] = CKEDITOR.inline(this);
                 var textarea = $(this);
                 all_editors[myid].on('change', function() { this.updateElement(); textarea.change(); });
