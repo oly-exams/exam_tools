@@ -147,7 +147,7 @@ def staff_stud_detail(request, version, stud_id, question_id):
         Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False
     )
     form = FormSet(
-        request.POST or None, queryset=Marking.objects.filter(marking_meta=metas, student=student, version=version)
+        request.POST or None, queryset=Marking.objects.filter(marking_meta__in=metas, student=student, version=version)
     )
     if form.is_valid():
         form.save()
@@ -375,7 +375,7 @@ def delegation_stud_edit(request, stud_id, question_id):
         Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False
     )
     form = FormSet(
-        request.POST or None, queryset=Marking.objects.filter(marking_meta=metas, student=student, version=version)
+        request.POST or None, queryset=Marking.objects.filter(marking_meta__in=metas, student=student, version=version)
     )
     if form.is_valid():
         form.save()
@@ -435,7 +435,7 @@ def delegation_edit_all(request, question_id):
         Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False
     )
     formset = FormSet(
-        request.POST or None, queryset=Marking.objects.filter(marking_meta=metas, student=students, version=version)
+        request.POST or None, queryset=Marking.objects.filter(marking_meta__in=metas, student__in=students, version=version)
     )
 
     if formset.is_valid():
@@ -451,7 +451,7 @@ def delegation_edit_all(request, question_id):
         ))
 
     documents = Document.objects.filter(
-        exam=question.exam, position=question.position, student=students
+        exam=question.exam, position=question.position, student__in=students
     ).order_by('student__code')
 
     ctx['documents'] = documents
@@ -489,7 +489,7 @@ def delegation_stud_view(request, stud_id, question_id):
 
     metas = MarkingMeta.objects.filter(question=question)
     markings = Marking.objects.filter(
-        marking_meta=metas, student=student, version__in=versions
+        marking_meta__in=metas, student=student, version__in=versions
     ).order_by('marking_meta')
     grouped_markings = [(k, {kk: list(gg)
                              for kk, gg in itertools.groupby(g, key=lambda m: m.version)})
@@ -530,7 +530,7 @@ def delegation_view_all(request, question_id):
 
     metas = MarkingMeta.objects.filter(question=question)
     markings = Marking.objects.filter(
-        marking_meta=metas, version__in=versions, student=students
+        marking_meta__in=metas, version__in=versions, student__in=students
     ).order_by('marking_meta')
     grouped_markings = [(
         meta, [(student, {mark.version: mark
@@ -538,7 +538,7 @@ def delegation_view_all(request, question_id):
                itertools.groupby(sorted(meta_group, key=lambda m: m.student.code), key=lambda m: m.student.code)]
     ) for meta, meta_group in itertools.groupby(markings, key=lambda m: m.marking_meta)]
 
-    documents = Document.objects.filter(exam=question.exam, position=question.position, student=students)
+    documents = Document.objects.filter(exam=question.exam, position=question.position, student__in=students)
 
     ctx['documents'] = documents
     ctx['markings'] = grouped_markings
@@ -560,9 +560,9 @@ def delegation_confirm(request, exam_id):
         return HttpResponseRedirect(reverse('marking:delegation-summary'))
 
     questions = Question.objects.filter(exam=exam, type=Question.ANSWER)
-    metas_query = MarkingMeta.objects.filter(question=questions).order_by('question', 'position')
+    metas_query = MarkingMeta.objects.filter(question__in=questions).order_by('question', 'position')
     markings_query = Marking.objects.filter(
-        student__delegation=delegation, marking_meta=metas_query, version='D'
+        student__delegation=delegation, marking_meta__in=metas_query, version='D'
     ).order_by('marking_meta__question', 'marking_meta__position', 'student')
 
     if any(m.points is None for m in markings_query):
@@ -631,10 +631,10 @@ def moderation_detail(request, question_id, delegation_id):
     with_errors = False
     for i, student in enumerate(students):
         markings_official = Marking.objects.filter(
-            student=student, marking_meta=metas, version='O'
+            student=student, marking_meta__in=metas, version='O'
         ).order_by('marking_meta__position')
         markings_delegation = Marking.objects.filter(
-            student=student, marking_meta=metas, version='D'
+            student=student, marking_meta__in=metas, version='D'
         ).order_by('marking_meta__position')
 
         FormSet = modelformset_factory(
@@ -643,7 +643,7 @@ def moderation_detail(request, question_id, delegation_id):
         form = FormSet(
             request.POST or None,
             prefix='Stud-{}'.format(student.pk),
-            queryset=Marking.objects.filter(marking_meta=metas, student=student, version='F')
+            queryset=Marking.objects.filter(marking_meta__in=metas, student=student, version='F')
         )
         for j, f in enumerate(form):
             f.fields['points'].widget.attrs['tabindex'] = i * len(metas) + j + 1
@@ -710,7 +710,7 @@ def official_marking_detail(request, question_id, delegation_id):
         form = FormSet(
             request.POST or None,
             prefix='Stud-{}'.format(student.pk),
-            queryset=Marking.objects.filter(marking_meta=metas, student=student, version='O')
+            queryset=Marking.objects.filter(marking_meta__in=metas, student=student, version='O')
         )
         for j, f in enumerate(form):
             f.fields['points'].widget.attrs['tabindex'] = i * len(metas) + j + 1

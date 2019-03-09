@@ -88,7 +88,7 @@ def question(request, question_pk):
     question = get_object_or_404(Question, pk=question_pk)
     choices = question.choice_set.all()
     voting_rights = VotingRight.objects.all()
-    users = User.objects.filter(votingright=voting_rights).distinct().order_by('username')
+    users = User.objects.filter(votingright__in=voting_rights).distinct().order_by('username')
     votes = Vote.objects.filter(choice__question=question)
     if question.is_draft():
         status = 'draft'
