@@ -92,8 +92,8 @@ def compile_all():
             'delegation': delegation,
             'results': results,
         }
-        body = render_to_string('ipho_marking/tex/exam_points.tex', RequestContext(HttpRequest(),
-                                                                                   context))
+        body = render_to_string('ipho_marking/tex/exam_points.tex', request=HttpRequest(),
+                                                                                   context=context)
         with open(u'FINALPOINTS-{}.tex'.format(delegation.name), 'w') as fp:
             fp.write(body)
         continue
