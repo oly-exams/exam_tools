@@ -19,6 +19,7 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = 'marking'
 urlpatterns = [
     ## Delegation views
     url(r'^$', views.delegation_summary, name='delegation-summary'),

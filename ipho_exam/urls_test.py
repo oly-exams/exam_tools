@@ -19,6 +19,7 @@ from django.conf.urls import include, url
 
 from . import views_test
 
+app_name = 'test'
 urlpatterns = [
     url(r'^$', views_test.index),
     url(r'^view$', views_test.view, name='view'),
