@@ -74,6 +74,7 @@ INKSCAPE_BIN = 'inkscape'
 # Celery SETTINGS_DIR
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+CELERYD_TASK_TIME_LIMIT = 15*60  # task execution time limit in seconds before the workers are killed using SIGKILL
 
 # Printing system
 PRINTER_QUEUES = {
