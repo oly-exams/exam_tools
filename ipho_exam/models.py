@@ -61,7 +61,7 @@ class Language(models.Model):
 
 
     name = models.CharField(max_length=100, db_index=True)
-    delegation = models.ForeignKey(Delegation, blank=True, null=True)
+    delegation = models.ForeignKey(Delegation, blank=True, null=True, on_delete=models.CASCADE)
     hidden = models.BooleanField(default=False)
     hidden_from_submission = models.BooleanField(default=False)
     versioned = models.BooleanField(default=False)
@@ -139,7 +139,7 @@ class Question(models.Model):
         max_length=8, help_text="e.g. Q for Question, A for Answer Sheet, G for General Instruction"
     )
     name = models.CharField(max_length=100, db_index=True)
-    exam = models.ForeignKey(Exam)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, default=QUESTION)
     feedback_active = models.BooleanField(default=False, help_text='Are feedbacks allowed?')
@@ -193,10 +193,10 @@ class VersionNode(models.Model):
     )
 
     text = models.TextField()
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     version = models.IntegerField()
     tag = models.CharField(max_length=100, null=True, blank=True, help_text='leave empty to show no tag')
-    language = models.ForeignKey(Language)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
 
@@ -236,8 +236,8 @@ class TranslationNode(models.Model):
     )
 
     text = models.TextField(blank=True)
-    question = models.ForeignKey(Question)
-    language = models.ForeignKey(Language)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
     timestamp = models.DateTimeField(auto_now=True)
 
@@ -265,7 +265,7 @@ class AttributeChangeManager(models.Manager):
 class AttributeChange(models.Model):
     objects = AttributeChangeManager()
     content = models.TextField(blank=True)
-    node = models.OneToOneField(TranslationNode)
+    node = models.OneToOneField(TranslationNode, on_delete=models.CASCADE)
 
     def __str__(self):
         return u'attrs:{}'.format(self.node)
@@ -302,8 +302,8 @@ class PDFNode(models.Model):
     )
 
     pdf = models.FileField(upload_to=get_file_path, blank=True)
-    question = models.ForeignKey(Question)
-    language = models.ForeignKey(Language)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
     timestamp = models.DateTimeField(auto_now=True)
 
@@ -325,8 +325,8 @@ class PDFNode(models.Model):
 @python_2_unicode_compatible
 class TranslationImportTmp(models.Model):
     slug = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
-    question = models.ForeignKey(Question)
-    language = models.ForeignKey(Language)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
     content = models.TextField(blank=True)
 
     def __str__(self):
@@ -452,8 +452,8 @@ class PlaceManager(models.Manager):
 class Place(models.Model):
     objects = PlaceManager()
 
-    student = models.ForeignKey(Student)
-    exam = models.ForeignKey(Exam)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
 
     def __str__(self):
@@ -499,8 +499,8 @@ class Feedback(models.Model):
         ('8', '8'),
     )
 
-    delegation = models.ForeignKey(Delegation)
-    question = models.ForeignKey(Question)
+    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     part = models.CharField(max_length=100, default=None)
     comment = models.TextField(blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='S')
@@ -529,8 +529,8 @@ class Like(models.Model):
         ('U', 'Unliked'),
     )
     status = models.CharField(max_length=1, choices=CHOICES)
-    delegation = models.ForeignKey(Delegation)
-    feedback = models.ForeignKey(Feedback)
+    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
+    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE)
 
     class Meta(object):
         unique_together = index_together = ('delegation', 'feedback')
@@ -556,8 +556,8 @@ class ExamAction(models.Model):
         (TRANSLATION, 'Translation submission'),
         (POINTS, 'Points submission'),
     )
-    exam = models.ForeignKey(Exam, related_name='delegation_status')
-    delegation = models.ForeignKey(Delegation, related_name='exam_status')
+    exam = models.ForeignKey(Exam, related_name='delegation_status', on_delete=models.CASCADE)
+    delegation = models.ForeignKey(Delegation, related_name='exam_status', on_delete=models.CASCADE)
     action = models.CharField(max_length=2, choices=ACTION_CHOICES)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
     timestamp = models.DateTimeField(auto_now=True)
@@ -607,9 +607,9 @@ def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
 
 
 class StudentSubmission(models.Model):
-    student = models.ForeignKey(Student)
-    exam = models.ForeignKey(Exam)
-    language = models.ForeignKey(Language)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
     with_answer = models.BooleanField(default=False, help_text='Deliver also answer sheet.')
 
     ## TODO: do we need a status? (in progress, submitted, printed)
@@ -642,8 +642,8 @@ class Document(models.Model):
         ('M', 'Missing pages'),
     )
 
-    exam = models.ForeignKey(Exam, help_text='Exam')
-    student = models.ForeignKey(Student, help_text='Student')
+    exam = models.ForeignKey(Exam, help_text='Exam', on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, help_text='Student', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=True, null=True)
     position = models.IntegerField(
         help_text='Question grouping position, e.g. 0 for cover sheet / instructions, 1 for the first question, etc'
@@ -686,7 +686,7 @@ class Document(models.Model):
 @python_2_unicode_compatible
 class DocumentTask(models.Model):
     task_id = models.CharField(unique=True, max_length=255)
-    document = models.OneToOneField(Document)
+    document = models.OneToOneField(Document, on_delete=models.CASCADE)
 
     def __str__(self):
         return u'{} --> {}'.format(self.task_id, self.document)
@@ -695,7 +695,7 @@ class DocumentTask(models.Model):
 @python_2_unicode_compatible
 class PrintLog(models.Model):
     TYPE_CHOICES = (('P', 'Printout'), ('S', 'Scan'))
-    document = models.ForeignKey(Document)
+    document = models.ForeignKey(Document, on_delete=models.CASCADE)
     type = models.CharField(max_length=1, choices=TYPE_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
 

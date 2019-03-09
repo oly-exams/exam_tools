@@ -28,7 +28,7 @@ from collections import OrderedDict
 
 @python_2_unicode_compatible
 class MarkingMeta(models.Model):
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     name = models.CharField(max_length=10)
     max_points = models.DecimalField(max_digits=8, decimal_places=2)
     position = models.PositiveSmallIntegerField(default=10, help_text='Sorting index inside one question')
@@ -43,8 +43,8 @@ class MarkingMeta(models.Model):
 
 @python_2_unicode_compatible
 class Marking(models.Model):
-    marking_meta = models.ForeignKey(MarkingMeta)
-    student = models.ForeignKey(Student)
+    marking_meta = models.ForeignKey(MarkingMeta, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
     points = models.DecimalField(
         null=True, blank=True, max_digits=8, decimal_places=2, validators=[MinValueValidator(0.)]
     )
