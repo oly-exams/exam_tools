@@ -480,6 +480,8 @@ class QMLquestion(QMLobject):
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
                     ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer', 'subanswercontinuation')
 
+    default_attributes = {'points': '0.0'}
+
     def title(self):
         tt = ''
         for c in self.children:
@@ -554,7 +556,7 @@ class QMLsubanswer(QMLobject):
 
 class QMLsubanswercontinuation(QMLobject):
     tag = "subanswercontinuation"
-    display_name = "Answer box (use for answer sheets), continuation (no points)"
+    display_name = "Answer box (use for answer sheets), continuation (no points associated)"
     default_heading = "Answer box"
     sort_order = 511
 
@@ -684,7 +686,7 @@ class QMLfigure(QMLobject):
     lang = None
     valid_children = ('caption', 'param')
 
-    default_attributes = {'figid': '0', 'width': '0.5'}
+    default_attributes = {'figid': 'enter-figid', 'width': '0.5'}
 
     def fig_query(self):
         query = {}
