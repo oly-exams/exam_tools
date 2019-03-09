@@ -650,7 +650,7 @@ def feedbacks_list(request):
             'comment'
         ).order_by('-pk')
 
-        choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
+        choices = dict(Feedback._meta.get_field('status').flatchoices)
         for fb in feedbacks:
             fb['status_display'] = choices[fb['status']]
             fb['enable_likes'
