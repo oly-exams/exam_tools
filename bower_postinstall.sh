@@ -32,6 +32,7 @@ patch $STATIC_BOWER/mathjax_4.5.11/samples/mathjax.html $BOWER_POSTINSTALL/mj_sa
 cp -r $STATIC_BOWER/mathedit/mathedit $STATIC/ckeditor_plugins/
 cp -r $STATIC_BOWER/mathjax_4.5.11 $STATIC/ckeditor_plugins/mathjax-mathquill
 cp -r $STATIC_BOWER/VirtualKeyboard.ckeditor.3.7.2.tar $STATIC/ckeditor_plugins/Jsvk
+cp -r $STATIC_BOWER/sourcedialog_4.5.11 $STATIC/ckeditor_plugins/sourcedialog
 # note: bg.js, de-ch.js, eu.js, id.js, ko.js, ug.js were initially not in the repo
 mv $STATIC/ckeditor_plugins/mathjax-mathquill/dialogs/mathjax.js $STATIC/ckeditor_plugins/mathjax-mathquill/dialogs/mathjax-mathquill.js
 mv $STATIC/ckeditor_plugins/mathjax-mathquill/icons/mathjax.png $STATIC/ckeditor_plugins/mathjax-mathquill/icons/mathjax-mathquill.png

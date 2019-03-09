@@ -440,13 +440,14 @@ body { margin-bottom: 70px; }
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
         CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
+        CKEDITOR.plugins.addExternal( 'sourcedialog', '{% static "ckeditor_plugins/sourcedialog/" %}', 'plugin.js' );
 
         CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'RemoveFormat', '-', 'Mathjax-mathquill', 'Jsvk', 'Source', '-', 'BulletedList', 'NumberedList', '-', 'BidiLtr', 'BidiRtl', 'Styles']
+                [ 'Bold', 'Italic', 'Underline', '-', 'RemoveFormat', '-', 'Mathjax-mathquill', 'Jsvk', 'Sourcedialog', '-', 'BulletedList', 'NumberedList', '-', 'BidiLtr', 'BidiRtl', 'Styles']
             ];
         CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
-        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,stylescombo,mathjax-mathquill';
+        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,stylescombo,mathjax-mathquill,sourcedialog';
         CKEDITOR.config.removePlugins = 'mathjax,elementspath,contextmenu,tabletools,liststyle';
         // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
         CKEDITOR.config.width = '100%';
@@ -477,9 +478,9 @@ body { margin-bottom: 70px; }
         ] );
         CKEDITOR.config.stylesSet = 'my_styles';
 
-        // manually set text of Source button to empty to make it smaller
+        // manually set text of Sourcedialog button to empty to make it smaller
         CKEDITOR.on('instanceReady', function() {
-            $(".cke_button__source_label").text("");
+            $(".cke_button__sourcedialog_label").text("");
         });
 
         all_editors = new Array();
