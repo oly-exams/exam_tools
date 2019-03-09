@@ -81,8 +81,8 @@ def compile_question(question, language, logo_file):
         'document': trans_content,
         'STATIC_PATH': '.'
     }
-    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(),
-                                                                              context)).replace(FONT_PATH, u'.')
+    body = render_to_string('ipho_exam/tex/exam_question.tex', request=HttpRequest(),
+                                                                              context=context).replace(FONT_PATH, u'.')
     try:
         exam_code = question.exam.code
         position = question.position

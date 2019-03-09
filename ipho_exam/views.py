@@ -32,7 +32,6 @@ from django.shortcuts import get_object_or_404, render_to_response, render, redi
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.http.request import QueryDict
 
-from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
