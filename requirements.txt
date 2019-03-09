@@ -6,6 +6,7 @@ djangorestframework < 3.7
 django-rest-swagger
 django-polymorphic < 2
 django-dbbackup
+tornado >= 5, < 6
 pywebpush
 django-filter < 2
 CairoSVG==1.*
