@@ -19,7 +19,6 @@ from builtins import zip
 from builtins import range
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, HttpResponseForbidden, JsonResponse, Http404
-from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
@@ -133,7 +132,7 @@ def summary(request):
 
 @permission_required('ipho_core.is_marker')
 def staff_stud_detail(request, version, stud_id, question_id):
-    ctx = RequestContext(request)
+    ctx = {}
     ctx['msg'] = []
 
     if not request.user.has_perm('ipho_core.is_marker') or version != 'O':
@@ -356,7 +355,7 @@ def delegation_stud_edit(request, stud_id, question_id):
     question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
     version = 'D'
 
-    ctx = RequestContext(request)
+    ctx = {}
     ctx['msg'] = []
     ctx['student'] = student
     ctx['question'] = question
@@ -416,7 +415,7 @@ def delegation_edit_all(request, question_id):
     question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
     version = 'D'
 
-    ctx = RequestContext(request)
+    ctx = {}
     ctx['msg'] = []
     ctx['students'] = students
     ctx['question'] = question
@@ -470,7 +469,7 @@ def delegation_stud_view(request, stud_id, question_id):
     versions = ['O', 'D', 'F']
     versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
 
-    ctx = RequestContext(request)
+    ctx = {}
     ctx['msg'] = []
     ctx['student'] = student
     ctx['question'] = question
@@ -511,7 +510,7 @@ def delegation_view_all(request, question_id):
     versions = ['O', 'D', 'F']
     versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
 
-    ctx = RequestContext(request)
+    ctx = {}
     ctx['msg'] = []
     ctx['question'] = question
     ctx['students'] = students

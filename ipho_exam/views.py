@@ -38,6 +38,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
+from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
 from django.db.models.functions import Lower
@@ -483,11 +484,11 @@ def translation_import_confirm(request, slug):
 
     old_flat_dict = old_q.flat_content_dict()
 
-    ctx = RequestContext(request)
+    ctx = {}
     ctx.update(csrf(request))
     ctx['fields_set'] = [new_q]
     ctx['old_content'] = old_flat_dict
-    form_html = render_to_string('ipho_exam/partials/qml_diff.html', ctx),
+    form_html = render_to_string('ipho_exam/partials/qml_diff.html', context=ctx, request=request),
     return JsonResponse({
         'title': 'Review the changes before accepting the new version',
         'form': form_html,
@@ -1921,7 +1922,7 @@ def admin_submission_assign(request, exam_id):
         form.fields['student'].queryset = Student.objects.filter(delegation=delegation)
         form.fields['language'].queryset = Language.objects.all()
 
-        ctx = RequestContext(request)
+        ctx = {}
         ctx.update(csrf(request))
         return HttpResponse(render_crispy_form(form, context=ctx))
 
