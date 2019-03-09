@@ -13,7 +13,7 @@
               <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-              {% for qtag, qname in qml_types %}
+              {% for qtag, qname, __ in qml_types %}
                   {% if qtag in parent.valid_children %}
                     <li><a data-action="add-block-front" data-block-id="{{ parent.id }}" data-after-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk version_num=node_version block_id=parent.id tag_name=qtag %}">{{ qname }}</a></li>
                   {% endif %}
@@ -70,7 +70,7 @@
                   <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                  {% for qtag, qname in qml_types %}
+                  {% for qtag, qname, __ in qml_types %}
                       {% if qtag in field.valid_children %}
                           <li><a data-action="add-block-first" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk version_num=node_version block_id=field.id tag_name=qtag %}">{{ qname }}</a></li>
                       {% endif %}
@@ -91,7 +91,7 @@
               <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-              {% for qtag, qname in qml_types %}
+              {% for qtag, qname, __ in qml_types %}
                   {% if qtag in parent.valid_children %}
                     <li><a data-action="add-block-after" data-block-id="{{ parent.id }}"  data-after-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block-after' question_id=question.pk exam_id=exam.pk version_num=node_version block_id=parent.id tag_name=qtag after_id=field.id %}">{{ qname }}</a></li>
                   {% endif %}
