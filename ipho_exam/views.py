@@ -2197,7 +2197,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         'is_answer': trans.question.is_answer_sheet(),
         'document': trans_content,
     }
-    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request, context))
+    body = render_to_string('ipho_exam/tex/exam_question.tex', context=context, request=request)
 
     if raw_tex:
         return HttpResponse(body, content_type="text/plain; charset=utf-8", charset="utf-8")
@@ -2266,8 +2266,8 @@ def compiled_question_diff(request, question_id, lang_id, old_version_num=None, 
         'is_answer': question.is_answer_sheet(),
         'document': new_trans_content,
     }
-    old_body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request, old_context))
-    new_body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(request, new_context))
+    old_body = render_to_string('ipho_exam/tex/exam_question.tex', context=old_context, request=request)
+    new_body = render_to_string('ipho_exam/tex/exam_question.tex', context=new_context, request=request)
 
     try:
         return cached_responses.compile_tex_diff(request, old_body, new_body, ext_resources, filename)
