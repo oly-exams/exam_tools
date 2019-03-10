@@ -219,6 +219,25 @@ body { margin-bottom: 70px; }
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<div class="modal fade" id="failedsaving-modal">
+  <div class="modal-dialog">
+    <div class="modal-content panel-danger">
+      <div class="modal-header panel-heading">
+        <h3 class="modal-title"> Autosaving not working!</h3>
+      </div>
+      <div class="modal-body panel-body">
+        <p>The application's autosaving feature is activated but did not work for the last two minutes. An error probably occurred in the connection with the server.</p>
+        <p class="alert alert-danger"><i class="fa fa-exclamation-circle fa-2x pull-left"></i> Your changes could not be autosaved, you probably should <strong>save</strong> manually by pressing the 'Save' button or if unsuccessful reload the page to restore the connection with the server and continue editing this translation.</p>
+      </div>
+      <div class="modal-footer">
+          <div class="pull-right">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <!-- <div class="page-header">
   <h2>Exam editor :
 
@@ -695,6 +714,8 @@ body { margin-bottom: 70px; }
             var server_offset = 0;
             var autoSaveInterval = 20000;
             var updateDocumentStatusInterval = 30000;
+            var autoSaveFailedWarningInterval = 20000;
+            var autoSaveFailedWarningDelta = 120000;
             $.get("{% url 'exam:time' %}", function(data){
                server_date = data;
                server_offset = moment(server_date).diff(moment());
@@ -702,6 +723,7 @@ body { margin-bottom: 70px; }
             });
 
             var last_saved = new Date("{{ last_saved.isoformat }}");
+            var page_opened = new Date();
             var documentStatus = 'SAVED'; // SAVED, SAVING, FAILED
             function updateDocumentStatus() {
                 var status_text = '';
@@ -718,6 +740,7 @@ body { margin-bottom: 70px; }
             }
             updateDocumentStatus();
             setInterval(updateDocumentStatus, updateDocumentStatusInterval);
+
 
             var checkHTML = function(html) {
               var doc = document.createElement('div');
@@ -744,7 +767,6 @@ body { margin-bottom: 70px; }
                 documentStatus = 'SAVING';
                 $button.prop('disabled', true);
                 $button.tooltip('destroy');
-                $form.dirtyForms('setClean');
                 updateDocumentStatus();
 
                 var data = new FormData($form.get(0));
@@ -767,6 +789,7 @@ body { margin-bottom: 70px; }
                           console.log(new Date() + ' Save successful.');
                           last_saved = new Date(data['last_saved']);
                           $('input[name="checksum"]').val(data['checksum']);
+                          $form.dirtyForms('setClean');
                       } else {
                         console.log(new Date() + ' Save failed.');
                         if (data['checksum'] != $('input[name="checksum"]').val()) {
@@ -786,10 +809,10 @@ body { margin-bottom: 70px; }
                           $.ajax(this);
                           return;
                       } else {
-                        // TODO: notify problem during save!
                         console.log(new Date() + ' This is continous error, giving up!');
                         documentStatus = 'FAILED';
                         updateDocumentStatus();
+                        $form.find('button[type="submit"]').removeProp('disabled').tooltip();
                       }
 
                     },
@@ -832,15 +855,34 @@ body { margin-bottom: 70px; }
                 if ($form.dirtyForms('isDirty')) {
                     $form.submit();
                 }
+                else if (documentStatus !== 'FAILED') {
+                    {# In normal operations, we want the Save button to follow isDirty, which may have been reset to false if the user undid changes (e.g. CTRL+Z). #}
+                    var $button = $form.find('button[type="submit"]');
+                    $button.prop('disabled', true);
+                    $button.tooltip('destroy');
+                }
+            }
+            function autoSaveFailedWarning() {
+                if (documentStatus === 'FAILED') {
+                    var d = new Date();
+                    var delta = Math.min(d - last_saved, d - page_opened) + server_offset;
+                    if (delta >= autoSaveFailedWarningDelta) {
+                        $("#question-form").find('button[type="submit"]').removeProp('disabled').tooltip();
+                        $('#failedsaving-modal').modal({backdrop: 'static', keyboard: false});
+                    }
+                }
             }
 
             var autoSaveTimer = setInterval(autoSave, autoSaveInterval);
+            var autoSaveFailedTimer = setInterval(autoSaveFailedWarning, autoSaveFailedWarningInterval);
             $('#auto-save-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function(event, state) {
                 var $checkbox = $(this);
                 if (state) {
                     autoSaveTimer = setInterval(autoSave, autoSaveInterval);
+                    autoSaveFailedTimer = setInterval(autoSaveFailedWarning, autoSaveFailedWarningInterval);
                 } else {
                     clearInterval(autoSaveTimer);
+                    clearInterval(autoSaveFailedTimer);
                 }
             });
         });
