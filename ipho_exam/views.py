@@ -1032,7 +1032,7 @@ def admin_list(request):
             'content': render_to_string('ipho_exam/partials/admin_exam_tbody.html', {'exam': exam}),
         })
     else:
-        exam_list = Exam.objects.filter(hidden=False)
+        exam_list = Exam.objects.all()
         return render(request, 'ipho_exam/admin.html', {
             'exam_list': exam_list,
         })
