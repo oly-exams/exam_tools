@@ -161,15 +161,14 @@ body { margin-bottom: 70px; }
     <script src="{% static "mathquill_alpha/mathquill.min.js" %}"></script>
 
     <script>
-        CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
         CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
 
         CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'RemoveFormat', '-', 'Mathjax-mathquill', 'Jsvk', 'BulletedList', 'NumberedList', '-', 'BidiLtr', 'BidiRtl', '-', 'Source']
+                [ 'Bold', 'Italic', 'Underline', '-', 'RemoveFormat', '-', 'Mathjax-mathquill', 'BulletedList', 'NumberedList', '-', 'BidiLtr', 'BidiRtl', '-', 'Source']
             ];
         CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
-        CKEDITOR.config.extraPlugins = 'Jsvk,autogrow,widget,bidi,mathjax-mathquill';
+        CKEDITOR.config.extraPlugins = 'autogrow,widget,bidi,mathjax-mathquill';
         CKEDITOR.config.removePlugins = 'elementspath,contextmenu,tabletools,liststyle';
         // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
         CKEDITOR.config.width = '100%';
@@ -187,7 +186,6 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.MathQuillLib = '{% static "mathquill_alpha/mathquill.min.js" %}';
         CKEDITOR.config.MathQuillCss = '{% static "mathquill_alpha/mathquill.css" %}';
         CKEDITOR.config.MathQuilljQuery = '{% static "jquery/js/jquery-1.11.2.min.js" %}';
-        CKEDITOR.config.jsvk_skin = "flat_gray";
         CKEDITOR.config.contentsCss = [ CKEDITOR.getUrl( 'contents.css' ), '{% static "noto/notosans.css" %}', '{% static "noto/" %}{{ trans_font.css }}' ];
         CKEDITOR.addCss("body{font-family:{{ trans_font.font }}, Noto Sans;}");
 
