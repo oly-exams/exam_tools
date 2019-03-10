@@ -361,7 +361,8 @@ body { margin-bottom: 70px; }
               <span class="navbar-text" id="save-status"></span>
             </div>
             <div class="navbar-right">
-                <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
+                <a id="pdf-button" class="btn btn-success navbar-btn"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
+                <a id="pdf-button-hidden" style="display: none;" class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
                 <button type="submit" class="btn btn-primary navbar-btn" data-toggle="tooltip" data-placement="top" title="ctrl + S" disabled="disabled"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
             </div>
           </div>
@@ -392,6 +393,18 @@ body { margin-bottom: 70px; }
     <script src="{% static "moment.min.js" %}"></script>
     <script src="{% static "bootstrap-switch/js/bootstrap-switch.min.js" %}"></script>
     <script src="{% static "clipboard.min.js" %}"></script>
+    {# On clicking the PDF button, first save if necessary, then request the PDF #}
+    <script>$('#pdf-button').click(function() {
+          $form = $('#question-form');
+          if ($form.dirtyForms('isDirty')) {
+              $form.submit();
+              // TODO: this should be done with a promise/callback
+              setTimeout(function() { document.getElementById('pdf-button-hidden').click(); }, 500);
+          } else {
+            document.getElementById('pdf-button-hidden').click();
+          }
+        });
+    </script>
     <script>
         CKEDITOR.plugins.addExternal( 'Jsvk', '{% static "ckeditor_plugins/Jsvk/" %}', 'plugin.js' );
         CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
