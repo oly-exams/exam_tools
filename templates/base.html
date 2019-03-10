@@ -68,7 +68,7 @@
 
                   <li class="divider"></li>
                   <li class="dropdown-header">Exam feedbacks</li>
-                  <li><a href="{% url 'exam:feedbacks-list' %}">{% if perms.ipho_core.is_delegation %}Submit{% else %}View{% endif %} feedbacks</a></li>
+                  <li><a href="{% url 'exam:feedbacks-list' %}">{% if perms.ipho_core.is_delegation and not user.is_superuser %}Submit{% else %}Manage{% endif %} feedbacks</a></li>
 
                 </ul>
               </li>

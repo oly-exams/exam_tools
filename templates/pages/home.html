@@ -113,7 +113,7 @@
                           <ul>
                               <li>
                                   <a href="{% url 'exam:feedbacks-list' %}">
-                                      Submit feedbacks
+                                      {% if perms.ipho_core.is_delegation and not user.is_superuser %}Submit{% else %}Manage{% endif %} feedbacks
                                   </a>
                               </li>
                           </ul>
@@ -134,12 +134,12 @@
                     </li>
                 </ul>
                 {% endif %}
-                {% if perms.ipho_core.can_vote %}
+                {% if perms.ipho_core.can_vote and not user.is_superuser %}
                   <h3>Voting</h3>
                   <ul>
                       <li>
                           <a href="{% url 'poll:voterIndex' %}">
-                              Submit feedbacks
+                              Vote
                           </a>
                       </li>
                   </ul>
