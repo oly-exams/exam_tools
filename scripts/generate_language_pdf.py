@@ -42,7 +42,7 @@ from ipho_exam import tasks
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
-TEX_TEMPLATE_PATH = getattr(settings, 'TEX_TEMPLATE_PATH')
+EVENT_TEMPLATE_PATH = getattr(settings, 'EVENT_TEMPLATE_PATH')
 
 
 def compile_question(question, language):
@@ -56,7 +56,7 @@ def compile_question(question, language):
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
             r.lang = language
-    ext_resources.append(tex.TemplateExport(os.path.join(TEX_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
+    ext_resources.append(tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
     context = {
         'polyglossia': language.polyglossia,
         'polyglossia_options': language.polyglossia_options,
@@ -69,7 +69,7 @@ def compile_question(question, language):
         'is_answer': question.is_answer_sheet(),
         'document': trans_content.encode('utf-8'),
     }
-    body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_question.tex'), request=HttpRequest(), context=context)
+    body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_question.tex'), request=HttpRequest(), context=context)
     print('Compile...')
     try:
         question_pdf = pdf.compile_tex(body, ext_resources)
@@ -92,7 +92,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
     all_tasks = []
     all_docs = []
     if cover is not None:
-        body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_cover.tex'), request=HttpRequest(), context=cover)
+        body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_cover.tex'), request=HttpRequest(), context=cover)
         question_pdf = pdf.compile_tex(body, [])
         q = questions[0]
         s = student_languages[0].student
@@ -114,7 +114,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
             for r in ext_resources:
                 if isinstance(r, tex.FigureExport):
                     r.lang = sl.language
-            ext_resources.append(tex.TemplateExport(os.path.join(TEX_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
+            ext_resources.append(tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
             context = {
                 'polyglossia': sl.language.polyglossia,
                 'polyglossia_options': sl.language.polyglossia_options,
@@ -127,7 +127,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                 'is_answer': question.is_answer_sheet(),
                 'document': trans_content,
             }
-            body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_question.tex'), request=HttpRequest(), context=context)
+            body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_question.tex'), request=HttpRequest(), context=context)
             print('Compile', question, sl.language)
             question_pdf = pdf.compile_tex(body, ext_resources)
 
@@ -151,8 +151,8 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                     'is_answer': question.is_answer_sheet(),
                     'pages': list(range(question.working_pages)),
                 }
-                body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(), context=context)
-                question_pdf = pdf.compile_tex(body, [tex.TemplateExport(os.path.join(TEX_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
+                body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(), context=context)
+                question_pdf = pdf.compile_tex(body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
                 page = pdf.add_barcode(question_pdf, bgenerator)
                 all_docs.append(page)
@@ -177,8 +177,8 @@ def generate_extra_sheets(student, question, startnum, npages):
         'pages': list(range(npages)),
         'startnum': startnum + 1,
     }
-    body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(), context=context)
-    question_pdf = pdf.compile_tex(body, [tex.TemplateExport(os.path.join(TEX_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
+    body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(), context=context)
+    question_pdf = pdf.compile_tex(body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
     bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, student, qcode='Z', startnum=startnum)
     doc_pdf = pdf.add_barcode(question_pdf, bgenerator)
     return doc_pdf

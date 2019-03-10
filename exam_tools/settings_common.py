@@ -29,7 +29,7 @@ PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 TEMPLATE_PATH = os.path.join(PROJECT_PATH, 'templates')
 STATIC_PATH = os.path.join(PROJECT_PATH, 'static')
 
-TEX_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, 'events', 'apho2019')
+EVENT_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, 'events', 'apho2019')
 
 SITE_URL = 'http://127.0.0.1:8000'
 

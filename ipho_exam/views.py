@@ -76,7 +76,7 @@ logger = logging.getLogger('ipho_exam')
 django_logger = logging.getLogger('django.request')
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
-TEX_TEMPLATE_PATH = getattr(settings, 'TEX_TEMPLATE_PATH')
+EVENT_TEMPLATE_PATH = getattr(settings, 'EVENT_TEMPLATE_PATH')
 
 
 @login_required
@@ -2185,7 +2185,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
             r.lang = trans.lang
-    ext_resources.append(tex.TemplateExport(os.path.join(TEX_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
+    ext_resources.append(tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
     context = {
         'polyglossia': trans.lang.polyglossia,
         'polyglossia_options': trans.lang.polyglossia_options,
@@ -2198,7 +2198,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         'is_answer': trans.question.is_answer_sheet(),
         'document': trans_content,
     }
-    body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_question.tex'), context=context, request=request)
+    body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_question.tex'), context=context, request=request)
 
     if raw_tex:
         return HttpResponse(body, content_type="text/plain; charset=utf-8", charset="utf-8")
@@ -2242,7 +2242,7 @@ def compiled_question_diff(request, question_id, lang_id, old_version_num=None, 
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
             r.lang = lang
-    ext_resources.append(tex.TemplateExport(os.path.join(TEX_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
+    ext_resources.append(tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
     old_context = {
         'polyglossia': lang.polyglossia,
         'polyglossia_options': lang.polyglossia_options,
@@ -2267,8 +2267,8 @@ def compiled_question_diff(request, question_id, lang_id, old_version_num=None, 
         'is_answer': question.is_answer_sheet(),
         'document': new_trans_content,
     }
-    old_body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_question.tex'), context=old_context, request=request)
-    new_body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_question.tex'), context=new_context, request=request)
+    old_body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_question.tex'), context=old_context, request=request)
+    new_body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_question.tex'), context=new_context, request=request)
 
     try:
         return cached_responses.compile_tex_diff(request, old_body, new_body, ext_resources, filename)
