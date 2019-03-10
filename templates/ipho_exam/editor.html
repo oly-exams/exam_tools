@@ -226,8 +226,8 @@ body { margin-bottom: 70px; }
         <h3 class="modal-title"> Autosaving not working!</h3>
       </div>
       <div class="modal-body panel-body">
-        <p>The application's autosaving feature is activated but did not work for the last five minutes. An error probably occurred in the connection with the server.</p>
-        <p class="alert alert-danger"><i class="fa fa-exclamation-circle fa-2x pull-left"></i> Your changes could not be saved, you probably should <strong>reload</strong> the page to restore the connection with the server and continue editing this translation.</p>
+        <p>The application's autosaving feature is activated but did not work for the last two minutes. An error probably occurred in the connection with the server.</p>
+        <p class="alert alert-danger"><i class="fa fa-exclamation-circle fa-2x pull-left"></i> Your changes could not be autosaved, you probably should <strong>save</strong> manually by pressing the 'Save' button or if unsuccessful reload the page to restore the connection with the server and continue editing this translation.</p>
       </div>
       <div class="modal-footer">
           <div class="pull-right">
@@ -702,7 +702,7 @@ body { margin-bottom: 70px; }
             var autoSaveInterval = 20000;
             var updateDocumentStatusInterval = 30000;
             var autoSaveFailedWarningInterval = 20000;
-            var autoSaveFailedWarningDelta = 300000;
+            var autoSaveFailedWarningDelta = 120000;
             $.get("{% url 'exam:time' %}", function(data){
                server_date = data;
                server_offset = moment(server_date).diff(moment());
@@ -796,7 +796,6 @@ body { margin-bottom: 70px; }
                           $.ajax(this);
                           return;
                       } else {
-                        // TODO: notify problem during save!
                         console.log(new Date() + ' This is continous error, giving up!');
                         documentStatus = 'FAILED';
                         updateDocumentStatus();
