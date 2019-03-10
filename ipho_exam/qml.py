@@ -81,7 +81,7 @@ TIDYOPTIONS={
 "word-2000": True,
 "clean": True,
 "bare": True,
-"new-blocklevel-tags": "question,subquestion,subanswer,box,section,part,figure,list,texfield,texparam,texenv,table,row",
+"new-blocklevel-tags": "question,subquestion,subanswer,subanswercontinuation,box,section,part,figure,list,texfield,texparam,texenv,table,row",
 "new-inline-tags": "title,paragraph,param,caption,equation,item,texparam,cell,tablecaption",
 "new-empty-tags": "pagebreak"
 }  # yapf:disable
@@ -181,7 +181,7 @@ def data2xhtml(data):
 
 
 def question_points(root):
-    ## This function is not too geenric, but it should fit our needs
+    ## This function is not too generic, but it should fit our needs
     ret = []
     for obj in root.children:
         if isinstance(obj, (QMLsubquestion, QMLsubanswer)):
@@ -489,6 +489,11 @@ class QMLquestion(QMLobject):
                 tt = data2tex(c.data)
         return tt.strip()
 
+    def heading(self):
+        return 'Question/answer %spt' % (
+            self.attributes['points'],
+        )
+
     def tex_begin(self):
         return u'\\begin{PR}{%s}{%s}\n\n' % (self.title(), self.attributes.get('points', ''))
 
@@ -509,7 +514,7 @@ class QMLsubquestion(QMLobject):
     default_attributes = {'points': '0.0', 'part_nr': 'A', 'question_nr': '1'}
 
     def heading(self):
-        return 'Subquestion %s.%s, %spt' % (
+        return 'Task box %s.%s, %spt' % (
             self.attributes['part_nr'], self.attributes['question_nr'], self.attributes['points']
         )
 
@@ -522,7 +527,7 @@ class QMLsubquestion(QMLobject):
         return u'\\end{QTF}\n\n'
 
     def xhtml_begin(self):
-        return u'<h4>Subquestion ({} pt)</h4>'.format(self.attributes['points'])
+        return u'<h4>Task {}.{} ({} pt)</h4>'.format(self.attributes['part_nr'], self.attributes['question_nr'], self.attributes['points'])
 
 
 class QMLsubanswer(QMLobject):
@@ -538,7 +543,7 @@ class QMLsubanswer(QMLobject):
     default_attributes = {'points': '0.0', 'part_nr': 'A', 'question_nr': '1'}
 
     def heading(self):
-        return 'Subquestion %s.%s, %spt' % (
+        return 'Answer box %s.%s, %spt' % (
             self.attributes['part_nr'], self.attributes['question_nr'], self.attributes['points']
         )
 
@@ -552,7 +557,7 @@ class QMLsubanswer(QMLobject):
         return u'\\end{QSA}\n\n'
 
     def xhtml_begin(self):
-        return u'<h4>Answer ({} pt)</h4>'.format(self.attributes['points'])
+        return u'<h4>Answer {}.{} ({} pt)</h4>'.format(self.attributes['part_nr'], self.attributes['question_nr'], self.attributes['points'])
 
 class QMLsubanswercontinuation(QMLobject):
     tag = "subanswercontinuation"
@@ -567,7 +572,7 @@ class QMLsubanswercontinuation(QMLobject):
     default_attributes = {'part_nr': 'A', 'question_nr': '1'}
 
     def heading(self):
-        return 'Subquestion %s.%s, cont.' % (
+        return 'Answer %s.%s, cont.' % (
             self.attributes['part_nr'], self.attributes['question_nr']
         )
 
@@ -580,7 +585,7 @@ class QMLsubanswercontinuation(QMLobject):
         return u'\\end{QSAC}\n\n'
 
     def xhtml_begin(self):
-        return u'<h4>Answer, cont.</h4>'
+        return u'<h4>Answer {}.{}, cont.</h4>'.format(self.attributes['part_nr'], self.attributes['question_nr'])
 
 
 class QMLbox(QMLobject):
@@ -946,7 +951,7 @@ class QMLlatexEnv(QMLobject):
     has_text = False
     has_children = True
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
-                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer')
+                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer', 'subanswercontinuation')
 
     default_attributes = {'name': 'centering'}
 
