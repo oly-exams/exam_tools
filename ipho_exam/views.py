@@ -2446,8 +2446,10 @@ def pdf_task(request, token):
         if task.ready():
             doc_pdf, meta = task.get()
             if request.META.get('HTTP_IF_NONE_MATCH', '') == meta['etag']:
+                logger.debug('Requested PDF is already in cache')
                 return HttpResponseNotModified()
 
+            logger.debug('Requested PDF is NOT in cache')
             output_pdf = pdf.check_add_watermark(request, doc_pdf)
             res = HttpResponse(output_pdf, content_type="application/pdf")
             res['content-disposition'] = 'inline; filename="{}"'.format(meta['filename'])
