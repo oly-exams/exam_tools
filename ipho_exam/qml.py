@@ -83,7 +83,7 @@ TIDYOPTIONS={
 "bare": True,
 "new-blocklevel-tags": "question,subquestion,subanswer,subanswercontinuation,box,section,part,figure,list,texfield,texparam,texenv,table,row",
 "new-inline-tags": "title,paragraph,param,caption,equation,item,texparam,cell,tablecaption",
-"new-empty-tags": "pagebreak"
+"new-empty-tags": "pagebreak,vspace"
 }  # yapf:disable
 
 
@@ -478,7 +478,7 @@ class QMLquestion(QMLobject):
     has_text = False
     has_children = True
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
-                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer', 'subanswercontinuation')
+                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'vspace', 'box', 'subanswer', 'subanswercontinuation')
 
     default_attributes = {'points': '0.0'}
 
@@ -951,7 +951,7 @@ class QMLlatexEnv(QMLobject):
     has_text = False
     has_children = True
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + \
-                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'box', 'subanswer', 'subanswercontinuation')
+                    ('title', 'section', 'part', 'subquestion', 'pagebreak', 'vspace', 'box', 'subanswer', 'subanswercontinuation')
 
     default_attributes = {'name': 'centering'}
 
@@ -1097,6 +1097,30 @@ class QMLpageBreak(QMLobject):
         if bool(self.attributes.get('skip', False)):
             return u'\n', []
         return r'~ \clearpage' + u'\n', []
+
+
+class QMLvspace(QMLobject):
+    tag = "vspace"
+    default_heading = "Vertical space"
+
+    sort_order = 141
+
+    has_text = False
+    has_children = False
+
+    DEFAULT_AMOUNT = 10
+
+    default_attributes = {'amount': '{}'.format(DEFAULT_AMOUNT)}
+
+    def get_amount(self):
+        try:
+            a = int(self.attributes.get('amount', self.DEFAULT_AMOUNT))
+        except ValueError:
+            a = self.DEFAULT_AMOUNT
+        return a
+
+    def make_tex(self):
+        return r'\vspace{%iem}' % self.get_amount() + u'\n', []
 
 
 class QMLException(Exception):
