@@ -32,6 +32,7 @@
             <li><a target="_blank" href="{% url 'exam:tex' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as TeX"><i class="fa fa-fw fa-file-text-o"></i> export TeX</a></li>
             {% endif %}
             {% if not node.language.is_pdf %}
+            <li><a target="_blank" href="{% url 'exam:tex' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as TeX"><i class="fa fa-fw fa-download"></i> export TeX</a></li>
             <li><a target="_blank" href="{% url 'exam:export-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as QML"><i class="fa fa-fw fa-download"></i> export QML</a></li>
             {% if exam_active %}
             <li><a data-toggle="modal" data-target="#import-modal" data-remote="false" href="{% url 'exam:import-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Import question from QML"><i class="fa fa-fw fa-upload"></i> import QML</a></li>

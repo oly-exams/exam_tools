@@ -77,6 +77,7 @@ def compile_tex(body, ext_resources=[]):
 
     cache_key = "%s:%s" % (CACHE_PREFIX, etag)
     pdf = cache.get(cache_key)
+    # body = body.replace("&#39;", "'") # convert HTML apostrophe in human readable apostrophe
     if pdf is None:
         if '\\nonstopmode' not in body:
             raise ValueError("\\nonstopmode not present in document, cowardly refusing to process.")
