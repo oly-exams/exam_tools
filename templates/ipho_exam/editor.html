@@ -754,7 +754,6 @@ body { margin-bottom: 70px; }
                 documentStatus = 'SAVING';
                 $button.prop('disabled', true);
                 $button.tooltip('destroy');
-                $form.dirtyForms('setClean');
                 updateDocumentStatus();
 
                 var data = new FormData($form.get(0));
@@ -777,6 +776,7 @@ body { margin-bottom: 70px; }
                           console.log(new Date() + ' Save successful.');
                           last_saved = new Date(data['last_saved']);
                           $('input[name="checksum"]').val(data['checksum']);
+                          $form.dirtyForms('setClean');
                       } else {
                         console.log(new Date() + ' Save failed.');
                         if (data['checksum'] != $('input[name="checksum"]').val()) {
@@ -799,6 +799,7 @@ body { margin-bottom: 70px; }
                         console.log(new Date() + ' This is continous error, giving up!');
                         documentStatus = 'FAILED';
                         updateDocumentStatus();
+                        $form.find('button[type="submit"]').removeProp('disabled').tooltip();
                       }
 
                     },
@@ -841,12 +842,19 @@ body { margin-bottom: 70px; }
                 if ($form.dirtyForms('isDirty')) {
                     $form.submit();
                 }
+                else if (documentStatus !== 'FAILED') {
+                    {# In normal operations, we want the Save button to follow isDirty, which may have been reset to false if the user undid changes (e.g. CTRL+Z). #}
+                    var $button = $form.find('button[type="submit"]');
+                    $button.prop('disabled', true);
+                    $button.tooltip('destroy');
+                }
             }
             function autoSaveFailedWarning() {
-                if (documentStatus !== 'SAVED') {
+                if (documentStatus === 'FAILED') {
                     var d = new Date();
                     var delta = Math.min(d - last_saved, d - page_opened) + server_offset;
                     if (delta >= autoSaveFailedWarningDelta) {
+                        $("#question-form").find('button[type="submit"]').removeProp('disabled').tooltip();
                         $('#failedsaving-modal').modal({backdrop: 'static', keyboard: false});
                     }
                 }
