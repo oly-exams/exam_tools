@@ -27,7 +27,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from crispy_forms.utils import render_crispy_form
 from django.forms import formset_factory, inlineformset_factory
-from django.template import RequestContext
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from django.utils import timezone

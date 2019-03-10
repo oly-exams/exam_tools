@@ -30,7 +30,6 @@ import django
 django.setup()
 from django.conf import settings
 from django.http import HttpRequest
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.defaultfilters import slugify
 
