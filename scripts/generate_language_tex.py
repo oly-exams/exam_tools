@@ -30,7 +30,6 @@ from django.conf import settings
 
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
-from django.template import RequestContext
 
 from django.core.urlresolvers import reverse
 from django.core.context_processors import csrf
@@ -81,8 +80,8 @@ def compile_question(question, language, logo_file):
         'document': trans_content,
         'STATIC_PATH': '.'
     }
-    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(),
-                                                                              context)).replace(FONT_PATH, u'.')
+    body = render_to_string('ipho_exam/tex/exam_question.tex', request=HttpRequest(),
+                                                                              context=context).replace(FONT_PATH, u'.')
     try:
         exam_code = question.exam.code
         position = question.position

@@ -30,7 +30,6 @@ import django
 django.setup()
 from django.conf import settings
 from django.http import HttpRequest
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.defaultfilters import slugify
 
@@ -69,7 +68,7 @@ def compile_question(question, language):
         'is_answer': question.is_answer_sheet(),
         'document': trans_content.encode('utf-8'),
     }
-    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context))
+    body = render_to_string('ipho_exam/tex/exam_question.tex', request=HttpRequest(), context=context)
     print('Compile...')
     try:
         question_pdf = pdf.compile_tex(body, ext_resources)
@@ -92,7 +91,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
     all_tasks = []
     all_docs = []
     if cover is not None:
-        body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover))
+        body = render_to_string('ipho_exam/tex/exam_cover.tex', request=HttpRequest(), context=cover)
         question_pdf = pdf.compile_tex(body, [])
         q = questions[0]
         s = student_languages[0].student
@@ -127,7 +126,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                 'is_answer': question.is_answer_sheet(),
                 'document': trans_content,
             }
-            body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context))
+            body = render_to_string('ipho_exam/tex/exam_question.tex', request=HttpRequest(), context=context)
             print('Compile', question, sl.language)
             question_pdf = pdf.compile_tex(body, ext_resources)
 
@@ -151,7 +150,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                     'is_answer': question.is_answer_sheet(),
                     'pages': list(range(question.working_pages)),
                 }
-                body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context))
+                body = render_to_string('ipho_exam/tex/exam_blank.tex', request=HttpRequest(), context=context)
                 question_pdf = pdf.compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
                 page = pdf.add_barcode(question_pdf, bgenerator)
@@ -177,7 +176,7 @@ def generate_extra_sheets(student, question, startnum, npages):
         'pages': list(range(npages)),
         'startnum': startnum + 1,
     }
-    body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context))
+    body = render_to_string('ipho_exam/tex/exam_blank.tex', request=HttpRequest(), context=context)
     question_pdf = pdf.compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
     bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, student, qcode='Z', startnum=startnum)
     doc_pdf = pdf.add_barcode(question_pdf, bgenerator)

@@ -22,7 +22,6 @@ from __future__ import print_function
 from builtins import range
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
-from django.template import RequestContext
 
 from django.core.urlresolvers import reverse
 from django.template.context_processors import csrf
@@ -47,7 +46,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
     all_tasks = []
 
     if cover is not None:
-        body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover))
+        body = render_to_string('ipho_exam/tex/exam_cover.tex', request=HttpRequest(), context=cover)
         compile_task = tasks.compile_tex.s(body, [])
         q = questions[0]
         s = student_languages[0].student
@@ -82,8 +81,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                     'is_answer': question.is_answer_sheet(),
                     'document': trans_content,
                 }
-                body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(),
-                                                                                          context))
+                body = render_to_string('ipho_exam/tex/exam_question.tex', request=HttpRequest(), context=context)
                 compile_task = tasks.compile_tex.s(body, ext_resources)
             else:
                 compile_task = tasks.serve_pdfnode.s(trans.node.pdf.read())
@@ -109,8 +107,8 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                     'is_answer': question.is_answer_sheet(),
                     'pages': list(range(question.working_pages)),
                 }
-                body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(),
-                                                                                       context))
+                body = render_to_string('ipho_exam/tex/exam_blank.tex', request=HttpRequest(),
+                                                                                       context=context)
                 compile_task = tasks.compile_tex.s(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
                 barcode_task = tasks.add_barcode.s(bgenerator)
@@ -139,8 +137,8 @@ def generate_extra_sheets(student, question, startnum, npages, template_name='ex
         'pages': list(range(npages)),
         'startnum': startnum + 1,
     }
-    body = render_to_string('ipho_exam/tex/{}'.format(template_name), RequestContext(HttpRequest(),
-                                                                                     context))
+    body = render_to_string('ipho_exam/tex/{}'.format(template_name), request=HttpRequest(),
+                                                                                     context=context)
     question_pdf = pdf.compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
     bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, student, qcode='Z', startnum=startnum)
     doc_pdf = pdf.add_barcode(question_pdf, bgenerator)

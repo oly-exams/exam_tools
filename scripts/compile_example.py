@@ -38,7 +38,6 @@ from django.conf import settings
 
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
-from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
 from crispy_forms.utils import render_crispy_form
@@ -476,7 +475,7 @@ def _compile_tex(body, ext_resources):
 
 def compile_cover():
     cover = {'student': student, 'exam': exam, 'question': question, 'place': 'M439'}
-    body = render_to_string('ipho_exam/tex/exam_cover.tex', RequestContext(HttpRequest(), cover))
+    body = render_to_string('ipho_exam/tex/exam_cover.tex', request=HttpRequest(), context=cover)
     question_pdf = _compile_tex(body, [])
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='C', suppress_code=True)
     page = pdf.add_barcode(question_pdf, bgenerator)
@@ -499,7 +498,7 @@ def compile_question(qml_trans, pdf_name='test_question'):
         'is_answer': True,
         'document': qml_trans,
     }
-    body = render_to_string('ipho_exam/tex/exam_question.tex', RequestContext(HttpRequest(), context))
+    body = render_to_string('ipho_exam/tex/exam_question.tex', request=HttpRequest(), context=context)
     question_pdf = _compile_tex(body, ext_resources)
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
     page = pdf.add_barcode(question_pdf, bgenerator)
@@ -520,7 +519,7 @@ def compile_blank():
         'is_answer': True,
         'pages': list(range(pages)),
     }
-    body = render_to_string('ipho_exam/tex/exam_blank.tex', RequestContext(HttpRequest(), context))
+    body = render_to_string('ipho_exam/tex/exam_blank.tex', request=HttpRequest(), context=context)
     question_pdf = _compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='W')
     page = pdf.add_barcode(question_pdf, bgenerator)
@@ -541,7 +540,7 @@ def compile_graph():
         'is_answer': True,
         'pages': list(range(pages)),
     }
-    body = render_to_string('ipho_exam/tex/exam_graph.tex', RequestContext(HttpRequest(), context))
+    body = render_to_string('ipho_exam/tex/exam_graph.tex', request=HttpRequest(), context=context)
     question_pdf = _compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='W')
     page = pdf.add_barcode(question_pdf, bgenerator)

@@ -32,13 +32,13 @@ from django.shortcuts import get_object_or_404, render_to_response, render, redi
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.http.request import QueryDict
 
-from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
+from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.db.models import Q, Count, Sum, Case, When, IntegerField, F, Max
 from django.db.models.functions import Lower
@@ -130,13 +130,13 @@ def wizard(request):
     ## Exam section
     exam_list = Exam.objects.filter(hidden=False, active=True)
     open_submissions = ExamAction.objects.filter(
-        exam=exam_list, exam__active=True, delegation=delegation, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
+        exam__in=exam_list, exam__active=True, delegation=delegation, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
     )
     closed_submissions = ExamAction.objects.filter(
-        exam=exam_list, delegation=delegation, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
+        exam__in=exam_list, delegation=delegation, action=ExamAction.TRANSLATION, status=ExamAction.SUBMITTED
     )
     # Translations
-    translations = TranslationNode.objects.filter(language=own_languages, question__exam=exam_list)
+    translations = TranslationNode.objects.filter(language__in=own_languages, question__exam__in=exam_list)
 
     return render(
         request, 'ipho_exam/wizard.html', {
@@ -212,14 +212,14 @@ def list_all_translations(request):
     filter_ex = exams
     exam = get_or_none(Exam, id=request.GET.get('ex', None))
     if exam is not None:
-        filter_ex = exam
+        filter_ex = [exam,]
     filter_dg = delegations
     delegation = get_or_none(Delegation, id=request.GET.get('dg', None))
     if delegation is not None:
-        filter_dg = delegation
+        filter_dg = [delegation,]
 
     official_translations_vnode = VersionNode.objects.filter(
-        question__exam=filter_ex, language__delegation__name=OFFICIAL_DELEGATION, status='C'
+        question__exam__in=filter_ex, language__delegation__name=OFFICIAL_DELEGATION, status='C'
     ).order_by('question', '-version')
     official_nodes = []
     qdone = set()
@@ -229,10 +229,10 @@ def list_all_translations(request):
             qdone.add(node.question)
 
     trans_list = TranslationNode.objects.filter(
-        question__exam=filter_ex, language__delegation=filter_dg
+        question__exam__in=filter_ex, language__delegation__in=filter_dg
     ).order_by('language__delegation', 'question')
     pdf_list = PDFNode.objects.filter(
-        question__exam=filter_ex, language__delegation=filter_dg
+        question__exam__in=filter_ex, language__delegation__in=filter_dg
     ).order_by('language__delegation', 'question')
     all_nodes = list(trans_list) + list(pdf_list) + list(official_nodes)
 
@@ -484,11 +484,11 @@ def translation_import_confirm(request, slug):
 
     old_flat_dict = old_q.flat_content_dict()
 
-    ctx = RequestContext(request)
+    ctx = {}
     ctx.update(csrf(request))
     ctx['fields_set'] = [new_q]
     ctx['old_content'] = old_flat_dict
-    form_html = render_to_string('ipho_exam/partials/qml_diff.html', ctx),
+    form_html = render_to_string('ipho_exam/partials/qml_diff.html', context=ctx, request=request),
     return JsonResponse({
         'title': 'Review the changes before accepting the new version',
         'form': form_html,
@@ -588,7 +588,7 @@ def feedbacks_list(request):
     delegation = Delegation.objects.filter(members=request.user)
     delegations = Delegation.objects.all()
 
-    questions_f = Question.objects.filter(exam=exam_list).all()
+    questions_f = Question.objects.filter(exam__in=exam_list).all()
 
     def get_or_none(model, *args, **kwargs):
         try:
@@ -611,7 +611,7 @@ def feedbacks_list(request):
         qf_pk = qf_pk.rstrip('/')
     question_f = get_or_none(Question, pk=qf_pk)
     if question_f is not None:
-        filter_qu = question_f
+        filter_qu = [question_f,]
 
     class url_builder(object):
         def __init__(self, base_url, get={}):
@@ -635,9 +635,9 @@ def feedbacks_list(request):
             raise Http404('Not such active exam.')
 
         questions = Question.objects.filter(exam=request.GET['exam_id'])
-        feedbacks = Feedback.objects.filter(question=questions).filter(
+        feedbacks = Feedback.objects.filter(question__in=questions).filter(
             status__in=filter_st,
-            question=filter_qu,
+            question__in=filter_qu,
         ).annotate(
             num_likes=Sum(Case(When(like__status='L', then=1), output_field=IntegerField())),
             num_unlikes=Sum(Case(When(like__status='U', then=1), output_field=IntegerField())),
@@ -650,7 +650,7 @@ def feedbacks_list(request):
             'comment'
         ).order_by('-pk')
 
-        choices = dict(Feedback._meta.get_field_by_name('status')[0].flatchoices)
+        choices = dict(Feedback._meta.get_field('status').flatchoices)
         for fb in feedbacks:
             fb['status_display'] = choices[fb['status']]
             fb['enable_likes'
@@ -1922,7 +1922,7 @@ def admin_submission_assign(request, exam_id):
         form.fields['student'].queryset = Student.objects.filter(delegation=delegation)
         form.fields['language'].queryset = Language.objects.all()
 
-        ctx = RequestContext(request)
+        ctx = {}
         ctx.update(csrf(request))
         return HttpResponse(render_crispy_form(form, context=ctx))
 
@@ -2480,11 +2480,11 @@ def bulk_print(request, page=None, tot_print=None):
     filter_ex = exams
     exam = get_or_none(Exam, id=request.GET.get('ex', None))
     if exam is not None:
-        filter_ex = exam
+        filter_ex = [exam,]
     filter_dg = delegations
     delegation = get_or_none(Delegation, id=request.GET.get('dg', None))
     if delegation is not None:
-        filter_dg = delegation
+        filter_dg = [delegation,]
 
     queue_list = printer.allowed_choices(request.user)
     form = PrintDocsForm(request.POST or None, queue_list=queue_list)
@@ -2527,8 +2527,8 @@ def bulk_print(request, page=None, tot_print=None):
         messages.append(('alert-danger', '<strong>No jobs sent</strong> Invalid form, please check below'))
     print(messages)
     all_docs = Document.objects.filter(
-        student__delegation=filter_dg,
-        exam=filter_ex,
+        student__delegation__in=filter_dg,
+        exam__in=filter_ex,
         exam__delegation_status__action=ExamAction.TRANSLATION,
         exam__delegation_status__delegation=F('student__delegation'),
         exam__delegation_status__status=ExamAction.SUBMITTED,
