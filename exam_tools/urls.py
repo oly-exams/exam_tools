@@ -46,11 +46,11 @@ urlpatterns = [
         },
         name='home'
     ),
-    url(r'^exam/', include('ipho_exam.urls', namespace='exam')),
-    url(r'^poll/', include('ipho_poll.urls', namespace='poll')),
-    url(r'^marking/', include('ipho_marking.urls', namespace='marking')),
-    url(r'^print/', include('ipho_print.urls', namespace='print')),
-    url(r'^downloads/', include('ipho_download.urls', namespace='download')),
+    url(r'^exam/', include('ipho_exam.urls')),
+    url(r'^poll/', include('ipho_poll.urls')),
+    url(r'^marking/', include('ipho_marking.urls')),
+    url(r'^print/', include('ipho_print.urls')),
+    url(r'^downloads/', include('ipho_download.urls')),
     url(r'^accounts/login/?$', auth_views.login, name='login'),
     url(r'^accounts/logout/?$', auth_views.logout, {'next_page': '/'}, name='logout'),
     url(r'^accounts/autologin/(?P<token>[0-9a-z\-]+)/?$', ipho_core.views.autologin, name='autologin'),
@@ -60,7 +60,7 @@ urlpatterns = [
     url(r'^push/unsubscribe$', ipho_core.views.delete_push_submission, name='push_unsub'),
     url(r'^push/send$', ipho_core.views.send_push, name='send_push'),
     url(r'^service_worker$', ipho_core.views.service_worker, name='service_worker'),
-    url(r'^api/exam/', include('ipho_exam.urls_api', namespace='api-exam')),
+    url(r'^api/exam/', include('ipho_exam.urls_api')),
     url(r'^easter$', ipho_core.views.random_draw, name='random-draw'),
     url(r'^chocobunny$', ipho_core.views.chocobunny, name='chocobunny'),
 
@@ -68,5 +68,5 @@ urlpatterns = [
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
 ]

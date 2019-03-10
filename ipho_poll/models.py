@@ -110,7 +110,7 @@ class Question(models.Model):
 
 
 class Choice(models.Model):
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     label = models.CharField(max_length=3, blank=True, null=True)
     choice_text = models.CharField(max_length=200)
 
@@ -129,7 +129,7 @@ class Choice(models.Model):
 
 
 class VotingRight(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
 
     def __str__(self):
@@ -137,9 +137,9 @@ class VotingRight(models.Model):
 
 
 class Vote(models.Model):
-    question = models.ForeignKey(Question)
-    choice = models.ForeignKey(Choice)
-    voting_right = models.ForeignKey(VotingRight)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    voting_right = models.ForeignKey(VotingRight, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.choice.__str__()

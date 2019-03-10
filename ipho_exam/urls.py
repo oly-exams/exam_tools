@@ -19,6 +19,7 @@ from django.conf.urls import include, url
 
 from . import views
 
+app_name = 'exam'
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^wizard$', views.wizard, name='wizard'),
@@ -247,7 +248,7 @@ urlpatterns = [
     url(r'^admin/scan/promote-full/(?P<doc_id>\d+)$', views.set_scan_full, name='set-scan-full'),
     url(r'^admin/scan/upload$', views.upload_scan, name='upload-scan'),
     url(r'^admin/api_keys$', views.api_keys, name='api-keys'),
-    url(r'^test/', include('ipho_exam.urls_test', namespace='test')),
+    url(r'^test/', include('ipho_exam.urls_test')),
 
     # url(r'^(?P<rep_id>\d+)/submit/?$', views.submit),
 ]

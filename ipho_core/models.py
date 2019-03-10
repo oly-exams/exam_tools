@@ -100,7 +100,7 @@ class Student(models.Model):
     code = models.CharField(max_length=10, unique=True)
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
-    delegation = models.ForeignKey(Delegation)
+    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
 
     # exam_languages = models.ManyToManyField(Language)
 
@@ -126,7 +126,7 @@ class PushSubscriptionManager(models.Manager):
         return qset
 
 class PushSubscription(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     data = models.TextField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now=True)
 
@@ -150,7 +150,7 @@ class PushSubscription(models.Model):
 @python_2_unicode_compatible
 class AccountRequest(models.Model):
     email = models.EmailField()
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=True)
 
     class Meta(object):
@@ -161,7 +161,7 @@ class AccountRequest(models.Model):
 
 
 class RandomDrawLog(models.Model):
-    delegation = models.ForeignKey(Delegation)
+    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=200, default = 'pending', choices=(('pending','Pending'), ('received', 'Received'), ('failed', 'Failed')))
     tag = models.CharField(max_length=200, default='')
