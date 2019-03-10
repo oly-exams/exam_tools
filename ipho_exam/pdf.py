@@ -21,6 +21,7 @@ from __future__ import division
 import os
 import codecs
 import subprocess
+import logging
 from builtins import range
 from past.utils import old_div
 from django.http import HttpResponse, Http404, HttpResponseNotModified
@@ -38,9 +39,12 @@ from io import StringIO, BytesIO
 
 TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
 CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
-CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 300)  # 1 min
+CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 600)  # 10 min
 TEXBIN = getattr(settings, 'TEXBIN', '/usr/bin')
 WATERMARK_PATH = getattr(settings, 'WATERMARK_PATH', os.path.join(settings.STATIC_PATH, 'watermark.pdf'))
+
+# Get an instance of a logger
+logger = logging.getLogger('ipho_exam.pdf')
 
 
 class TexCompileException(Exception):
@@ -78,6 +82,7 @@ def compile_tex(body, ext_resources=[]):
     cache_key = "%s:%s" % (CACHE_PREFIX, etag)
     pdf = cache.get(cache_key)
     if pdf is None:
+        logger.debug('Hash of tex not found in cache')
         if '\\nonstopmode' not in body:
             raise ValueError("\\nonstopmode not present in document, cowardly refusing to process.")
 
