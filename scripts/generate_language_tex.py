@@ -49,6 +49,7 @@ from celery.result import AsyncResult
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
+TEX_TEMPLATE_PATH = getattr(settings, 'TEX_TEMPLATE_PATH')
 
 BASE_PATH = u'../media/language_tex'
 FONT_PATH = os.path.join(STATIC_PATH, 'noto')
@@ -66,7 +67,7 @@ def compile_question(question, language, logo_file):
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
             r.lang = language
-    ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
+    ext_resources.append(tex.TemplateExport(os.path.join(TEX_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
     context = {
         'polyglossia': language.polyglossia,
         'polyglossia_options': language.polyglossia_options,
@@ -80,7 +81,7 @@ def compile_question(question, language, logo_file):
         'document': trans_content,
         'STATIC_PATH': '.'
     }
-    body = render_to_string('ipho_exam/tex/exam_question.tex', request=HttpRequest(),
+    body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_question.tex'), request=HttpRequest(),
                                                                               context=context).replace(FONT_PATH, u'.')
     try:
         exam_code = question.exam.code

@@ -20,6 +20,7 @@
 from __future__ import print_function
 
 from builtins import range
+import os
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
 from django.core.urlresolvers import reverse
@@ -37,6 +38,7 @@ import requests
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
+TEX_TEMPLATE_PATH = getattr(settings, 'TEX_TEMPLATE_PATH')
 
 
 ## utils
@@ -55,7 +57,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
     all_docs = []
     if cover is not None:
         suppress_cover_code = not settings.CODE_ON_COVER_SHEET
-        body = render_to_string('ipho_exam/tex/exam_cover.tex', request=HttpRequest(), context=cover)
+        body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_cover.tex'), request=HttpRequest(), context=cover)
         question_pdf = pdf.compile_tex(body, [])
         q = questions[0]
         s = student_languages[0].student
@@ -82,7 +84,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                 for r in ext_resources:
                     if isinstance(r, tex.FigureExport):
                         r.lang = sl.language
-                ext_resources.append(tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls'))
+                ext_resources.append(tex.TemplateExport(os.path.join(TEX_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
                 context = {
                     'polyglossia': sl.language.polyglossia,
                     'polyglossia_options': sl.language.polyglossia_options,
@@ -95,7 +97,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                     'is_answer': question.is_answer_sheet(),
                     'document': trans_content,
                 }
-                body = render_to_string('ipho_exam/tex/exam_question.tex', request=HttpRequest(), context=context)
+                body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_question.tex'), request=HttpRequest(), context=context)
                 print('Compile {} {}.'.format(question, sl.language))
                 question_pdf = pdf.compile_tex(body, ext_resources)
             else:
@@ -127,8 +129,8 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                     'is_answer': question.is_answer_sheet(),
                     'pages': list(range(question.working_pages)),
                 }
-                body = render_to_string('ipho_exam/tex/exam_blank.tex', request=HttpRequest(), context=context)
-                question_pdf = pdf.compile_tex(body, [tex.TemplateExport('ipho_exam/tex_resources/ipho2016.cls')])
+                body = render_to_string(os.path.join(TEX_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(), context=context)
+                question_pdf = pdf.compile_tex(body, [tex.TemplateExport(os.path.join(TEX_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
                 page = pdf.add_barcode(question_pdf, bgenerator)
 
