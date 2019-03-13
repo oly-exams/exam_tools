@@ -56,5 +56,9 @@ cp $STATIC_BOWER/jquery/dist/jquery.min.js $STATIC/jquery/js/jquery-1.11.2.min.j
 # jquery-dirtyforms
 cp -r $STATIC_BOWER/jquery.dirtyforms $STATIC/jquery-dirtyforms
 
+# datatables
+cp -r $STATIC_BOWER/datatables.net $STATIC/
+cp -r $STATIC_BOWER/datatables.net-bs $STATIC/
+cp -r $STATIC_BOWER/datatables-plugins $STATIC/
 
 # rm -rf $STATIC_BOWER

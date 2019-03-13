@@ -99,7 +99,8 @@
         {{ ex.name }}
 
     </h3>
-    <table class="table table-striped">
+    <table class="table table-striped feedback-table" id="feedback-table-{{ex.pk}}">
+      <thead>
       <tr>
           <th>#</th>
           <th>Status</th>
@@ -113,6 +114,7 @@
           <th>Commments</th>
           {% endif %}
       </tr>
+    </thead>
       <tbody id="exam-tbody-{{ ex.pk }}"></tbody>
     </table>
     {% endfor %}
@@ -206,11 +208,17 @@ $(function() {
             data:{exam_id:tid},
             dataType: "html",
         }).done(function( data ) {
+
             $("#exam-tbody-"+tid).html(data);
             $("time[data-format]").each(function () {
                 var el = $(this);
                 var dt = moment(el.attr("datetime"));
                 el.text(dt.format(el.data("format")));
+            });
+            $('#feedback-table-'+tid).DataTable({
+              columnDefs: [
+   { type: 'natural', targets: 4 }
+ ]
             });
         });
     }

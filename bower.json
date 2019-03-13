@@ -13,6 +13,8 @@
     "ace-builds": "1.2.6",
     "bootstrap": "3.3.4",
     "eonasdan-bootstrap-datetimepicker": "git://github.com/Eonasdan/bootstrap-datetimepicker#4.17.37",
+    "datatables.net-bs": "1.10.18",
+    "datatables-plugins": "1.10.19",
     "jquery": "1.11.2",
     "bootstrap-switch": "3.3.2",
     "ckeditor": "4.5.9",
