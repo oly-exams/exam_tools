@@ -829,12 +829,14 @@ def feedbacks_list(request, exam_id=None):
         exam = get_object_or_404(Exam, id=exam_id, hidden=False, hide_feedback=False)
 
     exam_list = Exam.objects.filter(hidden=False, active=True, hide_feedback=False)
+    exam_filter_list = [exam,]
     if not exam in exam_list:
         exam = None
+        exam_filter_list = exam_list
     delegation = Delegation.objects.filter(members=request.user)
     delegations = Delegation.objects.all()
 
-    questions_f = Question.objects.filter(exam__in=exam_list).all()
+    questions_f = Question.objects.filter(exam__in=exam_filter_list).all()
 
     def get_or_none(model, *args, **kwargs):
         try:
@@ -943,7 +945,7 @@ def feedbacks_list(request, exam_id=None):
                 'question': question_f,
                 'questions': questions_f,
                 'is_delegation': len(delegation) > 0 or request.user.has_perm('ipho_core.is_staff'),
-                'this_url_builder': url_builder(reverse('exam:feedbacks-list'), request.GET),
+                'this_url_builder': url_builder(reverse('exam:feedbacks-list', kwargs={'exam_id':exam_id}), request.GET),
                 'form': form_html,
             }
         )
@@ -1017,7 +1019,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
         num_likes=Sum(Case(When(like__status='L', then=1), output_field=IntegerField())),
         num_unlikes=Sum(Case(When(like__status='U', then=1), output_field=IntegerField()))
     ).values_list(
-        'pk', 'question__exam__name', 'question__name', 'part', 'delegation__name', 'status', 'timestamp', 'comment',
+        'pk', 'question__exam__name', 'question__name', 'qml_id', 'part', 'delegation__name', 'status', 'timestamp', 'comment', 'org_comment',
         'num_likes', 'num_unlikes'
     ).order_by('-timestamp')
 
@@ -1027,7 +1029,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
 
     writer = csv.writer(response)
     writer.writerow([
-        'Id', 'Exam', 'Question', 'Part', 'Delegation', 'Status', 'Timestamp', 'Comment', 'Num likes', 'Num unlikes'
+        'Id', 'Exam', 'Question', 'Qml_id', 'Part', 'Delegation', 'Status', 'Timestamp', 'Comment', 'Organizer comment', 'Num likes', 'Num unlikes'
     ])
 
     for row in feedbacks:

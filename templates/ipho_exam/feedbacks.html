@@ -47,7 +47,7 @@
         <li>You can <strong/>submit feedbacks <a href="{% if exam %}{% url 'exam:exam-view' exam_id=exam.pk %}{% else %}{% url 'exam:exam-view' %}{% endif %}">here</a>.</strong/></li>
         <li>
           The first column shows the status of your report.
-          It will change from <mark>Submitted</mark> to either <mark>Scheduled for Voting</mark> or <mark>Withdrawn</mark> (if you accepted to withdraw it). If implemented it will change to <mark>Implemented</mark>.
+          It will change from <mark>Submitted</mark> to either <mark>Scheduled for Voting</mark> or <mark>Withdrawn</mark>. If implemented it will change to <mark>Implemented</mark>.
         </li>
     </ul>
 
