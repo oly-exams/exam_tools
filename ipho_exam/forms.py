@@ -265,26 +265,10 @@ class TranslationImportForm(ModelForm):
 
 
 class FeedbackForm(ModelForm):
-    part_nr = forms.ChoiceField(widget=forms.Select(), choices=Feedback.PARTS_CHOICES, label='Which part?')
-    subpart_nr = forms.ChoiceField(
-        widget=forms.Select(), required=False, choices=Feedback.SUBPARTS_CHOICES, label='Which subpart?'
-    )
-
     def __init__(self, *args, **kwargs):
         super(FeedbackForm, self).__init__(*args, **kwargs)
-        self.fields['question'].label_from_instance = lambda obj: obj.name
-
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field('question'),
-            Div(
-                Div(
-                    Fieldset('', 'part_nr', css_class='col-md-6'),
-                    Fieldset('', 'subpart_nr', css_class='col-md-6'),
-                    css_class='row'
-                ),
-                css_class='container-fluid'
-            ),
             Field('comment', placeholder='Comment'),
         )
         self.helper.html5_required = True
@@ -294,7 +278,7 @@ class FeedbackForm(ModelForm):
 
     class Meta(object):
         model = Feedback
-        fields = ['question', 'comment']
+        fields = ['comment']
         # labels = {'part': 'Question part'}
 
 class FeedbackCommentForm(forms.Form):

@@ -65,11 +65,12 @@
                   <li class="divider"></li>
                   {% endif %}
                   <li class="dropdown-header">All translations</li>
+                  <li><a href="{% url 'exam:exam-view' %}">View official english exam</a></li>
                   <li><a href="{% url 'exam:list-all' %}">View all translations</a></li>
 
                   <li class="divider"></li>
                   <li class="dropdown-header">Exam feedbacks</li>
-                  <li><a href="{% url 'exam:feedbacks-list' %}">{% if perms.ipho_core.is_delegation and not user.is_superuser %}Submit{% else %}Manage{% endif %} feedbacks</a></li>
+                  <li><a href="{% url 'exam:feedbacks-list' %}">{% if perms.ipho_core.is_delegation and not user.is_superuser %}View{% else %}Manage{% endif %} feedbacks</a></li>
 
                 </ul>
               </li>

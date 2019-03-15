@@ -581,11 +581,256 @@ def edit_language(request, lang_id):
         'success': False,
     })
 
+@login_required
+def exam_view(request, exam_id=None, question_id=None, orig_id=OFFICIAL_LANGUAGE):
+    context = {
+        'exam_id': exam_id,
+        'question_id': question_id,
+        'orig_id': orig_id,
+    }
+
+    exam = None
+    question = None
+    question_langs = None
+    own_lang = None
+    question_versions = None
+    content_set = None
+    form = None
+    trans_extra_html = None
+    orig_lang = None
+    orig_diff_tag = None
+    trans_lang = None
+    last_saved = None
+    checksum = None
+
+    exam_list = [
+        ex for ex in Exam.objects.filter(hidden=False, active=True)
+    ]
+
+    if exam_id is not None:
+        exam = get_object_or_404(Exam, id=exam_id, hidden=False, active=True)
+
+    if not exam in exam_list:
+        exam = None
+
+    if question_id is not None:
+        question = get_object_or_404(Question, id=question_id, exam=exam)
+    elif exam is not None and exam.question_set.count() > 0:
+        question = exam.question_set.first()
+
+    delegation = Delegation.objects.filter(members=request.user)
+
+    context['exam_list'] = exam_list
+
+    ## TODO:
+    ## * deal with errors when node not found: no content
+
+    if question:
+        if not question.check_permission(request.user):
+            return HttpResponseForbidden('You do not have the permissions to view this question.')
+
+        orig_lang = get_object_or_404(Language, id=orig_id)
+
+        official_question = qquery.latest_version(question_id=question.pk, lang_id=OFFICIAL_LANGUAGE)
+
+        # try:
+        ## TODO: make a free function
+        if orig_lang.versioned:
+            orig_node = VersionNode.objects.filter(
+                question=question, language=orig_lang, status='C'
+            ).order_by('-version')[0]
+            orig_lang.version = orig_node.version
+            orig_lang.tag = orig_node.tag
+            question_versions = VersionNode.objects.values_list('version', 'tag').order_by('-version').filter(
+                question=question, language=orig_lang, status='C'
+            )[1:]
+        else:
+            orig_node = get_object_or_404(TranslationNode, question=question, language=orig_lang)
+
+        question_langs = []
+        ## officials
+        official_list = []
+        for vn in VersionNode.objects.filter(
+            question=question, status='C', language__delegation__name=OFFICIAL_DELEGATION
+        ).order_by('-version'):
+            if not vn.language in official_list:
+                official_list.append(vn.language)
+                official_list[-1].version = vn.version
+                official_list[-1].tag = vn.tag
+        official_list += list(
+            Language.objects.filter(translationnode__question=question, delegation__name=OFFICIAL_DELEGATION)
+        )
+        question_langs.append({'name': 'official', 'order': 0, 'list': official_list})
+
+        orig_q_raw = qml.make_qml(orig_node)
+        orig_q = deepcopy(official_question.qml)
+        orig_q_raw_data = orig_q_raw.get_data()
+        orig_q_raw_data = {k: v for k, v in list(orig_q_raw_data.items()) if v}
+        orig_q.update(orig_q_raw_data)
+        orig_q.set_lang(orig_lang)
+
+
+        content_set = qml.make_content(orig_q)
+
+        #trans_content = {}
+
+    # except:
+    #     context['warning'] = 'This question does not have any content.'
+    context['exam'] = exam
+    context['question'] = question
+    context['question_langs'] = question_langs
+    context['question_versions'] = question_versions
+    #context['own_lang'] = own_lang
+    context['orig_lang'] = orig_lang
+    context['content_set'] = content_set
+    context['form'] = form
+    context['last_saved'] = last_saved
+    context['checksum'] = checksum
+    if context['orig_lang']:
+        context['orig_font'] = fonts.ipho[context['orig_lang'].font]
+    return render(request, 'ipho_exam/exam_view.html', context)
+
+@login_required
+def feedback_partial(request, exam_id, question_id, qml_id='', orig_id=OFFICIAL_LANGUAGE):
+    delegation = Delegation.objects.filter(members=request.user)
+    delegations = Delegation.objects.all()
+
+    if exam_id is not None:
+        exam = get_object_or_404(Exam, id=exam_id, hidden=False, active=True, hide_feedback=False)
+    if question_id is not None:
+        question = get_object_or_404(Question, id=question_id, exam=exam)
+    ctxt = {}
+
+    if not request.user.has_perm('ipho_core.is_staff') and request.user.has_perm('ipho_core.is_delegation'):
+        form = FeedbackForm(request.POST or None)
+        orig_lang = get_object_or_404(Language, id=orig_id)
+        node = VersionNode.objects.filter(
+            question=question, language=orig_lang, status='C'
+        ).order_by('-version')[0]
+        qml_root = qml.make_qml(node)
+        part = 'Introduction'
+        if qml_root.has_children:
+            found = False
+            part_count = 0
+            if qml_root.id == qml_root or qml_id == 'global':
+                part = 'General'
+                found = True
+            if not found:
+                for q in qml_root.children:
+                    if 'part_nr' in q.attributes:
+                        if 'question_nr' in q.attributes:
+                            part = q.attributes['part_nr'] + '.' + q.attributes['question_nr']
+                        else:
+                            part = q.attributes['part_nr']
+                    if q.tag == 'part':
+                        part_count += 1
+                        print('part_count: ',part_count)
+                        if part_count == 1:
+                            part = 'Introduction'
+                        else:
+                            part = chr(ord('A')+part_count-2)
+
+                    if q.id == qml_id or (q.find(qml_id) is not None):
+                        found = True
+                        break
+        if form.is_valid():
+            form.instance.delegation = delegation.first()
+            form.instance.question = question
+            form.instance.qml_id = qml_id
+            form.instance.part = part
+
+            #part = models.CharField(max_length=100, default=None)
+            form.save()
+            ctxt['warning'] = '<strong>Feedback added!</strong> The new feedback has successfully been added. The staff will look at it.'
+            form = FeedbackForm()
+        context = {}
+        context.update(csrf(request))
+        form_html = render_crispy_form(form, context=context)
+        if question.feedback_active:
+            print(question)
+            ctxt['form_html'] = form_html
+        else:
+            print('else', question)
+            ctxt['form_html'] = ''
+    feedbacks = Feedback.objects.filter(question=question, qml_id=qml_id).annotate(
+        num_likes=Sum(Case(When(like__status='L', then=1), output_field=IntegerField())),
+        num_unlikes=Sum(Case(When(like__status='U', then=1), output_field=IntegerField())),
+        delegation_likes=Sum(
+            Case(When(like__delegation=delegation, then=1), default=0, output_field=IntegerField())
+        ),
+    ).values(
+        'num_likes', 'num_unlikes', 'delegation_likes', 'pk', 'question__pk', 'question__name',
+        'question__feedback_active', 'delegation__name', 'delegation__country', 'status', 'timestamp', 'part',
+        'comment', 'org_comment',
+    ).order_by('-timestamp')
+
+    for f in feedbacks:
+        like_del = [d[0] for d in Delegation.objects.filter(like__status='L', like__feedback_id=f['pk']).values_list('name')]
+        unlike_del = [d[0] for d in Delegation.objects.filter(like__status='U', like__feedback_id=f['pk']).values_list('name')]
+        like_del_string = ', '.join(like_del)
+        like_del_slug = ''
+        if len(like_del) in [1,2]:
+            like_del_slug = '<br> ' + ', '.join(like_del)
+        elif len(like_del) > 2:
+            like_del_slug = '<br> ' + like_del[0] + ', ..., ' + like_del[-1]
+        unlike_del_string = ', '.join(unlike_del)
+        unlike_del_slug = ''
+        if len(unlike_del) in [1,2]:
+            unlike_del_slug = '<br> ' + ', '.join(unlike_del)
+        elif len(unlike_del) > 2:
+            unlike_del_slug = '<br> ' + unlike_del[0] + ', ..., ' + unlike_del[-1]
+        f['like_delegations'] = [like_del_string, like_del_slug]
+        f['unlike_delegations'] = [unlike_del_string, unlike_del_slug]
+    choices = dict(Feedback._meta.get_field('status').flatchoices)
+    for fb in feedbacks:
+        fb['status_display'] = choices[fb['status']]
+        fb['enable_likes'
+           ] = (fb['delegation_likes'] == 0) and fb['question__feedback_active'] and len(delegation) > 0
+    feedbacks = list(feedbacks)
+    feedbacks.sort(key=lambda fb: (fb['question__pk'], Feedback.part_id(fb['part'])))
+
+    ctxt['feedbacks'] = feedbacks
+    ctxt['status_choices'] = Feedback.STATUS_CHOICES
+    ctxt['is_delegation'] = len(delegation) > 0 or request.user.has_perm('ipho_core.is_staff')
+
+
+    return render(
+        request, 'ipho_exam/partials/feedbacks_partial_tbody.html', ctxt)
+
+@login_required
+def feedback_partial_like(request, status, feedback_id):
+    feedback = get_object_or_404(Feedback, pk=feedback_id, question__feedback_active=True)
+    delegation = Delegation.objects.get(members=request.user)
+    Like.objects.get_or_create(feedback=feedback, delegation=delegation, defaults={'status': status})
+    return JsonResponse({'success': True,})
+
+@login_required
+def feedback_numbers(request, exam_id, question_id):
+    if exam_id is not None:
+                # # TODO: set correct flags
+        exam = get_object_or_404(Exam, id=exam_id, hidden=False, active=True)
+    if question_id is not None:
+        question = get_object_or_404(Question, id=question_id, exam=exam)
+    feedbacks = Feedback.objects.filter(question=question).all()
+    numbers = {}
+    for f in feedbacks:
+        if f.qml_id in numbers:
+            numbers[f.qml_id] += 1
+        else:
+            numbers[f.qml_id] = 1
+
+    return JsonResponse({'success': True,'numbers':numbers})
 
 @login_required
 @ensure_csrf_cookie
-def feedbacks_list(request):
+def feedbacks_list(request, exam_id=None):
+    exam = None
+    if exam_id is not None:
+        exam = get_object_or_404(Exam, id=exam_id, hidden=False, hide_feedback=False)
+
     exam_list = Exam.objects.filter(hidden=False, active=True, hide_feedback=False)
+    if not exam in exam_list:
+        exam = None
     delegation = Delegation.objects.filter(members=request.user)
     delegations = Delegation.objects.all()
 
@@ -656,22 +901,20 @@ def feedbacks_list(request):
         for fb in feedbacks:
             like_del = [d[0] for d in Delegation.objects.filter(like__status='L', like__feedback_id=fb['pk']).values_list('name')]
             unlike_del = [d[0] for d in Delegation.objects.filter(like__status='U', like__feedback_id=fb['pk']).values_list('name')]
-            like_del_string = '<br>'
-            for i, d in enumerate(like_del):
-                if (i+1)%3==0:
-                    like_del_string += (d+'<br>')
-                else:
-                    like_del_string += (d+', ')
-            like_del_string = like_del_string.rstrip(', ').rstrip('<br>')
-            unlike_del_string = '<br>'
-            for i, d in enumerate(unlike_del):
-                if (i+1)%3==0:
-                    unlike_del_string += (d+'<br>')
-                else:
-                    unlike_del_string += (d+', ')
-            unlike_del_string = unlike_del_string.rstrip(', ').rstrip('<br>')
-            fb['like_delegations'] = like_del_string
-            fb['unlike_delegations'] = unlike_del_string
+            like_del_string = ', '.join(like_del)
+            like_del_slug = ''
+            if len(like_del) in [1,2]:
+                like_del_slug = '<br> ' + ', '.join(like_del)
+            elif len(like_del) > 2:
+                like_del_slug = '<br> ' + like_del[0] + ', ..., ' + like_del[-1]
+            unlike_del_string = ', '.join(unlike_del)
+            unlike_del_slug = ''
+            if len(unlike_del) in [1,2]:
+                unlike_del_slug = '<br> ' + ', '.join(unlike_del)
+            elif len(unlike_del) > 2:
+                unlike_del_slug = '<br> ' + unlike_del[0] + ', ..., ' + unlike_del[-1]
+            fb['like_delegations'] = [like_del_string, like_del_slug]
+            fb['unlike_delegations'] = [unlike_del_string, unlike_del_slug]
             fb['status_display'] = choices[fb['status']]
             fb['enable_likes'
                ] = (fb['delegation_likes'] == 0) and fb['question__feedback_active'] and len(delegation) > 0
@@ -694,6 +937,7 @@ def feedbacks_list(request):
         return render(
             request, 'ipho_exam/feedbacks.html', {
                 'exam_list': exam_list,
+                'exam':exam,
                 'status': display_status,
                 'status_choices': Feedback.STATUS_CHOICES,
                 'question': question_f,
@@ -726,8 +970,7 @@ def feedbacks_add_comment(request, feedback_id=None):
             True,
             'message':
             '<strong>Comment added!</strong>',
-            'feedback_id':
-            feedback_id,
+            'feedback_id':feedback_id,
         })
     if not request.method == 'POST':
         form = FeedbackCommentForm(initial={'comment':feedback.org_comment})
@@ -755,7 +998,7 @@ def feedback_set_status(request, feedback_id, status):
     fb = get_object_or_404(Feedback, id=feedback_id)
     fb.status = status
     fb.save()
-    return redirect('exam:feedbacks-list')
+    return JsonResponse({'success':True})
 
 
 @permission_required('ipho_core.is_staff')
@@ -2175,237 +2418,6 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     if context['trans_lang']:
         context['trans_font'] = fonts.ipho[context['trans_lang'].font]
     return render(request, 'ipho_exam/editor.html', context)
-
-
-@login_required
-def exam_view(request, exam_id=None, question_id=None, orig_id=OFFICIAL_LANGUAGE):
-    context = {
-        'exam_id': exam_id,
-        'question_id': question_id,
-        'orig_id': orig_id,
-    }
-
-    exam = None
-    question = None
-    question_langs = None
-    own_lang = None
-    question_versions = None
-    content_set = None
-    form = None
-    trans_extra_html = None
-    orig_lang = None
-    orig_diff_tag = None
-    trans_lang = None
-    last_saved = None
-    checksum = None
-
-    if exam_id is not None:
-                # # TODO: set correct flags
-        exam = get_object_or_404(Exam, id=exam_id, hidden=False)
-    if question_id is not None:
-        question = get_object_or_404(Question, id=question_id, exam=exam)
-    elif exam is not None and exam.question_set.count() > 0:
-        question = exam.question_set.first()
-
-    delegation = Delegation.objects.filter(members=request.user)
-    exam_list = [
-        ex for ex in Exam.objects.filter(hidden=False, active=True)
-    ]
-    context['exam_list'] = exam_list
-
-    ## TODO:
-    ## * deal with errors when node not found: no content
-
-    if question:
-        if not question.check_permission(request.user):
-            return HttpResponseForbidden('You do not have the permissions to view this question.')
-
-        orig_lang = get_object_or_404(Language, id=orig_id)
-
-        official_question = qquery.latest_version(question_id=question.pk, lang_id=OFFICIAL_LANGUAGE)
-
-        # try:
-        ## TODO: make a free function
-        if orig_lang.versioned:
-            orig_node = VersionNode.objects.filter(
-                question=question, language=orig_lang, status='C'
-            ).order_by('-version')[0]
-            orig_lang.version = orig_node.version
-            orig_lang.tag = orig_node.tag
-            question_versions = VersionNode.objects.values_list('version', 'tag').order_by('-version').filter(
-                question=question, language=orig_lang, status='C'
-            )[1:]
-        else:
-            orig_node = get_object_or_404(TranslationNode, question=question, language=orig_lang)
-
-        question_langs = []
-        ## officials
-        official_list = []
-        for vn in VersionNode.objects.filter(
-            question=question, status='C', language__delegation__name=OFFICIAL_DELEGATION
-        ).order_by('-version'):
-            if not vn.language in official_list:
-                official_list.append(vn.language)
-                official_list[-1].version = vn.version
-                official_list[-1].tag = vn.tag
-        official_list += list(
-            Language.objects.filter(translationnode__question=question, delegation__name=OFFICIAL_DELEGATION)
-        )
-        question_langs.append({'name': 'official', 'order': 0, 'list': official_list})
-
-        orig_q_raw = qml.make_qml(orig_node)
-        orig_q = deepcopy(official_question.qml)
-        orig_q_raw_data = orig_q_raw.get_data()
-        orig_q_raw_data = {k: v for k, v in list(orig_q_raw_data.items()) if v}
-        orig_q.update(orig_q_raw_data)
-        orig_q.set_lang(orig_lang)
-
-
-        content_set = qml.make_content(orig_q)
-
-        trans_content = {}
-
-    # except:
-    #     context['warning'] = 'This question does not have any content.'
-    context['exam'] = exam
-    context['question'] = question
-    context['question_langs'] = question_langs
-    context['question_versions'] = question_versions
-    #context['own_lang'] = own_lang
-    context['orig_lang'] = orig_lang
-    context['content_set'] = content_set
-    context['form'] = form
-    context['last_saved'] = last_saved
-    context['checksum'] = checksum
-    if context['orig_lang']:
-        context['orig_font'] = fonts.ipho[context['orig_lang'].font]
-    return render(request, 'ipho_exam/exam_view.html', context)
-
-@login_required
-def feedback_partial(request, exam_id, question_id, qml_id='', orig_id=OFFICIAL_LANGUAGE):
-    delegation = Delegation.objects.filter(members=request.user)
-    delegations = Delegation.objects.all()
-
-    if exam_id is not None:
-                # # TODO: set correct flags
-        exam = get_object_or_404(Exam, id=exam_id, hidden=False)
-    if question_id is not None:
-        question = get_object_or_404(Question, id=question_id, exam=exam)
-    ctxt = {}
-
-    if not request.user.has_perm('ipho_core.is_staff'):#request.user.has_perm('ipho_core.is_delegation'):
-        form = FeedbackForm(request.POST or None)
-        orig_lang = get_object_or_404(Language, id=orig_id)
-        node = VersionNode.objects.filter(
-            question=question, language=orig_lang, status='C'
-        ).order_by('-version')[0]
-        qml_root = qml.make_qml(node)
-
-        part = 'Introduction'
-        if qml_root.has_children:
-            found = False
-            part_count = 0
-            if qml_root.id == qml_root or qml_id == 'global':
-                part = 'Global'
-                found = True
-            if not found:
-                for q in qml_root.children:
-                    if 'part_nr' in q.attributes:
-                        if 'question_nr' in q.attributes:
-                            part = q.attributes['part_nr'] + '.' + q.attributes['question_nr']
-                        else:
-                            part = q.attributes['part_nr']
-                    if q.tag == 'part':
-                        part_count += 1
-                        part = chr(ord('A')+part_count-2)
-                    if q.id == qml_id or (q.find(qml_id) is not None):
-                        found = True
-                        break
-        if form.is_valid():
-            form.instance.delegation = delegation.first()
-            form.instance.question = question
-            form.instance.qml_id = qml_id
-            form.instance.part = part
-
-            #part = models.CharField(max_length=100, default=None)
-            form.save()
-            ctxt['warning'] = '<strong>Feedback added!</strong> The new feedback has successfully been added. The staff will look at it.'
-            form = FeedbackForm()
-        context = {}
-        context.update(csrf(request))
-        form_html = render_crispy_form(form, context=context)
-        ctxt['form_html'] = form_html
-
-    feedbacks = Feedback.objects.filter(question=question, qml_id=qml_id).annotate(
-        num_likes=Sum(Case(When(like__status='L', then=1), output_field=IntegerField())),
-        num_unlikes=Sum(Case(When(like__status='U', then=1), output_field=IntegerField())),
-        delegation_likes=Sum(
-            Case(When(like__delegation=delegation, then=1), default=0, output_field=IntegerField())
-        ),
-    ).values(
-        'num_likes', 'num_unlikes', 'delegation_likes', 'pk', 'question__pk', 'question__name',
-        'question__feedback_active', 'delegation__name', 'delegation__country', 'status', 'timestamp', 'part',
-        'comment', 'org_comment',
-    ).order_by('-timestamp')
-
-    for f in feedbacks:
-        like_del = [d[0] for d in Delegation.objects.filter(like__status='L', like__feedback_id=f['pk']).values_list('name')]
-        unlike_del = [d[0] for d in Delegation.objects.filter(like__status='U', like__feedback_id=f['pk']).values_list('name')]
-        like_del_string = '<br>'
-        for i, d in enumerate(like_del):
-            if (i+1)%3==0:
-                like_del_string += (d+'<br>')
-            else:
-                like_del_string += (d+', ')
-        like_del_string = like_del_string.rstrip(', ').rstrip('<br>')
-        unlike_del_string = '<br>'
-        for i, d in enumerate(unlike_del):
-            if (i+1)%3==0:
-                unlike_del_string += (d+'<br>')
-            else:
-                unlike_del_string += (d+', ')
-        unlike_del_string = unlike_del_string.rstrip(', ').rstrip('<br>')
-        f['like_delegations'] = like_del_string
-        f['unlike_delegations'] = unlike_del_string
-    choices = dict(Feedback._meta.get_field('status').flatchoices)
-    for fb in feedbacks:
-        fb['status_display'] = choices[fb['status']]
-        fb['enable_likes'
-           ] = (fb['delegation_likes'] == 0) and fb['question__feedback_active'] and len(delegation) > 0
-    feedbacks = list(feedbacks)
-    feedbacks.sort(key=lambda fb: (fb['question__pk'], Feedback.part_id(fb['part'])))
-
-    ctxt['feedbacks'] = feedbacks
-    ctxt['status_choices'] = Feedback.STATUS_CHOICES
-    ctxt['is_delegation'] = len(delegation) > 0 or request.user.has_perm('ipho_core.is_staff')
-
-
-    return render(
-        request, 'ipho_exam/partials/feedbacks_partial_tbody.html', ctxt)
-
-@login_required
-def feedback_partial_like(request, status, feedback_id):
-    feedback = get_object_or_404(Feedback, pk=feedback_id, question__feedback_active=True)
-    delegation = Delegation.objects.get(members=request.user)
-    Like.objects.get_or_create(feedback=feedback, delegation=delegation, defaults={'status': status})
-    return JsonResponse({'success': True,})
-
-@login_required
-def feedback_numbers(request, exam_id, question_id):
-    if exam_id is not None:
-                # # TODO: set correct flags
-        exam = get_object_or_404(Exam, id=exam_id, hidden=False, active=True)
-    if question_id is not None:
-        question = get_object_or_404(Question, id=question_id, exam=exam)
-    feedbacks = Feedback.objects.filter(question=question).all()
-    numbers = {}
-    for f in feedbacks:
-        if f.qml_id in numbers:
-            numbers[f.qml_id] += 1
-        else:
-            numbers[f.qml_id] = 1
-
-    return JsonResponse({'success': True,'numbers':numbers})
 
 @login_required
 def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False):

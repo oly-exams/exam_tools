@@ -5,7 +5,8 @@
       {{ warning |safe}}
     </div>
 {% endif %}
-<table class="table table-striped">
+<table class="table table-striped" id="feedback-table">
+  <thead>
   <tr>
       <th>#</th>
       <th>Status</th>
@@ -14,6 +15,7 @@
       <th>Timestamp</th>
       <th style="width:170px">Actions</th>
   </tr>
+  </thead>
   <tbody id="exam-tbody-{{ ex.pk }}">
     {% for fb in feedbacks %}
     <tr>
@@ -40,20 +42,23 @@
         <td><time datetime="{{ fb.timestamp|date:"c" }}" data-format="hh:mm A"></time></td>
         <td>
           <div class="btn-toolbar">
-            <span href="{% url 'exam:feedback-partial-like' status='L' feedback_id=fb.pk %}" class="feedback-like feedback-like-top btn btn-info {{ fb.enable_likes|yesno:',disabled' }}">
-              <span class="fa fa-thumbs-o-up feedback-like" aria-hidden="true"></span>
-              {% if fb.num_likes %}
-              <span class="badge feedback-like">{{ fb.num_likes }}</span>
-              {% endif %}
-              {{fb.like_delegations|safe}}
-            </span>
-            <span href="{% url 'exam:feedback-partial-like' status='U' feedback_id=fb.pk %}" class="feedback-like btn feedback-like-top btn-warning {{ fb.enable_likes|yesno:',disabled' }}">
-              <i class="fa fa-thumbs-o-down feedback-like" aria-hidden="true"></i>
-              {% if fb.num_unlikes %}
-              <span class="badge feedback-like">{{ fb.num_unlikes }}</span>
-              {% endif %}
-              {{fb.unlike_delegations|safe}}
-            </span> <!-- btn-toolbar -->
+            <div style="display:inline-block" data-toggle="tooltip" title="{{fb.like_delegations.0|safe}}">
+              <span href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="feedback-like feedback-like-top btn btn-info {{ fb.enable_likes|yesno:',disabled' }}">
+                <span class="fa fa-thumbs-o-up feedback-like" aria-hidden="true"></span>
+                {% if fb.num_likes %}
+                <span class="badge feedback-like">{{ fb.num_likes }}</span>
+                {% endif %}
+                {{fb.like_delegations.1|safe}}
+              </span>
+            </div>
+            <div style="display:inline-block" data-toggle="tooltip" title="{{fb.unlike_delegations.0|safe}}">
+              <span href="{% url 'exam:feedback-like' status='U' feedback_id=fb.pk %}" class="feedback-like btn feedback-like-top btn-warning {{ fb.enable_likes|yesno:',disabled' }}">
+                <i class="fa fa-thumbs-o-down feedback-like" aria-hidden="true"></i>
+                {% if fb.num_unlikes %}
+                <span class="badge feedback-like">{{ fb.num_unlikes }}</span>
+                {% endif %}
+                {{fb.unlike_delegations.1|safe}}
+              </span> <!-- btn-toolbar -->
         </td>
     </tr>
     {% endfor %}

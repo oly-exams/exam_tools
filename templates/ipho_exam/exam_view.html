@@ -112,25 +112,35 @@ body { margin-bottom: 70px; }
 {% endblock %}
 
 {% block pageheader %}
-<div class="dropdown pull-right">
-  <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
-{% if exam %}
-    {{ exam.name }}
-{% else %}
-    Select exam
+{% if question %}
+  <div class="dropdown pull-right">
+    <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+  {% if exam %}
+      {{ exam.name }}
+  {% else %}
+      Select exam
+  {% endif %}
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+  {% for ex in exam_list %}
+      <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:exam-view' exam_id=ex.pk %}">{{ ex.name }}</a></li>
+  {% endfor %}
+    </ul>
+  </div>
 {% endif %}
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu">
-{% for ex in exam_list %}
-    <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:exam-view' exam_id=ex.pk %}">{{ ex.name }}</a></li>
-{% endfor %}
-  </ul>
-</div>
-<h1>Exam editor</h1>
+<h1>Exam view</h1>
 {% endblock %}
 
 {% block exam-content %}
+  <p class="lead">
+    Use the exam view to have a look at the newest official english version of the exam and to submit feedbacks.
+  </p>
+<ul>
+    <li>Exams feedbacks are available only for a limited time, after the official presentation and before the final discussion.</li>
+    <li>Feebacks are shown to all delegations.</li>
+    <li>A list of feedbacks is available <a href="{% if question %}{% url 'exam:feedbacks-list' exam_id=exam.pk %}{% else %}{% url 'exam:feedbacks-list' %}{% endif %}">here</a>.</li>
+</ul>
     <div class="modal fade" id="figure-modal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -155,7 +165,9 @@ body { margin-bottom: 70px; }
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 {% if not perms.ipho_core.is_staff %}
-                <button id="modal-form-submit" type="submit" class="btn btn-primary">Send feedback</button>
+                  {% if question.feedback_active%}
+                    <button id="modal-form-submit" type="submit" class="btn btn-primary">Send feedback</button>
+                  {% endif %}
                 {% endif %}
               </div>
           </form>
@@ -184,7 +196,7 @@ body { margin-bottom: 70px; }
 </ul>
 
 {% if question %}
-    <form method="post" action="{{ request.path }}" charset="utf8" id="question-form">
+
         {% csrf_token %}
         <input type="hidden" name="checksum" value="{{ checksum }}" />
         <h3>{{ question.name }}</h3>
@@ -206,9 +218,11 @@ body { margin-bottom: 70px; }
             </div>
 
             <div class="col-sm-3 text-center" style="display: table-cell; vertical-align: middle;">
-              <button type="button" class="btn btn-sm btn-default translate-copy-button" id="global" aria-label="View feedback" title="View feedback" data-toggle="modal" data-target="#feedback-modal">
-                View global feedback for this question
-              </button>
+              {% if not exam.hide_feedback%}
+                <button type="button" class="btn btn-sm btn-default translate-copy-button" id="global" aria-label="View feedback" title="View feedback" data-toggle="modal" data-target="#feedback-modal">
+                  View general feedback for this question
+                </button>
+              {% endif %}
             </div>
         </div>
 
@@ -216,25 +230,22 @@ body { margin-bottom: 70px; }
         <div class="translation-field-container">
             {% include 'ipho_exam/exam_view_field.html' with fields_set=content_set %}
         </div>
-
-        {% if form %}
-        <div class="navbar navbar-default navbar-fixed-bottom">
-          <div class="container">
-            <div class="navbar-left">
-                <label class="navbar-text" style="font-weight:normal;">
-                    <input type="checkbox" id="auto-save-checkbox" checked="checked" data-size="mini">
-                    Auto-save.
-                </label>
-              <span class="navbar-text" id="save-status"></span>
-            </div>
-            <div class="navbar-right">
-                <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
-                <button type="submit" class="btn btn-primary navbar-btn" data-toggle="tooltip" data-placement="top" title="ctrl + S" disabled="disabled"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-    </form>
+{% else %}
+<div class="dropdown">
+  <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+{% if exam %}
+    {{ exam.name }}
+{% else %}
+    Select exam
+{% endif %}
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu">
+{% for ex in exam_list %}
+    <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:exam-view' exam_id=ex.pk %}">{{ ex.name }}</a></li>
+{% endfor %}
+  </ul>
+</div>
 {% endif %}
 
 {% endblock %}
@@ -369,7 +380,7 @@ body { margin-bottom: 70px; }
                   modal.find('.modal-body').html('<img src="'+img_url+'" />');
                 }
             });
-            
+
             {% if exam %}
             function update_feedback_numbers(){
               var url = "{% url 'exam:feedback-numbers' exam_id=exam.pk question_id=question.pk%}";
@@ -399,6 +410,27 @@ body { margin-bottom: 70px; }
             }
             update_feedback_numbers();
 
+            function update_feedback_table(data, modal){
+              var table = $('#feedback-table').DataTable({
+                stateSave: true,
+                retrieve:true,
+              });
+              table.destroy();
+              modal.find('.modal-title').html('Feedbacks');
+              modal.find('.modal-body').html(data);
+              $("time[data-format]").each(function () {
+                  var el = $(this);
+                  var dt = moment(el.attr("datetime"));
+                  el.text(dt.format(el.data("format")));
+              });
+              var table = $('#feedback-table').DataTable({
+                stateSave: true,
+                retrieve:true,
+              });
+              table.draw(false);
+              $('[data-toggle="tooltip"]').tooltip();
+            }
+
             function load_feedbacks(modal, qml_id){
               var url = "{% url 'exam:feedback-partial' exam_id=exam.pk question_id=question.pk%}"+"/"+qml_id;
               modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
@@ -406,17 +438,10 @@ body { margin-bottom: 70px; }
               $.ajax({
                   url: url,
                   data: 'GET',
-                  success: function(data) {
-                      modal.find('.modal-title').html('Feedbacks');
-                      modal.find('.modal-body').html(data);
-                      modal.find('#qml_id_div').removeClass()
-                      modal.find('#qml_id_div').addClass(qml_id);
-                      $("time[data-format]").each(function () {
-                          var el = $(this);
-                          var dt = moment(el.attr("datetime"));
-                          el.text(dt.format(el.data("format")));
-                      });
-                  },
+              }).done(function( data ) {
+                update_feedback_table(data, modal);
+                modal.find('#qml_id_div').removeClass()
+                modal.find('#qml_id_div').addClass(qml_id);
               });
             }
             $('#feedback-modal').on('show.bs.modal', function (event) {
@@ -440,8 +465,9 @@ body { margin-bottom: 70px; }
                     processData: false,
                     contentType: false,
                     success: function(data) {
-                        $('#feedback-modal').find('.modal-body').html(data);
+                        update_feedback_table(data, $('#feedback-modal'))
                         $('#feedback-modal').scrollTop(0);
+                        update_feedback_numbers();
                     }
                 });
 

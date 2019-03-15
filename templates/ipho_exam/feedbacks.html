@@ -16,7 +16,26 @@
 <li class="active">Exam feedbacks</li>
 {% endblock %}
 
-{% block pageheader %}<h1>Exam feedbacks</h1>{% endblock %}
+{% block pageheader %}
+  {% if exam %}
+    <div class="dropdown pull-right">
+      <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+    {% if exam %}
+        {{ exam.name }}
+    {% else %}
+        Select exam
+    {% endif %}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+    {% for ex in exam_list %}
+        <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:feedbacks-list' exam_id=ex.pk %}">{{ ex.name }}</a></li>
+    {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+<h1>Exam feedbacks</h1>
+{% endblock %}
 
 {% block exam-content %}
     <p class="lead">
@@ -25,9 +44,10 @@
     <ul>
         <li>Exams feedbacks are available only for a limited time, after the official presentation and before the final discussion.</li>
         <li>Feebacks are shown to all delegations.</li>
+        <li>You can <strong/>submit feedbacks <a href="{% if exam %}{% url 'exam:exam-view' exam_id=exam.pk %}{% else %}{% url 'exam:exam-view' %}{% endif %}">here</a>.</strong/></li>
         <li>
           The first column shows the status of your report.
-          It will change from <mark>Submitted</mark> to either <mark>Scheduled for Voting</mark> or <mark>Settled</mark>. If implemented it will chang to <mark>Implemented</mark>.
+          It will change from <mark>Submitted</mark> to either <mark>Scheduled for Voting</mark> or <mark>Withdrawn</mark> (if you accepted to withdraw it). If implemented it will change to <mark>Implemented</mark>.
         </li>
     </ul>
 
@@ -55,7 +75,7 @@
 
     <div id="alerts-container"></div>
 
-
+  {% if exam %}
     <div style="">
           <div class="dropdown div-inline" style="float: left;" >
             <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
@@ -93,16 +113,14 @@
     </div>
   </br>
 
-
-    {% for ex in exam_list %}
     <h3>
-        {{ ex.name }}
+        {{ exam.name }}
 
     </h3>
-    <table class="table table-striped feedback-table" id="feedback-table-{{ex.pk}}">
+    <table class="table table-striped feedback-table" id="feedback-table-{{exam.pk}}">
       <thead>
       <tr>
-          <th>#</th>
+          <th class="col-sm-01">#</th>
           <th>Status</th>
           <th>Delegation</th>
           <th>Question</th>
@@ -115,9 +133,26 @@
           {% endif %}
       </tr>
     </thead>
-      <tbody id="exam-tbody-{{ ex.pk }}"></tbody>
+      <tbody id="exam-tbody-{{ exam.pk }}"></tbody>
     </table>
-    {% endfor %}
+  {% else %}
+  <div class="dropdown ">
+    <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+  {% if exam %}
+      {{ exam.name }}
+  {% else %}
+      Select exam
+  {% endif %}
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+  {% for ex in exam_list %}
+      <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:feedbacks-list' exam_id=ex.pk %}">{{ ex.name }}</a></li>
+  {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
 
 {% endblock %}
 
@@ -171,9 +206,7 @@ $(function() {
                     $('#translation-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
                     return;
                 }
-
-                update_feedbacks(data['exam_id']);
-
+                update_feedbacks({{ exam.pk }});
                 $('#feedback-modal').modal('hide');
                 $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
 
@@ -208,26 +241,73 @@ $(function() {
             data:{exam_id:tid},
             dataType: "html",
         }).done(function( data ) {
-
+          var table = $('#feedback-table-'+tid).DataTable({
+            columnDefs: [
+              { type: 'natural', targets: 4 },
+              { "width": "25%", "targets": 5 },
+            ],
+            stateSave: true,
+            retrieve:true,
+            autoWidth: false,
+            });
+            table.destroy();
             $("#exam-tbody-"+tid).html(data);
             $("time[data-format]").each(function () {
                 var el = $(this);
                 var dt = moment(el.attr("datetime"));
                 el.text(dt.format(el.data("format")));
             });
-            $('#feedback-table-'+tid).DataTable({
+            $('[data-toggle="tooltip"]').tooltip();
+            var table = $('#feedback-table-'+tid).DataTable({
               columnDefs: [
-   { type: 'natural', targets: 4 }
- ]
+                { type: 'natural', targets: 4 },
+                { "width": "25%", "targets": 5 },
+              ],
+              stateSave: true,
+              retrieve:true,
+              autoWidth: false,
             });
+            table.draw(false);
+            $('[data-toggle="tooltip"]').tooltip();
+
         });
     }
 
-    {% for ex in exam_list %}
-    update_feedbacks({{ ex.pk }});
-    {% endfor %}
+    $('.feedback-table').on('click','.feedback-like', function(evt){
+      evt.preventDefault();
+      var a = evt.target;
+      if($(a).hasClass('disabled')){return false}
+      if($(a).is("[href]")){
+        var url = $(a).attr('href');
+      }else {
+        var url = $(a).parent().attr('href');
+      }
+      $.ajax({
+          url: url,
+          type: 'POST',
+          success: function(data) {
+                update_feedbacks({{ exam.pk }});
+          }
+      });
+      return false;
+    });
 
+    $('.feedback-table').on('click','.feedback-status', function(evt){
+      evt.preventDefault();
+      var a = evt.target;
+      if($(a).hasClass('disabled')){return false}
+      $(a).parent().parent().dropdown("toggle");
+      var url = $(a).attr('href');
+      $.ajax({
+          url: url,
+          type: 'POST',
+      }).done(function( data ) {
+        update_feedbacks({{ exam.pk }});
+      });
+      return false;
+    });
 
+    update_feedbacks({{ exam.pk }});
 
 });
 </script>

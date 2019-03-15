@@ -520,7 +520,7 @@ class Feedback(models.Model):
         try:
             i = all_parts.index(txt)
         except:
-            print('Problem')
+            #print('Problem')
             i = len(all_parts)
         return i
 
