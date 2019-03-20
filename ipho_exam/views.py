@@ -936,6 +936,10 @@ def feedbacks_list(request, exam_id=None):
         context.update(csrf(request))
         form = FeedbackCommentForm()
         form_html = render_crispy_form(form, context=context)
+        if exam_id is None:
+            url_builder = url_builder(reverse('exam:feedbacks-list'), request.GET)
+        else:
+            url_builder = url_builder(reverse('exam:feedbacks-list', kwargs={'exam_id':exam_id}), request.GET)
         return render(
             request, 'ipho_exam/feedbacks.html', {
                 'exam_list': exam_list,
@@ -945,7 +949,7 @@ def feedbacks_list(request, exam_id=None):
                 'question': question_f,
                 'questions': questions_f,
                 'is_delegation': len(delegation) > 0 or request.user.has_perm('ipho_core.is_staff'),
-                'this_url_builder': url_builder(reverse('exam:feedbacks-list', kwargs={'exam_id':exam_id}), request.GET),
+                'this_url_builder': url_builder,
                 'form': form_html,
             }
         )
@@ -1013,7 +1017,7 @@ def feedbacks_export(request):
 
 @permission_required('ipho_core.is_staff')
 def feedbacks_export_csv(request, exam_id, question_id):
-    feedbacks = Feedback.objects.filter(
+    tmp_feedbacks = Feedback.objects.filter(
         question=question_id,
     ).annotate(
         num_likes=Sum(Case(When(like__status='L', then=1), output_field=IntegerField())),
@@ -1022,14 +1026,24 @@ def feedbacks_export_csv(request, exam_id, question_id):
         'pk', 'question__exam__name', 'question__name', 'qml_id', 'part', 'delegation__name', 'status', 'timestamp', 'comment', 'org_comment',
         'num_likes', 'num_unlikes'
     ).order_by('-timestamp')
-
+    feedbacks = []
+    for tf in tmp_feedbacks:
+        f = list(tf)
+        like_del = [d[0] for d in Delegation.objects.filter(like__status='L', like__feedback_id=f[0]).values_list('name')]
+        unlike_del = [d[0] for d in Delegation.objects.filter(like__status='U', like__feedback_id=f[0]).values_list('name')]
+        like_del_string = ', '.join(like_del)
+        unlike_del_string = ', '.join(unlike_del)
+        f.append(like_del_string)
+        f.append(unlike_del_string)
+        feedbacks.append(f)
     import csv
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="Feedbacks_E{}_{}.csv"'.format(exam_id, question_id)
 
     writer = csv.writer(response)
     writer.writerow([
-        'Id', 'Exam', 'Question', 'Qml_id', 'Part', 'Delegation', 'Status', 'Timestamp', 'Comment', 'Organizer comment', 'Num likes', 'Num unlikes'
+        'Id', 'Exam', 'Question', 'Qml_id', 'Part', 'Delegation', 'Status', 'Timestamp', 'Comment',
+        'Organizer comment', 'Num likes', 'Num unlikes', 'Like delegations', 'Unlike Delegations'
     ])
 
     for row in feedbacks:
