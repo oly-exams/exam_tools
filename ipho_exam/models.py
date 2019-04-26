@@ -472,8 +472,8 @@ class Feedback(models.Model):
         ('S', 'Submitted'),
         ('V', 'Scheduled for voting'),
         ('I', 'Implemented'),
-        ('T', 'Settled'),
-        ('R', 'Rejected'),
+        ('T', 'Settled after voting'),
+        ('W', 'Withdrawn'),
     )
     PARTS_CHOICES = (
         ('General', 'General'),
@@ -501,8 +501,10 @@ class Feedback(models.Model):
 
     delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    qml_id = models.CharField(max_length=100, default=None, null=True, blank=True)
     part = models.CharField(max_length=100, default=None)
     comment = models.TextField(blank=True)
+    org_comment = models.TextField(blank=True, null=True, default=None)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='S')
     timestamp = models.DateTimeField(auto_now=True)
 
@@ -518,7 +520,7 @@ class Feedback(models.Model):
         try:
             i = all_parts.index(txt)
         except:
-            print('Problem')
+            #print('Problem')
             i = len(all_parts)
         return i
 

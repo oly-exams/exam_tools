@@ -18,6 +18,7 @@
 
     <title>{% block head-title %}Exam Tools{% endblock %}</title>
 
+    <link href="{% static "datatables.net-bs/css/dataTables.bootstrap.min.css" %}" rel="stylesheet">
     <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
     <link href="{% static "font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
 
@@ -64,11 +65,12 @@
                   <li class="divider"></li>
                   {% endif %}
                   <li class="dropdown-header">All translations</li>
+                  <li><a href="{% url 'exam:exam-view' %}">View official english exam</a></li>
                   <li><a href="{% url 'exam:list-all' %}">View all translations</a></li>
 
                   <li class="divider"></li>
                   <li class="dropdown-header">Exam feedbacks</li>
-                  <li><a href="{% url 'exam:feedbacks-list' %}">{% if perms.ipho_core.is_delegation and not user.is_superuser %}Submit{% else %}Manage{% endif %} feedbacks</a></li>
+                  <li><a href="{% url 'exam:feedbacks-list' %}">{% if perms.ipho_core.is_delegation and not user.is_superuser %}View{% else %}Manage{% endif %} feedbacks</a></li>
 
                 </ul>
               </li>
@@ -186,9 +188,11 @@
               <p class="text-muted">Copyright © 2014 - 2019 <a href="http://oly-exams.org/">Oly Exams Team</a>. Version {{ VERSION }} - {{ VERSION_DATE }}.</p>
           </div>
       </div>
-
     <script src="{% static "jquery/js/jquery-1.11.2.min.js" %}"></script>
     <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "datatables.net/js/jquery.dataTables.min.js" %}"></script>
+    <script src="{% static "datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
+    <script src="{% static "datatables-plugins/sorting/natural.js" %}"></script>
     <script src="{% static "bootstrap-ckeditor-modal-fix.js" %}"></script>
     <script src="{% static "moment.min.js" %}"></script>
     {% block extra-script %}{% endblock %}

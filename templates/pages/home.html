@@ -101,6 +101,11 @@
                           <h4>All translations</h4>
                           <ul>
                               <li>
+                                  <a href="{% url 'exam:exam-view' %}">
+                                      View official english exam
+                                  </a>
+                              </li>
+                              <li>
                                   <a href="{% url 'exam:list-all' %}">
                                       View all translations
                                   </a>
@@ -113,7 +118,7 @@
                           <ul>
                               <li>
                                   <a href="{% url 'exam:feedbacks-list' %}">
-                                      {% if perms.ipho_core.is_delegation and not user.is_superuser %}Submit{% else %}Manage{% endif %} feedbacks
+                                      {% if perms.ipho_core.is_delegation and not user.is_superuser %}View{% else %}Manage{% endif %} feedbacks
                                   </a>
                               </li>
                           </ul>

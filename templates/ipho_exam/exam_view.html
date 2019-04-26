@@ -1,0 +1,534 @@
+{% extends "ipho_exam/base.html" %}
+{% load static %}
+{% load editor_extras %}
+
+{% block extra-head %}
+<link href="{% static "mathquill_alpha/mathquill.css" %}" rel="stylesheet">
+<link href="{% static "bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" %}" rel="stylesheet">
+<link href="{% static "noto/notosans.css" %}" rel="stylesheet">
+{% if orig_font %}
+<link href="{% static "noto/" %}{{ orig_font.css }}" rel="stylesheet">
+{% endif %}
+{% if trans_font %}
+<link href="{% static "noto/" %}{{ trans_font.css }}" rel="stylesheet">
+{% endif %}
+
+<style>
+span.dropdown {
+    display: inline-block;
+}
+.title-dropdown .btn {
+    padding: 0px 28px;
+    padding: 0;
+    font-size: 28px;
+    line-height: normal;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+}
+.btn.nohover:hover {
+  color: #333 !important;
+  background-color: #fff !important;
+  border-color: #ccc !important;
+  cursor:default !important;
+}
+
+
+
+.title-dropdown .dropdown-menu {
+    font-size: 20px;
+}
+
+.translate-original {
+    font-family: "{{ orig_font.font }}";
+}
+.translate-foreign {
+    font-family: "{{ trans_font.font }}";
+}
+
+.translation-field-nested .row {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.cke_textarea_inline {
+/*    border:1px #000 solid;*/
+}
+
+.mathquill-rendered-math .mathquill-editable {
+  min-width: 1cm;
+}
+.mathquill-editor {
+  width:6.5in;
+}
+.field-figure img {
+    max-height: 80px;
+}
+#figure-modal .modal-body img {
+    max-width: 100%;
+}
+
+.rtl {
+    direction: rtl;
+}
+
+.math-tex {
+    position: relative;
+}
+.math-tex .btn {
+    position: absolute;
+    right: 1px;
+    top: 0px;
+    opacity: 0;
+    z-index: 1000;
+}
+.math-tex:hover .btn {
+    opacity: 1;
+}
+#feedback-modal > .modal-dialog{
+  width: 90%;
+}
+
+ins {
+    color: #00f;
+    font-decoration: underline;
+    -moz-text-decoration-style: wavy;
+    -webkit-text-decoration-style: wavy;
+    text-decoration-style: wavy;
+}
+del {
+    color: #f00;
+    font-decoration: line-through;
+}
+
+body { margin-bottom: 70px; }
+</style>
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+<li class="active">View</li>
+{% endblock %}
+
+{% block pageheader %}
+{% if question %}
+  <div class="dropdown pull-right">
+    <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+  {% if exam %}
+      {{ exam.name }}
+  {% else %}
+      Select exam
+  {% endif %}
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+  {% for ex in exam_list %}
+      <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:exam-view' exam_id=ex.pk %}">{{ ex.name }}</a></li>
+  {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+<h1>Exam view</h1>
+{% endblock %}
+
+{% block exam-content %}
+  <p class="lead">
+    Use the exam view to have a look at the newest official english version of the exam and to submit feedbacks.
+  </p>
+<ul>
+    <li>Exams feedbacks are available only for a limited time, after the official presentation and before the final discussion.</li>
+    <li>Feebacks are shown to all delegations.</li>
+    <li>A list of feedbacks is available <a href="{% if question %}{% url 'exam:feedbacks-list' exam_id=exam.pk %}{% else %}{% url 'exam:feedbacks-list' %}{% endif %}">here</a>.</li>
+</ul>
+    <div class="modal fade" id="figure-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          </div>
+              <div class="modal-body text-center"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade " id="feedback-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="" id="qml_id_div"></div>
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <form method="post" action="">
+              <div class="modal-body feedback"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                {% if not perms.ipho_core.is_staff %}
+                  {% if question.feedback_active%}
+                    <button id="modal-form-submit" type="submit" class="btn btn-primary">Send feedback</button>
+                  {% endif %}
+                {% endif %}
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="alerts-container">
+        {% if warning %}
+            <div class="alert alert-warning alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <strong>Warning:</strong> {{ warning }}
+            </div>
+        {% endif %}
+    </div>
+
+
+<ul class="nav nav-tabs">
+    {% for q in exam.question_set.all %}
+        {% if q.has_published_version %}
+            <li {% if question == q %} class="active" {% endif %}>
+                <a href="{% url 'exam:exam-view' exam_id=exam.pk question_id=q.pk %}">{{ q.name }}</a>
+            </li>
+        {% endif %}
+    {% endfor %}
+</ul>
+
+{% if question %}
+
+        {% csrf_token %}
+        <input type="hidden" name="checksum" value="{{ checksum }}" />
+        <h3>{{ question.name }}</h3>
+
+        <div class="row">
+            <div class="col-xs-5">
+                <h4>Original:
+                <span class="">
+                  <a class="btn btn-default nohover" type="button" >
+                    {{ orig_lang.name }}
+                    {% if orig_lang.versioned %}<span class="badge">v{{ orig_lang.version }}</span>
+                    <span class="label label-default">{{ orig_lang.tag|default:'' }}</span>{% endif %}
+                  </a>
+                </span>
+                </h4>
+            </div>
+
+            <div class="col-sm-4 text-center">
+            </div>
+
+            <div class="col-sm-3 text-center" style="display: table-cell; vertical-align: middle;">
+              {% if not exam.hide_feedback%}
+                <button type="button" class="btn btn-sm btn-default translate-copy-button" id="global" aria-label="View feedback" title="View feedback" data-toggle="modal" data-target="#feedback-modal">
+                  View general feedback for this question
+                </button>
+              {% endif %}
+            </div>
+        </div>
+
+
+        <div class="translation-field-container">
+            {% include 'ipho_exam/exam_view_field.html' with fields_set=content_set %}
+        </div>
+{% else %}
+<div class="dropdown">
+  <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+{% if exam %}
+    {{ exam.name }}
+{% else %}
+    Select exam
+{% endif %}
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu">
+{% for ex in exam_list %}
+    <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:exam-view' exam_id=ex.pk %}">{{ ex.name }}</a></li>
+{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% endblock %}
+
+
+
+{% block extra-script %}
+
+    <script>document.getElementById('question-form').reset()</script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            showMathMenu: false,
+        });
+    </script>
+    <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="{% static "ckeditor/ckeditor.js" %}"></script>
+    <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
+    <script src="{% static "mathquill_alpha/mathquill.min.js" %}"></script>
+    <script src="{% static "jquery-dirtyforms/jquery.dirtyforms.min.js" %}"></script>
+    <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
+    <script src="{% static "moment.min.js" %}"></script>
+    <script src="{% static "bootstrap-switch/js/bootstrap-switch.min.js" %}"></script>
+    <script src="{% static "clipboard.min.js" %}"></script>
+    <script>
+        function content2math() {
+            // convert equations for mathquill
+            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
+            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
+
+            // convert equations for mathjax
+            // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
+            var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
+            $(this).html(newtext);
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
+        }
+
+        $(function(){
+            // Get csrftoken
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            var csrftoken = getCookie('csrftoken');
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+            $('[data-toggle="tooltip"]').each(function () {
+                if (navigator.platform.match("Mac")) {
+                    $(this).attr('title', $(this).attr('title').replace('ctrl', '⌘'));
+                }
+            }).tooltip();
+
+
+            function fallbackMessage(action) {
+                var actionMsg = '';
+                var actionKey = (action === 'cut' ? 'X' : 'C');
+                if (/iPhone|iPad/i.test(navigator.userAgent)) {
+                    actionMsg = 'No support :(';
+                } else if (/Mac/i.test(navigator.userAgent)) {
+                    actionMsg = 'Press ⌘-' + actionKey + ' to ' + action;
+                } else {
+                    actionMsg = 'Press Ctrl-' + actionKey + ' to ' + action;
+                }
+                return actionMsg;
+            }
+            function setTooltip(btn, message) {
+              $(btn)
+                .attr('data-original-title', message)
+                .tooltip('show');
+            }
+
+            function hideTooltip(btn) {
+              setTimeout(function() {
+                $(btn).tooltip('hide');
+              }, 1000);
+            }
+            function hideLongTooltip(btn) {
+              setTimeout(function() {
+                $(btn).tooltip('hide');
+              }, 2000);
+            }
+
+            // $('body').on('click', ':not(.math-tex *)', function (evt) {
+            //   if (evt.target != this) return;
+            //   $('.math-selected').removeClass('math-selected');
+            // });
+            // $("body").on('click', '.math-tex', function (evt) {
+            //   $('.math-selected').removeClass('math-selected');
+            //   $(this).addClass('math-selected');
+            // });
+
+
+            // Figure preview
+            $('#figure-modal').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var button = $(event.relatedTarget); // Button that triggered the modal
+
+                var href = button.attr('href');
+                if (typeof href !== typeof undefined && href !== false) {
+                  modal.find('.modal-body').html('<img src="'+href+'" />');
+                } else {
+                  var img_url = button.data('base-url');
+                  var figparams = button.data('figparams');
+                  if (Object.keys(figparams).length > 0) {
+                    fig_query = new Object;
+                    for (k in figparams) {
+                      fig_query[k] = $('#id_'+figparams[k]).val();
+                    }
+                    img_url += '?' + $.param(fig_query);
+                  }
+                  modal.find('.modal-body').html('<img src="'+img_url+'" />');
+                }
+            });
+
+            {% if exam %}
+            function update_feedback_numbers(){
+              var url = "{% url 'exam:feedback-numbers' exam_id=exam.pk question_id=question.pk%}";
+              $.ajax({
+                  method: "GET",
+                  url: url,
+              }).done(function( data ) {
+                if (data['success']) {
+                  for (key in data['numbers']){
+                    if(data['numbers'][key]>1){
+                      var ftext = 'feedbacks';
+                    }else {
+                      var ftext = 'feedback';
+                    }
+                    if(key == 'global'){
+
+                      var inner = 'View <span class="badge">'+data['numbers'][key]+'</span> global '+ftext+' for this question';
+                    }else {
+                      var inner = 'View <span class="badge">'+data['numbers'][key]+'</span> '+ftext;
+                    }
+                      $('#'+key).html(inner);
+
+                  }
+                }
+
+              });
+            }
+            update_feedback_numbers();
+
+            function update_feedback_table(data, modal){
+              var table = $('#feedback-table').DataTable({
+                stateSave: true,
+                retrieve:true,
+              });
+              table.destroy();
+              modal.find('.modal-title').html('Feedbacks');
+              modal.find('.modal-body').html(data);
+              $("time[data-format]").each(function () {
+                  var el = $(this);
+                  var dt = moment(el.attr("datetime"));
+                  el.text(dt.format(el.data("format")));
+              });
+              var table = $('#feedback-table').DataTable({
+                stateSave: true,
+                retrieve:true,
+              });
+              table.draw(false);
+              $('[data-toggle="tooltip"]').tooltip();
+            }
+
+            function load_feedbacks(modal, qml_id){
+              var url = "{% url 'exam:feedback-partial' exam_id=exam.pk question_id=question.pk%}"+"/"+qml_id;
+              modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+
+              $.ajax({
+                  url: url,
+                  data: 'GET',
+              }).done(function( data ) {
+                update_feedback_table(data, modal);
+                modal.find('#qml_id_div').removeClass()
+                modal.find('#qml_id_div').addClass(qml_id);
+              });
+            }
+            $('#feedback-modal').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var qml_id = button[0].id;
+                load_feedbacks(modal, qml_id)
+            });
+            $('#feedback-modal form').on('submit',function(evt) {
+                var form = evt.target;
+                var $form = $(form);
+                evt.preventDefault();
+                var qml_id = document.getElementById('qml_id_div').className;
+                var data = new FormData($form.get(0));
+                var url = "{% url 'exam:feedback-partial' exam_id=exam.pk question_id=question.pk%}"+"/"+qml_id;
+                $.ajax({
+                    url: url,
+                    type: form.method,
+                    data: data,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
+                        update_feedback_table(data, $('#feedback-modal'))
+                        $('#feedback-modal').scrollTop(0);
+                        update_feedback_numbers();
+                    }
+                });
+
+            });
+
+
+            $('#feedback-modal').on('click','.feedback-like', function(evt){
+              evt.preventDefault();
+              var a = evt.target;
+              if($(a).hasClass('disabled')){return false}
+              var qml_id = document.getElementById('qml_id_div').className;
+              var modal = $('#feedback-modal');
+              if($(a).is("[href]")){
+                var url = $(a).attr('href');
+              }else {
+                var url = $(a).parent().attr('href');
+              }
+              $.ajax({
+                  url: url,
+                  type: 'POST',
+                  success: function(data) {
+                      load_feedbacks(modal, qml_id);
+                  }
+              });
+              return false;
+            });
+
+            $('#feedback-modal').on('click','.feedback-status', function(evt){
+              evt.preventDefault();
+              var a = evt.target;
+              if($(a).hasClass('disabled')){return false}
+              var qml_id = document.getElementById('qml_id_div').className;
+              var modal = $('#feedback-modal');
+              if($(a).is("[href]")){
+                var url = $(a).attr('href');
+              }else {
+                var url = $(a).parent().attr('href');
+              }
+              $.ajax({
+                  url: url,
+                  type: 'POST',
+                  success: function(data) {
+                      load_feedbacks(modal, qml_id);
+                  }
+              });
+              return false;
+            });
+            {% endif %}
+            /// Saving methods
+
+
+            /// For custom dialog: https://github.com/NightOwl888/jquery.dirtyforms.dialogs.bootstrap.dist#example
+            // $.DirtyForms.dialog = {
+            //             dialogID: 'dirtyform-modal',
+            //             titleClass: 'custom-title',
+            //             messageClass: 'custom-message',
+            //             proceedButtonClass: 'custom-proceed',
+            //             stayButtonClass: 'custom-stay'
+            //         }
+        });
+
+    </script>
+
+{% endblock %}
