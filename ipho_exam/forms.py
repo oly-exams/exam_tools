@@ -275,7 +275,7 @@ class FeedbackForm(ModelForm):
         self.helper.form_show_labels = True
         self.form_tag = False
         self.helper.disable_csrf = True
-
+        self.fields['comment'].required = True
     class Meta(object):
         model = Feedback
         fields = ['comment']
