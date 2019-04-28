@@ -33,7 +33,7 @@ EVENT_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, 'events', 'demo')
 
 SITE_URL = 'http://127.0.0.1:8000'
 
-VERSION = '2.1.0'
+VERSION = '3.0.0'
 
 try:
     GIT_HEAD_DATE = str(subprocess.check_output(["git", "log", "-1", "--date=short", "--pretty=format:%ci"]),
