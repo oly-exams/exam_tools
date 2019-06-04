@@ -286,12 +286,22 @@ def add_translation(request, exam_id):
     should_forbid = ExamAction.require_in_progress(ExamAction.TRANSLATION, exam=exam, delegation=delegation)
     if should_forbid is not None:
         return should_forbid
-
-    num_questions = exam.question_set.count()
+    en_answer = getattr(settings, 'ONLY_OFFICIAL_ANSWER_SHEETS', False)
+    if en_answer:
+        num_questions = exam.question_set.exclude(type=Question.ANSWER).count()
+    else:
+        num_questions = exam.question_set.count()
     translation_form = TranslationForm(request.POST or None)
+
+    if en_answer:
+        answer_Q = Q(translationnode__question__type=Question.ANSWER)
+    else:
+        answer_Q = Q(pk=None)
+
     translation_form.fields['language'].queryset = Language.objects.filter(delegation=delegation).annotate(
         num_translation=Sum(
             Case(
+                When(answer_Q, then=None),
                 When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
                 When(is_pdf=True, then=None),
                 output_field=IntegerField(),
@@ -309,7 +319,10 @@ def add_translation(request, exam_id):
     ).filter(Q(num_translation__lt=num_questions) | Q(num_pdf__lt=num_questions))
     if translation_form.is_valid():
         failed_questions = []
-        for question in exam.question_set.exclude(translationnode__language=translation_form.cleaned_data['language']):
+        questions = exam.question_set.exclude(translationnode__language=translation_form.cleaned_data['language'])
+        if en_answer:
+            questions = questions.exclude(type=Question.ANSWER)
+        for question in questions:
             if translation_form.cleaned_data['language'].is_pdf:
                 node, _ = PDFNode.objects.get_or_create(
                     language=translation_form.cleaned_data['language'], question=question, defaults={'status': 'O'}
@@ -1837,12 +1850,21 @@ def submission_exam_list(request):
     return render(request, 'ipho_exam/submission_list.html', {'exams_open': exams_open, 'exams_closed': exams_closed})
 
 
-def _get_submission_languages(exam, delegation):
+def _get_submission_languages(exam, delegation, count_answersheets=True):
     """Returns the languages which are valid for submission."""
-    num_questions = exam.question_set.count()
+    if count_answersheets:
+        num_questions = exam.question_set.count()
+        exclude_translation_Q = Q(pk=None)
+    else:
+        num_questions = exam.question_set.exclude(type=Question.ANSWER).count()
+        num_questions_tot = exam.question_set.count()
+        exclude_translation_Q = Q(translationnode__question__type=Question.ANSWER)
+
+
     return Language.objects.all().annotate(
         num_translation=Sum(
             Case(
+                When(exclude_translation_Q, then=None),
                 When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
                 When(is_pdf=True, then=None),
                 output_field=IntegerField(),
@@ -1942,8 +1964,12 @@ def print_submissions_translation(request):
 def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    num_questions = exam.question_set.count()
-    languages = _get_submission_languages(exam, delegation)
+    en_answer = getattr(settings, 'ONLY_OFFICIAL_ANSWER_SHEETS', False)
+    if en_answer:
+        num_questions = exam.question_set.exclude(type=Question.ANSWER).count()
+    else:
+        num_questions = exam.question_set.count()
+    languages = _get_submission_languages(exam, delegation, not en_answer)
     ex_submission, _ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
     if ex_submission.status == ExamAction.SUBMITTED and not settings.DEMO_MODE:
         return HttpResponseRedirect(reverse('exam:submission-exam-submitted', args=(exam.pk, )))
@@ -1951,18 +1977,28 @@ def submission_exam_assign(request, exam_id):
     submission_forms = []
     all_valid = True
     with_errors = False
+
+    if en_answer:
+        lang_id = OFFICIAL_LANGUAGE
+        answer_sheet_language = get_object_or_404(Language, id=lang_id)
+    else:
+        answer_sheet_language = None
+
+    #set forms for all students
     for stud in delegation.student_set.all():
         stud_langs = StudentSubmission.objects.filter(student=stud, exam=exam).values_list('language', flat=True)
+        stud_question_langs = stud_langs.filter(with_question=True)
         try:
-            stud_main_lang_obj = StudentSubmission.objects.get(student=stud, exam=exam, with_answer=True)
-            stud_main_lang = stud_main_lang_obj.language
+            stud_answer_lang_obj = StudentSubmission.objects.get(student=stud, exam=exam, with_answer=True)
+            stud_answer_lang = stud_answer_lang_obj.language
         except StudentSubmission.DoesNotExist:
-            stud_main_lang = None
+            stud_answer_lang = None
         form = AssignTranslationForm(
             request.POST or None,
             prefix='stud-{}'.format(stud.pk),
             languages_queryset=languages,
-            initial=dict(languages=stud_langs, main_language=stud_main_lang)
+            answer_language=answer_sheet_language,
+            initial=dict(languages=stud_question_langs, answer_language=stud_answer_lang)
         )
         all_valid = all_valid and form.is_valid()
         with_errors = with_errors or form.errors
@@ -1974,17 +2010,22 @@ def submission_exam_assign(request, exam_id):
             current_langs = []
             ## Modify the with_answer status and delete unused submissions
             for ss in StudentSubmission.objects.filter(student=stud, exam=exam):
-                if ss.language in form.cleaned_data['languages']:
-                    ss.with_answer = (form.cleaned_data['main_language'] == ss.language)
+                if (ss.language in form.cleaned_data['languages']) or (ss.language == form.cleaned_data['answer_language']):
+                    ss.with_answer = (form.cleaned_data['answer_language'] == ss.language)
+                    ss.with_question = (ss.language in form.cleaned_data['languages'])
                     ss.save()
                     current_langs.append(ss.language)
                 else:
                     ss.delete()
             ## Insert new submissions
-            for lang in form.cleaned_data['languages']:
+            for lang in set(list(form.cleaned_data['languages'].all()) + [form.cleaned_data['answer_language'], ] ):
                 if lang in current_langs: continue
-                with_answer = (form.cleaned_data['main_language'] == lang)
-                ss = StudentSubmission(student=stud, exam=exam, language=lang, with_answer=with_answer)
+                with_answer = (form.cleaned_data['answer_language'] == lang)
+                with_question = (ss.language in form.cleaned_data['languages'])
+                ss = StudentSubmission(student=stud, exam=exam, language=lang,
+                                       with_answer=with_answer,
+                                       with_question=with_question
+                                       )
                 ss.save()
 
         ## Generate PDF compilation
@@ -2011,9 +2052,14 @@ def submission_exam_assign(request, exam_id):
         ## Return
         return HttpResponseRedirect(reverse('exam:submission-exam-confirm', args=(exam.pk, )))
 
+    if en_answer:
+        answer_Q = Q(translationnode__question__type=Question.ANSWER)
+    else:
+        answer_Q = Q(pk=None)
     empty_languages = Language.objects.filter(delegation=delegation).annotate(
         num_translation=Sum(
             Case(
+                When(answer_Q, then=None),
                 When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
                 When(is_pdf=True, then=None),
                 output_field=IntegerField(),
@@ -2038,6 +2084,8 @@ def submission_exam_assign(request, exam_id):
             'empty_languages': empty_languages,
             'submission_forms': submission_forms,
             'with_errors': with_errors,
+            'no_answer_language': en_answer,
+            'answer_language':str(answer_sheet_language),
         }
     )
 
@@ -2047,7 +2095,9 @@ def submission_exam_confirm(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     num_questions = exam.question_set.count()
     delegation = Delegation.objects.get(members=request.user)
-    languages = _get_submission_languages(exam, delegation)
+    en_answer = getattr(settings, 'ONLY_OFFICIAL_ANSWER_SHEETS', False)
+    languages = _get_submission_languages(exam, delegation, not en_answer)
+
     form_error = ''
 
     ex_submission, _ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
@@ -2109,10 +2159,14 @@ def submission_exam_confirm(request, exam_id):
 
     student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
     for sl in student_languages:
-        if sl.with_answer:
+        if sl.with_answer and sl.with_question:
+            assigned_student_language[sl.student][sl.language] = 'QA'
+        elif sl.with_question:
+            assigned_student_language[sl.student][sl.language] = 'Q'
+        elif sl.with_answer:
             assigned_student_language[sl.student][sl.language] = 'A'
         else:
-            assigned_student_language[sl.student][sl.language] = 'Q'
+            assigned_student_language[sl.student][sl.language] = ''
 
     return render(
         request, 'ipho_exam/submission_confirm.html', {
@@ -2124,6 +2178,7 @@ def submission_exam_confirm(request, exam_id):
             'submission_status': ex_submission.status,
             'students_languages': assigned_student_language,
             'form_error': form_error,
+            'fixed_answer_language': en_answer,
         }
     )
 
@@ -2132,7 +2187,8 @@ def submission_exam_confirm(request, exam_id):
 def submission_exam_submitted(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    languages = _get_submission_languages(exam, delegation)
+    en_answer = getattr(settings, 'ONLY_OFFICIAL_ANSWER_SHEETS', False)
+    languages = _get_submission_languages(exam, delegation, not en_answer)
 
     ex_submission, _ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.TRANSLATION)
 
@@ -2145,10 +2201,14 @@ def submission_exam_submitted(request, exam_id):
 
     student_languages = StudentSubmission.objects.filter(exam=exam, student__delegation=delegation)
     for sl in student_languages:
-        if sl.with_answer:
+        if sl.with_answer and sl.with_question:
+            assigned_student_language[sl.student][sl.language] = 'QA'
+        elif sl.with_question:
+            assigned_student_language[sl.student][sl.language] = 'Q'
+        elif sl.with_answer:
             assigned_student_language[sl.student][sl.language] = 'A'
         else:
-            assigned_student_language[sl.student][sl.language] = 'Q'
+            assigned_student_language[sl.student][sl.language] = ''
 
     documents = Document.objects.filter(exam=exam, student__delegation=delegation).order_by('student', 'position')
     stud_documents = {k: list(g) for k, g in itertools.groupby(documents, key=lambda d: d.student.pk)}
@@ -2176,6 +2236,7 @@ def submission_exam_submitted(request, exam_id):
             'submission_status': ex_submission.status,
             'students_languages': assigned_student_language,
             'msg':msg,
+            'fixed_answer_language': en_answer,
         }
     )
 

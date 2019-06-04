@@ -153,6 +153,9 @@ class Question(models.Model):
     def is_answer_sheet(self):
         return self.type == self.ANSWER
 
+    def is_question_sheet(self):
+        return self.type == self.QUESTION
+
     def exam_name(self):
         return self.exam.name
 
@@ -612,6 +615,7 @@ class StudentSubmission(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    with_question = models.BooleanField(default=True, help_text='Deliver question sheets.')
     with_answer = models.BooleanField(default=False, help_text='Deliver also answer sheet.')
 
     ## TODO: do we need a status? (in progress, submitted, printed)

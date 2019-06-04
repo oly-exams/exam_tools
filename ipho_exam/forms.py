@@ -307,28 +307,40 @@ class SubmissionAssignForm(ModelForm):
 
     class Meta(object):
         model = StudentSubmission
-        fields = ['student', 'language', 'with_answer']
+        fields = ['student', 'language', 'with_question', 'with_answer']
 
 
 class AssignTranslationForm(forms.Form):
     languages = forms.ModelMultipleChoiceField(
         queryset=Language.objects.none(), widget=forms.widgets.CheckboxSelectMultiple
     )
-    main_language = forms.ModelChoiceField(queryset=Language.objects.none(), widget=forms.widgets.RadioSelect)
+    answer_language = forms.ModelChoiceField(queryset=Language.objects.none(), widget=forms.widgets.RadioSelect)
 
     def __init__(self, *args, **kwargs):
         languages_queryset = kwargs.pop('languages_queryset')
+        answer_lang = kwargs.pop('answer_language', None)
         super(AssignTranslationForm, self).__init__(*args, **kwargs)
         self.fields['languages'].queryset = languages_queryset
-        self.fields['main_language'].queryset = languages_queryset
+        if answer_lang is not None:
+            self.fields.pop('answer_language')
+            self.answer_language = answer_lang
+        else:
+            self.answer_language = None
+            self.fields['answer_language'].queryset = languages_queryset
+
 
     def clean(self):
         cleaned_data = super(AssignTranslationForm, self).clean()
         languages = cleaned_data.get("languages")
-        main_language = cleaned_data.get("main_language")
-        if languages and main_language and main_language not in languages:
-            msg = "Answer language not enabled."
-            self.add_error('languages', msg)
+        if self.answer_language is None:
+            answer_language = cleaned_data.get("answer_language")
+            if languages and answer_language and answer_language not in languages:
+                msg = "Answer language not enabled."
+                self.add_error('languages', msg)
+        else:
+            self.cleaned_data['answer_language'] = self.answer_language
+
+
 
 
 ## ungly hack to propagate `languages_queryset` attribute to form construction

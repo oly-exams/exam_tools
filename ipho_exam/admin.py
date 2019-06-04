@@ -122,7 +122,7 @@ class CompiledFigureAdmin(admin.ModelAdmin):
 
 
 class StudentSubmissionAdmin(admin.ModelAdmin):
-    list_display = ('exam', 'student', 'language', 'with_answer')
+    list_display = ('exam', 'student', 'language', 'with_question', 'with_answer')
     list_filter = ('exam', 'language')
 
 

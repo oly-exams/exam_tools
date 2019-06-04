@@ -30,6 +30,7 @@ print("Static:", STATIC_PATH, file=sys.stderr)
 
 DEBUG = True
 #TEMPLATE_DEBUG = DEBUG
+ONLY_OFFICIAL_ANSWER_SHEETS = False
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
