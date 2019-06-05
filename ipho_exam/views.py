@@ -2021,7 +2021,7 @@ def submission_exam_assign(request, exam_id):
             for lang in set(list(form.cleaned_data['languages'].all()) + [form.cleaned_data['answer_language'], ] ):
                 if lang in current_langs: continue
                 with_answer = (form.cleaned_data['answer_language'] == lang)
-                with_question = (ss.language in form.cleaned_data['languages'])
+                with_question = (lang in form.cleaned_data['languages'])
                 ss = StudentSubmission(student=stud, exam=exam, language=lang,
                                        with_answer=with_answer,
                                        with_question=with_question
