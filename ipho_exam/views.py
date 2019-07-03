@@ -721,7 +721,7 @@ def feedback_partial(request, exam_id, question_id, qml_id='', orig_id=OFFICIAL_
             question=question, language=orig_lang, status='C'
         ).order_by('-version')[0]
         qml_root = qml.make_qml(node)
-        part = 'Introduction'
+        part = '1'
         if qml_root.has_children:
             found = False
             part_count = 0
@@ -738,11 +738,8 @@ def feedback_partial(request, exam_id, question_id, qml_id='', orig_id=OFFICIAL_
                     if q.tag == 'part':
                         part_count += 1
                         print('part_count: ',part_count)
-                        if part_count == 1:
-                            part = 'Introduction'
-                        else:
-                            part = chr(ord('A')+part_count-2)
-
+                        #part = chr(ord('A')+part_count-1)
+                        part = str(part_count)
                     if q.id == qml_id or (q.find(qml_id) is not None):
                         found = True
                         break
@@ -831,7 +828,6 @@ def feedback_numbers(request, exam_id, question_id):
             numbers[f.qml_id] += 1
         else:
             numbers[f.qml_id] = 1
-
     return JsonResponse({'success': True,'numbers':numbers})
 
 @login_required
