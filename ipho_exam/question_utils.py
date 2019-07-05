@@ -37,6 +37,7 @@ import ipho_exam
 from ipho_exam import tasks
 import celery
 from celery.result import AsyncResult
+import os
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
