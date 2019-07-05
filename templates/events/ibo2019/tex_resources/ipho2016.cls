@@ -63,7 +63,7 @@
 }
 
 %Definitions
-\definecolor{color1}{rgb}{0,0,.7}
+\definecolor{color1}{rgb}{0,0,0}
 
 %Commands
 
