@@ -373,8 +373,6 @@ def closeQuestion(request, question_pk):
 @ensure_csrf_cookie
 def voterIndex(request, err_id=None):
     user = request.user
-    if len(user.votingright_set.all()) <= 0:
-        raise PermissionDenied
     unvoted_questions_list = Question.objects.not_voted_upon_by(user)
     formset_html_dict = {}
     just_voted = ()
