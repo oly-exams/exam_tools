@@ -430,7 +430,7 @@ class AdminBlockForm(forms.Form):
 class PrintDocsForm(forms.Form):
     queue = forms.ChoiceField(choices=[], label='Print queue to use')
     duplex = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('DuplexNoTumble', 'Yes')])
-    color = forms.ChoiceField(initial='Colour', choices=[('Colour', 'Yes'), ('Grayscale', 'No')])
+    color = forms.ChoiceField(initial='Colour', choices=[('CMYK', 'Yes'), ('Gray', 'No')])
     staple = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('1PLU', 'Yes')])
     copies = forms.IntegerField(initial=1, min_value=1, max_value=10)
     def __init__(self, *args, **kwargs):
@@ -458,7 +458,7 @@ class PrintDocsForm(forms.Form):
         allowed_opts = printer.allowed_opts(queue)
         opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
         for k in opts_map:
-            if cleaned_data.get(k) not in ['None', 'Grayscale']:
+            if cleaned_data.get(k) not in ['None', 'Gray']:
                 if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
                     msg = 'The current printer does not support this option.'
                     self.add_error(k, msg)

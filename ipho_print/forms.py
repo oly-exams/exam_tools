@@ -43,7 +43,7 @@ class PrintForm(forms.Form):
     file = forms.FileField(validators=[build_extension_validator(['.pdf'])], label='PDF document to print')
     queue = forms.ChoiceField(choices=[], label='Print queue to use')
     duplex = forms.ChoiceField(required=False, initial='None', choices=[('None', 'No'), ('DuplexNoTumble', 'Yes')])
-    color = forms.ChoiceField(required=False, initial='Colour', choices=[('Colour', 'Yes'), ('Grayscale', 'No')])
+    color = forms.ChoiceField(required=False, initial='Colour', choices=[('CMYK', 'Yes'), ('Gray', 'No')])
     staple = forms.ChoiceField(required=False, initial='None', choices=[('None', 'No'), ('1PLU', 'Yes')])
 
     def __init__(self, *args, **kwargs):
@@ -84,7 +84,7 @@ class PrintForm(forms.Form):
         allowed_opts = printer.allowed_opts(queue)
         opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
         for k in opts_map:
-            if cleaned_data.get(k) not in ['None', 'Grayscale']:
+            if cleaned_data.get(k) not in ['None', 'Gray']:
 
                 if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
                     if self.enable_opts:
