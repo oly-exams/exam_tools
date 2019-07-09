@@ -140,7 +140,7 @@ def add_barcode(doc, bgenerator):
         pwidth = pbox.getWidth()
 
         scale = 1.5  # size of the QR code (scaling factor)
-        yshift = 10  # distance from page top
+        yshift = -25  # distance from page top
         x = float(pbox.getUpperLeft_x()) + (float(pwidth) - float(wwidth) * scale) / 2
         y = float(pbox.getUpperLeft_y()) - float(wbox.getHeight()) * scale - yshift
 
