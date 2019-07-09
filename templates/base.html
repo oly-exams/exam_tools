@@ -75,7 +75,7 @@
                 </ul>
               </li>
 
-              {% if perms.ipho_core.is_delegation and not user.is_superuser %}
+              {% if perms.ipho_core.is_delegation and not user.is_superuser and False%}
               <li><a href="{% url 'marking:delegation-summary' %}">Results</a></li>
               {% endif %}
               {% if perms.ipho_core.can_vote and not user.is_superuser %}
