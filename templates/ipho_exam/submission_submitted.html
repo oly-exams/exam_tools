@@ -27,10 +27,14 @@ The exams will be printed shortly. Below you can see the final version that has 
 {% endblock %}
 
 {% block exam-submission-content %}
+    {% if no_answer %}
+      <p><i class="fa fa-check"></i> translation selected for delivery.</p>
+    {% else %}
     {% if fixed_answer_language %}
       <p><i class="fa fa-check"></i> translation selected for delivery, <i class="fa fa-check"></i><i class="fa fa-check"></i> translation selected for delivery with answer sheets, <b>A</b> only answer sheets selected for delivery.</p>
     {% else %}
       <p><i class="fa fa-check"></i> translation selected for delivery, <i class="fa fa-check"></i><i class="fa fa-check"></i> translation selected for delivery with answer sheets.</p>
+    {% endif %}
     {% endif %}
     <table class="table table-striped">
         <tr>

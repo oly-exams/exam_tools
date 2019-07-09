@@ -1960,6 +1960,7 @@ def print_submissions_translation(request):
 def submission_exam_assign(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
+    no_answer = getattr(settings, 'NO_ANSWER_SHEETS', False)
     en_answer = getattr(settings, 'ONLY_OFFICIAL_ANSWER_SHEETS', False)
     if en_answer:
         num_questions = exam.question_set.exclude(type=Question.ANSWER).count()
@@ -1974,7 +1975,7 @@ def submission_exam_assign(request, exam_id):
     all_valid = True
     with_errors = False
 
-    if en_answer:
+    if en_answer or no_answer:
         lang_id = OFFICIAL_LANGUAGE
         answer_sheet_language = get_object_or_404(Language, id=lang_id)
     else:
@@ -2080,6 +2081,7 @@ def submission_exam_assign(request, exam_id):
             'empty_languages': empty_languages,
             'submission_forms': submission_forms,
             'with_errors': with_errors,
+            'no_answer': no_answer,
             'no_answer_language': en_answer,
             'answer_language':str(answer_sheet_language),
         }
@@ -2091,6 +2093,7 @@ def submission_exam_confirm(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     num_questions = exam.question_set.count()
     delegation = Delegation.objects.get(members=request.user)
+    no_answer = getattr(settings, 'NO_ANSWER_SHEETS', False)
     en_answer = getattr(settings, 'ONLY_OFFICIAL_ANSWER_SHEETS', False)
     languages = _get_submission_languages(exam, delegation, not en_answer)
 
@@ -2174,6 +2177,7 @@ def submission_exam_confirm(request, exam_id):
             'submission_status': ex_submission.status,
             'students_languages': assigned_student_language,
             'form_error': form_error,
+            'no_answer': no_answer,
             'fixed_answer_language': en_answer,
         }
     )
@@ -2183,6 +2187,7 @@ def submission_exam_confirm(request, exam_id):
 def submission_exam_submitted(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
+    no_answer = getattr(settings, 'NO_ANSWER_SHEETS', False)
     en_answer = getattr(settings, 'ONLY_OFFICIAL_ANSWER_SHEETS', False)
     languages = _get_submission_languages(exam, delegation, not en_answer)
 
@@ -2232,6 +2237,7 @@ def submission_exam_submitted(request, exam_id):
             'submission_status': ex_submission.status,
             'students_languages': assigned_student_language,
             'msg':msg,
+            'no_answer': no_answer,
             'fixed_answer_language': en_answer,
         }
     )
