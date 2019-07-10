@@ -12,7 +12,7 @@
     {% if field.original != None %}
         <div class="row">
             <div class="col-xs-5">
-                <div class="translate-original {% if orig_lang.direction == 'rtl' %}rtl{% endif %}" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
+                <div class="translate-original{% if orig_lang.direction == 'rtl' %} rtl{% endif %}" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
                     {{ field.original_html|safe }}
                 </div>
             </div>
