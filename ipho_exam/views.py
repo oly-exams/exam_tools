@@ -2128,7 +2128,8 @@ def submission_exam_confirm(request, exam_id):
                 drawn = random.random()
                 total_countries = remaining_countries + submitted_countries
                 import math
-                threshold = math.sqrt(submitted_countries/total_countries) #about 30 portions for 100 delegations
+                power = getattr(settings, 'RANDOM_DRAW_SUB_POWER', 0.1)
+                threshold = math.pow(submitted_countries/total_countries, power)
                 draw_exists = RandomDrawLog.objects.filter(delegation=delegation, tag=str(exam.pk)).exists()
                 if drawn > threshold and not draw_exists:
                     RandomDrawLog(delegation=delegation, tag=str(exam.pk)).save()

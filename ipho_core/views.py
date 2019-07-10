@@ -302,7 +302,7 @@ def chocobunny(request):
             elif 'received' in statuses:
                 message = 'Wait.. you already collected your chocolate.'
             else:
-                message = '404...Easter not found, pleas contact your local Pope.'
+                message = '404...Easter not found, please contact your local Pope.'
         else:
             message = "Wait.. you didn't actually win! This incident will be reported!!"
     return render(request, 'ipho_core/bunny.html', {'name': name, 'message': message})
