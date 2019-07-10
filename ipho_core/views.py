@@ -294,7 +294,7 @@ def chocobunny(request):
         name = delegation.country
         if RandomDrawLog.objects.filter(delegation=delegation).exists():
             draw_logs = RandomDrawLog.objects.filter(delegation=delegation)
-            statuses = [s.lower() for s in draw_logs.values_list('status')]
+            statuses = [s[0].lower() for s in draw_logs.values_list('status')]
             if delegation.country.lower() == 'switzerland':
                 message = 'Bring the cholocate to the OlyExams desk!'
             elif 'pending' in statuses:
