@@ -19,7 +19,7 @@ from builtins import object
 from django.contrib import admin
 from django import forms
 import json
-from ipho_exam.models import Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, Place, AttributeChange
+from ipho_exam.models import Delegation, Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, Place, AttributeChange
 from django_ace import AceWidget
 
 # Register your models here.
@@ -121,9 +121,27 @@ class CompiledFigureAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'params')
 
 
+class DelegationFilter(admin.SimpleListFilter):
+    title = 'delegation'
+    parameter_name = 'delegation'
+
+    def lookups(self, request, model_admin):
+        return ((d.name, d) for d in Delegation.objects.all())
+
+    def queryset(self, request, queryset):
+        value = self.value()
+
+        if value is None:
+            return queryset.order_by('student')
+        return queryset.filter(language__delegation__name=value).order_by('student')
+
+
 class StudentSubmissionAdmin(admin.ModelAdmin):
-    list_display = ('exam', 'student', 'language', 'with_answer')
-    list_filter = ('exam', 'language')
+    list_display = ('exam', 'student', 'delegation', 'language', 'with_answer')
+    list_filter = ('exam', DelegationFilter, 'language')
+
+    def delegation(self, obj):
+        return obj.language.delegation
 
 
 class PlaceAdmin(admin.ModelAdmin):
