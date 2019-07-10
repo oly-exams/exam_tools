@@ -2871,6 +2871,8 @@ def bulk_print(request, page=None, tot_print=None):
     except EmptyPage:
         docs_list = paginator.page(paginator.num_pages)
 
+    entries = paginator.count
+
     class url_builder(object):
         def __init__(self, base_url, get={}):
             self.url = base_url
@@ -2895,6 +2897,7 @@ def bulk_print(request, page=None, tot_print=None):
             'exam': exam,
             'delegations': delegations,
             'delegation': delegation,
+            'entries': entries,
             'exclude_gi': exclude_gi,
             'scan_status_options': scan_status_options,
             'scan_status': scan_status,

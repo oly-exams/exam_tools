@@ -27,6 +27,8 @@ View and print individual documents, or select and print in bulk.
 This list shows only documents that have been submitted by the delegations.
 </p>
 
+<p> Number of entries: {{ entries }} </p>
+
 <div id="alerts-container">
 {% for class, msg in messages %}
 <div class="alert {{ class }} alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>{{ msg|safe }}</div>
@@ -154,6 +156,7 @@ This list shows only documents that have been submitted by the delegations.
     <form method="POST">
     <table class="table table-striped">
       <tr>
+		  <th></th>
           <th>Exam</th>
           <th>#</th>
           <th>Student</th>
@@ -167,6 +170,7 @@ This list shows only documents that have been submitted by the delegations.
       <tbody>
         {% for d in docs_list %}
           <tr>
+			<td>{{ d.pk }} </td>
             <td>{{ d.exam__name }}</td>
             <td>{{ d.position }}</td>
             <td>{{ d.student__code }}</td>
