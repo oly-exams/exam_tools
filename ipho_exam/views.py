@@ -2008,7 +2008,10 @@ def submission_exam_assign(request, exam_id):
             ## Modify the with_answer status and delete unused submissions
             for ss in StudentSubmission.objects.filter(student=stud, exam=exam):
                 if (ss.language in form.cleaned_data['languages']) or (ss.language == form.cleaned_data['answer_language']):
-                    ss.with_answer = (form.cleaned_data['answer_language'] == ss.language)
+                    if no_answer:
+                        ss.with_answer = False
+                    else:
+                        ss.with_answer = (form.cleaned_data['answer_language'] == ss.language)
                     ss.with_question = (ss.language in form.cleaned_data['languages'])
                     ss.save()
                     current_langs.append(ss.language)
@@ -2017,7 +2020,10 @@ def submission_exam_assign(request, exam_id):
             ## Insert new submissions
             for lang in set(list(form.cleaned_data['languages'].all()) + [form.cleaned_data['answer_language'], ] ):
                 if lang in current_langs: continue
-                with_answer = (form.cleaned_data['answer_language'] == lang)
+                if no_answer:
+                    with_answer = False
+                else:
+                    with_answer = (form.cleaned_data['answer_language'] == lang)
                 with_question = (lang in form.cleaned_data['languages'])
                 ss = StudentSubmission(student=stud, exam=exam, language=lang,
                                        with_answer=with_answer,
