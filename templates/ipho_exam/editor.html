@@ -562,12 +562,15 @@ body { margin-bottom: 70px; }
               }, 2000);
             }
 
-            $('.translate-original .math-tex').each(function () {
-                var content = $(this).html();
-                $(this).prepend('<button class="btn btn-xs btn-default small" data-clipboard-snippet><i class="fa fa-clipboard" aria-hidden="true"></i></button>').children('[data-clipboard-snippet]').attr('data-clipboard-text', '<span class="math-tex">'+content+'</span>').tooltip({
-                    trigger: 'click',
-                    placement: 'bottom'
-                });
+            $(document).ready(function () {
+              $('.translate-original .math-tex').each(function () {
+                  console.log('before button');
+                  var content = $(this).html();
+                  $(this).prepend('<button class="btn btn-xs btn-default small" data-clipboard-snippet><i class="fa fa-clipboard" aria-hidden="true"></i></button>').children('[data-clipboard-snippet]').attr('data-clipboard-text', '<span class="math-tex">'+content+'</span>').tooltip({
+                      trigger: 'click',
+                      placement: 'bottom'
+                  });
+              });
             });
 
             var clipboard = new Clipboard('.btn[data-clipboard-snippet]', {
