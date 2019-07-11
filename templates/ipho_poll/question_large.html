@@ -56,6 +56,30 @@
             <div class="jumbotron">
                 <p>{{ question.content|safe }}</p>
             </div>
+            {% if display_remaining_users %}
+            {% if remaining_users_to_vote %}
+            {% if status == 'open' %}
+            <h2>Still waiting for:</h2>
+            {% else %}
+            <h2>Did not vote:</h2>
+            {% endif %}
+            <table class="table table-condensed">
+                {% for row in remaining_users_to_vote %}
+                <tr>
+                    {% for row_username in row %}
+                    {% if row_username %}
+                    <td>{{ row_username }}</td>
+                    {% else %}
+                    <td></td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <h2>Everyone voted!</h2>
+            {% endif %}
+            {% endif %}
 
 
         </div>

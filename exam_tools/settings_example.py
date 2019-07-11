@@ -32,6 +32,7 @@ DEBUG = True
 #TEMPLATE_DEBUG = DEBUG
 NO_ANSWER_SHEETS = False
 ONLY_OFFICIAL_ANSWER_SHEETS = False
+VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
