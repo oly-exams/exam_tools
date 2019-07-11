@@ -52,6 +52,8 @@ urlpatterns = [
         name='import-translation-confirm'
     ),
     url(r'^translation/all/?$', views.list_all_translations, name='list-all'),
+    url(r'^auto-translate$', views.auto_translate, name='auto-translate'),
+
     url(r'^languages/?$', views.list_language, name='language-list'),
     url(r'^languages/add$', views.add_language, name='language-add'),
     url(r'^languages/edit/(?P<lang_id>\d+)$', views.edit_language, name='language-edit'),

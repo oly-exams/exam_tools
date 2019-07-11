@@ -335,6 +335,19 @@ class TranslationImportTmp(models.Model):
     def __str__(self):
         return u'%s - %s, %s' % (self.slug, self.question, self.language)
 
+@python_2_unicode_compatible
+class CachedAutoTranslation(models.Model):
+    source_and_lang_hash = models.BinaryField(max_length=16, primary_key=True)
+    source_length = models.IntegerField()
+    source_lang = models.CharField(max_length=5)
+    target_lang = models.CharField(max_length=5)
+    target_text = models.TextField(blank=True)
+    hits = models.IntegerField(default=1)
+
+    def __str__(self):
+        return u'{} -> {} ({})'.format(self.source_lang, self.target_lang, self.source_len)
+
+
 
 VALID_RAW_FIGURE_EXTENSIONS = ('.png', '.jpg', '.jpeg')
 VALID_COMPILED_FIGURE_EXTENSIONS = ('.svg', '.svgz')

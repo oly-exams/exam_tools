@@ -58,7 +58,7 @@ from pywebpush import WebPushException
 from django.conf import settings
 from ipho_core.views import any_permission_required
 from ipho_core.models import Delegation, Student, RandomDrawLog
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, CompiledFigure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog, Place
+from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, CompiledFigure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, PrintLog, Place, CachedAutoTranslation
 from ipho_exam.models import VALID_RAW_FIGURE_EXTENSIONS, VALID_COMPILED_FIGURE_EXTENSIONS, VALID_FIGURE_EXTENSIONS
 from ipho_exam import qml, tex, pdf, iphocode, qquery, fonts, cached_responses, question_utils
 from ipho_exam.response import render_odt_response
@@ -2500,6 +2500,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context['trans_extra_html'] = trans_extra_html
     context['last_saved'] = last_saved
     context['checksum'] = checksum
+    context['auto_translate_languages'] = ['a', 'b', 'loooooooooooooooong language']
+    context['auto_translate'] = True
     if context['orig_lang']:
         context['orig_font'] = fonts.ipho[context['orig_lang'].font]
     if context['trans_lang']:
@@ -2561,6 +2563,43 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         return cached_responses.compile_tex(request, body, ext_resources, filename)
     except pdf.TexCompileException as e:
         return HttpResponse(e.log, content_type="text/plain")
+
+@login_required
+def auto_translate(request):
+    if request.method == 'POST':
+        to_lang = request.POST['to_lang']
+        raw_text = request.POST['text']
+        if not raw_text.strip():
+            return JsonResponse({'text':raw_text})
+        from_lang_pk = request.POST['from_lang']
+        from_lang_obj = Language.objects.get(pk=from_lang_pk)
+        from_lang_obj.polyglossia## TODO: map to google from_languages
+        from_lang = '' # TODO:
+        text = raw_text ## DEBUG: for now, maybe escape math later on
+        source_len = len(text)
+        delegation = Delegation.objects.filter(members=request.user).first()
+        if delegation is not None:
+            delegation.auto_translate_char_count += source_len
+            delegation.save()
+        hash = hashlib.md5((from_lang + to_lang + text).encode('utf-8')).digest()
+        cachedtr = CachedAutoTranslation.objects.filter(source_and_lang_hash=hash).first()
+        if chachedtr is not None:
+            cachedtr.hits += 1
+            cachedtr.save()
+            raw_translated_text = cachedtr.target_text
+        else:
+            raw_translated_text = '' # TODO: translate using API
+            cachedtr = CachedAutoTranslation()
+            cachedtr.source_and_lang_hash = hash
+            cachedtr.source_length = source_len
+            cachedtr.source_lang = from_lang
+            cachedtr.target_lang = to_lang
+            cachedtr.target_text = raw_translated_text
+            cachedtr.save()
+        translated_text = raw_translated_text ## DEBUG: maybe change later  (math escape ?)
+        return JsonResponse({'text':translated_text})
+    else:
+        return HttpResponseForbidden('Nothing to see here!')
 
 
 @permission_required('ipho_core.is_staff')

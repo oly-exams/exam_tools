@@ -172,7 +172,7 @@ body { margin-bottom: 70px; }
  Copy all</h4>
           </div>
               <div class="modal-body">
-                <p class="alert alert-warning">
+                <p class="alert alert-warning" id="copy-modal-alert-text">
                   By copying the original version you erase all your changes.<br />
                   This operation cannot be undone, <strong>are you sure?</strong>
                 </p>
@@ -367,7 +367,7 @@ body { margin-bottom: 70px; }
                 {% if trans_lang %}
                 <button class="btn btn-default" title="Language settings" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-edit' lang_id=trans_lang.pk %}"><i class="fa fa-cog"></i></button>
                 {% endif %}
-                <button type="button" class="btn btn-sm btn-default" title="Copy all blocks from the original version" data-toggle="modal" data-target="#copy-modal">
+                <button type="button" class="btn btn-sm btn-default translate-copy-all-button" title="Copy all blocks from the original version" data-toggle="modal" data-target="#copy-modal">
                   <i class="fa fa-clipboard" aria-hidden="true"></i>
                   <span class="glyphicon glyphicon-arrow-right"></span>
                   <i class="fa fa-clipboard" aria-hidden="true"></i>
@@ -392,6 +392,25 @@ body { margin-bottom: 70px; }
                 </label>
               <span class="navbar-text" id="save-status"></span>
             </div>
+            {% if auto_translate %}
+            <div class="navbar-center">
+                <label class="navbar-text" style="font-weight:normal;">
+                    <input type="checkbox" id="auto-translate-checkbox" data-size="mini">
+                    Auto-translate
+                </label>
+                <span class="dropdown" id="auto-translate-dropdown">
+                  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    <span class="text">Auto-translate to: </span><span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    {% for lan in auto_translate_languages %}
+                    <li><a href='#'>{{ lan }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </span>
+
+            </div>
+            {% endif %}
             <div class="navbar-right">
                 <a id="pdf-button" class="btn btn-success navbar-btn"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
                 <a id="pdf-button-hidden" style="display: none;" class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
@@ -597,14 +616,34 @@ body { margin-bottom: 70px; }
             //   $('.math-selected').removeClass('math-selected');
             //   $(this).addClass('math-selected');
             // });
-
-            $(".translate-copy-button").click(function( event ) {
-                field_id =  $(this).attr('id').replace('-copy', '');
-                orig = '#' + $(this).attr('id').replace('-copy', '-original');
+            function auto_translate(text, to_lang, field_id){
+              $.ajax({
+                  url: "{% url 'exam:auto-translate' %}",
+                  type: 'POST',
+                  data: {'from_lang': '{{ orig_lang.pk }}', 'to_lang':to_lang ,'text': text},
+              }).done(function (data) {
                 if (field_id in all_editors)
-                    all_editors[field_id].setData(String($(orig).data('original-text')));
+                    all_editors[field_id].setData(String(data['text']));
                 else
-                    $('#'+field_id+'-translate input[type="text"]').val($(orig).data('original-text'));
+                    $('#'+field_id+'-translate input[type="text"]').val(data['text']);
+              });
+            }
+            $(".translate-copy-button").click(function( event ) {
+                if($('#auto-translate-checkbox').bootstrapSwitch('state')){
+                  orig = '#' + $(this).attr('id').replace('-copy', '-original');
+                  text = $(orig).data('original-text');
+                  field_id = $(this).attr('id').replace('-copy', '');
+                  to_lang = $("#auto-translate-dropdown .btn:first-child .text").val();
+                  auto_translate(text, to_lang, field_id);
+                }
+                else{
+                  field_id =  $(this).attr('id').replace('-copy', '');
+                  orig = '#' + $(this).attr('id').replace('-copy', '-original');
+                  if (field_id in all_editors)
+                      all_editors[field_id].setData(String($(orig).data('original-text')));
+                  else
+                      $('#'+field_id+'-translate input[type="text"]').val($(orig).data('original-text'));
+                }
                 event.preventDefault();
             });
 
@@ -838,6 +877,9 @@ body { margin-bottom: 70px; }
                     clearInterval(autoSaveTimer);
                     autoSaveTimer = setInterval(autoSave, autoSaveInterval);
                 }
+                if ($('#auto-translate-checkbox').bootstrapSwitch('state')) {
+
+                }
             });
             $(document).keypress(function(event) {
                 if (!(event.which == 115 && (navigator.platform.match("Mac") ? event.metaKey : event.ctrlKey)) && !(event.which == 19)) return true;
@@ -857,9 +899,17 @@ body { margin-bottom: 70px; }
             $.DirtyForms.title = "Do you want to save changes before leaving?"
             $.DirtyForms.message = "Your changes will be lost if you don't save them."
             $('#question-form').dirtyForms({ ignoreSelector: '#auto-save-checkbox' });
+            $('#question-form').dirtyForms({ ignoreSelector: '#auto-translate-checkbox' });
+
             $('#question-form').on('dirty.dirtyforms', function(evt) {
                 var $form = $(evt.target);
                 $form.find('button[type="submit"]').removeProp('disabled').tooltip();
+            });
+
+            $('#auto-translate-dropdown').on('click', 'li a', function(evt){
+                evt.preventDefault();
+                $("#auto-translate-dropdown .btn:first-child .text").text($(this).text());
+                $("#auto-translate-dropdown .btn:first-child .text").val($(this).text());
             });
 
             function autoSave() {
@@ -895,6 +945,26 @@ body { margin-bottom: 70px; }
                 } else {
                     clearInterval(autoSaveTimer);
                     clearInterval(autoSaveFailedTimer);
+                }
+            });
+            $('#auto-translate-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function(event, state) {
+                var $checkbox = $(this);
+                if ($("#auto-translate-dropdown .btn:first-child .text").val() === ''){
+                  console.log('test');
+                  $("#auto-translate-dropdown .btn:first-child .text").html('<span class="glyphicon glyphicon-warning-sign"> Translate to:');
+                  $checkbox.bootstrapSwitch('state', false);
+                }else{
+                  if(state){
+                    $('.translate-copy-button, .translate-copy-all-button').html('<i class="fa fa-clipboard" aria-hidden="true"></i> <i class="glyphicon glyphicon-random"></i>    <i class="fa fa-clipboard" aria-hidden="true"></i>');
+                    $('.translate-copy-button, .translate-copy-all-button').addClass('btn-primary');
+                    $('.translate-copy-button, .translate-copy-all-button').removeClass('btn-default');
+                    $('#copy-modal-alert-text').html('By inserting the auto-translated version you erase all your changes.<br />This operation cannot be undone, <strong>are you sure?</strong>');
+                  }else{
+                    $('.translate-copy-button, .translate-copy-all-button').html('<i class="fa fa-clipboard" aria-hidden="true"></i><span class="glyphicon glyphicon-arrow-right"></span><i class="fa fa-clipboard" aria-hidden="true"></i>');
+                    $('.translate-copy-button, .translate-copy-all-button').addClass('btn-default');
+                    $('.translate-copy-button, .translate-copy-all-button').removeClass('btn-primary');
+                    $('#copy-modal-alert-text').html('By copying the original version you erase all your changes.<br />This operation cannot be undone, <strong>are you sure?</strong>');
+                  }
                 }
             });
         });
