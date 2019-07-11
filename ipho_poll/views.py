@@ -154,9 +154,14 @@ def question_large(request, question_pk):
         'timestamp', 'part', 'comment'
     )
 
-    display_remaining_users = getattr(settings, "VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS", False)
+    display_remaining_users = getattr(settings, 'VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS', False)
     if display_remaining_users:
-        usernames = sorted(user.username for user in User.objects.filter(delegation__isnull=False).exclude(votingright__vote__question=question))
+        users = User.objects.filter(delegation__isnull=False).annotate(v_count=Count('votingright')).annotate(
+            q_count=Count(Q(votingright__vote__question=question))).exclude(q_count=F('v_count'))
+        usernames = sorted(
+            user.username + (' ({}/{})'.format(user.v_count - user.q_count, user.v_count) if user.q_count != 0 else '')
+            for user in users
+        )
         columns = 6
         usernames.extend((None,)*(columns - len(usernames) % columns))
         remaining_users_to_vote = [usernames[i*columns:(i + 1)*columns] for i in range(len(usernames)//columns)]
