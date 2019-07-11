@@ -71,6 +71,8 @@ import ipho_exam
 from ipho_exam import tasks
 import celery
 from celery.result import AsyncResult
+from google.cloud import translate
+from google.oauth2 import service_account
 
 logger = logging.getLogger('ipho_exam')
 django_logger = logging.getLogger('django.request')
@@ -2500,8 +2502,8 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
     context['trans_extra_html'] = trans_extra_html
     context['last_saved'] = last_saved
     context['checksum'] = checksum
-    context['auto_translate_languages'] = ['a', 'b', 'loooooooooooooooong language']
-    context['auto_translate'] = True
+    context['auto_translate_languages'] = getattr(settings, 'AUTO_TRANSLATE_LANGUAGES', [])
+    context['auto_translate'] = getattr(settings, 'AUTO_TRANSLATE', False)
     if context['orig_lang']:
         context['orig_font'] = fonts.ipho[context['orig_lang'].font]
     if context['trans_lang']:
@@ -2564,31 +2566,58 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     except pdf.TexCompileException as e:
         return HttpResponse(e.log, content_type="text/plain")
 
+
+
+
 @login_required
 def auto_translate(request):
-    if request.method == 'POST':
+    if request.method == 'POST' and getattr(settings, 'AUTO_TRANSLATE', False):
         to_lang = request.POST['to_lang']
         raw_text = request.POST['text']
         if not raw_text.strip():
             return JsonResponse({'text':raw_text})
         from_lang_pk = request.POST['from_lang']
         from_lang_obj = Language.objects.get(pk=from_lang_pk)
-        from_lang_obj.polyglossia## TODO: map to google from_languages
-        from_lang = '' # TODO:
-        text = raw_text ## DEBUG: for now, maybe escape math later on
+        if from_lang_obj.style is not None:
+            from_lang = Language.STYLES_TO_GOOGLE_TRANSLATE_MAPPING[from_lang_obj.style]
+            from_lang_style = from_lang_obj.style
+        else:
+            from_lang = ''
+            from_lang_style = 'None'
+        class math_replacer:
+            i = -1
+            matches = []
+            @classmethod
+            def repl(cls, match):
+                cls.matches.append(match.group(0))
+                cls.i += 1
+                return '<span data-olyexams="{}"></span>'.format(cls.i)
+
+            @classmethod
+            def readd(cls, match):
+                num = int(match.group(1))
+                if num < len(cls.matches):
+                    return cls.matches[num]
+                return match.group(0)
+        repl_pat = r'<\s*span\s*class\s*=\s*"math-tex"\s*>.*?<\s*\/\s*span\s*>'
+        text = re.sub(repl_pat, math_replacer.repl, raw_text)
         source_len = len(text)
         delegation = Delegation.objects.filter(members=request.user).first()
         if delegation is not None:
             delegation.auto_translate_char_count += source_len
             delegation.save()
-        hash = hashlib.md5((from_lang + to_lang + text).encode('utf-8')).digest()
+        hash = md5((from_lang_style + to_lang + text).encode('utf-8')).hexdigest()
         cachedtr = CachedAutoTranslation.objects.filter(source_and_lang_hash=hash).first()
-        if chachedtr is not None:
+        if cachedtr is not None:
             cachedtr.hits += 1
             cachedtr.save()
             raw_translated_text = cachedtr.target_text
         else:
-            raw_translated_text = '' # TODO: translate using API
+            json_cred = json.loads(getattr(settings, 'GOOGLE_TRANSLATE_SERVICE_ACCOUNT_KEY', '{}'))
+            translate_client = translate.Client(credentials=service_account.Credentials.from_service_account_info(json_cred))
+            google_from_lang = from_lang if from_lang else None
+            cloud_response = translate_client.translate(text, target_language=to_lang, source_language=google_from_lang)
+            raw_translated_text = cloud_response['translatedText']
             cachedtr = CachedAutoTranslation()
             cachedtr.source_and_lang_hash = hash
             cachedtr.source_length = source_len
@@ -2596,7 +2625,10 @@ def auto_translate(request):
             cachedtr.target_lang = to_lang
             cachedtr.target_text = raw_translated_text
             cachedtr.save()
-        translated_text = raw_translated_text ## DEBUG: maybe change later  (math escape ?)
+
+
+        readd_pat = r'<\s*span\s*data-olyexams\s*=\s*"([0-9]*)"\s*>\s*<\s*\/\s*span\s*>'
+        translated_text = re.sub(readd_pat, math_replacer.readd, raw_translated_text)
         return JsonResponse({'text':translated_text})
     else:
         return HttpResponseForbidden('Nothing to see here!')

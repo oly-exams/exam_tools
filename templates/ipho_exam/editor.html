@@ -77,6 +77,12 @@ span.dropdown {
     opacity: 1;
 }
 
+.scrollable-menu {
+    height: auto;
+    max-height: 300px;
+    overflow-x: hidden;
+}
+
 
 ins {
     color: #00f;
@@ -402,9 +408,9 @@ body { margin-bottom: 70px; }
                   <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                     <span class="text">Auto-translate to: </span><span class="caret"></span>
                   </button>
-                  <ul class="dropdown-menu">
+                  <ul class="dropdown-menu scrollable-menu">
                     {% for lan in auto_translate_languages %}
-                    <li><a href='#'>{{ lan }}</a></li>
+                    <li><a href='#' data-value="{{ lan.language }}">{{ lan.name }}</a></li>
                     {% endfor %}
                   </ul>
                 </span>
@@ -630,11 +636,14 @@ body { margin-bottom: 70px; }
             }
             $(".translate-copy-button").click(function( event ) {
                 if($('#auto-translate-checkbox').bootstrapSwitch('state')){
-                  orig = '#' + $(this).attr('id').replace('-copy', '-original');
-                  text = $(orig).data('original-text');
-                  field_id = $(this).attr('id').replace('-copy', '');
-                  to_lang = $("#auto-translate-dropdown .btn:first-child .text").val();
-                  auto_translate(text, to_lang, field_id);
+                  if( !$(this).prop('disabled') ){
+                    orig = '#' + $(this).attr('id').replace('-copy', '-original');
+                    text = $(orig).data('original-text');
+                    field_id = $(this).attr('id').replace('-copy', '');
+                    to_lang = $("#auto-translate-dropdown .btn:first-child .text").data('value');
+                    auto_translate(text, to_lang, field_id);
+                  }
+                  
                 }
                 else{
                   field_id =  $(this).attr('id').replace('-copy', '');
@@ -910,6 +919,7 @@ body { margin-bottom: 70px; }
                 evt.preventDefault();
                 $("#auto-translate-dropdown .btn:first-child .text").text($(this).text());
                 $("#auto-translate-dropdown .btn:first-child .text").val($(this).text());
+                $("#auto-translate-dropdown .btn:first-child .text").data('value', $(this).data('value'));
             });
 
             function autoSave() {
@@ -958,11 +968,22 @@ body { margin-bottom: 70px; }
                     $('.translate-copy-button, .translate-copy-all-button').html('<i class="fa fa-clipboard" aria-hidden="true"></i> <i class="glyphicon glyphicon-random"></i>    <i class="fa fa-clipboard" aria-hidden="true"></i>');
                     $('.translate-copy-button, .translate-copy-all-button').addClass('btn-primary');
                     $('.translate-copy-button, .translate-copy-all-button').removeClass('btn-default');
+                    $('.translate-copy-button').attr('aria-label', 'Translate original version');
+                    $('.translate-copy-button').attr('title', 'Translate original version');
+                    $('.translate-copy-all-button').attr('title', 'Translate all blocks from the original version');
+
+                    $('.equation-copy').prop("disabled", true);
                     $('#copy-modal-alert-text').html('By inserting the auto-translated version you erase all your changes.<br />This operation cannot be undone, <strong>are you sure?</strong>');
                   }else{
                     $('.translate-copy-button, .translate-copy-all-button').html('<i class="fa fa-clipboard" aria-hidden="true"></i><span class="glyphicon glyphicon-arrow-right"></span><i class="fa fa-clipboard" aria-hidden="true"></i>');
                     $('.translate-copy-button, .translate-copy-all-button').addClass('btn-default');
                     $('.translate-copy-button, .translate-copy-all-button').removeClass('btn-primary');
+                    $('.translate-copy-button').attr('aria-label', 'Copy original version');
+                    $('.translate-copy-button').attr('title', 'Copy original version');
+                    $('.translate-copy-all-button').attr('title', 'Copy all blocks from the original version');
+
+
+                    $('.equation-copy').prop("disabled", false);
                     $('#copy-modal-alert-text').html('By copying the original version you erase all your changes.<br />This operation cannot be undone, <strong>are you sure?</strong>');
                   }
                 }
