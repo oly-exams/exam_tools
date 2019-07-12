@@ -203,15 +203,15 @@ def missing_submissions():
         for student in students:
             student_seat = Place.objects.get(student=student, exam=exam)
             for position, qgroup in list(grouped_questions.items()):
-                student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
+                student_languages = StudentSubmission.objects.filter(exam__in=exam, student=student)
                 cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat.name}
                 compile_stud_exam_question(questions, student_languages, cover=cover_ctx, commit=False)
 
 
 def compile_all(names=('Theory', 'Experiment')):
     exams = Exam.objects.filter(name__in=names)
-    questions = Question.objects.filter(exam=exams, position__in=[0, 1, 2, 3])
-    languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
+    questions = Question.objects.filter(exam__in=exams, position__in=[0, 1, 2, 3])
+    languages = Language.objects.filter(studentsubmission__exam__in=exams).distinct()
     print('Going to compile in {} languages.'.format(len(languages)))
     for q in questions:
         for lang in languages:
