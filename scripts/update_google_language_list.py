@@ -33,4 +33,4 @@ json_cred = json.loads(str_cred)
 translate_client = translate.Client(credentials=service_account.Credentials.from_service_account_info(json_cred))
 lan_list = json.dumps(translate_client.get_languages())
 with open(os.path.join(os.path.dirname(__file__), '../exam_tools/settings.py'), 'a') as f:
-    f.write('AUTO_TRANSLATE_LANGUAGES = ' + lan_list)
+    f.write('AUTO_TRANSLATE_LANGUAGES = ' + lan_list + '\n')
