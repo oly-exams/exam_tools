@@ -4,6 +4,7 @@ import io
 import tempfile
 import shutil
 from functools import partial
+import argparse
 
 from mkdocs import config
 from mkdocs.exceptions import ConfigurationError
@@ -105,31 +106,38 @@ class OverrideFilesPlugin(BasePlugin):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) >= 2:
-        site_dir = tempfile.mkdtemp(prefix='mkdocs_')
-        def builder():
-            config_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'mkdocs.yml')
-            cfg = config.Config(schema=config.DEFAULT_SCHEMA, config_file_path=config_file_path)
-            with open(config_file_path, 'rb') as config_file:
-                cfg.load_file(config_file)
-            errors, warnings = cfg.validate()
-            if errors:
-                raise ConfigurationError(str(error))
-            cfg['config_file_path'] = ""
-            cfg['event_name'] = sys.argv[1]
-            cfg['event_folder_path'] = os.path.normpath(os.path.join(cfg['docs_dir'], '../docs_events', cfg['event_name']))
-            cfg['plugins']['override_files'] = OverrideFilesPlugin()
-            if len(sys.argv) >= 4 and sys.argv[2] == 'serve':
-                cfg['dev_addr'] = sys.argv[3]
-                cfg['site_url'] = 'http://{0}/'.format(sys.argv[3])
-            build.build(cfg, live_server=(len(sys.argv) < 5 or sys.argv[4] != 'static'))
-            return cfg
-        config = builder()
-        if len(sys.argv) >= 4 and sys.argv[2] == 'serve':
-            host, port = config['dev_addr'].split(':')
-            if len(sys.argv) >= 5 and sys.argv[4] == 'static':
-                serve._static_server(host, port, config['site_dir'])
-            else:
-                serve._livereload(host, port, config, builder, config['site_dir'])
+    parser = argparse.ArgumentParser(description='Run mkdocs with overrides.')
+    parser.add_argument('event_name', help='name of the event, corresponding to the folder to search for override files')
+    parser.add_argument('-s', '--serve', help='run the development server', action='store_true')
+    parser.add_argument('-a', '--address', help='host:port of the development server')
+    parser.add_argument('-t', '--static', help='make the development server static instead of livereloading', action='store_true')
+    parser.add_argument('-d', '--site-dir', help='output directory')
+    args = parser.parse_args()
 
+    def builder():
+        config_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'mkdocs.yml')
+        cfg = config.Config(schema=config.DEFAULT_SCHEMA, config_file_path=config_file_path)
+        with open(config_file_path, 'rb') as config_file:
+            cfg.load_file(config_file)
+        if args.site_dir:
+            cfg.load_dict({'site_dir': args.site_dir})
+        errors, warnings = cfg.validate()
+        if errors:
+            raise ConfigurationError(str(error))
+        cfg['config_file_path'] = ""
+        cfg['event_name'] = args.event_name
+        cfg['event_folder_path'] = os.path.normpath(os.path.join(cfg['docs_dir'], '../docs_events', cfg['event_name']))
+        cfg['plugins']['override_files'] = OverrideFilesPlugin()
+        if args.address:
+            cfg['dev_addr'] = args.address
+            cfg['site_url'] = 'http://{0}/'.format(cfg['dev_addr'])
+        build.build(cfg, live_server=not args.static)
+        return cfg
+    config = builder()
+    if args.serve:
+        host, port = args.address.split(":")
+        if args.static:
+            serve._static_server(host, port, config['site_dir'])
+        else:
+            serve._livereload(host, port, config, builder, config['site_dir'])
 
