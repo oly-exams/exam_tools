@@ -108,6 +108,20 @@ For building the static docs
 mkdocs build
 ```
 
+For building docs with custom event target
+```bash
+python ./scripts/mkdocs_custom.py <name_of_the_event_target>
+```
+
+And for locally serving them
+```bash
+python ./scripts/mkdocs_custom.py <name_of_the_event_target> serve
+```
+or
+```bash
+python ./scripts/mkdocs_custom.py <name_of_the_event_target> serve <address:port>
+```
+
 ## Docker images
 To build the docker images:
 
