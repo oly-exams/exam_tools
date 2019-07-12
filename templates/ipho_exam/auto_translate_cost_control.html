@@ -48,23 +48,15 @@
         <div class="">
             <h1>Auto Translate Counts</h1>
             <div class="">
-                <table class="table table-condensed">
-                  <tr>
-                    <td><strong>Total Costs:</strong> {{ total_costs|floatformat:"-2" }}$</td>
-                    <td><strong>Delegation Costs:</strong> {{ del_costs|floatformat:"-2" }}$</td>
-                    <td><strong>Other Costs:</strong> {{ rem_costs|floatformat:"-2" }}$</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Total Count:</strong> {{ total_count}}</td>
-                    <td><strong>Delegation Count:</strong> {{ del_count}}</td>
-                    <td><strong>Other Count:</strong> {{ rem_count}}</td>
-                  </tr>
-                </table>
+                <p><strong>Sent Costs:</strong> {{ sent_cost|floatformat:"-2" }}$</p>
+                <p><strong>Sent Count:</strong> {{ sent_count }}</p>
+                <p><strong>Total Count:</strong> {{ total_count }}</p>
+                <br>
                 <table class="table table-condensed">
                     <tr>
                       <th>Delegation</th>
                       <th>Count</th>
-                      <th>Cost</th>
+                      <th>Estimated Cost</th>
                     </tr>
                     {% for row in delegation_counts %}
                     <tr>

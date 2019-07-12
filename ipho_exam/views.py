@@ -2591,7 +2591,7 @@ def auto_translate(request):
             def repl(cls, match):
                 cls.matches.append(match.group(0))
                 cls.i += 1
-                return '<span data-olyexams="{}"></span>'.format(cls.i)
+                return '<span data-oly="{}"></span>'.format(cls.i)
 
             @classmethod
             def readd(cls, match):
@@ -2627,7 +2627,7 @@ def auto_translate(request):
             cachedtr.save()
 
 
-        readd_pat = r'<\s*span\s*data-olyexams\s*=\s*"([0-9]*)"\s*>\s*<\s*\/\s*span\s*>'
+        readd_pat = r'<\s*span\s*data-oly\s*=\s*"([0-9]*)"\s*>\s*<\s*\/\s*span\s*>'
         translated_text = re.sub(readd_pat, math_replacer.readd, raw_translated_text)
         return JsonResponse({'text':translated_text})
     else:
@@ -2637,22 +2637,21 @@ def auto_translate(request):
 def auto_translate_count(request):
     def to_money(count):
         return count/10**6*20
-    total_count = CachedAutoTranslation.objects.annotate(char_count=F('source_length')*F('hits')).aggregate(tot_sum=Sum('char_count'))['tot_sum']
+    total_counts = CachedAutoTranslation.objects.annotate(total_char_count=F('source_length')*F('hits')).aggregate(total_sum=Sum('total_char_count'), sent_sum=Sum('source_length'))
+    sent_count = total_counts['sent_sum']
+    total_count = total_counts['total_sum']
+    sent_cost = to_money(sent_count)
     delegation_counts_raw = Delegation.objects.values('name', 'auto_translate_char_count')
-    delegation_counts = [{ **a, 'costs':to_money(a['auto_translate_char_count'])} for a in delegation_counts_raw]
+    delegation_tot_count = sum([a['auto_translate_char_count'] for a in delegation_counts_raw])
+    delegation_counts = [{ **a, 'costs':a['auto_translate_char_count']*sent_cost/delegation_tot_count} for a in delegation_counts_raw]
+    print(total_counts)
     delegation_counts.sort(key=lambda d: -d['auto_translate_char_count'])
-    delegation_tot_count = sum([a['auto_translate_char_count'] for a in delegation_counts])
-    delegation_tot_cost = to_money(delegation_tot_count)
-    remaining_count = total_count - delegation_tot_count
-    remaining_cost = to_money(remaining_count)
+
     ctxt = {}
     ctxt['delegation_counts'] = delegation_counts
-    ctxt['total_costs'] = to_money(total_count)
+    ctxt['sent_cost'] = sent_cost
+    ctxt['sent_count'] = sent_count
     ctxt['total_count'] = total_count
-    ctxt['del_costs'] = delegation_tot_cost
-    ctxt['del_count'] = delegation_tot_count
-    ctxt['rem_costs'] = remaining_cost
-    ctxt['rem_count'] = remaining_count
     return render(request, 'ipho_exam/auto_translate_cost_control.html', ctxt)
 
 @permission_required('ipho_core.is_staff')
