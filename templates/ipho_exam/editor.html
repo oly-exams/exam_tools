@@ -397,26 +397,24 @@ body { margin-bottom: 70px; }
                     Auto-save.
                 </label>
               <span class="navbar-text" id="save-status"></span>
+              {% if auto_translate %}
+                  <label class="navbar-text" style="font-weight:normal;">
+                      <input type="checkbox" id="auto-translate-checkbox" data-size="mini">
+                      Auto-translate
+                  </label>
+                  <span class="dropdown" id="auto-translate-dropdown">
+                    <button class="btn navbar-btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                      <span class="text">Auto-translate to: </span><span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu scrollable-menu">
+                      {% for lan in auto_translate_languages %}
+                      <li><a href='#' data-value="{{ lan.language }}">{{ lan.name }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </span>
+              {% endif %}
             </div>
-            {% if auto_translate %}
-            <div class="navbar-center">
-                <label class="navbar-text" style="font-weight:normal;">
-                    <input type="checkbox" id="auto-translate-checkbox" data-size="mini">
-                    Auto-translate
-                </label>
-                <span class="dropdown" id="auto-translate-dropdown">
-                  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    <span class="text">Auto-translate to: </span><span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu scrollable-menu">
-                    {% for lan in auto_translate_languages %}
-                    <li><a href='#' data-value="{{ lan.language }}">{{ lan.name }}</a></li>
-                    {% endfor %}
-                  </ul>
-                </span>
 
-            </div>
-            {% endif %}
             <div class="navbar-right">
                 <a id="pdf-button" class="btn btn-success navbar-btn"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
                 <a id="pdf-button-hidden" style="display: none;" class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
@@ -643,7 +641,7 @@ body { margin-bottom: 70px; }
                     to_lang = $("#auto-translate-dropdown .btn:first-child .text").data('value');
                     auto_translate(text, to_lang, field_id);
                   }
-                  
+
                 }
                 else{
                   field_id =  $(this).attr('id').replace('-copy', '');
@@ -961,7 +959,12 @@ body { margin-bottom: 70px; }
                 var $checkbox = $(this);
                 if ($("#auto-translate-dropdown .btn:first-child .text").val() === ''){
                   console.log('test');
-                  $("#auto-translate-dropdown .btn:first-child .text").html('<span class="glyphicon glyphicon-warning-sign"> Translate to:');
+                  $("#auto-translate-dropdown .btn:first-child .text").html('<span class="glyphicon glyphicon-warning-sign"></span> Translate to:');
+                  $("#auto-translate-dropdown .btn:first-child").addClass('btn-warning');
+                  setTimeout(function() {
+                    $("#auto-translate-dropdown .btn:first-child .text").html('Translate to:');
+                    $("#auto-translate-dropdown .btn:first-child").removeClass('btn-warning');
+                  }, 2000);
                   $checkbox.bootstrapSwitch('state', false);
                 }else{
                   if(state){

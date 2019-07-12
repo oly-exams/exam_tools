@@ -2633,6 +2633,27 @@ def auto_translate(request):
     else:
         return HttpResponseForbidden('Nothing to see here!')
 
+@permission_required('ipho_core.is_staff')
+def auto_translate_count(request):
+    def to_money(count):
+        return count/10**6*20
+    total_count = CachedAutoTranslation.objects.annotate(char_count=F('source_length')*F('hits')).aggregate(tot_sum=Sum('char_count'))['tot_sum']
+    delegation_counts_raw = Delegation.objects.values('name', 'auto_translate_char_count')
+    delegation_counts = [{ **a, 'costs':to_money(a['auto_translate_char_count'])} for a in delegation_counts_raw]
+    delegation_counts.sort(key=lambda d: -d['auto_translate_char_count'])
+    delegation_tot_count = sum([a['auto_translate_char_count'] for a in delegation_counts])
+    delegation_tot_cost = to_money(delegation_tot_count)
+    remaining_count = total_count - delegation_tot_count
+    remaining_cost = to_money(remaining_count)
+    ctxt = {}
+    ctxt['delegation_counts'] = delegation_counts
+    ctxt['total_costs'] = to_money(total_count)
+    ctxt['total_count'] = total_count
+    ctxt['del_costs'] = delegation_tot_cost
+    ctxt['del_count'] = delegation_tot_count
+    ctxt['rem_costs'] = remaining_cost
+    ctxt['rem_count'] = remaining_count
+    return render(request, 'ipho_exam/auto_translate_cost_control.html', ctxt)
 
 @permission_required('ipho_core.is_staff')
 def compiled_question_diff(request, question_id, lang_id, old_version_num=None, new_version_num=None):

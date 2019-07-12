@@ -101,6 +101,9 @@
                   {% if perms.ipho_core.is_staff %}
                   <li><a href="{% url 'send_push' %}">Send push notifications</a></li>
                   {% endif %}
+                  {% if perms.ipho_core.is_superuser %}
+                  <li><a href="{% url 'exam:auto-translate-count' %}">Auto translate costs</a></li>
+                  {% endif %}
                   <li class="divider"></li>
                   {% endif %}
                   {% if perms.ipho_core.is_staff %}
