@@ -47,7 +47,7 @@ from . import tex
 from . import simplediff
 
 #block groups
-PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'enumerate', 'table', 'equation', 'figure', 'box')
+PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'enumerate', 'table', 'equation', 'equation_unnumbered', 'figure', 'box')
 DEFAULT_BLOCKS = ('texfield', 'texenv')
 
 TIDYOPTIONS={
@@ -82,7 +82,7 @@ TIDYOPTIONS={
 "clean": True,
 "bare": True,
 "new-blocklevel-tags": "question,subquestion,subanswer,subanswercontinuation,box,section,part,figure,list,texfield,texparam,texenv,table,row",
-"new-inline-tags": "title,paragraph,param,caption,equation,item,texparam,cell,tablecaption",
+"new-inline-tags": "title,paragraph,param,caption,equation,equation_unnumbered,item,texparam,cell,tablecaption",
 "new-empty-tags": "pagebreak,vspace"
 }  # yapf:disable
 
@@ -826,6 +826,21 @@ class QMLequation(QMLobject):
     def tex_end(self):
         return u'\\end{equation}\n\n'
 
+
+class QMLequation_unnumbered(QMLobject):
+    tag = "equation_unnumbered"
+    display_name = 'Equation*'
+    default_heading = "Equation*"
+    sort_order = 300
+
+    has_text = True
+    has_children = False
+
+    def tex_begin(self):
+        return u'\\begin{equation*}\n'
+
+    def tex_end(self):
+        return u'\\end{equation*}\n\n'
 
 class QMLlist(QMLobject):
     tag = "list"
