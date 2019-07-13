@@ -55,8 +55,9 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
     meta['filename'] = ''
     all_barcodes = []
     all_docs = []
-    if cover is not None:
-        suppress_cover_code = not settings.CODE_ON_COVER_SHEET
+    suppress_cover_code = not getattr(settings, 'CODE_ON_COVER_SHEET', False)
+    #if cover is not None:
+    def add_coversheet(cover):
         body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_cover.tex'), request=HttpRequest(), context=cover)
         question_pdf = pdf.compile_tex(body, [])
         q = questions[0]
@@ -71,6 +72,8 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
         all_docs.append(page)
 
     for question in questions:
+        cover.update({'question': question})
+        add_coversheet(cover)
         for sl in student_languages:
             if question.is_answer_sheet() and not sl.with_answer:
                 continue

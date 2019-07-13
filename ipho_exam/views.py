@@ -2042,7 +2042,9 @@ def submission_exam_assign(request, exam_id):
             except Place.DoesNotExist:
                 student_seat = ""
             questions = exam.question_set.all()
-            grouped_questions = {k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)}
+            #grouped_questions = {k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)}
+            grouped_questions = {1:list(questions)}
+            print(grouped_questions)
             for position, qgroup in list(grouped_questions.items()):
                 doc, _ = Document.objects.get_or_create(exam=exam, student=student, position=position)
                 cover_ctx = {'student': student, 'exam': exam, 'question': qgroup[0], 'place': student_seat}
