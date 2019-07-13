@@ -24,25 +24,12 @@ from copy import copy
 
 
 class EnhancedAdminEmailHandler(AdminEmailHandler):
-    # NOTE: most of this directly copied from AdminEmailHandler.
-
-    def __init__(self, *args, **kwargs):
-        super(EnhancedAdminEmailHandler, self).__init__(*args, **kwargs)
-
-
-
-class EnhancedAdminEmailHandlerOld(AdminEmailHandler):
-    # NOTE: most of this directly copied from AdminEmailHandler.
+    # NOTE: all of this directly copied from AdminEmailHandler.
 
     def __init__(self, *args, **kwargs):
         super(EnhancedAdminEmailHandler, self).__init__(*args, **kwargs)
 
     def emit(self, record):
-        print(record)
-
-        request_repr = "Unavailable"
-        user_info = "Unavailable"
-
         try:
             request = record.request
             subject = '%s (%s IP): %s' % (
@@ -51,21 +38,12 @@ class EnhancedAdminEmailHandlerOld(AdminEmailHandler):
                  else 'EXTERNAL'),
                 record.getMessage()
             )
-
-            #filter = get_exception_reporter_filter(request)
-            #request_repr = '\n{}'.format(force_text(filter.get_request_repr(request)))
-
-            if request.user.is_authenticated:
-                user_info = "\n  Username: " + request.user.username
-            else:
-                user_info = "\n  Unauthenticated user"
-        except IOError:
+        except Exception:
             subject = '%s: %s' % (
                 record.levelname,
                 record.getMessage()
             )
             request = None
-
         subject = self.format_subject(subject)
 
         # Since we add a nicely formatted traceback on our own, create a copy
@@ -80,6 +58,6 @@ class EnhancedAdminEmailHandlerOld(AdminEmailHandler):
             exc_info = (None, record.getMessage(), None)
 
         reporter = ExceptionReporter(request, is_email=True, *exc_info)
-        message = "%s\n\n%s\n\nRequest: %s\n\nUser info: %s" % (self.format(no_exc_record), reporter.get_traceback_text(), request_repr, user_info)
+        message = "%s\n\n%s" % (self.format(no_exc_record), reporter.get_traceback_text())
         html_message = reporter.get_traceback_html() if self.include_html else None
         self.send_mail(subject, message, fail_silently=True, html_message=html_message)
