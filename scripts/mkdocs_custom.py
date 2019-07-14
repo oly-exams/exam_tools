@@ -133,11 +133,15 @@ if __name__ == '__main__':
             cfg['site_url'] = 'http://{0}/'.format(cfg['dev_addr'])
         build.build(cfg, live_server=not args.static)
         return cfg
-    config = builder()
+    cfg = builder()
     if args.serve:
-        host, port = args.address.split(":")
-        if args.static:
-            serve._static_server(host, port, config['site_dir'])
+        if args.address is None:
+            host = "localhost"
+            port = "8000"
         else:
-            serve._livereload(host, port, config, builder, config['site_dir'])
+            host, port = args.address.split(":")
+        if args.static:
+            serve._static_server(host, port, cfg['site_dir'])
+        else:
+            serve._livereload(host, port, cfg, builder, cfg['site_dir'])
 
