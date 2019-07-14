@@ -12,6 +12,7 @@ from mkdocs.plugins import BasePlugin
 from mkdocs.commands import build
 from mkdocs.commands import serve
 from mkdocs.structure import pages
+from mkdocs.structure.files import File
 from mkdocs.utils import urlparse
 from mkdocs.utils import urlunparse
 
@@ -69,7 +70,6 @@ class _RelativePathExtension(pages._RelativePathExtension):
 
 
 
-
 def render(self, config, files):
     """
     Convert the Markdown source file to HTML as per the config.
@@ -91,6 +91,7 @@ def render(self, config, files):
 class OverrideFilesPlugin(BasePlugin):
     def on_files(self, files, config):
         if os.path.isdir(config['event_folder_path']):
+            orig_rel_paths = [nav_file.src_path for nav_file in files]
             for nav_file in files:
                 nav_file_name = os.path.basename(nav_file.src_path)
                 override_path = os.path.join(config['event_folder_path'], nav_file.src_path)
@@ -98,6 +99,19 @@ class OverrideFilesPlugin(BasePlugin):
                     nav_file.abs_src_path = os.path.normpath(os.path.abspath(override_path))
                     nav_file.src_path = os.path.normpath(os.path.relpath(nav_file.abs_src_path, config['docs_dir']))
                     print('Override path: {}'.format(nav_file.src_path))
+            for folder, __, nav_over_files in os.walk(config['event_folder_path']):
+                for nav_over_file in nav_over_files:
+                    nav_over_filepath = os.path.normpath(os.path.relpath(os.path.join(folder, nav_over_file), config['event_folder_path']))
+                    if nav_over_filepath not in orig_rel_paths:
+                        abs_path = os.path.normpath(os.path.abspath(os.path.join(folder, nav_over_file)))
+                        f = File(
+                            os.path.relpath(abs_path, config['event_folder_path']),
+                            os.path.abspath(config['event_folder_path']),
+                            config['site_dir'],
+                            config['use_directory_urls'],
+                        )
+                        files.append(f)
+                        print('New path: {}'.format(f.src_path))
     def on_pre_page(self, page, config, *args, **kwargs):
         # Yup, monkeypatching is hacky.
         page.render = partial(render, page)
@@ -133,11 +147,15 @@ if __name__ == '__main__':
             cfg['site_url'] = 'http://{0}/'.format(cfg['dev_addr'])
         build.build(cfg, live_server=not args.static)
         return cfg
-    config = builder()
+    cfg = builder()
     if args.serve:
-        host, port = args.address.split(":")
-        if args.static:
-            serve._static_server(host, port, config['site_dir'])
+        if args.address is None:
+            host = "localhost"
+            port = "8000"
         else:
-            serve._livereload(host, port, config, builder, config['site_dir'])
+            host, port = args.address.split(":")
+        if args.static:
+            serve._static_server(host, port, cfg['site_dir'])
+        else:
+            serve._livereload(host, port, cfg, builder, cfg['site_dir'])
 

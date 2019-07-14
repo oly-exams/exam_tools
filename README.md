@@ -115,11 +115,11 @@ python ./scripts/mkdocs_custom.py <name_of_the_event_target>
 
 And for locally serving them
 ```bash
-python ./scripts/mkdocs_custom.py <name_of_the_event_target> serve
+python ./scripts/mkdocs_custom.py -s <name_of_the_event_target>
 ```
 or
 ```bash
-python ./scripts/mkdocs_custom.py <name_of_the_event_target> serve <address:port>
+python ./scripts/mkdocs_custom.py -s -a localhost:8080 <name_of_the_event_target>
 ```
 
 ## Docker images
