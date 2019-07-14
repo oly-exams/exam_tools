@@ -623,6 +623,7 @@ body { margin-bottom: 70px; }
             //   $('.math-selected').removeClass('math-selected');
             //   $(this).addClass('math-selected');
             // });
+            {% if auto_translate %}
             function auto_translate(text, to_lang, field_id){
               $.ajax({
                   url: "{% url 'exam:auto-translate' %}",
@@ -635,8 +636,13 @@ body { margin-bottom: 70px; }
                     $('#'+field_id+'-translate input[type="text"]').val(data['text']);
               });
             }
+            {% endif %}
             $(".translate-copy-button").click(function( event ) {
+                {% if auto_translate %}
                 if($('#auto-translate-checkbox').bootstrapSwitch('state')){
+                {% else %}
+                if(false){
+                {% endif %}
                   if( !$(this).prop('disabled') ){
                     orig = '#' + $(this).attr('id').replace('-copy', '-original');
                     text = $(orig).data('original-text');
@@ -887,9 +893,6 @@ body { margin-bottom: 70px; }
                     clearInterval(autoSaveTimer);
                     autoSaveTimer = setInterval(autoSave, autoSaveInterval);
                 }
-                if ($('#auto-translate-checkbox').bootstrapSwitch('state')) {
-
-                }
             });
             $(document).keypress(function(event) {
                 if (!(event.which == 115 && (navigator.platform.match("Mac") ? event.metaKey : event.ctrlKey)) && !(event.which == 19)) return true;
@@ -909,19 +912,23 @@ body { margin-bottom: 70px; }
             $.DirtyForms.title = "Do you want to save changes before leaving?"
             $.DirtyForms.message = "Your changes will be lost if you don't save them."
             $('#question-form').dirtyForms({ ignoreSelector: '#auto-save-checkbox' });
+            {% if auto_translate %}
             $('#question-form').dirtyForms({ ignoreSelector: '#auto-translate-checkbox' });
+            {% endif %}
 
             $('#question-form').on('dirty.dirtyforms', function(evt) {
                 var $form = $(evt.target);
                 $form.find('button[type="submit"]').removeProp('disabled').tooltip();
             });
 
+            {% if auto_translate %}
             $('#auto-translate-dropdown').on('click', 'li a', function(evt){
                 evt.preventDefault();
                 $("#auto-translate-dropdown .btn:first-child .text").text($(this).text());
                 $("#auto-translate-dropdown .btn:first-child .text").val($(this).text());
                 $("#auto-translate-dropdown .btn:first-child .text").data('value', $(this).data('value'));
             });
+            {% endif %}
 
             function autoSave() {
                 $form = $('#question-form');
@@ -958,10 +965,10 @@ body { margin-bottom: 70px; }
                     clearInterval(autoSaveFailedTimer);
                 }
             });
+            {% if auto_translate %}
             $('#auto-translate-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function(event, state) {
                 var $checkbox = $(this);
                 if ($("#auto-translate-dropdown .btn:first-child .text").val() === ''){
-                  console.log('test');
                   $("#auto-translate-dropdown .btn:first-child .text").html('<span class="glyphicon glyphicon-warning-sign"></span> Translate to:');
                   $("#auto-translate-dropdown .btn:first-child").addClass('btn-warning');
                   setTimeout(function() {
@@ -994,6 +1001,7 @@ body { margin-bottom: 70px; }
                   }
                 }
             });
+            {% endif %}
         });
 
     </script>
