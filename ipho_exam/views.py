@@ -2586,6 +2586,8 @@ def auto_translate(request):
         else:
             from_lang = ''
             from_lang_style = 'None'
+        if to_lang == from_lang:
+            return JsonResponse({'text':raw_text})
         class math_replacer:
             i = -1
             matches = []
