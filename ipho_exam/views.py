@@ -2399,7 +2399,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             2,
             'list':
             Language.objects.filter(translationnode__question=question
-                                    ).exclude(delegation=delegation).exclude(delegation__name=OFFICIAL_DELEGATION)
+                                    ).exclude(delegation=delegation).exclude(delegation__name=OFFICIAL_DELEGATION).order_by('delegation')
         })
 
         orig_q_raw = qml.make_qml(orig_node)
