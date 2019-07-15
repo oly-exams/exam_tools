@@ -2622,9 +2622,7 @@ def auto_translate(request):
             google_from_lang = from_lang if from_lang else None
             cloud_response = translate_client.translate(text, target_language=to_lang, source_language=google_from_lang)
             raw_translated_text = cloud_response['translatedText']
-            cachedtr = CachedAutoTranslation()
-            cachedtr.source_and_lang_hash = hash
-            cachedtr.source_length = source_len
+            cachedtr, cre = CachedAutoTranslation.objects.get_or_create(source_and_lang_hash = hash, source_length=source_len)
             cachedtr.source_lang = from_lang
             cachedtr.target_lang = to_lang
             cachedtr.target_text = raw_translated_text
