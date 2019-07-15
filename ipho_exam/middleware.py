@@ -61,8 +61,13 @@ class CheckUserAgentMiddleware(object):
             is_Chrome_60_or_more = True
         else:
             is_Chrome_60_or_more = False
+        rmatch = re.search(r'CriOS/([0-9]*)', user_agent)
+        if rmatch and int(rmatch.group(1)) >= 70:
+            is_CriOS_70_or_more = True
+        else:
+            is_CriOS_70_or_more = False
         is_letsencrypt = 'letsencrypt' in user_agent or 'certbot' in user_agent
-        if not (is_Firefox_50_or_more or is_Chrome_60_or_more or is_letsencrypt or request.user.is_superuser or is_api_call):
+        if not (is_Firefox_50_or_more or is_Chrome_60_or_more or is_CriOS_70_or_more or is_letsencrypt or request.user.is_superuser or is_api_call):
             from django.shortcuts import render
             return render(request, 'pages/unsupported_browser.html')
         response = self.get_response(request)
