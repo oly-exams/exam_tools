@@ -228,15 +228,15 @@ class _classproperty(object):
 
 
 def escape_percents(tex_code):
-    parts = tex_code.split("%")
+    parts = tex_code.split('%')
     parts_it = iter(parts)
     next(parts_it)
     for i, (part, part_it) in enumerate(zip(parts, parts_it)):
-        if part.endswith("\\vspace{") and part_it.startswith("iem}"):
+        if part.endswith('\\vspace{') and part_it.startswith('iem}'):
             continue
-        if not part.endswith("\\"):
-            parts[i] += "\\"
-    return "%".join(parts)
+        if not (len(part) - len(part.rstrip('\\'))) % 2:
+            parts[i] += '\\'
+    return '%'.join(parts)
 
 
 
