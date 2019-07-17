@@ -2399,7 +2399,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
             2,
             'list':
             Language.objects.filter(translationnode__question=question
-                                    ).exclude(delegation=delegation).exclude(delegation__name=OFFICIAL_DELEGATION)
+                                    ).exclude(delegation=delegation).exclude(delegation__name=OFFICIAL_DELEGATION).order_by('delegation', 'name')
         })
 
         orig_q_raw = qml.make_qml(orig_node)
@@ -2586,6 +2586,8 @@ def auto_translate(request):
         else:
             from_lang = ''
             from_lang_style = 'None'
+        if to_lang == from_lang:
+            return JsonResponse({'text':raw_text})
         class math_replacer:
             i = -1
             matches = []
@@ -2620,9 +2622,7 @@ def auto_translate(request):
             google_from_lang = from_lang if from_lang else None
             cloud_response = translate_client.translate(text, target_language=to_lang, source_language=google_from_lang)
             raw_translated_text = cloud_response['translatedText']
-            cachedtr = CachedAutoTranslation()
-            cachedtr.source_and_lang_hash = hash
-            cachedtr.source_length = source_len
+            cachedtr, cre = CachedAutoTranslation.objects.get_or_create(source_and_lang_hash = hash, source_length=source_len)
             cachedtr.source_lang = from_lang
             cachedtr.target_lang = to_lang
             cachedtr.target_text = raw_translated_text
