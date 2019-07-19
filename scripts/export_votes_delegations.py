@@ -14,9 +14,9 @@ if __name__ == '__main__':
     else:
         out_file_path = sys.argv[1]
         with open(out_file_path, 'w') as fout:
-            w = csv.DictWriter(fout, fieldnames=('question', 'delegation'))
+            w = csv.DictWriter(fout, fieldnames=('question_id', 'question', 'delegation'))
             w.writeheader()
             from ipho_poll.models import Vote
             for vote in Vote.objects.all():
-                w.writerow({'question': vote.question.title, 'delegation': vote.voting_right.user.username})
+                w.writerow({'question_id': vote.question.pk, 'question': vote.question.title, 'delegation': vote.voting_right.user.username})
 
