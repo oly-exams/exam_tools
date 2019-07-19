@@ -77,9 +77,11 @@ def compile_question(question, language):
         position = question.position
         question_code = question.code
 
-        filename = u'../media/language_pdf/TRANSLATION_{}{}_{}_{}_{}.pdf'.format(
-            exam_code, position, question_code, language.delegation.name, slugify(language.name)
+        filename = u'../media/downloads/language_pdf/{0}_{1}/TRANSLATION_{2}_{3}.pdf'.format(
+            slugify(question.exam.name), slugify(question.name), language.delegation.name,
+            slugify(language.name),
         )
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'wb') as fp:
             fp.write(question_pdf)
         print(filename, 'DONE')
@@ -160,7 +162,10 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         exam_id = question.exam.pk
         position = question.position
 
-    filename = u'../media/language_pdf/EXAM_{}_{}_{}.pdf'.format(sl.student.code, exam_id, position)
+    filename = u'../media/downloads/language_pdf/{0}_{1}/student_exams/EXAM__{2}.pdf'.format(
+        slugify(question.exam.name), slugify(question.name), sl.student.code
+    )
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
     final_doc = pdf.concatenate_documents(all_docs)
     with open(filename, 'wb') as fp:
         fp.write(final_doc)
