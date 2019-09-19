@@ -2593,7 +2593,28 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
     else:
         trans = qquery.latest_version(question_id, lang_id)
     trans_content, ext_resources = trans.qml.make_xhtml()
-    return HttpResponse(trans_content)
+
+    html = u"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>{exam_name} - {question_name}, {lang_name} ({country})</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+{body}
+</body>
+</html>""".format(body=trans_content,
+    exam_name=trans.question.exam.name,
+    question_name=trans.question.name,
+    lang_name=trans.lang.name,
+    country=trans.lang.delegation.country)
+
+    return HttpResponse(html)
 
 
 @login_required
