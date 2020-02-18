@@ -55,7 +55,7 @@ class CheckUserAgentMiddleware(object):
         else:
             is_Firefox_50_or_more = False
         cmatch = re.search(r'Chrome/([0-9]*)',request.META['HTTP_USER_AGENT'])
-        if cmatch and int(cmatch.group(1)) >= 60:
+        if cmatch and int(fmatch.group(1)) >= 60:
             is_Chrome_60_or_more = True
         else:
             is_Chrome_60_or_more = False
