@@ -50,7 +50,6 @@ class CheckUserAgentMiddleware(object):
         # the view (and later middleware) are called.
         import re
         user_agent = request.META.get('HTTP_USER_AGENT', '')
-        is_api_call = request.path.startswith('/api')
         fmatch = re.search(r'Firefox/([0-9]*).', user_agent)
         if fmatch and int(fmatch.group(1)) >= 50:
             is_Firefox_50_or_more = True
@@ -62,7 +61,7 @@ class CheckUserAgentMiddleware(object):
         else:
             is_Chrome_60_or_more = False
         is_letsencrypt = 'letsencrypt' in user_agent or 'certbot' in user_agent
-        if not (is_Firefox_50_or_more or is_Chrome_60_or_more or is_letsencrypt or request.user.is_superuser or is_api_call):
+        if not (is_Firefox_50_or_more or is_Chrome_60_or_more or is_letsencrypt or request.user.is_superuser):
             from django.shortcuts import render
             return render(request, 'pages/unsupported_browser.html')
         response = self.get_response(request)
