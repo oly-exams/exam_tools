@@ -38,33 +38,3 @@ class IphoExamExceptionsMiddleware(object):
     def process_exception(self, request, exception):
         if isinstance(exception, IphoExamException):
             return exception.response
-
-
-class CheckUserAgentMiddleware(object):
-    def __init__(self, get_response):
-        self.get_response = get_response
-        # One-time configuration and initialization.
-
-    def __call__(self, request):
-        # Code to be executed for each request before
-        # the view (and later middleware) are called.
-        import re
-        fmatch = re.search(r'Firefox/([0-9]*).',request.META['HTTP_USER_AGENT'])
-        if fmatch and int(fmatch.group(1)) >= 50:
-            is_Firefox_50_or_more = True
-        else:
-            is_Firefox_50_or_more = False
-        cmatch = re.search(r'Chrome/([0-9]*)',request.META['HTTP_USER_AGENT'])
-        if cmatch and int(fmatch.group(1)) >= 60:
-            is_Chrome_60_or_more = True
-        else:
-            is_Chrome_60_or_more = False
-        if not (is_Firefox_50_or_more or is_Chrome_60_or_more or request.user.is_superuser):
-            from django.shortcuts import render
-            return render(request, 'pages/unsupported_browser.html')
-        response = self.get_response(request)
-
-        # Code to be executed for each request/response after
-        # the view is called.
-
-        return response

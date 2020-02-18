@@ -241,7 +241,6 @@ MIDDLEWARE = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'ipho_exam.middleware.IphoExamExceptionsMiddleware',
-    'ipho_exam.middleware.CheckUserAgentMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
