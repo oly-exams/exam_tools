@@ -386,7 +386,6 @@ tags
 [Ll]ib
 [Ll]ib64
 [Ll]ocal
-[Ss]cripts
 pyvenv.cfg
 pip-selfcheck.json
 
@@ -402,4 +401,3 @@ pip-selfcheck.json
 .history
 
 # End of https://www.gitignore.io/api/vim,macos,emacs,django,python,pycharm,virtualenv,visualstudiocode
-
