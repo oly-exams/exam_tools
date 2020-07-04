@@ -4,18 +4,20 @@ ENV PYTHONUNBUFFERED 1
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y \
-    postgresql-client libpq-dev \
-    sqlite3 \
-    inkscape imagemagick \
-    curl \
+  postgresql-client libpq-dev \
+  sqlite3 \
+  mercurial \
+  tidy \
+  inkscape imagemagick \
   --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
-    apt-get install -y nodejs
+  apt-get install -y nodejs
 
 COPY ./requirements.txt /requirements.txt
 
 RUN pip install --no-cache -r requirements.txt
+RUN pip install --no-cache psycopg2-binary>=2.8
 
 COPY . /app
 

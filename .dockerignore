@@ -1,3 +1,6 @@
 .git
 *.db
+*.db.bk
 db/
+venv/
+static_bower/

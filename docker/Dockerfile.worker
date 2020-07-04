@@ -4,21 +4,33 @@ ENV PYTHONUNBUFFERED 1
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y \
-    postgresql-client libpq-dev \
-    sqlite3 \
-    mercurial \
-    inkscape imagemagick \
+  postgresql-client libpq-dev \
+  sqlite3 \
+  mercurial \
+  tidy \
+  inkscape imagemagick \
   --no-install-recommends && rm -rf /var/lib/apt/lists/*
+
+# Alternatively, https://f001.backblazeb2.com/file/olyexams-deploy/texlive-2015.tar.gz
+RUN \
+  curl -o /texlive-2015.tar.gz http://monitor.oly-exams.org:8080/content/texlive-2015.tar.gz \
+  && tar xzf /texlive-2015.tar.gz -C /usr/local/ \
+  && ln -s /usr/local/texlive/2015/bin/x86_64-linux /opt/texbin
 
 COPY ./requirements.txt /requirements.txt
 
 RUN pip install --no-cache -r requirements.txt
+RUN pip install --no-cache psycopg2-binary>=2.8
 
 COPY . /app
 
-
-RUN sed 's/ipho.db/db\/db.sqlite/g' /app/exam_tools/settings_example.py > /app/exam_tools/settings.py
-
 WORKDIR /app
 
-# TODO: celery, rabbit as service, etc
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+ENV CELERY_WORKER=2
+ENV DJANGODIR=/app
+
+RUN mkdir -p /var/run/celery /var/log/celery \
+  && chown -R nobody:nogroup /var/run/celery /var/log/celery
+
+CMD celery worker -A exam_tools --statedb=/var/run/celery/worker-example@%h.state -E --concurrency=${CELERY_WORKER} -O fair --uid=nobody --gid=nogroup
