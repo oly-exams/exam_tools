@@ -114,3 +114,30 @@ To build the docker images:
 ```bash
 docker build -f docker/Dockerfile.master .
 ```
+
+## Development with Docker
+
+The development with Docker uses Postgres and RabbitMQ within docker-compose.
+The ExamTools code is then executed inside two images containing all required
+dependencies. The `docker-compose` environment mounts the local folder inside
+the containers, so we can use common IDEs.
+
+
+1. Use the example settings provided in `./exam_tools/settings_compose.py`
+
+    ```bash
+    cp ./exam_tools/settings_compose.py ./exam_tools/settings.py
+    ```
+
+2. Launch the docker environment
+
+    ```bash
+    docker-compose up
+    ```
+
+When needed, one can interact with the Django manage.py using an interactive
+session.
+
+```bash
+docker-compose run --rm web bash
+```
