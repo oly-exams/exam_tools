@@ -767,7 +767,13 @@ class QMLfigure(QMLobject):
                 caption_text = data2xhtml(c.data)
                 fig_caption += caption_text
 
-        width = self.attributes.get('width', 0.9)  # 0.9 is the default value
+        DEFAULT_WIDTH = 0.9
+
+        width = self.attributes.get('width', DEFAULT_WIDTH)
+        try:
+            width = float(width)
+        except Exception:
+            width = DEFAULT_WIDTH
 
         fig = Figure.objects.get(fig_id=self.attributes['figid'])
         fig_content, content_type = fig.to_inline(query=self.fig_query(), lang=self.lang)
@@ -775,8 +781,8 @@ class QMLfigure(QMLobject):
         if content_type == 'svg+xml':
             xhtmlout = fig_content
         else:
-            xhtmlout = u'<img src="data:image/{content_type};base64,{fig_content}"/>\n'.format(
-                content_type=content_type, fig_content=binascii.b2a_base64(fig_content)
+            xhtmlout = u'<img width="{width}%" src="data:image/{content_type};base64,{fig_content}"/>\n'.format(width=int(round(100.*width)),
+                content_type=content_type, fig_content=binascii.b2a_base64(fig_content).decode()
             )
         if len(fig_caption) > 0:
             xhtmlout += u'<div>{}</div>\n'.format(fig_caption)
@@ -826,6 +832,11 @@ class QMLequation(QMLobject):
     def tex_end(self):
         return u'\\end{equation}\n\n'
 
+    def xhtml_begin(self):
+        return u'\\begin{equation}\n'
+
+    def xhtml_end(self):
+        return u'\\end{equation}\n\n'
 
 class QMLlist(QMLobject):
     tag = "list"

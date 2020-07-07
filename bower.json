@@ -9,7 +9,7 @@
   "private": true,
   "dependencies": {
     "moment": "2.11.2",
-    "MathJax": "2.5.1",
+    "MathJax": "2.7.5",
     "ace-builds": "1.2.6",
     "bootstrap": "3.3.4",
     "eonasdan-bootstrap-datetimepicker": "git://github.com/Eonasdan/bootstrap-datetimepicker#4.17.37",

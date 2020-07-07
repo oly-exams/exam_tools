@@ -807,7 +807,7 @@ def progress(request):
     students = Student.objects.all().values('id', 'code')
 
     marking_statuses = []
-    for exam in Exam.objects.filter(marking_active=True):
+    for exam in Exam.objects.all():
         questions = Question.objects.filter(exam=exam, type=Question.ANSWER)
         metas_groups = [MarkingMeta.objects.filter(question=question) for question in questions]
         added = False
@@ -818,6 +818,7 @@ def progress(request):
                     version=vid,
                     student=student['id'],
                     marking_meta__question=question,
+                    points__isnull=False,
                 )
                 statuses.append(markings.count() < metas.count())
             if any(statuses):
