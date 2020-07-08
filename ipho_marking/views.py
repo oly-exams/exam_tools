@@ -45,7 +45,8 @@ from ipho_exam.models import ExamAction
 
 OFFICIAL_LANGUAGE = getattr(settings, 'OFFICIAL_LANGUAGE', 1)
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
-
+SHOW_OFFICIAL_MARKS_IMMEDIATELY = getattr(settings, 'SHOW_OFFICIAL_MARKS_IMMEDIATELY', False)
+ACCEPT_MARKS_BEFORE_MODERATION = getattr(settings, 'ACCEPT_MARKS_BEFORE_MODERATION', False)
 
 @permission_required('ipho_core.is_staff')
 def import_exam(request):
