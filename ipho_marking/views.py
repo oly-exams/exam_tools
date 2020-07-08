@@ -25,7 +25,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.template.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Q
 
 from django.forms import modelformset_factory, inlineformset_factory
 
@@ -622,7 +622,11 @@ def moderation_index(request, question_id=None):
         exam__hidden=False, exam__moderation_active=True, type=Question.ANSWER
     ).order_by('exam__code', 'position')
     question = None if question_id is None else get_object_or_404(Question, id=question_id)
-    delegations = Delegation.objects.all()
+    if question is not None:
+        free_actions = MarkingAction.objects.filter(question=question).filter(Q(status=MarkingAction.OPEN)|Q(status=MarkingAction.SUBMITTED)).values('delegation_id')
+        delegations = Delegation.objects.filter(id__in=free_actions).all()
+    else:
+        delegations = Delegation.objects.all()
     ctx = {'questions': questions, 'question': question, 'delegations': delegations}
     return render(request, 'ipho_marking/moderation_index.html', ctx)
 
@@ -631,6 +635,10 @@ def moderation_index(request, question_id=None):
 def moderation_detail(request, question_id, delegation_id):
     question = get_object_or_404(Question, id=question_id, exam__hidden=False, exam__moderation_active=True)
     delegation = get_object_or_404(Delegation, id=delegation_id)
+
+    marking_action = get_object_or_404(MarkingAction, delegation=delegation, question=question)
+    if marking_action.status == MarkingAction.LOCKED or marking_action.status == MarkingAction.FINAL:
+        raise RuntimeError('These markings are locked, you cannot modify them!')
 
     metas = MarkingMeta.objects.filter(question=question)
     students = delegation.student_set.all()
@@ -673,6 +681,8 @@ def moderation_detail(request, question_id, delegation_id):
     if all_valid:
         for _, form, _, _, _ in student_forms:
             form.save()
+        marking_action.status = MarkingAction.LOCKED
+        marking_action.save()
         return HttpResponseRedirect(
             reverse(
                 'marking:moderation-confirmed', kwargs={
