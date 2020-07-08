@@ -23,7 +23,10 @@
         <tr>
             <th>In Progress</th>
             <th>Submitted</th>
-            <th>Remaining</th>
+            <th>Submissions Remaining</th>
+            <th>Moderated</th>
+            <th>Accepted</th>
+            <th>Approvals Remaining</th>
         </tr>
         <tbody>
             <tr>
@@ -31,6 +34,13 @@
                 <td>{{ summary.2 }}</td>
                 <td>
                     {% for country in summary.3 %}
+                    <span>{{ country }}</span>
+                    {% endfor %}
+                </td>
+                <td>{{ summary.4 }}</td>
+                <td>{{ summary.5 }}</td>
+                <td>
+                    {% for country in summary.6 %}
                     <span>{{ country }}</span>
                     {% endfor %}
                 </td>

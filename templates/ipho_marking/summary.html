@@ -40,13 +40,17 @@
         {% for student, points, exam_points in points_per_student %}
         <tr>
             <td>{{ student.code }}</td>
-            {% for qid,pp in points %}
+            {% for tmp,marking_action in points %}
             <td>
-              {{ pp|default_if_none:'-' }}
+              {{ tmp.1|default_if_none:'-' }}
               {% if vid == "O" %}
-              <a class="btn btn-default btn-xs" href="{% url 'marking:staff-stud-detail' question_id=qid version=vid stud_id=student.id %}">
-                <i class="fa fa-pencil" aria-hidden="true"></i>
-              </a>
+                {% if marking_action.status in editable_status %}
+                <a class="btn btn-default btn-xs" href="{% url 'marking:staff-stud-detail' question_id=tmp.0 version=vid stud_id=student.id %}">
+                  <i class="fa fa-pencil" aria-hidden="true"></i>
+                </a>
+                {% else %}
+                <i class="fa fa-ban" aria-hidden="true"></i>
+                {% endif %}
               {% endif %}
             </td>
             {% endfor %}

@@ -112,7 +112,10 @@ def summary(request):
             exam_points=Sum('points')
         ).values('exam_points').order_by('marking_meta__question__exam')
 
-        points_per_student.append((student, stud_points_list, stud_exam_points_list))
+        stud_marking_action_list = MarkingAction.objects.filter(delegation__student__pk__contains=student['id']).values('status').order_by('question__exam', 'question__position')
+        print(stud_marking_action_list)
+
+        points_per_student.append((student, list(zip(stud_points_list, stud_marking_action_list)), stud_exam_points_list, ))
 
     questions = MarkingMeta.objects.all().values('question').annotate(question_points=Sum('max_points')).values(
         'question__exam__name', 'question__name', 'question_points'
@@ -129,6 +132,7 @@ def summary(request):
         'questions': questions,
         'points_per_student': points_per_student,
         'exams': exams,
+        'editable_status': [MarkingAction.OPEN, MarkingAction.SUBMITTED]
     }
     return render(request, 'ipho_marking/summary.html', context)
 
@@ -141,8 +145,13 @@ def staff_stud_detail(request, version, stud_id, question_id):
     if not request.user.has_perm('ipho_core.is_marker') or version != 'O':
         raise RuntimeError('You cannot modify these markings!')
 
+
+
     question = get_object_or_404(Question, id=question_id)
     student = get_object_or_404(Student, id=stud_id)
+    marking_action = get_object_or_404(MarkingAction, delegation=student.delegation, question=question)
+    if marking_action.status == MarkingAction.LOCKED or marking_action.status == MarkingAction.FINAL:
+        raise RuntimeError('These markings are locked, you cannot modify them!')
 
     metas = MarkingMeta.objects.filter(question=question)
     FormSet = modelformset_factory(
@@ -308,7 +317,6 @@ def delegation_summary(request):
             st_points['exam_points'] for st_points in stud_exam_points_list if st_points['exam_points'] is not None
         ])
         points_per_student.append((student, stud_exam_points_list, total))
-
     active_exams = Exam.objects.filter(hidden=False, marking_active=True)
     scans_table_per_exam = []
     scan_show_exams = Exam.objects.filter(hidden=False, show_scans=True)
@@ -689,7 +697,11 @@ def moderation_detail(request, question_id, delegation_id):
 def official_marking_index(request, question_id=None):
     questions = Question.objects.filter(exam__hidden=False, type=Question.ANSWER).order_by('exam__code', 'position')
     question = None if question_id is None else get_object_or_404(Question, id=question_id)
-    delegations = Delegation.objects.all()
+    if question is not None:
+        free_actions = MarkingAction.objects.filter(question=question).filter(Q(status=MarkingAction.OPEN)|Q(status=MarkingAction.SUBMITTED)).values('delegation_id')
+        delegations = Delegation.objects.filter(id__in=free_actions).all()
+    else:
+        delegations = Delegation.objects.all()
     ctx = {'questions': questions, 'question': question, 'delegations': delegations}
     return render(request, 'ipho_marking/official_marking_index.html', ctx)
 
@@ -698,6 +710,9 @@ def official_marking_index(request, question_id=None):
 def official_marking_detail(request, question_id, delegation_id):
     question = get_object_or_404(Question, id=question_id, exam__hidden=False)
     delegation = get_object_or_404(Delegation, id=delegation_id)
+    marking_action = get_object_or_404(MarkingAction, delegation=delegation, question=question)
+    if marking_action.status == MarkingAction.LOCKED or marking_action.status == MarkingAction.FINAL:
+        raise RuntimeError('These markings are locked, you cannot modify them!')
 
     metas = MarkingMeta.objects.filter(question=question)
     students = delegation.student_set.all()
@@ -782,16 +797,25 @@ def moderation_confirmed(request, question_id, delegation_id):
 def marking_submissions(request):
     ctx = {
         "summaries": [(
-            exam.name,
-            ExamAction.objects.filter(exam=exam, action=ExamAction.POINTS,
-                                      status=ExamAction.OPEN).exclude(delegation__name=OFFICIAL_DELEGATION).count(),
-            ExamAction.objects.filter(exam=exam, action=ExamAction.POINTS, status=ExamAction.SUBMITTED
+            question.name,
+            MarkingAction.objects.filter(question=question, status=MarkingAction.OPEN
                                       ).exclude(delegation__name=OFFICIAL_DELEGATION).count(),
-            ExamAction.objects.filter(exam=exam, action=ExamAction.POINTS,
-                                      status=ExamAction.OPEN).exclude(delegation__name=OFFICIAL_DELEGATION).values_list(
+            MarkingAction.objects.filter(question=question, status=MarkingAction.SUBMITTED
+                                      ).exclude(delegation__name=OFFICIAL_DELEGATION).count(),
+            MarkingAction.objects.filter(question=question, status=MarkingAction.OPEN
+                                      ).exclude(delegation__name=OFFICIAL_DELEGATION).values_list(
                                           'delegation__country', flat=True
                                       ),
-        ) for exam in Exam.objects.filter(marking_active=True)]
+            MarkingAction.objects.filter(question=question, status=MarkingAction.LOCKED
+                                      ).exclude(delegation__name=OFFICIAL_DELEGATION).count(),
+            MarkingAction.objects.filter(question=question, status=MarkingAction.FINAL
+                                      ).exclude(delegation__name=OFFICIAL_DELEGATION).count(),
+            MarkingAction.objects.filter(question=question
+                                      ).exclude( status=MarkingAction.FINAL, delegation__name=OFFICIAL_DELEGATION
+                                      ).values_list(
+                                          'delegation__country', flat=True
+                                      ),
+        ) for question in Question.objects.filter(exam__marking_active=True, type=Question.ANSWER)]
     }
     return render(request, 'ipho_marking/marking_submissions.html', ctx)
 
