@@ -39,7 +39,7 @@ from ipho_exam.models import Exam, Question, VersionNode, ExamAction, Document
 from ipho_exam import qquery as qwquery
 from ipho_exam import qml
 
-from .models import MarkingMeta, Marking
+from .models import MarkingMeta, Marking, MarkingAction
 from .forms import ImportForm, PointsForm
 from ipho_exam.models import ExamAction
 

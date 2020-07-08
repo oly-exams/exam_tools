@@ -29,6 +29,11 @@ class MarkingAdmin(admin.ModelAdmin):
     list_filter = ('version', 'marking_meta__question', 'student__delegation')
     list_display = ('marking_meta', 'student', 'version', 'points')
 
+class MarkingActionAdmin(admin.ModelAdmin):
+    list_display = ('question', 'delegation', 'status')
+    list_filter = ('question', 'delegation', 'status')
+
 
 admin.site.register(models.MarkingMeta, MarkingMetaAdmin)
 admin.site.register(models.Marking, MarkingAdmin)
+admin.site.register(models.MarkingAction, MarkingActionAdmin)
