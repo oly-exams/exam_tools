@@ -31,7 +31,9 @@ from django.forms import modelformset_factory, inlineformset_factory
 
 import itertools
 import decimal
+import json
 from collections import OrderedDict
+from hashlib import md5
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
@@ -249,13 +251,15 @@ def delegation_export(request, exam_id):
     delegation = Delegation.objects.get(members=request.user)
 
     all_versions = request.GET.get('v', 'O,D,F').split(',')
+
+    #TODO: add flag for chemistry order
+    #TODO: now it is per exam, check all questions! (maybe it even per question?)
     # check if the delegation should see all versions
-    if ExamAction.objects.get(
-        exam__id=exam_id, delegation=delegation, action=ExamAction.POINTS
-    ).status == ExamAction.SUBMITTED:
-        allowed_versions = ['O', 'D', 'F']
-    else:
+    exam = get_object_or_404(Exam, id=exam_id)
+    if MarkingAction.is_in_progress(delegation=delegation, exam=exam):
         allowed_versions = ['D']
+    else:
+        allowed_versions = ['O', 'D', 'F']
     versions = [v for v in all_versions if v in allowed_versions]
 
     import csv
@@ -300,9 +304,41 @@ def delegation_export(request, exam_id):
 @permission_required('ipho_core.is_delegation')
 def delegation_summary(request):
     delegation = Delegation.objects.get(members=request.user)
-    points_submissions = ExamAction.objects.filter(
-        delegation=delegation, action=ExamAction.POINTS, exam__marking_active=True
-    ).order_by('exam')
+
+    exam_list = []
+    for exam in Exam.objects.filter(marking_active=True, hidden=False).order_by('pk').all():
+        answer_sheet_list = Question.objects.filter(exam=exam, type=Question.ANSWER).order_by('exam__pk', 'position')
+        question_ctx = []
+        for question in answer_sheet_list:
+            res = {'name':question.name, 'pk':question.pk}
+            marking_status = get_object_or_404(MarkingAction, delegation=delegation, question=question).status
+
+            if marking_status == MarkingAction.OPEN and not SHOW_OFFICIAL_MARKS_IMMEDIATELY:
+                res['edit'] = True
+                res['confirm_label'] = 'Confirm marks for {}'.format(question.name)
+            elif marking_status == MarkingAction.OPEN and SHOW_OFFICIAL_MARKS_IMMEDIATELY:
+                res['edit'] = True
+                res['view'] = True
+                res['confirm_label'] = 'Submit marks for moderation.'
+                if ACCEPT_MARKS_BEFORE_MODERATION:
+                    res['accept_label'] = 'Accept marks without moderation'
+            elif marking_status == MarkingAction.SUBMITTED:
+                res['view'] = True
+                if (not SHOW_OFFICIAL_MARKS_IMMEDIATELY) and ACCEPT_MARKS_BEFORE_MODERATION:
+                    res['accept_label'] = 'Accept marks without moderation'
+            elif marking_status == MarkingAction.LOCKED:
+                res['view'] = True
+                res['accept_label'] = 'Sign off final marks'
+                res['accept_class'] = 'btn-success'
+            else:
+                res['view'] = True
+            question_ctx.append(res)
+        exam_ctxt = {'questions':question_ctx,'name':exam.name, 'pk':exam.pk}
+        exam_ctxt['accept_row'] = any([q.get('accept_label') for q in question_ctx])
+        exam_ctxt['confirm_row'] = any([q.get('confirm_label') for q in question_ctx])
+        exam_list.append(exam_ctxt)
+
+
     students = Student.objects.filter(delegation=delegation).values('id', 'pk', 'code', 'first_name', 'last_name')
     vid = 'F'
     points_per_student = []
@@ -342,10 +378,12 @@ def delegation_summary(request):
                                                                                         ).order_by('question__exam',
                                                                                                    ).distinct()
 
+
+
     ctx = {
         'delegation': delegation,
         'students': students,
-        'points_submissions': points_submissions,
+        'exam_list': exam_list,
         'final_points_exams': final_points_exams,
         'points_per_student': points_per_student,
         'active_exams': active_exams,
@@ -372,10 +410,10 @@ def delegation_stud_edit(request, stud_id, question_id):
     ctx['question'] = question
     ctx['exam'] = question.exam
 
-    points_submissions, _ = ExamAction.objects.get_or_create(
-        exam=question.exam, delegation=delegation, action=ExamAction.POINTS
-    )
-    if points_submissions.status == ExamAction.SUBMITTED:
+    marking_action, _ = MarkingAction.objects.get_or_create(
+        question=question, delegation=delegation
+        )
+    if not marking_action.in_progress():
         ctx['msg'].append((('alert-info'),
                            '<strong>Note:</strong> The points have been submitted, you can no longer edit them.'))
         return render(request, 'ipho_marking/delegation_detail.html', ctx)
@@ -432,10 +470,10 @@ def delegation_edit_all(request, question_id):
     ctx['question'] = question
     ctx['exam'] = question.exam
 
-    points_submissions, _ = ExamAction.objects.get_or_create(
-        exam=question.exam, delegation=delegation, action=ExamAction.POINTS
-    )
-    if points_submissions.status == ExamAction.SUBMITTED:
+    marking_action, _ = MarkingAction.objects.get_or_create(
+        question=question, delegation=delegation
+        )
+    if not marking_action.in_progress():
         ctx['msg'].append((('alert-info'),
                            '<strong>Note:</strong> The points have been submitted, you can no longer edit them.'))
         return render(request, 'ipho_marking/delegation_detail.html', ctx)
@@ -445,7 +483,9 @@ def delegation_edit_all(request, question_id):
         Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False
     )
     formset = FormSet(
-        request.POST or None, queryset=Marking.objects.filter(marking_meta__in=metas, student__in=students, version=version)
+        request.POST or None, queryset=Marking.objects.filter(
+            marking_meta__in=metas, student__in=students, version=version
+            ).order_by('marking_meta__position', 'student__code')
     )
 
     if formset.is_valid():
@@ -487,10 +527,10 @@ def delegation_stud_view(request, stud_id, question_id):
     ctx['exam'] = question.exam
     ctx['versions_display'] = versions_display
 
-    points_submissions, _ = ExamAction.objects.get_or_create(
-        exam=question.exam, delegation=delegation, action=ExamAction.POINTS
-    )
-    if points_submissions.status == ExamAction.OPEN:
+    marking_action, _ = MarkingAction.objects.get_or_create(
+        question=question, delegation=delegation
+        )
+    if marking_action.in_progress() and not SHOW_OFFICIAL_MARKS_IMMEDIATELY:
         ctx['msg'].append(
             (('alert-info'),
              '<strong>Note:</strong> You can see the official points only when you confirmed your markings.')
@@ -528,10 +568,10 @@ def delegation_view_all(request, question_id):
     ctx['exam'] = question.exam
     ctx['versions_display'] = versions_display
 
-    points_submissions, _ = ExamAction.objects.get_or_create(
-        exam=question.exam, delegation=delegation, action=ExamAction.POINTS
-    )
-    if points_submissions.status == ExamAction.OPEN:
+    marking_action, _ = MarkingAction.objects.get_or_create(
+        question=question, delegation=delegation
+        )
+    if marking_action.in_progress() and not SHOW_OFFICIAL_MARKS_IMMEDIATELY:
         ctx['msg'].append(
             (('alert-info'),
              '<strong>Note:</strong> You can see the official points only when you confirmed your markings.')
@@ -560,31 +600,86 @@ def delegation_view_all(request, question_id):
 
 
 @permission_required('ipho_core.is_delegation')
-def delegation_confirm(request, exam_id):
+def delegation_confirm(request, question_id, final_confirmation=False):
     delegation = Delegation.objects.get(members=request.user)
-    exam = get_object_or_404(Exam, id=exam_id, marking_active=True)
+    question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
     form_error = ''
 
-    points_submissions, _ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=ExamAction.POINTS)
-    if points_submissions.status == ExamAction.SUBMITTED:
+    marking_action, _ = MarkingAction.objects.get_or_create(question=question, delegation=delegation)
+
+    if not final_confirmation and not marking_action.in_progress():
+         # can only confirm open actions
+         return HttpResponseRedirect(reverse('marking:delegation-summary'))
+    if final_confirmation:
+        if not ACCEPT_MARKS_BEFORE_MODERATION and not marking_action.status == MarkingAction.LOCKED:
+            # if not accept_marks_before_moderation only locked marks can be final-confirmed
+            return HttpResponseRedirect(reverse('marking:delegation-summary'))
+        if ACCEPT_MARKS_BEFORE_MODERATION and SHOW_OFFICIAL_MARKS_IMMEDIATELY and marking_action.status == MarkingAction.SUBMITTED:
+            # if accept_... and show_... submitted marks need to proceed to moderation
+            return HttpResponseRedirect(reverse('marking:delegation-summary'))
+    if marking_action.status == MarkingAction.FINAL:
+        # final marks cannot be confirmed in any case
         return HttpResponseRedirect(reverse('marking:delegation-summary'))
 
-    questions = Question.objects.filter(exam=exam, type=Question.ANSWER)
-    metas_query = MarkingMeta.objects.filter(question__in=questions).order_by('question', 'position')
+    if final_confirmation:
+        vid = 'O'
+        ptqueryset = Marking.objects.filter(marking_meta__question=question, student__delegation=delegation, version='O').order_by('pk').values_list('points')
+        ptlist = [str(p[0]) for p in ptqueryset]
+        ptstr = str(ptlist)
+        checksum = md5(ptstr.encode('ascii')).hexdigest()
+    else:
+        vid = 'D'
+        checksum = None
+    #questions = Question.objects.filter(exam=exam, type=Question.ANSWER)
+    metas_query = MarkingMeta.objects.filter(question=question).order_by('position')
     markings_query = Marking.objects.filter(
-        student__delegation=delegation, marking_meta__in=metas_query, version='D'
-    ).order_by('marking_meta__question', 'marking_meta__position', 'student')
+        student__delegation=delegation, marking_meta__in=metas_query, version=vid
+    ).order_by('marking_meta__position', 'student')
 
     if any(m.points is None for m in markings_query):
-        return HttpResponseForbidden(
-            'Some marks for {} are missing, please submit marks for all questions, subquestions and students before confirming!'.
-            format(exam.name)
-        )
+        if final_confirmation and marking_action.status == MarkingAction.LOCKED: # if status is LOCKED, all final marks should be there.
+            msg = 'Some final marks for {} are missing, please contact support!'.format(question.name)
+        elif final_confirmation:# id status is OPEN or SUBMITTED, the orgainzer marks should be finished, but maybe aren't
+            print([m.points for m in markings_query ])
+            msg = 'Some marks for {} are missing, please wait for the organizers to submit all marks!'.format(question.name)
+        else:
+            msg = 'Some marks for {} are missing, please submit marks for all subquestions and students before confirming!'.format(question.name)
 
+        # TODO: nicer error page
+        return HttpResponseForbidden(msg)
+
+    error_messages = []
     if request.POST:
         if 'agree-submit' in request.POST:
-            points_submissions.status = ExamAction.SUBMITTED
-            points_submissions.save()
+            if final_confirmation:
+                if not 'checksum' in request.POST:
+                    msg = 'Something went wrong (checksum missing), please contact support!'
+                    return HttpResponseForbidden(msg)
+                if request.POST['checksum'] != checksum:
+                    error_msg = ('The marks for {} have been changed. '.format(question.name) +
+                        'Please reload the page and check the marks again. ' +
+                        '<a href="{}" class="btn btn-default btn-xs">Reload</a>'
+                        .format(reverse('marking:delegation-final-confirm', args=(question_id, )))
+                        )
+                    error_messages.append(('alert-danger', error_msg))
+                    checksum = 'none'
+                else:
+                    for off_mark in Marking.objects.filter(marking_meta__question=question, student__delegation=delegation, version='O'):
+                        fin_mark, _ = Marking.objects.get_or_create(marking_meta=off_mark.marking_meta, student=off_mark.student, version='F')
+                        fin_mark.points = off_mark.points
+                        fin_mark.comment = off_mark.comment
+                        fin_mark.save()
+                    marking_action.status = MarkingAction.FINAL
+                    marking_action.save()
+                    return HttpResponseRedirect(reverse('marking:delegation-summary'))
+            else:
+                marking_action.status = MarkingAction.SUBMITTED
+                marking_action.save()
+                return HttpResponseRedirect(reverse('marking:delegation-summary'))
+        elif 'reject-final' in request.POST and final_confirmation:
+            # i.e. if delegation rejects final marks, unlock marking action
+            marking_action.status = MarkingAction.SUBMITTED
+            marking_action.save()
             return HttpResponseRedirect(reverse('marking:delegation-summary'))
         else:
             form_error = '<strong>Error:</strong> You have to confirm the marking before continuing.'
@@ -605,14 +700,42 @@ def delegation_confirm(request, exam_id):
     totals = {p: sum(totals_questions[k][p] for k in totals_questions) for p in list(totals_questions.values())[0]}
 
     ctx = {
-        'exam': exam,
-        'questions': questions,
+        'exam': question.exam,
+        'questions': (question,),
         'markings': markings,
         'metas': metas,
         'totals_questions': totals_questions,
         'totals': totals,
-        'form_error': form_error
+        'form_error': form_error,
+        'error_messages': error_messages,
+        'checksum': checksum
     }
+    if final_confirmation:
+        ctx['confirmation_h2'] = 'Sign off final points for {}'.format(question.name)
+        ctx['confirmation_info'] = (
+            'Please check the points displayed below. ' +
+            'Note that you <strong>cannot</strong> moderate the points if you acceppt them now.')
+        ctx['confirmation_checkbox_label'] = 'I accept the final markings.'
+        ctx['confirm_button_label'] = 'Accept'
+
+        if  marking_action.status == MarkingAction.LOCKED:
+            # i.e. if moderation has happened
+            ctx['confirmation_info'] = (
+                'Please check the points displayed below. ' +
+                'If the points are not as discussed in the moderation, ' +
+                'you can reopen it to allow the organizers to change the marks. ' +
+                'Note that this does <strong>not</strong> lead to another moderation session.')
+            ctx['confirmation_alert_class'] = 'alert-info'
+            ctx['reject_button_label'] = 'Reopen moderation'
+        else:
+            ctx['confirmation_alert_class'] = 'alert-warning'
+
+    else:
+        ctx['confirmation_h2'] = 'Confirm points for {}'.format(question.name)
+        ctx['confirmation_info'] = 'You need to confirm the marking of your delegation before you can see the points assigned by the official markers.'
+        ctx['confirmation_checkbox_label'] = 'I confirm my version of the markings.'
+        ctx['confirm_button_label'] = 'Confirm'
+    print(ctx)
     return render(request, 'ipho_marking/delegation_confirm.html', ctx)
 
 

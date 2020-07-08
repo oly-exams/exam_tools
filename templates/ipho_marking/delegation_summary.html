@@ -24,48 +24,83 @@
 
       <p class="lead">Submit your marking and see the official marks.</p>
 
-      {% for psubs in points_submissions %}
+      {% for ctxt in exam_list %}
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h2 class="panel-title">{{ psubs.exam.name }}</h2>
+          <h2 class="panel-title">{{ ctxt.name }}</h2>
         </div>
-        <table class="table table-strided">
+        <table class="table">
             <tr>
                 <th>Student</th>
-                {% for question in psubs.exam.question_set.all %}
-                    {% if question.is_answer_sheet %}
+                {% for question in ctxt.questions %}
                     <th style="max-width: 10em;">{{ question.name }}</th>
-                    {% endif %}
                 {% endfor %}
             </tr>
             {% for student in students %}
-            <tr>
+            <tr style="border-bottom:1px solid black;">
                 <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
-                {% for question in psubs.exam.question_set.all %}
-                    {% if question.is_answer_sheet %}
-                        {% if psubs.status == OPEN_STATUS %}
-                        <td><a class="btn btn-warning btn-xs" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit</a></td>
-                        {% else %}
-                        <td><a class="btn btn-success btn-xs" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> View</a></td>
-                        {% endif %}
+                {% for question in ctxt.questions %}
+                  <td>
+                    {% if question.edit %}
+                        <a class="btn btn-warning btn-xs" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit</a>
                     {% endif %}
+                    {% if question.view %}
+                        <a class="btn btn-success btn-xs" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> View</a>
+                    {% endif %}
+                  </td>
                 {% endfor %}
             </tr>
             {% endfor %}
             <tr>
                 <td></td>
-                {% for question in psubs.exam.question_set.all %}
-                    {% if question.is_answer_sheet %}
-                        {% if psubs.status == OPEN_STATUS %}
-                        <td><a class="btn btn-warning btn-xs" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit all</a></td>
-                        {% else %}
-                        <td><a class="btn btn-success btn-xs" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> View all</a></td>
-                        {% endif %}
-                    {% endif %}
+                {% for question in ctxt.questions  %}
+                    <td>
+                      {% if question.edit %}
+                      <a class="btn btn-warning btn-xs" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit all</a>
+                      {% endif %}
+                      {% if question.view %}
+                      <a class="btn btn-success btn-xs" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> View all</a>
+                      {% endif %}
+                    </td>
                 {% endfor %}
             </tr>
+            <tr>
+              <td>
+                <a class="btn btn-default btn-sm" href="{% url 'marking:delegation-export' exam_id=ctxt.pk %}"><i class="fa fa-file-excel-o"></i> Export</i></a>
+              </td>
+              {% for question in ctxt.questions  %}
+              <td>
+                {% if question.confirm_label %}
+                <a class="btn btn-primary btn-sm" href="{% url 'marking:delegation-confirm' question.pk %}">{{ question.confirm_label}} <i class="fa fa-angle-double-right"></i></a>
+                {% elif question.accept_label %}
+                <a class="btn {{ question.accept_class|default:'btn-warning btn-sm' }}" href="{% url 'marking:delegation-final-confirm' question.pk %}">{{ question.accept_label}} <i class="fa fa-angle-double-right"></i></a>
+                {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% if ctxt.accept_row and ctxt.confirm_row %}
+            <tr class="table-condensed">
+              <td></td>
+              {% for question in ctxt.questions  %}
+              <td class="align-middle">
+                {% if question.accept_label and question.confirm_label %}
+                OR
+                {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            <tr class="table-secondary">
+              <td></td>
+              {% for question in ctxt.questions  %}
+              <td>
+                {% if question.accept_label and question.confirm_label %}
+                <a class="btn {{ question.accept_class|default:'btn-warning btn-sm' }}" href="{% url 'marking:delegation-final-confirm' question.pk %}">{{ question.accept_label}} <i class="fa fa-angle-double-right"></i></a>
+                {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endif %}
         </table>
-        <div class="panel-footer"><a class="btn btn-default btn-sm" href="{% url 'marking:delegation-export' exam_id=psubs.exam.pk %}"><i class="fa fa-file-excel-o"></i> Export</i></a>  {% if psubs.status == OPEN_STATUS %}<a class="btn btn-primary btn-sm" href="{% url 'marking:delegation-confirm' psubs.exam.pk %}">Confirm marking <i class="fa fa-angle-double-right"></i></a>{% endif %}</div>
       </div>
       {% empty %}
       <p class="alert alert-info">Marking is currently not enabled for any exam.</p>
