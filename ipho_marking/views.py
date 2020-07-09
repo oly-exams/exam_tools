@@ -37,13 +37,13 @@ from hashlib import md5
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, ExamAction, Document
+from ipho_exam.models import Exam, Question, VersionNode, Document
 from ipho_exam import qquery as qwquery
 from ipho_exam import qml
 
 from .models import MarkingMeta, Marking, MarkingAction
 from .forms import ImportForm, PointsForm
-from ipho_exam.models import ExamAction
+
 
 OFFICIAL_LANGUAGE = getattr(settings, 'OFFICIAL_LANGUAGE', 1)
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
@@ -382,8 +382,6 @@ def delegation_summary(request):
         'points_per_student': points_per_student,
         'active_exams': active_exams,
         'scans_table_per_exam': scans_table_per_exam,
-        'OPEN_STATUS': ExamAction.OPEN,
-        'SUBMITTED_STATUS': ExamAction.SUBMITTED,
     }
     return render(request, 'ipho_marking/delegation_summary.html', ctx)
 
