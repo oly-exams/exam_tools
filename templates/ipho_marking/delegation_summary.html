@@ -29,7 +29,8 @@
         <div class="panel-heading">
           <h2 class="panel-title">{{ ctxt.name }}</h2>
         </div>
-        <table class="table">
+        <div  class="table-responsive">
+          <table class="table">
             <tr>
                 <th>Student</th>
                 {% for question in ctxt.questions %}
@@ -37,7 +38,7 @@
                 {% endfor %}
             </tr>
             {% for student in students %}
-            <tr style="border-bottom:1px solid black;">
+            <tr>
                 <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
                 {% for question in ctxt.questions %}
                   <td>
@@ -100,7 +101,8 @@
               {% endfor %}
             </tr>
             {% endif %}
-        </table>
+          </table>
+        </div>
       </div>
       {% empty %}
       <p class="alert alert-info">Marking is currently not enabled for any exam.</p>
