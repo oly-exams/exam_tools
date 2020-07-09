@@ -113,10 +113,7 @@ def summary(request):
         ).values('marking_meta__question__exam').annotate(
             exam_points=Sum('points')
         ).values('exam_points').order_by('marking_meta__question__exam')
-
         stud_marking_action_list = MarkingAction.objects.filter(delegation__student__pk__contains=student['id']).values('status').order_by('question__exam', 'question__position')
-        print(stud_marking_action_list)
-
         points_per_student.append((student, list(zip(stud_points_list, stud_marking_action_list)), stud_exam_points_list, ))
 
     questions = MarkingMeta.objects.all().values('question').annotate(question_points=Sum('max_points')).values(
@@ -216,7 +213,6 @@ def export(request, include_totals=False):
             ).order_by('marking_meta__question__exam', 'marking_meta__question__position', 'marking_meta__position')
             points = markings.values_list('points', flat=True)
             for marking, meta in zip(markings, mmeta):
-                # print(marking.marking_meta, meta)
                 assert marking.marking_meta == meta
             row += points
             if include_totals:
@@ -640,7 +636,6 @@ def delegation_confirm(request, question_id, final_confirmation=False):
         if final_confirmation and marking_action.status == MarkingAction.LOCKED: # if status is LOCKED, all final marks should be there.
             msg = 'Some final marks for {} are missing, please contact support!'.format(question.name)
         elif final_confirmation:# id status is OPEN or SUBMITTED, the orgainzer marks should be finished, but maybe aren't
-            print([m.points for m in markings_query ])
             msg = 'Some marks for {} are missing, please wait for the organizers to submit all marks!'.format(question.name)
         else:
             msg = 'Some marks for {} are missing, please submit marks for all subquestions and students before confirming!'.format(question.name)
@@ -735,7 +730,6 @@ def delegation_confirm(request, question_id, final_confirmation=False):
         ctx['confirmation_info'] = 'You need to confirm the marking of your delegation before you can see the points assigned by the official markers.'
         ctx['confirmation_checkbox_label'] = 'I confirm my version of the markings.'
         ctx['confirm_button_label'] = 'Confirm'
-    print(ctx)
     return render(request, 'ipho_marking/delegation_confirm.html', ctx)
 
 
