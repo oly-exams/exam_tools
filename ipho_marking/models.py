@@ -65,19 +65,11 @@ class MarkingAction(models.Model):
         return self.status == MarkingAction.OPEN
 
     @staticmethod
-    def is_in_progress(exam, delegation):
+    def exam_in_progress(exam, delegation):
         marks_open = MarkingAction.objects.filter(
             question__exam=exam, delegation=delegation, status=MarkingAction.OPEN
         ).exists()
         return marks_open
-
-    @staticmethod
-    def require_in_progress(question, delegation):
-        if not MarkingAction.is_in_progress(question, delegation):
-            return IphoExamForbidden(
-                'You cannot perfom this action: those marks cannot be edited. Contact the staff if you have good reasons to request a reset.'
-            )
-        return None
 
 
 @receiver(post_save, sender=Question, dispatch_uid='create_marking_actions_on_question_creation')

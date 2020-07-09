@@ -248,11 +248,9 @@ def delegation_export(request, exam_id):
 
     all_versions = request.GET.get('v', 'O,D,F').split(',')
 
-    #TODO: add flag for chemistry order
-    #TODO: now it is per exam, check all questions! (maybe it even per question?)
     # check if the delegation should see all versions
     exam = get_object_or_404(Exam, id=exam_id)
-    if MarkingAction.is_in_progress(delegation=delegation, exam=exam):
+    if MarkingAction.exam_in_progress(delegation=delegation, exam=exam) and not SHOW_OFFICIAL_MARKS_IMMEDIATELY:
         allowed_versions = ['D']
     else:
         allowed_versions = ['O', 'D', 'F']
