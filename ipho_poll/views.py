@@ -154,12 +154,29 @@ def question_large(request, question_pk):
         'timestamp', 'part', 'comment'
     )
 
+    display_remaining_users = getattr(settings, 'VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS', False)
+    if display_remaining_users:
+        users = User.objects.filter(delegation__isnull=False).annotate(v_count=Count('votingright', distinct=True)).annotate(
+            q_count=Sum(Case(When(votingright__vote__question=question, then=1), output_field=IntegerField(), default=0))).exclude(q_count=F('v_count'))
+        usernames = sorted(
+            user.username + (' ({}/{})'.format(user.v_count - user.q_count, user.v_count) if user.q_count != 0 else '')
+            for user in users
+        )
+        columns = 6
+        if usernames:
+            usernames.extend((None,)*(columns - len(usernames) % columns))
+        remaining_users_to_vote = [usernames[i*columns:(i + 1)*columns] for i in range(len(usernames)//columns)]
+    else:
+        remaining_users_to_vote = []
+
     return render(
         request, 'ipho_poll/question_large.html', {
             'question': question,
             'choices': choices,
             'status': status,
             'feedbacks': feedbacks,
+            'display_remaining_users': display_remaining_users,
+            'remaining_users_to_vote': remaining_users_to_vote,
         }
     )
 

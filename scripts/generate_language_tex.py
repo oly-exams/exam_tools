@@ -31,10 +31,9 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
 
-from django.core.urlresolvers import reverse
-from django.core.context_processors import csrf
-from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
+from django.template.defaultfilters import slugify
+
 
 from django.conf import settings
 from ipho_core.models import Delegation, Student
@@ -51,18 +50,21 @@ OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 EVENT_TEMPLATE_PATH = getattr(settings, 'EVENT_TEMPLATE_PATH')
 
-BASE_PATH = u'../media/language_tex'
+BASE_PATH = u'../media/downloads/language_tex'
 FONT_PATH = os.path.join(STATIC_PATH, 'noto')
 REPLACEMENTS = [(FONT_PATH, '.'), (STATIC_PATH, '.')]
 
 
 def compile_question(question, language, logo_file):
+    if language.is_pdf:
+        return
     print('Prepare', question, 'in', language)
     try:
         trans = qquery.latest_version(question.pk, language.pk)
     except:
         print('NOT-FOUND')
         return
+
     trans_content, ext_resources = trans.qml.make_tex()
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
@@ -87,16 +89,18 @@ def compile_question(question, language, logo_file):
         exam_code = question.exam.code
         position = question.position
         question_code = question.code
-        folder = u'Translation-{}{}-{}-{}-{}'.format(
-            exam_code, position, question_code, language.delegation.name, language.name.replace(u' ', u'_')
+        #folder = u'Translation-{}{}-{}-{}-{}'.format(
+        #    exam_code, position, question_code, language.delegation.name, language.name.replace(u' ', u'_')
+        #)
+        folder = u'{0}_{1}/TRANSLATION_{2}_{3}'.format(
+            slugify(question.exam.name), slugify(question.name), language.delegation.name,
+            slugify(language.name),
         )
 
         base_folder = folder
         folder = os.path.join(BASE_PATH, folder)
-        try:
-            os.makedirs(folder)
-        except OSError:
-            pass
+        os.makedirs(folder, exist_ok=True)
+
         with open(os.path.join(folder, 'question.tex'), 'w') as f:
             for r in REPLACEMENTS:
                 body = body.replace(*r)
@@ -128,7 +132,6 @@ def compile_question(question, language, logo_file):
         for f in os.listdir(folder):
             if f.endswith('.pdf.svg'):
                 os.remove(os.path.join(folder, f))
-
         shutil.copyfile(os.path.join(STATIC_PATH, logo_file), os.path.join(folder, logo_file))
         shutil.make_archive(folder, 'zip', root_dir=BASE_PATH, base_dir=base_folder)
     except Exception as e:
@@ -148,6 +151,6 @@ def export_all(logo_file, names=('Theory', 'Experiment')):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        export_all(logo_file='ipho19_logo.pdf', names=sys.argv[1:])
+        export_all(logo_file='ibo19_logo.png', names=sys.argv[1:])
     else:
-        export_all(logo_file='ipho19_logo.pdf')
+        export_all(logo_file='ibo19_logo.png')

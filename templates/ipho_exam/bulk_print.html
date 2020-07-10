@@ -171,7 +171,13 @@ This list shows only documents that have been submitted by the delegations.
         {% for d in docs_list %}
           <tr>
             <td>{{ d.pk }} </td>
-            <td>{{ d.exam__name }}</td>
+            <td>{{ d.exam__name }}<br>Submitted:
+              {% if d.exam__delegation_status__timestamp %}
+              <time datetime="{{ d.exam__delegation_status__timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+              {% else %}
+              --:--
+              {% endif %}
+            </td>
             <td>{{ d.position }}</td>
             <td>{{ d.student__code }}</td>
             <td>{{ d.num_pages }} / {{ d.barcode_num_pages }} / {{ d.extra_num_pages }}</td>

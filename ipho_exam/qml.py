@@ -47,7 +47,7 @@ from . import tex
 from . import simplediff
 
 #block groups
-PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'enumerate', 'table', 'equation', 'figure', 'box')
+PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'enumerate', 'table', 'equation', 'equation_unnumbered', 'figure', 'box')
 DEFAULT_BLOCKS = ('texfield', 'texenv')
 
 TIDYOPTIONS={
@@ -82,7 +82,7 @@ TIDYOPTIONS={
 "clean": True,
 "bare": True,
 "new-blocklevel-tags": "question,subquestion,subanswer,subanswercontinuation,box,section,part,figure,list,texfield,texparam,texenv,table,row",
-"new-inline-tags": "title,paragraph,param,caption,equation,item,texparam,cell,tablecaption",
+"new-inline-tags": "title,paragraph,param,caption,equation,equation_unnumbered,item,texparam,cell,tablecaption",
 "new-empty-tags": "pagebreak,vspace"
 }  # yapf:disable
 
@@ -227,6 +227,19 @@ class _classproperty(object):
         return self.fget(owner_cls)
 
 
+def escape_percents(tex_code):
+    parts = tex_code.split('%')
+    parts_it = iter(parts)
+    next(parts_it)
+    for i, (part, part_it) in enumerate(zip(parts, parts_it)):
+        if part.endswith('\\vspace{') and part_it.startswith('iem}'):
+            continue
+        if not (len(part) - len(part.rstrip('\\'))) % 2:
+            parts[i] += '\\'
+    return '%'.join(parts)
+
+
+
 class QMLobject(object):
     default_attributes = {}
     _all_objects = None
@@ -348,7 +361,7 @@ class QMLobject(object):
             texout += texchild
 
         texout += self.tex_end()
-        return texout, externals
+        return escape_percents(texout), externals
 
     def xhtml_begin(self):
         return ''
@@ -758,7 +771,7 @@ class QMLfigure(QMLobject):
 
         externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
 
-        return texout, externals
+        return escape_percents(texout), externals
 
     def make_xhtml(self):
         fig_caption = ''
@@ -837,6 +850,21 @@ class QMLequation(QMLobject):
 
     def xhtml_end(self):
         return u'\\end{equation}\n\n'
+
+class QMLequation_unnumbered(QMLobject):
+    tag = "equation_unnumbered"
+    display_name = 'Equation*'
+    default_heading = "Equation*"
+    sort_order = 300
+
+    has_text = True
+    has_children = False
+
+    def tex_begin(self):
+        return u'\\begin{equation*}\n'
+
+    def tex_end(self):
+        return u'\\end{equation*}\n\n'
 
 class QMLlist(QMLobject):
     tag = "list"
@@ -931,7 +959,7 @@ class QMLlatex(QMLobject):
         for c in self.children:
             if c.tag == 'texparam':
                 content = content.replace(u'{{ %s }}' % c.attributes['name'], data2tex(c.data))
-        return content, []
+        return escape_percents(content), []
 
 
 class QMLlatexParam(QMLobject):
@@ -1053,7 +1081,7 @@ class QMLtableRow(QMLobject):
         texout += u' & '.join(data2tex(c.data) for c in self.children if c.tag == 'cell')  # pylint: disable=no-member
         texout += u' '.join(c.make_tex()[0] for c in self.children if c.tag == 'texfield')
         texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
-        return texout * multiplier, []
+        return escape_percents(texout) * multiplier, []
 
     def xhtml_begin(self):
         return u'<tr>'

@@ -56,6 +56,30 @@
             <div class="jumbotron">
                 <p>{{ question.content|safe }}</p>
             </div>
+            {% if display_remaining_users %}
+            {% if remaining_users_to_vote %}
+            {% if status == 'open' %}
+            <h2>Still waiting for:</h2>
+            {% else %}
+            <h2>Did not vote:</h2>
+            {% endif %}
+            <table class="table table-condensed">
+                {% for row in remaining_users_to_vote %}
+                <tr>
+                    {% for row_username in row %}
+                    {% if row_username %}
+                    <td>{{ row_username }}</td>
+                    {% else %}
+                    <td></td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <h2>Everyone voted!</h2>
+            {% endif %}
+            {% endif %}
 
 
         </div>
@@ -79,6 +103,7 @@
                     <th></th>
                     <th>Choice</th>
                     <th>{% if status == 'closed' %}Votes{% endif %}</th>
+                    <th>{% if status == 'closed' %}Percentages{% endif %}</th>
                 </tr>
 
                     {% for choice in choices %}
@@ -91,10 +116,12 @@
                             <td class="col-md-6", id="choice-{{ choice.pk }}-choice-text">
                                 {{ choice.choice_text }}
                             </td>
-                            <td class="col-md-2">
+                            <td class="col-md-2 numvotes">
                                 {% if status == 'closed' %}
                                 {{ choice.votes }}
                                 {% endif %}
+                            </td>
+                            <td class="col-md-2 percvotes">
                             </td>
                         </tr>
                     {% endfor %}
@@ -168,7 +195,19 @@ $('document').ready(function(){
     $(document).on('click', '#reload', function(event){
         location.reload();
     });
+    {% if status == 'closed' %}
+    $('.numvotes').each(function(i){
+      var tot_votes = {% for choice in choices %} {{ choice.votes }} + {% endfor %} 0;
+      votes = $(this).html();
+      percentage =  Math.round((parseInt(votes)/tot_votes)*100)
 
+      if( !(isNaN(percentage)) ){
+        $(this).parent().children('.percvotes').html(percentage + '%');
+      }else{
+        $(this).parent().children('.percvotes').html('--' + '%');
+      }
+    });
+    {% endif %}
     // Activates tooltipls
     $('.btn').tooltip({containter: ".parent"});
 
