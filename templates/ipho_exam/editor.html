@@ -104,6 +104,11 @@ body { margin-bottom: 70px; }
 	box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
 	outline: 0;
 }
+
+.btn-shallow-disabled {
+    opacity: .65;
+    box-shadow: none;
+}
 </style>
 
 {% endblock %}
@@ -395,7 +400,7 @@ body { margin-bottom: 70px; }
             <div class="navbar-right">
                 <a id="pdf-button" class="btn btn-success navbar-btn"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
                 <a id="pdf-button-hidden" style="display: none;" class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
-                <button type="submit" class="btn btn-primary navbar-btn" data-toggle="tooltip" data-placement="top" title="ctrl + S" disabled="disabled"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+                <button type="submit" class="btn btn-primary navbar-btn btn-shallow-disabled" data-toggle="tooltip" data-placement="top" title="ctrl + S"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
             </div>
           </div>
         </div>
@@ -777,7 +782,7 @@ body { margin-bottom: 70px; }
                 }
 
                 documentStatus = 'SAVING';
-                $button.prop('disabled', true);
+                $button.addClass('btn-shallow-disabled');
                 $button.tooltip('destroy');
                 updateDocumentStatus();
 
@@ -824,7 +829,7 @@ body { margin-bottom: 70px; }
                         console.log(new Date() + ' This is continous error, giving up!');
                         documentStatus = 'FAILED';
                         updateDocumentStatus();
-                        $form.find('button[type="submit"]').removeProp('disabled').tooltip();
+                        $form.find('button[type="submit"]').removeClass('btn-shallow-disabled').tooltip();
                       }
 
                     },
@@ -859,7 +864,7 @@ body { margin-bottom: 70px; }
             $('#question-form').dirtyForms({ ignoreSelector: '#auto-save-checkbox' });
             $('#question-form').on('dirty.dirtyforms', function(evt) {
                 var $form = $(evt.target);
-                $form.find('button[type="submit"]').removeProp('disabled').tooltip();
+                $form.find('button[type="submit"]').removeClass('btn-shallow-disabled').tooltip();
             });
 
             function autoSave() {
@@ -870,7 +875,7 @@ body { margin-bottom: 70px; }
                 else if (documentStatus !== 'FAILED') {
                     {# In normal operations, we want the Save button to follow isDirty, which may have been reset to false if the user undid changes (e.g. CTRL+Z). #}
                     var $button = $form.find('button[type="submit"]');
-                    $button.prop('disabled', true);
+                    $button.addClass('btn-shallow-disabled');
                     $button.tooltip('destroy');
                 }
             }
@@ -879,7 +884,7 @@ body { margin-bottom: 70px; }
                     var d = new Date();
                     var delta = Math.min(d - last_saved, d - page_opened) + server_offset;
                     if (delta >= autoSaveFailedWarningDelta) {
-                        $("#question-form").find('button[type="submit"]').removeProp('disabled').tooltip();
+                        $("#question-form").find('button[type="submit"]').removeClass('btn-shallow-disabled').tooltip();
                         $('#failedsaving-modal').modal({backdrop: 'static', keyboard: false});
                     }
                 }
