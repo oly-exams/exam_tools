@@ -305,31 +305,71 @@ def delegation_summary(request):
         question_ctx = []
         for question in answer_sheet_list:
             res = {'name':question.name, 'pk':question.pk}
+            actions = []
             marking_status = get_object_or_404(MarkingAction, delegation=delegation, question=question).status
 
-            if marking_status == MarkingAction.OPEN and not SHOW_OFFICIAL_MARKS_IMMEDIATELY:
+            if marking_status == MarkingAction.OPEN:
                 res['edit'] = True
-                res['confirm_label'] = 'Confirm marks for {}'.format(question.name)
-            elif marking_status == MarkingAction.OPEN and SHOW_OFFICIAL_MARKS_IMMEDIATELY:
-                res['edit'] = True
-                res['view'] = True
-                res['confirm_label'] = 'Submit marks for moderation.'
+                if SHOW_OFFICIAL_MARKS_IMMEDIATELY:
+                    res['view'] = True
+
+                confirm_action = {'link':reverse('marking:delegation-confirm',args=(question.pk,)),
+                                'text':'Submit marks for moderation',
+                                }
                 if ACCEPT_MARKS_BEFORE_MODERATION:
-                    res['accept_label'] = 'Accept marks without moderation'
+                    accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
+                                    'text':'Accept marks without moderation',
+                                    }
+                else:
+                    accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
+                                    'text':'Sign off marks',
+                                    'disabled':True,
+                                    }
+                actions = [confirm_action, accept_action]
             elif marking_status == MarkingAction.SUBMITTED:
                 res['view'] = True
+
+                confirm_action = {'link':reverse('marking:delegation-confirm',args=(question.pk,)),
+                                'text':'Submit marks for moderation',
+                                'disabled':True,
+                                }
                 if (not SHOW_OFFICIAL_MARKS_IMMEDIATELY) and ACCEPT_MARKS_BEFORE_MODERATION:
-                    res['accept_label'] = 'Accept marks without moderation'
+                    accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
+                                    'text':'Accept marks without moderation',
+                                    }
+                else:
+                    accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
+                                    'text':'Sign off marks',
+                                    'disabled':True,
+                                    }
+                actions = [confirm_action, accept_action]
             elif marking_status == MarkingAction.LOCKED:
                 res['view'] = True
-                res['accept_label'] = 'Sign off final marks'
-                res['accept_class'] = 'btn-success'
+
+                confirm_action = {'link':reverse('marking:delegation-confirm',args=(question.pk,)),
+                                'text':'Submit marks for moderation',
+                                'disabled':True,
+                                }
+                accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
+                                'text':'Sign off marks',
+                                'class': 'btn-success',
+                                }
+                actions = [confirm_action, accept_action]
             else:
                 res['view'] = True
+
+                confirm_action = {'link':reverse('marking:delegation-confirm',args=(question.pk,)),
+                                'text':'Submit marks for moderation',
+                                'disabled':True,
+                                }
+                accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
+                                'text':'Sign off marks',
+                                'disabled': True,
+                                }
+                actions = [confirm_action, accept_action]
+            res['actions'] = actions
             question_ctx.append(res)
-        exam_ctxt = {'questions':question_ctx,'name':exam.name, 'pk':exam.pk}
-        exam_ctxt['accept_row'] = any([q.get('accept_label') for q in question_ctx])
-        exam_ctxt['confirm_row'] = any([q.get('confirm_label') for q in question_ctx])
+        exam_ctxt = {'questions':4*question_ctx,'name':exam.name, 'pk':exam.pk}
         exam_list.append(exam_ctxt)
 
 

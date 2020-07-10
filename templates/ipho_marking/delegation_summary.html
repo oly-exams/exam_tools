@@ -32,9 +32,9 @@
         <div  class="table-responsive">
           <table class="table">
             <tr>
-                <th>Student</th>
+                <th  style="font-size:16px;">Student</th>
                 {% for question in ctxt.questions %}
-                    <th style="max-width: 10em;">{{ question.name }}</th>
+                    <th style="font-size:16px;">{{ question.name }}</th>
                 {% endfor %}
             </tr>
             {% for student in students %}
@@ -42,11 +42,11 @@
                 <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
                 {% for question in ctxt.questions %}
                   <td>
-                    {% if question.edit %}
-                        <a class="btn btn-warning btn-xs" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit</a>
-                    {% endif %}
                     {% if question.view %}
-                        <a class="btn btn-success btn-xs" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> View</a>
+                        <a style="max-width: 9em;" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> View marks</a>
+                    {% endif %}
+                    {% if question.edit %}
+                        <a style="max-width: 9em;" class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit marks</a>
                     {% endif %}
                   </td>
                 {% endfor %}
@@ -56,11 +56,11 @@
                 <td></td>
                 {% for question in ctxt.questions  %}
                     <td>
-                      {% if question.edit %}
-                      <a class="btn btn-warning btn-xs" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit all</a>
-                      {% endif %}
                       {% if question.view %}
-                      <a class="btn btn-success btn-xs" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> View all</a>
+                      <a style="max-width: 9em;" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> View all marks</a>
+                      {% endif %}
+                      {% if question.edit %}
+                      <a style="max-width: 9em;" class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit all marks</a>
                       {% endif %}
                     </td>
                 {% endfor %}
@@ -71,36 +71,13 @@
               </td>
               {% for question in ctxt.questions  %}
               <td>
-                {% if question.confirm_label %}
-                <a class="btn btn-primary btn-sm" href="{% url 'marking:delegation-confirm' question.pk %}">{{ question.confirm_label}} <i class="fa fa-angle-double-right"></i></a>
-                {% elif question.accept_label %}
-                <a class="btn {{ question.accept_class|default:'btn-warning btn-sm' }}" href="{% url 'marking:delegation-final-confirm' question.pk %}">{{ question.accept_label}} <i class="fa fa-angle-double-right"></i></a>
-                {% endif %}
+                {% for action in question.actions %}
+                  <a style="max-width: 20em;" href="{{ action.link }}" class="btn {{ action.class|default:"btn-default"}} btn-sm btn-block" {% if action.disabled %}disabled{% endif %}>{{ action.text }} <i class="fa fa-angle-double-right"></i></a>
+                {% endfor %}
+
               </td>
               {% endfor %}
             </tr>
-            {% if ctxt.accept_row and ctxt.confirm_row %}
-            <tr class="table-condensed">
-              <td></td>
-              {% for question in ctxt.questions  %}
-              <td class="align-middle">
-                {% if question.accept_label and question.confirm_label %}
-                OR
-                {% endif %}
-              </td>
-              {% endfor %}
-            </tr>
-            <tr class="table-secondary">
-              <td></td>
-              {% for question in ctxt.questions  %}
-              <td>
-                {% if question.accept_label and question.confirm_label %}
-                <a class="btn {{ question.accept_class|default:'btn-warning btn-sm' }}" href="{% url 'marking:delegation-final-confirm' question.pk %}">{{ question.accept_label}} <i class="fa fa-angle-double-right"></i></a>
-                {% endif %}
-              </td>
-              {% endfor %}
-            </tr>
-            {% endif %}
           </table>
         </div>
       </div>
