@@ -26,6 +26,7 @@
     {% endfor %}
   </ul>
 </div>
+<p class="">Note that only students with unfinished marks are shown.</p>
 
 <br/>
 
@@ -48,6 +49,8 @@
       <td>
         {% if status %}
         <i class="fa fa-times"></i>
+        {% else %}
+        <i class="fa fa-check"></i>
         {% endif %}
       </td>
       {% endfor %}
