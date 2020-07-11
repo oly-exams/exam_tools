@@ -42,12 +42,8 @@
                 <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
                 {% for question in ctxt.questions %}
                   <td>
-                    {% if question.view %}
-                        <a style="max-width: 9em;" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> View marks</a>
-                    {% endif %}
-                    {% if question.edit %}
-                        <a style="max-width: 9em;" class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit marks</a>
-                    {% endif %}
+                        <a {% if not question.view %}disabled{% endif %} style="max-width: 9em;" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> View marks</a>
+                        <a {% if not question.edit %}disabled{% endif %} style="max-width: 9em;" class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit marks</a>
                   </td>
                 {% endfor %}
             </tr>
@@ -56,12 +52,8 @@
                 <td></td>
                 {% for question in ctxt.questions  %}
                     <td>
-                      {% if question.view %}
-                      <a style="max-width: 9em;" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> View all marks</a>
-                      {% endif %}
-                      {% if question.edit %}
-                      <a style="max-width: 9em;" class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit all marks</a>
-                      {% endif %}
+                      <a {% if not question.view %}disabled{% endif %} style="max-width: 9em;" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> View all marks</a>
+                      <a {% if not question.edit %}disabled{% endif %} style="max-width: 9em;" class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit all marks</a>
                     </td>
                 {% endfor %}
             </tr>
