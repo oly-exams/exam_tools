@@ -42,8 +42,12 @@
                 <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
                 {% for question in ctxt.questions %}
                   <td>
-                        <a {% if not question.view %}disabled{% endif %} style="max-width: 9em;" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> View marks</a>
-                        <a {% if not question.edit %}disabled{% endif %} style="max-width: 9em;" class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit marks</a>
+                        <span class="tooltip-span" data-toggle="tooltip" title="{{ question.view_tooltip }}">
+                          <a {% if not question.view %}disabled{% endif %} style="max-width: 9em;" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> View marks</a>
+                        </span>
+                        <span class="tooltip-span" data-toggle="tooltip" title="{{ question.edit_tooltip }}">
+                          <a {% if not question.edit %}disabled{% endif %} style="max-width: 9em;" class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit marks</a>
+                        </span>
                   </td>
                 {% endfor %}
             </tr>
@@ -52,8 +56,12 @@
                 <td></td>
                 {% for question in ctxt.questions  %}
                     <td>
-                      <a {% if not question.view %}disabled{% endif %} style="max-width: 9em;" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> View all marks</a>
-                      <a {% if not question.edit %}disabled{% endif %} style="max-width: 9em;" class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit all marks</a>
+                      <span class="tooltip-span" data-toggle="tooltip" title="{{ question.view_tooltip }}">
+                        <a {% if not question.view %}disabled{% endif %} style="max-width: 9em;" data-toggle="tooltip" title="{{ question.viewall_tooltip }}" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> View all marks</a>
+                      </span>
+                      <span class="tooltip-span" data-toggle="tooltip" title="{{ question.edit_tooltip }}">
+                        <a {% if not question.edit %}disabled{% endif %} style="max-width: 9em;" data-toggle="tooltip" title="{{ question.editall_tooltip }}"class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit all marks</a>
+                      </span>
                     </td>
                 {% endfor %}
             </tr>
@@ -65,7 +73,9 @@
               <td>
                 {% for action in question.actions %}
                   {% if action %}
+                  <span class="tooltip-span" data-toggle="tooltip" title="{{ action.tooltip }}">
                     <a style="max-width: 20em;" href="{{ action.link }}" class="btn {{ action.class|default:"btn-default"}} btn-sm btn-block" {% if action.disabled %}disabled{% endif %}>{{ action.text }} <i class="fa fa-angle-double-right"></i></a>
+                  </span>
                   {% endif %}
                 {% endfor %}
 
@@ -165,6 +175,10 @@ $(document).ready(function() {
       return location.hash = $(e.target).attr('href').substr(1);
     });
 });
+$(document).ready(function() {
+    $('[data-toggle="tooltip"]').tooltip();
+});
+
 </script>
 
 {% endblock %}
