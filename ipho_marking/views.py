@@ -49,6 +49,7 @@ OFFICIAL_LANGUAGE = getattr(settings, 'OFFICIAL_LANGUAGE', 1)
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 SHOW_OFFICIAL_MARKS_IMMEDIATELY = getattr(settings, 'SHOW_OFFICIAL_MARKS_IMMEDIATELY', False)
 ACCEPT_MARKS_BEFORE_MODERATION = getattr(settings, 'ACCEPT_MARKS_BEFORE_MODERATION', False)
+SIGN_OFF_FINAL_MARKS = getattr(settings, 'SIGN_OFF_FINAL_MARKS', False)
 
 @permission_required('ipho_core.is_staff')
 def import_exam(request):
@@ -307,7 +308,6 @@ def delegation_summary(request):
             res = {'name':question.name, 'pk':question.pk}
             actions = []
             marking_status = get_object_or_404(MarkingAction, delegation=delegation, question=question).status
-
             if marking_status == MarkingAction.OPEN:
                 res['edit'] = True
                 if SHOW_OFFICIAL_MARKS_IMMEDIATELY:
@@ -320,11 +320,13 @@ def delegation_summary(request):
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Accept marks without moderation',
                                     }
-                else:
+                elif SIGN_OFF_FINAL_MARKS:
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Sign off marks',
                                     'disabled':True,
                                     }
+                else:
+                    accept_action = None
                 actions = [confirm_action, accept_action]
             elif marking_status == MarkingAction.SUBMITTED:
                 res['view'] = True
@@ -337,11 +339,13 @@ def delegation_summary(request):
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Accept marks without moderation',
                                     }
-                else:
+                elif SIGN_OFF_FINAL_MARKS:
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Sign off marks',
                                     'disabled':True,
                                     }
+                else:
+                    accept_action = None
                 actions = [confirm_action, accept_action]
             elif marking_status == MarkingAction.LOCKED:
                 res['view'] = True
@@ -350,10 +354,13 @@ def delegation_summary(request):
                                 'text':'Submit marks for moderation',
                                 'disabled':True,
                                 }
-                accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
-                                'text':'Sign off marks',
-                                'class': 'btn-success',
-                                }
+                if SIGN_OFF_FINAL_MARKS:
+                    accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
+                                    'text':'Sign off marks',
+                                    'class': 'btn-success',
+                                    }
+                else:
+                    accept_action = None
                 actions = [confirm_action, accept_action]
             else:
                 res['view'] = True
@@ -362,10 +369,13 @@ def delegation_summary(request):
                                 'text':'Submit marks for moderation',
                                 'disabled':True,
                                 }
-                accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
-                                'text':'Sign off marks',
-                                'disabled': True,
-                                }
+                if SIGN_OFF_FINAL_MARKS:
+                    accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
+                                    'text':'Sign off marks',
+                                    'disabled': True,
+                                    }
+                else:
+                    accept_action = None
                 actions = [confirm_action, accept_action]
             res['actions'] = actions
             question_ctx.append(res)
@@ -643,6 +653,9 @@ def delegation_confirm(request, question_id, final_confirmation=False):
          # can only confirm open actions
          return HttpResponseRedirect(reverse('marking:delegation-summary'))
     if final_confirmation:
+        if not SIGN_OFF_FINAL_MARKS and marking_action.status == MarkingAction.LOCKED:
+            # if sign off is deactivated, locked marks cannot (don't need to be) signed off
+            return HttpResponseRedirect(reverse('marking:delegation-summary'))
         if not ACCEPT_MARKS_BEFORE_MODERATION and not marking_action.status == MarkingAction.LOCKED:
             # if not accept_marks_before_moderation only locked marks can be final-confirmed
             return HttpResponseRedirect(reverse('marking:delegation-summary'))
@@ -834,7 +847,11 @@ def moderation_detail(request, question_id, delegation_id):
     if all_valid:
         for _, form, _, _, _ in student_forms:
             form.save()
-        marking_action.status = MarkingAction.LOCKED
+        if SIGN_OFF_FINAL_MARKS:
+            marking_action.status = MarkingAction.LOCKED
+        else:
+            # if sign off is deactivated, jump directly to locked (note that this also locks the moderation!)
+            marking_action.status = MarkingAction.FINAL
         marking_action.save()
         return HttpResponseRedirect(
             reverse(
