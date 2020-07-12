@@ -74,6 +74,8 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
         for sl in student_languages:
             if question.is_answer_sheet() and not sl.with_answer:
                 continue
+            if question.is_question_sheet() and not sl.with_question:
+                continue
 
             print('Prepare {} in {}.'.format(question, sl.language))
             trans = qquery.latest_version(

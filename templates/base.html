@@ -84,7 +84,7 @@
               {% if perms.ipho_core.is_delegation and not user.is_superuser %}
               <li><a href="{% url 'marking:delegation-summary' %}">Results</a></li>
               {% endif %}
-              {% if perms.ipho_core.can_vote and not user.is_superuser %}
+              {% if perms.ipho_core.can_vote and not user.is_superuser and user.votingright_set.all %}
               <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
               {% endif %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
@@ -103,6 +103,9 @@
                   {% endif %}
                   {% if perms.ipho_core.can_impersonate %}
                   <li><a href="{% url 'impersonate' %}">Impersonate delegation</a></li>
+                  {% endif %}
+                  {% if perms.ipho_core.is_superuser %}
+                  <li><a href="{% url 'exam:auto-translate-count' %}">Auto translate costs</a></li>
                   {% endif %}
                   <li class="divider"></li>
                   {% endif %}
