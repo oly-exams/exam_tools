@@ -47,9 +47,6 @@ from .forms import ImportForm, PointsForm
 
 OFFICIAL_LANGUAGE = getattr(settings, 'OFFICIAL_LANGUAGE', 1)
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
-SHOW_OFFICIAL_MARKS_IMMEDIATELY = getattr(settings, 'SHOW_OFFICIAL_MARKS_IMMEDIATELY', False)
-ACCEPT_MARKS_BEFORE_MODERATION = getattr(settings, 'ACCEPT_MARKS_BEFORE_MODERATION', False)
-SIGN_OFF_FINAL_MARKS = getattr(settings, 'SIGN_OFF_FINAL_MARKS', False)
 
 @permission_required('ipho_core.is_staff')
 def import_exam(request):
@@ -251,7 +248,7 @@ def delegation_export(request, exam_id):
 
     # check if the delegation should see all versions
     exam = get_object_or_404(Exam, id=exam_id)
-    if MarkingAction.exam_in_progress(delegation=delegation, exam=exam) and not SHOW_OFFICIAL_MARKS_IMMEDIATELY:
+    if MarkingAction.exam_in_progress(delegation=delegation, exam=exam) and not settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY:
         allowed_versions = ['D']
     else:
         allowed_versions = ['O', 'D', 'F']
@@ -310,18 +307,18 @@ def delegation_summary(request):
             marking_status = get_object_or_404(MarkingAction, delegation=delegation, question=question).status
             if marking_status == MarkingAction.OPEN:
                 res['edit'] = True
-                if SHOW_OFFICIAL_MARKS_IMMEDIATELY:
+                if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY:
                     res['view'] = True
                 else:
                     res['viewall_tooltip'] = res['view_tooltip'] = 'Official marks are shown once you submitted your marks for moderation.'
                 confirm_action = {'link':reverse('marking:delegation-confirm',args=(question.pk,)),
                                 'text':'Submit marks for moderation',
                                 }
-                if ACCEPT_MARKS_BEFORE_MODERATION:
+                if settings.ACCEPT_MARKS_BEFORE_MODERATION:
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Accept marks without moderation',
                                     }
-                elif SIGN_OFF_FINAL_MARKS:
+                elif settings.SIGN_OFF_FINAL_MARKS:
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Sign off marks',
                                     'disabled':True,
@@ -338,11 +335,11 @@ def delegation_summary(request):
                                 'disabled':True,
                                 'tooltip': 'Marks already submitted.'
                                 }
-                if (not SHOW_OFFICIAL_MARKS_IMMEDIATELY) and ACCEPT_MARKS_BEFORE_MODERATION:
+                if (not settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY) and settings.ACCEPT_MARKS_BEFORE_MODERATION:
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Accept marks without moderation',
                                     }
-                elif SIGN_OFF_FINAL_MARKS:
+                elif settings.SIGN_OFF_FINAL_MARKS:
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Sign off marks',
                                     'disabled':True,
@@ -359,7 +356,7 @@ def delegation_summary(request):
                                 'disabled':True,
                                 'tooltip': 'Marks already submitted.'
                                 }
-                if SIGN_OFF_FINAL_MARKS:
+                if settings.SIGN_OFF_FINAL_MARKS:
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Sign off marks',
                                     'class': 'btn-success',
@@ -375,7 +372,7 @@ def delegation_summary(request):
                                 'disabled':True,
                                 'tooltip': 'Marks already submitted.'
                                 }
-                if SIGN_OFF_FINAL_MARKS:
+                if settings.SIGN_OFF_FINAL_MARKS:
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Sign off marks',
                                     'disabled': True,
@@ -579,7 +576,7 @@ def delegation_stud_view(request, stud_id, question_id):
     marking_action, _ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
         )
-    if marking_action.in_progress() and not SHOW_OFFICIAL_MARKS_IMMEDIATELY:
+    if marking_action.in_progress() and not settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY:
         ctx['msg'].append(
             (('alert-info'),
              '<strong>Note:</strong> You can see the official points only when you confirmed your markings.')
@@ -620,7 +617,7 @@ def delegation_view_all(request, question_id):
     marking_action, _ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
         )
-    if marking_action.in_progress() and not SHOW_OFFICIAL_MARKS_IMMEDIATELY:
+    if marking_action.in_progress() and not settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY:
         ctx['msg'].append(
             (('alert-info'),
              '<strong>Note:</strong> You can see the official points only when you confirmed your markings.')
@@ -660,13 +657,13 @@ def delegation_confirm(request, question_id, final_confirmation=False):
          # can only confirm open actions
          return HttpResponseRedirect(reverse('marking:delegation-summary'))
     if final_confirmation:
-        if not SIGN_OFF_FINAL_MARKS and marking_action.status == MarkingAction.LOCKED:
+        if not settings.SIGN_OFF_FINAL_MARKS and marking_action.status == MarkingAction.LOCKED:
             # if sign off is deactivated, locked marks cannot (don't need to be) signed off
             return HttpResponseRedirect(reverse('marking:delegation-summary'))
-        if not ACCEPT_MARKS_BEFORE_MODERATION and not marking_action.status == MarkingAction.LOCKED:
-            # if not accept_marks_before_moderation only locked marks can be final-confirmed
+        if not settings.ACCEPT_MARKS_BEFORE_MODERATION and not marking_action.status == MarkingAction.LOCKED:
+            # if not settings.ACCEPT_MARKS_BEFORE_MODERATION only locked marks can be final-confirmed
             return HttpResponseRedirect(reverse('marking:delegation-summary'))
-        if ACCEPT_MARKS_BEFORE_MODERATION and SHOW_OFFICIAL_MARKS_IMMEDIATELY and marking_action.status == MarkingAction.SUBMITTED:
+        if settings.ACCEPT_MARKS_BEFORE_MODERATION and settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY and marking_action.status == MarkingAction.SUBMITTED:
             # if accept_... and show_... submitted marks need to proceed to moderation
             return HttpResponseRedirect(reverse('marking:delegation-summary'))
     if marking_action.status == MarkingAction.FINAL:
@@ -854,7 +851,7 @@ def moderation_detail(request, question_id, delegation_id):
     if all_valid:
         for _, form, _, _, _ in student_forms:
             form.save()
-        if SIGN_OFF_FINAL_MARKS:
+        if settings.SIGN_OFF_FINAL_MARKS:
             marking_action.status = MarkingAction.LOCKED
         else:
             # if sign off is deactivated, jump directly to locked (note that this also locks the moderation!)
