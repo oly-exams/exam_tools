@@ -62,7 +62,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
         q = questions[0]
         s = student_languages[0].student
         bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C', suppress_code=suppress_cover_code)
-        page = pdf.add_barcode(question_pdf, bgenerator)
+        page = pdf.check_add_barcode(question_pdf, bgenerator)
         doc_pages = pdf.get_num_pages(page)
         meta['num_pages'] += doc_pages
         if not suppress_cover_code:
@@ -107,13 +107,13 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
             meta['num_pages'] += doc_pages
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student)
-                page = pdf.add_barcode(question_pdf, bgenerator)
+                page = pdf.check_add_barcode(question_pdf, bgenerator)
                 meta['barcode_num_pages'] += doc_pages
                 all_barcodes.append(bgenerator.base)
                 all_docs.append(page)
             else:
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, suppress_code=True)
-                page = pdf.add_barcode(question_pdf, bgenerator)
+                page = pdf.check_add_barcode(question_pdf, bgenerator)
                 all_docs.append(page)
 
             if question.is_answer_sheet() and question.working_pages > 0:
@@ -132,7 +132,7 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
                 body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(), context=context)
                 question_pdf = pdf.compile_tex(body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
-                page = pdf.add_barcode(question_pdf, bgenerator)
+                page = pdf.check_add_barcode(question_pdf, bgenerator)
 
                 doc_pages = pdf.get_num_pages(page)
                 meta['num_pages'] += doc_pages

@@ -97,7 +97,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         q = questions[0]
         s = student_languages[0].student
         bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C', suppress_code=True)
-        page = pdf.add_barcode(question_pdf, bgenerator)
+        page = pdf.check_add_barcode(question_pdf, bgenerator)
 
         all_docs.append(page)
 
@@ -133,7 +133,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
 
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student)
-                page = pdf.add_barcode(question_pdf, bgenerator)
+                page = pdf.check_add_barcode(question_pdf, bgenerator)
                 all_docs.append(page)
             else:
                 all_docs.append(question_pdf)
@@ -154,7 +154,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                 body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(), context=context)
                 question_pdf = pdf.compile_tex(body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
-                page = pdf.add_barcode(question_pdf, bgenerator)
+                page = pdf.check_add_barcode(question_pdf, bgenerator)
                 all_docs.append(page)
 
         exam_id = question.exam.pk
@@ -180,7 +180,7 @@ def generate_extra_sheets(student, question, startnum, npages):
     body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(), context=context)
     question_pdf = pdf.compile_tex(body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
     bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, student, qcode='Z', startnum=startnum)
-    doc_pdf = pdf.add_barcode(question_pdf, bgenerator)
+    doc_pdf = pdf.check_add_barcode(question_pdf, bgenerator)
     return doc_pdf
 
 
