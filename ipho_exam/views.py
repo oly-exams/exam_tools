@@ -1956,8 +1956,10 @@ def submission_delegation_list_submitted(request):
         exam__delegation_status__delegation=F('student__delegation'),
         exam__delegation_status__status=ExamAction.SUBMITTED,
     )
-
-    print(all_docs)
+    all_docs = all_docs.values(
+        'pk', 'exam__name', 'exam__id', 'position', 'student__delegation__name', 'student__code', 'student__id',
+        'num_pages', 'barcode_base', 'barcode_num_pages', 'extra_num_pages', 'scan_file', 'timestamp'
+    ).order_by('exam_id', 'student_id', 'position')
 
     return render(
         request, 'ipho_exam/submission_delegation_list.html', {
