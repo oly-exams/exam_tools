@@ -21,6 +21,26 @@
 {% endblock %}
 
 {% block exam-content %}
+<div class="modal fade" id="upload-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <form method="post" action="">
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Upload</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="alerts-container"></div>
+
     <p class="lead">
         This table lists all the submissions made by your delegation team.
     </p>
@@ -52,19 +72,111 @@
             {% if d.scan_file %}
               <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>
               <br />
-              Scan time:
-              {% if d.timestamp %}
-              <time datetime="{{ d.timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
-              {% else %}
-              --:--
-              {% endif %}
-              <br />
             {% endif %}
-            Upload...
+            <a class="btn btn-default btn-xs" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="{% url 'exam:submission-delegation-submitted-scan-upload' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-upload"></i> upload</a>
           </td>
         </tr>
       {% endfor %}
       </tbody>
     </table>
 
+{% endblock %}
+
+
+{% block extra-script %}
+<script>
+$(function() {
+    // Get csrftoken
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+
+    // Upload modal
+    $(document).on('submit', '#upload-modal form', function(evt) {
+        var form = evt.target;
+        var $form = $(form);
+        evt.preventDefault();
+
+        var fd = new FormData();
+        var files = $form.find('input[name="file"]')[0].files[0];
+        fd.append('file', files);
+
+        var modal = $('#upload-modal');
+        var launchButton = modal.data('launchButton');
+
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function(data) {
+                if (!data['success']) {
+                    $('#upload-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    return;
+                }
+
+                var cell = launchButton.parent('td');
+                cell.html(
+                  '<a class="btn btn-default btn-xs" href="'+data['download_link']+'"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>' +
+                  '<br />' +
+                  '<a class="btn btn-default btn-xs" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="'+data['upload_link']+'"><i class="fa fa-fw fa-upload"></i> upload</a>'
+                );
+                // TODO: update data in table
+                // $('#languages-tbody').html(data['tbody']);
+                $('#upload-modal').modal('hide');
+                // $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+            }
+        });
+    });
+
+    $('#upload-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+        modal.data('launchButton', button);
+
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
+
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('form').attr('action', href);
+                modal.find('.modal-body').html(data['form']);
+                modal.find('button[type="submit"]').text(data['submit']);
+                modal.find("[data-toggle=popover]").popover(); // activate popover
+            },
+        });
+    })
+});
+</script>
 {% endblock %}
