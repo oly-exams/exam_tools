@@ -310,7 +310,8 @@ def delegation_summary(request):
                 if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY:
                     res['view'] = True
                 else:
-                    res['viewall_tooltip'] = res['view_tooltip'] = 'Official marks are shown once you submitted your marks for moderation.'
+                    res['view_tooltip'] = 'Official marks are shown once you submitted your marks for moderation.'
+                    res['viewall_tooltip'] = res['view_tooltip']
                 confirm_action = {'link':reverse('marking:delegation-confirm',args=(question.pk,)),
                                 'text':'Submit marks for moderation',
                                 }
@@ -329,7 +330,8 @@ def delegation_summary(request):
                 actions = [confirm_action, accept_action]
             elif marking_status == MarkingAction.SUBMITTED:
                 res['view'] = True
-                res['edit_tooltip'] = res['editall_tooltip'] = 'Marks already submitted. You cannot edit them anymore.'
+                res['edit_tooltip'] = 'Marks already submitted. You cannot edit them anymore.'
+                res['editall_tooltip'] = res['edit_tooltip']
                 confirm_action = {'link':reverse('marking:delegation-confirm',args=(question.pk,)),
                                 'text':'Submit marks for moderation',
                                 'disabled':True,
@@ -350,7 +352,8 @@ def delegation_summary(request):
                 actions = [confirm_action, accept_action]
             elif marking_status == MarkingAction.LOCKED:
                 res['view'] = True
-                res['edit_tooltip'] = res['editall_tooltip'] = 'Marks already submitted. You cannot edit them anymore.'
+                res['edit_tooltip'] = 'Marks already submitted. You cannot edit them anymore.'
+                res['editall_tooltip'] = res['edit_tooltip']
                 confirm_action = {'link':reverse('marking:delegation-confirm',args=(question.pk,)),
                                 'text':'Submit marks for moderation',
                                 'disabled':True,
@@ -366,7 +369,8 @@ def delegation_summary(request):
                 actions = [confirm_action, accept_action]
             else:
                 res['view'] = True
-                res['edit_tooltip'] = res['editall_tooltip'] = 'Marks are finalized. You cannot edit them anymore.'
+                res['edit_tooltip'] = 'Marks are finalized. You cannot edit them anymore.'
+                res['editall_tooltip'] = res['edit_tooltip']
                 confirm_action = {'link':reverse('marking:delegation-confirm',args=(question.pk,)),
                                 'text':'Submit marks for moderation',
                                 'disabled':True,
