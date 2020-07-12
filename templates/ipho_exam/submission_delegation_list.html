@@ -127,6 +127,9 @@ $(function() {
         var files = $form.find('input[name="file"]')[0].files[0];
         fd.append('file', files);
 
+        var modal = $('#upload-modal');
+        var launchButton = modal.data('launchButton');
+
         $.ajax({
             url: form.action,
             type: form.method,
@@ -139,6 +142,12 @@ $(function() {
                     return;
                 }
 
+                var cell = launchButton.parent('td');
+                cell.html(
+                  '<a class="btn btn-default btn-xs" href="'+data['download_link']+'"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>' +
+                  '<br />' +
+                  '<a class="btn btn-default btn-xs" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="'+data['upload_link']+'"><i class="fa fa-fw fa-upload"></i> upload</a>'
+                );
                 // TODO: update data in table
                 // $('#languages-tbody').html(data['tbody']);
                 $('#upload-modal').modal('hide');
@@ -151,6 +160,7 @@ $(function() {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var href = button.attr('href');
         var modal = $(this);
+        modal.data('launchButton', button);
 
         modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
         modal.find('.modal-body').html('');
