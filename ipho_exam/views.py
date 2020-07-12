@@ -1976,9 +1976,8 @@ def upload_scan_delegation(request, exam_id, position, student_id):
     user = request.user
     exam = get_object_or_404(Exam, id=exam_id)
     student = get_object_or_404(Student, id=student_id)
-    if not user.has_perm('ipho_core.is_printstaff'):
-        if not student.delegation.members.filter(pk=user.pk).exists():
-            return HttpResponseForbidden('You do not have permission to upload a scan for this student.')
+    if not student.delegation.members.filter(pk=user.pk).exists():
+        return HttpResponseForbidden('You do not have permission to upload a scan for this student.')
 
     doc = get_object_or_404(Document, exam=exam, position=position, student=student)
 
