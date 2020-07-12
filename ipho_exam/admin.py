@@ -65,7 +65,8 @@ class QuestionInline(admin.StackedInline):
 
 
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'active', 'hide_feedback', 'show_scans', 'marking_active', 'moderation_active', 'hidden')
+    list_display = ('name', 'active', 'hide_feedback', 'show_delegation_submissions',
+                    'show_scans', 'marking_active', 'moderation_active', 'hidden')
     inlines = [QuestionInline]
 
 
