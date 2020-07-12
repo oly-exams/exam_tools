@@ -111,6 +111,7 @@ class Exam(models.Model):
     moderation_active = models.BooleanField(default=False, help_text='Allow access to moderation interface.')
     show_scans = models.BooleanField(default=False, help_text='Show successful scans to delegation.')
     hide_feedback = models.BooleanField(default=False, help_text='Hide feedback from delegations')
+    show_delegation_submissions = models.BooleanField(default=False, help_text='Show submissions of the delegation')
 
     def __str__(self):
         return u'%s' % (self.name)
