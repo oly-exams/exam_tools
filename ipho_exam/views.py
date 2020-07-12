@@ -65,7 +65,7 @@ from ipho_exam.response import render_odt_response
 from ipho_print import printer
 from ipho_exam import check_points
 
-from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, ExamQuestionForm, DeleteForm, VersionNodeForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, ExtraSheetForm, PublishForm, FeedbackCommentForm
+from ipho_exam.forms import LanguageForm, FigureForm, TranslationForm, ExamQuestionForm, DeleteForm, VersionNodeForm, PDFNodeForm, FeedbackForm, AdminBlockForm, AdminBlockAttributeFormSet, AdminBlockAttributeHelper, SubmissionAssignForm, AssignTranslationForm, TranslationImportForm, AdminImportForm, PrintDocsForm, ScanForm, DelegationScanForm, ExtraSheetForm, PublishForm, FeedbackCommentForm
 
 import ipho_exam
 from ipho_exam import tasks
@@ -1938,6 +1938,7 @@ def print_submissions_translation(request):
     })
 
 @permission_required('ipho_core.is_delegation_print')
+@ensure_csrf_cookie
 def submission_delegation_list_submitted(request):
     delegation = Delegation.objects.filter(members=request.user)
 
@@ -1966,6 +1967,52 @@ def submission_delegation_list_submitted(request):
             'docs': all_docs,
         }
     )
+
+
+@permission_required('ipho_core.is_delegation_print')
+def upload_scan_delegation(request, exam_id, position, student_id):
+    if not request.is_ajax:
+        raise Exception('TODO: implement small template page for handling without Ajax.')
+    user = request.user
+    exam = get_object_or_404(Exam, id=exam_id)
+    student = get_object_or_404(Student, id=student_id)
+    if not user.has_perm('ipho_core.is_printstaff'):
+        if not student.delegation.members.filter(pk=user.pk).exists():
+            return HttpResponseForbidden('You do not have permission to upload a scan for this student.')
+
+    doc = get_object_or_404(Document, exam=exam, position=position, student=student)
+
+    form = DelegationScanForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        print('Form is valid!')
+        doc.scan_file = form.cleaned_data['file']
+        doc.save()
+        print('Document has been saved!')
+        return JsonResponse({
+            'download_link': reverse('exam:scan-exam-pos-student', kwargs={
+                'exam_id': exam.pk,
+                'position': position,
+                'student_id': student.pk,
+            }),
+            'upload_link': reverse('exam:submission-delegation-submitted-scan-upload', kwargs={
+                'exam_id': exam.pk,
+                'position': position,
+                'student_id': student.pk,
+            }),
+            'success': True,
+            'message': '<i class="fa fa-check"></i> Scan uploaded.',
+        })
+
+    form_html = render_crispy_form(form)
+    return JsonResponse({
+        'title': 'Upload scan file',
+        'student': student.code,
+        'exam': exam.name,
+        'position': position,
+        'form': form_html,
+        'submit': 'Upload',
+        'success': False,
+    })
 
 
 @permission_required('ipho_core.is_delegation')
