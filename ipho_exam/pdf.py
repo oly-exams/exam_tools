@@ -125,6 +125,16 @@ def compile_tex(body, ext_resources=[]):
     return pdf
 
 
+def check_add_barcode(doc, bgenerator):
+    """
+    Checks the config for the barcode settings and return the appropriate PDF
+    (with / without barcode).
+    """
+    if settings.ADD_CODE_ON_STUDENT_SHEETS:
+        return add_barcode(doc, bgenerator)
+    return doc
+
+
 def add_barcode(doc, bgenerator):
     pdfdoc = PdfFileReader(BytesIO(doc))
 

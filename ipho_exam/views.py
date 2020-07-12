@@ -2458,7 +2458,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
             mockstud = MockStud()
             mockstud.code = trans.lang.delegation.name + '-S-0'
             bcgen = iphocode.QuestionBarcodeGen(trans.question.exam, trans.question, mockstud)
-            output_pdf = pdf.add_barcode(tmp_pdf, bcgen)
+            output_pdf = pdf.check_add_barcode(tmp_pdf, bcgen)
         else:
             output_pdf = tmp_pdf
         res = HttpResponse(output_pdf, content_type="application/pdf")
