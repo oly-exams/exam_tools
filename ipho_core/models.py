@@ -36,6 +36,7 @@ class IphoPerm(models.Model):
     class Meta(object):
         permissions = (
             ('is_delegation', 'Is a delegation'),
+            ('is_delegation_print', 'Is in the print team of a delegation'),
             ('is_marker', 'Is a marker'),
             ('can_vote', 'Can vote'),
             ('is_staff', 'Is an organizer'),
