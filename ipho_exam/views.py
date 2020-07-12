@@ -1982,12 +1982,14 @@ def upload_scan_delegation(request, exam_id, position, student_id):
 
     doc = get_object_or_404(Document, exam=exam, position=position, student=student)
 
-    form = DelegationScanForm(request.POST or None, request.FILES or None)
+    form = DelegationScanForm(
+        exam, position, student,
+        bool(doc.scan_file),
+        request.POST or None, request.FILES or None
+    )
     if form.is_valid():
-        print('Form is valid!')
         doc.scan_file = form.cleaned_data['file']
         doc.save()
-        print('Document has been saved!')
         return JsonResponse({
             'download_link': reverse('exam:scan-exam-pos-student', kwargs={
                 'exam_id': exam.pk,
