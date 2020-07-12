@@ -14,6 +14,33 @@ class Migration(migrations.Migration):
         ('ipho_marking', '0001_initial'),
     ]
 
+    def forwards(apps, schema_editor):
+        #MarkingAction = apps.get_model("ipho_marking","MarkingAction")
+        from ipho_marking.models import MarkingAction
+        from ipho_exam.models import ExamAction
+        if hasattr(ExamAction, 'POINTS'):
+            for action in ExamAction.objects.filter(action=ExamAction.POINTS).all():
+                if action.status == ExamAction.OPEN:
+                    for question in action.exam.question_set.all():
+                        MarkingAction(delegation=action.delegation, question=question, status=MarkingAction.OPEN).save()
+                else:
+                    for question in action.exam.question_set.all():
+                        MarkingAction(delegation=action.delegation, question=question, status=MarkingAction.SUBMITTED).save()
+        return
+
+    def backwards(apps, schema_editor):
+        from ipho_marking.models import MarkingAction
+        from ipho_exam.models import ExamAction
+        if hasattr(ExamAction, 'POINTS'):
+            for action in MarkingAction.objects.all():
+                eact, _ = ExamAction.objects.get_or_create(delegation=action.delegation, exam=action.question.exam, action=ExamAction.POINTS)
+                if MarkingAction.objects.filter(delegation=action.delegation, question__exam=action.question.exam, status=MarkingAction.OPEN).exists():
+                    eact.status = ExamAction.OPEN
+                else:
+                    eact.status = ExamAction.SUBMITTED
+                eact.save()
+        return
+
     operations = [
         migrations.CreateModel(
             name='MarkingAction',
@@ -33,4 +60,5 @@ class Migration(migrations.Migration):
             name='markingaction',
             index_together=set([('question', 'delegation')]),
         ),
+        migrations.RunPython(forwards, backwards),
     ]
