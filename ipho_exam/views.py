@@ -1937,6 +1937,34 @@ def print_submissions_translation(request):
         'exams': exams,
     })
 
+@permission_required('ipho_core.is_delegation_print')
+def submission_delegation_list_submitted(request):
+    delegation = Delegation.objects.filter(members=request.user)
+
+    exams = Exam.objects.filter(
+        hidden=False, show_delegation_submissions=True
+    ).filter(
+        delegation_status__delegation=delegation,
+        delegation_status__action=ExamAction.TRANSLATION,
+        delegation_status__status=ExamAction.SUBMITTED
+    ).distinct()
+
+    all_docs = Document.objects.filter(
+        student__delegation__in=delegation,
+        exam__in=exams,
+        exam__delegation_status__action=ExamAction.TRANSLATION,
+        exam__delegation_status__delegation=F('student__delegation'),
+        exam__delegation_status__status=ExamAction.SUBMITTED,
+    )
+
+    print(all_docs)
+
+    return render(
+        request, 'ipho_exam/submission_delegation_list.html', {
+            'docs': all_docs,
+        }
+    )
+
 
 @permission_required('ipho_core.is_delegation')
 def submission_exam_assign(request, exam_id):

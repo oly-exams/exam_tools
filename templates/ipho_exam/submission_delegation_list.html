@@ -1,0 +1,81 @@
+{% extends "ipho_exam/base.html" %}
+{% load static %}
+{% load exam_utils_tags %}
+{% load crispy_forms_tags %}
+
+{% block extra-head %}
+<style>
+.asteriskField {
+    display: none;
+}
+
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="active">Delegation submissions</li>
+{% endblock %}
+
+{% block pageheader %}
+<h1>Delegation submissions</h1>
+{% endblock %}
+
+{% block exam-content %}
+    <p class="lead">
+        This table lists all the submissions made by your delegation team.
+    </p>
+
+    <table class="table table-striped feedback-table" id="feedback-table-{{exam.pk}}">
+      <thead>
+        <tr>
+            <th class="col-sm-01">#</th>
+            <th>Exam</th>
+            <th>#</th>
+            <th>Student</th>
+            <th>Barcode</th>
+            <th>File</th>
+            <th>Scans</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in docs_list %}
+        <tr>
+          <td>{{ d.pk }} </td>
+          <td>{{ d.exam__name }}</td>
+          <td>{{ d.position }}</td>
+          <td>{{ d.student__code }}</td>
+          <td>{{ d.barcode_base }}</td>
+          <td align="center">
+            {% if d.scan_file %}
+              <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+              <br />
+              Scan time:
+              {% if d.timestamp %}
+              <time datetime="{{ d.timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+              {% else %}
+              --:--
+              {% endif %}
+              <br />
+
+            {% endif %}
+          </td>
+          <td align="center">
+            {% if d.scan_file %}
+              <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+              <br />
+              Scan time:
+              {% if d.timestamp %}
+              <time datetime="{{ d.timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+              {% else %}
+              --:--
+              {% endif %}
+              <br />
+            {% endif %}
+            Upload...
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+{% endblock %}
