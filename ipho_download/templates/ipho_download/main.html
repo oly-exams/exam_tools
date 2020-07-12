@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load humanize %}
+
 {% block content %}
 <div class="container">
     <div class="page-header">
@@ -17,7 +19,7 @@
     {% endwith %}
 
     <table class="table table-striped">
-      {% for t,tshort,name,link,fsize in flist %}
+      {% for t,tshort,name,link,fsize,mtime in flist %}
       <tr>
         <td>
           <i class="fa fa-{{ t }}"></i>
@@ -25,7 +27,7 @@
           {{ name }}
           </a>
           {% if tshort == 'f' %}
-          {{ fsize|filesizeformat }}
+          &nbsp;&nbsp;{{ fsize|filesizeformat }}, last changed {{ mtime|naturaltime }} ({{ mtime|date:'Y-m-d H:iO' }})
           {% endif %}
         </td>
       </tr>

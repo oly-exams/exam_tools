@@ -48,14 +48,16 @@ def save_with_pk(objs, stream):
 
 # exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
 exams = Exam.objects.all()
+print('Exporting data for exams:', exams)
 
-questions = Question.objects.filter(exam=exams)
+questions = Question.objects.all().filter(exam__in=exams)
+print('Exporting data for questions:', questions)
 
 languages = Language.objects.exclude(delegation__name__in=[settings.OFFICIAL_DELEGATION]
                                      ).exclude(delegation__name__contains='-')
 save(languages, '037_delegation_langs.json')
 
-nodes = TranslationNode.objects.filter(question=questions, language=languages)
+nodes = TranslationNode.objects.filter(question__in=questions, language__in=languages)
 ss = StringIO()
 save(nodes, ss)
 data = json.loads(ss.getvalue())

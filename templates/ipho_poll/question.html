@@ -62,6 +62,7 @@
                 <th></th>
                 <th>Choice Text</th>
                 <th>Total Votes</th>
+                <th>Percentages</th>
             </tr>
 
                 {% for choice in choices %}
@@ -74,8 +75,10 @@
                         <td class="col-md-6" id="choice-{{ choice.pk }}-choice-text">
                             {{ choice.choice_text }}
                         </td>
-                        <td class="col-md-2">
+                        <td class="col-md-2 numvotes">
                             {{ choice.votes }}
+                        </td>
+                        <td class="col-md-2 percvotes">
                         </td>
                     </tr>
                 {% endfor %}
@@ -131,6 +134,17 @@ $('document').ready(function(){
         location.reload();
     });
 
+    $('.numvotes').each(function(i){
+      var tot_votes = {% for choice in choices %} {{ choice.votes }} + {% endfor %} 0;
+      votes = $(this).html();
+      percentage =  Math.round((parseInt(votes)/tot_votes)*100)
+
+      if( !(isNaN(percentage)) ){
+        $(this).parent().children('.percvotes').html(percentage + '%');
+      }else{
+        $(this).parent().children('.percvotes').html('--' + '%');
+      }
+    });
     // Activates tooltipls
     $('.btn').tooltip({containter: ".parent"});
 

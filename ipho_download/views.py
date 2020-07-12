@@ -28,6 +28,8 @@ import operator
 from unicodedata import normalize
 import mimetypes
 import hashlib
+import datetime
+import pytz
 
 MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
 
@@ -53,6 +55,11 @@ def main(request, type, url):
         raise Http404('File not found.')
 
     if type == 'f':
+        if os.path.isdir(path):
+            # if a directory is requested for download, raise a 404.
+            # in the future, we might want to zip of the directory and serve it for download
+            raise Http404('File path not valid.')
+
         etag = hash(path)
 
         if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
@@ -74,12 +81,15 @@ def main(request, type, url):
         tt = 'f'
         t = 'file'
         fsize = None
+        mtime = None
         if os.path.isdir(fullpath):
             t = 'folder'
             tt = 'd'
         else:
             fsize = os.path.getsize(fullpath)
-        flist.append((t, tt, f, fpath, fsize))
+            mtime_ts = os.path.getmtime(fullpath)
+            mtime = datetime.datetime.fromtimestamp(mtime_ts, tz=pytz.utc)
+        flist.append((t, tt, f, fpath, fsize, mtime))
 
     flist = sorted(flist, key=operator.itemgetter(2))
 

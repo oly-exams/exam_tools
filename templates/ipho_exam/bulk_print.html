@@ -27,6 +27,8 @@ View and print individual documents, or select and print in bulk.
 This list shows only documents that have been submitted by the delegations.
 </p>
 
+<p> Number of entries: {{ entries }} </p>
+
 <div id="alerts-container">
 {% for class, msg in messages %}
 <div class="alert {{ class }} alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>{{ msg|safe }}</div>
@@ -154,6 +156,7 @@ This list shows only documents that have been submitted by the delegations.
     <form method="POST">
     <table class="table table-striped">
       <tr>
+          <th></th>
           <th>Exam</th>
           <th>#</th>
           <th>Student</th>
@@ -167,7 +170,14 @@ This list shows only documents that have been submitted by the delegations.
       <tbody>
         {% for d in docs_list %}
           <tr>
-            <td>{{ d.exam__name }}</td>
+            <td>{{ d.pk }} </td>
+            <td>{{ d.exam__name }}<br>Submitted:
+              {% if d.exam__delegation_status__timestamp %}
+              <time datetime="{{ d.exam__delegation_status__timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+              {% else %}
+              --:--
+              {% endif %}
+            </td>
             <td>{{ d.position }}</td>
             <td>{{ d.student__code }}</td>
             <td>{{ d.num_pages }} / {{ d.barcode_num_pages }} / {{ d.extra_num_pages }}</td>
@@ -212,6 +222,13 @@ This list shows only documents that have been submitted by the delegations.
                   </ul>
                 </div>
                 <br />
+                Scan time:
+                {% if d.timestamp %}
+                <time datetime="{{ d.timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+                {% else %}
+                --:--
+                {% endif %}
+                <br />
                 Print time:
                 {% if d.last_print_s %}
                 <time datetime="{{ d.last_print_s|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
@@ -219,12 +236,7 @@ This list shows only documents that have been submitted by the delegations.
                 --:--
                 {% endif %}
                 <br />
-                Scan time:
-                {% if d.timestamp %}
-                <time datetime="{{ d.timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
-                {% else %}
-                --:--
-                {% endif %}
+
               {% endif %}
             </td>
             <td>
@@ -245,7 +257,7 @@ This list shows only documents that have been submitted by the delegations.
                 <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
                 <br />
                 <div class="btn-group">
-                  <a class="btn btn-default btn-xs" href="{% url 'exam:set-scan-full'  doc_id=d.pk %}" title="set as default" data-toggle="tooltip"><i class="fa fa-fw fa-angle-double-left"></i></a>
+                  <a class="btn btn-default btn-xs" href="{% url 'exam:set-scan-full'  doc_id=d.pk %}" title="replace scan by full scan" data-toggle="tooltip"><i class="fa fa-fw fa-angle-double-left"></i></a>
                   <a class="btn btn-default btn-xs" href="#" title="evaluate codes" data-toggle="tooltip"><i class="fa fa-fw fa-qrcode"></i></a>
                 </div>
               {% endif %}

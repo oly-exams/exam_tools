@@ -88,10 +88,11 @@
                     adv. <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu" role="menu">
-                    <li><a target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="Export as ODT"><i class="fa fa-fw fa-file-text-o"></i> export ODT</a></li>
                     <li><a target="_blank" href="{% url 'exam:tex' question_id=node.question.pk lang_id=node.language.pk %}" title="Export as TeX"><i class="fa fa-fw fa-file-text-o"></i> export TeX</a></li>
                     <li><a target="_blank" href="{% url 'exam:export-translation' question_id=node.question.pk lang_id=node.language.pk %}" title="Export as QML"><i class="fa fa-fw fa-file-text-o"></i> export QML</a></li>
-                  </ul>
+                    <li><a target="_blank" href="{% url 'exam:html' question_id=node.question.pk lang_id=node.language.pk %}" title="Export as HTML"><i class="fa fa-fw fa-file-text-o"></i> export HTML</a></li>
+                    <li><a target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="Export as ODT"><i class="fa fa-fw fa-file-text-o"></i> export ODT</a></li>
+                    </ul>
                 </div>
                 {% endif %}
               </div>

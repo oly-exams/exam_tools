@@ -51,7 +51,7 @@ OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 # exams = Exam.objects.filter(name__in=['Theory', 'Experiment'])
 exams = Exam.objects.all()
 
-questions = Question.objects.filter(exam=exams)
+questions = Question.objects.filter(exam__in=exams)
 
 # languages = Language.objects.filter(name__contains='final')
 languages = Language.objects.filter(delegation__name=OFFICIAL_DELEGATION, versioned=False)
@@ -63,7 +63,7 @@ data = json.loads(ss.getvalue())
 #     d['fields']['name'] = d['fields']['name'].replace(' final', '')
 json.dump(data, open('035_trans_official_lang.json', 'w'), indent=2)
 
-nodes = TranslationNode.objects.filter(question=questions, language=languages)
+nodes = TranslationNode.objects.filter(question__in=questions, language=languages)
 ss = StringIO()
 save(nodes, ss)
 data = json.loads(ss.getvalue())

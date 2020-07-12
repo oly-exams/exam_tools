@@ -63,7 +63,7 @@ save_with_pk(objs, '030_official_delegation.json')
 exams = Exam.objects.all()
 save(exams, '031_exams.json')
 
-questions = Question.objects.filter(exam=exams)
+questions = Question.objects.filter(exam__in=exams)
 save(questions, '032_questions.json')
 
 figures = []
@@ -71,7 +71,7 @@ figures.extend(Figure.objects.non_polymorphic().all())
 figures.extend(Figure.objects.all())
 save_with_pk(figures, '033_figures.json')
 
-nodes = VersionNode.objects.filter(question=questions).order_by('-version')
+nodes = VersionNode.objects.filter(question__in=questions).order_by('-version')
 last_nodes = []
 last_nodes_incl = []
 for node in nodes:

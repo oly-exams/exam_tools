@@ -52,7 +52,7 @@ def default_opts():
     try:
         opts = getattr(settings, 'PRINTER_DEFAULT_GLOBAL_OPTS')
     except AttributeError:
-        opts = {'Duplex': 'None', 'ColourModel': 'Grayscale', 'Staple': 'None'}
+        opts = {'Duplex': 'None', 'ColourModel': 'Gray', 'Staple': 'None'}
     return opts
 
 
@@ -60,7 +60,7 @@ def delegation_opts():
     try:
         opts = getattr(settings, 'PRINTER_DELEGATION_OPTS')
     except AttributeError:
-        opts = {'Duplex': 'DuplexNoTumble', 'ColourModel': 'Grayscale', 'Staple': 'None'}
+        opts = {'Duplex': 'DuplexNoTumble', 'ColourModel': 'Gray', 'Staple': 'None'}
     return opts
 
 
@@ -87,7 +87,7 @@ def send2queue(file, queue, user=None, user_opts={}, title=None):
             title = 'IPhO Print'
         add_banner_page = False
     for k in al_opts:
-        if opts.get(k) not in ['None', 'Grayscale'] and opts.get(k) != al_opts[k]:
+        if opts.get(k) not in ['None', 'Gray'] and opts.get(k) != al_opts[k]:
             opts[k] = al_opts[k]
     data['opts'] = json.dumps(opts)
     data['title'] = json.dumps(title)

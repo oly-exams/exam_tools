@@ -37,6 +37,7 @@ import ipho_exam
 from ipho_exam import tasks
 import celery
 from celery.result import AsyncResult
+import os
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
@@ -58,6 +59,8 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
     for question in questions:
         for sl in student_languages:
             if question.is_answer_sheet() and not sl.with_answer:
+                continue
+            if question.is_question_sheet() and not sl.with_question:
                 continue
 
             print('Prepare', question, 'in', sl.language)

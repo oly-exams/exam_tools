@@ -307,28 +307,40 @@ class SubmissionAssignForm(ModelForm):
 
     class Meta(object):
         model = StudentSubmission
-        fields = ['student', 'language', 'with_answer']
+        fields = ['student', 'language', 'with_question', 'with_answer']
 
 
 class AssignTranslationForm(forms.Form):
     languages = forms.ModelMultipleChoiceField(
         queryset=Language.objects.none(), widget=forms.widgets.CheckboxSelectMultiple
     )
-    main_language = forms.ModelChoiceField(queryset=Language.objects.none(), widget=forms.widgets.RadioSelect)
+    answer_language = forms.ModelChoiceField(queryset=Language.objects.none(), widget=forms.widgets.RadioSelect)
 
     def __init__(self, *args, **kwargs):
         languages_queryset = kwargs.pop('languages_queryset')
+        answer_lang = kwargs.pop('answer_language', None)
         super(AssignTranslationForm, self).__init__(*args, **kwargs)
         self.fields['languages'].queryset = languages_queryset
-        self.fields['main_language'].queryset = languages_queryset
+        if answer_lang is not None:
+            self.fields.pop('answer_language')
+            self.answer_language = answer_lang
+        else:
+            self.answer_language = None
+            self.fields['answer_language'].queryset = languages_queryset
+
 
     def clean(self):
         cleaned_data = super(AssignTranslationForm, self).clean()
         languages = cleaned_data.get("languages")
-        main_language = cleaned_data.get("main_language")
-        if languages and main_language and main_language not in languages:
-            msg = "Answer language not enabled."
-            self.add_error('languages', msg)
+        if self.answer_language is None:
+            answer_language = cleaned_data.get("answer_language")
+            if languages and answer_language and answer_language not in languages:
+                msg = "Answer language not enabled."
+                self.add_error('languages', msg)
+        else:
+            self.cleaned_data['answer_language'] = self.answer_language
+
+
 
 
 ## ungly hack to propagate `languages_queryset` attribute to form construction
@@ -430,7 +442,7 @@ class AdminBlockForm(forms.Form):
 class PrintDocsForm(forms.Form):
     queue = forms.ChoiceField(choices=[], label='Print queue to use')
     duplex = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('DuplexNoTumble', 'Yes')])
-    color = forms.ChoiceField(initial='Colour', choices=[('Colour', 'Yes'), ('Grayscale', 'No')])
+    color = forms.ChoiceField(initial='Colour', choices=[('Colour', 'Yes'), ('Gray', 'No')])
     staple = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('1PLU', 'Yes')])
     copies = forms.IntegerField(initial=1, min_value=1, max_value=10)
     def __init__(self, *args, **kwargs):
@@ -458,7 +470,7 @@ class PrintDocsForm(forms.Form):
         allowed_opts = printer.allowed_opts(queue)
         opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
         for k in opts_map:
-            if cleaned_data.get(k) not in ['None', 'Grayscale']:
+            if cleaned_data.get(k) not in ['None', 'Gray']:
                 if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
                     msg = 'The current printer does not support this option.'
                     self.add_error(k, msg)
