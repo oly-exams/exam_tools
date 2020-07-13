@@ -755,7 +755,7 @@ def delegation_confirm(request, question_id, final_confirmation=False):
         'totals': totals,
         'form_error': form_error,
         'error_messages': error_messages,
-        'checksum': checksum
+        'checksum': checksum,
     }
     if final_confirmation:
         ctx['confirmation_h2'] = 'Sign off final points for {}'.format(question.name)
