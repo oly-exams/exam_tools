@@ -48,6 +48,7 @@ from .forms import ImportForm, PointsForm
 OFFICIAL_LANGUAGE = getattr(settings, 'OFFICIAL_LANGUAGE', 1)
 OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
 
+
 @permission_required('ipho_core.is_staff')
 def import_exam(request):
     ctx = {}
