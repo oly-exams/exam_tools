@@ -340,10 +340,10 @@ def delegation_summary(request):
                                     'text': 'Accept marks without moderation',
                                     }
                 elif settings.SIGN_OFF_FINAL_MARKS:
-                    accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
-                                    'text':'Sign off marks',
-                                    'disabled':True,
-                                    'tooltip': 'You can only sign off marks after the moderation.'
+                    accept_action = {'link': reverse('marking:delegation-final-confirm', args=(question.pk,)),
+                                    'text': 'Sign off marks',
+                                    'disabled': True,
+                                    'tooltip': 'You can only sign off marks after the moderation.',
                                     }
                 else:
                     accept_action = None
