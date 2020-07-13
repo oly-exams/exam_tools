@@ -386,7 +386,7 @@ def delegation_summary(request):
                 actions = [confirm_action, accept_action]
             res['actions'] = actions
             question_ctx.append(res)
-        exam_ctxt = {'questions':question_ctx,'name':exam.name, 'pk':exam.pk}
+        exam_ctxt = {'questions': question_ctx, 'name': exam.name, 'pk': exam.pk}
         exam_list.append(exam_ctxt)
 
     students = Student.objects.filter(delegation=delegation).values('id', 'pk', 'code', 'first_name', 'last_name')
