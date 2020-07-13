@@ -52,7 +52,7 @@
 
   <form method="post">
     {% csrf_token %}
-    <div class="alert {% if form_error %}alert-danger{% else %}{{ confirmation_alert_class|default:'alert-info'}}{% endif %}">
+    <div class="alert {% if form_error %}alert-danger{% else %}{{ confirmation_alert_class|default:'alert-info' }}{% endif %}">
         <div class="checkbox">
             {% if form_error %}
                 <div class="help-block">{{ form_error|safe }}</div>
