@@ -74,7 +74,7 @@
                 {% for action in question.actions %}
                   {% if action %}
                   <span class="tooltip-span" data-toggle="tooltip" title="{{ action.tooltip }}">
-                    <a style="max-width: 20em;" href="{{ action.link }}" class="btn {{ action.class|default:"btn-default"}} btn-sm btn-block" {% if action.disabled %}disabled{% endif %}>{{ action.text }} <i class="fa fa-angle-double-right"></i></a>
+                    <a style="max-width: 20em;" href="{{ action.link }}" class="btn {{ action.class|default:"btn-default" }} btn-sm btn-block" {% if action.disabled %}disabled{% endif %}>{{ action.text }} <i class="fa fa-angle-double-right"></i></a>
                   </span>
                   {% endif %}
                 {% endfor %}
