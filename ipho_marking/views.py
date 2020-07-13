@@ -378,7 +378,7 @@ def delegation_summary(request):
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Sign off marks',
                                     'disabled': True,
-                                    'tooltip': 'Marks are already finalized.'
+                                    'tooltip': 'Marks are already finalized.',
                                     }
                 else:
                     accept_action = None
