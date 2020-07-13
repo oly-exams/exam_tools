@@ -21,7 +21,7 @@ from django import forms
 from django.forms import ModelForm, Form
 from django.forms.formsets import formset_factory
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, MultiField, Div, Fieldset
+from crispy_forms.layout import Submit, Layout, Field, MultiField, Div, Fieldset, HTML
 from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
 from django.utils.safestring import mark_safe
 
@@ -307,28 +307,40 @@ class SubmissionAssignForm(ModelForm):
 
     class Meta(object):
         model = StudentSubmission
-        fields = ['student', 'language', 'with_answer']
+        fields = ['student', 'language', 'with_question', 'with_answer']
 
 
 class AssignTranslationForm(forms.Form):
     languages = forms.ModelMultipleChoiceField(
         queryset=Language.objects.none(), widget=forms.widgets.CheckboxSelectMultiple
     )
-    main_language = forms.ModelChoiceField(queryset=Language.objects.none(), widget=forms.widgets.RadioSelect)
+    answer_language = forms.ModelChoiceField(queryset=Language.objects.none(), widget=forms.widgets.RadioSelect)
 
     def __init__(self, *args, **kwargs):
         languages_queryset = kwargs.pop('languages_queryset')
+        answer_lang = kwargs.pop('answer_language', None)
         super(AssignTranslationForm, self).__init__(*args, **kwargs)
         self.fields['languages'].queryset = languages_queryset
-        self.fields['main_language'].queryset = languages_queryset
+        if answer_lang is not None:
+            self.fields.pop('answer_language')
+            self.answer_language = answer_lang
+        else:
+            self.answer_language = None
+            self.fields['answer_language'].queryset = languages_queryset
+
 
     def clean(self):
         cleaned_data = super(AssignTranslationForm, self).clean()
         languages = cleaned_data.get("languages")
-        main_language = cleaned_data.get("main_language")
-        if languages and main_language and main_language not in languages:
-            msg = "Answer language not enabled."
-            self.add_error('languages', msg)
+        if self.answer_language is None:
+            answer_language = cleaned_data.get("answer_language")
+            if languages and answer_language and answer_language not in languages:
+                msg = "Answer language not enabled."
+                self.add_error('languages', msg)
+        else:
+            self.cleaned_data['answer_language'] = self.answer_language
+
+
 
 
 ## ungly hack to propagate `languages_queryset` attribute to form construction
@@ -478,6 +490,43 @@ class ScanForm(forms.Form):
         )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
+
+
+class DelegationScanForm(forms.Form):
+    file = forms.FileField(validators=[build_extension_validator(['.pdf'])])
+
+    def __init__(self, exam, position, student, do_replace=False, *args, **kwargs):
+        super(DelegationScanForm, self).__init__(*args, **kwargs)
+
+        warning_message = HTML('')
+        if do_replace:
+            warning_message = HTML("""
+                <div class="alert alert-warning">
+                    <strong>Warning!</strong>
+                    Uploading a new file with overwrite the previous scan file.
+                </div>
+            """)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            HTML("""
+            <p>You are uploading a <strong>new scan</strong> of the exam</p>
+            <dl class="row">
+              <dt class="col-sm-3">Exam</dt>
+              <dd class="col-sm-9">{exam}</dd>
+              <dt class="col-sm-3">Question</dt>
+              <dd class="col-sm-9">Q #{position}</dd>
+              <dt class="col-sm-3">Student</dt>
+              <dd class="col-sm-9">{student}</dd>
+            </dl>
+            """.format(exam=exam.name, position=position, student=student.code)),
+            warning_message,
+            Field('file'),
+        )
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.helper.disable_csrf = True
+        self.form_tag = False
 
 
 class ExtraSheetForm(forms.Form):

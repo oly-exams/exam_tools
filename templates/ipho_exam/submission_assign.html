@@ -10,7 +10,13 @@
 <p>Select the languages that you want to deliver to your students.</p>
 <ul>
     <li>For each student more than one language can be delivered.</li>
+    {% if not no_answer %}
+    {% if not no_answer_language %}
     <li>The answer sheets will be provided <strong>only in one</strong> language.</li>
+    {% else %}
+    <li>The answer sheets will be provided <strong>only in {{answer_language}}</strong>.</li>
+    {% endif %}
+    {% endif %}
 </ul>
 
 {% if with_errors %}
@@ -48,15 +54,17 @@
         </tr>
         <tbody>
       {% for ss,form in submission_forms %}
-      <tr class="{% if form.languages.errors or form.main_language.errors %}danger{% endif %}">
+      <tr class="{% if form.languages.errors or form.answer_language.errors %}danger{% endif %}">
           <td>{{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})
               <ul style="margin:0; padding:0;">
                 {% for error in form.languages.errors %}
                     <li class="help-block"><strong>Deliver:</strong> {{ error|escape }}</li>
                 {% endfor %}
-                {% for error in form.main_language.errors %}
-                    <li class="help-block"><strong>With answers:</strong> {{ error|escape }}</li>
-                {% endfor %}
+                {% if not no_answer and not no_answer_language %}
+                  {% for error in form.answer_language.errors %}
+                      <li class="help-block"><strong>With answers:</strong> {{ error|escape }}</li>
+                  {% endfor %}
+                {% endif %}
               </ul>
            </td>
           {% for lang_id,oval in form.languages.field.choices %}
@@ -67,12 +75,14 @@
                       deliver
                   </label>
                 </div>
-                <div class="radio {% if not lang_id in form.languages.value|intlist %}disabled{% endif %} {% if form.main_language.errors %}has-error{% endif %}">
-                  <label>
-                    <input type="radio" id="{{ form.main_language.html_name }}-val-{{ lang_id }}" name="{{ form.main_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.main_language.value|escape %}checked{% endif %} {% if not lang_id in form.languages.value|intlist %}disabled{% endif %}/>
-                    with answer sheets
-                  </label>
-                </div>
+                {% if not no_answer and not no_answer_language %}
+                  <div class="radio {% if not lang_id in form.languages.value|intlist %}disabled{% endif %} {% if form.answer_language.errors %}has-error{% endif %}">
+                    <label>
+                      <input type="radio" id="{{ form.answer_language.html_name }}-val-{{ lang_id }}" name="{{ form.answer_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.answer_language.value|escape %}checked{% endif %} {% if not lang_id in form.languages.value|intlist %}disabled{% endif %}/>
+                      with answer sheets
+                    </label>
+                  </div>
+                {% endif %}
               </td>
           {% endfor %}
       </tr>
@@ -98,7 +108,7 @@
 $(function() {
     $(':checkbox[name^="stud"]').change(function() {
         $checkbox = $(this);
-        $radio = $('#'+$checkbox.attr('id').replace('languages','main_language'));
+        $radio = $('#'+$checkbox.attr('id').replace('languages','answer_language'));
         if ($checkbox.is(':checked')) {
             $radio.removeAttr('disabled');
             $radio.parents('div.radio').removeClass('disabled');

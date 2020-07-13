@@ -19,7 +19,7 @@ from builtins import object
 from django.contrib import admin
 from django import forms
 import json
-from ipho_exam.models import Delegation, Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, Document, DocumentTask, Place, AttributeChange
+from ipho_exam.models import Delegation, Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, CachedAutoTranslation, Document, DocumentTask, Place, AttributeChange
 from django_ace import AceWidget
 
 # Register your models here.
@@ -65,7 +65,8 @@ class QuestionInline(admin.StackedInline):
 
 
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'active', 'hide_feedback', 'show_scans', 'marking_active', 'moderation_active', 'hidden')
+    list_display = ('name', 'active', 'hide_feedback', 'show_delegation_submissions',
+                    'show_scans', 'marking_active', 'moderation_active', 'hidden')
     inlines = [QuestionInline]
 
 
@@ -137,7 +138,7 @@ class DelegationFilter(admin.SimpleListFilter):
 
 
 class StudentSubmissionAdmin(admin.ModelAdmin):
-    list_display = ('exam', 'student', 'delegation', 'language', 'with_answer')
+    list_display = ('exam', 'student', 'delegation', 'language', 'with_question', 'with_answer')
     list_filter = ('exam', DelegationFilter, 'language')
 
     def delegation(self, obj):
@@ -172,6 +173,7 @@ admin.site.register(TranslationNode, TranslationNodeAdmin)
 admin.site.register(AttributeChange, AttributeChangeAdmin)
 admin.site.register(PDFNode, PDFNodeAdmin)
 admin.site.register(TranslationImportTmp)
+admin.site.register(CachedAutoTranslation)
 admin.site.register(Figure, FigureAdmin)
 admin.site.register(RawFigure)
 

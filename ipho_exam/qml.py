@@ -34,6 +34,7 @@ from xml.etree import ElementTree as ET
 from decimal import Decimal
 
 from bs4 import BeautifulSoup
+import html_diff
 # import tidylib
 
 from django import forms
@@ -44,10 +45,12 @@ from django.core.urlresolvers import reverse
 
 from .models import Figure
 from . import tex
-from . import simplediff
+
+html_diff.config.tags_fcts_as_blocks.append(lambda tag: tag.name == 'span' and 'math-tex' in tag.attrs.get('class', []))
+html_diff.config.cuttable_words_mode = html_diff.Config.CuttableWordsMode.UNCUTTABLE_PRECISE
 
 #block groups
-PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'enumerate', 'table', 'equation', 'figure', 'box')
+PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'enumerate', 'table', 'equation', 'equation_unnumbered', 'figure', 'box')
 DEFAULT_BLOCKS = ('texfield', 'texenv')
 
 TIDYOPTIONS={
@@ -82,7 +85,7 @@ TIDYOPTIONS={
 "clean": True,
 "bare": True,
 "new-blocklevel-tags": "question,subquestion,subanswer,subanswercontinuation,box,section,part,figure,list,texfield,texparam,texenv,table,row",
-"new-inline-tags": "title,paragraph,param,caption,equation,item,texparam,cell,tablecaption",
+"new-inline-tags": "title,paragraph,param,caption,equation,equation_unnumbered,item,texparam,cell,tablecaption",
 "new-empty-tags": "pagebreak,vspace"
 }  # yapf:disable
 
@@ -227,6 +230,18 @@ class _classproperty(object):
         return self.fget(owner_cls)
 
 
+def escape_percents(tex_code):
+    parts = tex_code.split('%')
+    parts_it = iter(parts)
+    next(parts_it)
+    for i, (part, part_it) in enumerate(zip(parts, parts_it)):
+        if part.endswith('\\vspace{') and part_it.startswith('iem}'):
+            continue
+        if not (len(part) - len(part.rstrip('\\'))) % 2:
+            parts[i] += '\\'
+    return '%'.join(parts)
+
+
 class QMLobject(object):
     default_attributes = {}
     _all_objects = None
@@ -349,7 +364,7 @@ class QMLobject(object):
             texout += texchild
 
         texout += self.tex_end()
-        return texout, externals
+        return escape_percents(texout), externals
 
     def xhtml_begin(self):
         return ''
@@ -433,11 +448,11 @@ class QMLobject(object):
     def diff_content_html(self, other_data):
         if self.has_text:
             if self.id in other_data:
-                self.data_html = simplediff.html_diff(other_data[self.id], self.data_html)
+                self.data_html = html_diff.diff(other_data[self.id], self.data_html)
             else:
                 self.data_html = u'<ins>' + self.data_html + u'</ins>'
             # if self.id in other_data:
-            #     self.data = escape(simplediff.html_diff(unescape_entities(self.data), other_data[self.id]))
+            #     self.data = escape(html_diff.diff(unescape_entities(self.data), other_data[self.id]))
             # else:
             #     self.data = escape(u'<ins>' + unescape_entities(self.data) + u'</ins>')
         for c in self.children:
@@ -760,7 +775,7 @@ class QMLfigure(QMLobject):
 
         externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
 
-        return texout, externals
+        return escape_percents(texout), externals
 
     def make_xhtml(self):
         fig_caption = ''
@@ -877,6 +892,22 @@ class QMLequation(QMLobject):
         return u'\\end{equation}\n\n'
 
 
+class QMLequation_unnumbered(QMLobject):
+    tag = "equation_unnumbered"
+    display_name = 'Equation*'
+    default_heading = "Equation*"
+    sort_order = 300
+
+    has_text = True
+    has_children = False
+
+    def tex_begin(self):
+        return u'\\begin{equation*}\n'
+
+    def tex_end(self):
+        return u'\\end{equation*}\n\n'
+
+
 class QMLlist(QMLobject):
     tag = "list"
     display_name = "Bullet list"
@@ -970,7 +1001,7 @@ class QMLlatex(QMLobject):
         for c in self.children:
             if c.tag == 'texparam':
                 content = content.replace(u'{{ %s }}' % c.attributes['name'], data2tex(c.data))
-        return content, []
+        return escape_percents(content), []
 
 
 class QMLlatexParam(QMLobject):
@@ -1104,7 +1135,7 @@ class QMLtableRow(QMLobject):
         if height != 'default':
             texout += u'[{}]'.format(height)
         texout += int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
-        return texout * multiplier, externals
+        return escape_percents(texout) * multiplier, externals
 
     def xhtml_begin(self):
         return u'<tr>'
