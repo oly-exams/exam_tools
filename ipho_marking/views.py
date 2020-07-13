@@ -310,9 +310,9 @@ def delegation_summary(request):
                 else:
                     res['view_tooltip'] = 'Official marks are shown once you submitted your marks for moderation.'
                     res['viewall_tooltip'] = res['view_tooltip']
-                confirm_action = {'link':reverse('marking:delegation-confirm',args=(question.pk,)),
-                                'text':'Submit marks for moderation',
-                                }
+                confirm_action = {'link': reverse('marking:delegation-confirm',args=(question.pk,)),
+                                 'text': 'Submit marks for moderation',
+                                 }
                 if settings.ACCEPT_MARKS_BEFORE_MODERATION:
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Accept marks without moderation',
