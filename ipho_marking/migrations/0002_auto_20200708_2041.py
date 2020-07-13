@@ -15,29 +15,28 @@ class Migration(migrations.Migration):
     ]
 
     def forwards(apps, schema_editor):
-        #MarkingAction = apps.get_model("ipho_marking","MarkingAction")
-        from ipho_marking.models import MarkingAction
-        from ipho_exam.models import ExamAction
-        if hasattr(ExamAction, 'POINTS'):
-            for action in ExamAction.objects.filter(action=ExamAction.POINTS).all():
-                if action.status == ExamAction.OPEN:
-                    for question in action.exam.question_set.all():
-                        MarkingAction(delegation=action.delegation, question=question, status=MarkingAction.OPEN).save()
+        MarkingAction = apps.get_model("ipho_marking","MarkingAction")
+        ExamAction = apps.get_model("ipho_exam","ExamAction")
+        if hasattr(ExamAction, 'action'):
+            for action in ExamAction.objects.filter(action='P').all():
+                if action.status == 'O':
+                    for question in action.exam.question_set.filter(type=1).all():
+                        MarkingAction(delegation=action.delegation, question=question, status=0).save()
                 else:
-                    for question in action.exam.question_set.all():
-                        MarkingAction(delegation=action.delegation, question=question, status=MarkingAction.SUBMITTED).save()
+                    for question in action.exam.question_set.filter(type=1).all():
+                        MarkingAction(delegation=action.delegation, question=question, status=1).save()
         return
 
     def backwards(apps, schema_editor):
-        from ipho_marking.models import MarkingAction
-        from ipho_exam.models import ExamAction
-        if hasattr(ExamAction, 'POINTS'):
+        MarkingAction = apps.get_model("ipho_marking","MarkingAction")
+        ExamAction = apps.get_model("ipho_exam","ExamAction")
+        if hasattr(ExamAction, 'action'):
             for action in MarkingAction.objects.all():
-                eact, _ = ExamAction.objects.get_or_create(delegation=action.delegation, exam=action.question.exam, action=ExamAction.POINTS)
-                if MarkingAction.objects.filter(delegation=action.delegation, question__exam=action.question.exam, status=MarkingAction.OPEN).exists():
-                    eact.status = ExamAction.OPEN
+                eact, _ = ExamAction.objects.get_or_create(delegation=action.delegation, exam=action.question.exam, action='P')
+                if MarkingAction.objects.filter(delegation=action.delegation, question__exam=action.question.exam, status=0).exists():
+                    eact.status = 'O'
                 else:
-                    eact.status = ExamAction.SUBMITTED
+                    eact.status = 'S'
                 eact.save()
         return
 
