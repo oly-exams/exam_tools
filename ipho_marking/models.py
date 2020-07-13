@@ -75,7 +75,7 @@ class MarkingAction(models.Model):
 @receiver(post_save, sender=Question, dispatch_uid='create_marking_actions_on_question_creation')
 def create_actions_on_exam_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
-    if not created or raw or instance.type!=Question.ANSWER:
+    if not created or raw or instance.type != Question.ANSWER:
         return
     for delegation in Delegation.objects.all():
         marking_action, _ = MarkingAction.objects.get_or_create(question=instance, delegation=delegation)
