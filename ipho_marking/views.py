@@ -142,8 +142,6 @@ def staff_stud_detail(request, version, stud_id, question_id):
     if not request.user.has_perm('ipho_core.is_marker') or version != 'O':
         raise RuntimeError('You cannot modify these markings!')
 
-
-
     question = get_object_or_404(Question, id=question_id)
     student = get_object_or_404(Student, id=stud_id)
     marking_action = get_object_or_404(MarkingAction, delegation=student.delegation, question=question)
