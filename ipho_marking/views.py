@@ -112,7 +112,7 @@ def summary(request):
             exam_points=Sum('points')
         ).values('exam_points').order_by('marking_meta__question__exam')
         stud_marking_action_list = MarkingAction.objects.filter(delegation__student__pk__contains=student['id']).values('status').order_by('question__exam', 'question__position')
-        points_per_student.append((student, list(zip(stud_points_list, stud_marking_action_list)), stud_exam_points_list, ))
+        points_per_student.append((student, list(zip(stud_points_list, stud_marking_action_list)), stud_exam_points_list))
 
     questions = MarkingMeta.objects.all().values('question').annotate(question_points=Sum('max_points')).values(
         'question__exam__name', 'question__name', 'question_points'
