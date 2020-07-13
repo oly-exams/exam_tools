@@ -61,8 +61,8 @@ def fix_tex_parens(s, add_warning_comment=False):
     if count > 0:
         out_s += '}'*count
         fix_required = True
-    if fix_required and add_warning_comment:
-        out_s += " % %%% non-matching curly braces removed by fix_tex_parens in QML export %%%\n\n"
+    #if fix_required and add_warning_comment:
+    #    out_s += " % %%% non-matching curly braces removed by fix_tex_parens in QML export %%%\n\n"
     return out_s
 
 
