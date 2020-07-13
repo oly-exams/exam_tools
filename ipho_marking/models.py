@@ -54,7 +54,8 @@ class MarkingAction(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     class Meta(object):
-        unique_together = index_together = (('question', 'delegation'), )
+        unique_together = (('question', 'delegation'),)
+        index_together = unique_together
 
     def natural_key(self):
         return self.question.natural_key() + self.delegation.natural_key()
