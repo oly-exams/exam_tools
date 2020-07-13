@@ -402,6 +402,7 @@ def delegation_summary(request):
             st_points['exam_points'] for st_points in stud_exam_points_list if st_points['exam_points'] is not None
         ])
         points_per_student.append((student, stud_exam_points_list, total))
+
     active_exams = Exam.objects.filter(hidden=False, marking_active=True)
     scans_table_per_exam = []
     scan_show_exams = Exam.objects.filter(hidden=False, show_scans=True)
