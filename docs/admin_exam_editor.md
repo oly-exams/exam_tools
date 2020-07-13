@@ -161,13 +161,15 @@ Valid children:
 [Figure caption](admin_exam_editor.md#figure-caption)
 [Figure text](admin_exam_editor.md#figure-text)
 
-#### Equation
+#### Equation / Equation*
 
 Block content: Latex equation e.g. "I=I_0 - \frac{U}{R_\text{int}}".
 
 No attributes.
 
 No children.
+
+Equation is numbered, Equation* is not.
 
 #### Bullet List
 

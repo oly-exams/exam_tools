@@ -481,7 +481,7 @@ def compile_cover():
     body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_cover.tex'), request=HttpRequest(), context=cover)
     question_pdf = _compile_tex(body, [])
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='C', suppress_code=True)
-    page = pdf.add_barcode(question_pdf, bgenerator)
+    page = pdf.check_add_barcode(question_pdf, bgenerator)
     with open('test_cover.pdf', 'wb') as pdf_file:
         pdf_file.write(page)
 
@@ -504,7 +504,7 @@ def compile_question(qml_trans, pdf_name='test_question'):
     body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_question.tex'), request=HttpRequest(), context=context)
     question_pdf = _compile_tex(body, ext_resources)
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
-    page = pdf.add_barcode(question_pdf, bgenerator)
+    page = pdf.check_add_barcode(question_pdf, bgenerator)
     with open('{}.pdf'.format(pdf_name), 'wb') as pdf_file:
         pdf_file.write(page)
 
@@ -525,7 +525,7 @@ def compile_blank():
     body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(), context=context)
     question_pdf = _compile_tex(body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='W')
-    page = pdf.add_barcode(question_pdf, bgenerator)
+    page = pdf.check_add_barcode(question_pdf, bgenerator)
     with open('test_blank.pdf', 'wb') as pdf_file:
         pdf_file.write(page)
 
@@ -546,7 +546,7 @@ def compile_graph():
     body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_graph.tex'), request=HttpRequest(), context=context)
     question_pdf = _compile_tex(body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
     bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='W')
-    page = pdf.add_barcode(question_pdf, bgenerator)
+    page = pdf.check_add_barcode(question_pdf, bgenerator)
     with open('test_graph.pdf', 'wb') as pdf_file:
         pdf_file.write(page)
 

@@ -1,0 +1,94 @@
+
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra-head %}
+<meta http-equiv="refresh" content="5" />
+
+<style>
+  th{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  td{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  table.feedbacks th{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  table.feedbacks td{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+
+  /*.large{
+    font-family: Arial;
+    font-size: 50pt;
+  }*/
+
+  .flex {
+    display: flex-inline;
+  }
+
+
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+  <div class="col-md-12">
+
+        <div class="">
+            <h1>Auto Translate Counts</h1>
+            <div class="">
+                <p><strong>Sent Costs:</strong> {{ sent_cost|floatformat:"-2" }}$</p>
+                <p><strong>Sent Count:</strong> {{ sent_count }}</p>
+                <p><strong>Total Count:</strong> {{ total_count }}</p>
+                <br>
+                <table class="table table-condensed">
+                    <tr>
+                      <th>Delegation</th>
+                      <th>Count</th>
+                      <th>Estimated Cost</th>
+                    </tr>
+                    {% for row in delegation_counts %}
+                    <tr>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.auto_translate_char_count }}</td>
+                        <td>{{ row.costs|floatformat:2 }}$</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+        </div>
+
+  </div>
+
+
+
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script>
+$('document').ready(function(){
+
+    $(document).on('click', '#reload', function(event){
+        location.reload();
+    });
+
+    // Activates tooltipls
+    $('.btn').tooltip({containter: ".parent"});
+
+}); // $(document).ready()
+</script>
+{% endblock %}

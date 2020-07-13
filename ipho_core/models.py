@@ -36,6 +36,7 @@ class IphoPerm(models.Model):
     class Meta(object):
         permissions = (
             ('is_delegation', 'Is a delegation'),
+            ('is_delegation_print', 'Is in the print team of a delegation'),
             ('is_marker', 'Is a marker'),
             ('can_vote', 'Can vote'),
             ('is_staff', 'Is an organizer'),
@@ -77,6 +78,7 @@ class Delegation(models.Model):
     name = models.CharField(unique=True, max_length=max(3, len(settings.OFFICIAL_DELEGATION)))
     country = models.CharField(unique=True, max_length=100)
     members = models.ManyToManyField(User, blank=True)
+    auto_translate_char_count = models.IntegerField(default=0)
 
     class Meta(object):
         ordering = ['name']

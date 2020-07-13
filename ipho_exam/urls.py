@@ -52,6 +52,8 @@ urlpatterns = [
         name='import-translation-confirm'
     ),
     url(r'^translation/all/?$', views.list_all_translations, name='list-all'),
+    url(r'^auto-translate$', views.auto_translate, name='auto-translate'),
+    url(r'^auto-translate-count$', views.auto_translate_count, name='auto-translate-count'),
     url(r'^languages/?$', views.list_language, name='language-list'),
     url(r'^languages/add$', views.add_language, name='language-add'),
     url(r'^languages/edit/(?P<lang_id>\d+)$', views.edit_language, name='language-edit'),
@@ -153,6 +155,12 @@ urlpatterns = [
     url(r'^submission/(?P<exam_id>\d+)/assign$', views.submission_exam_assign, name='submission-exam-assign'),
     url(r'^submission/(?P<exam_id>\d+)/confirm$', views.submission_exam_confirm, name='submission-exam-confirm'),
     url(r'^submission/(?P<exam_id>\d+)/submitted$', views.submission_exam_submitted, name='submission-exam-submitted'),
+    url(r'^submission/submitted/?$', views.submission_delegation_list_submitted, name='submission-delegation-submitted'),
+    url(
+        r'^submission/submitted/scan/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)?$',
+        views.upload_scan_delegation,
+        name='submission-delegation-submitted-scan-upload'
+    ),
     url(r'^figures/?$', views.figure_list, name='figures'),
     url(r'^figure/add$', views.figure_add, name='figure-add'),
     url(r'^figure/(?P<fig_id>[^\/]+)$', views.figure_edit, name='figure-edit'),
