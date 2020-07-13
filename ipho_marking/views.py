@@ -352,11 +352,11 @@ def delegation_summary(request):
                 res['view'] = True
                 res['edit_tooltip'] = 'Marks already submitted. You cannot edit them anymore.'
                 res['editall_tooltip'] = res['edit_tooltip']
-                confirm_action = {'link':reverse('marking:delegation-confirm',args=(question.pk,)),
-                                'text':'Submit marks for moderation',
-                                'disabled':True,
-                                'tooltip': 'Marks already submitted.'
-                                }
+                confirm_action = {'link': reverse('marking:delegation-confirm', args=(question.pk,)),
+                                 'text': 'Submit marks for moderation',
+                                 'disabled': True,
+                                 'tooltip': 'Marks already submitted.',
+                                 }
                 if settings.SIGN_OFF_FINAL_MARKS:
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
                                     'text':'Sign off marks',
