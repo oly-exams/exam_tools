@@ -129,7 +129,7 @@ def summary(request):
         'questions': questions,
         'points_per_student': points_per_student,
         'exams': exams,
-        'editable_status': [MarkingAction.OPEN, MarkingAction.SUBMITTED]
+        'editable_status': [MarkingAction.OPEN, MarkingAction.SUBMITTED],
     }
     return render(request, 'ipho_marking/summary.html', context)
 
