@@ -390,7 +390,6 @@ def delegation_summary(request):
         exam_ctxt = {'questions':4*question_ctx,'name':exam.name, 'pk':exam.pk}
         exam_list.append(exam_ctxt)
 
-
     students = Student.objects.filter(delegation=delegation).values('id', 'pk', 'code', 'first_name', 'last_name')
     vid = 'F'
     points_per_student = []
