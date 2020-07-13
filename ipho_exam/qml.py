@@ -343,6 +343,7 @@ class QMLobject(object):
         if self.__class__.has_text:
             texout += data2tex(self.data)
         for c in self.children:
+
             (texchild, extchild) = c.make_tex()
             externals += extchild
             texout += texchild
@@ -490,9 +491,7 @@ class QMLquestion(QMLobject):
         return tt.strip()
 
     def heading(self):
-        return 'Question/answer %spt' % (
-            self.attributes['points'],
-        )
+        return 'Question/answer %spt' % (self.attributes['points'], )
 
     def tex_begin(self):
         return u'\\begin{PR}{%s}{%s}\n\n' % (self.title(), self.attributes.get('points', ''))
@@ -527,7 +526,9 @@ class QMLsubquestion(QMLobject):
         return u'\\end{QTF}\n\n'
 
     def xhtml_begin(self):
-        return u'<h4>Task {}.{} ({} pt)</h4>'.format(self.attributes['part_nr'], self.attributes['question_nr'], self.attributes['points'])
+        return u'<h4>Task {}.{} ({} pt)</h4>'.format(
+            self.attributes['part_nr'], self.attributes['question_nr'], self.attributes['points']
+        )
 
 
 class QMLsubanswer(QMLobject):
@@ -557,7 +558,10 @@ class QMLsubanswer(QMLobject):
         return u'\\end{QSA}\n\n'
 
     def xhtml_begin(self):
-        return u'<h4>Answer {}.{} ({} pt)</h4>'.format(self.attributes['part_nr'], self.attributes['question_nr'], self.attributes['points'])
+        return u'<h4>Answer {}.{} ({} pt)</h4>'.format(
+            self.attributes['part_nr'], self.attributes['question_nr'], self.attributes['points']
+        )
+
 
 class QMLsubanswercontinuation(QMLobject):
     tag = "subanswercontinuation"
@@ -572,9 +576,7 @@ class QMLsubanswercontinuation(QMLobject):
     default_attributes = {'part_nr': 'A', 'question_nr': '1'}
 
     def heading(self):
-        return 'Answer %s.%s, cont.' % (
-            self.attributes['part_nr'], self.attributes['question_nr']
-        )
+        return 'Answer %s.%s, cont.' % (self.attributes['part_nr'], self.attributes['question_nr'])
 
     def tex_begin(self):
         return u'\\begin{QSAC}{%s}{%s}{%s}\n' % (
@@ -781,14 +783,50 @@ class QMLfigure(QMLobject):
         if content_type == 'svg+xml':
             xhtmlout = fig_content
         else:
-            xhtmlout = u'<img width="{width}%" src="data:image/{content_type};base64,{fig_content}"/>\n'.format(width=int(round(100.*width)),
-                content_type=content_type, fig_content=binascii.b2a_base64(fig_content).decode()
+            xhtmlout = u'<img width="{width}%" src="data:image/{content_type};base64,{fig_content}"/>\n'.format(
+                width=int(round(100. * width)),
+                content_type=content_type,
+                fig_content=binascii.b2a_base64(fig_content).decode()
             )
         if len(fig_caption) > 0:
             xhtmlout += u'<div>{}</div>\n'.format(fig_caption)
 
         externals = []
         return xhtmlout, externals
+
+
+class QMLcellfigure(QMLfigure):
+    tag = "cellfigure"
+    default_heading = "Cell Figure"
+    sort_order = 200
+
+    has_text = False
+    has_children = False
+
+    def end_tex(self):
+        return u''
+
+    def make_tex(self):
+        figname = 'fig_{}'.format(self.id)
+
+        fig_caption = ''
+        for c in self.children:
+            if c.tag == 'caption':
+                caption_text = data2tex(c.data)
+                caption_text = caption_text.strip('\n')
+                caption_text = caption_text.replace('\n', r' ~\newline ')
+                fig_caption += caption_text
+
+        width = self.attributes.get('width', 0.9)  # 0.9 is the default value
+
+        texout = u''
+        texout += str(r'\begin{minipage}{' + width + r'\textwidth}\centering') + u'\n'
+        texout += u'\\includegraphics[width=\\textwidth]{{{}}}\n'.format(figname)
+        texout += str(r'\end{minipage}') + u'\n'
+
+        externals = [tex.FigureExport(figname, self.attributes['figid'], self.fig_query(), self.lang)]
+
+        return texout, externals
 
 
 class QMLfigureText(QMLobject):
@@ -837,6 +875,7 @@ class QMLequation(QMLobject):
 
     def xhtml_end(self):
         return u'\\end{equation}\n\n'
+
 
 class QMLlist(QMLobject):
     tag = "list"
@@ -1050,10 +1089,22 @@ class QMLtableRow(QMLobject):
     def make_tex(self):
         multiplier = int(self.attributes.get('multiplier', 1))
         texout = u''
-        texout += u' & '.join(data2tex(c.data) for c in self.children if c.tag == 'cell')  # pylint: disable=no-member
+        externals = []
+        cell_tex = []
+        for c in self.children:
+            if c.tag == "cell":
+                (texchild, extchild) = c.make_tex()
+                cell_tex.append(texchild)
+                externals += extchild
+
+        texout += u' & '.join(cell_tex)
         texout += u' '.join(c.make_tex()[0] for c in self.children if c.tag == 'texfield')
-        texout += u'\\\\' + int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
-        return texout * multiplier, []
+        texout += u'\\\\'
+        height = self.attributes.get('height', 'default')
+        if height != 'default':
+            texout += u'[{}]'.format(height)
+        texout += int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
+        return texout * multiplier, externals
 
     def xhtml_begin(self):
         return u'<tr>'
@@ -1067,7 +1118,14 @@ class QMLtableCell(QMLobject):
     sort_order = 402
 
     has_text = True
-    has_children = False
+    has_children = True
+    valid_children = ('cellfigure', )
+
+    def tex_begin(self):
+        return u''
+
+    def tex_end(self):
+        return u''
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
