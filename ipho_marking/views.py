@@ -653,8 +653,8 @@ def delegation_confirm(request, question_id, final_confirmation=False):
     marking_action, _ = MarkingAction.objects.get_or_create(question=question, delegation=delegation)
 
     if not final_confirmation and not marking_action.in_progress():
-         # can only confirm open actions
-         return HttpResponseRedirect(reverse('marking:delegation-summary'))
+        # can only confirm open actions
+        return HttpResponseRedirect(reverse('marking:delegation-summary'))
     if final_confirmation:
         if not settings.SIGN_OFF_FINAL_MARKS and marking_action.status == MarkingAction.LOCKED:
             # if sign off is deactivated, locked marks cannot (don't need to be) signed off
