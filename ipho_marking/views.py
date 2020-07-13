@@ -314,8 +314,8 @@ def delegation_summary(request):
                                  'text': 'Submit marks for moderation',
                                  }
                 if settings.ACCEPT_MARKS_BEFORE_MODERATION:
-                    accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
-                                    'text':'Accept marks without moderation',
+                    accept_action = {'link': reverse('marking:delegation-final-confirm', args=(question.pk,)),
+                                    'text': 'Accept marks without moderation',
                                     }
                 elif settings.SIGN_OFF_FINAL_MARKS:
                     accept_action = {'link':reverse('marking:delegation-final-confirm',args=(question.pk,)),
