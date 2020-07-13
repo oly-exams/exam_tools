@@ -22,7 +22,7 @@ import django
 django.setup()
 
 from ipho_exam.models import Exam, ExamAction, Delegation, Question
-from ipho_exam.marking import MarkingAction
+from ipho_marking.models import MarkingAction
 
 for exam in Exam.objects.all():
     for delegation in Delegation.objects.all():
