@@ -430,8 +430,6 @@ def delegation_summary(request):
                                                                                         ).order_by('question__exam',
                                                                                                    ).distinct()
 
-
-
     ctx = {
         'delegation': delegation,
         'students': students,
