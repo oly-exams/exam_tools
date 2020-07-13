@@ -67,6 +67,15 @@ CODE_ON_COVER_SHEET = False
 # (Answer sheets and Working sheets)
 ADD_CODE_ON_STUDENT_SHEETS = True
 
+# Defines whether official marks are shown before submission for moderation
+SHOW_OFFICIAL_MARKS_IMMEDIATELY = False
+
+# Defines whether delegations can accept official marks without moderation
+ACCEPT_MARKS_BEFORE_MODERATION = False
+
+# Defines whether final marks need to be signed off by a delegation
+SIGN_OFF_FINAL_MARKS = False
+
 # Url of documentation
 DOCS_URL = '/docs'
 

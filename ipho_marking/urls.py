@@ -40,8 +40,8 @@ urlpatterns = [
         views.delegation_edit_all,
         name='delegation-all-detail-edit'
     ),
-    url(r'^confirm/(?P<exam_id>\d+)$', views.delegation_confirm, name='delegation-confirm'),
-
+    url(r'^confirm/(?P<question_id>\d+)$', views.delegation_confirm, name='delegation-confirm'),
+    url(r'^confirm/final/(?P<question_id>\d+)$', views.delegation_confirm, name='delegation-final-confirm', kwargs={'final_confirmation':True}),
     ## Markers
     url(r'^official/?$', views.official_marking_index, name='official-marking-index'),
     url(

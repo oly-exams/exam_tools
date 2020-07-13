@@ -19,11 +19,77 @@ from builtins import object
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 from django.utils.encoding import python_2_unicode_compatible
 
-from ipho_core.models import Student
+from ipho_core.models import Student, Delegation
 from ipho_exam.models import Exam, Question
+from ipho_exam.exceptions import IphoExamForbidden
 from collections import OrderedDict
+
+
+
+class MarkingActionManager(models.Manager):
+    def get_by_natural_key(self, question_id, delegation_name, action):
+        return self.get(question__id=exam_name, delegation__name=delegation_name, action=action)
+
+
+class MarkingAction(models.Model):
+    objects = MarkingActionManager()
+
+    OPEN = 0
+    SUBMITTED = 1
+    LOCKED = 2
+    FINAL = 3
+    STATUS_CHOICES = (
+        (OPEN, 'In progress'),
+        (SUBMITTED, 'Submitted'),
+        (LOCKED, 'Locked'),
+        (FINAL, 'Final'),
+    )
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    delegation = models.ForeignKey(Delegation, related_name='marking_status', on_delete=models.CASCADE)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=0)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    class Meta(object):
+        unique_together = (('question', 'delegation'),)
+        index_together = unique_together
+
+    def natural_key(self):
+        return self.question.natural_key() + self.delegation.natural_key()
+
+    natural_key.dependencies = ['ipho_exam.question', 'ipho_core.delegation']
+
+    def in_progress(self):
+        return self.status == MarkingAction.OPEN
+
+    @staticmethod
+    def exam_in_progress(exam, delegation):
+        marks_open = MarkingAction.objects.filter(
+            question__exam=exam, delegation=delegation, status=MarkingAction.OPEN
+        ).exists()
+        return marks_open
+
+
+@receiver(post_save, sender=Question, dispatch_uid='create_marking_actions_on_question_creation')
+def create_actions_on_exam_creation(instance, created, raw, **kwargs):
+    # Ignore fixtures and saves for existing courses.
+    if not created or raw or instance.type != Question.ANSWER:
+        return
+    for delegation in Delegation.objects.all():
+        marking_action, _ = MarkingAction.objects.get_or_create(question=instance, delegation=delegation)
+
+
+@receiver(post_save, sender=Delegation, dispatch_uid='create_marking_actions_on_delegation_creation')
+def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
+    # Ignore fixtures and saves for existing courses.
+    if not created or raw:
+        return
+    for question in Question.objects.filter(type=Question.ANSWER).all():
+        marking_action, _ = MarkingAction.objects.get_or_create(question=question, delegation=instance)
+
 
 
 @python_2_unicode_compatible

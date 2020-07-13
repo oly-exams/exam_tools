@@ -21,10 +21,14 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 import django
 django.setup()
 
-from ipho_exam.models import *
+from ipho_exam.models import Exam, ExamAction, Delegation, Question
+from ipho_exam.marking import MarkingAction
 
-exams = Exam.objects.all()
 for exam in Exam.objects.all():
     for delegation in Delegation.objects.all():
         for action, _ in ExamAction.ACTION_CHOICES:
             exam_action, _ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=action)
+
+for question in Question.objects.filter(type=Question.ANSWER).all():
+    for delegation in Delegation.objects.all():
+        MarkingAction.objects.get_or_create(question=question, delegation=delegation)

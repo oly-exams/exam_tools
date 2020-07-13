@@ -10,9 +10,15 @@
 
 {% block page-content %}
 
-  <h2>Confirm points for {{ exam.name }}</h2>
+  <h2>{{ confirmation_h2 }}</h2>
 
-  <p class="lead">You need to confirm the marking of your delegation before you can see the points assigned by the official markers.</p>
+  <p class="lead">{{ confirmation_info|safe }}</p>
+
+  <div id="alerts-container">
+  {% for class, msg in error_messages %}
+  <div class="alert {{ class }} alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>{{ msg|safe }}</div>
+  {% endfor %}
+  </div>
 
   {% for question in questions %}
     <div class="panel panel-default">
@@ -42,43 +48,31 @@
     </div>
   {% endfor %}
 
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3 class="panel-title">Total points</h2>
-    </div>
-
-    <table class="table table-strided">
-      <tr>
-        <th>Student</th>
-        <th>Total</th>
-      </tr>
-      {% regroup markings|lookup:questions.0.pk by student as markings_list %}
-      {% for marking in markings_list %}
-      <tr>
-        <td>{{ marking.grouper.first_name }} {{ marking.grouper.last_name }}  ({{ marking.grouper.code }})</td>
-        <td><b>{{ totals|lookup:marking.list.0.student.pk|floatformat:2|default_if_none:"-" }}</b></td>
-      </tr>
-      {% endfor %}
-    </table>
-    </div>
-
   <hr />
 
   <form method="post">
     {% csrf_token %}
-    <div class="alert {% if form_error %}alert-danger{% else %}alert-info{% endif %}">
+    <div class="alert {% if form_error %}alert-danger{% else %}{{ confirmation_alert_class|default:'alert-info' }}{% endif %}">
         <div class="checkbox">
             {% if form_error %}
                 <div class="help-block">{{ form_error|safe }}</div>
             {% endif %}
           <label>
-            <input type="checkbox" autocomplete="off" name="agree-submit"> I confirm my version of the markings.
+            <input type="checkbox" autocomplete="off" name="agree-submit"> {{ confirmation_checkbox_label }}
           </label>
+          {% if checksum %}
+            <input type="hidden" autocomplete="off" name="checksum" value="{{ checksum }}" >
+          {% endif %}
         </div>
     </div>
 
     <div class="pull-right">
-      <button type="submit" class="btn btn-primary"><i class="fa fa-check" aria-hidden="true"></i> Confirm</buton>
+      {% if reject_button_label %}
+
+      <button type="submit" name="reject-final" class="btn btn-warning" style="margin-right: 5px;"><i class="fa fa-times" aria-hidden="true"></i> {{ reject_button_label }}</button>
+      {% endif %}
+      <button type="submit" class="btn btn-primary"><i class="fa fa-check" aria-hidden="true"></i> {{ confirm_button_label }}</button>
+
     </div>
 
   </form>
