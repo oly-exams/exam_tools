@@ -2012,6 +2012,7 @@ def upload_scan_delegation(request, exam_id, position, student_id):
     )
     if form.is_valid():
         doc.scan_file = form.cleaned_data['file']
+        doc.scan_status = 'S'
         doc.save()
         return JsonResponse({
             'download_link': reverse('exam:scan-exam-pos-student', kwargs={
