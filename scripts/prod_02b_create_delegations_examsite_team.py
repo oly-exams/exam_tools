@@ -70,7 +70,7 @@ def main(input, dumpdata=False):
             indent=2,
             use_natural_foreign_keys=True,
             use_natural_primary_keys=True,
-            stream=sys.stdout
+            stream=sys.stdout,
         )
 
 
