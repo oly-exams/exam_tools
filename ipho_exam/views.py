@@ -2720,14 +2720,16 @@ def auto_translate_count(request):
     def to_money(count):
         return count/10**6*20
     total_counts = CachedAutoTranslation.objects.annotate(total_char_count=F('source_length')*F('hits')).aggregate(total_sum=Sum('total_char_count'), sent_sum=Sum('source_length'))
-    sent_count = total_counts['sent_sum']
-    total_count = total_counts['total_sum']
+    sent_count = total_counts['sent_sum'] or 0
+    total_count = total_counts['total_sum'] or 0
     sent_cost = to_money(sent_count)
     delegation_counts_raw = Delegation.objects.values('name', 'auto_translate_char_count')
     delegation_tot_count = sum([a['auto_translate_char_count'] for a in delegation_counts_raw])
-    delegation_counts = [{ **a, 'costs':a['auto_translate_char_count']*sent_cost/delegation_tot_count} for a in delegation_counts_raw]
-    print(total_counts)
-    delegation_counts.sort(key=lambda d: -d['auto_translate_char_count'])
+    if delegation_tot_count:
+        delegation_counts = [{**a, 'costs': a['auto_translate_char_count']*sent_cost/delegation_tot_count} for a in delegation_counts_raw]
+        delegation_counts.sort(key=lambda d: -d['auto_translate_char_count'])
+    else:
+        delegation_counts = [{**a, 'costs': 0} for a in delegation_counts_raw]
 
     ctxt = {}
     ctxt['delegation_counts'] = delegation_counts
