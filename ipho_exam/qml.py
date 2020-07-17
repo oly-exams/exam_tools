@@ -1113,7 +1113,7 @@ class QMLtableRow(QMLobject):
 
     has_text = False
     has_children = True
-    valid_children = ('cell', 'texfield')
+    valid_children = ('cell', 'multirowcell', 'multicolumncell', 'texfield')
 
     default_attributes = {'bottom_line': '1', 'multiplier': '1'}
 
@@ -1123,7 +1123,7 @@ class QMLtableRow(QMLobject):
         externals = []
         cell_tex = []
         for c in self.children:
-            if c.tag == "cell":
+            if "cell" in c.tag:
                 (texchild, extchild) = c.make_tex()
                 cell_tex.append(texchild)
                 externals += extchild
@@ -1134,7 +1134,11 @@ class QMLtableRow(QMLobject):
         height = self.attributes.get('height', 'default')
         if height != 'default':
             texout += u'[{}]'.format(height)
-        texout += int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
+
+        if self.attributes['bottom_line'] in ["0", "1", "2", "3"]:
+            texout += int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
+        else:
+            texout += self.attributes['bottom_line'] + u'\n'
         return escape_percents(texout) * multiplier, externals
 
     def xhtml_begin(self):
@@ -1166,6 +1170,30 @@ class QMLtableCell(QMLobject):
 
     def xhtml_end(self):
         return u'</td>'
+
+
+class QMLtableMultiRowCell(QMLtableCell):
+    tag = "multirowcell"
+
+    default_attributes = {'size': '1', 'row': '*'}
+
+    def tex_begin(self):
+        return u'\multirow{' + self.attributes['size'] + '}{' + self.attributes['row'] + '}{'
+
+    def tex_end(self):
+        return u'}'
+
+
+class QMLtableMultiColumnCell(QMLtableCell):
+    tag = "multicolumncell"
+
+    default_attributes = {'columns': '|c|', 'size': '1'}
+
+    def tex_begin(self):
+        return u'\multicolumn{' + self.attributes['size'] + '}{' + self.attributes['columns'] + '}{'
+
+    def tex_end(self):
+        return u'}'
 
 
 class QMLtableCaption(QMLobject):
