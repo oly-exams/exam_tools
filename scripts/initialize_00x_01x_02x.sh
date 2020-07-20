@@ -23,3 +23,6 @@ python scripts/prod_02_create_delegations.py --dumpdata "$INPUT_DIR/020_delegati
 echo "Students..."
 python scripts/prod_03_create_students.py "$INPUT_DIR/021_students.csv"
 python manage.py dumpdata --natural-foreign --natural-primary --indent=2  ipho_core.student > 021_students.json
+
+echo "Delegations examsite..."
+python scripts/prod_02b_create_delegations_examsite_team.py --dumpdata "$INPUT_DIR/022_delegations_examsite.csv" > 022_delegations_examsite.json
