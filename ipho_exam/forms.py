@@ -495,7 +495,7 @@ class ScanForm(forms.Form):
 class DelegationScanForm(forms.Form):
     file = forms.FileField(validators=[build_extension_validator(['.pdf'])])
 
-    def __init__(self, exam, position, student, do_replace=False, *args, **kwargs):
+    def __init__(self, exam, position, student, submission_open, do_replace=False, *args, **kwargs):
         super(DelegationScanForm, self).__init__(*args, **kwargs)
 
         warning_message = HTML('')
@@ -506,6 +506,14 @@ class DelegationScanForm(forms.Form):
                     Uploading a new file with overwrite the previous scan file.
                 </div>
             """)
+        if not submission_open:
+            warning_message = HTML("""
+                <div class="alert alert-danger">
+                    <strong>Error!</strong>
+                    The organizers have closed the scan upload, uploads are not possible.
+                </div>
+            """)
+
 
         self.helper = FormHelper()
         self.helper.layout = Layout(

@@ -2005,12 +2005,15 @@ def upload_scan_delegation(request, exam_id, position, student_id):
 
     doc = get_object_or_404(Document, exam=exam, position=position, student=student)
 
+    submission_open = exam.show_delegation_submissions
+
     form = DelegationScanForm(
         exam, position, student,
+        submission_open,
         bool(doc.scan_file),
-        request.POST or None, request.FILES or None
-    )
-    if form.is_valid():
+        request.POST or None, request.FILES or None)
+
+    if form.is_valid() and submission_open:
         doc.scan_file = form.cleaned_data['file']
         doc.scan_status = 'S'
         doc.save()
@@ -2030,15 +2033,20 @@ def upload_scan_delegation(request, exam_id, position, student_id):
         })
 
     form_html = render_crispy_form(form)
-    return JsonResponse({
+    json_kwargs = {
         'title': 'Upload scan file',
         'student': student.code,
         'exam': exam.name,
         'position': position,
         'form': form_html,
-        'submit': 'Upload',
         'success': False,
-    })
+    }
+    if submission_open:
+        json_kwargs['submit'] = 'Upload'
+    else:
+        json_kwargs['submit'] = 'Inactive'
+
+    return JsonResponse(json_kwargs)
 
 
 @permission_required('ipho_core.is_delegation')
