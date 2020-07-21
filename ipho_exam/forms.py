@@ -196,6 +196,7 @@ class DeleteForm(forms.Form):
 
     verify = forms.CharField(max_length=100, label='Please type in the name of the question to confirm.')
 
+
 class PublishForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(PublishForm, self).__init__(*args, **kwargs)
@@ -207,6 +208,7 @@ class PublishForm(forms.Form):
 
     # Cannot have a completely empty form
     hidden_input = forms.CharField(widget=forms.HiddenInput(), required=False)
+
 
 class VersionNodeForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -268,21 +270,22 @@ class FeedbackForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FeedbackForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Field('comment', placeholder='Comment'),
-        )
+        self.helper.layout = Layout(Field('comment', placeholder='Comment'), )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.form_tag = False
         self.helper.disable_csrf = True
         self.fields['comment'].required = True
+
     class Meta(object):
         model = Feedback
         fields = ['comment']
         # labels = {'part': 'Question part'}
 
+
 class FeedbackCommentForm(forms.Form):
     comment = forms.CharField(widget=forms.Textarea)
+
     def __init__(self, *args, **kwargs):
         super(FeedbackCommentForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -328,7 +331,6 @@ class AssignTranslationForm(forms.Form):
             self.answer_language = None
             self.fields['answer_language'].queryset = languages_queryset
 
-
     def clean(self):
         cleaned_data = super(AssignTranslationForm, self).clean()
         languages = cleaned_data.get("languages")
@@ -339,8 +341,6 @@ class AssignTranslationForm(forms.Form):
                 self.add_error('languages', msg)
         else:
             self.cleaned_data['answer_language'] = self.answer_language
-
-
 
 
 ## ungly hack to propagate `languages_queryset` attribute to form construction
@@ -387,18 +387,28 @@ class AdminBlockAttributeForm(forms.Form):
             self.add_error('value', 'The key can only ontain alphanumeric characters or underscores.')
         if cleaned_data['key'] == 'points':
             try:
-                cont = decimal.Context(prec=28, rounding=decimal.ROUND_HALF_EVEN, Emin=-999999, Emax=999999,
-                        capitals=1, clamp=0, flags=[], traps=[decimal.Overflow,
-                        decimal.InvalidOperation, decimal.Inexact])
+                cont = decimal.Context(
+                    prec=28,
+                    rounding=decimal.ROUND_HALF_EVEN,
+                    Emin=-999999,
+                    Emax=999999,
+                    capitals=1,
+                    clamp=0,
+                    flags=[],
+                    traps=[decimal.Overflow, decimal.InvalidOperation, decimal.Inexact]
+                )
                 decimal.setcontext(cont)
                 decimal.getcontext().clear_flags()
-                points = decimal.Decimal(cleaned_data['value']).quantize(decimal.Decimal('0.01')) #constraints given from marking model Decimal field
-                if points>= decimal.Decimal('1000000'):
+                points = decimal.Decimal(cleaned_data['value']).quantize(
+                    decimal.Decimal('0.01')
+                )  #constraints given from marking model Decimal field
+                if points >= decimal.Decimal('1000000'):
                     raise ValueError('points too large')
             except (decimal.Inexact, decimal.Overflow, decimal.InvalidOperation, ValueError) as e:
                 msg = "'points' can only have 2 decimal places and need to be smaller than 1000000 . (e.g. 1.25)"
                 self.add_error('value', msg)
         return cleaned_data
+
 
 class AdminBlockAttributeHelper(FormHelper):
     def __init__(self, *args, **kwargs):
@@ -445,19 +455,21 @@ class PrintDocsForm(forms.Form):
     color = forms.ChoiceField(initial='Colour', choices=[('Colour', 'Yes'), ('Gray', 'No')])
     staple = forms.ChoiceField(initial='None', choices=[('None', 'No'), ('1PLU', 'Yes')])
     copies = forms.IntegerField(initial=1, min_value=1, max_value=10)
+
     def __init__(self, *args, **kwargs):
         queue_list = kwargs.pop('queue_list')
         super(PrintDocsForm, self).__init__(*args, **kwargs)
 
         self.fields['queue'].choices = queue_list
         default_opts = printer.default_opts()
-        opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
+        opts_map = {'duplex': 'Duplex', 'color': 'ColourModel', 'staple': 'Staple'}
         for k in opts_map:
             self.fields[k].initial = default_opts[opts_map[k]]
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field('queue'), Field('duplex'), Field('color'), Field('staple'), Field('copies'), FormActions(Submit('submit', 'Print'))
+            Field('queue'), Field('duplex'), Field('color'), Field('staple'), Field('copies'),
+            FormActions(Submit('submit', 'Print'))
         )
 
         self.helper.html5_required = True
@@ -468,7 +480,7 @@ class PrintDocsForm(forms.Form):
         cleaned_data = super(PrintDocsForm, self).clean()
         queue = cleaned_data.get("queue")
         allowed_opts = printer.allowed_opts(queue)
-        opts_map = {'duplex':'Duplex', 'color':'ColourModel', 'staple':'Staple'}
+        opts_map = {'duplex': 'Duplex', 'color': 'ColourModel', 'staple': 'Staple'}
         for k in opts_map:
             if cleaned_data.get(k) not in ['None', 'Gray']:
                 if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
@@ -495,29 +507,33 @@ class ScanForm(forms.Form):
 class DelegationScanForm(forms.Form):
     file = forms.FileField(validators=[build_extension_validator(['.pdf'])])
 
-    def __init__(self, exam, position, student, submission_open, do_replace=False, *args, **kwargs):
-        super(DelegationScanForm, self).__init__(*args, **kwargs)
+    def __init__(self, exam, position, student, submission_open, do_replace=False, **kwargs):
+        super(DelegationScanForm, self).__init__(**kwargs)
 
         warning_message = HTML('')
         if do_replace:
-            warning_message = HTML("""
+            warning_message = HTML(
+                """
                 <div class="alert alert-warning">
                     <strong>Warning!</strong>
                     Uploading a new file with overwrite the previous scan file.
                 </div>
-            """)
+            """
+            )
         if not submission_open:
-            warning_message = HTML("""
+            warning_message = HTML(
+                """
                 <div class="alert alert-danger">
                     <strong>Error!</strong>
                     The organizers have closed the scan upload, uploads are not possible.
                 </div>
-            """)
-
+            """
+            )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML("""
+            HTML(
+                """
             <p>You are uploading a <strong>new scan</strong> of the exam</p>
             <dl class="row">
               <dt class="col-sm-3">Exam</dt>
@@ -527,7 +543,8 @@ class DelegationScanForm(forms.Form):
               <dt class="col-sm-3">Student</dt>
               <dd class="col-sm-9">{student}</dd>
             </dl>
-            """.format(exam=exam.name, position=position, student=student.code)),
+            """.format(exam=exam.name, position=position, student=student.code)
+            ),
             warning_message,
             Field('file'),
         )
