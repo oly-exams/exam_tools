@@ -2011,7 +2011,7 @@ def upload_scan_delegation(request, exam_id, position, student_id):
         exam, position, student,
         submission_open=submission_open,
         do_replace=bool(doc.scan_file),
-        request.POST or None, request.FILES or None)
+        data=request.POST or None, files=request.FILES or None)
 
     if form.is_valid() and submission_open:
         doc.scan_file = form.cleaned_data['file']
