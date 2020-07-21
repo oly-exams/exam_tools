@@ -57,7 +57,6 @@ def student_exam_document(questions, student_languages, cover=None, job_task=Non
     all_docs = []
     if cover is not None:
         suppress_cover_code = not settings.CODE_ON_COVER_SHEET
-        suppress_cover_code |= settings.CODE_WITHOUT_QR
         body = render_to_string(
             os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_cover.tex'), request=HttpRequest(), context=cover
         )
