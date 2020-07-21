@@ -2009,8 +2009,8 @@ def upload_scan_delegation(request, exam_id, position, student_id):
 
     form = DelegationScanForm(
         exam, position, student,
-        submission_open,
-        bool(doc.scan_file),
+        submission_open=submission_open,
+        do_replace=bool(doc.scan_file),
         request.POST or None, request.FILES or None)
 
     if form.is_valid() and submission_open:
