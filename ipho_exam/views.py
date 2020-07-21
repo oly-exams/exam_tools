@@ -200,7 +200,7 @@ def translations_list(request):
         })
 
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 @ensure_csrf_cookie
 def list_all_translations(request):
     exams = Exam.objects.filter(hidden=False, active=True)
@@ -414,7 +414,7 @@ def add_pdf_node(request, question_id, lang_id):
     })
 
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def translation_export(request, question_id, lang_id, version_num=None):
     """ Translation export, both for normal editor and admin editor """
     if version_num is None:
@@ -596,7 +596,7 @@ def edit_language(request, lang_id):
         'success': False,
     })
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def exam_view(request, exam_id=None, question_id=None, orig_id=OFFICIAL_LANGUAGE):
     context = {
         'exam_id': exam_id,
@@ -705,7 +705,7 @@ def exam_view(request, exam_id=None, question_id=None, orig_id=OFFICIAL_LANGUAGE
         context['orig_font'] = fonts.ipho[context['orig_lang'].font]
     return render(request, 'ipho_exam/exam_view.html', context)
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def feedback_partial(request, exam_id, question_id, qml_id='', orig_id=OFFICIAL_LANGUAGE):
     delegation = Delegation.objects.filter(members=request.user)
     delegations = Delegation.objects.all()
@@ -812,14 +812,14 @@ def feedback_partial(request, exam_id, question_id, qml_id='', orig_id=OFFICIAL_
     return render(
         request, 'ipho_exam/partials/feedbacks_partial_tbody.html', ctxt)
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def feedback_partial_like(request, status, feedback_id):
     feedback = get_object_or_404(Feedback, pk=feedback_id, question__feedback_active=True)
     delegation = Delegation.objects.get(members=request.user)
     Like.objects.get_or_create(feedback=feedback, delegation=delegation, defaults={'status': status})
     return JsonResponse({'success': True,})
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def feedback_numbers(request, exam_id, question_id):
     if exam_id is not None:
                 # # TODO: set correct flags
@@ -836,7 +836,7 @@ def feedback_numbers(request, exam_id, question_id):
 
     return JsonResponse({'success': True,'numbers':numbers})
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 @ensure_csrf_cookie
 def feedbacks_list(request, exam_id=None):
     exam = None
@@ -1202,7 +1202,7 @@ def figure_delete(request, fig_id):
     })
 
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def figure_export(request, fig_id, lang_id=None):
     lang = get_object_or_404(Language, pk=lang_id) if lang_id is not None else None
     fig = get_object_or_404(Figure, fig_id=fig_id)
@@ -2374,7 +2374,7 @@ def admin_submission_delete(request, submission_id):
     pass
 
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICIAL_LANGUAGE, orig_diff=None):
     context = {
         'exam_id': exam_id,
@@ -2593,7 +2593,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         context['trans_font'] = fonts.ipho[context['trans_lang'].font]
     return render(request, 'ipho_exam/editor.html', context)
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False):
     if not Question.objects.get(pk=question_id).check_permission(request.user):
         return HttpResponseForbidden('You do not have the permissions to view this question.')
@@ -2652,7 +2652,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
 
 
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def auto_translate(request):
     if request.method == 'POST' and getattr(settings, 'AUTO_TRANSLATE', False):
         to_lang = request.POST['to_lang']

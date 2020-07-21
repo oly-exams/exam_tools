@@ -51,6 +51,7 @@
           {% if DEMO_MODE %}
           <p>Within this demo version you can perfom the translation and submission of previous years' exams.</p>
           {% endif %}
+          {% if perms.ipho_core.can_see_boardmeeting %}
           <h3>Step-by-step guide</h3>
           <p>To guide you through the translation process, we prepared a step-by-step guide which explains the basic steps needed for testing your notebook.</p>
           {% if DEMO_MODE %}
@@ -173,6 +174,7 @@
               </div>
 
           </div>
+          {% endif %}
 
 
         </div>
