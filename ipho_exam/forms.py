@@ -507,7 +507,7 @@ class ScanForm(forms.Form):
 class DelegationScanForm(forms.Form):
     file = forms.FileField(validators=[build_extension_validator(['.pdf'])])
 
-    def __init__(self, exam, position, student, submission_open, do_replace=False, **kwargs):
+    def __init__(self, exam, position, student, *, submission_open, do_replace=False, **kwargs):
         super(DelegationScanForm, self).__init__(**kwargs)
 
         warning_message = HTML('')
