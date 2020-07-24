@@ -2874,8 +2874,13 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
 
 @login_required
 def pdf_exam_for_student(request, exam_id, student_id):
-    exam = get_object_or_404(Exam, id=exam_id)
     student = get_object_or_404(Student, id=student_id)
+
+    user = request.user
+    if not user.has_perm('ipho_core.can_see_boardmeeting'):
+        exam = get_object_or_404(Exam, id=exam_id)
+        if not exam.show_delegation_submissions:
+            return HttpResponseForbidden('You do not have permission to view this document.')
 
     ## TODO: implement caching
     all_tasks = []
@@ -2902,6 +2907,10 @@ def pdf_exam_pos_student(request, exam_id, position, student_id, type='P'):
     if not user.has_perm('ipho_core.is_printstaff'):
         if not student.delegation.members.filter(pk=user.pk).exists():
             return HttpResponseForbidden('You do not have permission to view this document.')
+        if not user.has_perm('ipho_core.can_see_boardmeeting'):
+            exam = get_object_or_404(Exam, id=exam_id)
+            if not exam.show_delegation_submissions:
+                return HttpResponseForbidden('You do not have permission to view this document.')
 
     doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
     if type == 'P':  ## for for printouts
