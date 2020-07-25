@@ -3053,6 +3053,21 @@ def bulk_print(request, page=None, tot_print=None):
     exam = get_or_none(Exam, id=request.GET.get('ex', None))
     if exam is not None:
         filter_ex = [exam,]
+
+    positions = [val["position"] for val in Document.objects.filter(
+        exam__in=filter_ex,
+    ).values('position').distinct()]
+    positions = list(sorted(positions))
+
+    filter_pos = positions
+    position = request.GET.get('pos', None)
+    if position is not None:
+        filter_pos = [position]
+
+    exclude_gi = json.loads(request.GET.get('exclude_gi', 'false'))
+    if exclude_gi and 0 in filter_pos:
+        filter_pos.remove(0)
+
     filter_dg = delegations
     delegation = get_or_none(Delegation, id=request.GET.get('dg', None))
     if delegation is not None:
@@ -3098,16 +3113,16 @@ def bulk_print(request, page=None, tot_print=None):
         messages = [m for m in messages if m[0] != 'alert-success']
         messages.append(('alert-danger', '<strong>No jobs sent</strong> Invalid form, please check below'))
     print(messages)
+
     all_docs = Document.objects.filter(
         student__delegation__in=filter_dg,
         exam__in=filter_ex,
         exam__delegation_status__action=ExamAction.TRANSLATION,
         exam__delegation_status__delegation=F('student__delegation'),
         exam__delegation_status__status=ExamAction.SUBMITTED,
+        position__in=filter_pos
+
     )
-    exclude_gi = json.loads(request.GET.get('exclude_gi', 'false'))
-    if exclude_gi:
-        all_docs = all_docs.exclude(position=0)
 
     scan_status = request.GET.get('st', None)
     scan_status_options = ['S', 'W', 'M']
@@ -3172,6 +3187,7 @@ def bulk_print(request, page=None, tot_print=None):
                     if k in qdict: del qdict[k]
                 else:
                     qdict[k] = v
+
             url = self.url + '?' + qdict.urlencode()
             return url
 
@@ -3180,6 +3196,8 @@ def bulk_print(request, page=None, tot_print=None):
             'messages': messages,
             'exams': exams,
             'exam': exam,
+            'positions': positions,
+            'position': position,
             'delegations': delegations,
             'delegation': delegation,
             'entries': entries,
