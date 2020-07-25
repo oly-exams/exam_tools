@@ -735,9 +735,10 @@ def delegation_confirm(request, question_id, final_confirmation=False):
 
     metas = {k: list(g) for k, g in itertools.groupby(metas_query, key=lambda m: m.question.pk)}
     markings = {
-        k: list(sorted(g, key=lambda m: m.student.pk))
+        k: list(sorted(g, key=lambda m: m.marking_meta.pk))
         for k, g in itertools.groupby(markings_query, key=lambda m: m.marking_meta.question.pk)
     }
+    students = Student.objects.filter(delegation=delegation).order_by('pk').all()
     #totals is of the form {question.pk:{student.pk:total, ...}, ...}
     totals_questions = {
         k: { #s is a list of markings for student p
@@ -753,6 +754,7 @@ def delegation_confirm(request, question_id, final_confirmation=False):
         'questions': (question,),
         'markings': markings,
         'metas': metas,
+        'students': students,
         'totals_questions': totals_questions,
         'totals': totals,
         'form_error': form_error,

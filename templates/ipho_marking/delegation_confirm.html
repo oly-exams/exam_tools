@@ -28,21 +28,23 @@
 
       <table class="table table-strided">
         <tr>
-          <th>Student</th>
-          {% for item in metas|lookup:question.pk %}
-            <th>{{ item.name }}</th>
+          <th>Students:</th>
+          {% for student in students %}
+            <th>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</th>
           {% endfor %}
-          <th>Total</th>
         </tr>
-        {% regroup markings|lookup:question.pk by student as markings_list %}
+        {% regroup markings|lookup:question.pk by marking_meta as markings_list %}
         {% for marking in markings_list %}
         <tr>
-          <td>{{ marking.grouper.first_name }} {{ marking.grouper.last_name }}  ({{ marking.grouper.code }})</td>
+          <td>{{ marking.grouper.name }}</td>
           {% for item in marking.list %}
             <td>{{ item.points|floatformat:2|default_if_none:"-" }}</td>
           {% endfor %}
-          <td><b>{{ totals_questions|lookup:question.pk|lookup:marking.list.0.student.pk|floatformat:2|default_if_none:"-" }}</b></td>
         </tr>
+        {% endfor %}
+          <td><b>Total:</b></td>
+        {% for student in students %}
+          <td><b>{{ totals_questions|lookup:question.pk|lookup:student.pk|floatformat:2|default_if_none:"-" }}</b></td>
         {% endfor %}
       </table>
     </div>
