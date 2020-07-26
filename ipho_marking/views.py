@@ -425,7 +425,10 @@ def delegation_summary(request):
         scans_of_students = []
         for student in students:
             # Scans
-            stud_exam_scans_list = Document.objects.filter(student=student['pk'], exam=exam, scan_status='S').exclude(
+            # Scans with status other than 'S' are skipped in the HTML
+            # template. That is easier, because it allows correctly
+            # continuing the table.
+            stud_exam_scans_list = Document.objects.filter(student=student['pk'], exam=exam).exclude(
                 position=0  # remove general instructions
             ).order_by('position')
 
