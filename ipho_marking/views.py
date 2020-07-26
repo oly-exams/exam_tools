@@ -482,6 +482,12 @@ def delegation_stud_edit(request, stud_id, question_id):
     form = FormSet(
         request.POST or None, queryset=Marking.objects.filter(marking_meta__in=metas, student=student, version=version)
     )
+
+    if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY:
+        official_marking = Marking.objects.filter(marking_meta__in=metas, student=student, version="O")
+        for points, frm in zip(official_marking, form):
+            frm.official = points
+
     if form.is_valid():
         form.save()
         students = delegation.student_set.all()
@@ -510,6 +516,7 @@ def delegation_stud_edit(request, stud_id, question_id):
 
     ctx['form'] = form
     ctx['documents'] = documents
+    ctx['settings'] = settings
     return render(request, 'ipho_marking/delegation_detail.html', ctx)
 
 

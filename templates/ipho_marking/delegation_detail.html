@@ -9,17 +9,38 @@
 
 {% block pageheader %}<h1>Delegation detailed marking</h1>{% endblock %}
 
-
-
 {% block page-content %}
 
+{% if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY %}
+<div class="modal fade" id="copy-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            Copy all</h4>
+      </div>
+      <div class="modal-body">
+        <p class="alert alert-warning" id="copy-modal-alert-text">
+          Copying all official marks will overwrite your delegation marks for {{ student.code }}.<br />
+          <strong>Are you sure?</strong>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-warning" data-dismiss="modal" onclick="copy_all()">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
   <div>
     {% for type, message in msg %}
     <div class="alert {{ type }}">{{ message|safe }}</div>
     {% endfor %}
   </div>
 
-    <h2>Student {{ student.code }}</h2>
+    <h2>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</h2>
 
     <h3> {{ exam.name }} - {{ question.name }}
       {% for doc in documents %}
@@ -44,9 +65,25 @@
       <table class="table table-striped">
         <tr>
           <th>Subquestion</th>
+          {% if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY %}
+          <th>Official</th>
+          <th><button type="button" class="btn btn-sm btn-default translate-copy-all-button" title="Copy all from official" data-toggle="modal" data-target="#copy-modal"><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i><i class="fa fa-arrow-right" aria-hidden="true"></i><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i></button></th>
+          {% endif %}
           <th>Points</th>
         </tr>
+        {% if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY %}
+        {{ form.management_form }}
+        {% for form_item in form %}
+          <tr>
+              <th>{{ form_item.points.label_tag }}</th>
+              <td>{{ form_item.official.points}}</td>
+              <td><button type="button" class="btn btn-default btn-xs" title="Copy from official" onclick="copy_one('{{form_item.points.id_for_label}}', '{{form_item.official.points}}')"><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i><i class="fa fa-arrow-right" aria-hidden="true"></i><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i></button></td>
+              <td>{{form_item.points.errors}}{{form_item.points}}{% for hidden in form_item.hidden_fields %}{{ hidden }}{% endfor %}</td>
+          </tr>
+        {% endfor %}
+        {% else %}
         {{ form.as_table }}
+        {% endif %}
       </table>
       <input type="submit" class="btn btn-primary" value="Submit" />
     </form>
@@ -72,5 +109,18 @@
     {% endif %}
 
 </div>
+{% if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY %}
+<script>
+    function copy_one(name, points) {
+        var x = $("input[id='"+name+"']");
+        x.val(points);
+    }
+    function copy_all() {
+        {% for form_item in form %}
+        copy_one('{{form_item.points.id_for_label}}', '{{form_item.official.points}}')
+        {% endfor %}
+    }
+</script>
+{% endif %}
 
 {% endblock %}
