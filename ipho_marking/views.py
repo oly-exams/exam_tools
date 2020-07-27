@@ -1033,6 +1033,39 @@ def marking_submissions(request):
     }
     return render(request, 'ipho_marking/marking_submissions.html', ctx)
 
+@permission_required('ipho_core.is_staff')
+def export_countries_to_moderate(request):
+    csv_rows = []
+    title_row = ['Country', 'Code']
+    mmeta = MarkingMeta.objects.all().order_by('question__exam', 'question__position', 'position')
+    questions = Question.objects.filter(exam__hidden=False, code='A').order_by('exam', 'position')
+    for question in questions:
+        title_row.append('{}-{}'.format(question.exam.code, question.position))
+    csv_rows.append(title_row)
+
+    for delegation in Delegation.objects.exclude(name=OFFICIAL_DELEGATION).order_by("country"):
+        x = [delegation.country, delegation.name]
+        for question in Question.objects.filter(exam__marking_active=True, type=Question.ANSWER).order_by("exam__pk", "position"):
+            for status in list(MarkingAction.objects.filter(question=question, delegation=delegation).values_list('status', flat=True)):
+                if status == MarkingAction.FINAL:
+                    x.append("no")
+                elif status in [MarkingAction.SUBMITTED]:
+                    x.append("yes")
+                elif status == MarkingAction.OPEN:
+                    x.append("maybe")
+                elif status == MarkingAction.LOCKED:
+                    x.append("no")
+
+        csv_rows.append(x)
+
+    import csv
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="countries-to-moderate.csv"'
+
+    writer = csv.writer(response)
+    writer.writerows(csv_rows)
+
+    return response
 
 def progress(request):
     vid = request.GET.get('version', 'O')
