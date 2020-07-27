@@ -97,7 +97,7 @@ def summary(request):
     vid = request.GET.get('version', 'O')
 
     points_per_student = []
-    students = Student.objects.all().values('id', 'code')
+    students = Student.objects.all().values('id', 'code', 'delegation')
     for student in students:
         stud_points_list = Marking.objects.filter(
             version=vid, student=student['id']
@@ -111,7 +111,7 @@ def summary(request):
                                                            exam_points=Sum('points')
                                                        ).values('exam_points').order_by('marking_meta__question__exam')
         stud_marking_action_list = MarkingAction.objects.filter(
-            delegation__student__pk__contains=student['id']
+            delegation=student['delegation']
         ).values('status').order_by('question__exam', 'question__position')
         points_per_student.append(
             (student, list(zip(stud_points_list, stud_marking_action_list)), stud_exam_points_list)
