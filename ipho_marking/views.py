@@ -1027,10 +1027,9 @@ def marking_submissions(request):
                                          status=MarkingAction.FINAL).exclude(delegation__name=OFFICIAL_DELEGATION
                                                                              ).count(),
             MarkingAction.objects.filter(
-                question=question
-            ).exclude(status=MarkingAction.FINAL,
-                      delegation__name=OFFICIAL_DELEGATION).values_list('delegation__country', flat=True),
-        ) for question in Question.objects.filter(exam__marking_active=True, type=Question.ANSWER)]
+                question=question,
+            ).exclude(delegation__name=OFFICIAL_DELEGATION).exclude(status=MarkingAction.FINAL).order_by('delegation__country').values_list('delegation__country', flat=True),
+        ) for question in Question.objects.filter(exam__marking_active=True, type=Question.ANSWER).order_by("exam__pk", "position")]
     }
     return render(request, 'ipho_marking/marking_submissions.html', ctx)
 
