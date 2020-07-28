@@ -681,7 +681,7 @@ def delegation_confirm(request, question_id, final_confirmation=False):
         return HttpResponseRedirect(reverse('marking:delegation-summary'))
 
     if final_confirmation:
-        vid = 'O'
+        vid = 'F'
         ptqueryset = Marking.objects.filter(
             marking_meta__question=question, student__delegation=delegation, version='O'
         ).order_by('pk').values_list('points')
