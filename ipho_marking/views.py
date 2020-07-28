@@ -681,7 +681,12 @@ def delegation_confirm(request, question_id, final_confirmation=False):
         return HttpResponseRedirect(reverse('marking:delegation-summary'))
 
     if final_confirmation:
-        vid = 'F'
+        if marking_action.status == MarkingAction.LOCKED:
+            vid = 'F'
+        elif marking_action.status == MarkingAction.OPEN:
+            vid = 'O'
+        else:
+            return HttpResponseForbidden('An error occured, please contact support!')
         ptqueryset = Marking.objects.filter(
             marking_meta__question=question, student__delegation=delegation, version='O'
         ).order_by('pk').values_list('points')
