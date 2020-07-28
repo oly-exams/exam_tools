@@ -688,7 +688,7 @@ def delegation_confirm(request, question_id, final_confirmation=False):
         else:
             return HttpResponseForbidden('An error occured, please contact support!')
         ptqueryset = Marking.objects.filter(
-            marking_meta__question=question, student__delegation=delegation, version='O'
+            marking_meta__question=question, student__delegation=delegation, version=vid
         ).order_by('pk').values_list('points')
         ptlist = [str(p[0]) for p in ptqueryset]
         ptstr = str(ptlist)
