@@ -729,15 +729,16 @@ def delegation_confirm(request, question_id, final_confirmation=False):
                     error_messages.append(('alert-danger', error_msg))
                     checksum = 'none'
                 else:
-                    for off_mark in Marking.objects.filter(
-                        marking_meta__question=question, student__delegation=delegation, version='O'
-                    ):
-                        fin_mark, _ = Marking.objects.get_or_create(
-                            marking_meta=off_mark.marking_meta, student=off_mark.student, version='F'
-                        )
-                        fin_mark.points = off_mark.points
-                        fin_mark.comment = off_mark.comment
-                        fin_mark.save()
+                    if marking_action.status == MarkingAction.OPEN:
+                        for off_mark in Marking.objects.filter(
+                            marking_meta__question=question, student__delegation=delegation, version='O'
+                        ):
+                            fin_mark, _ = Marking.objects.get_or_create(
+                                marking_meta=off_mark.marking_meta, student=off_mark.student, version='F'
+                            )
+                            fin_mark.points = off_mark.points
+                            fin_mark.comment = off_mark.comment
+                            fin_mark.save()
                     marking_action.status = MarkingAction.FINAL
                     marking_action.save()
                     return HttpResponseRedirect(reverse('marking:delegation-summary'))
