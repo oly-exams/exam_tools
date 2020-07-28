@@ -480,13 +480,13 @@ def delegation_stud_edit(request, stud_id, question_id):
         Marking, form=PointsForm, fields=['points'], extra=0, can_delete=False, can_order=False
     )
     form = FormSet(
-        request.POST or None, queryset=Marking.objects.filter(marking_meta__in=metas, student=student, version=version)
+        request.POST or None, queryset=Marking.objects.filter(marking_meta__in=metas, student=student, version=version).order_by("marking_meta__position")
     )
-
     if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY:
-        official_marking = Marking.objects.filter(marking_meta__in=metas, student=student, version="O")
-        for points, frm in zip(official_marking, form):
-            frm.official = points
+        official_marking = {x.marking_meta_id: x for x in Marking.objects.filter(marking_meta__in=metas, student=student, version="O")}
+        for form_item in form:
+            points = official_marking[form_item.instance.marking_meta_id]
+            form_item.official = points
 
     if form.is_valid():
         form.save()
