@@ -31,8 +31,9 @@ from collections import OrderedDict
 
 
 class MarkingActionManager(models.Manager):
-    def get_by_natural_key(self, question_id, delegation_name, action):
-        return self.get(question__id=exam_name, delegation__name=delegation_name, action=action)
+    def get_by_natural_key(self, question_name, exam_name, delegation_name):
+        question = Question.objects.get_by_natural_key(question_name, exam_name)
+        return self.get(question=question, delegation=Delegation.objects.get_by_natural_key(delegation_name))
 
 
 class MarkingAction(models.Model):
