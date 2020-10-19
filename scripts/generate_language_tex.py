@@ -23,6 +23,7 @@ import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
 import sys
 import shutil
+sys.path.append('.')
 
 import django
 django.setup()
@@ -52,8 +53,7 @@ EVENT_TEMPLATE_PATH = getattr(settings, 'EVENT_TEMPLATE_PATH')
 
 BASE_PATH = u'../media/downloads/language_tex'
 FONT_PATH = os.path.join(STATIC_PATH, 'noto')
-REPLACEMENTS = [(FONT_PATH, '.'), (STATIC_PATH, '.')]
-
+REPLACEMENTS = [(STATIC_PATH, '.')]
 
 def compile_question(question, language, logo_file):
     if language.is_pdf:
@@ -125,9 +125,11 @@ def compile_question(question, language, logo_file):
         ])
         used_fonts = set(used_fonts)
 
+        font_folder = os.path.join(folder, 'noto')
+        os.makedirs(font_folder, exist_ok=True)
         for f in used_fonts:
             source = os.path.join(FONT_PATH, f)
-            shutil.copyfile(source, os.path.join(folder, f))
+            shutil.copyfile(source, os.path.join(font_folder, f))
 
         for f in os.listdir(folder):
             if f.endswith('.pdf.svg'):
@@ -140,7 +142,8 @@ def compile_question(question, language, logo_file):
 
 def export_all(logo_file, names=('Theory', 'Experiment')):
     exams = Exam.objects.filter(name__in=names)
-    questions = Question.objects.filter(exam=exams, position__in=[1, 2, 3])
+    # The position filter is only really needed if there are spare problems
+    questions = Question.objects.filter(exam=exams, position__in=[1, 2, 3, 4, 5, 6, 7, 8, 9])
     languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
     print('Going to export in {} languages.'.format(len(languages)))
     for q in questions:
@@ -151,6 +154,6 @@ def export_all(logo_file, names=('Theory', 'Experiment')):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        export_all(logo_file='ibo19_logo.png', names=sys.argv[1:])
+        export_all(logo_file='icho2020_logo.png', names=sys.argv[1:])
     else:
-        export_all(logo_file='ibo19_logo.png')
+        export_all(logo_file='icho2020_logo.png')

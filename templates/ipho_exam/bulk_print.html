@@ -56,6 +56,23 @@ This list shows only documents that have been submitted by the delegations.
 
       <div class="dropdown div-inline">
         <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if position %}
+          {{ position }}
+      {% else %}
+          Filter Position
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url pos=None %}">-- None --</a></li>
+      {% for pos in positions %}
+          <li {% if position == pos %} class="active" {% endif %}><a href="{% this_url pos=pos %}">{{ pos }}</a></li>
+      {% endfor %}
+        </ul>
+      </div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
       {% if delegation %}
           {{ delegation.name }}
       {% else %}

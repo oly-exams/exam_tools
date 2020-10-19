@@ -43,6 +43,7 @@ def hash(fname):
 
 
 @login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def main(request, type, url):
     url = os.path.normpath(url)
 

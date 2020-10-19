@@ -18,6 +18,7 @@ from __future__ import division
 
 from builtins import object
 from past.utils import old_div
+from django.conf import settings
 import barcode
 from barcode.writer import ImageWriter, SVGWriter
 import qrcode
@@ -32,6 +33,8 @@ class QuestionBarcodeGen(object):
         if qcode is None:
             qcode = question.code
         self.suppress_code = suppress_code
+        self.suppress_code |= settings.CODE_WITHOUT_QR
+
         self.base = u'{stud} {ex}-{qpos}'.format(stud=student.code, ex=exam.code, qpos=question.position)
         self.text = self.base + u' {qcode}'.format(qcode=qcode) + u'-{pg}'
         self.format = format

@@ -65,7 +65,7 @@ CODE_ON_COVER_SHEET = False
 
 # Defines whether a QR code should be printed on the student sheets
 # (Answer sheets and Working sheets)
-ADD_CODE_ON_STUDENT_SHEETS = True
+CODE_WITHOUT_QR = False
 
 # Defines whether official marks are shown before submission for moderation
 SHOW_OFFICIAL_MARKS_IMMEDIATELY = False
@@ -89,7 +89,7 @@ INKSCAPE_BIN = 'inkscape'
 # Celery SETTINGS_DIR
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-CELERYD_TASK_TIME_LIMIT = 15*60  # task execution time limit in seconds before the workers are killed using SIGKILL
+CELERYD_TASK_TIME_LIMIT = 15 * 60  # task execution time limit in seconds before the workers are killed using SIGKILL
 
 # Printing system
 PRINTER_QUEUES = {
@@ -159,7 +159,6 @@ RANDOM_DRAW_ON_SUBMISSION = True
 ENABLE_PUSH = False
 PUSH_PUBLIC_KEY = ''
 PUSH_PRIVATE_KEY = ''
-
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
