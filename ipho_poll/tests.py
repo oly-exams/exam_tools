@@ -20,6 +20,7 @@ from __future__ import division
 
 from past.utils import old_div
 import datetime
+from unittest import skip
 
 from django.utils import timezone
 from django.test import TestCase
@@ -54,6 +55,7 @@ def create_choice(choice_text, question_id):
 #-----------
 
 
+@skip
 class QuestionMethodTests(TestCase):
     def test_was_published_recently_with_old_question(self):
         """
@@ -80,6 +82,7 @@ class QuestionMethodTests(TestCase):
         self.assertEqual(recent_question.was_published_recently(), True)
 
 
+@skip
 class QuestionViewIndexTests(TestCase):
     def test_index_view_no_questions(self):
         """
@@ -162,6 +165,7 @@ class QuestionViewIndexTests(TestCase):
         self.assertQuerysetEqual(response.context['latest_question_list'], [])
 
 
+@skip
 class QuestionViewDetailTests(TestCase):
     def test_detail_view_with_a_future_question(self):
         """
@@ -225,6 +229,7 @@ class QuestionViewDetailTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
+@skip
 class QuestionViewResultsTests(TestCase):
     def test_results_view_with_a_future_question(self):
         """
