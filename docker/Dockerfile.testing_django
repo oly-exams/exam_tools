@@ -1,4 +1,6 @@
-FROM $CONTAINER_TEST_IMAGE
+ARG TEST_IMAGE
+
+FROM $TEST_IMAGE
 
 RUN exec mkdir -p app/cypress/screenshots app/cypress/videos
 
