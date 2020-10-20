@@ -2,9 +2,4 @@ ARG TEST_IMAGE
 
 FROM $TEST_IMAGE
 
-RUN exec mkdir -p app/cypress/screenshots app/cypress/videos
-
-
-RUN cd /app && exec npx cypress verify && exec chmod +x cypress_helper.sh
-
-ENTRYPOINT ["./cypress_helper.sh"]
+ENTRYPOINT ["python", "manage.py", "test"]
