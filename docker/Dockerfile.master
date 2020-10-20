@@ -34,7 +34,7 @@ COPY . /app
 
 RUN cd app \
   && npm -g install bower \
-  && npm -g install cypress --unsafe-perm=true --allow-root \
+  && npm -g install cypress --unsafe-perm=true --allow-root --save-dev cypress \
   && bower --allow-root install  \
   && cypress install --force
 
