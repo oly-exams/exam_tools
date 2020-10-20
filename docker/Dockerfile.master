@@ -40,7 +40,7 @@ RUN cd app \
 
 RUN cd /app && exec npx cypress verify
 
-RUN sed 's/ipho.db/db\/db.sqlite/g' /app/exam_tools/settings_example.py > /app/exam_tools/settings.py
+RUN sed 's/ipho.db/db\/db.sqlite/g' /app/exam_tools/settings_testing.py > /app/exam_tools/settings.py
 
 WORKDIR /app
 

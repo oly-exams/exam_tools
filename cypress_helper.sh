@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cd app/
-
 # turn on bash's job control
 set -m
 

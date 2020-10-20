@@ -2,7 +2,7 @@ ARG TEST_IMAGE
 
 FROM $TEST_IMAGE
 
-RUN exec mkdir -p app/cypress/screenshots app/cypress/videos
+RUN exec mkdir -p cypress/screenshots cypress/videos
 
 RUN ["chmod", "+x", "./cypress_helper.sh"]
 
