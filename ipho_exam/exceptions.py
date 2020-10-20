@@ -22,6 +22,7 @@ from django.utils.encoding import python_2_unicode_compatible
 @python_2_unicode_compatible
 class IphoExamException(Exception):
     def __init__(self, response):
+        super().__init__()
         self.response = response
 
     def __str__(self):

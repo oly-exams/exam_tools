@@ -1,6 +1,6 @@
+import uuid
 from django.db import migrations, models
 from django.conf import settings
-import uuid
 
 
 class Migration(migrations.Migration):

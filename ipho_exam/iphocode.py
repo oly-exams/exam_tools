@@ -15,26 +15,27 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=c-extension-no-member
+
 from past.utils import old_div
 from django.conf import settings
 import barcode
-from barcode.writer import ImageWriter, SVGWriter
+from barcode.writer import SVGWriter
 import qrcode
 import qrcode.image.svg
 from lxml import etree
-from io import StringIO
 import cairosvg
 
 
 class QuestionBarcodeGen:
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         exam,
         question,
         student,
         qcode=None,
         startnum=0,
-        format="qr",
+        format_="qr",
         suppress_code=False,
     ):
         if qcode is None:
@@ -43,12 +44,12 @@ class QuestionBarcodeGen:
         self.suppress_code |= settings.CODE_WITHOUT_QR
 
         self.base = f"{student.code} {exam.code}-{question.position}"
-        self.text = self.base + f" {qcode}" + "-{pg}"
-        self.format = format
+        self.text = self.base + f" {qcode}" + "-{pag}"
+        self.format = format_
         self.startnum = startnum
 
-    def __call__(self, pg):
-        code = self.text.format(pg=self.startnum + pg)
+    def __call__(self, pag):
+        code = self.text.format(pag=self.startnum + pag)
         if self.format == "code128":
             bcode = barcode.codex.Code128(code=code, writer=SVGWriter())
             bcode_svg = bcode.render(dict(module_width=0.3))
@@ -61,13 +62,13 @@ class QuestionBarcodeGen:
                 error_correction=qrcode.constants.ERROR_CORRECT_H,
             )
             bcode_raw = img.get_image()
-            w = float(bcode_raw.attrib["width"].replace("mm", ""))
-            h = float(bcode_raw.attrib["height"].replace("mm", ""))
-            img_h = h + 5
+            width = float(bcode_raw.attrib["width"].replace("mm", ""))
+            height = float(bcode_raw.attrib["height"].replace("mm", ""))
+            img_h = height + 5
             img.save("outcode_raw.svg")
             bcode_raw.tag = "g"
             bcode_raw.attrib["transform"] = "translate({}mm,0)".format(
-                old_div((img_w - w), 2.0)
+                old_div((img_w - width), 2.0)
             )
             del bcode_raw.attrib["height"]
             del bcode_raw.attrib["width"]
@@ -87,9 +88,9 @@ class QuestionBarcodeGen:
             text_xml = etree.Element("text")
             text_xml.attrib["text-anchor"] = "middle"
             text_xml.attrib["x"] = "{}mm".format(
-                old_div((img_w - w), 2.0) + old_div(w, 2.0)
+                old_div((img_w - width), 2.0) + old_div(width, 2.0)
             )
-            text_xml.attrib["y"] = "{}mm".format(h + 2)
+            text_xml.attrib["y"] = "{}mm".format(height + 2)
             text_xml.attrib["font-size"] = "10"
             text_xml.attrib["font-family"] = "Verdana"
             text_xml.text = code

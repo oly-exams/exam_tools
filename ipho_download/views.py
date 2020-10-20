@@ -15,6 +15,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import operator
+import mimetypes
+import hashlib
+import datetime
+import pytz
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
@@ -22,28 +28,21 @@ from django.http import HttpResponse, HttpResponseNotModified, Http404
 from django.conf import settings
 from django.utils.cache import patch_response_headers
 
-import os
-import operator
-from unicodedata import normalize
-import mimetypes
-import hashlib
-import datetime
-import pytz
 
 MEDIA_ROOT = getattr(settings, "MEDIA_ROOT")
 
 
-def hash(fname):
-    h = hashlib.sha256()
+def file_hash(fname):
+    hash_ = hashlib.sha256()
     with open(fname, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
-            h.update(chunk)
-    return h.hexdigest()
+            hash_.update(chunk)
+    return hash_.hexdigest()
 
 
 @login_required
 @permission_required("ipho_core.can_see_boardmeeting")
-def main(request, type, url):
+def main(request, type_, url):  # pylint: disable=too-many-locals
     url = os.path.normpath(url)
 
     basedir = os.path.join(MEDIA_ROOT, "downloads")
@@ -54,19 +53,21 @@ def main(request, type, url):
     if not os.path.exists(path):
         raise Http404("File not found.")
 
-    if type == "f":
+    if type_ == "f":
         if os.path.isdir(path):
             # if a directory is requested for download, raise a 404.
             # in the future, we might want to zip of the directory and serve it for download
             raise Http404("File path not valid.")
 
-        etag = hash(path)
+        etag = file_hash(path)
 
         if request.META.get("HTTP_IF_NONE_MATCH", "") == etag:
             return HttpResponseNotModified()
 
         filename = os.path.basename(path)
-        content_type, encoding = mimetypes.guess_type(path)
+        content_type, encoding = mimetypes.guess_type(
+            path
+        )  # pylint: disable=unused-variable
         res = HttpResponse(open(path, "rb"), content_type=content_type)
         res["content-disposition"] = f'inline; filename="{filename}"'
         res["ETag"] = etag
@@ -74,34 +75,34 @@ def main(request, type, url):
         return res
 
     flist = []
-    for f in os.listdir(path):
-        if f[0] == ".":
+    for fname in os.listdir(path):
+        if fname[0] == ".":
             continue
-        fullpath = os.path.join(path, f)
+        fullpath = os.path.join(path, fname)
         fpath = os.path.relpath(fullpath, basedir)
-        tt = "f"
-        t = "file"
+        fttype = "f"
+        ftype = "file"
         fsize = None
         mtime = None
         if os.path.isdir(fullpath):
-            t = "folder"
-            tt = "d"
+            ftype = "folder"
+            fttype = "d"
         else:
             fsize = os.path.getsize(fullpath)
             mtime_ts = os.path.getmtime(fullpath)
             mtime = datetime.datetime.fromtimestamp(mtime_ts, tz=pytz.utc)
-        flist.append((t, tt, f, fpath, fsize, mtime))
+        flist.append((ftype, fttype, fname, fpath, fsize, mtime))
 
     flist = sorted(flist, key=operator.itemgetter(2))
 
     cur_url = ""
     cur_path = [("/", "")]
     cur_split = url.split("/")
-    for p in cur_split:
-        if p == ".":
+    for part in cur_split:
+        if part == ".":
             continue
-        cur_url += p + "/"
-        cur_path.append((p, cur_url))
+        cur_url += part + "/"
+        cur_path.append((part, cur_url))
     return render(
         request,
         "ipho_download/main.html",

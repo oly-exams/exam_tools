@@ -16,18 +16,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import uuid
+import json
 from django.db import models
 from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
-from django.contrib.auth.models import User, Group
-import uuid
-import json
-from pywebpush import webpush, WebPushException
+from django.contrib.auth.models import Group
+
+# User should not be imported directly (pylint-django:E5142)
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+from pywebpush import webpush
 
 
 class IphoPerm(models.Model):
-    pass
-
     class Meta:
         permissions = (
             ("is_delegation", "Is a delegation"),
@@ -121,8 +125,8 @@ class PushSubscriptionManager(models.Manager):
     def get_by_data(self, data):
         subs_list = super().get_queryset().all()
 
-        def compare_json(d1, d2):
-            return json.loads(d1) == json.loads(d2)
+        def compare_json(data1, data2):
+            return json.loads(data1) == json.loads(data2)
 
         pk_list = []
         for subs in subs_list:

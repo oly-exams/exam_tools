@@ -15,26 +15,30 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=too-many-lines
 
-import os, uuid
+# mskoenz: text_direction on 738 inactive, is this intended?
+#         disabled Document.question_name, since it makes no sense
+
+import os
+import uuid
 import subprocess
 import codecs
 
 
 from django.db import models
-from django import forms
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
-from ipho_core.models import Delegation, Student
-from django.shortcuts import get_object_or_404
-from ipho_exam import fonts
-from .exceptions import IphoExamException, IphoExamForbidden
+
 from polymorphic.models import PolymorphicModel
 from polymorphic.manager import PolymorphicManager
 
+from ipho_core.models import Delegation, Student
+from ipho_exam import fonts
+from .exceptions import IphoExamForbidden
 from .utils import natural_id
 
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
@@ -237,7 +241,7 @@ class Language(models.Model):
         ("zulu", "Zulu"),
     )  # yapf:disable
 
-    STYLES_TO_GOOGLE_TRANSLATE_MAPPING = {
+    STYLES_TO_GOOGLE_TRANSLATE_MAPPING = {  # pylint: disable=invalid-name
         "irish": "ga",
         "montenegrin": "",
         "telugu": "te",
@@ -379,8 +383,8 @@ class Language(models.Model):
     def check_permission(self, user):
         if user.is_superuser:
             return True
-        else:
-            return user.delegation_set.filter(id=self.delegation.pk).exists()
+
+        return user.delegation_set.filter(id=self.delegation.pk).exists()
 
     def is_official(self):
         return self.delegation.name == OFFICIAL_DELEGATION
@@ -488,10 +492,10 @@ class Question(models.Model):
     def check_permission(self, user):
         if user.has_perm("ipho_core.is_staff"):
             return True
-        else:
-            if not user.has_perm("ipho_core.can_see_boardmeeting"):
-                return self.exam.show_delegation_submissions and self.exam.active
-            return self.exam.active
+
+        if not user.has_perm("ipho_core.can_see_boardmeeting"):
+            return self.exam.show_delegation_submissions and self.exam.active
+        return self.exam.active
 
 
 class VersionNodeManager(models.Manager):
@@ -710,7 +714,7 @@ class Figure(PolymorphicModel):
         return "%s" % (self.name)
 
 
-class CompiledFigure(Figure):
+class CompiledFigure(Figure):  # pylint: disable=model-no-explicit-unicode
     content = models.TextField(blank=True)
     params = models.TextField(blank=True)
 
@@ -722,10 +726,10 @@ class CompiledFigure(Figure):
         fig_svg = self.content
         fonts_repl = f"@import url({SITE_URL}/static/noto/notosans.css);"
         font_name = "Noto Sans"
-        text_direction = "ltr"
+        # text_direction = "ltr"
         if lang is not None:
             font_name = fonts.ipho[lang.font]["font"]
-            text_direction = lang.direction
+            # text_direction = lang.direction
             fonts_repl += "\n@import url({host}/static/noto/{font_css});".format(
                 host=SITE_URL, font_css=fonts.ipho[lang.font]["css"]
             )
@@ -733,10 +737,10 @@ class CompiledFigure(Figure):
         fig_svg = fig_svg.replace("%font-family%", font_name)
         # fig_svg = fig_svg.replace('%text-direction%', text_direction)
         fig_svg = fig_svg.replace("%text-direction%", "")
-        for pl in placeholders:
-            if pl in query:
-                repl = query[pl]
-                fig_svg = fig_svg.replace(f"%{pl}%", repl)
+        for plh in placeholders:
+            if plh in query:
+                repl = query[plh]
+                fig_svg = fig_svg.replace(f"%{plh}%", repl)
         return fig_svg
 
     def to_inline(self, query, lang=None):
@@ -748,8 +752,8 @@ class CompiledFigure(Figure):
 
     @staticmethod
     def _to_pdf(fig_svg, fig_name):
-        with codecs.open("%s.svg" % (fig_name), "w", encoding="utf-8") as fp:
-            fp.write(fig_svg)
+        with codecs.open("%s.svg" % (fig_name), "w", encoding="utf-8") as f:
+            f.write(fig_svg)
         error = subprocess.Popen(
             [
                 INKSCAPE_BIN,
@@ -784,20 +788,20 @@ class CompiledFigure(Figure):
     #         raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
 
 
-class RawFigure(Figure):
+class RawFigure(Figure):  # pylint: disable=model-no-explicit-unicode
     content = models.BinaryField()
     filetype = models.CharField(max_length=4)
     params = ""
 
-    def params_as_list(self):
+    def params_as_list(self):  # pylint: disable=no-self-use
         return []
 
-    def to_inline(self, *args, **kwargs):
+    def to_inline(self, *args, **kwargs):  # pylint: disable=unused-argument
         return self.content, self.filetype
 
     def to_file(
         self, fig_name, query, lang=None, format_default="auto", force_default=False
-    ):
+    ):  # pylint: disable=unused-argument
         with open(f"{fig_name}.{self.filetype}", "wb") as f:
             f.write(self.content)
 
@@ -873,12 +877,12 @@ class Feedback(models.Model):
     @staticmethod
     def part_id(txt):
         all_parts = []
-        for k, v in Feedback.PARTS_CHOICES:
-            for kk, vv in Feedback.SUBPARTS_CHOICES:
-                all_parts.append(f"{k}.{kk}")
+        for key, _ in Feedback.PARTS_CHOICES:
+            for kkey, _ in Feedback.SUBPARTS_CHOICES:
+                all_parts.append(f"{key}.{kkey}")
         try:
             i = all_parts.index(txt)
-        except:
+        except ValueError:
             # print('Problem')
             i = len(all_parts)
         return i
@@ -954,27 +958,31 @@ class ExamAction(models.Model):
 
 
 @receiver(post_save, sender=Exam, dispatch_uid="create_actions_on_exam_creation")
-def create_actions_on_exam_creation(instance, created, raw, **kwargs):
+def create_actions_on_exam_creation(
+    instance, created, raw, **kwargs
+):  # pylint: disable=unused-argument
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
     for delegation in Delegation.objects.all():
         for action, _ in ExamAction.ACTION_CHOICES:
-            exam_action, _ = ExamAction.objects.get_or_create(
+            ExamAction.objects.get_or_create(
                 exam=instance, delegation=delegation, action=action
             )
 
 
 @receiver(
     post_save, sender=Delegation, dispatch_uid="create_actions_on_delegation_creation"
-)
-def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
+)  # pylint: disable=invalid-name
+def create_actions_on_delegation_creation(
+    instance, created, raw, **kwargs
+):  # pylint: disable=unused-argument
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
     for exam in Exam.objects.all():
         for action, _ in ExamAction.ACTION_CHOICES:
-            exam_action, _ = ExamAction.objects.get_or_create(
+            ExamAction.objects.get_or_create(
                 exam=exam, delegation=instance, action=action
             )
 
@@ -996,20 +1004,17 @@ class StudentSubmission(models.Model):
         unique_together = index_together = (("student", "exam", "language"),)
 
 
-def exam_prints_filename(obj, fname):
-    basestr = "exams-docs/{}/print/exam-{}-{}.pdf"
-    return basestr.format(obj.student.code, obj.exam.id, obj.position)
+def exam_prints_filename(obj, fname):  # pylint: disable=unused-argument
+    return f"exams-docs/{obj.student.code}/print/exam-{obj.exam.id}-{obj.position}.pdf"
 
 
-def exam_scans_filename(obj, fname):
-    basestr = "exams-docs/{}/scan/exam-{}-{}.pdf"
-    return basestr.format(obj.student.code, obj.exam.id, obj.position)
+def exam_scans_filename(obj, fname):  # pylint: disable=unused-argument
+    return f"exams-docs/{obj.student.code}/scan/exam-{obj.exam.id}-{obj.position}.pdf"
 
 
-def exam_scans_orig_filename(obj, fname):
-    basestr = "scans-evaluated/{}__{}.pdf"
+def exam_scans_orig_filename(obj, fname):  # pylint: disable=unused-argument
     timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
-    return basestr.format(obj.barcode_base, timestamp)
+    return f"scans-evaluated/{obj.barcode_base}__{timestamp}.pdf"
 
 
 @python_2_unicode_compatible
@@ -1066,8 +1071,8 @@ class Document(models.Model):
     class Meta:
         unique_together = index_together = (("exam", "student", "position"),)
 
-    def question_name(self):
-        return self.question.name
+    # def question_name(self):
+    # return self.question.name
 
     def __str__(self):
         return f"Document: {self.exam.name} #{self.position} [{self.student.code}]"

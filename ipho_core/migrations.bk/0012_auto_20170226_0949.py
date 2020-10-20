@@ -2,13 +2,13 @@ from django.conf import settings
 from django.db import migrations, models
 
 
-def change_official(apps, schema_editor):
-    Delegation = apps.get_model("ipho_core", "Delegation")
+def change_official(apps, schema_editor):  # pylint: disable=unused-argument
+    delegation = apps.get_model("ipho_core", "Delegation")
     try:
-        official_delegation = Delegation.objects.get(name="IPhO")
+        official_delegation = delegation.objects.get(name="IPhO")
         official_delegation.name = settings.OFFICIAL_DELEGATION
         official_delegation.save()
-    except Delegation.DoesNotExist:
+    except delegation.DoesNotExist:
         pass
 
 

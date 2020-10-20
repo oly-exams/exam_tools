@@ -15,17 +15,20 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django import forms
-from django.forms import ModelForm, Form
-from django.forms.formsets import formset_factory
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, MultiField, Div, Fieldset, HTML
-from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
-from django.utils.safestring import mark_safe
 
+import os
 import decimal
 
+from django import forms
+from django.forms import ModelForm
+from django.forms.formsets import formset_factory
+from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
+
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit, Layout, Field, Div, HTML
+from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
+
 
 from ipho_exam.models import (
     Language,
@@ -33,12 +36,10 @@ from ipho_exam.models import (
     Student,
     Figure,
     VersionNode,
-    TranslationNode,
     PDFNode,
     Feedback,
     StudentSubmission,
     TranslationImportTmp,
-    Document,
 )
 from ipho_exam.models import VALID_FIGURE_EXTENSIONS
 from ipho_print import printer
@@ -46,8 +47,6 @@ from ipho_print import printer
 
 def build_extension_validator(valid_extensions):
     def validate_file_extension(value):
-        import os
-
         ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
         # valid_extensions = ['.svg', '.svgz']
         if not ext.lower() in {ex.lower() for ex in valid_extensions}:
@@ -434,7 +433,7 @@ class AdminBlockAttributeForm(forms.Form):
                 decimal.Overflow,
                 decimal.InvalidOperation,
                 ValueError,
-            ) as e:
+            ):
                 msg = "'points' can only have 2 decimal places and need to be smaller than 1000000 . (e.g. 1.25)"
                 self.add_error("value", msg)
         return cleaned_data

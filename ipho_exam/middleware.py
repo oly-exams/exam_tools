@@ -34,6 +34,8 @@ class IphoExamExceptionsMiddleware:
 
         return response
 
-    def process_exception(self, request, exception):
+    def process_exception(
+        self, request, exception
+    ):  # pylint: disable=no-self-use, inconsistent-return-statements
         if isinstance(exception, IphoExamException):
             return exception.response

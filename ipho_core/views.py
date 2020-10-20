@@ -15,9 +15,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from past.utils import old_div
 import json
+import random
+import concurrent.futures
+from past.utils import old_div
+
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
@@ -29,11 +31,9 @@ from django.contrib.auth.decorators import (
 from django.contrib.auth import authenticate, login
 from django.core.urlresolvers import reverse
 from pywebpush import WebPushException
-import concurrent.futures
 
 
 from ipho_core.models import (
-    AutoLogin,
     User,
     PushSubscription,
     RandomDrawLog,
@@ -70,8 +70,8 @@ def autologin(request, token):
     if user:
         login(request, user)
         return redirect(redirect_to)
-    else:
-        return redirect(settings.LOGIN_URL + f"?next={redirect_to}")
+
+    return redirect(settings.LOGIN_URL + f"?next={redirect_to}")
 
 
 def account_request(request):
@@ -106,28 +106,28 @@ def register_push_submission(request):
         del data["csrfmiddlewaretoken"]
         newdata = {}
 
-        def get_nd(d, keys):
+        def get_nd(data, keys):
             for key in keys:
-                d = d[key]
-            return d
+                data = data[key]
+            return data
 
-        def set_nd(d, keys, value):
+        def set_nd(data, keys, value):
             try:
-                d = get_nd(d, keys[:-1])
-            except KeyError as e:
-                set_nd(d, keys[:-1], {})
-                d = get_nd(d, keys[:-1])
-            d[keys[-1]] = value
+                data = get_nd(data, keys[:-1])
+            except KeyError:
+                set_nd(data, keys[:-1], {})
+                data = get_nd(data, keys[:-1])
+            data[keys[-1]] = value
 
         for k in data:
             val = data[k]
-            nk = k.strip("subs")
+            newk = k.strip("subs")
             klist = []
-            i = nk.find("]")
+            i = newk.find("]")
             while i > 0:
-                klist.append(nk[1:i])
-                nk = nk[i + 1 :]
-                i = nk.find("]")
+                klist.append(newk[1:i])
+                newk = newk[i + 1 :]
+                i = newk.find("]")
             set_nd(newdata, klist, val)
         if newdata:
             user = request.user
@@ -151,28 +151,28 @@ def delete_push_submission(request):
         del data["csrfmiddlewaretoken"]
         newdata = {}
 
-        def get_nd(d, keys):
+        def get_nd(data, keys):
             for key in keys:
-                d = d[key]
-            return d
+                data = data[key]
+            return data
 
-        def set_nd(d, keys, value):
+        def set_nd(data, keys, value):
             try:
-                d = get_nd(d, keys[:-1])
-            except KeyError as e:
-                set_nd(d, keys[:-1], {})
-                d = get_nd(d, keys[:-1])
-            d[keys[-1]] = value
+                data = get_nd(data, keys[:-1])
+            except KeyError:
+                set_nd(data, keys[:-1], {})
+                data = get_nd(data, keys[:-1])
+            data[keys[-1]] = value
 
         for k in data:
             val = data[k]
-            nk = k.strip("subs")
+            newk = k.strip("subs")
             klist = []
-            i = nk.find("]")
+            i = newk.find("]")
             while i > 0:
-                klist.append(nk[1:i])
-                nk = nk[i + 1 :]
-                i = nk.find("]")
+                klist.append(newk[1:i])
+                newk = newk[i + 1 :]
+                i = newk.find("]")
             set_nd(newdata, klist, val)
         if newdata:
             data = json.dumps(newdata)
@@ -202,10 +202,10 @@ def send_push(request):
             for user in ulist:
                 psub_list.extend(user.pushsubscription_set.all())
 
-            def send_push(sub):
+            def send_push_helper(sub):
                 try:
                     sub.send(data)
-                except WebPushException as ex:
+                except WebPushException:
                     # TODO: do some error handling?
                     pass
 
@@ -217,26 +217,23 @@ def send_push(request):
             if len(psub_list) > 700:
                 psub_list = psub_list[:700]
             with concurrent.futures.ThreadPoolExecutor(max_workers=700) as executor:
-                executor.map(send_push, psub_list)
+                executor.map(send_push_helper, psub_list)
 
         response = HttpResponse(content="", status=303)
         response["Location"] = reverse("send_push")
         return response
 
-    else:
-        form = SendPushForm()
+    form = SendPushForm()
     return render(request, "ipho_core/send_push.html", {"form": form})
 
 
 @permission_required("ipho_core.is_staff")
-def random_draw(request):
+def random_draw(request):  # pylint: disable=too-many-branches
     if not request.user.is_superuser:
         return HttpResponse("It is not easter yet.")
     if not settings.ENABLE_PUSH:
         return HttpResponseForbidden("Push not enabled")
     if request.method == "POST":
-        import random
-
         drawn_delegations = RandomDrawLog.objects.filter(tag="manual").values_list(
             "delegation__pk", flat=True
         )
@@ -256,24 +253,24 @@ def random_draw(request):
                 return HttpResponse("Easter is over.")
             temp_del = all_delegations[random.randrange(0, len(all_delegations))]
             subs_list = []
-            for u in temp_del.members.all():
-                subs_list.extend(u.pushsubscription_set.all())
+            for user in temp_del.members.all():
+                subs_list.extend(user.pushsubscription_set.all())
             if len(subs_list) == 0:
                 all_delegations.remove(temp_del)
             else:
                 drawn_del = temp_del
+                msg = "!!!!!! You have Won Chocolate !!!!!!     Please come to the Oly-Exams table to collect your prize."
                 if "switzerland" in drawn_del.country.lower():
                     msg = "You have won the privilege of bringing chocolate to the Oly-Exams desk."
-                else:
-                    msg = "!!!!!! You have Won Chocolate !!!!!!     Please come to the Oly-Exams table to collect your prize."
+
                 link = reverse("chocobunny")
                 data = {"body": msg, "url": link}
 
-                for s in subs_list:
+                for sub in subs_list:
                     try:
-                        s.send(data)
+                        sub.send(data)
                         sent_n += 1
-                    except WebPushException as e:
+                    except WebPushException:
                         pass
                 if sent_n == 0:
                     all_delegations.remove(temp_del)
@@ -284,8 +281,8 @@ def random_draw(request):
         return HttpResponse(
             f"{drawn_del.country} was drawn as a winner, {sent_n} notifications have been sent"
         )
-    else:
-        form = RandomDrawForm()
+
+    form = RandomDrawForm()
     return render(request, "ipho_core/random_draw.html", {"form": form})
 
 

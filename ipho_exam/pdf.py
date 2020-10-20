@@ -18,21 +18,19 @@
 
 import os
 import codecs
-import subprocess
+import shutil
 import logging
-from past.utils import old_div
-from django.http import HttpResponse, Http404, HttpResponseNotModified
+import subprocess
+from hashlib import md5
+from tempfile import mkdtemp
+
+from io import BytesIO
+from PyPDF2 import PdfFileWriter, PdfFileReader
+
+from django.http import HttpResponse, HttpResponseNotModified
 from django.core.cache import cache
 from django.conf import settings
 
-from tempfile import mkdtemp
-import subprocess
-import os
-import shutil
-from hashlib import md5
-
-from PyPDF2 import PdfFileWriter, PdfFileReader
-from io import StringIO, BytesIO
 
 TEMP_PREFIX = getattr(settings, "TEX_TEMP_PREFIX", "render_tex-")
 CACHE_PREFIX = getattr(settings, "TEX_CACHE_PREFIX", "render-tex")
@@ -55,7 +53,7 @@ class TexCompileException(Exception):
         super().__init__(f"pdflatex error (code {code}) in {doc_fname}, log:\n {log}.")
 
 
-def compile_tex_diff(old_body, new_body, ext_resources=[]):
+def compile_tex_diff(old_body, new_body, ext_resources=tuple()):
     tmpdir = mkdtemp(prefix=TEMP_PREFIX)
     try:
         with codecs.open(os.path.join(tmpdir, "new.tex"), "w", encoding="utf-8") as f:
@@ -74,7 +72,7 @@ def compile_tex_diff(old_body, new_body, ext_resources=[]):
     return compile_tex(diff_body, ext_resources=ext_resources)
 
 
-def compile_tex(body, ext_resources=[]):
+def compile_tex(body, ext_resources=tuple()):
     doc = "question"
     etag = md5(body.encode("utf8")).hexdigest()
 
@@ -171,7 +169,7 @@ def concatenate_documents(all_documents):
     return output_pdf.getvalue()
 
 
-def cached_pdf_response(request, body, ext_resources=[], filename="question.pdf"):
+def cached_pdf_response(request, body, ext_resources=tuple(), filename="question.pdf"):
     etag = md5(body.encode("utf8")).hexdigest()
     if request.META.get("HTTP_IF_NONE_MATCH", "") == etag:
         return HttpResponseNotModified()
@@ -184,11 +182,13 @@ def cached_pdf_response(request, body, ext_resources=[], filename="question.pdf"
         # pdf = job.get()
         #
         pdf = compile_tex(body, ext_resources)
-    except TexCompileException as e:
+    except TexCompileException as err:
         if request.user.is_superuser:
-            return HttpResponse(e.log, content_type="text/plain")
-        else:
-            raise RuntimeError(f"pdflatex error (code {e.code}) in {e.doc_fname}.")
+            return HttpResponse(err.log, content_type="text/plain")
+
+        raise RuntimeError(
+            f"pdflatex error (code {err.code}) in {err.doc_fname}."
+        ) from err
 
     output_pdf = check_add_watermark(request, pdf)
     res = HttpResponse(output_pdf, content_type="application/pdf")

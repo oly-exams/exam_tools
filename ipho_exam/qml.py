@@ -15,21 +15,25 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=no-member
+# pylint: disable=no-member, too-many-lines
 
+# mskoenz: I added lang, data, data_html in Object ctor as None
+
+import re
+import uuid
+import json
+import binascii
+from copy import deepcopy
+from decimal import Decimal
+from xml.etree import ElementTree as ET
+import urllib.request
+import urllib.parse
+import urllib.error
 
 from future import standard_library
 
 standard_library.install_aliases()
 
-import re
-import uuid
-import json
-import urllib.request, urllib.parse, urllib.error
-import binascii
-from copy import deepcopy
-from xml.etree import ElementTree as ET
-from decimal import Decimal
 
 from bs4 import BeautifulSoup
 
@@ -131,20 +135,20 @@ def make_content_node(node):
     descr["description"] = node.attributes.get("description")
 
     descr["children"] = []
-    for c in node.children:
-        descr["children"].append(make_content_node(c))
+    for child in node.children:
+        descr["children"].append(make_content_node(child))
 
     return descr
 
 
 def make_qml(node):
-    q = QMLquestion(node.text)
+    que = QMLquestion(node.text)
 
     attr_change = {}
     if hasattr(node, "attributechange"):
         attr_change = json.loads(node.attributechange.content)
-    q.update_attrs(attr_change)
-    return q
+    que.update_attrs(attr_change)
+    return que
 
 
 def xml2string(xml):
@@ -154,7 +158,7 @@ def xml2string(xml):
 
 
 def content2string(node):
-    parts = [node.text] + [ET.tostring(c, encoding="unicode") for c in node]
+    parts = [node.text] + [ET.tostring(child, encoding="unicode") for child in node]
     # We assume that `node` is a pure QML tag, therefore we don't consider the tail.
     # +[node.tail])
     # filter removes possible Nones in texts and tails
@@ -175,7 +179,7 @@ def normalize_html(data):
     xhtmlout = BeautifulSoup(data, "html5lib")
     try:
         return "".join([str(el) for el in xhtmlout.body.contents])
-    except:
+    except:  # pylint: disable=bare-except
         return str(xhtmlout)
 
 
@@ -228,12 +232,12 @@ class QMLForm(forms.Form):
             self.fields[node.id].required = False
             self.fields[node.id].widget.attrs["class"] = "form-control"
 
-        for c in node.children:
-            self.insert_fields(c, initials)
+        for child in node.children:
+            self.insert_fields(child, initials)
 
 
 ## List of all QML obects available for parsing
-qml_objects = None
+QML_OBJECTS = None  # TODO: mskoenz: remove?
 
 
 # TODO: find better way for this. it seems that Django provides a ContentType module that could be useful.
@@ -286,7 +290,7 @@ class QMLobject:
 
     @staticmethod
     def get_qml(tag):
-        for obj in QMLobject.all_objects():
+        for obj in QMLobject.all_objects():  # pylint: disable=not-an-iterable
             if obj.tag == tag:
                 return obj
         raise QMLException("Tag `%s` not found." % tag)
@@ -305,14 +309,19 @@ class QMLobject:
             root = xml
 
         if force_id is not None:
-            self.id = force_id
+            self.id = force_id  # pylint: disable=invalid-name
             root.attrib["id"] = force_id
         try:
             self.id = root.attrib["id"]
-        except KeyError:
-            raise KeyError("`id` missing from QML element `%s`." % root.tag)
+        except KeyError as err:
+            raise KeyError("`id` missing from QML element `%s`." % root.tag) from err
 
         self.children = []
+
+        self.data = None
+        self.data_html = None
+        self.lang = None
+
         self.parse(root)
 
     def parse(self, root):
@@ -344,16 +353,16 @@ class QMLobject:
             else:
                 self.children.append(child_node)
         else:
-            ix = self.child_index(after_id)
-            if ix is None:
+            idx = self.child_index(after_id)
+            if idx is None:
                 raise RuntimeError(f"after_id={after_id} not found.")
-            self.children.insert(ix + 1, child_node)
+            self.children.insert(idx + 1, child_node)
         return child_node
 
     def set_lang(self, lang):
         self.lang = lang
-        for c in self.children:
-            c.set_lang(lang)
+        for child in self.children:
+            child.set_lang(lang)
 
     def make_xml(self):
         assert "id" in self.attributes
@@ -365,15 +374,15 @@ class QMLobject:
             # s, errors = tidylib.tidy_fragment(s, options=TIDYOPTIONS)
             elem.text = s
 
-        for c in self.children:
-            elem.append(c.make_xml())
+        for child in self.children:
+            elem.append(child.make_xml())
 
         return elem
 
-    def tex_begin(self):
+    def tex_begin(self):  # pylint: disable=no-self-use
         return ""
 
-    def tex_end(self):
+    def tex_end(self):  # pylint: disable=no-self-use
         return "\n\n"
 
     def make_tex(self):
@@ -381,19 +390,19 @@ class QMLobject:
         texout = self.tex_begin()
         if self.__class__.has_text:
             texout += data2tex(self.data)
-        for c in self.children:
+        for child in self.children:
 
-            (texchild, extchild) = c.make_tex()
+            (texchild, extchild) = child.make_tex()
             externals += extchild
             texout += texchild
 
         texout += self.tex_end()
         return escape_percents(texout), externals
 
-    def xhtml_begin(self):
+    def xhtml_begin(self):  # pylint: disable=no-self-use
         return ""
 
-    def xhtml_end(self):
+    def xhtml_end(self):  # pylint: disable=no-self-use
         return ""
 
     def make_xhtml(self):
@@ -401,8 +410,8 @@ class QMLobject:
         xhtmlout = self.xhtml_begin()
         if self.__class__.has_text:
             xhtmlout += data2xhtml(self.data)
-        for c in self.children:
-            (xhtmlchild, extchild) = c.make_xhtml()
+        for child in self.children:
+            (xhtmlchild, extchild) = child.make_xhtml()
             externals += extchild
             xhtmlout += xhtmlchild
 
@@ -416,7 +425,7 @@ class QMLobject:
             else self.default_heading
         )
 
-    def form_element(self):
+    def form_element(self):  # pylint: disable=no-self-use
         return forms.CharField()
 
     def get_data(self):
@@ -425,21 +434,21 @@ class QMLobject:
             if self.id in ret:
                 raise RuntimeError("id `%s` not unique in question QML." % self.id)
             ret[self.id] = unescape_entities(self.data)
-        for c in self.children:
-            ret.update(c.get_data())
+        for child in self.children:
+            ret.update(child.get_data())
         return ret
 
     def get_trans_extra_html(self):
         ret = {}
-        for c in self.children:
-            ret.update(c.get_trans_extra_html())
+        for child in self.children:
+            ret.update(child.get_trans_extra_html())
         return ret
 
     def flat_content_dict(self):
         ret = {}
         ret[self.id] = self.content_html()
-        for c in self.children:
-            ret.update(c.flat_content_dict())
+        for child in self.children:
+            ret.update(child.flat_content_dict())
         return ret
 
     def content(self):
@@ -464,14 +473,14 @@ class QMLobject:
             self.data = ""
             self.data_html = self.data
 
-        for c in self.children:
-            c.update(data)
+        for child in self.children:
+            child.update(data)
 
     def update_attrs(self, attrs):
         if self.id in attrs:
             self.attributes.update(attrs[self.id])
-        for c in self.children:
-            c.update_attrs(attrs)
+        for child in self.children:
+            child.update_attrs(attrs)
 
     def diff_content_html(self, other_data):
         if self.has_text:
@@ -485,35 +494,35 @@ class QMLobject:
             #     self.data = escape(simplediff.html_diff(unescape_entities(self.data), other_data[self.id]))
             # else:
             #     self.data = escape(u'<ins>' + unescape_entities(self.data) + u'</ins>')
-        for c in self.children:
-            c.diff_content_html(other_data)
+        for child in self.children:
+            child.diff_content_html(other_data)
 
     def find(self, search_id):
         if self.id == search_id:
             return self
-        for c in self.children:
-            cfind = c.find(search_id)
+        for child in self.children:
+            cfind = child.find(search_id)
             if cfind is not None:
                 return cfind
         return None
 
     def child_index(self, child_id):
-        ix = None
-        for i, c in enumerate(self.children):
-            if c.id == child_id:
-                ix = i
+        idx = None
+        for i, child in enumerate(self.children):
+            if child.id == child_id:
+                idx = i
                 break
-        return ix
+        return idx
 
     def delete(self, search_id):
-        self.children = [c for c in self.children if c.id != search_id]
-        for c in self.children:
-            c.delete(search_id)
+        self.children = [child for child in self.children if child.id != search_id]
+        for child in self.children:
+            child.delete(search_id)
 
     def __str__(self):
         ret = f"<{self.tag} {self.id}>\n"
-        for c in self.children:
-            ret += f"..<{c.tag} {c.id}>\n"
+        for child in self.children:
+            ret += f"..<{child.tag} {child.id}>\n"
         return ret
 
 
@@ -542,11 +551,11 @@ class QMLquestion(QMLobject):
     default_attributes = {"points": "0.0"}
 
     def title(self):
-        tt = ""
-        for c in self.children:
-            if isinstance(c, QMLtitle):
-                tt = data2tex(c.data)
-        return tt.strip()
+        tex_src = ""
+        for child in self.children:
+            if isinstance(child, QMLtitle):
+                tex_src = data2tex(child.data)
+        return tex_src.strip()
 
     def heading(self):
         return "Question/answer {}pt".format(self.attributes["points"])
@@ -777,9 +786,9 @@ class QMLfigure(QMLobject):
 
     def fig_query(self):
         query = {}
-        for c in self.children:
-            if c.tag == "param":
-                query[c.attributes["name"]] = c.data
+        for child in self.children:
+            if child.tag == "param":
+                query[child.attributes["name"]] = child.data
         return query
 
     def fig_url(self, output_format="svg"):
@@ -821,7 +830,9 @@ class QMLfigure(QMLobject):
         else:
             img_src = reverse("exam:figure-lang-export", args=[figid, self.lang.pk])
         param_ids = {
-            c.attributes["name"]: c.id for c in self.children if c.tag == "param"
+            child.attributes["name"]: child.id
+            for child in self.children
+            if child.tag == "param"
         }
         ret = '<div class="field-figure text-center"><button type="button" class="btn btn-link" data-toggle="modal" data-target="#figure-modal" data-remote="false" data-figparams=\'{0}\' data-base-url="{1}"><img src="{1}" /></button></div>'.format(
             json.dumps(param_ids), img_src
@@ -832,9 +843,9 @@ class QMLfigure(QMLobject):
         figname = f"fig_{self.id}"
 
         fig_caption = ""
-        for c in self.children:
-            if c.tag == "caption":
-                caption_text = data2tex(c.data)
+        for child in self.children:
+            if child.tag == "caption":
+                caption_text = data2tex(child.data)
                 caption_text = caption_text.strip("\n")
                 caption_text = caption_text.replace("\n", r" ~\newline ")
                 fig_caption += caption_text
@@ -859,18 +870,18 @@ class QMLfigure(QMLobject):
 
     def make_xhtml(self):
         fig_caption = ""
-        for c in self.children:
-            if c.tag == "caption":
-                caption_text = data2xhtml(c.data)
+        for child in self.children:
+            if child.tag == "caption":
+                caption_text = data2xhtml(child.data)
                 fig_caption += caption_text
 
-        DEFAULT_WIDTH = 0.9
+        default_width = 0.9
 
-        width = self.attributes.get("width", DEFAULT_WIDTH)
+        width = self.attributes.get("width", default_width)
         try:
             width = float(width)
-        except Exception:
-            width = DEFAULT_WIDTH
+        except ValueError:
+            width = default_width
 
         fig = Figure.objects.get(fig_id=self.attributes["figid"])
         fig_content, content_type = fig.to_inline(
@@ -900,16 +911,16 @@ class QMLcellfigure(QMLfigure):
     has_text = False
     has_children = False
 
-    def end_tex(self):
+    def end_tex(self):  # pylint: disable=no-self-use
         return ""
 
     def make_tex(self):
         figname = f"fig_{self.id}"
 
         fig_caption = ""
-        for c in self.children:
-            if c.tag == "caption":
-                caption_text = data2tex(c.data)
+        for child in self.children:
+            if child.tag == "caption":
+                caption_text = data2tex(child.data)
                 caption_text = caption_text.strip("\n")
                 caption_text = caption_text.replace("\n", r" ~\newline ")
                 fig_caption += caption_text
@@ -978,7 +989,7 @@ class QMLequation(QMLobject):
         return "\\end{equation}\n\n"
 
 
-class QMLequation_unnumbered(QMLobject):
+class QMLequation_unnumbered(QMLobject):  # pylint: disable=invalid-name
     tag = "equation_unnumbered"
     display_name = "Equation*"
     default_heading = "Equation*"
@@ -1083,11 +1094,10 @@ class QMLlatex(QMLobject):
         # allow one special Django-template-style command {% newline %} to insert newline in LaTeX
         content = content.replace("{% newline %}", "\n")
 
-        query = {}
-        for c in self.children:
-            if c.tag == "texparam":
+        for child in self.children:
+            if child.tag == "texparam":
                 content = content.replace(
-                    "{{ %s }}" % c.attributes["name"], data2tex(c.data)
+                    "{{ %s }}" % child.attributes["name"], data2tex(child.data)
                 )
         return escape_percents(content), []
 
@@ -1166,6 +1176,10 @@ class QMLtable(QMLobject):
         # ~ 'grid_lines': '1',
     }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.captions = []
+
     @property
     def _columns(self):
         try:
@@ -1194,8 +1208,12 @@ class QMLtable(QMLobject):
 
     def make_tex(self):
         # filter out captions
-        self.captions = [c for c in self.children if c.tag == "tablecaption"]
-        self.children = [c for c in self.children if c.tag != "tablecaption"]
+        self.captions = [
+            child for child in self.children if child.tag == "tablecaption"
+        ]
+        self.children = [
+            child for child in self.children if child.tag != "tablecaption"
+        ]
         return super().make_tex()
 
     def tex_begin(self):
@@ -1211,10 +1229,10 @@ class QMLtable(QMLobject):
         )
 
     def tex_end(self):
-        tex = r"\end{tabular}\end{center}"
-        tex += "".join(c.make_tex()[0] for c in self.captions)
-        tex += r"\vspace{0.5cm}" + "\n\n"
-        return tex
+        tex_src = r"\end{tabular}\end{center}"
+        tex_src += "".join(child.make_tex()[0] for child in self.captions)
+        tex_src += r"\vspace{0.5cm}" + "\n\n"
+        return tex_src
 
     def xhtml_begin(self):
         return "<table>"
@@ -1239,15 +1257,15 @@ class QMLtableRow(QMLobject):
         texout = ""
         externals = []
         cell_tex = []
-        for c in self.children:
-            if "cell" in c.tag:
-                (texchild, extchild) = c.make_tex()
+        for child in self.children:
+            if "cell" in child.tag:
+                (texchild, extchild) = child.make_tex()
                 cell_tex.append(texchild)
                 externals += extchild
 
         texout += " & ".join(cell_tex)
         texout += " ".join(
-            c.make_tex()[0] for c in self.children if c.tag == "texfield"
+            child.make_tex()[0] for child in self.children if child.tag == "texfield"
         )
         texout += "\\\\"
         height = self.attributes.get("height", "default")
@@ -1373,10 +1391,10 @@ class QMLvspace(QMLobject):
 
     def get_amount(self):
         try:
-            a = int(self.attributes.get("amount", self.DEFAULT_AMOUNT))
+            val = int(self.attributes.get("amount", self.DEFAULT_AMOUNT))
         except ValueError:
-            a = self.DEFAULT_AMOUNT
-        return a
+            val = self.DEFAULT_AMOUNT
+        return val
 
     def make_tex(self):
         return r"\vspace{%iem}" % self.get_amount() + "\n", []

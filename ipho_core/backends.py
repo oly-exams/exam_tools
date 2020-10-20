@@ -15,11 +15,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from ipho_core.models import AutoLogin, User
+from ipho_core.models import User
 
 
 class TokenLoginBackend:
-    def authenticate(self, token=None):
+    @staticmethod
+    def authenticate(token=None):
         if token is None:
             return None
         try:
@@ -28,7 +29,8 @@ class TokenLoginBackend:
         except User.DoesNotExist:
             return None
 
-    def get_user(self, user_id):
+    @staticmethod
+    def get_user(user_id):
         try:
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:
