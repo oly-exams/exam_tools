@@ -20,10 +20,10 @@ from django.conf import settings
 
 def ipho_context(request):
     return {
-        'DEMO_MODE': settings.DEMO_MODE,
-        'DEMO_SIGN_UP': settings.DEMO_SIGN_UP,
-        'VERSION': settings.VERSION,
-        'VERSION_DATE': settings.VERSION_DATE,
-        'DOCS_URL': settings.DOCS_URL,
-        'STATIC_PATH': settings.STATIC_PATH,
+        "DEMO_MODE": settings.DEMO_MODE,
+        "DEMO_SIGN_UP": settings.DEMO_SIGN_UP,
+        "VERSION": settings.VERSION,
+        "VERSION_DATE": settings.VERSION_DATE,
+        "DOCS_URL": settings.DOCS_URL,
+        "STATIC_PATH": settings.STATIC_PATH,
     }

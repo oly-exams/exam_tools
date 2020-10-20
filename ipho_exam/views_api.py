@@ -34,13 +34,16 @@ class SwaggerSchemaView(views.APIView):
     renderer_classes = [renderers.CoreJSONRenderer, OpenAPIRenderer, SwaggerUIRenderer]
 
     def get(self, request):
-        generator = schemas.SchemaGenerator(title='Exam Tools - Exam Documents API')
+        generator = schemas.SchemaGenerator(title="Exam Tools - Exam Documents API")
         schema = generator.get_schema()
         return Response(schema)
 
 
 class DocumentViewSet(
-    mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
 ):
     # """
     # Access and edit the collection of student documents (exam printouts and scans)
@@ -51,8 +54,8 @@ class DocumentViewSet(
     partial_update: Partially update single entry
     update: Update single entry
     """
-    permission_classes = (HasValidApiKeyOrAdmin, )
+    permission_classes = (HasValidApiKeyOrAdmin,)
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
-    filter_backends = (DjangoFilterBackend, )
-    filter_fields = ('id', 'position', 'student', 'exam', 'barcode_base', 'num_pages')
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ("id", "position", "student", "exam", "barcode_base", "num_pages")

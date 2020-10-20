@@ -19,11 +19,8 @@ from django.conf.urls import url
 
 from . import views
 
-app_name = 'download'
+app_name = "download"
 urlpatterns = [
-    url(r'^$', views.main, {
-        'url': '',
-        'type': 'd'
-    }, name='main'),
-    url(r'^(?P<type>[fd])/(?P<url>.*)$', views.main, name='path'),
+    url(r"^$", views.main, {"url": "", "type": "d"}, name="main"),
+    url(r"^(?P<type>[fd])/(?P<url>.*)$", views.main, name="path"),
 ]
