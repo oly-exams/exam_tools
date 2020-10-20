@@ -1,0 +1,19 @@
+{
+  "dependencies": {},
+  "name": "exam_tools",
+  "version": "1.0.0",
+  "devDependencies": {
+    "cypress": "^5.4.0"
+  },
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/oly-exams/exam_tools.git"
+  },
+  "license": "AGPL-3.0-only",
+  "bugs": {
+    "url": "https://gitlab.com/oly-exams/exam_tools/issues"
+  },
+  "homepage": "https://oly-exams.org"
+}
