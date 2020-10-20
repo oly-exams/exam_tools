@@ -41,7 +41,12 @@ urlpatterns = [
         name='delegation-all-detail-edit'
     ),
     url(r'^confirm/(?P<question_id>\d+)$', views.delegation_confirm, name='delegation-confirm'),
-    url(r'^confirm/final/(?P<question_id>\d+)$', views.delegation_confirm, name='delegation-final-confirm', kwargs={'final_confirmation':True}),
+    url(
+        r'^confirm/final/(?P<question_id>\d+)$',
+        views.delegation_confirm,
+        name='delegation-final-confirm',
+        kwargs={'final_confirmation': True}
+    ),
     ## Markers
     url(r'^official/?$', views.official_marking_index, name='official-marking-index'),
     url(
@@ -82,6 +87,7 @@ urlpatterns = [
         views.staff_stud_detail,
         name='staff-stud-detail'
     ),
+    url(r'^export-countries-to-moderate.csv$', views.export_countries_to_moderate, name='countries-to-moderate'),
     url(r'^all/export.csv$', views.export, name='export'),
     url(r'^all/export-total.csv$', views.export_with_total, name='export-total'),
     url(r'^marking-submissions$', views.marking_submissions, name='marking-submissions'),

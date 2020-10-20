@@ -34,7 +34,6 @@ from xml.etree import ElementTree as ET
 from decimal import Decimal
 
 from bs4 import BeautifulSoup
-import html_diff
 # import tidylib
 
 from django import forms
@@ -45,9 +44,7 @@ from django.core.urlresolvers import reverse
 
 from .models import Figure
 from . import tex
-
-html_diff.config.tags_fcts_as_blocks.append(lambda tag: tag.name == 'span' and 'math-tex' in tag.attrs.get('class', []))
-html_diff.config.cuttable_words_mode = html_diff.Config.CuttableWordsMode.UNCUTTABLE_PRECISE
+from . import simplediff
 
 #block groups
 PARAGRAPH_LIKE_BLOCKS = ('paragraph', 'list', 'enumerate', 'table', 'equation', 'equation_unnumbered', 'figure', 'box')
@@ -448,11 +445,11 @@ class QMLobject(object):
     def diff_content_html(self, other_data):
         if self.has_text:
             if self.id in other_data:
-                self.data_html = html_diff.diff(other_data[self.id], self.data_html)
+                self.data_html = simplediff.html_diff(other_data[self.id], self.data_html)
             else:
                 self.data_html = u'<ins>' + self.data_html + u'</ins>'
             # if self.id in other_data:
-            #     self.data = escape(html_diff.diff(unescape_entities(self.data), other_data[self.id]))
+            #     self.data = escape(simplediff.html_diff(unescape_entities(self.data), other_data[self.id]))
             # else:
             #     self.data = escape(u'<ins>' + unescape_entities(self.data) + u'</ins>')
         for c in self.children:
@@ -1113,7 +1110,7 @@ class QMLtableRow(QMLobject):
 
     has_text = False
     has_children = True
-    valid_children = ('cell', 'texfield')
+    valid_children = ('cell', 'multirowcell', 'multicolumncell', 'texfield')
 
     default_attributes = {'bottom_line': '1', 'multiplier': '1'}
 
@@ -1123,7 +1120,7 @@ class QMLtableRow(QMLobject):
         externals = []
         cell_tex = []
         for c in self.children:
-            if c.tag == "cell":
+            if "cell" in c.tag:
                 (texchild, extchild) = c.make_tex()
                 cell_tex.append(texchild)
                 externals += extchild
@@ -1134,7 +1131,11 @@ class QMLtableRow(QMLobject):
         height = self.attributes.get('height', 'default')
         if height != 'default':
             texout += u'[{}]'.format(height)
-        texout += int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
+
+        if self.attributes['bottom_line'] in ["0", "1", "2", "3"]:
+            texout += int(self.attributes['bottom_line']) * u'\\hline' + u'\n'
+        else:
+            texout += self.attributes['bottom_line'] + u'\n'
         return escape_percents(texout) * multiplier, externals
 
     def xhtml_begin(self):
@@ -1166,6 +1167,30 @@ class QMLtableCell(QMLobject):
 
     def xhtml_end(self):
         return u'</td>'
+
+
+class QMLtableMultiRowCell(QMLtableCell):
+    tag = "multirowcell"
+
+    default_attributes = {'size': '1', 'row': '*'}
+
+    def tex_begin(self):
+        return u'\multirow{' + self.attributes['size'] + '}{' + self.attributes['row'] + '}{'
+
+    def tex_end(self):
+        return u'}'
+
+
+class QMLtableMultiColumnCell(QMLtableCell):
+    tag = "multicolumncell"
+
+    default_attributes = {'columns': '|c|', 'size': '1'}
+
+    def tex_begin(self):
+        return u'\multicolumn{' + self.attributes['size'] + '}{' + self.attributes['columns'] + '}{'
+
+    def tex_end(self):
+        return u'}'
 
 
 class QMLtableCaption(QMLobject):

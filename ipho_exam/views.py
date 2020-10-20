@@ -200,7 +200,7 @@ def translations_list(request):
         })
 
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 @ensure_csrf_cookie
 def list_all_translations(request):
     exams = Exam.objects.filter(hidden=False, active=True)
@@ -414,7 +414,7 @@ def add_pdf_node(request, question_id, lang_id):
     })
 
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def translation_export(request, question_id, lang_id, version_num=None):
     """ Translation export, both for normal editor and admin editor """
     if version_num is None:
@@ -596,7 +596,7 @@ def edit_language(request, lang_id):
         'success': False,
     })
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def exam_view(request, exam_id=None, question_id=None, orig_id=OFFICIAL_LANGUAGE):
     context = {
         'exam_id': exam_id,
@@ -705,7 +705,7 @@ def exam_view(request, exam_id=None, question_id=None, orig_id=OFFICIAL_LANGUAGE
         context['orig_font'] = fonts.ipho[context['orig_lang'].font]
     return render(request, 'ipho_exam/exam_view.html', context)
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def feedback_partial(request, exam_id, question_id, qml_id='', orig_id=OFFICIAL_LANGUAGE):
     delegation = Delegation.objects.filter(members=request.user)
     delegations = Delegation.objects.all()
@@ -812,14 +812,14 @@ def feedback_partial(request, exam_id, question_id, qml_id='', orig_id=OFFICIAL_
     return render(
         request, 'ipho_exam/partials/feedbacks_partial_tbody.html', ctxt)
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def feedback_partial_like(request, status, feedback_id):
     feedback = get_object_or_404(Feedback, pk=feedback_id, question__feedback_active=True)
     delegation = Delegation.objects.get(members=request.user)
     Like.objects.get_or_create(feedback=feedback, delegation=delegation, defaults={'status': status})
     return JsonResponse({'success': True,})
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def feedback_numbers(request, exam_id, question_id):
     if exam_id is not None:
                 # # TODO: set correct flags
@@ -836,7 +836,7 @@ def feedback_numbers(request, exam_id, question_id):
 
     return JsonResponse({'success': True,'numbers':numbers})
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 @ensure_csrf_cookie
 def feedbacks_list(request, exam_id=None):
     exam = None
@@ -1202,7 +1202,7 @@ def figure_delete(request, fig_id):
     })
 
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def figure_export(request, fig_id, lang_id=None):
     lang = get_object_or_404(Language, pk=lang_id) if lang_id is not None else None
     fig = get_object_or_404(Figure, fig_id=fig_id)
@@ -2005,13 +2005,17 @@ def upload_scan_delegation(request, exam_id, position, student_id):
 
     doc = get_object_or_404(Document, exam=exam, position=position, student=student)
 
+    submission_open = exam.show_delegation_submissions
+
     form = DelegationScanForm(
         exam, position, student,
-        bool(doc.scan_file),
-        request.POST or None, request.FILES or None
-    )
-    if form.is_valid():
+        submission_open=submission_open,
+        do_replace=bool(doc.scan_file),
+        data=request.POST or None, files=request.FILES or None)
+
+    if form.is_valid() and submission_open:
         doc.scan_file = form.cleaned_data['file']
+        doc.scan_status = 'S'
         doc.save()
         return JsonResponse({
             'download_link': reverse('exam:scan-exam-pos-student', kwargs={
@@ -2029,15 +2033,20 @@ def upload_scan_delegation(request, exam_id, position, student_id):
         })
 
     form_html = render_crispy_form(form)
-    return JsonResponse({
+    json_kwargs = {
         'title': 'Upload scan file',
         'student': student.code,
         'exam': exam.name,
         'position': position,
         'form': form_html,
-        'submit': 'Upload',
         'success': False,
-    })
+    }
+    if submission_open:
+        json_kwargs['submit'] = 'Upload'
+    else:
+        json_kwargs['submit'] = 'Inactive'
+
+    return JsonResponse(json_kwargs)
 
 
 @permission_required('ipho_core.is_delegation')
@@ -2373,7 +2382,7 @@ def admin_submission_delete(request, submission_id):
     pass
 
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICIAL_LANGUAGE, orig_diff=None):
     context = {
         'exam_id': exam_id,
@@ -2592,7 +2601,7 @@ def editor(request, exam_id=None, question_id=None, lang_id=None, orig_id=OFFICI
         context['trans_font'] = fonts.ipho[context['trans_lang'].font]
     return render(request, 'ipho_exam/editor.html', context)
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False):
     if not Question.objects.get(pk=question_id).check_permission(request.user):
         return HttpResponseForbidden('You do not have the permissions to view this question.')
@@ -2651,7 +2660,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
 
 
 
-@login_required
+@permission_required('ipho_core.can_see_boardmeeting')
 def auto_translate(request):
     if request.method == 'POST' and getattr(settings, 'AUTO_TRANSLATE', False):
         to_lang = request.POST['to_lang']
@@ -2865,8 +2874,13 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
 
 @login_required
 def pdf_exam_for_student(request, exam_id, student_id):
-    exam = get_object_or_404(Exam, id=exam_id)
     student = get_object_or_404(Student, id=student_id)
+
+    user = request.user
+    if not user.has_perm('ipho_core.can_see_boardmeeting'):
+        exam = get_object_or_404(Exam, id=exam_id)
+        if not exam.show_delegation_submissions:
+            return HttpResponseForbidden('You do not have permission to view this document.')
 
     ## TODO: implement caching
     all_tasks = []
@@ -2893,6 +2907,10 @@ def pdf_exam_pos_student(request, exam_id, position, student_id, type='P'):
     if not user.has_perm('ipho_core.is_printstaff'):
         if not student.delegation.members.filter(pk=user.pk).exists():
             return HttpResponseForbidden('You do not have permission to view this document.')
+        if not user.has_perm('ipho_core.can_see_boardmeeting'):
+            exam = get_object_or_404(Exam, id=exam_id)
+            if not exam.show_delegation_submissions:
+                return HttpResponseForbidden('You do not have permission to view this document.')
 
     doc = get_object_or_404(Document, exam=exam_id, position=position, student=student_id)
     if type == 'P':  ## for for printouts
@@ -3035,6 +3053,21 @@ def bulk_print(request, page=None, tot_print=None):
     exam = get_or_none(Exam, id=request.GET.get('ex', None))
     if exam is not None:
         filter_ex = [exam,]
+
+    positions = [val["position"] for val in Document.objects.filter(
+        exam__in=filter_ex,
+    ).values('position').distinct()]
+    positions = list(sorted(positions))
+
+    filter_pos = positions
+    position = request.GET.get('pos', None)
+    if position is not None:
+        filter_pos = [position]
+
+    exclude_gi = json.loads(request.GET.get('exclude_gi', 'false'))
+    if exclude_gi and 0 in filter_pos:
+        filter_pos.remove(0)
+
     filter_dg = delegations
     delegation = get_or_none(Delegation, id=request.GET.get('dg', None))
     if delegation is not None:
@@ -3080,16 +3113,16 @@ def bulk_print(request, page=None, tot_print=None):
         messages = [m for m in messages if m[0] != 'alert-success']
         messages.append(('alert-danger', '<strong>No jobs sent</strong> Invalid form, please check below'))
     print(messages)
+
     all_docs = Document.objects.filter(
         student__delegation__in=filter_dg,
         exam__in=filter_ex,
         exam__delegation_status__action=ExamAction.TRANSLATION,
         exam__delegation_status__delegation=F('student__delegation'),
         exam__delegation_status__status=ExamAction.SUBMITTED,
+        position__in=filter_pos
+
     )
-    exclude_gi = json.loads(request.GET.get('exclude_gi', 'false'))
-    if exclude_gi:
-        all_docs = all_docs.exclude(position=0)
 
     scan_status = request.GET.get('st', None)
     scan_status_options = ['S', 'W', 'M']
@@ -3154,6 +3187,7 @@ def bulk_print(request, page=None, tot_print=None):
                     if k in qdict: del qdict[k]
                 else:
                     qdict[k] = v
+
             url = self.url + '?' + qdict.urlencode()
             return url
 
@@ -3162,6 +3196,8 @@ def bulk_print(request, page=None, tot_print=None):
             'messages': messages,
             'exams': exams,
             'exam': exam,
+            'positions': positions,
+            'position': position,
             'delegations': delegations,
             'delegation': delegation,
             'entries': entries,

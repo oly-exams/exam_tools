@@ -48,12 +48,14 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
     all_tasks = []
 
     if cover is not None:
-        body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_cover.tex'), request=HttpRequest(), context=cover)
+        body = render_to_string(
+            os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_cover.tex'), request=HttpRequest(), context=cover
+        )
         compile_task = tasks.compile_tex.s(body, [])
         q = questions[0]
         s = student_languages[0].student
         bgenerator = iphocode.QuestionBarcodeGen(q.exam, q, s, qcode='C', suppress_code=True)
-        barcode_task = tasks.check_add_barcode.s(bgenerator)
+        barcode_task = tasks.add_barcode.s(bgenerator)
         all_tasks.append(celery.chain(compile_task, barcode_task))
 
     for question in questions:
@@ -72,7 +74,9 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                 for r in ext_resources:
                     if isinstance(r, tex.FigureExport):
                         r.lang = sl.language
-                ext_resources.append(tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
+                ext_resources.append(
+                    tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))
+                )
                 context = {
                     'polyglossia': sl.language.polyglossia,
                     'polyglossia_options': sl.language.polyglossia_options,
@@ -85,17 +89,21 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                     'is_answer': question.is_answer_sheet(),
                     'document': trans_content,
                 }
-                body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH,'tex', 'exam_question.tex'), request=HttpRequest(), context=context)
+                body = render_to_string(
+                    os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_question.tex'),
+                    request=HttpRequest(),
+                    context=context
+                )
                 compile_task = tasks.compile_tex.s(body, ext_resources)
             else:
                 compile_task = tasks.serve_pdfnode.s(trans.node.pdf.read())
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student)
-                barcode_task = tasks.check_add_barcode.s(bgenerator)
+                barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
             else:
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, suppress_code=True)
-                barcode_task = tasks.check_add_barcode.s(bgenerator)
+                barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
 
             if question.is_answer_sheet() and question.working_pages > 0:
@@ -111,11 +119,14 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                     'is_answer': question.is_answer_sheet(),
                     'pages': list(range(question.working_pages)),
                 }
-                body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(),
-                                                                                       context=context)
-                compile_task = tasks.compile_tex.s(body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
+                body = render_to_string(
+                    os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(), context=context
+                )
+                compile_task = tasks.compile_tex.s(
+                    body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))]
+                )
                 bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, sl.student, qcode='W')
-                barcode_task = tasks.check_add_barcode.s(bgenerator)
+                barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
 
         exam_id = question.exam.pk
@@ -141,9 +152,12 @@ def generate_extra_sheets(student, question, startnum, npages, template_name='ex
         'pages': list(range(npages)),
         'startnum': startnum + 1,
     }
-    body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', template_name), request=HttpRequest(),
-                                                                                     context=context)
-    question_pdf = pdf.compile_tex(body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
+    body = render_to_string(
+        os.path.join(EVENT_TEMPLATE_PATH, 'tex', template_name), request=HttpRequest(), context=context
+    )
+    question_pdf = pdf.compile_tex(
+        body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))]
+    )
     bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, student, qcode='Z', startnum=startnum)
-    doc_pdf = pdf.check_add_barcode(question_pdf, bgenerator)
+    doc_pdf = pdf.add_barcode(question_pdf, bgenerator)
     return doc_pdf

@@ -39,6 +39,7 @@ class IphoPerm(models.Model):
             ('is_delegation_print', 'Is in the print team of a delegation'),
             ('is_marker', 'Is a marker'),
             ('can_vote', 'Can vote'),
+            ('can_see_boardmeeting', 'Can see the exam, feedbacks, and votes when they are available to delegations'),
             ('is_staff', 'Is an organizer'),
             ('can_impersonate', 'Can impersonate delegations'),
             ('print_technopark', 'Can print in Technopark'),

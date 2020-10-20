@@ -62,4 +62,4 @@ class PointsForm(ModelForm):
         fields = [
             'points',
         ]
-        widgets = {'points': forms.TextInput(attrs={'style': 'width:50px', 'class': 'form-control'})}
+        widgets = {'points': forms.TextInput(attrs={'style': 'width:55px', 'class': 'form-control'})}

@@ -125,16 +125,6 @@ def compile_tex(body, ext_resources=[]):
     return pdf
 
 
-def check_add_barcode(doc, bgenerator):
-    """
-    Checks the config for the barcode settings and return the appropriate PDF
-    (with / without barcode).
-    """
-    if settings.ADD_CODE_ON_STUDENT_SHEETS:
-        return add_barcode(doc, bgenerator)
-    return doc
-
-
 def add_barcode(doc, bgenerator):
     pdfdoc = PdfFileReader(BytesIO(doc))
 
@@ -211,7 +201,10 @@ def check_add_watermark(request, doc):
     """
     if settings.ADD_DELEGATION_WATERMARK:
         user = request.user
-        if not (user.is_staff or user.has_perm('ipho_core.is_staff') or user.has_perm('ipho_core.is_printstaff') or user.has_perm('ipho_core.is_marker')):
+        if not (
+            user.is_staff or user.has_perm('ipho_core.is_staff') or user.has_perm('ipho_core.is_printstaff')
+            or user.has_perm('ipho_core.is_marker')
+        ):
             return add_watermark(doc)
     return doc
 

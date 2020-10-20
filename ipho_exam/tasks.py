@@ -76,9 +76,9 @@ def serve_pdfnode(question_pdf, filename='question.pdf'):
 
 
 @shared_task
-def check_add_barcode(compiled_pdf, bgenerator):
+def add_barcode(compiled_pdf, bgenerator):
     question_pdf, meta = compiled_pdf
-    doc_pdf = pdf.check_add_barcode(question_pdf, bgenerator)
+    doc_pdf = pdf.add_barcode(question_pdf, bgenerator)
     meta['barcode_num_pages'] = meta['num_pages']
     meta['barcode_base'] = bgenerator.base
     return doc_pdf, meta

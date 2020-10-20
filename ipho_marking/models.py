@@ -137,4 +137,5 @@ class Marking(models.Model):
         return u'{} [{} / {}]'.format(self.marking_meta.name, self.points, self.marking_meta.max_points)
 
     class Meta(object):
+        # should probably have an ordering?
         unique_together = (('marking_meta', 'student', 'version'), )

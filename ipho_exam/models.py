@@ -176,6 +176,8 @@ class Question(models.Model):
         if user.has_perm('ipho_core.is_staff'):
             return True
         else:
+            if not user.has_perm('ipho_core.can_see_boardmeeting'):
+                return self.exam.show_delegation_submissions and self.exam.active
             return self.exam.active
 
 
