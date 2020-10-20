@@ -23,7 +23,12 @@ from ipho_exam import qquery
 from ipho_exam.models import Question
 from ipho_exam.qml import QMLquestion, QMLpart, QMLsubquestion, QMLsubanswer, make_qml
 
-__all__ = ['check_version', 'check_exam', 'check_question_answer_consistency', 'check_sum_consistency']
+__all__ = [
+    "check_version",
+    "check_exam",
+    "check_question_answer_consistency",
+    "check_sum_consistency",
+]
 
 OFFICIAL_LANGUAGE_PK = 1
 
@@ -40,22 +45,28 @@ def check_version(version):
     """
     question = version.question
     code = question.code
-    if code == 'G':
+    if code == "G":
         return
     check_sum_consistency(version)
-    other_code = ({'Q', 'A'} - {code}).pop()
-    q_type = {'Q': 'question', 'A': 'answer'}
+    other_code = ({"Q", "A"} - {code}).pop()
+    q_type = {"Q": "question", "A": "answer"}
     try:
-        other_question = Question.objects.get(exam=question.exam, code=other_code, position=question.position)
+        other_question = Question.objects.get(
+            exam=question.exam, code=other_code, position=question.position
+        )
     except Question.DoesNotExist:
         raise PointValidationError(
-            'The {} sheet corresponding to this {} does not exist.'.format(q_type[other_code], q_type[code])
+            "The {} sheet corresponding to this {} does not exist.".format(
+                q_type[other_code], q_type[code]
+            )
         )
     try:
-        other_version = qquery.latest_version(other_question.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
+        other_version = qquery.latest_version(
+            other_question.pk, lang_id=OFFICIAL_LANGUAGE_PK
+        ).node
     except IndexError:
         raise PointValidationError(
-            'The {} sheet corresponding to this {} does not have a published version.'.format(
+            "The {} sheet corresponding to this {} does not have a published version.".format(
                 q_type[other_code], q_type[code]
             )
         )
@@ -67,7 +78,9 @@ def check_exam(exam):
     Check the sum and question / answer consistency of all questions in the
     given exam.
     """
-    all_questions = Question.objects.filter(exam=exam, code__in=['Q', 'A']).order_by('position')
+    all_questions = Question.objects.filter(exam=exam, code__in=["Q", "A"]).order_by(
+        "position"
+    )
     for q1, q2 in zip(all_questions[::2], all_questions[1::2]):
         version_1 = qquery.latest_version(q1.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
         version_2 = qquery.latest_version(q2.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
@@ -84,17 +97,24 @@ def check_question_answer_consistency(version_node_1, version_node_2):
 
     assert version_node_1.question.exam == version_node_2.question.exam
     assert version_node_1.question.position == version_node_1.question.position
-    assert set([version_node_1.question.code, version_node_2.question.code]) == {'Q', 'A'}
+    assert {version_node_1.question.code, version_node_2.question.code} == {"Q", "A"}
     qml_1 = make_qml(version_node_1)
     qml_2 = make_qml(version_node_2)
 
-    flat_nodes_1 = [node for node in _get_flat_node_list(qml_1) if 'points' in node.attributes]
-    flat_nodes_2 = [node for node in _get_flat_node_list(qml_2) if 'points' in node.attributes]
+    flat_nodes_1 = [
+        node for node in _get_flat_node_list(qml_1) if "points" in node.attributes
+    ]
+    flat_nodes_2 = [
+        node for node in _get_flat_node_list(qml_2) if "points" in node.attributes
+    ]
     if len(flat_nodes_1) != len(flat_nodes_2):
         raise PointValidationError(
             "'{}' and '{}' in '{}' do not have the same number of objects with a 'points' attribute ({}, {})".format(
-                version_node_1.question.name, version_node_2.question.name, version_node_1.question.exam.name,
-                len(flat_nodes_1), len(flat_nodes_2)
+                version_node_1.question.name,
+                version_node_2.question.name,
+                version_node_1.question.exam.name,
+                len(flat_nodes_1),
+                len(flat_nodes_2),
             )
         )
     for node1, node2 in zip(flat_nodes_1, flat_nodes_2):
@@ -103,7 +123,12 @@ def check_question_answer_consistency(version_node_1, version_node_2):
         if p1 != p2:
             raise PointValidationError(
                 "The number of points of {} '{}' ({}) and {} '{}' ({}) do not match".format(
-                    _get_type_name(node1), node1.attributes['id'], p1, _get_type_name(node2), node2.attributes['id'], p2
+                    _get_type_name(node1),
+                    node1.attributes["id"],
+                    p1,
+                    _get_type_name(node2),
+                    node2.attributes["id"],
+                    p2,
                 )
             )
 
@@ -138,7 +163,9 @@ def _wrap_nodes(flat_nodes_reversed, nesting_level=0):
         if candidate_nesting_level is None:
             continue
         elif candidate_nesting_level == nesting_level:
-            res[candidate] = _wrap_nodes(flat_nodes_reversed, nesting_level=candidate_nesting_level + 1)
+            res[candidate] = _wrap_nodes(
+                flat_nodes_reversed, nesting_level=candidate_nesting_level + 1
+            )
         elif candidate_nesting_level < nesting_level:
             flat_nodes_reversed.append(candidate)
             return res
@@ -174,11 +201,17 @@ def _check_nested_sum_consistency(root_dict):
 def _check_sum_consistency_recursive(root_node, children_dict):
     root_points = _get_points(root_node)
     if children_dict:
-        sum_points = sum(_check_sum_consistency_recursive(key, value) for key, value in children_dict.items())
+        sum_points = sum(
+            _check_sum_consistency_recursive(key, value)
+            for key, value in children_dict.items()
+        )
         if sum_points != root_points:
             raise PointValidationError(
                 "The number of points for {} '{}' ({}) does not match the sum of its sub-parts ({})".format(
-                    _get_type_name(root_node), root_node.attributes['id'], root_points, sum_points
+                    _get_type_name(root_node),
+                    root_node.attributes["id"],
+                    root_points,
+                    sum_points,
                 )
             )
     return root_points
@@ -186,10 +219,12 @@ def _check_sum_consistency_recursive(root_node, children_dict):
 
 def _get_points(node):
     try:
-        return Decimal(node.attributes['points'])
+        return Decimal(node.attributes["points"])
     except KeyError:
         raise PointValidationError(
-            "{} {} is missing the 'points' attribute.".format(_get_type_name(node), node.attributes['id'])
+            "{} {} is missing the 'points' attribute.".format(
+                _get_type_name(node), node.attributes["id"]
+            )
         )
 
 

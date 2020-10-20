@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals, absolute_import
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
@@ -31,7 +30,7 @@ import hashlib
 import datetime
 import pytz
 
-MEDIA_ROOT = getattr(settings, 'MEDIA_ROOT')
+MEDIA_ROOT = getattr(settings, "MEDIA_ROOT")
 
 
 def hash(fname):
@@ -43,49 +42,50 @@ def hash(fname):
 
 
 @login_required
-@permission_required('ipho_core.can_see_boardmeeting')
+@permission_required("ipho_core.can_see_boardmeeting")
 def main(request, type, url):
     url = os.path.normpath(url)
 
-    basedir = os.path.join(MEDIA_ROOT, 'downloads')
+    basedir = os.path.join(MEDIA_ROOT, "downloads")
     path = os.path.join(basedir, url)
     rel_url = os.path.relpath(path, basedir)
-    if rel_url[0] == '.' and '/' in rel_url:
-        raise Http404('File path not valid.')
+    if rel_url[0] == "." and "/" in rel_url:
+        raise Http404("File path not valid.")
     if not os.path.exists(path):
-        raise Http404('File not found.')
+        raise Http404("File not found.")
 
-    if type == 'f':
+    if type == "f":
         if os.path.isdir(path):
             # if a directory is requested for download, raise a 404.
             # in the future, we might want to zip of the directory and serve it for download
-            raise Http404('File path not valid.')
+            raise Http404("File path not valid.")
 
         etag = hash(path)
 
-        if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
+        if request.META.get("HTTP_IF_NONE_MATCH", "") == etag:
             return HttpResponseNotModified()
 
         filename = os.path.basename(path)
         content_type, encoding = mimetypes.guess_type(path)
-        res = HttpResponse(open(path, 'rb'), content_type=content_type)
-        res['content-disposition'] = 'inline; filename="{}"'.format(filename)
-        res['ETag'] = etag
+        res = HttpResponse(open(path, "rb"), content_type=content_type)
+        res["content-disposition"] = f'inline; filename="{filename}"'
+        res["ETag"] = etag
         patch_response_headers(res, cache_timeout=300)
         return res
 
     flist = []
     for f in os.listdir(path):
-        if f[0] == '.': continue
+        if f[0] == ".":
+            continue
         fullpath = os.path.join(path, f)
         fpath = os.path.relpath(fullpath, basedir)
-        tt = 'f'
-        t = 'file'
+        tt = "f"
+        t = "file"
         fsize = None
         mtime = None
         if os.path.isdir(fullpath):
-            t = 'folder'
-            tt = 'd'
+            t = "folder"
+            tt = "d"
         else:
             fsize = os.path.getsize(fullpath)
             mtime_ts = os.path.getmtime(fullpath)
@@ -94,14 +94,19 @@ def main(request, type, url):
 
     flist = sorted(flist, key=operator.itemgetter(2))
 
-    cur_url = ''
-    cur_path = [('/', '')]
-    cur_split = url.split('/')
+    cur_url = ""
+    cur_path = [("/", "")]
+    cur_split = url.split("/")
     for p in cur_split:
-        if p == '.': continue
-        cur_url += p + '/'
+        if p == ".":
+            continue
+        cur_url += p + "/"
         cur_path.append((p, cur_url))
-    return render(request, 'ipho_download/main.html', {
-        'flist': flist,
-        'cur_path': cur_path,
-    })
+    return render(
+        request,
+        "ipho_download/main.html",
+        {
+            "flist": flist,
+            "cur_path": cur_path,
+        },
+    )

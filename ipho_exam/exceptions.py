@@ -25,9 +25,9 @@ class IphoExamException(Exception):
         self.response = response
 
     def __str__(self):
-        return u'IPhO Exam Exception. Reponse: {}'.format(self.response)
+        return f"IPhO Exam Exception. Reponse: {self.response}"
 
 
 class IphoExamForbidden(HttpResponseForbidden):
     def __init__(self, msg):
-        super(IphoExamForbidden, self).__init__(msg)
+        super().__init__(msg)

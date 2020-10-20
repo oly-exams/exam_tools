@@ -15,28 +15,36 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
 
 import os, shutil
 import logging
 from tempfile import mkdtemp
 
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
+from django.http import (
+    HttpResponseRedirect,
+    HttpResponse,
+    HttpResponseNotModified,
+    JsonResponse,
+    Http404,
+    HttpResponseForbidden,
+)
+
 try:
     from django.template.loader import find_template
 except:
     from django.template import engines
-    find_template = engines['django'].engine.find_template
+
+    find_template = engines["django"].engine.find_template
 from django.conf import settings
 
 from appy.pod.renderer import Renderer as ODTRenderer
 
 from . import tex
 
-TEMPLATE_PATH = getattr(settings, 'TEMPLATE_PATH')
-TEMP_PREFIX = getattr(settings, 'ODT_TEMP_PREFIX', 'render_odt-')
+TEMPLATE_PATH = getattr(settings, "TEMPLATE_PATH")
+TEMP_PREFIX = getattr(settings, "ODT_TEMP_PREFIX", "render_odt-")
 
-logger = logging.getLogger('ipho_exam')
+logger = logging.getLogger("ipho_exam")
 
 
 def render_odt_response(tpl_name, context, filename, ext_resources):
@@ -52,13 +60,15 @@ def render_odt_response(tpl_name, context, filename, ext_resources):
         for res in ext_resources:
             res.save(tmp)
             if isinstance(res, tex.FigureExport):
-                contextdict['document'] = contextdict['document'].replace(res.figname, "%s/%s" % (tmp, res.figname))
+                contextdict["document"] = contextdict["document"].replace(
+                    res.figname, f"{tmp}/{res.figname}"
+                )
 
-        output = "%s/%s.odt" % (tmp, 'doc')
-        logger.debug("Render template '%s' to '%s'" % (tpl_name, output))
+        output = "{}/{}.odt".format(tmp, "doc")
+        logger.debug(f"Render template '{tpl_name}' to '{output}'")
         renderer = ODTRenderer(origin, contextdict, output, overwriteExisting=True)
         renderer.run()
-        result = open(output, 'rb').read()
+        result = open(output, "rb").read()
     # except (OSError, PodError), e:
     #     logger.error("Cannot render '%s' : %s" % (tpl_name, e))
     #     raise e
@@ -66,6 +76,8 @@ def render_odt_response(tpl_name, context, filename, ext_resources):
         if output and os.path.exists(tmp):
             shutil.rmtree(tmp)
 
-    res = HttpResponse(result, content_type="application/vnd.oasis.opendocument.text", charset="utf-8")
-    res['content-disposition'] = 'attachment; filename="{}"'.format(filename)
+    res = HttpResponse(
+        result, content_type="application/vnd.oasis.opendocument.text", charset="utf-8"
+    )
+    res["content-disposition"] = f'attachment; filename="{filename}"'
     return res

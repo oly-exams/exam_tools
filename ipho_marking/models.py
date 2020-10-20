@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from builtins import object
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
@@ -29,11 +28,13 @@ from ipho_exam.exceptions import IphoExamForbidden
 from collections import OrderedDict
 
 
-
 class MarkingActionManager(models.Manager):
     def get_by_natural_key(self, question_name, exam_name, delegation_name):
         question = Question.objects.get_by_natural_key(question_name, exam_name)
-        return self.get(question=question, delegation=Delegation.objects.get_by_natural_key(delegation_name))
+        return self.get(
+            question=question,
+            delegation=Delegation.objects.get_by_natural_key(delegation_name),
+        )
 
 
 class MarkingAction(models.Model):
@@ -44,24 +45,26 @@ class MarkingAction(models.Model):
     LOCKED = 2
     FINAL = 3
     STATUS_CHOICES = (
-        (OPEN, 'In progress'),
-        (SUBMITTED, 'Submitted'),
-        (LOCKED, 'Locked'),
-        (FINAL, 'Final'),
+        (OPEN, "In progress"),
+        (SUBMITTED, "Submitted"),
+        (LOCKED, "Locked"),
+        (FINAL, "Final"),
     )
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    delegation = models.ForeignKey(Delegation, related_name='marking_status', on_delete=models.CASCADE)
+    delegation = models.ForeignKey(
+        Delegation, related_name="marking_status", on_delete=models.CASCADE
+    )
     status = models.IntegerField(choices=STATUS_CHOICES, default=0)
     timestamp = models.DateTimeField(auto_now=True)
 
-    class Meta(object):
-        unique_together = (('question', 'delegation'),)
+    class Meta:
+        unique_together = (("question", "delegation"),)
         index_together = unique_together
 
     def natural_key(self):
         return self.question.natural_key() + self.delegation.natural_key()
 
-    natural_key.dependencies = ['ipho_exam.question', 'ipho_core.delegation']
+    natural_key.dependencies = ["ipho_exam.question", "ipho_core.delegation"]
 
     def in_progress(self):
         return self.status == MarkingAction.OPEN
@@ -74,23 +77,34 @@ class MarkingAction(models.Model):
         return marks_open
 
 
-@receiver(post_save, sender=Question, dispatch_uid='create_marking_actions_on_question_creation')
+@receiver(
+    post_save,
+    sender=Question,
+    dispatch_uid="create_marking_actions_on_question_creation",
+)
 def create_actions_on_exam_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw or instance.type != Question.ANSWER:
         return
     for delegation in Delegation.objects.all():
-        marking_action, _ = MarkingAction.objects.get_or_create(question=instance, delegation=delegation)
+        marking_action, _ = MarkingAction.objects.get_or_create(
+            question=instance, delegation=delegation
+        )
 
 
-@receiver(post_save, sender=Delegation, dispatch_uid='create_marking_actions_on_delegation_creation')
+@receiver(
+    post_save,
+    sender=Delegation,
+    dispatch_uid="create_marking_actions_on_delegation_creation",
+)
 def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
     for question in Question.objects.filter(type=Question.ANSWER).all():
-        marking_action, _ = MarkingAction.objects.get_or_create(question=question, delegation=instance)
-
+        marking_action, _ = MarkingAction.objects.get_or_create(
+            question=question, delegation=instance
+        )
 
 
 @python_2_unicode_compatible
@@ -98,14 +112,16 @@ class MarkingMeta(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     name = models.CharField(max_length=10)
     max_points = models.DecimalField(max_digits=8, decimal_places=2)
-    position = models.PositiveSmallIntegerField(default=10, help_text='Sorting index inside one question')
+    position = models.PositiveSmallIntegerField(
+        default=10, help_text="Sorting index inside one question"
+    )
 
     def __str__(self):
-        return u'{} [{}] {} points'.format(self.name, self.question.name, self.max_points)
+        return f"{self.name} [{self.question.name}] {self.max_points} points"
 
-    class Meta(object):
-        ordering = ['position']
-        unique_together = index_together = (('question', 'name'), )
+    class Meta:
+        ordering = ["position"]
+        unique_together = index_together = (("question", "name"),)
 
 
 @python_2_unicode_compatible
@@ -113,29 +129,37 @@ class Marking(models.Model):
     marking_meta = models.ForeignKey(MarkingMeta, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     points = models.DecimalField(
-        null=True, blank=True, max_digits=8, decimal_places=2, validators=[MinValueValidator(0.)]
+        null=True,
+        blank=True,
+        max_digits=8,
+        decimal_places=2,
+        validators=[MinValueValidator(0.0)],
     )
     comment = models.TextField(null=True, blank=True)
-    MARKING_VERSIONS = OrderedDict([
-        ('O', 'Organizers'),
-        ('D', 'Delegation'),
-        ('F', 'Final'),
-    ])
+    MARKING_VERSIONS = OrderedDict(
+        [
+            ("O", "Organizers"),
+            ("D", "Delegation"),
+            ("F", "Final"),
+        ]
+    )
     version = models.CharField(max_length=1, choices=list(MARKING_VERSIONS.items()))
 
     def clean(self):
         try:
             if self.points > self.marking_meta.max_points:
-                raise ValidationError('The number of points cannot exceed the maximum.')
+                raise ValidationError("The number of points cannot exceed the maximum.")
         except TypeError:
-            raise ValidationError('The number of points must be a number.')
+            raise ValidationError("The number of points must be a number.")
 
     def exam_question(self):
         return self.marking_meta.question
 
     def __str__(self):
-        return u'{} [{} / {}]'.format(self.marking_meta.name, self.points, self.marking_meta.max_points)
+        return (
+            f"{self.marking_meta.name} [{self.points} / {self.marking_meta.max_points}]"
+        )
 
-    class Meta(object):
+    class Meta:
         # should probably have an ordering?
-        unique_together = (('marking_meta', 'student', 'version'), )
+        unique_together = (("marking_meta", "student", "version"),)

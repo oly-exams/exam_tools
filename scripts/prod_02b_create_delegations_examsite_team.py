@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from builtins import str
-from builtins import range
 import os, sys
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 
 import django
+
 django.setup()
 
 from django.core import serializers
@@ -31,32 +31,33 @@ from ipho_poll.models import VotingRight
 
 
 def log(*args):
-    sys.stderr.write(' '.join([str(a) for a in args]) + '\n')
+    sys.stderr.write(" ".join([str(a) for a in args]) + "\n")
 
 
 def create_objs(input):
     reader = csv.DictReader(input)
 
     created_objs = []
-    delegations_examsite_group = Group.objects.get(name='Delegation Examsite Team')
+    delegations_examsite_group = Group.objects.get(name="Delegation Examsite Team")
     for i, row in enumerate(reader):
         ## Delegation
-        delegation = Delegation.objects.get(name=row['Country Code'])
+        delegation = Delegation.objects.get(name=row["Country Code"])
 
         ## User
-        username = '{}-Examsite'.format(row['Country Code'])
+        username = "{}-Examsite".format(row["Country Code"])
         user, created = User.objects.get_or_create(username=username)
-        user.set_password(row['Password'])
+        user.set_password(row["Password"])
         user.groups.add(delegations_examsite_group)
         user.save()
-        if created: log(user, '..', 'created')
+        if created:
+            log(user, "..", "created")
         created_objs.append(user)
 
         delegation.members.add(user)
         delegation.save()
         created_objs.append(delegation)
 
-        log(username, '...', 'imported.')
+        log(username, "...", "imported.")
     return created_objs
 
 
@@ -65,7 +66,7 @@ def main(input, dumpdata=False):
 
     if dumpdata:
         serializers.serialize(
-            'json',
+            "json",
             created_objs,
             indent=2,
             use_natural_foreign_keys=True,
@@ -74,11 +75,12 @@ def main(input, dumpdata=False):
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description='Import CSV Delegation data')
-    parser.add_argument('--dumpdata', action='store_true', help='Dump Json data')
-    parser.add_argument('file', type=argparse.FileType('rU'), help='Input CSV file')
+
+    parser = argparse.ArgumentParser(description="Import CSV Delegation data")
+    parser.add_argument("--dumpdata", action="store_true", help="Dump Json data")
+    parser.add_argument("file", type=argparse.FileType("rU"), help="Input CSV file")
     args = parser.parse_args()
 
     main(args.file, args.dumpdata)

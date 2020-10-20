@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from builtins import object
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
 
@@ -26,11 +25,22 @@ from copy import deepcopy
 from collections import OrderedDict
 
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction
+from ipho_exam.models import (
+    Exam,
+    Question,
+    VersionNode,
+    TranslationNode,
+    PDFNode,
+    Language,
+    Figure,
+    Feedback,
+    StudentSubmission,
+    ExamAction,
+)
 from ipho_exam import qml
 
 
-class Qwrapper(object):
+class Qwrapper:
     pass
 
 
@@ -45,11 +55,19 @@ def latest_version(question_id, lang_id):
         return q
 
     if q.lang.versioned:
-        q.node = VersionNode.objects.filter(question=q.question, language=q.lang, status='C').order_by('-version')[0]
+        q.node = VersionNode.objects.filter(
+            question=q.question, language=q.lang, status="C"
+        ).order_by("-version")[0]
     else:
-        q.node = get_object_or_404(TranslationNode, question=q.question, language=q.lang)
+        q.node = get_object_or_404(
+            TranslationNode, question=q.question, language=q.lang
+        )
 
-    q.qml = qml.make_qml(q.node) if '<question' in q.node.text else qml.QMLquestion('<question id="q0" />')
+    q.qml = (
+        qml.make_qml(q.node)
+        if "<question" in q.node.text
+        else qml.QMLquestion('<question id="q0" />')
+    )
 
     return q
 
@@ -59,8 +77,14 @@ def get_version(question_id, lang_id, version_num):
 
     q.question = get_object_or_404(Question, id=question_id)
     q.lang = get_object_or_404(Language, id=lang_id)
-    q.node = get_object_or_404(VersionNode, question=q.question, language=q.lang, version=version_num)
+    q.node = get_object_or_404(
+        VersionNode, question=q.question, language=q.lang, version=version_num
+    )
 
-    q.qml = qml.make_qml(q.node) if '<question' in q.node.text else qml.QMLquestion('<question id="q0" />')
+    q.qml = (
+        qml.make_qml(q.node)
+        if "<question" in q.node.text
+        else qml.QMLquestion('<question id="q0" />')
+    )
 
     return q

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import models, migrations
 
 
@@ -17,8 +14,8 @@ def copy_delegation(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipho_core', '0004_auto_20150222_2105'),
-        ('ipho_exam', '0006_language_delegation2'),
+        ("ipho_core", "0004_auto_20150222_2105"),
+        ("ipho_exam", "0006_language_delegation2"),
     ]
 
     operations = [

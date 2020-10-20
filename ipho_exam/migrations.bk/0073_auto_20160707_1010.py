@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import migrations, models
 
 
@@ -11,7 +8,7 @@ def forwards_func(apps, schema_editor):
     Place = apps.get_model("ipho_exam", "Place")
     for exam in Exam.objects.using(db_alias).all():
         for student in Student.objects.using(db_alias).all():
-            Place(exam=exam, student=student, name='CHANGEME').save()
+            Place(exam=exam, student=student, name="CHANGEME").save()
 
 
 def backwards_func(*args, **kwargs):
@@ -21,7 +18,7 @@ def backwards_func(*args, **kwargs):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipho_exam', '0072_auto_20160706_2249'),
+        ("ipho_exam", "0072_auto_20160706_2249"),
     ]
 
     operations = [
