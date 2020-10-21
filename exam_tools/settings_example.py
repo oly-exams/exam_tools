@@ -30,10 +30,6 @@ print("Static:", STATIC_PATH, file=sys.stderr)
 
 DEBUG = True
 #TEMPLATE_DEBUG = DEBUG
-
-TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
-TEST_OUTPUT_DIR = 'unittest_reports'
-
 NO_ANSWER_SHEETS = False
 ONLY_OFFICIAL_ANSWER_SHEETS = False
 VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
