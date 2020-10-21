@@ -1,5 +1,3 @@
-# pylint: skip-file
-
 from django.db import models, migrations
 
 
