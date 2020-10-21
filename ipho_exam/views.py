@@ -23,6 +23,7 @@ import re
 import csv
 import json
 import math
+import types
 import random
 import urllib
 import logging
@@ -366,9 +367,9 @@ def list_all_translations(request):
         node_list = paginator.page(paginator.num_pages)
 
     class UrlBuilder:
-        def __init__(self, base_url, get=None):
+        def __init__(self, base_url, get=types.MappingProxyType({})):
             self.url = base_url
-            self.get = get or {}
+            self.get = get
 
         def __call__(self, **kwargs):
             qdict = QueryDict("", mutable=True)
@@ -419,16 +420,16 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
     translation_form = TranslationForm(request.POST or None)
 
     if en_answer:
-        answerq = Q(translationnode__question__type=Question.ANSWER)
+        answer_query = Q(translationnode__question__type=Question.ANSWER)
     else:
-        answerq = Q(pk=None)
+        answer_query = Q(pk=None)
 
     translation_form.fields["language"].queryset = (
         Language.objects.filter(delegation=delegation)
         .annotate(
             num_translation=Sum(
                 Case(
-                    When(answerq, then=None),
+                    When(answer_query, then=None),
                     When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
                     When(is_pdf=True, then=None),
                     output_field=IntegerField(),
@@ -1121,9 +1122,9 @@ def feedbacks_list(
         ]
 
     class UrlBuilder:
-        def __init__(self, base_url, get=None):
+        def __init__(self, base_url, get=types.MappingProxyType({})):
             self.url = base_url
-            self.get = get or {}
+            self.get = get
 
         def __call__(self, **kwargs):
             qdict = QueryDict("", mutable=True)
@@ -2778,15 +2779,15 @@ def submission_exam_assign(
         )
 
     if en_answer:
-        answerq = Q(translationnode__question__type=Question.ANSWER)
+        answer_query = Q(translationnode__question__type=Question.ANSWER)
     else:
-        answerq = Q(pk=None)
+        answer_query = Q(pk=None)
     empty_languages = (
         Language.objects.filter(delegation=delegation)
         .annotate(
             num_translation=Sum(
                 Case(
-                    When(answerq, then=None),
+                    When(answer_query, then=None),
                     When(Q(translationnode__question__exam=exam, is_pdf=False), then=1),
                     When(is_pdf=True, then=None),
                     output_field=IntegerField(),
@@ -4076,9 +4077,9 @@ def bulk_print(
     entries = paginator.count
 
     class UrlBuilder:
-        def __init__(self, base_url, get=None):
+        def __init__(self, base_url, get=types.MappingProxyType({})):
             self.url = base_url
-            self.get = get or {}
+            self.get = get
 
         def __call__(self, **kwargs):
             qdict = QueryDict("", mutable=True)

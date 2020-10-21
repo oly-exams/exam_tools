@@ -18,6 +18,7 @@
 
 import os
 import json
+import types
 from copy import deepcopy
 
 import urllib.request
@@ -72,7 +73,9 @@ def delegation_opts():
     return opts
 
 
-def send2queue(file, queue, user=None, user_opts=None, title=None):
+def send2queue(
+    file, queue, user=None, user_opts=types.MappingProxyType({}), title=None
+):
     url = "http://{host}/print/{queue}".format(**PRINTER_QUEUES[queue])
     files = {
         "file": (
@@ -88,7 +91,7 @@ def send2queue(file, queue, user=None, user_opts=None, title=None):
     if user is not None:
         data["user"] = user.username
     opts = deepcopy(default_opts())
-    opts.update(user_opts or {})
+    opts.update(user_opts)
     al_opts = allowed_opts(queue)
     if getattr(settings, "ADD_DELEGATION_PRINT_BANNER", False) and (
         user.has_perm("ipho_core.is_delegation")
