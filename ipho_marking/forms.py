@@ -17,15 +17,12 @@
 
 from django import forms
 from django.forms import ModelForm, Form
-from django.forms.formsets import formset_factory
-from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, MultiField, Div
-from crispy_forms.bootstrap import Accordion, AccordionGroup
+from crispy_forms.layout import Submit
 
 from ipho_exam.models import Exam
-from .models import MarkingMeta, Marking
+from .models import Marking
 
 
 class ImportForm(Form):

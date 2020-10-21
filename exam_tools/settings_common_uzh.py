@@ -31,7 +31,7 @@ TEMPLATE_PATH = os.path.join(PROJECT_PATH, "templates")
 STATIC_PATH = os.path.join(PROJECT_PATH, "static")
 
 # Printing paths for sanity's sake
-if False:
+if False:  # pylint: disable=using-constant-test
     print("Settings directory:", SETTINGS_DIR, file=sys.stderr)
     print("Project root:", PROJECT_PATH, file=sys.stderr)
     print("Templates:", TEMPLATE_PATH, file=sys.stderr)

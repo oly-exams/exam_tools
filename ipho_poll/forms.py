@@ -16,12 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import forms
-from django.forms import ModelForm, Form, HiddenInput, DateInput, RadioSelect
+from django.forms import ModelForm, HiddenInput, RadioSelect
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, MultiField, Div, HTML
-from django.utils.safestring import mark_safe
+from crispy_forms.layout import Layout, Field, Div, HTML
 
-from django.core.exceptions import ValidationError
 
 from ipho_poll.models import Question, Choice, Vote
 

@@ -55,7 +55,7 @@ def check_version(version):
             exam=question.exam, code=other_code, position=question.position
         )
     except Question.DoesNotExist:
-        raise PointValidationError(
+        raise PointValidationError(  # pylint: disable=raise-missing-from
             "The {} sheet corresponding to this {} does not exist.".format(
                 q_type[other_code], q_type[code]
             )
@@ -65,7 +65,7 @@ def check_version(version):
             other_question.pk, lang_id=OFFICIAL_LANGUAGE_PK
         ).node
     except IndexError:
-        raise PointValidationError(
+        raise PointValidationError(  # pylint: disable=raise-missing-from
             "The {} sheet corresponding to this {} does not have a published version.".format(
                 q_type[other_code], q_type[code]
             )
@@ -81,15 +81,17 @@ def check_exam(exam):
     all_questions = Question.objects.filter(exam=exam, code__in=["Q", "A"]).order_by(
         "position"
     )
-    for q1, q2 in zip(all_questions[::2], all_questions[1::2]):
-        version_1 = qquery.latest_version(q1.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
-        version_2 = qquery.latest_version(q2.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
+    for que1, que2 in zip(all_questions[::2], all_questions[1::2]):
+        version_1 = qquery.latest_version(que1.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
+        version_2 = qquery.latest_version(que2.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
         check_sum_consistency(version_1)
         check_sum_consistency(version_2)
         check_question_answer_consistency(version_1, version_2)
 
 
-def check_question_answer_consistency(version_node_1, version_node_2):
+def check_question_answer_consistency(
+    version_node_1, version_node_2
+):  # pylint: disable=invalid-name
     """
     Check that the points in the two question given (question / answer sheet)
     are the same.
@@ -118,17 +120,17 @@ def check_question_answer_consistency(version_node_1, version_node_2):
             )
         )
     for node1, node2 in zip(flat_nodes_1, flat_nodes_2):
-        p1 = _get_points(node1)
-        p2 = _get_points(node2)
-        if p1 != p2:
+        pts1 = _get_points(node1)
+        pts2 = _get_points(node2)
+        if pts1 != pts2:
             raise PointValidationError(
                 "The number of points of {} '{}' ({}) and {} '{}' ({}) do not match".format(
                     _get_type_name(node1),
                     node1.attributes["id"],
-                    p1,
+                    pts1,
                     _get_type_name(node2),
                     node2.attributes["id"],
-                    p2,
+                    pts2,
                 )
             )
 
@@ -162,7 +164,7 @@ def _wrap_nodes(flat_nodes_reversed, nesting_level=0):
         candidate_nesting_level = _get_nesting_level(candidate)
         if candidate_nesting_level is None:
             continue
-        elif candidate_nesting_level == nesting_level:
+        if candidate_nesting_level == nesting_level:
             res[candidate] = _wrap_nodes(
                 flat_nodes_reversed, nesting_level=candidate_nesting_level + 1
             )
@@ -221,7 +223,7 @@ def _get_points(node):
     try:
         return Decimal(node.attributes["points"])
     except KeyError:
-        raise PointValidationError(
+        raise PointValidationError(  # pylint: disable=raise-missing-from
             "{} {} is missing the 'points' attribute.".format(
                 _get_type_name(node), node.attributes["id"]
             )

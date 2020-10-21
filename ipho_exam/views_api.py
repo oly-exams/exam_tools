@@ -15,16 +15,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from ipho_exam.models import Document
-from ipho_exam.serializers import DocumentSerializer
 
-from rest_framework import generics, views, viewsets, mixins, renderers, schemas
 from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework import views, viewsets, mixins, renderers, schemas
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
 from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 
+from ipho_exam.models import Document
+from ipho_exam.serializers import DocumentSerializer
 from ipho_exam.permissions import HasValidApiKeyOrAdmin
 
 

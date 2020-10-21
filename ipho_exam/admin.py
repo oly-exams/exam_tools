@@ -15,9 +15,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
+
 from django.contrib import admin
 from django import forms
-import json
+from django_ace import AceWidget
+
 from ipho_exam.models import (
     Delegation,
     Language,
@@ -39,7 +42,6 @@ from ipho_exam.models import (
     Place,
     AttributeChange,
 )
-from django_ace import AceWidget
 
 # Register your models here.
 
@@ -72,10 +74,12 @@ class AttributeChangeForm(forms.ModelForm):
     def clean(self):
         super().clean()
         try:
-            d = json.loads(self.cleaned_data["content"])
-            self.cleaned_data["content"] = json.dumps(d, indent=2)
+            data = json.loads(self.cleaned_data["content"])
+            self.cleaned_data["content"] = json.dumps(data, indent=2)
         except ValueError:
-            raise forms.ValidationError("Content is not valid JSON.")
+            raise forms.ValidationError(  # pylint: disable=raise-missing-from
+                "Content is not valid JSON."
+            )
         return self.cleaned_data
 
 
@@ -176,7 +180,7 @@ class StudentSubmissionAdmin(admin.ModelAdmin):
     )
     list_filter = ("exam", DelegationFilter, "language")
 
-    def delegation(self, obj):
+    def delegation(self, obj):  # pylint: disable=no-self-use
         return obj.language.delegation
 
 

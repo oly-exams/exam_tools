@@ -1,5 +1,7 @@
 import random
 
+# pylint: disable=too-many-lines
+
 ADJ_LIST = [
     "different",
     "used",

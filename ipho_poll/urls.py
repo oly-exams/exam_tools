@@ -22,20 +22,20 @@ from . import views
 app_name = "poll"
 urlpatterns = [
     # staff urls
-    url(r"^staff/$", views.staffIndex, name="staffIndex"),
+    url(r"^staff/$", views.staff_index, name="staff-index"),
     url(
         r"^staff/partials/(?P<qtype>\w+)$",
-        views.staffIndexPartial,
+        views.staff_index_partial,
         name="staff-index-partials",
     ),
     url(
         r"^staff/question/(?P<question_pk>\d+)/set/result/(?P<result>\d+)$",
-        views.staff_setResult,
+        views.staff_set_result,
         name="staff-set-result",
     ),
     url(
         r"^staff/question/(?P<question_pk>\d+)/set/impl/(?P<impl>\d+)$",
-        views.staff_setImpl,
+        views.staff_set_impl,
         name="staff-set-impl",
     ),
     url(r"^question/detail/(?P<question_pk>\d+)/$", views.question, name="question"),
@@ -44,30 +44,30 @@ urlpatterns = [
         views.question_large,
         name="question_large",
     ),
-    url(r"^question/add/$", views.addQuestion, name="addQuestion"),
+    url(r"^question/add/$", views.add_question, name="add-question"),
     url(
         r"^question/(?P<question_pk>\d+)/delete/$",
-        views.deleteQuestion,
-        name="deleteQuestion",
+        views.delete_question,
+        name="delete-question",
     ),
     url(
         r"^question/(?P<question_pk>\d+)/edit/$",
-        views.editQuestion,
-        name="editQuestion",
+        views.edit_question,
+        name="edit-question",
     ),
-    url(r"^question/(?P<question_pk>\d+)/$", views.setEndDate, name="setEndDate"),
+    url(r"^question/(?P<question_pk>\d+)/$", views.set_end_date, name="set-end-date"),
     url(
-        r"^question/(?P<question_pk>\d+)/removeEndDate$",
-        views.removeEndDate,
-        name="removeEndDate",
+        r"^question/(?P<question_pk>\d+)/remove-end-date$",
+        views.remove_end_date,
+        name="remove-end-date",
     ),
     url(
         r"^question/(?P<question_pk>\d+)/close$",
-        views.closeQuestion,
-        name="closeQuestion",
+        views.close_question,
+        name="close-question",
     ),
     # delegation urls
-    url(r"^$", views.voterIndex, name="voterIndex"),
-    url(r"^err/(?P<err_id>\d+)$", views.voterIndex, name="voterIndex_err"),
+    url(r"^$", views.voter_index, name="voter-index"),
+    url(r"^err/(?P<err_id>\d+)$", views.voter_index, name="voter-index_err"),
     url(r"^voted/$", views.voted, name="voted"),
 ]

@@ -15,23 +15,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django import forms
-from django.forms import ModelForm, Form
-from django.forms.formsets import formset_factory
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, ButtonHolder, Submit
-from crispy_forms.layout import Layout, Field, MultiField, Div
-from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
+import os
 import random
 
+from django import forms
 from django.core.exceptions import ValidationError
+
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+from crispy_forms.layout import Layout, Field
+from crispy_forms.bootstrap import FormActions
 
 from . import printer
 
 
 def build_extension_validator(valid_extensions):
     def validate_file_extension(value):
-        import os
 
         ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
         # valid_extensions = ['.svg', '.svgz']

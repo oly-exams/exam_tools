@@ -65,9 +65,7 @@ def main(request, type_, url):  # pylint: disable=too-many-locals
             return HttpResponseNotModified()
 
         filename = os.path.basename(path)
-        content_type, encoding = mimetypes.guess_type(
-            path
-        )  # pylint: disable=unused-variable
+        content_type, _ = mimetypes.guess_type(path)
         res = HttpResponse(open(path, "rb"), content_type=content_type)
         res["content-disposition"] = f'inline; filename="{filename}"'
         res["ETag"] = etag

@@ -17,43 +17,25 @@
 
 # coding=utf-8
 
-
-from django.shortcuts import get_object_or_404
-from django.http import HttpRequest
-
-from django.core.urlresolvers import reverse
-from django.template.context_processors import csrf
-from crispy_forms.utils import render_crispy_form
-from django.template.loader import render_to_string
-
-from django.conf import settings
-from ipho_core.models import Delegation, Student
-from ipho_exam.models import (
-    Exam,
-    Question,
-    VersionNode,
-    TranslationNode,
-    PDFNode,
-    Language,
-    Figure,
-    Feedback,
-    StudentSubmission,
-    ExamAction,
-)
-from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
-
-import ipho_exam
-from ipho_exam import tasks
-import celery
-from celery.result import AsyncResult
 import os
+import celery
+
+from django.http import HttpRequest
+from django.template.loader import render_to_string
+from django.conf import settings
+
+from ipho_exam import tasks
+from ipho_exam import tex, pdf, qquery, fonts, iphocode
+
 
 OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
 
-def compile_stud_exam_question(questions, student_languages, cover=None, commit=False):
+def compile_stud_exam_question(
+    questions, student_languages, cover=None, commit=False
+):  # pylint: disable=too-many-branches,too-many-locals
     all_tasks = []
 
     if cover is not None:
@@ -63,30 +45,30 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
             context=cover,
         )
         compile_task = tasks.compile_tex.s(body, [])
-        q = questions[0]
-        s = student_languages[0].student
+        question = questions[0]
+        stud = student_languages[0].student
         bgenerator = iphocode.QuestionBarcodeGen(
-            q.exam, q, s, qcode="C", suppress_code=True
+            question.exam, question, stud, qcode="C", suppress_code=True
         )
         barcode_task = tasks.add_barcode.s(bgenerator)
         all_tasks.append(celery.chain(compile_task, barcode_task))
 
     for question in questions:
-        for sl in student_languages:
-            if question.is_answer_sheet() and not sl.with_answer:
+        for studl in student_languages:
+            if question.is_answer_sheet() and not studl.with_answer:
                 continue
-            if question.is_question_sheet() and not sl.with_question:
+            if question.is_question_sheet() and not studl.with_question:
                 continue
 
-            print("Prepare", question, "in", sl.language)
+            print("Prepare", question, "in", studl.language)
             trans = qquery.latest_version(
-                question.pk, sl.language.pk
+                question.pk, studl.language.pk
             )  ## TODO: simplify latest_version, because question and language are already in memory
             if not trans.lang.is_pdf:
                 trans_content, ext_resources = trans.qml.make_tex()
-                for r in ext_resources:
-                    if isinstance(r, tex.FigureExport):
-                        r.lang = sl.language
+                for reso in ext_resources:
+                    if isinstance(reso, tex.FigureExport):
+                        reso.lang = studl.language
                 ext_resources.append(
                     tex.TemplateExport(
                         os.path.join(
@@ -95,11 +77,11 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                     )
                 )
                 context = {
-                    "polyglossia": sl.language.polyglossia,
-                    "polyglossia_options": sl.language.polyglossia_options,
-                    "font": fonts.ipho[sl.language.font],
-                    "extraheader": sl.language.extraheader,
-                    "lang_name": f"{sl.language.name} ({sl.language.delegation.country})",
+                    "polyglossia": studl.language.polyglossia,
+                    "polyglossia_options": studl.language.polyglossia_options,
+                    "font": fonts.ipho[studl.language.font],
+                    "extraheader": studl.language.extraheader,
+                    "lang_name": f"{studl.language.name} ({studl.language.delegation.country})",
                     "exam_name": f"{question.exam.name}",
                     "code": f"{question.code}{question.position}",
                     "title": f"{question.exam.name} - {question.name}",
@@ -116,13 +98,13 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                 compile_task = tasks.serve_pdfnode.s(trans.node.pdf.read())
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, sl.student
+                    question.exam, question, studl.student
                 )
                 barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
             else:
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, sl.student, suppress_code=True
+                    question.exam, question, studl.student, suppress_code=True
                 )
                 barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
@@ -156,7 +138,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                     ],
                 )
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, sl.student, qcode="W"
+                    question.exam, question, studl.student, qcode="W"
                 )
                 barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
@@ -164,7 +146,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         exam_id = question.exam.pk
         position = question.position
 
-    filename = f"{sl.student.code}_EXAM-{exam_id}-{position}.pdf"
+    filename = f"{studl.student.code}_EXAM-{exam_id}-{position}.pdf"  # pylint: disable=undefined-loop-variable
     chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename))
     if commit:
         final_task = celery.chain(

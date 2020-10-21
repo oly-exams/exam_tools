@@ -117,14 +117,14 @@ def diff(old, new):
     if sub_length == 0:
         # If no common substring is found, we return an insert and delete...
         return (old and [("-", old)] or []) + (new and [("+", new)] or [])
-    else:
-        # ...otherwise, the common substring is unchanged and we recursively
-        # diff the text before and after that substring
-        return (
-            diff(old[:sub_start_old], new[:sub_start_new])
-            + [("=", new[sub_start_new : sub_start_new + sub_length])]
-            + diff(old[sub_start_old + sub_length :], new[sub_start_new + sub_length :])
-        )
+
+    # ...otherwise, the common substring is unchanged and we recursively
+    # diff the text before and after that substring
+    return (
+        diff(old[:sub_start_old], new[:sub_start_new])
+        + [("=", new[sub_start_new : sub_start_new + sub_length])]
+        + diff(old[sub_start_old + sub_length :], new[sub_start_new + sub_length :])
+    )
 
 
 def string_diff(old, new):

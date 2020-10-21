@@ -15,19 +15,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+import os
+import json
+from copy import deepcopy
+
+import urllib.request
+import urllib.parse
+import urllib.error
+
 from future import standard_library
 
 standard_library.install_aliases()
-import os
+
 import requests
 from django.conf import settings
-import json
-from copy import deepcopy
-import urllib.request, urllib.parse, urllib.error
-
-from future.standard_library import install_aliases
-
-install_aliases()
 
 from ipho_exam.models import Delegation
 
@@ -70,7 +72,7 @@ def delegation_opts():
     return opts
 
 
-def send2queue(file, queue, user=None, user_opts={}, title=None):
+def send2queue(file, queue, user=None, user_opts=None, title=None):
     url = "http://{host}/print/{queue}".format(**PRINTER_QUEUES[queue])
     files = {
         "file": (
@@ -86,7 +88,7 @@ def send2queue(file, queue, user=None, user_opts={}, title=None):
     if user is not None:
         data["user"] = user.username
     opts = deepcopy(default_opts())
-    opts.update(user_opts)
+    opts.update(user_opts or {})
     al_opts = allowed_opts(queue)
     if getattr(settings, "ADD_DELEGATION_PRINT_BANNER", False) and (
         user.has_perm("ipho_core.is_delegation")
@@ -107,12 +109,12 @@ def send2queue(file, queue, user=None, user_opts={}, title=None):
     data["opts"] = json.dumps(opts)
     data["title"] = json.dumps(title)
     data["add_banner_page"] = json.dumps(add_banner_page)
-    r = requests.post(url, files=files, headers=headers, data=data)
-    if r.status_code == 200:
+    req = requests.post(url, files=files, headers=headers, data=data)
+    if req.status_code == 200:
         return SUCCESS
-    else:
-        try:
-            error_msg = r.json()["message"]
-        except:
-            error_msg = ""
-        raise PrinterError(error_msg)
+
+    try:
+        error_msg = req.json()["message"]
+    except Exception:  # pylint: disable=broad-except
+        error_msg = ""
+    raise PrinterError(error_msg)

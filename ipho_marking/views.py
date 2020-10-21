@@ -15,38 +15,28 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.shortcuts import get_object_or_404, render_to_response, render
+# pylint: disable=too-many-lines
+
+import csv
+import decimal
+import itertools
+from hashlib import md5
+from collections import OrderedDict
+
+from django.conf import settings
+from django.db.models import Sum, F, Q
+from django.core.urlresolvers import reverse
+from django.forms import modelformset_factory
+from django.shortcuts import get_object_or_404, render
 from django.http import (
     HttpResponseRedirect,
     HttpResponse,
-    HttpResponseNotModified,
     HttpResponseForbidden,
-    JsonResponse,
-    Http404,
 )
-from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import (
-    login_required,
-    permission_required,
-    user_passes_test,
-)
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-from django.template.context_processors import csrf
-from crispy_forms.utils import render_crispy_form
-from django.template.loader import render_to_string
-from django.db.models import Sum, F, Q
+from django.contrib.auth.decorators import permission_required
 
-from django.forms import modelformset_factory, inlineformset_factory
-
-import itertools
-import decimal
-import json
-from collections import OrderedDict
-from hashlib import md5
-
-from django.conf import settings
 from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, Document
+from ipho_exam.models import Exam, Question, Document
 from ipho_exam import qquery as qwquery
 from ipho_exam import qml
 
@@ -58,7 +48,7 @@ OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 
 
 @permission_required("ipho_core.is_staff")
-def import_exam(request):
+def import_exam(request):  # pylint: disable=too-many-locals
     ctx = {}
     ctx["alerts"] = []
     form = ImportForm(request.POST or None)
@@ -75,10 +65,10 @@ def import_exam(request):
                 MarkingAction.objects.get_or_create(
                     question=question, delegation=delegation
                 )
-            qw = qwquery.latest_version(
+            qwy = qwquery.latest_version(
                 question_id=question.pk, lang_id=OFFICIAL_LANGUAGE
             )
-            question_points = qml.question_points(qw.qml)
+            question_points = qml.question_points(qwy.qml)
             for i, (name, points) in enumerate(question_points):
                 mmeta, created = MarkingMeta.objects.update_or_create(
                     question=question,
@@ -89,10 +79,8 @@ def import_exam(request):
                 num_tot += 1
 
                 for student in Student.objects.all():
-                    for version_id, version_name in list(
-                        Marking.MARKING_VERSIONS.items()
-                    ):
-                        marking, created = Marking.objects.get_or_create(
+                    for version_id, _ in list(Marking.MARKING_VERSIONS.items()):
+                        _, created = Marking.objects.get_or_create(
                             marking_meta=mmeta, student=student, version=version_id
                         )
                         num_marking_created += created
@@ -203,7 +191,7 @@ def staff_stud_detail(request, version, stud_id, question_id):
         raise RuntimeError("These markings are locked, you cannot modify them!")
 
     metas = MarkingMeta.objects.filter(question=question)
-    FormSet = modelformset_factory(
+    FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
         fields=["points"],
@@ -243,7 +231,7 @@ def export_with_total(request):
 
 
 @permission_required("ipho_core.is_staff")
-def export(request, include_totals=False):
+def export(request, include_totals=False):  # pylint: disable=too-many-locals
     versions = request.GET.get("v", "O,D,F").split(",")
 
     csv_rows = []
@@ -251,8 +239,8 @@ def export(request, include_totals=False):
     mmeta = MarkingMeta.objects.all().order_by(
         "question__exam", "question__position", "position"
     )
-    for m in mmeta:
-        title_row.append(f"{m.question.name} - {m.name} ({m.max_points})")
+    for meta in mmeta:
+        title_row.append(f"{meta.question.name} - {meta.name} ({meta.max_points})")
     exams = Exam.objects.filter(hidden=False)
     questions = Question.objects.filter(exam__hidden=False, code="A").order_by(
         "exam", "position"
@@ -305,8 +293,6 @@ def export(request, include_totals=False):
             row = ["-" if v is None else v for v in row]
             csv_rows.append(row)
 
-    import csv
-
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = 'attachment; filename="markings.csv"'
 
@@ -321,7 +307,7 @@ def _get_total(filtered_markings):
 
 
 @permission_required("ipho_core.is_delegation")
-def delegation_export(request, exam_id):
+def delegation_export(request, exam_id):  # pylint: disable=too-many-locals
     delegation = Delegation.objects.get(members=request.user)
 
     all_versions = request.GET.get("v", "O,D,F").split(",")
@@ -336,8 +322,6 @@ def delegation_export(request, exam_id):
     else:
         allowed_versions = ["O", "D", "F"]
     versions = [v for v in all_versions if v in allowed_versions]
-
-    import csv
 
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = 'attachment; filename="markings.csv"'
@@ -358,14 +342,14 @@ def delegation_export(request, exam_id):
     mmeta = MarkingMeta.objects.all().order_by(
         "question__exam", "question__position", "position"
     )
-    for m in mmeta:
-        row = [f"{m.question.name} - {m.name} ({m.max_points})"]
+    for meta in mmeta:
+        row = [f"{meta.question.name} - {meta.name} ({meta.max_points})"]
         i = 0
         for student in students:
             for version in versions:
                 marking = Marking.objects.get(
                     student__delegation=delegation,
-                    marking_meta=m,
+                    marking_meta=meta,
                     student=student,
                     version=version,
                 ).points
@@ -383,7 +367,9 @@ def delegation_export(request, exam_id):
 
 
 @permission_required("ipho_core.is_delegation")
-def delegation_summary(request):
+def delegation_summary(
+    request,
+):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     delegation = Delegation.objects.get(members=request.user)
 
     exam_list = []
@@ -589,7 +575,9 @@ def delegation_summary(request):
 
 
 @permission_required("ipho_core.is_delegation")
-def delegation_stud_edit(request, stud_id, question_id):
+def delegation_stud_edit(
+    request, stud_id, question_id
+):  # pylint: disable=too-many-locals
     delegation = Delegation.objects.get(members=request.user)
     student = get_object_or_404(Student, id=stud_id)
     if student.delegation != delegation:
@@ -619,7 +607,7 @@ def delegation_stud_edit(request, stud_id, question_id):
         return render(request, "ipho_marking/delegation_detail.html", ctx)
 
     metas = MarkingMeta.objects.filter(question=question)
-    FormSet = modelformset_factory(
+    FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
         fields=["points"],
@@ -709,7 +697,7 @@ def delegation_edit_all(request, question_id):
         return render(request, "ipho_marking/delegation_detail.html", ctx)
 
     metas = MarkingMeta.objects.filter(question=question).order_by("position")
-    FormSet = modelformset_factory(
+    FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
         fields=["points"],
@@ -868,7 +856,9 @@ def delegation_view_all(request, question_id):
 
 
 @permission_required("ipho_core.is_delegation")
-def delegation_confirm(request, question_id, final_confirmation=False):
+def delegation_confirm(
+    request, question_id, final_confirmation=False
+):  # pylint: disable=too-many-locals, too-many-return-statements, too-many-branches, too-many-statements
     delegation = Delegation.objects.get(members=request.user)
     question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
     form_error = ""
@@ -952,7 +942,7 @@ def delegation_confirm(request, question_id, final_confirmation=False):
         return HttpResponseForbidden(msg)
 
     error_messages = []
-    if request.POST:
+    if request.POST:  # pylint: disable=too-many-nested-blocks
         if "agree-submit" in request.POST:
             if final_confirmation:
                 if not "checksum" in request.POST:
@@ -1095,7 +1085,9 @@ def moderation_index(request, question_id=None):
 
 
 @permission_required("ipho_core.is_marker")
-def moderation_detail(request, question_id, delegation_id):
+def moderation_detail(
+    request, question_id, delegation_id
+):  # pylint: disable=too-many-locals
     question = get_object_or_404(
         Question, id=question_id, exam__hidden=False, exam__moderation_active=True
     )
@@ -1125,7 +1117,7 @@ def moderation_detail(request, question_id, delegation_id):
             student=student, marking_meta__in=metas, version="D"
         ).order_by("marking_meta__position")
 
-        FormSet = modelformset_factory(
+        FormSet = modelformset_factory(  # pylint: disable=invalid-name
             Marking,
             form=PointsForm,
             fields=["points"],
@@ -1233,7 +1225,7 @@ def official_marking_detail(request, question_id, delegation_id):
     all_valid = True
     with_errors = False
     for i, student in enumerate(students):
-        FormSet = modelformset_factory(
+        FormSet = modelformset_factory(  # pylint: disable=invalid-name
             Marking,
             form=PointsForm,
             fields=["points"],
@@ -1370,9 +1362,7 @@ def marking_submissions(request):
 def export_countries_to_moderate(request):
     csv_rows = []
     title_row = ["Country", "Code"]
-    mmeta = MarkingMeta.objects.all().order_by(
-        "question__exam", "question__position", "position"
-    )
+
     questions = Question.objects.filter(exam__hidden=False, code="A").order_by(
         "exam", "position"
     )
@@ -1402,8 +1392,6 @@ def export_countries_to_moderate(request):
                     x.append("no")
 
         csv_rows.append(x)
-
-    import csv
 
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = 'attachment; filename="countries-to-moderate.csv"'

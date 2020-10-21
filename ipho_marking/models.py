@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections import OrderedDict
+
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
@@ -23,9 +25,7 @@ from django.db.models.signals import post_save
 from django.utils.encoding import python_2_unicode_compatible
 
 from ipho_core.models import Student, Delegation
-from ipho_exam.models import Exam, Question
-from ipho_exam.exceptions import IphoExamForbidden
-from collections import OrderedDict
+from ipho_exam.models import Question
 
 
 class MarkingActionManager(models.Manager):
@@ -82,12 +82,14 @@ class MarkingAction(models.Model):
     sender=Question,
     dispatch_uid="create_marking_actions_on_question_creation",
 )
-def create_actions_on_exam_creation(instance, created, raw, **kwargs):
+def create_actions_on_exam_creation(
+    instance, created, raw, **kwargs
+):  # pylint: disable=unused-argument, invalid-name
     # Ignore fixtures and saves for existing courses.
     if not created or raw or instance.type != Question.ANSWER:
         return
     for delegation in Delegation.objects.all():
-        marking_action, _ = MarkingAction.objects.get_or_create(
+        _, _ = MarkingAction.objects.get_or_create(
             question=instance, delegation=delegation
         )
 
@@ -96,13 +98,15 @@ def create_actions_on_exam_creation(instance, created, raw, **kwargs):
     post_save,
     sender=Delegation,
     dispatch_uid="create_marking_actions_on_delegation_creation",
-)
-def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
+)  # pylint: disable=invalid-name
+def create_actions_on_delegation_creation(
+    instance, created, raw, **kwargs
+):  # pylint: disable=unused-argument
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
     for question in Question.objects.filter(type=Question.ANSWER).all():
-        marking_action, _ = MarkingAction.objects.get_or_create(
+        _, _ = MarkingAction.objects.get_or_create(
             question=question, delegation=instance
         )
 
@@ -150,6 +154,7 @@ class Marking(models.Model):
             if self.points > self.marking_meta.max_points:
                 raise ValidationError("The number of points cannot exceed the maximum.")
         except TypeError:
+            # pylint: disable=raise-missing-from
             raise ValidationError("The number of points must be a number.")
 
     def exam_question(self):

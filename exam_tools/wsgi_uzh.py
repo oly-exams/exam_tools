@@ -29,7 +29,8 @@ middleware here, or combine a Django application with an application of another
 framework.
 
 """
-import os, sys
+import os
+import sys
 
 sys.path.insert(0, "/home/dolfim/exam_tools_deploy")
 

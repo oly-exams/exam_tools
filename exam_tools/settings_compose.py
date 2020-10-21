@@ -17,6 +17,9 @@
 
 
 # Django settings for exam_tools project.
+
+# pylint: disable=unused-wildcard-import
+
 from .settings_common import *
 
 

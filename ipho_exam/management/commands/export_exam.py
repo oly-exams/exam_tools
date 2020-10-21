@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.core import serializers
 
 from ipho_exam.models import Exam, Question, VersionNode
@@ -49,7 +49,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         name = options["name"]
-        format = options.get("format")
+        format_ = options.get("format")
         indent = options.get("indent")
         output = options.get("output")
 
@@ -62,7 +62,7 @@ class Command(BaseCommand):
         stream = open(output, "w") if output else None
         try:
             serializers.serialize(
-                format,
+                format_,
                 objs,
                 indent=indent,
                 use_natural_foreign_keys=True,

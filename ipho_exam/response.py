@@ -16,25 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import os, shutil
+import os
+import shutil
 import logging
 from tempfile import mkdtemp
 
-from django.http import (
-    HttpResponseRedirect,
-    HttpResponse,
-    HttpResponseNotModified,
-    JsonResponse,
-    Http404,
-    HttpResponseForbidden,
-)
-
-try:
-    from django.template.loader import find_template
-except:
-    from django.template import engines
-
-    find_template = engines["django"].engine.find_template
+from django.http import HttpResponse
 from django.conf import settings
 
 from appy.pod.renderer import Renderer as ODTRenderer
@@ -50,8 +37,8 @@ logger = logging.getLogger("ipho_exam")
 def render_odt_response(tpl_name, context, filename, ext_resources):
     origin = os.path.join(TEMPLATE_PATH, tpl_name)
     contextdict = {}
-    for d in context:
-        contextdict.update(**d)
+    for data in context:
+        contextdict.update(**data)
     result = None
     output = None
     try:
@@ -64,13 +51,15 @@ def render_odt_response(tpl_name, context, filename, ext_resources):
                     res.figname, f"{tmp}/{res.figname}"
                 )
 
-        output = "{}/{}.odt".format(tmp, "doc")
-        logger.debug(f"Render template '{tpl_name}' to '{output}'")
+        output = f"{tmp}/doc.odt"
+        logger.debug(
+            "Render template '%s' to '%s'", tpl_name, output
+        )  # this is recommended by pylint W1201
         renderer = ODTRenderer(origin, contextdict, output, overwriteExisting=True)
         renderer.run()
         result = open(output, "rb").read()
     # except (OSError, PodError), e:
-    #     logger.error("Cannot render '%s' : %s" % (tpl_name, e))
+    #     logger.error("Cannot render '{}' : {}" % (tpl_name, e))
     #     raise e
     finally:
         if output and os.path.exists(tmp):

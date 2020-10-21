@@ -21,7 +21,9 @@ import json
 from django.db import models
 from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
-from django.contrib.auth.models import Group
+
+# other modules expect Group to be here
+from django.contrib.auth.models import Group  # pylint: disable=unused-import
 
 # User should not be imported directly (pylint-django:E5142)
 from django.contrib.auth import get_user_model

@@ -15,43 +15,37 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from django.template.loader import get_template, render_to_string
-from django.template import TemplateDoesNotExist, Context
-from django.http import HttpResponse, Http404, HttpResponseNotModified
-from django.core.cache import cache
-from django.conf import settings
-from django.utils.text import unescape_entities
+import os
+import shutil
 
 from bs4 import NavigableString
 
-from tempfile import mkdtemp
-import subprocess
-import os
-import shutil
-from hashlib import md5
+from django.conf import settings
+from django.utils.text import unescape_entities
+from django.template.loader import render_to_string
 
-from ipho_exam.models import Figure
 from exam_tools.settings import TEMPLATE_PATH
+from ipho_exam.models import Figure
+
 
 TEMP_PREFIX = getattr(settings, "TEX_TEMP_PREFIX", "render_tex-")
 CACHE_PREFIX = getattr(settings, "TEX_CACHE_PREFIX", "render-tex")
 CACHE_TIMEOUT = getattr(settings, "TEX_CACHE_TIMEOUT", 60)  # 1 min
 
 
-def fix_tex_parens(s, add_warning_comment=False):
-    if type(s) is not str:
+def fix_tex_parens(s, add_warning_comment=False):  # pylint: disable=unused-argument
+    if not isinstance(s, str):
         return s
     count = 0
     out_s = ""
-    fix_required = False
-    for e in s:
-        if e == "{":
+    fix_required = False  # pylint: disable=unused-variable
+    for char in s:
+        if char == "{":
             count += 1
-        elif e == "}":
+        elif char == "}":
             count -= 1
         if count >= 0:
-            out_s += e
+            out_s += char
         else:
             fix_required = True
     if count > 0:
@@ -62,11 +56,11 @@ def fix_tex_parens(s, add_warning_comment=False):
     return out_s
 
 
-def html2tex(el):
+def html2tex(elem):  # pylint: disable=too-many-branches
     result = []
-    if el.text:
-        result.append(fix_tex_parens(el.text, add_warning_comment=True))
-    for sel in el:
+    if elem.text:
+        result.append(fix_tex_parens(elem.text, add_warning_comment=True))
+    for sel in elem:  # pylint: disable=too-many-nested-blocks
         ## Span styling
         if sel.tag in ["span"]:
             for att in list(sel.attrib.keys()):
@@ -111,15 +105,15 @@ def html2tex(el):
         else:
             result.append(html2tex(sel))
         if sel.tail:
-            result.append(fix_tex_parens(el.tail, add_warning_comment=True))
+            result.append(fix_tex_parens(elem.tail, add_warning_comment=True))
     return "".join(result)
 
 
-def html2tex_bs4(el):
+def html2tex_bs4(elem):  # pylint: disable=too-many-branches
     result = []
-    if isinstance(el, NavigableString):
-        return fix_tex_parens(str(el), add_warning_comment=True)
-    for sel in el.children:
+    if isinstance(elem, NavigableString):
+        return fix_tex_parens(str(elem), add_warning_comment=True)
+    for sel in elem.children:  # pylint: disable=too-many-nested-blocks
         if isinstance(sel, NavigableString):
             result.append(fix_tex_parens(str(sel), add_warning_comment=True))
         ## Span styling
@@ -204,6 +198,6 @@ class TemplateExport:
     def save(self, dirname):
         src = os.path.join(TEMPLATE_PATH, self.origin)
         dst = os.path.join(dirname, os.path.basename(src))
-        with open(dst, "w") as fp:
-            STATIC_PATH = getattr(settings, "STATIC_PATH")
-            fp.write(render_to_string(src, {"STATIC_PATH": STATIC_PATH}))
+        with open(dst, "w") as f:
+            static_path = getattr(settings, "STATIC_PATH")
+            f.write(render_to_string(src, {"STATIC_PATH": static_path}))

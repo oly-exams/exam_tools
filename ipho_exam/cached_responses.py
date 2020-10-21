@@ -16,19 +16,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from hashlib import md5
+
 from django.conf import settings
 from django.http import (
-    HttpResponse,
-    Http404,
     HttpResponseNotModified,
     HttpResponseRedirect,
 )
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
-from hashlib import md5
-
-from ipho_exam import pdf, tasks
+from ipho_exam import tasks
 
 logger = logging.getLogger("ipho_exam.cached_responses")
 
@@ -36,7 +34,7 @@ CACHE_PREFIX = getattr(settings, "CACHE_CACHED_RESPONSES_PREFIX", "cached-respon
 CACHE_TIMEOUT = getattr(settings, "CACHE_CACHED_RESPONSES_TIMEOUT", 600)  # 10 min
 
 
-def compile_tex(request, body, ext_resources=[], filename="question.pdf"):
+def compile_tex(request, body, ext_resources=tuple(), filename="question.pdf"):
     etag = md5(body.encode("utf8")).hexdigest()
     if request.META.get("HTTP_IF_NONE_MATCH", "") == etag:
         logger.debug(
@@ -60,7 +58,7 @@ def compile_tex(request, body, ext_resources=[], filename="question.pdf"):
 
 
 def compile_tex_diff(
-    request, old_body, new_body, ext_resources=[], filename="question.pdf"
+    request, old_body, new_body, ext_resources=tuple(), filename="question.pdf"
 ):
     etag = md5((old_body + new_body).encode("utf8")).hexdigest()
     if request.META.get("HTTP_IF_NONE_MATCH", "") == etag:

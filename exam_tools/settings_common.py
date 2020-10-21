@@ -17,6 +17,8 @@
 
 # Django settings for exam_tools project.
 
+# pylint: disable=unused-wildcard-import
+
 import subprocess
 
 # Import the OS module and work out our project's paths
@@ -43,7 +45,7 @@ try:
         ),
         "utf-8",
     ).strip()
-except Exception:
+except Exception:  # pylint: disable=broad-except
     GIT_HEAD_DATE = ""
 try:
     GIT_HEAD_SHA = "({})".format(
@@ -51,7 +53,7 @@ try:
             subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]), "utf-8"
         ).strip()
     )
-except Exception:
+except Exception:  # pylint: disable=broad-except
     GIT_HEAD_SHA = ""
 
 VERSION_DATE = f"{GIT_HEAD_DATE} {GIT_HEAD_SHA}"
@@ -93,7 +95,7 @@ try:
     TEXBIN = os.path.dirname(
         str(subprocess.check_output(["which", "xelatex"]), "utf-8").strip()
     )
-except:
+except Exception:  # pylint: disable=broad-except
     TEXBIN = "/opt/texbin"
 INKSCAPE_BIN = "inkscape"
 

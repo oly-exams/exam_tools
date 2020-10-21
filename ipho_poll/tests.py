@@ -17,13 +17,12 @@
 
 # These Test are all useless as they were designed for another projects.
 
-from past.utils import old_div
 import datetime
+from past.utils import old_div
 
 from django.utils import timezone
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.core.exceptions import MultipleObjectsReturned
 
 from .models import Question, Choice
 
@@ -54,6 +53,7 @@ def create_choice(choice_text, question_id):
 
 
 class QuestionMethodTests(TestCase):
+    # pylint: disable=invalid-name
     def test_was_published_recently_with_old_question(self):
         """
         was_published_recently() should return False for questions whose pub_date
@@ -82,6 +82,7 @@ class QuestionMethodTests(TestCase):
 
 
 class QuestionViewIndexTests(TestCase):
+    # pylint: disable=invalid-name
     def test_index_view_no_questions(self):
         """
         If no questions exist, an appropriate message should be displayed.
@@ -175,6 +176,7 @@ class QuestionViewIndexTests(TestCase):
 
 
 class QuestionViewDetailTests(TestCase):
+    # pylint: disable=invalid-name
     def test_detail_view_with_a_future_question(self):
         """
         The detail view of a question with a pub_date in the future should return
@@ -241,6 +243,7 @@ class QuestionViewDetailTests(TestCase):
 
 
 class QuestionViewResultsTests(TestCase):
+    # pylint: disable=invalid-name
     def test_results_view_with_a_future_question(self):
         """
         The results view of a question with a pub_date in the future should return
