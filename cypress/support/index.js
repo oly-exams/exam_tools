@@ -18,3 +18,13 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+
+beforeEach(() => {
+    // this runs prior to every test
+    // across all files no matter what
+    
+    //TODO: Add script to create or load testdata
+    //cy.exec('python manage.py flush --noinput && python manage.py loaddata cypress/fixtures/test_delegation.json')
+    cy.wait(500)
+  })
