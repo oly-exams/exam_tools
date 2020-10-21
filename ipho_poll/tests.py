@@ -54,6 +54,9 @@ def create_choice(choice_text, question_id):
 #testclasses
 #-----------
 
+class AlwaysPassingTest(TestCase):
+    def test_true(self):
+        self.assertEqual(True, True)
 
 @skip
 class QuestionMethodTests(TestCase):

@@ -33,6 +33,8 @@ DEBUG = True
 
 TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
 TEST_OUTPUT_DIR = 'unittest_reports'
+TEST_OUTPUT_FILE_NAME = 'results.xml'
+TEST_OUTPUT_VERBOSE = 2
 
 NO_ANSWER_SHEETS = False
 ONLY_OFFICIAL_ANSWER_SHEETS = False
