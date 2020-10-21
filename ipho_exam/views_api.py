@@ -15,16 +15,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from ipho_exam.models import Document
-from ipho_exam.serializers import DocumentSerializer
 
-from rest_framework import generics, views, viewsets, mixins, renderers, schemas
 from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework import views, viewsets, mixins, renderers, schemas
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
 from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 
+from ipho_exam.models import Document
+from ipho_exam.serializers import DocumentSerializer
 from ipho_exam.permissions import HasValidApiKeyOrAdmin
 
 
@@ -34,13 +34,16 @@ class SwaggerSchemaView(views.APIView):
     renderer_classes = [renderers.CoreJSONRenderer, OpenAPIRenderer, SwaggerUIRenderer]
 
     def get(self, request):
-        generator = schemas.SchemaGenerator(title='Exam Tools - Exam Documents API')
+        generator = schemas.SchemaGenerator(title="Exam Tools - Exam Documents API")
         schema = generator.get_schema()
         return Response(schema)
 
 
 class DocumentViewSet(
-    mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
 ):
     # """
     # Access and edit the collection of student documents (exam printouts and scans)
@@ -51,8 +54,8 @@ class DocumentViewSet(
     partial_update: Partially update single entry
     update: Update single entry
     """
-    permission_classes = (HasValidApiKeyOrAdmin, )
+    permission_classes = (HasValidApiKeyOrAdmin,)
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
-    filter_backends = (DjangoFilterBackend, )
-    filter_fields = ('id', 'position', 'student', 'exam', 'barcode_base', 'num_pages')
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ("id", "position", "student", "exam", "barcode_base", "num_pages")

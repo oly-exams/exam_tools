@@ -17,37 +17,48 @@
 
 # Django settings for exam_tools project.
 
+# pylint: disable=unused-wildcard-import
+
 import subprocess
 
 # Import the OS module and work out our project's paths
 import os
+
 SETTINGS_DIR = os.path.dirname(__file__)
 
 PROJECT_PATH = os.path.join(SETTINGS_DIR, os.pardir)
 PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 
-TEMPLATE_PATH = os.path.join(PROJECT_PATH, 'templates')
-STATIC_PATH = os.path.join(PROJECT_PATH, 'static')
+TEMPLATE_PATH = os.path.join(PROJECT_PATH, "templates")
+STATIC_PATH = os.path.join(PROJECT_PATH, "static")
 
-EVENT_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, 'events', 'demo')
+EVENT_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, "events", "demo")
 
-SITE_URL = 'http://127.0.0.1:8000'
+SITE_URL = "http://127.0.0.1:8000"
 
-VERSION = '3.0.0'
+VERSION = "3.0.0"
 
 try:
-    GIT_HEAD_DATE = str(subprocess.check_output(["git", "log", "-1", "--date=short", "--pretty=format:%ci"]),
-                        'utf-8').strip()
-except Exception:
-    GIT_HEAD_DATE = ''
+    GIT_HEAD_DATE = str(
+        subprocess.check_output(
+            ["git", "log", "-1", "--date=short", "--pretty=format:%ci"]
+        ),
+        "utf-8",
+    ).strip()
+except Exception:  # pylint: disable=broad-except
+    GIT_HEAD_DATE = ""
 try:
-    GIT_HEAD_SHA = '({})'.format(str(subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]), 'utf-8').strip())
-except Exception:
-    GIT_HEAD_SHA = ''
+    GIT_HEAD_SHA = "({})".format(
+        str(
+            subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]), "utf-8"
+        ).strip()
+    )
+except Exception:  # pylint: disable=broad-except
+    GIT_HEAD_SHA = ""
 
-VERSION_DATE = '{} {}'.format(GIT_HEAD_DATE, GIT_HEAD_SHA)
+VERSION_DATE = f"{GIT_HEAD_DATE} {GIT_HEAD_SHA}"
 
-OFFICIAL_DELEGATION = 'Official'
+OFFICIAL_DELEGATION = "Official"
 
 # Demo mode shows watermark and turns off some functionality
 DEMO_MODE = False
@@ -77,19 +88,23 @@ ACCEPT_MARKS_BEFORE_MODERATION = False
 SIGN_OFF_FINAL_MARKS = False
 
 # Url of documentation
-DOCS_URL = '/docs'
+DOCS_URL = "/docs"
 
 # Path to tex binaries and Inkscape binary
 try:
-    TEXBIN = os.path.dirname(str(subprocess.check_output(["which", "xelatex"]), 'utf-8').strip())
-except:
-    TEXBIN = '/opt/texbin'
-INKSCAPE_BIN = 'inkscape'
+    TEXBIN = os.path.dirname(
+        str(subprocess.check_output(["which", "xelatex"]), "utf-8").strip()
+    )
+except Exception:  # pylint: disable=broad-except
+    TEXBIN = "/opt/texbin"
+INKSCAPE_BIN = "inkscape"
 
 # Celery SETTINGS_DIR
-CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-CELERYD_TASK_TIME_LIMIT = 15 * 60  # task execution time limit in seconds before the workers are killed using SIGKILL
+CELERY_ACCEPT_CONTENT = ["pickle", "json", "msgpack", "yaml"]
+CELERY_RESULT_BACKEND = "djcelery.backends.database:DatabaseBackend"
+CELERYD_TASK_TIME_LIMIT = (
+    15 * 60
+)  # task execution time limit in seconds before the workers are killed using SIGKILL
 
 # Printing system
 PRINTER_QUEUES = {
@@ -133,23 +148,19 @@ PRINTER_QUEUES = {
     #   'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
     #   'required_perm': 'ipho_core.print_irchel',
     # },
-    'generic.printer-1': {
-        'name': 'Generic printer',
-        'host': '',
-        'queue': 'printer-1',
-        'auth_token': '',
-        'opts': {
-            'Duplex': 'None',
-            'ColourModel': 'Colour',
-            'Staple': '1PLU'
-        },
-        'required_perm': 'ipho_core.print_irchel',
+    "generic.printer-1": {
+        "name": "Generic printer",
+        "host": "",
+        "queue": "printer-1",
+        "auth_token": "",
+        "opts": {"Duplex": "None", "ColourModel": "Colour", "Staple": "1PLU"},
+        "required_perm": "ipho_core.print_irchel",
     },
 }
 
 EXAM_TOOLS_API_KEYS = {
-    'PDF Worker': 'KeyChangeMe',
-    'Scan Worker': 'KeyChangeMe',
+    "PDF Worker": "KeyChangeMe",
+    "Scan Worker": "KeyChangeMe",
 }
 
 # Random draw
@@ -157,24 +168,24 @@ RANDOM_DRAW_ON_SUBMISSION = True
 
 # Push Notifications
 ENABLE_PUSH = False
-PUSH_PUBLIC_KEY = ''
-PUSH_PRIVATE_KEY = ''
+PUSH_PUBLIC_KEY = ""
+PUSH_PRIVATE_KEY = ""
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []
 
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+TEST_RUNNER = "django.test.runner.DiscoverRunner"
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'Europe/Zurich'
+TIME_ZONE = "Europe/Zurich"
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
 SITE_ID = 1
 
@@ -191,22 +202,22 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = ""
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://example.com/media/", "http://media.example.com/"
-MEDIA_URL = ''
+MEDIA_URL = ""
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = ""
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -219,99 +230,99 @@ STATICFILES_DIRS = (
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
             TEMPLATE_PATH,
         ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'exam_tools.context_processors.ipho_context',
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "exam_tools.context_processors.ipho_context",
             ],
         },
     },
 ]
 
 MIDDLEWARE = (
-    'django.middleware.security.SecurityMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'ipho_exam.middleware.IphoExamExceptionsMiddleware',
+    "ipho_exam.middleware.IphoExamExceptionsMiddleware",
 )
 
 AUTHENTICATION_BACKENDS = (
-    'ipho_core.backends.TokenLoginBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    "ipho_core.backends.TokenLoginBackend",
+    "django.contrib.auth.backends.ModelBackend",
 )
 
-ROOT_URLCONF = 'exam_tools.urls'
+ROOT_URLCONF = "exam_tools.urls"
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'exam_tools.wsgi.application'
+WSGI_APPLICATION = "exam_tools.wsgi.application"
 
 INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
     #'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # Uncomment the next line to enable the admin:
-    'django.contrib.admin',
+    "django.contrib.admin",
     # Uncomment the next line to enable admin documentation:
-    'django.contrib.admindocs',
-    'django.contrib.humanize',
-    'crispy_forms',
-    'django_ace',
-    'djcelery',
-    'rest_framework',
-    'rest_framework_swagger',
-    'polymorphic',
-    'ipho_core',
-    'ipho_exam',
-    'ipho_poll',
-    'ipho_marking',
-    'ipho_download',
-    'ipho_print',
+    "django.contrib.admindocs",
+    "django.contrib.humanize",
+    "crispy_forms",
+    "django_ace",
+    "djcelery",
+    "rest_framework",
+    "rest_framework_swagger",
+    "polymorphic",
+    "ipho_core",
+    "ipho_exam",
+    "ipho_poll",
+    "ipho_marking",
+    "ipho_download",
+    "ipho_print",
     # 'django_extensions', # Some useful utils, e.g. graph models
 )
 
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_TEMPLATE_PACK = "bootstrap3"
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAdminUser',
-        'ipho_exam.permissions.HasValidApiKey',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAdminUser",
+        "ipho_exam.permissions.HasValidApiKey",
     ],
-    'PAGE_SIZE': 10
+    "PAGE_SIZE": 10,
 }
 
 SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Api Token': {
-            'type': 'apiKey',
-            'name': 'APIKEY',
-            'in': 'header',
+    "SECURITY_DEFINITIONS": {
+        "Api Token": {
+            "type": "apiKey",
+            "name": "APIKEY",
+            "in": "header",
         }
     },
-    'DOC_EXPANSION': 'list',
-    'VALIDATOR_URL': None,
+    "DOC_EXPANSION": "list",
+    "VALIDATOR_URL": None,
 }
 
 # A sample logging configuration. The only tangible logging
@@ -320,37 +331,31 @@ SWAGGER_SETTINGS = {
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'formatters': {
-        'default': {
-            'format': '[%(asctime)s - %(name)s] - %(levelname)s - %(message)s'
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {"require_debug_false": {"()": "django.utils.log.RequireDebugFalse"}},
+    "formatters": {
+        "default": {"format": "[%(asctime)s - %(name)s] - %(levelname)s - %(message)s"},
+        "verbose": {
+            "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
         },
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-        'django.server': {
-            '()': 'django.utils.log.ServerFormatter',
-            'format': '[%(server_time)s] %(message)s',
-        }
-    },
-    'handlers': {
-        'django.server': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'django.server',
+        "django.server": {
+            "()": "django.utils.log.ServerFormatter",
+            "format": "[%(server_time)s] %(message)s",
         },
     },
-    'loggers': {
-        'django.server': {
-            'handlers': ['django.server'],
-            'level': 'INFO',
-            'propagate': False,
+    "handlers": {
+        "django.server": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "django.server",
+        },
+    },
+    "loggers": {
+        "django.server": {
+            "handlers": ["django.server"],
+            "level": "INFO",
+            "propagate": False,
         }
-    }
+    },
 }

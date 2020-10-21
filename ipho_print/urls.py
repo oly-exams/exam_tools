@@ -19,7 +19,7 @@ from django.conf.urls import url
 
 from . import views
 
-app_name = 'print'
+app_name = "print"
 urlpatterns = [
-    url(r'^$', views.main, name='main'),
+    url(r"^$", views.main, name="main"),
 ]

@@ -85,7 +85,7 @@
               <li><a href="{% url 'marking:delegation-summary' %}">Results</a></li>
               {% endif %}
               {% if perms.ipho_core.can_vote and not user.is_superuser and user.votingright_set.all %}
-              <li><a href="{% url 'poll:voterIndex' %}">Voting</a></li>
+              <li><a href="{% url 'poll:voter-index' %}">Voting</a></li>
               {% endif %}
               {% if perms.ipho_core.can_see_boardmeeting %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
@@ -122,7 +122,7 @@
                   <li><a href="{% url 'send_push' %}">Send push notifications</a></li>
                   <li class="divider"></li>
                   <li class="dropdown-header">Voting</li>
-                  <li><a href="{% url 'poll:staffIndex' %}">Voting management</a></li>
+                  <li><a href="{% url 'poll:staff-index' %}">Voting management</a></li>
                   <li class="divider"></li>
                   {% endif %}
                   {% if perms.ipho_core.is_printstaff %}

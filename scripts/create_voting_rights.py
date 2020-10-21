@@ -16,13 +16,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 import sys
 
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, root_dir)
 
 import django
+
 django.setup()
 
 from ipho_core.models import Delegation
@@ -38,5 +40,5 @@ def main():
         VotingRight.objects.create(user=delegation.members.all()[0], name="Delegate 2")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

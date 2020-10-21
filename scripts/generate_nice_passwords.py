@@ -10,7 +10,8 @@ will be slightly lower than the target value.
 import sys
 import secrets
 
-BLOCKED_CHARACTERS = '0O1Il-_'
+BLOCKED_CHARACTERS = "0O1Il-_"
+
 
 def generate_password(num_bytes=6):
     pwd_candidate = secrets.token_urlsafe(num_bytes)
@@ -18,11 +19,12 @@ def generate_password(num_bytes=6):
         pwd_candidate = secrets.token_urlsafe(num_bytes)
     return pwd_candidate
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     try:
         num_pwd = int(sys.argv[1])
     except (IndexError, TypeError):
-        print('usage: ./generate_nice_passwords.py num_passwords [num_bytes]')
+        print("usage: ./generate_nice_passwords.py num_passwords [num_bytes]")
         sys.exit()
     try:
         num_bytes = int(sys.argv[2])

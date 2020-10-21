@@ -15,47 +15,71 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from builtins import object
+import json
+
 from django.contrib import admin
 from django import forms
-import json
-from ipho_exam.models import Delegation, Language, Exam, Question, VersionNode, TranslationNode, PDFNode, Figure, RawFigure, Feedback, Like, StudentSubmission, ExamAction, TranslationImportTmp, CachedAutoTranslation, Document, DocumentTask, Place, AttributeChange
 from django_ace import AceWidget
+
+from ipho_exam.models import (
+    Delegation,
+    Language,
+    Exam,
+    Question,
+    VersionNode,
+    TranslationNode,
+    PDFNode,
+    Figure,
+    RawFigure,
+    Feedback,
+    Like,
+    StudentSubmission,
+    ExamAction,
+    TranslationImportTmp,
+    CachedAutoTranslation,
+    Document,
+    DocumentTask,
+    Place,
+    AttributeChange,
+)
 
 # Register your models here.
 
 
 class VersionNodeAdminForm(forms.ModelForm):
-    text = forms.CharField(widget=AceWidget(mode='xml', wordwrap=True, width='100%'))
+    text = forms.CharField(widget=AceWidget(mode="xml", wordwrap=True, width="100%"))
 
-    class Meta(object):
+    class Meta:
         model = VersionNode
-        fields = '__all__'
-
+        fields = "__all__"
 
         # widgets = {
         #     'body':AceWidget()
         # }
-class FigureAdminForm(forms.ModelForm):
-    content = forms.CharField(widget=AceWidget(mode='xml', wordwrap=True, width='100%'))
 
-    class Meta(object):
+
+class FigureAdminForm(forms.ModelForm):
+    content = forms.CharField(widget=AceWidget(mode="xml", wordwrap=True, width="100%"))
+
+    class Meta:
         model = Figure
-        fields = '__all__'
+        fields = "__all__"
 
 
 class AttributeChangeForm(forms.ModelForm):
-    class Meta(object):
+    class Meta:
         model = AttributeChange
-        fields = '__all__'
+        fields = "__all__"
 
     def clean(self):
-        super(AttributeChangeForm, self).clean()
+        super().clean()
         try:
-            d = json.loads(self.cleaned_data['content'])
-            self.cleaned_data['content'] = json.dumps(d, indent=2)
+            data = json.loads(self.cleaned_data["content"])
+            self.cleaned_data["content"] = json.dumps(data, indent=2)
         except ValueError:
-            raise forms.ValidationError("Content is not valid JSON.")
+            raise forms.ValidationError(  # pylint: disable=raise-missing-from
+                "Content is not valid JSON."
+            )
         return self.cleaned_data
 
 
@@ -65,66 +89,74 @@ class QuestionInline(admin.StackedInline):
 
 
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'active', 'hide_feedback', 'show_delegation_submissions',
-                    'show_scans', 'marking_active', 'moderation_active', 'hidden')
+    list_display = (
+        "name",
+        "active",
+        "hide_feedback",
+        "show_delegation_submissions",
+        "show_scans",
+        "marking_active",
+        "moderation_active",
+        "hidden",
+    )
     inlines = [QuestionInline]
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'exam', 'feedback_active', 'position')
-    list_filter = ('exam', )
+    list_display = ("name", "exam", "feedback_active", "position")
+    list_filter = ("exam",)
 
 
 class LanguageAdmin(admin.ModelAdmin):
-    list_display = ('name', 'delegation', 'font', 'is_pdf')
-    list_filter = ('delegation', 'font')
-    search_fields = ['name']
+    list_display = ("name", "delegation", "font", "is_pdf")
+    list_filter = ("delegation", "font")
+    search_fields = ["name"]
 
 
 class VersionNodeAdmin(admin.ModelAdmin):
     form = VersionNodeAdminForm
-    list_display = ('question', 'language', 'version', 'tag', 'status', 'timestamp')
-    list_filter = ('question', )
+    list_display = ("question", "language", "version", "tag", "status", "timestamp")
+    list_filter = ("question",)
 
 
 class TranslationNodeAdmin(admin.ModelAdmin):
-    list_display = ('question', 'language', 'status', 'timestamp')
-    list_filter = ('question', 'language__delegation')
+    list_display = ("question", "language", "status", "timestamp")
+    list_filter = ("question", "language__delegation")
 
 
 class AttributeChangeAdmin(admin.ModelAdmin):
     form = AttributeChangeForm
-    list_display = ('node', )
-    list_filter = ('node__question', 'node__language')
+    list_display = ("node",)
+    list_filter = ("node__question", "node__language")
 
 
 class PDFNodeAdmin(admin.ModelAdmin):
-    list_display = ('question', 'language', 'status', 'timestamp')
-    list_filter = ('question', 'language__delegation')
+    list_display = ("question", "language", "status", "timestamp")
+    list_filter = ("question", "language__delegation")
 
 
 class FeedbackAdmin(admin.ModelAdmin):
-    list_display = ('question', 'part', 'delegation', 'comment', 'status', 'timestamp')
-    list_filter = ('question', 'delegation', 'status')
+    list_display = ("question", "part", "delegation", "comment", "status", "timestamp")
+    list_filter = ("question", "delegation", "status")
 
 
 class LikeAdmin(admin.ModelAdmin):
-    list_display = ('status', 'feedback', 'delegation')
+    list_display = ("status", "feedback", "delegation")
 
 
 class FigureAdmin(admin.ModelAdmin):
     form = FigureAdminForm
-    list_display = ('pk', 'name')
+    list_display = ("pk", "name")
 
 
 class CompiledFigureAdmin(admin.ModelAdmin):
     form = FigureAdminForm
-    list_display = ('pk', 'name', 'params')
+    list_display = ("pk", "name", "params")
 
 
 class DelegationFilter(admin.SimpleListFilter):
-    title = 'delegation'
-    parameter_name = 'delegation'
+    title = "delegation"
+    parameter_name = "delegation"
 
     def lookups(self, request, model_admin):
         return ((d.name, d) for d in Delegation.objects.all())
@@ -133,34 +165,47 @@ class DelegationFilter(admin.SimpleListFilter):
         value = self.value()
 
         if value is None:
-            return queryset.order_by('student')
-        return queryset.filter(language__delegation__name=value).order_by('student')
+            return queryset.order_by("student")
+        return queryset.filter(language__delegation__name=value).order_by("student")
 
 
 class StudentSubmissionAdmin(admin.ModelAdmin):
-    list_display = ('exam', 'student', 'delegation', 'language', 'with_question', 'with_answer')
-    list_filter = ('exam', DelegationFilter, 'language')
+    list_display = (
+        "exam",
+        "student",
+        "delegation",
+        "language",
+        "with_question",
+        "with_answer",
+    )
+    list_filter = ("exam", DelegationFilter, "language")
 
-    def delegation(self, obj):
+    def delegation(self, obj):  # pylint: disable=no-self-use
         return obj.language.delegation
 
 
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'exam', 'student')
-    list_filter = ('exam', 'student__delegation')
+    list_display = ("name", "exam", "student")
+    list_filter = ("exam", "student__delegation")
 
 
 class ExamActionAdmin(admin.ModelAdmin):
-    list_display = ('exam', 'delegation', 'action', 'status', 'timestamp')
-    list_filter = ('action', 'exam', 'delegation')
+    list_display = ("exam", "delegation", "action", "status", "timestamp")
+    list_filter = ("action", "exam", "delegation")
 
 
 class DocumentAdmin(admin.ModelAdmin):
     list_display = (
-        'exam', 'position', 'student', 'num_pages', 'barcode_num_pages', 'extra_num_pages', 'barcode_base',
-        'scan_status'
+        "exam",
+        "position",
+        "student",
+        "num_pages",
+        "barcode_num_pages",
+        "extra_num_pages",
+        "barcode_base",
+        "scan_status",
     )
-    list_filter = ('exam', 'position', 'student__delegation', 'scan_status')
+    list_filter = ("exam", "position", "student__delegation", "scan_status")
 
 
 admin.site.register(Language, LanguageAdmin)

@@ -15,15 +15,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
 
 import re
 import sys, os
 
-family_pattern = re.compile(r'font-family:[ ]+\'([^\']+)\'')
-family_pattern = re.compile(r'font-family:[ ]+\'([^\']+)\'')
+family_pattern = re.compile(r"font-family:[ ]+\'([^\']+)\'")
+family_pattern = re.compile(r"font-family:[ ]+\'([^\']+)\'")
 
-cjk_list = ['notosansjp', 'notosanskr', 'notosanssc', 'notosanstc']
+cjk_list = ["notosansjp", "notosanskr", "notosanssc", "notosanstc"]
 
 results = []
 
@@ -33,14 +32,16 @@ for css_file in flist:
         match = family_pattern.search(line)
         if match:
             css_name = os.path.basename(css_file)
-            name = css_name.replace('.css', '')
-            results.append({
-                'css': css_name,
-                'name': name.replace('.css', ''),
-                'font': match.group(1),
-                'cjk': int(name in cjk_list),
-            })
-results = {v['name']: v for v in results}
+            name = css_name.replace(".css", "")
+            results.append(
+                {
+                    "css": css_name,
+                    "name": name.replace(".css", ""),
+                    "font": match.group(1),
+                    "cjk": int(name in cjk_list),
+                }
+            )
+results = {v["name"]: v for v in results}
 import json
 
-print('noto =', json.dumps(results, indent=2))
+print("noto =", json.dumps(results, indent=2))

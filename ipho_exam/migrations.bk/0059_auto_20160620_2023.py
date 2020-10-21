@@ -1,19 +1,16 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipho_exam', '0058_auto_20160619_1855'),
+        ("ipho_exam", "0058_auto_20160619_1855"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='feedback',
-            name='part',
+            model_name="feedback",
+            name="part",
             field=models.CharField(default=None, max_length=100),
         ),
     ]
