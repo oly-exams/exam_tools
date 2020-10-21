@@ -26,7 +26,7 @@ admin.autodiscover()
 
 from django.contrib.auth import views as auth_views
 
-import ipho_core
+import ipho_core.views
 
 from . import static_views
 
