@@ -89,9 +89,7 @@ def create_actions_on_exam_creation(
     if not created or raw or instance.type != Question.ANSWER:
         return
     for delegation in Delegation.objects.all():
-        _, _ = MarkingAction.objects.get_or_create(
-            question=instance, delegation=delegation
-        )
+        MarkingAction.objects.get_or_create(question=instance, delegation=delegation)
 
 
 @receiver(
@@ -106,9 +104,7 @@ def create_actions_on_delegation_creation(
     if not created or raw:
         return
     for question in Question.objects.filter(type=Question.ANSWER).all():
-        _, _ = MarkingAction.objects.get_or_create(
-            question=question, delegation=instance
-        )
+        MarkingAction.objects.get_or_create(question=question, delegation=instance)
 
 
 @python_2_unicode_compatible
