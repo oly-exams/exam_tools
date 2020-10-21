@@ -10,8 +10,8 @@ stages:
 
 variables:
   CONTAINER_TEST_IMAGE: registry.gitlab.com/oly-exams/exam_tools/master-test:$CI_COMMIT_REF_NAME
-  CONTAINER_TEST_IMAGE_CYPRESS: registry.gitlab.com/oly-exams/exam_tools/master-test:CYPRESS_$CI_COMMIT_REF_NAME
-  CONTAINER_TEST_IMAGE_DJANGO: registry.gitlab.com/oly-exams/exam_tools/master-test:DJANGO_$CI_COMMIT_REF_NAME
+  CONTAINER_TEST_IMAGE_CYPRESS: registry.gitlab.com/oly-exams/exam_tools/master-test:CYPRESS_TESTS_$CI_COMMIT_REF_NAME
+  CONTAINER_TEST_IMAGE_DJANGO_TESTS: registry.gitlab.com/oly-exams/exam_tools/master-test:DJANGO_TESTS_$CI_COMMIT_REF_NAME
   CONTAINER_RELEASE_IMAGE: registry.gitlab.com/oly-exams/exam_tools/master:latest
   DOCKER_IMAGE_NAME: $CI_JOB_ID
 
@@ -41,14 +41,14 @@ test_cypress:
     reports:
       junit: $CI_PROJECT_DIR/junitreports/*.xml
 
-test_django_unittest:
+test_django_tests:
   stage: test
   script:
     - docker pull $CONTAINER_TEST_IMAGE
-    - docker build --pull -f docker/Dockerfile.testing_django --build-arg TEST_IMAGE=$CONTAINER_TEST_IMAGE -t $CONTAINER_TEST_IMAGE_DJANGO .
-    - docker run --name $DOCKER_IMAGE_NAME $CONTAINER_TEST_IMAGE_DJANGO
+    - docker build --pull -f docker/Dockerfile.testing_django --build-arg TEST_IMAGE=$CONTAINER_TEST_IMAGE -t $CONTAINER_TEST_IMAGE_DJANGO_TESTS .
+    - docker run --name $DOCKER_IMAGE_NAME $CONTAINER_TEST_IMAGE_DJANGO_TESTS
     - docker cp $DOCKER_IMAGE_NAME:/app/unittest_reports $CI_PROJECT_DIR/unittest_reports
-    - docker push $CONTAINER_TEST_IMAGE_DJANGO
+    - docker push $CONTAINER_TEST_IMAGE_DJANGO_TESTS
   artifacts:
     reports:
       junit: $CI_PROJECT_DIR/unittest_reports/*.xml
