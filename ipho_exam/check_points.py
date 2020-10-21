@@ -89,9 +89,7 @@ def check_exam(exam):
         check_question_answer_consistency(version_1, version_2)
 
 
-def check_question_answer_consistency(
-    version_node_1, version_node_2
-):  # pylint: disable=invalid-name
+def check_question_answer_consistency(version_node_1, version_node_2):
     """
     Check that the points in the two question given (question / answer sheet)
     are the same.
