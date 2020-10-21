@@ -27,4 +27,4 @@ repos:
     entry: pylint
     language: system
     types: [python]
-    exclude: '^(doc/)|(examples/)|(playground/)'
+    exclude: '^(doc/)|(examples/)|(playground/)|(scripts/)'
