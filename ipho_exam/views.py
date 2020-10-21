@@ -2925,15 +2925,15 @@ def submission_exam_confirm(
     student_languages = StudentSubmission.objects.filter(
         exam=exam, student__delegation=delegation
     )
-    for studl in student_languages:
-        if studl.with_answer and studl.with_question:
-            assigned_student_language[studl.student][studl.language] = "QA"
-        elif studl.with_question:
-            assigned_student_language[studl.student][studl.language] = "Q"
-        elif studl.with_answer:
-            assigned_student_language[studl.student][studl.language] = "A"
+    for stud_l in student_languages:
+        if stud_l.with_answer and stud_l.with_question:
+            assigned_student_language[stud_l.student][stud_l.language] = "QA"
+        elif stud_l.with_question:
+            assigned_student_language[stud_l.student][stud_l.language] = "Q"
+        elif stud_l.with_answer:
+            assigned_student_language[stud_l.student][stud_l.language] = "A"
         else:
-            assigned_student_language[studl.student][studl.language] = ""
+            assigned_student_language[stud_l.student][stud_l.language] = ""
 
     return render(
         request,
@@ -2977,15 +2977,15 @@ def submission_exam_submitted(
     student_languages = StudentSubmission.objects.filter(
         exam=exam, student__delegation=delegation
     )
-    for studl in student_languages:
-        if studl.with_answer and studl.with_question:
-            assigned_student_language[studl.student][studl.language] = "QA"
-        elif studl.with_question:
-            assigned_student_language[studl.student][studl.language] = "Q"
-        elif studl.with_answer:
-            assigned_student_language[studl.student][studl.language] = "A"
+    for stud_l in student_languages:
+        if stud_l.with_answer and stud_l.with_question:
+            assigned_student_language[stud_l.student][stud_l.language] = "QA"
+        elif stud_l.with_question:
+            assigned_student_language[stud_l.student][stud_l.language] = "Q"
+        elif stud_l.with_answer:
+            assigned_student_language[stud_l.student][stud_l.language] = "A"
         else:
-            assigned_student_language[studl.student][studl.language] = ""
+            assigned_student_language[stud_l.student][stud_l.language] = ""
 
     documents = Document.objects.filter(
         exam=exam, student__delegation=delegation
