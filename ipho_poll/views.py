@@ -55,7 +55,7 @@ from .forms import ChoiceFormHelper, VoteFormHelper
 @permission_required("ipho_core.is_staff")
 @ensure_csrf_cookie
 def staff_index(request):
-    return render(request, "ipho_poll/staff_index.html")
+    return render(request, "ipho_poll/staff-index.html")
 
 
 @login_required
