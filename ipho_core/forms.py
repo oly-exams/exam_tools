@@ -15,59 +15,74 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from builtins import object
 from django import forms
 from django.forms import ModelForm
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, MultiField, Div, Fieldset
-from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
-
-from django.core.exceptions import ValidationError
+from crispy_forms.layout import Submit, Layout, Field
+from crispy_forms.bootstrap import FormActions
 
 from ipho_core.models import User, AccountRequest
 
 
 class AccountRequestForm(ModelForm):
     user = forms.ModelChoiceField(
-        queryset=User.objects.exclude(delegation__isnull=True
-                                      ).exclude(autologin__isnull=True).exclude(is_superuser=True).order_by('username'),
-        to_field_name='username',
-        label='Delegation'
+        queryset=User.objects.exclude(delegation__isnull=True)
+        .exclude(autologin__isnull=True)
+        .exclude(is_superuser=True)
+        .order_by("username"),
+        to_field_name="username",
+        label="Delegation",
     )
 
     def __init__(self, *args, **kwargs):
-        super(AccountRequestForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(Field('email'), Field('user'), FormActions(Submit('submit', 'Submit')))
+        self.helper.layout = Layout(
+            Field("email"), Field("user"), FormActions(Submit("submit", "Submit"))
+        )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
 
-    class Meta(object):
+    class Meta:
         model = AccountRequest
-        fields = ['email', 'user']
+        fields = ["email", "user"]
+
 
 class SendPushForm(forms.Form):
-
     def __init__(self, *args, **kwargs):
-        super(SendPushForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(Field('to_all'), Field('message'), Field('url'), FormActions(Submit('submit', 'Submit')), Field('users'))
+        self.helper.layout = Layout(
+            Field("to_all"),
+            Field("message"),
+            Field("url"),
+            FormActions(Submit("submit", "Submit")),
+            Field("users"),
+        )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
 
-    users = forms.ModelMultipleChoiceField(queryset=User.objects.exclude(is_superuser=True).order_by('username').all(),
-            label="select users", required = False,
-            widget=forms.widgets.CheckboxSelectMultiple,
-            )
-    to_all = forms.BooleanField(required=False, label='send to all users (choose individual users below)')
-    message = forms.CharField(label='Message to send')
-    url = forms.URLField(label='url to redirect users to', required=False)
+    users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.exclude(is_superuser=True).order_by("username").all(),
+        label="select users",
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple,
+    )
+    to_all = forms.BooleanField(
+        required=False, label="send to all users (choose individual users below)"
+    )
+    message = forms.CharField(label="Message to send")
+    url = forms.URLField(label="url to redirect users to", required=False)
+
 
 class RandomDrawForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        super(RandomDrawForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(Field('do_it'), FormActions(Submit('submit', 'Submit')),)
+        self.helper.layout = Layout(
+            Field("do_it"),
+            FormActions(Submit("submit", "Submit")),
+        )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
 

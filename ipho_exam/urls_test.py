@@ -15,16 +15,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import include, url
+from django.conf.urls import url
 
 from . import views_test
 
-app_name = 'test'
+app_name = "test"
 urlpatterns = [
-    url(r'^$', views_test.index),
-    url(r'^view$', views_test.view, name='view'),
-    url(r'^edit$', views_test.edit, name='edit'),
-    url(r'^inline$', views_test.inline_edit, name='inline'),
-    url(r'^mathquill$', views_test.mathquill, name='mathquill'),
-    url(r'^mathquill_toolbar$', views_test.mathquill_toolbar, name='mathquill_toolbar'),
+    url(r"^$", views_test.index),
+    url(r"^view$", views_test.view, name="view"),
+    url(r"^edit$", views_test.edit, name="edit"),
+    url(r"^inline$", views_test.inline_edit, name="inline"),
+    url(r"^mathquill$", views_test.mathquill, name="mathquill"),
+    url(r"^mathquill_toolbar$", views_test.mathquill_toolbar, name="mathquill_toolbar"),
 ]

@@ -16,9 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 
 import django
+
 django.setup()
 
 from django.core import serializers
@@ -29,17 +31,27 @@ from io import StringIO
 
 def save(objs, stream):
     if type(stream) == str:
-        stream = open(stream, 'w')
+        stream = open(stream, "w")
     serializers.serialize(
-        'json', objs, indent=2, use_natural_foreign_keys=True, use_natural_primary_keys=True, stream=stream
+        "json",
+        objs,
+        indent=2,
+        use_natural_foreign_keys=True,
+        use_natural_primary_keys=True,
+        stream=stream,
     )
 
 
 def save_with_pk(objs, stream):
     if type(stream) == str:
-        stream = open(stream, 'w')
+        stream = open(stream, "w")
     serializers.serialize(
-        'json', objs, indent=2, use_natural_foreign_keys=False, use_natural_primary_keys=False, stream=stream
+        "json",
+        objs,
+        indent=2,
+        use_natural_foreign_keys=False,
+        use_natural_primary_keys=False,
+        stream=stream,
     )
 
 
@@ -52,8 +64,8 @@ def serialize(objs, with_pk):
     return ss.getvalue()
 
 
-orig_exam = 'Experiment - 2016'
-dest_exam = 'Experiment - Short'
+orig_exam = "Experiment - 2016"
+dest_exam = "Experiment - Short"
 
 all_data = []
 
@@ -67,9 +79,9 @@ s = serialize(questions, with_pk=False)
 s = s.replace(orig_exam, dest_exam)
 all_data += json.loads(s)
 
-nodes = VersionNode.objects.filter(question=questions).order_by('-version')
+nodes = VersionNode.objects.filter(question=questions).order_by("-version")
 s = serialize(nodes, with_pk=False)
 s = s.replace(orig_exam, dest_exam)
 all_data += json.loads(s)
 
-json.dump(all_data, open('duplicate_question.json', 'w'), indent=2)
+json.dump(all_data, open("duplicate_question.json", "w"), indent=2)

@@ -18,10 +18,12 @@
 import os
 import os.path
 import sys
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 sys.path.append(".")
 
 import django
+
 django.setup()
 from django.conf import settings
 
@@ -34,17 +36,27 @@ from io import StringIO
 
 def save(objs, stream):
     if type(stream) == str:
-        stream = open(stream, 'w')
+        stream = open(stream, "w")
     serializers.serialize(
-        'json', objs, indent=2, use_natural_foreign_keys=True, use_natural_primary_keys=True, stream=stream
+        "json",
+        objs,
+        indent=2,
+        use_natural_foreign_keys=True,
+        use_natural_primary_keys=True,
+        stream=stream,
     )
 
 
 def save_with_pk(objs, stream):
     if type(stream) == str:
-        stream = open(stream, 'w')
+        stream = open(stream, "w")
     serializers.serialize(
-        'json', objs, indent=2, use_natural_foreign_keys=True, use_natural_primary_keys=False, stream=stream
+        "json",
+        objs,
+        indent=2,
+        use_natural_foreign_keys=True,
+        use_natural_primary_keys=False,
+        stream=stream,
     )
 
 
@@ -55,6 +67,6 @@ figures.extend(Figure.objects.all())
 if len(sys.argv) >= 2:
     d = sys.argv[1]
 else:
-    d = '.'
-fn = os.path.join(d, '033_figures.json')
+    d = "."
+fn = os.path.join(d, "033_figures.json")
 save_with_pk(figures, fn)

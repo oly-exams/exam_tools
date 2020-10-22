@@ -21,12 +21,11 @@ from rest_framework.routers import DefaultRouter
 from ipho_exam import views_api
 
 router = DefaultRouter()
-router.register(r'documents', views_api.DocumentViewSet)
+router.register(r"documents", views_api.DocumentViewSet)
 
-app_name = 'api-exam'
+app_name = "api-exam"
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url(r'^schema', views_api.SwaggerSchemaView.as_view(), name='schema'),
-
+    url(r"^", include(router.urls)),
+    url(r"^schema", views_api.SwaggerSchemaView.as_view(), name="schema"),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

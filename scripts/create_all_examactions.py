@@ -16,9 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 
 import django
+
 django.setup()
 
 from ipho_exam.models import Exam, ExamAction, Delegation, Question
@@ -27,7 +29,9 @@ from ipho_marking.models import MarkingAction
 for exam in Exam.objects.all():
     for delegation in Delegation.objects.all():
         for action, _ in ExamAction.ACTION_CHOICES:
-            exam_action, _ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=action)
+            exam_action, _ = ExamAction.objects.get_or_create(
+                exam=exam, delegation=delegation, action=action
+            )
 
 for question in Question.objects.filter(type=Question.ANSWER).all():
     for delegation in Delegation.objects.all():

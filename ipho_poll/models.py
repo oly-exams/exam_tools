@@ -15,97 +15,95 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from builtins import chr
-from builtins import object
-from django.utils import timezone
-from django.db import models
-from ipho_core.models import Delegation
-from django.contrib.auth.models import User
-from django.db.models import Q, Count
-from django.db.models.functions import Now
 from itertools import chain
 
+# User should not be imported directly (pylint-django:E5142)
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+from django.utils import timezone
+from django.db import models
+from django.db.models import Count
 from ipho_exam.models import Feedback
 
 
 class QuestionManager(models.Manager):
-    def is_draft(self):
+    def is_draft(self):  # pylint: disable=no-self-use
         queryset = Question.objects.filter(end_date__isnull=True)
         return queryset
 
-    def is_open(self):
+    def is_open(self):  # pylint: disable=no-self-use
         queryset = Question.objects.filter(end_date__gt=timezone.now())
         return queryset
 
-    def is_closed(self):
+    def is_closed(self):  # pylint: disable=no-self-use
         queryset = Question.objects.filter(end_date__lte=timezone.now())
         return queryset
 
-    def not_voted_upon_by(self, user):
+    def not_voted_upon_by(self, user):  # pylint: disable=no-self-use
         user_tot_votes = user.votingright_set.all().count()
-        qNotFull = Question.objects.is_open().filter(vote__voting_right__user=user
-                                                     ).annotate(user_votes=Count('vote')
-                                                                ).filter(user_votes__lt=user_tot_votes)
-        qNoVotes = Question.objects.is_open().exclude(vote__voting_right__user=user)
-        return list(chain(qNotFull, qNoVotes))
+        q_not_full = (
+            Question.objects.is_open()
+            .filter(vote__voting_right__user=user)
+            .annotate(user_votes=Count("vote"))
+            .filter(user_votes__lt=user_tot_votes)
+        )
+        q_no_votes = Question.objects.is_open().exclude(vote__voting_right__user=user)
+        return list(chain(q_not_full, q_no_votes))
 
 
 class Question(models.Model):
-    class VOTE_RESULT_META(object):
+    class VoteResultMeta:
         OPEN = 0
         REJECTED = 1
         ACCEPTED = 2
         choices = (
-            (OPEN, 'In progress'),
-            (REJECTED, 'Rejected'),
-            (ACCEPTED, 'Accepted'),
+            (OPEN, "In progress"),
+            (REJECTED, "Rejected"),
+            (ACCEPTED, "Accepted"),
         )
 
-    class IMPLEMENTATION_META(object):
+    class ImplementationMeta:
         NOT_IMPL = 0
         IMPL = 1
         choices = (
-            (NOT_IMPL, 'Not implemented'),
-            (IMPL, 'Implemented'),
+            (NOT_IMPL, "Not implemented"),
+            (IMPL, "Implemented"),
         )
 
     title = models.CharField(max_length=200)
     content = models.TextField(blank=True, null=True)
-    pub_date = models.DateTimeField('date published', default=timezone.now)
-    end_date = models.DateTimeField('end date', blank=True, null=True)
-    vote_result = models.PositiveSmallIntegerField(choices=VOTE_RESULT_META.choices, default=VOTE_RESULT_META.OPEN)
-    implementation = models.PositiveSmallIntegerField(
-        choices=IMPLEMENTATION_META.choices, default=IMPLEMENTATION_META.NOT_IMPL
+    pub_date = models.DateTimeField("date published", default=timezone.now)
+    end_date = models.DateTimeField("end date", blank=True, null=True)
+    vote_result = models.PositiveSmallIntegerField(
+        choices=VoteResultMeta.choices, default=VoteResultMeta.OPEN
     )
-    feedbacks = models.ManyToManyField(Feedback, blank=True, related_name='vote')
+    implementation = models.PositiveSmallIntegerField(
+        choices=ImplementationMeta.choices, default=ImplementationMeta.NOT_IMPL
+    )
+    feedbacks = models.ManyToManyField(Feedback, blank=True, related_name="vote")
     objects = QuestionManager()
 
     def __str__(self):
         return self.title
 
     def is_draft(self):
-        if not self.end_date:
-            return True
-        else:
-            return False
+        return not self.end_date
 
     def is_open(self):
-        if not self.is_draft() and not self.is_closed():
-            return True
-        else:
-            return False
+        return not self.is_draft() and not self.is_closed()
 
     def is_closed(self):
         if self.end_date:
             return self.end_date <= timezone.now()
-        else:
-            return False
+
+        return False
 
     def choice_dict(self):
         choice_set = self.choice_set.all()
         choice_dict = {}
         for i, choice in enumerate(choice_set):
-            choice_dict[choice] = chr(ord('A') + i)
+            choice_dict[choice] = chr(ord("A") + i)
         return choice_dict
 
 
@@ -115,17 +113,17 @@ class Choice(models.Model):
     choice_text = models.CharField(max_length=200)
 
     def __str__(self):
-        if self.label == 'zzz' and 'abstain' in self.choice_text.lower():
+        if self.label == "zzz" and "abstain" in self.choice_text.lower():
             return self.choice_text
-        return '{}. {}'.format(self.label, self.choice_text)
+        return f"{self.label}. {self.choice_text}"
 
-    def calculateVotes(self):
+    def calculate_votes(self):
         return Vote.objects.filter(choice=self).count()
 
-    votes = property(calculateVotes)
+    votes = property(calculate_votes)
 
-    class Meta(object):
-        ordering = ['label']
+    class Meta:
+        ordering = ["label"]
 
 
 class VotingRight(models.Model):
@@ -133,7 +131,7 @@ class VotingRight(models.Model):
     name = models.CharField(max_length=200)
 
     def __str__(self):
-        return '{} ({})'.format(self.name, self.user)
+        return f"{self.name} ({self.user})"
 
 
 class Vote(models.Model):
@@ -144,5 +142,5 @@ class Vote(models.Model):
     def __str__(self):
         return self.choice.__str__()
 
-    class Meta(object):
-        unique_together = (('question', 'voting_right'))
+    class Meta:
+        unique_together = ("question", "voting_right")

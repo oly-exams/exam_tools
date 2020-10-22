@@ -16,9 +16,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib import admin
-from ipho_core.models import Delegation, Student, AutoLogin, AccountRequest, PushSubscription, RandomDrawLog
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User
+
+# User should not be imported directly (pylint-django:E5142)
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+from ipho_core.models import (
+    Delegation,
+    Student,
+    AutoLogin,
+    AccountRequest,
+    PushSubscription,
+    RandomDrawLog,
+)
 
 # Register your models here.
 
@@ -26,42 +39,44 @@ from django.contrib.auth.models import User
 class AutoLoginInline(admin.StackedInline):
     model = AutoLogin
     can_delete = False
-    verbose_name_plural = 'autologin'
+    verbose_name_plural = "autologin"
 
 
 class UserAdmin(BaseUserAdmin):
-    inlines = (AutoLoginInline, )
+    inlines = (AutoLoginInline,)
 
 
 class DelegationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'country')
-    filter_horizontal = ('members', )
+    list_display = ("name", "country")
+    filter_horizontal = ("members",)
 
 
 class StudentAdmin(admin.ModelAdmin):
     fields = (
-        'code',
-        ('first_name', 'last_name'),
-        'delegation',
+        "code",
+        ("first_name", "last_name"),
+        "delegation",
     )
     list_display = (
-        'code',
-        'last_name',
-        'first_name',
-        'delegation',
+        "code",
+        "last_name",
+        "first_name",
+        "delegation",
     )
-    search_fields = ('last_name', 'first_name')
-    list_editable = ('first_name', 'last_name', 'delegation')
-    list_filter = ('delegation', )
+    search_fields = ("last_name", "first_name")
+    list_editable = ("first_name", "last_name", "delegation")
+    list_filter = ("delegation",)
 
 
 class AccountRequestAdmin(admin.ModelAdmin):
-    list_display = ('email', 'user', 'timestamp')
-    search_fields = ('user', 'email')
-    list_filter = ('user', )
+    list_display = ("email", "user", "timestamp")
+    search_fields = ("user", "email")
+    list_filter = ("user",)
+
 
 class PushSubscriptionAdmin(admin.ModelAdmin):
     pass
+
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)

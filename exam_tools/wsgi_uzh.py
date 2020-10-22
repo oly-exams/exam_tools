@@ -29,9 +29,10 @@ middleware here, or combine a Django application with an application of another
 framework.
 
 """
-import os, sys
+import os
+import sys
 
-sys.path.insert(0, '/home/dolfim/exam_tools_deploy')
+sys.path.insert(0, "/home/dolfim/exam_tools_deploy")
 
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
 # if running multiple sites in the same mod_wsgi process. To fix this, use
@@ -43,6 +44,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "exam_tools.settings")
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
 from django.core.wsgi import get_wsgi_application
+
 application = get_wsgi_application()
 
 # Apply WSGI middleware here.

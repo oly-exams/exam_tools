@@ -15,16 +15,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
 
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 import sys
 
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, root_dir)
 
 import django
+
 django.setup()
 
 from django.db import models
@@ -32,12 +33,27 @@ from django.db.models import Q, Count, Sum, Case, When
 
 from ipho_exam.models import *
 
-feedbacks = Feedback.objects.filter(question__exam=1).annotate(
-    num_likes=Sum(Case(When(like__status='L', then=1), output_field=models.IntegerField())),
-    num_unlikes=Sum(Case(When(like__status='U', then=1), output_field=models.IntegerField()))
-).values(
-    'num_likes', 'num_unlikes', 'pk', 'question__name', 'delegation__name', 'delegation__country', 'status', 'part',
-    'comment'
+feedbacks = (
+    Feedback.objects.filter(question__exam=1)
+    .annotate(
+        num_likes=Sum(
+            Case(When(like__status="L", then=1), output_field=models.IntegerField())
+        ),
+        num_unlikes=Sum(
+            Case(When(like__status="U", then=1), output_field=models.IntegerField())
+        ),
+    )
+    .values(
+        "num_likes",
+        "num_unlikes",
+        "pk",
+        "question__name",
+        "delegation__name",
+        "delegation__country",
+        "status",
+        "part",
+        "comment",
+    )
 )
 
 print(feedbacks)

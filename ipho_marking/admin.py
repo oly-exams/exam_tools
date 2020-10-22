@@ -21,17 +21,18 @@ from . import models
 
 
 class MarkingMetaAdmin(admin.ModelAdmin):
-    list_display = ('position', 'question', 'name', 'max_points')
+    list_display = ("position", "question", "name", "max_points")
 
 
 class MarkingAdmin(admin.ModelAdmin):
-    search_fields = ('student', )
-    list_filter = ('version', 'marking_meta__question', 'student__delegation')
-    list_display = ('marking_meta', 'student', 'version', 'points')
+    search_fields = ("student",)
+    list_filter = ("version", "marking_meta__question", "student__delegation")
+    list_display = ("marking_meta", "student", "version", "points")
+
 
 class MarkingActionAdmin(admin.ModelAdmin):
-    list_display = ('question', 'delegation', 'status')
-    list_filter = ('question', 'delegation', 'status')
+    list_display = ("question", "delegation", "status")
+    list_filter = ("question", "delegation", "status")
 
 
 admin.site.register(models.MarkingMeta, MarkingMetaAdmin)

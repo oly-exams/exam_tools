@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-'''
+"""
 Simple Diff for Python version 1.0
 
 Annotate two versions of a list with the values that have been
@@ -24,14 +24,14 @@ a dead-simple Python interface.
 (C) Paul Butler 2008-2012 <http://www.paulbutler.org/>
 May be used and distributed under the zlib/libpng license
 <http://www.opensource.org/licenses/zlib-license.php>
-'''
+"""
 
-__all__ = ['diff', 'string_diff', 'html_diff']
-__version__ = '1.0'
+__all__ = ["diff", "string_diff", "html_diff"]
+__version__ = "1.0"
 
 
 def diff(old, new):
-    '''
+    """
     Find the differences between two lists. Returns a list of pairs, where the
     first value is in ['+','-','='] and represents an insertion, deletion, or
     no change for that list. The second value of the pair is the list
@@ -41,7 +41,7 @@ def diff(old, new):
         old     the old list of immutable, comparable values (ie. a list
                 of strings)
         new     the new list of immutable, comparable values
-   
+
     Returns:
         A list of pairs, with the first part of the pair being one of three
         strings ('-', '+', '=') and the second part being a list of values from
@@ -66,7 +66,7 @@ def diff(old, new):
          ('-', ['dog']),
          ('+', ['carrot'])]
 
-    '''
+    """
 
     # Create a map from old values to their indices
     old_index_map = dict()
@@ -106,7 +106,7 @@ def diff(old, new):
             # now we are considering all values of iold such that
             # `old[iold] == new[inew]`.
             _overlap[iold] = (iold and overlap.get(iold - 1, 0)) + 1
-            if (_overlap[iold] > sub_length):
+            if _overlap[iold] > sub_length:
                 # this is the largest substring seen so far, so store its
                 # indices
                 sub_length = _overlap[iold]
@@ -116,18 +116,19 @@ def diff(old, new):
 
     if sub_length == 0:
         # If no common substring is found, we return an insert and delete...
-        return (old and [('-', old)] or []) + (new and [('+', new)] or [])
-    else:
-        # ...otherwise, the common substring is unchanged and we recursively
-        # diff the text before and after that substring
-        return diff(old[ : sub_start_old], new[ : sub_start_new]) + \
-               [('=', new[sub_start_new : sub_start_new + sub_length])] + \
-               diff(old[sub_start_old + sub_length : ],
-                       new[sub_start_new + sub_length : ])
+        return (old and [("-", old)] or []) + (new and [("+", new)] or [])
+
+    # ...otherwise, the common substring is unchanged and we recursively
+    # diff the text before and after that substring
+    return (
+        diff(old[:sub_start_old], new[:sub_start_new])
+        + [("=", new[sub_start_new : sub_start_new + sub_length])]
+        + diff(old[sub_start_old + sub_length :], new[sub_start_new + sub_length :])
+    )
 
 
 def string_diff(old, new):
-    '''
+    """
     Returns the difference between the old and new strings when split on
     whitespace. Considers punctuation a part of the word
 
@@ -151,12 +152,12 @@ def string_diff(old, new):
          ('+', ['fast', 'blue']),
          ('=', ['fox'])]
 
-    '''
+    """
     return diff(old.split(), new.split())
 
 
 def html_diff(old, new):
-    '''
+    """
     Returns the difference between two strings (as in stringDiff) in
     HTML format. HTML code in the strings is NOT escaped, so you
     will get weird results if the strings contain HTML.
@@ -175,13 +176,17 @@ def html_diff(old, new):
     Examples:
         >>> html_diff('The quick brown fox', 'The fast blue fox')
         'The <del>quick brown</del> <ins>fast blue</ins> fox'
-    '''
-    con = {'=': (lambda x: x), '+': (lambda x: "<ins>" + x + "</ins>"), '-': (lambda x: "<del>" + x + "</del>")}
+    """
+    con = {
+        "=": (lambda x: x),
+        "+": (lambda x: "<ins>" + x + "</ins>"),
+        "-": (lambda x: "<del>" + x + "</del>"),
+    }
     return " ".join([(con[a])(" ".join(b)) for a, b in string_diff(old, new)])
 
 
 def check_diff(old, new):
-    '''
+    """
     This tests that diffs returned by `diff` are valid. You probably won't
     want to use this function, but it's provided for documentation and
     testing.
@@ -201,11 +206,11 @@ def check_diff(old, new):
         >>> check_diff('dafhjkdashfkhasfjsdafdasfsda', 'asdfaskjfhksahkfjsdha')
         >>> check_diff('88288822828828288282828', '88288882882828282882828')
         >>> check_diff('1234567890', '24689')
-    '''
+    """
     old = list(old)
     new = list(new)
     result = diff(old, new)
-    _old = [val for (a, vals) in result if (a in '=-') for val in vals]
-    assert old == _old, 'Expected %s, got %s' % (old, _old)
-    _new = [val for (a, vals) in result if (a in '=+') for val in vals]
-    assert new == _new, 'Expected %s, got %s' % (new, _new)
+    _old = [val for (a, vals) in result if (a in "=-") for val in vals]
+    assert old == _old, f"Expected {old}, got {_old}"
+    _new = [val for (a, vals) in result if (a in "=+") for val in vals]
+    assert new == _new, f"Expected {new}, got {_new}"
