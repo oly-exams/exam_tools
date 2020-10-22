@@ -973,7 +973,7 @@ def create_actions_on_exam_creation(
 
 @receiver(
     post_save, sender=Delegation, dispatch_uid="create_actions_on_delegation_creation"
-)  # pylint: disable=invalid-name
+)
 def create_actions_on_delegation_creation(
     instance, created, raw, **kwargs
 ):  # pylint: disable=unused-argument

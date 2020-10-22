@@ -23,6 +23,8 @@ class TestDataCreator(DataCreator):
             db_name = db_setting["NAME"]
         self.db_filepath = Path(settings.PROJECT_PATH) / db_name
 
+        db_setting["NAME"] = str(self.db_filepath)
+
     def delete_database(self):
         with suppress(FileNotFoundError):
             self.db_filepath.unlink()

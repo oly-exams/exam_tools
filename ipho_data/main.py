@@ -3,9 +3,9 @@
 
 # pylint: disable=unused-import
 import non_install_helper
-import django_setup
 
-from test_data_creator import TestDataCreator
+import ipho_data.django_setup
+from ipho_data.test_data_creator import TestDataCreator
 
 
 def main():
@@ -13,8 +13,8 @@ def main():
     with tdc.clean(delete_after=False):
         tdc.create_permissions()
         tdc.create_groups()
-        # tdc.create_olyexams_superuser(pw_strategy="trivial")
-        # tdc.create_organizer_user(pw_strategy="trivial")
+        tdc.create_olyexams_superuser(pw_strategy="trivial")
+        tdc.create_organizer_user(pw_strategy="trivial")
         tdc.create_delegation_user(pw_strategy="trivial")
 
 
