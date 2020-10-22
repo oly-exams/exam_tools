@@ -15,7 +15,7 @@ from ipho_core.models import Group, User
 from ipho_core.models import Delegation, AutoLogin
 from ipho_poll.models import VotingRight
 
-from ipho_testdata.password_creator import PasswordCreator
+from ipho_data.password_creator import PasswordCreator
 
 
 class DataCreatorUtilities:
@@ -28,9 +28,13 @@ class DataCreatorUtilities:
         with self.full_path(csv_filename).open("r") as f:
             reader = csv.reader(f)
             iterat = map(RowTuple._make, reader)
-            header = next(iter)
-            self.check_header_vs_fieldnames(header, fieldnames, csv_filename)
-            yield from iterat
+            try:
+                header = next(iterat)
+                self.check_header_vs_fieldnames(header, fieldnames, csv_filename)
+                yield from iterat
+            except StopIteration:
+                return
+            # yield from iterat
 
     def full_path(self, filename):  # pylint: disable=no-self-use
         raise NotImplementedError()

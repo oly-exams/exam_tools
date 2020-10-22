@@ -21,7 +21,8 @@ class PasswordCreator:
         self._seed_for["020_delegations.csv"] = seed_rng.randint(0, 100000)
         self._seed_for["021_examsite_user.csv"] = seed_rng.randint(0, 100000)
 
-    def generate_password(self, length, rng):
+    @staticmethod
+    def generate_password(length, rng):
         valid_chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789"
         return "".join(rng.sample(valid_chars, length))
 
@@ -29,7 +30,8 @@ class PasswordCreator:
         filepath = self._get_filepath_pw_mapping(assoz_filename)
         return self._read_pw_mapping_filepath(filepath)
 
-    def _read_pw_mapping_filepath(self, filepath):
+    @staticmethod
+    def _read_pw_mapping_filepath(filepath):
         pw_mapping = collections.OrderedDict()
         with filepath.open("r") as f:
             reader = csv.reader(f)
@@ -85,7 +87,7 @@ class PasswordCreator:
         if pw_strategy == "create":
             rng = random.Random()
             sub_seed = self._seed_for[filename_csv]
-            self.data_creator.log(f"creating passwords with sub-seed", sub_seed)
+            self.data_creator.log("creating passwords with sub-seed", sub_seed)
             rng.seed(sub_seed)
 
         if pw_strategy == "read":

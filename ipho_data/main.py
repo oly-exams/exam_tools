@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Author:  Mario S. Könz <mskoenz@gmx.net>
 
-
+# pylint: disable=unused-import
 import non_install_helper
 import django_setup
 
@@ -13,8 +13,8 @@ def main():
     with tdc.clean(delete_after=False):
         tdc.create_permissions()
         tdc.create_groups()
-        tdc.create_olyexams_superuser(pw_strategy="trivial")
-        tdc.create_organizer_user(pw_strategy="trivial")
+        # tdc.create_olyexams_superuser(pw_strategy="trivial")
+        # tdc.create_organizer_user(pw_strategy="trivial")
         tdc.create_delegation_user(pw_strategy="trivial")
 
 

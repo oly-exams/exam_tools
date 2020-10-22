@@ -155,3 +155,21 @@ session.
 ```bash
 docker-compose run --rm web bash
 ```
+
+## Using Precommit Hooks
+Developers can use the precommit hooks to automatically format the code and get feedback. Install all dev dependencies
+```bash
+pip install -r requirements_dev.txt
+```
+followed by:
+
+```bash
+pre-commit install
+```
+
+Now the precommit hooks will run before every commit, and check the files that where modified. You can also run the hooks manually:
+
+```bash
+pre-commit run
+pre-commit run --all-files
+```
