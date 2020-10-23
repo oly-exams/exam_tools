@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=unused-wildcard-import
-
 import sys
 
 # Django settings for exam_tools project.
@@ -29,20 +27,24 @@ print("Templates:", TEMPLATE_PATH, file=sys.stderr)
 print("Static:", STATIC_PATH, file=sys.stderr)
 
 DEBUG = True
+# TEMPLATE_DEBUG = DEBUG
 
-# GOOGLE_TRANSLATE_SERVICE_ACCOUNT_KEY = r"""{}"""
+TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
+TEST_OUTPUT_DIR = "unittest_reports"
+TEST_OUTPUT_FILE_NAME = "results.xml"
+TEST_OUTPUT_VERBOSE = 2
 
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-    ("Michele Dolfi", "michele.dolfi@gmail.com"),
-)
+
+ADMINS = ()
 
 MANAGERS = ADMINS
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        "NAME": "ipho.db",  # Or path to database file if using sqlite3.
+        "NAME": os.path.join(
+            PROJECT_PATH, "db.sqlite3"
+        ),  # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         "USER": "",
         "PASSWORD": "",
