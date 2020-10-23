@@ -13,7 +13,7 @@ describe('Basic Functionalities', function() {
         cy.get('[type="password"]').type('1234')
         cy.get('[type="submit"]').click()
         cy.url().should('not.contain', 'accounts/login')
-        cy.contains('logout',matchCase=false).click()
+        cy.contains('logout', { matchCase: false }).click()
         cy.url().should('contain', 'accounts/login')
     })
 
