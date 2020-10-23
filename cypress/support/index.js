@@ -26,5 +26,4 @@ beforeEach(() => {
     
     //TODO: Add script to create or load testdata
     //cy.exec('python manage.py flush --noinput && python manage.py loaddata cypress/fixtures/test_delegation.json')
-    cy.wait(500)
   })
