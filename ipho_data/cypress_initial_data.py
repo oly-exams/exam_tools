@@ -22,7 +22,7 @@ def set_up_basic_test_database(clear_cache=False):
         cache.create_organizer_user(pw_strategy="trivial")
         cache.create_delegation_user(pw_strategy="trivial")
 
-    tdc = TestDataCreator()
+    tdc = TestDataCreator(data_path="test_data_cypress")
 
     with tdc.clean(delete_after=False):
         tdc.copy_from(cache)
@@ -30,7 +30,7 @@ def set_up_basic_test_database(clear_cache=False):
 
 
 def main():
-    set_up_basic_test_database(clear_cache=False)
+    set_up_basic_test_database(clear_cache=True)
 
 
 if __name__ == "__main__":

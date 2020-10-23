@@ -11,7 +11,7 @@ DEFAULT_DATABASE_NAME = settings.DATABASES["default"]["NAME"]
 
 
 class TestDataCreator(DataCreator):
-    def __init__(self, db_name=None, data_path="test_data_cypress", **kwgs):
+    def __init__(self, db_name=None, data_path="test_data", **kwgs):
         data_path = Path(__file__).parent / data_path
 
         db_setting = settings.DATABASES["default"]
