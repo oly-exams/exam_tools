@@ -17,8 +17,6 @@
 
 # Django settings for exam_tools project.
 
-# pylint: disable=unused-wildcard-import
-
 import subprocess
 
 # Import the OS module and work out our project's paths

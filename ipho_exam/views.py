@@ -2522,7 +2522,7 @@ def print_submissions_translation(request):
 
 @permission_required("ipho_core.is_delegation_print")
 @ensure_csrf_cookie
-def submission_delegation_list_submitted(request):  # pylint: disable=invalid-name
+def submission_delegation_list_submitted(request):
     delegation = Delegation.objects.filter(members=request.user)
 
     exams = (
@@ -2956,7 +2956,7 @@ def submission_exam_confirm(
 @permission_required("ipho_core.is_delegation")
 def submission_exam_submitted(
     request, exam_id
-):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
+):  # pylint: disable=too-many-locals, too-many-branches
     exam = get_object_or_404(Exam, id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
     no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)

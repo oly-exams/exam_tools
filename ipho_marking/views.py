@@ -48,7 +48,7 @@ OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 
 
 @permission_required("ipho_core.is_staff")
-def import_exam(request):  # pylint: disable=too-many-locals
+def import_exam(request):
     ctx = {}
     ctx["alerts"] = []
     form = ImportForm(request.POST or None)
@@ -307,7 +307,7 @@ def _get_total(filtered_markings):
 
 
 @permission_required("ipho_core.is_delegation")
-def delegation_export(request, exam_id):  # pylint: disable=too-many-locals
+def delegation_export(request, exam_id):
     delegation = Delegation.objects.get(members=request.user)
 
     all_versions = request.GET.get("v", "O,D,F").split(",")

@@ -6,6 +6,7 @@ exam_tools/settings.py
 venv
 ipho.db
 ipho.db.bak*
+*.db
 db/
 exams-docs
 outcode_raw.svg

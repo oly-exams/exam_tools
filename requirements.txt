@@ -19,6 +19,7 @@ flower
 requests
 appypod
 Pillow
+iso3166
 lxml
 html5lib
 bs4

@@ -54,14 +54,14 @@ from .forms import ChoiceFormHelper, VoteFormHelper
 @login_required
 @permission_required("ipho_core.is_staff")
 @ensure_csrf_cookie
-def staff_index(request):  # pylint: disable=invalid-name)
-    return render(request, "ipho_poll/staff_index.html")
+def staff_index(request):
+    return render(request, "ipho_poll/staff-index.html")
 
 
 @login_required
 @permission_required("ipho_core.is_staff")
 @ensure_csrf_cookie
-def staff_index_partial(request, qtype):  # pylint: disable=invalid-name)
+def staff_index_partial(request, qtype):
     if qtype == "drafted":
         questions_list = Question.objects.is_draft().order_by("pk")
     elif qtype == "open":
