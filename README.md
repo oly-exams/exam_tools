@@ -174,11 +174,12 @@ pre-commit run
 pre-commit run --all-files
 ```
 
+
 ## Testing with Cypress and Django
 
-### Django 
+### Django
 
-Simply run 
+Simply run
 ```bash
 python manage.py test
 ```

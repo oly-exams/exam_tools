@@ -24,5 +24,4 @@ beforeEach(() => {
     // this runs prior to every test
     // across all files no matter what
     cy.exec('python ipho_data/main.py', {timeout:240000})
-    cy.wait(500)
   })
