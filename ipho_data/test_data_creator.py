@@ -11,8 +11,8 @@ DEFAULT_DATABASE_NAME = settings.DATABASES["default"]["NAME"]
 
 
 class TestDataCreator(DataCreator):
-    def __init__(self, db_name=None, **kwgs):
-        data_path = Path(__file__).parent / "test_data"
+    def __init__(self, db_name=None, data_path="test_data_cypress", **kwgs):
+        data_path = Path(__file__).parent / data_path
 
         db_setting = settings.DATABASES["default"]
         if "sqlite3" not in db_setting["ENGINE"]:
