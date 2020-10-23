@@ -23,8 +23,6 @@ import './commands'
 beforeEach(() => {
     // this runs prior to every test
     // across all files no matter what
-    
-    //TODO: Add script to create or load testdata
-    //cy.exec('python manage.py flush --noinput && python manage.py loaddata cypress/fixtures/test_delegation.json')
+    cy.exec('python ipho_data/main.py', {timeout:240000})
     cy.wait(500)
   })

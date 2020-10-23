@@ -29,7 +29,7 @@ Cypress.Commands.add('login', (username, password) => {
     // This command is used to log into the page.
     return cy.request({
       url: 'accounts/login/',
-      method: 'GET' // cookies are in the HTTP headers, so HEAD suffices
+      method: 'GET' 
     }).then(() => {
   
       cy.getCookie('sessionid').should('not.exist')
@@ -55,3 +55,17 @@ Cypress.Commands.add('login', (username, password) => {
     })
   
   })
+
+  Cypress.Commands.add('logout', () => {
+    // This command is used to logout.
+    return cy.clearCookies()
+  })
+
+  Cypress.Commands.add(
+    "shouldHaveTrimmedText",
+    { prevSubject: true },
+    (subject, equalTo) => {
+        expect(subject.text().trim()).to.eq(equalTo);
+        return subject;
+    },
+);
