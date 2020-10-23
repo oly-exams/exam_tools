@@ -57,7 +57,7 @@ test_django_tests:
 #   script:
 #     - docker pull $CONTAINER_TEST_IMAGE
 #     - docker run $CONTAINER_TEST_IMAGE /script/to/run/tests
-# 
+#
 # test2:
 #   stage: test
 #   script:
