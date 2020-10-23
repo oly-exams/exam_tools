@@ -155,3 +155,26 @@ session.
 ```bash
 docker-compose run --rm web bash
 ```
+
+
+## Testing with Cypress and Django
+
+### Django 
+
+Simply run 
+```bash
+python manage.py test
+```
+
+### Cypress
+
+1. Install Cypress (https://docs.cypress.io/guides/getting-started/installing-cypress.html)
+2. Start the server on localhost:8000 (e.g. with docker-compose)
+3. Open the Cypress Test Runner with:
+```bash
+npx cypress open
+```
+4. Or run the tests with:
+```bash
+npx cypress run
+```

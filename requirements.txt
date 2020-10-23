@@ -28,3 +28,4 @@ python-dateutil
 cssutils
 pytidylib >= 0.3.2, < 0.4
 google-cloud-translate
+unittest-xml-reporting
