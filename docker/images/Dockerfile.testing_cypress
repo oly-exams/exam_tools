@@ -1,6 +1,6 @@
-ARG TEST_IMAGE
+ARG SERVER_IMG=server
 
-FROM $TEST_IMAGE
+FROM $SERVER_IMG
 
 RUN apt-get update && apt-get install -y \
   libgtk2.0-0 \
@@ -23,4 +23,4 @@ RUN ["mkdir", "-p", "cypress/screenshots", "cypress/videos reports"]
 
 RUN ["chmod", "+x", "./cypress_helper.sh"]
 
-ENTRYPOINT ["./cypress_helper.sh"]
+CMD ./cypress_helper.sh

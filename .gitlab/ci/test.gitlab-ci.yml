@@ -1,11 +1,12 @@
 .test:pull_and_run:
     stage: test
     variables:
-        IMG_TAG: $CI_COMMIT_REF_NAME
+        IMG_TAG: $CI_COMMIT_BRANCH
     script:
         - IMG="$PROJ_REG/$IMG_NAME:$IMG_TAG"
         - docker pull $IMG
-        - docker run -v $PWD:/src:rw,Z --workdir /src $IMG
+        - docker run -v $PWD:/src:rw,z --workdir /src $IMG
+        # z means shared among many, Z is exclusive private mount
 
 
 test:pre-commit:

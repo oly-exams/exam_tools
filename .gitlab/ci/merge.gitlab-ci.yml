@@ -5,8 +5,9 @@ merge:pre-commit:
         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     variables:
         IMG_NAME: pre-commit
+        IMG_TAG: $CI_COMMIT_BRANCH
         CMD: pre-commit run --all-files
     script:
-        - IMG="$PROJ_REG/$IMG_NAME:latest"
+        - IMG="$PROJ_REG/$IMG_NAME:$IMG_TAG"
         - docker pull $IMG
         - docker run -v $PWD:/src:rw,Z --workdir /src $IMG $CMD

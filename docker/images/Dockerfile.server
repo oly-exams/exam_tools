@@ -19,10 +19,10 @@ RUN pip install -r requirements.txt --no-cache-dir
 COPY ./bower.json /
 RUN npm install -g bower && bower --allow-root install && bower cache --allow-root clean
 
-COPY . /app
-WORKDIR /app
+ARG SETTINGS=settings
+ENV DJANGO_SETTINGS_MODULE=exam_tools.$SETTINGS
 
-RUN cp exam_tools/settings_testing.py exam_tools/settings.py
-RUN ["python", "manage.py", "migrate"]
+#we expect the source to be mounted as app!
+WORKDIR /app
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
