@@ -11,13 +11,14 @@ variables:
     GIT_DEPTH: 2  # (default=50) we need the previous commit for pre-commit
 
 workflow:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_PIPELINE_SOURCE == "push"'
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+        - if: '$CI_PIPELINE_SOURCE == "push"'
 
 
 before_script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
 
 include:
-    - local: ".gitlab/all.gitlab-ci.yml"
+    - local: ".gitlab/ci/build.gitlab-ci.yml"
+    # - local: ".gitlab/all.gitlab-ci.yml"
