@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
     fn = os.path.join(output_dir, "999_fulldump.json")
     os.system(
-        f'python manage.py dumpdata --natural-foreign --natural-primary --indent=2 --exclude auth.permission --exclude contenttypes --exclude admin --exclude djcelery --exclude sessions --exclude ipho_core.PushSubscription --exclude ipho_exam.Figure --exclude ipho_exam.CompiledFigure --exclude ipho_exam.RawFigure > "{fn}"'
+        f'python manage.py dumpdata --natural-foreign --natural-primary --indent=2 --exclude auth.permission --exclude contenttypes --exclude admin --exclude django_celery_results --exclude sessions --exclude ipho_core.PushSubscription --exclude ipho_exam.Figure --exclude ipho_exam.CompiledFigure --exclude ipho_exam.RawFigure > "{fn}"'
     )
 
     os.system(f'python scripts/export_figures.py "{output_dir}"')
