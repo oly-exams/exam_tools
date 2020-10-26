@@ -34,7 +34,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
 from polymorphic.models import PolymorphicModel
-from polymorphic.manager import PolymorphicManager
+from polymorphic.managers import PolymorphicManager
 
 from ipho_core.models import Delegation, Student
 from ipho_exam import fonts

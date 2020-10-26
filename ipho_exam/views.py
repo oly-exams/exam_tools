@@ -46,7 +46,7 @@ from django.http import (
 )
 from django.http.request import QueryDict
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.auth.decorators import (
     login_required,
     permission_required,
@@ -998,13 +998,17 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             d[0]
             for d in Delegation.objects.filter(
                 like__status="L", like__feedback_id=f["pk"]
-            ).values_list("name")
+            )
+            .values_list("name")
+            .order_by("name")
         ]
         unlike_del = [
             d[0]
             for d in Delegation.objects.filter(
                 like__status="U", like__feedback_id=f["pk"]
-            ).values_list("name")
+            )
+            .values_list("name")
+            .order_by("name")
         ]
         like_del_string = ", ".join(like_del)
         like_del_slug = ""
@@ -1190,13 +1194,17 @@ def feedbacks_list(
                 d[0]
                 for d in Delegation.objects.filter(
                     like__status="L", like__feedback_id=fback["pk"]
-                ).values_list("name")
+                )
+                .values_list("name")
+                .order_by("name")
             ]
             unlike_del = [
                 d[0]
                 for d in Delegation.objects.filter(
                     like__status="U", like__feedback_id=fback["pk"]
-                ).values_list("name")
+                )
+                .values_list("name")
+                .order_by("name")
             ]
             like_del_string = ", ".join(like_del)
             like_del_slug = ""
@@ -1370,15 +1378,15 @@ def feedbacks_export_csv(request, exam_id, question_id):
         f = list(tfback)
         like_del = [
             d[0]
-            for d in Delegation.objects.filter(
-                like__status="L", like__feedback_id=f[0]
-            ).values_list("name")
+            for d in Delegation.objects.filter(like__status="L", like__feedback_id=f[0])
+            .values_list("name")
+            .order_by("name")
         ]
         unlike_del = [
             d[0]
-            for d in Delegation.objects.filter(
-                like__status="U", like__feedback_id=f[0]
-            ).values_list("name")
+            for d in Delegation.objects.filter(like__status="U", like__feedback_id=f[0])
+            .values_list("name")
+            .order_by("name")
         ]
         like_del_string = ", ".join(like_del)
         unlike_del_string = ", ".join(unlike_del)

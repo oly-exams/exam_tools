@@ -25,7 +25,7 @@ from past.utils import old_div
 
 from django.utils import timezone
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from .models import Question, Choice
 
@@ -54,9 +54,11 @@ def create_choice(choice_text, question_id):
 # testclasses
 # -----------
 
+
 class AlwaysPassingTest(TestCase):
     def test_true(self):
         self.assertEqual(True, True)
+
 
 @skip
 class QuestionMethodTests(TestCase):

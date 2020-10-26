@@ -52,8 +52,13 @@ urlpatterns = [
     url(r"^marking/", include("ipho_marking.urls")),
     url(r"^print/", include("ipho_print.urls")),
     url(r"^downloads/", include("ipho_download.urls")),
-    url(r"^accounts/login/?$", auth_views.login, name="login"),
-    url(r"^accounts/logout/?$", auth_views.logout, {"next_page": "/"}, name="logout"),
+    url(r"^accounts/login/?$", auth_views.LoginView.as_view(), name="login"),
+    url(
+        r"^accounts/logout/?$",
+        auth_views.LogoutView.as_view(),
+        {"next_page": "/"},
+        name="logout",
+    ),
     url(
         r"^accounts/autologin/(?P<token>[0-9a-z\-]+)/?$",
         ipho_core.views.autologin,

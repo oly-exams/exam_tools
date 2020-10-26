@@ -1,14 +1,14 @@
 future
-Django >= 1.11, < 1.12
+Django >= 2.2, < 3
 django-crispy-forms
 django-ace==1.0.2
-djangorestframework < 3.7
+djangorestframework < 3.13
 django-rest-swagger
-django-polymorphic < 2
+django-polymorphic < 4
 django-dbbackup
 tornado >= 5, < 6
 pywebpush
-django-filter < 2
+django-filter < 3
 CairoSVG==1.*
 python-barcode
 PyPDF2
