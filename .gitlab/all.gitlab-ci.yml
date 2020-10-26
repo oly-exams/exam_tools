@@ -1,4 +1,4 @@
 include:
     # - local: "ci/test.gitlab-ci.yml"
-    - local: "ci/build.gitlab-ci.yml"
+    - local: ".gitlab/ci/build.gitlab-ci.yml"
     # - local: "ci/merge.gitlab-ci.yml"
