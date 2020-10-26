@@ -14,16 +14,23 @@
 build:pre-commit:
     extends: .build:build_cached_push
     variables:
-        IMG_NAME: pre-commit:$CI_COMMIT_REF_NAME
+        IMG_NAME: pre-commit:$CI_COMMIT_BRANCH
     rules:
         - changes:
             - docker/images/Dockerfile.pre-commit
             - .pre-commit-config.yaml
 
-# build:server:
-#     extends: .build:build_cached_push
-#     variables:
-#         IMG_NAME: server
-#     rules:
-#         - changes:
-#             - docker/images/Dockerfile.server
+build:server:
+    extends: .build:build_cached_push
+    variables:
+        IMG_NAME: server:$CI_COMMIT_BRANCH
+    rules:
+        - changes:
+            - docker/images/Dockerfile.server
+
+build:echo:
+    stage: build
+    variables:
+        IMG_NAME: echo:$CI_COMMIT_BRANCH
+    script:
+        - echo $IMG_NAME

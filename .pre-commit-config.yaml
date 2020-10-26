@@ -17,7 +17,6 @@ repos:
     name: pyupgrade   - replaces old language syntax to modern version
     args: [--py38-plus]
 
-
 - repo: https://github.com/psf/black
   rev: 20.8b1
   hooks:
