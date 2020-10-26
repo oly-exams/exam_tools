@@ -20,10 +20,10 @@ build:pre-commit:
             - docker/images/Dockerfile.pre-commit
             - .pre-commit-config.yaml
 
-build:server:
-    extends: .build:build_cached_push
-    variables:
-        IMG_NAME: server
-    rules:
-        - changes:
-            - docker/images/Dockerfile.server
+# build:server:
+#     extends: .build:build_cached_push
+#     variables:
+#         IMG_NAME: server
+#     rules:
+#         - changes:
+#             - docker/images/Dockerfile.server
