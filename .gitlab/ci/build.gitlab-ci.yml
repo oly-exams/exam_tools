@@ -1,7 +1,7 @@
 .build:build_cached_push:
     stage: build
     variables:
-        IMG_TAG: $CI_COMMIT_REF_NAME
+        IMG_TAG: $CI_COMMIT_BRANCH
     script:
         # I cannot build this variable in gitlab, since they dont allow nested $
         - IMG="$PROJ_REG/$IMG_NAME:$IMG_TAG"
@@ -14,7 +14,7 @@
 build:pre-commit:
     extends: .build:build_cached_push
     variables:
-        IMG_NAME: pre-commit:$CI_COMMIT_BRANCH
+        IMG_NAME: pre-commit
     rules:
         - changes:
             - docker/images/Dockerfile.pre-commit
@@ -23,7 +23,7 @@ build:pre-commit:
 build:server:
     extends: .build:build_cached_push
     variables:
-        IMG_NAME: server:$CI_COMMIT_BRANCH
+        IMG_NAME: server
     rules:
         - changes:
             - docker/images/Dockerfile.server
@@ -31,6 +31,6 @@ build:server:
 build:echo:
     stage: build
     variables:
-        IMG_NAME: echo:$CI_COMMIT_BRANCH
+        IMG_NAME: echo
     script:
         - echo $IMG_NAME
