@@ -15,18 +15,18 @@ build:pre-commit:
     extends: .build:build_cached_push
     variables:
         IMG_NAME: pre-commit
-    rules:
-        - changes:
-            - docker/images/Dockerfile.pre-commit
-            - .pre-commit-config.yaml
+    # rules:
+    #     - changes:
+    #         - docker/images/Dockerfile.pre-commit
+    #         - .pre-commit-config.yaml
 
 build:server:
     extends: .build:build_cached_push
     variables:
         IMG_NAME: server
-    rules:
-        - changes:
-            - docker/images/Dockerfile.server
+    # rules:
+    #     - changes:
+    #         - docker/images/Dockerfile.server
 
 build:echo:
     stage: build
