@@ -1,0 +1,29 @@
+.build:build_cached_push:
+    stage: build
+    variables:
+        IMG_TAG: $CI_COMMIT_REF_NAME
+    script:
+        # I cannot build this variable in gitlab, since they dont allow nested $
+        - IMG="$PROJ_REG/$IMG_NAME:$IMG_TAG"
+        # this is the recommended way to reuse layers
+        # (https://docs.gitlab.com/ee/user/packages/container_registry/index.html#using-a-docker-in-docker-image-from-your-container-registry)
+        - docker pull $IMG || true
+        - docker build --pull --cache-from $IMG -f docker/images/Dockerfile.$IMG_NAME -t $IMG .
+        - docker push $IMG
+
+build:pre-commit:
+    extends: .build:build_cached_push
+    variables:
+        IMG_NAME: pre-commit:$CI_COMMIT_REF_NAME
+    rules:
+        - changes:
+            - docker/images/Dockerfile.pre-commit
+            - .pre-commit-config.yaml
+
+build:server:
+    extends: .build:build_cached_push
+    variables:
+        IMG_NAME: server
+    rules:
+        - changes:
+            - docker/images/Dockerfile.server

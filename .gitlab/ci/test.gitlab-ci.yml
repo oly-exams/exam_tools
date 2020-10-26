@@ -1,0 +1,20 @@
+.test:pull_and_run:
+    stage: test
+    variables:
+        IMG_TAG: $CI_COMMIT_REF_NAME
+    script:
+        - IMG="$PROJ_REG/$IMG_NAME:$IMG_TAG"
+        - docker pull $IMG
+        - docker run -v $PWD:/src:rw,Z --workdir /src $IMG
+
+
+test:pre-commit:
+    extends: .test:pull_and_run
+    variables:
+        IMG_NAME: pre-commit
+
+
+test:cypress:
+    extends: .test:pull_and_run
+    variables:
+        IMG_NAME: server

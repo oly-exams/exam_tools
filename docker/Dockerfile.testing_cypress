@@ -1,9 +1,0 @@
-ARG TEST_IMAGE
-
-FROM $TEST_IMAGE
-
-RUN exec mkdir -p cypress/screenshots cypress/videos reports
-
-RUN ["chmod", "+x", "./cypress_helper.sh"]
-
-ENTRYPOINT ["./cypress_helper.sh"]

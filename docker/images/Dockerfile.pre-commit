@@ -1,0 +1,15 @@
+FROM python:3.8-slim-buster
+
+ENV PYTHONUNBUFFERED 1
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update && apt-get install -y \
+  git \
+  --no-install-recommends && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN pip install pre-commit pylint
+
+# we need a dummy git repo
+RUN git init
+COPY .pre-commit-config.yaml /
+RUN pre-commit install-hooks
+CMD pre-commit run --from-ref HEAD~1 --to-ref HEAD

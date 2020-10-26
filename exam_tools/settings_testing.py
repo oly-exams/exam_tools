@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# pylint: disable=unused-wildcard-import
+
 import sys
 
 # Django settings for exam_tools project.
@@ -37,6 +40,7 @@ TEST_OUTPUT_VERBOSE = 2
 
 ADMINS = ()
 
+ALLOWED_HOSTS = ["*"]
 MANAGERS = ADMINS
 
 DATABASES = {

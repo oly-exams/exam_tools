@@ -1,17 +1,27 @@
 fail_fast: true
 repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+  - id: check-yaml
+    name: check-yaml  - check yaml syntax
+  - id: end-of-file-fixer
+    name: eof-fixer   - fix end of files
+  - id: trailing-whitespace
+    name: trailing-ws - trim trailing whitespace
+
 - repo: https://github.com/asottile/pyupgrade
   rev: v2.7.2
   hooks:
   - id: pyupgrade
-    name: pyupgrade - replaces old language syntax to modern version
+    name: pyupgrade   - replaces old language syntax to modern version
     args: [--py38-plus]
 
 - repo: https://github.com/psf/black
   rev: 20.8b1
   hooks:
   - id: black
-    name: black     - code formatter without configuration
+    name: black       - code formatter without configuration
 
 # - repo: https://github.com/pre-commit/mirrors-mypy
 #   rev: v0.782
@@ -23,7 +33,7 @@ repos:
 - repo: local
   hooks:
   - id: pylint
-    name: pylint    - python style enforcer
+    name: pylint      - python style enforcer
     entry: pylint
     language: system
     types: [python]

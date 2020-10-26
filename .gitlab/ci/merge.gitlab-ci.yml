@@ -1,0 +1,12 @@
+
+merge:pre-commit:
+    stage: test
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    variables:
+        IMG_NAME: pre-commit
+        CMD: pre-commit run --all-files
+    script:
+        - IMG="$PROJ_REG/$IMG_NAME:latest"
+        - docker pull $IMG
+        - docker run -v $PWD:/src:rw,Z --workdir /src $IMG $CMD
