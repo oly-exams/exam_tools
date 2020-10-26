@@ -20,5 +20,4 @@ before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
 
 include:
-    - local: ".gitlab/ci/build.gitlab-ci.yml"
-    # - local: ".gitlab/all.gitlab-ci.yml"
+    - local: ".gitlab/all.gitlab-ci.yml"
