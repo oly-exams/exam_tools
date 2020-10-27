@@ -40,7 +40,7 @@ urlpatterns = [
     ),
     path("question/detail/<int:question_pk>/", views.question, name="question"),
     path(
-        "question/large/<int:question_pk/",
+        "question/large/<int:question_pk>/",
         views.question_large,
         name="question_large",
     ),
