@@ -21,6 +21,4 @@ RUN  npm -g install cypress --unsafe-perm=true --allow-root --save-dev cypress \
 
 RUN ["mkdir", "-p", "cypress/screenshots", "cypress/videos reports"]
 
-RUN ["chmod", "+x", "./cypress_helper.sh"]
-
-CMD ./cypress_helper.sh
+CMD /bin/bash ./cypress_helper.sh
