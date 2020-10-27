@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.conf.urls import re_path
 
 from . import views
 
 app_name = "print"
 urlpatterns = [
-    url(r"^$", views.main, name="main"),
+    re_path(r"^$", views.main, name="main"),
 ]
