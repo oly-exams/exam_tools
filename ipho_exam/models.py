@@ -31,7 +31,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 
 from polymorphic.models import PolymorphicModel
 from polymorphic.managers import PolymorphicManager
@@ -53,7 +52,6 @@ class LanguageManager(models.Manager):
         )
 
 
-@python_2_unicode_compatible
 class Language(models.Model):
     objects = LanguageManager()
     DIRECTION_CHOICES = (("ltr", "Left-to-right"), ("rtl", "Right-to-left"))
@@ -395,7 +393,6 @@ class ExamManager(models.Manager):
         return self.get(name=name)
 
 
-@python_2_unicode_compatible
 class Exam(models.Model):
     objects = ExamManager()
 
@@ -436,7 +433,6 @@ class QuestionManager(models.Manager):
         return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam_name))
 
 
-@python_2_unicode_compatible
 class Question(models.Model):
     objects = QuestionManager()
 
@@ -509,7 +505,6 @@ class VersionNodeManager(models.Manager):
         )
 
 
-@python_2_unicode_compatible
 class VersionNode(models.Model):
     objects = VersionNodeManager()
     STATUS_CHOICES = (
@@ -561,7 +556,6 @@ class TranslationNodeManager(models.Manager):
         )
 
 
-@python_2_unicode_compatible
 class TranslationNode(models.Model):
     objects = TranslationNodeManager()
     STATUS_CHOICES = (
@@ -598,7 +592,6 @@ class AttributeChangeManager(models.Manager):
         )
 
 
-@python_2_unicode_compatible
 class AttributeChange(models.Model):
     objects = AttributeChangeManager()
     content = models.TextField(blank=True)
@@ -631,7 +624,6 @@ def get_file_path(instance, filename):
     )
 
 
-@python_2_unicode_compatible
 class PDFNode(models.Model):
     objects = PDFNodeManager()
     STATUS_CHOICES = (
@@ -661,7 +653,6 @@ class PDFNode(models.Model):
     natural_key.dependencies = ["ipho_exam.question", "ipho_exam.language"]
 
 
-@python_2_unicode_compatible
 class TranslationImportTmp(models.Model):
     slug = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -672,7 +663,6 @@ class TranslationImportTmp(models.Model):
         return f"{self.slug} - {self.question}, {self.language}"
 
 
-@python_2_unicode_compatible
 class CachedAutoTranslation(models.Model):
     source_and_lang_hash = models.CharField(max_length=32, primary_key=True)
     source_length = models.IntegerField()
@@ -695,7 +685,6 @@ class FigureManager(PolymorphicManager):
         return self.get(fig_id=fig_id)
 
 
-@python_2_unicode_compatible
 class Figure(PolymorphicModel):
     objects = FigureManager()
     name = models.CharField(max_length=100, db_index=True)
@@ -811,7 +800,6 @@ class PlaceManager(models.Manager):
         return self.get(name=name, exam__name=exam_name)
 
 
-@python_2_unicode_compatible
 class Place(models.Model):
     objects = PlaceManager()
 
@@ -829,7 +817,6 @@ class Place(models.Model):
         unique_together = index_together = ("student", "exam")
 
 
-@python_2_unicode_compatible
 class Feedback(models.Model):
     STATUS_CHOICES = (
         ("S", "Submitted"),
@@ -1017,7 +1004,6 @@ def exam_scans_orig_filename(obj, fname):  # pylint: disable=unused-argument
     return f"scans-evaluated/{obj.barcode_base}__{timestamp}.pdf"
 
 
-@python_2_unicode_compatible
 class Document(models.Model):
     SCAN_STATUS_CHOICES = (
         ("S", "Success"),
@@ -1078,7 +1064,6 @@ class Document(models.Model):
         return f"Document: {self.exam.name} #{self.position} [{self.student.code}]"
 
 
-@python_2_unicode_compatible
 class DocumentTask(models.Model):
     task_id = models.CharField(unique=True, max_length=255)
     document = models.OneToOneField(Document, on_delete=models.CASCADE)
@@ -1087,7 +1072,6 @@ class DocumentTask(models.Model):
         return f"{self.task_id} --> {self.document}"
 
 
-@python_2_unicode_compatible
 class PrintLog(models.Model):
     TYPE_CHOICES = (("P", "Printout"), ("S", "Scan"))
     document = models.ForeignKey(Document, on_delete=models.CASCADE)

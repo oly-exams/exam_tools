@@ -20,7 +20,6 @@ import uuid
 import json
 from django.db import models
 from django.conf import settings
-from django.utils.encoding import python_2_unicode_compatible
 
 # other modules expect Group to be here
 from django.contrib.auth.models import Group  # pylint: disable=unused-import
@@ -57,7 +56,6 @@ class AutoLoginManager(models.Manager):
         return self.get(user=User.objects.get_by_natural_key(username))
 
 
-@python_2_unicode_compatible
 class AutoLogin(models.Model):
     objects = AutoLoginManager()
 
@@ -76,7 +74,6 @@ class DelegationManager(models.Manager):
         return self.get(name=name)
 
 
-@python_2_unicode_compatible
 class Delegation(models.Model):
     objects = DelegationManager()
 
@@ -102,7 +99,6 @@ class StudentManager(models.Manager):
         return self.get(code=code)
 
 
-@python_2_unicode_compatible
 class Student(models.Model):
     objects = StudentManager()
 
@@ -162,7 +158,6 @@ class PushSubscription(models.Model):
         return res
 
 
-@python_2_unicode_compatible
 class AccountRequest(models.Model):
     email = models.EmailField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
