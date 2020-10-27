@@ -55,8 +55,7 @@ urlpatterns = [
     re_path(r"^accounts/login/?$", auth_views.LoginView.as_view(), name="login"),
     re_path(
         r"^accounts/logout/?$",
-        auth_views.LogoutView.as_view(),
-        {"next_page": "/"},
+        auth_views.LogoutView.as_view(next_page="/"),
         name="logout",
     ),
     re_path(
