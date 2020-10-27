@@ -47,7 +47,7 @@ class BaseDataCreator(CreatorCsvUtil):
 
     @staticmethod
     def init_database():
-        call_command("migrate", verbose=0)
+        call_command("migrate", verbosity=0)
 
     def load_data(self, json_filename):
         call_command("loaddata", self.full_path(json_filename))
