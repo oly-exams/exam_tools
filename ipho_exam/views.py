@@ -162,11 +162,11 @@ def index(request):
 def main(request):
     success = None
 
-    delegation = Delegation.objects.filter(members=request.user)
+    delegation = Delegation.objects.filter(members=request.user).first()
 
     own_lang = None
     other_lang = None
-    if delegation.count() > 0:
+    if delegation is not None:
         own_lang = Language.objects.filter(
             hidden=False, delegation=delegation
         ).order_by("name")
@@ -177,21 +177,20 @@ def main(request):
         )
     else:
         other_lang = Language.objects.filter(hidden=False).order_by("name")
-
     ## Exam section
     exam_list = Exam.objects.filter(
         hidden=False, active=True
     )  # TODO: allow admin to see all exams
     exams_open = ExamAction.objects.filter(
         delegation=delegation,
-        exam=exam_list,
+        exam__in=exam_list,
         exam__active=True,
         action=ExamAction.TRANSLATION,
         status=ExamAction.OPEN,
     ).values("exam__pk", "exam__name")
     exams_closed = ExamAction.objects.filter(
         delegation=delegation,
-        exam=exam_list,
+        exam__in=exam_list,
         action=ExamAction.TRANSLATION,
         status=ExamAction.SUBMITTED,
     ).values("exam__pk", "exam__name")
@@ -215,8 +214,7 @@ def time_response(request):
 
 @permission_required("ipho_core.is_delegation")
 def wizard(request):
-    delegation = Delegation.objects.filter(members=request.user)
-
+    delegation = Delegation.objects.filter(members=request.user).first()
     own_languages = Language.objects.filter(
         hidden=False, delegation=delegation
     ).order_by("name")
@@ -256,7 +254,7 @@ def wizard(request):
 @permission_required("ipho_core.is_delegation")
 @ensure_csrf_cookie
 def translations_list(request):
-    delegation = Delegation.objects.filter(members=request.user)
+    delegation = Delegation.objects.filter(members=request.user).first()
 
     # if request.is_ajax and 'exam_id' in request.GET:
     if "exam_id" in request.GET:
@@ -580,7 +578,7 @@ def translation_export(request, question_id, lang_id, version_num=None):
 @permission_required("ipho_core.is_delegation")
 def translation_import(request, question_id, lang_id):
     """ Translation import (only for delegations) """
-    delegation = Delegation.objects.filter(members=request.user)
+    delegation = Delegation.objects.get(members=request.user)
     language = get_object_or_404(Language, id=lang_id)
     question = get_object_or_404(Question, id=question_id)
     if not language.check_permission(request.user):
@@ -677,9 +675,9 @@ def translation_import_confirm(request, slug):
 @ensure_csrf_cookie
 def list_language(request):
     delegation = Delegation.objects.filter(members=request.user)
-    languages = Language.objects.filter(hidden=False, delegation=delegation).order_by(
-        "name"
-    )
+    languages = Language.objects.filter(
+        hidden=False, delegation__in=delegation
+    ).order_by("name")
     # TODO: do not show Add language if no delegation
     return render(request, "ipho_exam/languages.html", {"languages": languages})
 
@@ -888,7 +886,7 @@ def exam_view(
 def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     request, exam_id, question_id, qml_id="", orig_id=OFFICIAL_LANGUAGE
 ):
-    delegation = Delegation.objects.filter(members=request.user)
+    delegation = Delegation.objects.filter(members=request.user).first()
 
     if exam_id is not None:
         exam = get_object_or_404(
@@ -937,7 +935,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
                         found = True
                         break
         if form.is_valid():
-            form.instance.delegation = delegation.first()
+            form.instance.delegation = delegation
             form.instance.question = question
             form.instance.qml_id = qml_id
             form.instance.part = part
@@ -1030,7 +1028,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         fback["enable_likes"] = (
             (fback["delegation_likes"] == 0)
             and fback["question__feedback_active"]
-            and len(delegation) > 0
+            and delegation is not None
         )
     feedbacks = list(feedbacks)
     feedbacks.sort(
@@ -1039,7 +1037,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
 
     ctxt["feedbacks"] = feedbacks
     ctxt["status_choices"] = Feedback.STATUS_CHOICES
-    ctxt["is_delegation"] = len(delegation) > 0 or request.user.has_perm(
+    ctxt["is_delegation"] = delegation is not None or request.user.has_perm(
         "ipho_core.is_staff"
     )
 
@@ -1096,7 +1094,7 @@ def feedbacks_list(
     if not exam in exam_list:
         exam = None
         exam_filter_list = exam_list
-    delegation = Delegation.objects.filter(members=request.user)
+    delegation = Delegation.objects.filter(members=request.user).first()
 
     questions_f = Question.objects.filter(exam__in=exam_filter_list).all()
 
@@ -1224,7 +1222,7 @@ def feedbacks_list(
             fback["enable_likes"] = (
                 (fback["delegation_likes"] == 0)
                 and fback["question__feedback_active"]
-                and len(delegation) > 0
+                and delegation is not None
             )
         feedbacks = list(feedbacks)
         feedbacks.sort(
@@ -1237,7 +1235,7 @@ def feedbacks_list(
             {
                 "feedbacks": feedbacks,
                 "status_choices": Feedback.STATUS_CHOICES,
-                "is_delegation": len(delegation) > 0
+                "is_delegation": delegation is not None
                 or request.user.has_perm("ipho_core.is_staff"),
             },
         )
@@ -1263,7 +1261,7 @@ def feedbacks_list(
             "status_choices": Feedback.STATUS_CHOICES,
             "question": question_f,
             "questions": questions_f,
-            "is_delegation": len(delegation) > 0
+            "is_delegation": delegation is not None
             or request.user.has_perm("ipho_core.is_staff"),
             "this_url_builder": url_builder,
             "form": form_html,
@@ -1748,10 +1746,12 @@ def admin_new_version(request, exam_id, question_id):
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
-        if VersionNode.objects.filter(question=question, language=lang).count() > 0:
-            node = VersionNode.objects.filter(
-                question=question, language=lang
-            ).order_by("-version")[0]
+        if VersionNode.objects.filter(question=question, language=lang).exists():
+            node = (
+                VersionNode.objects.filter(question=question, language=lang)
+                .order_by("-version")
+                .first()
+            )
         else:
             node = VersionNode(
                 question=question, language=lang, version=0, text='<question id="q0" />'
@@ -1786,9 +1786,11 @@ def admin_import_version(request, question_id):
             if VersionNode.objects.filter(
                 question=question, language=language
             ).exists():
-                node = VersionNode.objects.filter(
-                    question=question, language=language
-                ).order_by("-version")[0]
+                node = (
+                    VersionNode.objects.filter(question=question, language=language)
+                    .order_by("-version")
+                    .first()
+                )
             else:
                 node = VersionNode(
                     question=question,
@@ -1909,9 +1911,13 @@ def admin_accept_version(
         return HttpResponseRedirect(reverse("exam:admin"))
 
     if compare_version is None:
-        compare_node = VersionNode.objects.filter(
-            question=question, language=lang, status__in=["S", "C"]
-        ).order_by("-version")[0]
+        compare_node = (
+            VersionNode.objects.filter(
+                question=question, language=lang, status__in=["S", "C"]
+            )
+            .order_by("-version")
+            .first()
+        )
         return HttpResponseRedirect(
             reverse(
                 "exam:admin-accept-version-diff",
@@ -2350,7 +2356,7 @@ def admin_editor_move_block(  # pylint: disable=too-many-arguments
 
 @permission_required("ipho_core.is_delegation")
 def submission_exam_list(request):
-    delegation = Delegation.objects.filter(members=request.user)
+    delegation = Delegation.objects.get(members=request.user)
 
     exams_open = (
         Exam.objects.filter(hidden=False, active=True)
@@ -2531,7 +2537,7 @@ def print_submissions_translation(request):
 @permission_required("ipho_core.is_delegation_print")
 @ensure_csrf_cookie
 def submission_delegation_list_submitted(request):
-    delegation = Delegation.objects.filter(members=request.user)
+    delegation = Delegation.objects.get(members=request.user)
 
     exams = (
         Exam.objects.filter(hidden=False, show_delegation_submissions=True)
@@ -3119,7 +3125,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.first()
 
-    delegation = Delegation.objects.filter(members=request.user)
+    delegation = Delegation.objects.get(members=request.user)
     should_forbid = ExamAction.require_in_progress(
         ExamAction.TRANSLATION, exam=exam, delegation=delegation
     )
@@ -3146,7 +3152,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
 
         orig_lang = get_object_or_404(Language, id=orig_id)
 
-        if delegation.count() > 0:
+        if delegation is not None:
             own_lang = Language.objects.filter(
                 hidden=False, translationnode__question=question, delegation=delegation
             ).order_by("name")
@@ -3194,7 +3200,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
         )
         question_langs.append({"name": "official", "order": 0, "list": official_list})
         ## own
-        if delegation.count() > 0:
+        if delegation is not None:
             question_langs.append(
                 {
                     "name": "own",
@@ -3464,7 +3470,7 @@ def auto_translate(request):  # pylint: disable=too-many-locals
         repl_pat = r'<\s*span\s*class\s*=\s*"math-tex"\s*>.*?<\s*\/\s*span\s*>'
         text = re.sub(repl_pat, MathReplacer.repl, raw_text)
         source_len = len(text)
-        delegation = Delegation.objects.filter(members=request.user).first()
+        delegation = Delegation.objects.get(members=request.user)
         if delegation is not None:
             delegation.auto_translate_char_count += source_len
             delegation.save()

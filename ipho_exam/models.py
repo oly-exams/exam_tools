@@ -483,7 +483,7 @@ class Question(models.Model):
     natural_key.dependencies = ["ipho_exam.exam"]
 
     def has_published_version(self):
-        return bool(self.versionnode_set.filter(status="C"))
+        return self.versionnode_set.filter(status="C").exists()
 
     def check_permission(self, user):
         if user.has_perm("ipho_core.is_staff"):
