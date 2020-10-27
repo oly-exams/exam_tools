@@ -15,38 +15,38 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import include, re_path
+from django.urls import include, path, re_path
 
 from . import views
 
 app_name = "exam"
 urlpatterns = [
-    re_path(r"^$", views.index, name="index"),
-    re_path(r"^wizard$", views.wizard, name="wizard"),
-    re_path(r"^main$", views.main, name="main"),
+    path("", views.index, name="index"),
+    path("wizard", views.wizard, name="wizard"),
+    path("main", views.main, name="main"),
     re_path(r"^translation/list/?$", views.translations_list, name="list"),
-    re_path(
-        r"^translation/add/(?P<exam_id>\d+)$",
+    path(
+        "translation/add/<int:exam_id>",
         views.add_translation,
         name="add-translation",
     ),
-    re_path(
-        r"^translation/upload/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)$",
+    path(
+        "translation/upload/question/<int:question_id>/lang/<int:lang_id>",
         views.add_pdf_node,
         name="upload-translation",
     ),
-    re_path(
-        r"^translation/export/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)$",
+    path(
+        "translation/export/question/<int:question_id>/lang/<int:lang_id>",
         views.translation_export,
         name="export-translation",
     ),
-    re_path(
-        r"^translation/export/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<version_num>\d+)",
+    path(
+        "translation/export/question/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
         views.translation_export,
         name="export-translation-version",
     ),
-    re_path(
-        r"^translation/import/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)$",
+    path(
+        "translation/import/question/<int:question_id>/lang/<int:lang_id>",
         views.translation_import,
         name="import-translation",
     ),
@@ -56,123 +56,121 @@ urlpatterns = [
         name="import-translation-confirm",
     ),
     re_path(r"^translation/all/?$", views.list_all_translations, name="list-all"),
-    re_path(r"^auto-translate$", views.auto_translate, name="auto-translate"),
-    re_path(
-        r"^auto-translate-count$",
+    path("auto-translate", views.auto_translate, name="auto-translate"),
+    path(
+        "auto-translate-count",
         views.auto_translate_count,
         name="auto-translate-count",
     ),
     re_path(r"^languages/?$", views.list_language, name="language-list"),
-    re_path(r"^languages/add$", views.add_language, name="language-add"),
-    re_path(
-        r"^languages/edit/(?P<lang_id>\d+)$", views.edit_language, name="language-edit"
-    ),
-    re_path(r"^time$", views.time_response, name="time"),
+    path("languages/add", views.add_language, name="language-add"),
+    path("languages/edit/<int:lang_id>", views.edit_language, name="language-edit"),
+    path("time", views.time_response, name="time"),
     re_path(r"^editor/?$", views.editor),
-    re_path(r"^editor/(?P<exam_id>\d+)$", views.editor, name="editor-exam"),
-    re_path(
-        r"^editor/(?P<exam_id>\d+)/question/(?P<question_id>\d+)$",
+    path("editor/<int:exam_id>", views.editor, name="editor-exam"),
+    path(
+        "editor/<int:exam_id>/question/<int:question_id>",
         views.editor,
         name="editor-question",
     ),
-    re_path(
-        r"^editor/(?P<exam_id>\d+)/question/(?P<question_id>\d+)/orig/(?P<orig_id>\d+)$",
+    path(
+        "editor/<int:exam_id>/question/<int:question_id>/orig/<int:orig_id>",
         views.editor,
         name="editor-orig",
     ),
-    re_path(
-        r"^editor/(?P<exam_id>\d+)/question/(?P<question_id>\d+)/orig/(?P<orig_id>\d+)/lang/(?P<lang_id>\d+)?$",
+    path(
+        "editor/<int:exam_id>/question/<int:question_id>/orig/<int:orig_id>/lang/<int:lang_id>",
         views.editor,
         name="editor-orig-lang",
     ),
-    re_path(
-        r"^editor/(?P<exam_id>\d+)/question/(?P<question_id>\d+)/orig_diff/(?P<orig_id>\d+)v(?P<orig_diff>\d+)$",
+    path(
+        "editor/<int:exam_id>/question/<int:question_id>/orig_diff/<int:orig_id>v<int:orig_diff>",
         views.editor,
         name="editor-origdiff",
     ),
-    re_path(
-        r"^editor/(?P<exam_id>\d+)/question/(?P<question_id>\d+)/orig_diff/(?P<orig_id>\d+)v(?P<orig_diff>\d+)/lang/(?P<lang_id>\d+)?$",
+    path(
+        "editor/<int:exam_id>/question/<int:question_id>/orig_diff/<int:orig_id>v<int:orig_diff>/lang/<int:lang_id>",
         views.editor,
         name="editor-origdiff-lang",
     ),
-    re_path(r"^view$", views.exam_view, name="exam-view"),
-    re_path(r"^view/(?P<exam_id>\d+)$", views.exam_view, name="exam-view"),
-    re_path(
-        r"^view/(?P<exam_id>\d+)/question/(?P<question_id>\d+)$",
+    path("view", views.exam_view, name="exam-view"),
+    path("view/<int:exam_id>", views.exam_view, name="exam-view"),
+    path(
+        "view/<int:exam_id>/question/<int:question_id>",
         views.exam_view,
         name="exam-view",
     ),
-    re_path(
-        r"^pdf/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$",
+    path(
+        "pdf/question/<int:question_id>/lang/<int:lang_id>",
         views.compiled_question,
         name="pdf",
     ),
-    re_path(
-        r"^pdf/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<version_num>\d+)$",
+    path(
+        "pdf/question/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
         views.compiled_question,
         name="pdf-version",
     ),
-    re_path(
-        r"^pdf-diff/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<old_version_num>\d+)/v(?P<new_version_num>\d+)$",
+    path(
+        "pdf-diff/question/<int:question_id>/lang/<int:lang_id>/v<int:old_version_num>/v<int:new_version_num>",
         views.compiled_question_diff,
         name="pdfdiff-version",
     ),
-    re_path(
-        r"^tex/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$",
+    path(
+        "tex/question/<int:question_id>/lang/<int:lang_id>",
         views.compiled_question,
         {"raw_tex": True},
         name="tex",
     ),
-    re_path(
-        r"^tex/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<version_num>\d+)$",
+    path(
+        "tex/question/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
         views.compiled_question,
         {"raw_tex": True},
         name="tex-version",
     ),
-    re_path(
-        r"^odt/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)?$",
+    path(
+        "odt/question/<int:question_id>/lang/<int:lang_id>",
         views.compiled_question_odt,
         name="odt",
     ),
-    re_path(
-        r"^odt/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<version_num>\d+)$",
+    path(
+        "odt/question/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
         views.compiled_question_odt,
         name="odt-version",
     ),
-    re_path(
-        r"^html/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)$",
+    path(
+        "html/question/<int:question_id>/lang/<int:lang_id>",
         views.compiled_question_html,
         name="html",
     ),
-    re_path(
-        r"^html/question/(?P<question_id>\d+)/lang/(?P<lang_id>\d+)/v(?P<version_num>\d+)$",
+    path(
+        "html/question/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
         views.compiled_question_html,
         name="html-version",
     ),
-    re_path(
-        r"^pdf/exam/(?P<exam_id>\d+)/student/(?P<student_id>\d+)$",
+    path(
+        "pdf/exam/<int:exam_id>/student/<int:student_id>",
         views.pdf_exam_for_student,
         name="pdf-exam-student",
     ),
-    re_path(
-        r"^pdf/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)$",
+    path(
+        "pdf/exam/<int:exam_id>/<int:position>/student/<int:student_id>",
         views.pdf_exam_pos_student,
         {"type": "P"},
         name="pdf-exam-pos-student",
     ),
-    re_path(
-        r"^pdf/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)/status$",
+    path(
+        "pdf/exam/<int:exam_id>/<int:position>/student/<int:student_id>/status",
         views.pdf_exam_pos_student_status,
         name="pdf-exam-pos-student-status",
     ),
-    re_path(
-        r"^scan/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)$",
+    path(
+        "scan/exam/<int:exam_id>/<int:position>/student/<int:student_id>",
         views.pdf_exam_pos_student,
         {"type": "S"},
         name="scan-exam-pos-student",
     ),
-    re_path(
-        r"^scan_orig/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)$",
+    path(
+        "scan_orig/exam/<int:exam_id>/<int:position>/student/<int:student_id>",
         views.pdf_exam_pos_student,
         {"type": "O"},
         name="scan-orig-exam-pos-student",
@@ -197,21 +195,19 @@ urlpatterns = [
         views.feedbacks_list,
         name="feedbacks-list",
     ),
-    re_path(
-        r"^feedbacks/add$", views.feedbacks_add_comment, name="feedback-add-comment"
-    ),
-    re_path(
-        r"^feedbacks/add/(?P<feedback_id>\d+)$",
+    path("feedbacks/add", views.feedbacks_add_comment, name="feedback-add-comment"),
+    path(
+        "feedbacks/add/<int:feedback_id>",
         views.feedbacks_add_comment,
         name="feedback-add-comment",
     ),
-    re_path(
-        r"^feedbacks/numbers/(?P<exam_id>\d+)/(?P<question_id>\d+)$",
+    path(
+        "feedbacks/numbers/<int:exam_id>/<int:question_id>",
         views.feedback_numbers,
         name="feedback-numbers",
     ),
-    re_path(
-        r"^feedbacks/partial/(?P<exam_id>\d+)/(?P<question_id>\d+)$",
+    path(
+        "feedbacks/partial/<int:exam_id>/<int:question_id>",
         views.feedback_partial,
         name="feedback-partial",
     ),
@@ -230,21 +226,19 @@ urlpatterns = [
         views.feedback_set_status,
         name="feedback-set-status",
     ),
-    re_path(
-        r"^submission/list$", views.submission_exam_list, name="submission-exam-list"
-    ),
-    re_path(
-        r"^submission/(?P<exam_id>\d+)/assign$",
+    path("submission/list", views.submission_exam_list, name="submission-exam-list"),
+    path(
+        "submission/<int:exam_id>/assign",
         views.submission_exam_assign,
         name="submission-exam-assign",
     ),
-    re_path(
-        r"^submission/(?P<exam_id>\d+)/confirm$",
+    path(
+        "submission/<int:exam_id>/confirm",
         views.submission_exam_confirm,
         name="submission-exam-confirm",
     ),
-    re_path(
-        r"^submission/(?P<exam_id>\d+)/submitted$",
+    path(
+        "submission/<int:exam_id>/submitted",
         views.submission_exam_submitted,
         name="submission-exam-submitted",
     ),
@@ -253,78 +247,74 @@ urlpatterns = [
         views.submission_delegation_list_submitted,
         name="submission-delegation-submitted",
     ),
-    re_path(
-        r"^submission/submitted/scan/exam/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)?$",
+    path(
+        "submission/submitted/scan/exam/<int:exam_id>/<int:position>/student/<int:student_id>",
         views.upload_scan_delegation,
         name="submission-delegation-submitted-scan-upload",
     ),
     re_path(r"^figures/?$", views.figure_list, name="figures"),
-    re_path(r"^figure/add$", views.figure_add, name="figure-add"),
-    re_path(r"^figure/(?P<fig_id>[^\/]+)$", views.figure_edit, name="figure-edit"),
-    re_path(
-        r"^figure/(?P<fig_id>[^\/]+)/remove$", views.figure_delete, name="figure-delete"
-    ),
-    re_path(
-        r"^figure/(?P<fig_id>[^\/]+)/export$", views.figure_export, name="figure-export"
-    ),
-    re_path(
-        r"^figure/(?P<fig_id>[^\/]+)/(?P<lang_id>\d+)/export$",
+    path("figure/add", views.figure_add, name="figure-add"),
+    path("figure/<str:fig_id>", views.figure_edit, name="figure-edit"),
+    path("figure/<str:fig_id>/remove", views.figure_delete, name="figure-delete"),
+    path("figure/<str:fig_id>/export", views.figure_export, name="figure-export"),
+    path(
+        "figure/<str:fig_id>/<int:lang_id>/export",
         views.figure_export,
         name="figure-lang-export",
     ),
     re_path(r"^admin/?$", views.admin_list, name="admin"),
-    re_path(
-        r"^admin/(?P<exam_id>\d+)/quesiton/add$",
+    path(
+        "admin/<int:exam_id>/question/add",
         views.admin_add_question,
         name="admin-add-question",
     ),
-    re_path(
-        r"^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/question/delete$",
+    path(
+        "admin/<int:exam_id>/<int:question_id>/question/delete",
         views.admin_delete_question,
         name="admin-delete-question",
     ),
-    re_path(
-        r"^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/question/edit$",
+    path(
+        "admin/<int:exam_id>/<int:question_id>/question/edit",
         views.admin_edit_question,
         name="admin-edit-question",
     ),
-    re_path(
-        r"^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/newversion$",
+    path(
+        "admin/<int:exam_id>/<int:question_id>/newversion",
         views.admin_new_version,
         name="admin-new-version",
     ),
-    re_path(
-        r"^admin/(?P<question_id>\d+)/import$",
+    path(
+        "admin/<int:question_id>/import",
         views.admin_import_version,
         name="admin-import-version",
     ),
-    re_path(
-        r"^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/v(?P<version_num>\d+)/delete$",
+    path(
+        "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/delete",
         views.admin_delete_version,
         name="admin-delete-version",
     ),
-    re_path(
-        r"^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/v(?P<version_num>\d+)/accept$",
+    path(
+        "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/accept",
         views.admin_accept_version,
         name="admin-accept-version",
     ),
-    re_path(
-        r"^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/v(?P<version_num>\d+)/publish$",
+    path(
+        "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/publish",
         views.admin_publish_version,
         name="admin-publish-version",
     ),
-    re_path(
-        r"^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/v(?P<version_num>\d+)/settag$",
+    path(
+        "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/settag",
         views.admin_settag_version,
         name="admin-settag-version",
     ),
-    re_path(
-        r"^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/v(?P<compare_version>\d+)/v(?P<version_num>\d+)/accept$",
+    path(
+        "admin/<int:exam_id>/<int:question_id>/v<int:compare_version>/v<int:version_num>/accept",
         views.admin_accept_version,
         name="admin-accept-version-diff",
     ),
-    re_path(
-        r"^admin/(?P<exam_id>\d+)/(?P<question_id>\d+)/v(?P<version_num>\d+)/editor$",
+    path(
+        "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/editor",
         views.admin_editor,
         name="admin-editor",
     ),
@@ -360,52 +350,52 @@ urlpatterns = [
         {"direction": "down"},
         name="admin-editor-movedown-block",
     ),
-    re_path(
-        r"^admin/feedbacks/export$",
+    path(
+        "admin/feedbacks/export",
         views.feedbacks_export,
         name="admin-feedbacks-export-main",
     ),
-    re_path(
-        r"^admin/feedbacks/export/E(?P<exam_id>\d+)_(?P<question_id>\d+).csv$",
+    path(
+        "admin/feedbacks/export/E<int:exam_id>_<int:question_id>.csv",
         views.feedbacks_export_csv,
         name="admin-feedbacks-export-csv",
     ),
-    re_path(
-        r"^admin/submissions/translation$",
+    path(
+        "admin/submissions/translation",
         views.admin_submissions_translation,
         name="admin-submissions-translation",
     ),
-    re_path(
-        r"^admin/print/submissions/translation$",
+    path(
+        "admin/print/submissions/translation",
         views.print_submissions_translation,
         name="print-submissions-translation",
     ),
-    re_path(
-        r"^admin/submissions/list/(?P<exam_id>\d+)$",
+    path(
+        "admin/submissions/list/<int:exam_id>",
         views.admin_submission_list,
         name="admin-submission-list",
     ),
-    re_path(
-        r"^admin/submissions/assign/(?P<exam_id>\d+)$",
+    path(
+        "admin/submissions/assign/<int:exam_id>",
         views.admin_submission_assign,
         name="admin-submission-assign",
     ),
-    re_path(
-        r"^admin/submissions/(?P<submission_id>\d+)/delete$",
+    path(
+        "admin/submissions/<int:submission_id>/delete",
         views.admin_submission_delete,
         name="admin-submission-delete",
     ),
     re_path(r"^admin/bulk-print/?$", views.bulk_print, name="bulk-print"),
-    re_path(
-        r"^admin/bulk-print/(?P<page>\d+)/(?P<tot_print>\d+)$",
+    path(
+        "admin/bulk-print/<int:page>/<int:tot_print>",
         views.bulk_print,
         name="bulk-print_prg",
     ),
     re_path(
         r"^admin/extra-sheets/?$", views.extra_sheets, name="extra-sheets-select-exam"
     ),
-    re_path(
-        r"^admin/extra-sheets/(?P<exam_id>\d+)$",
+    path(
+        "admin/extra-sheets/<int:exam_id>",
         views.extra_sheets,
         name="extra-sheets",
     ),
@@ -414,13 +404,13 @@ urlpatterns = [
         views.set_scan_status,
         name="set-scan-status",
     ),
-    re_path(
-        r"^admin/scan/promote-full/(?P<doc_id>\d+)$",
+    path(
+        "admin/scan/promote-full/<int:doc_id>",
         views.set_scan_full,
         name="set-scan-full",
     ),
-    re_path(r"^admin/scan/upload$", views.upload_scan, name="upload-scan"),
-    re_path(r"^admin/api_keys$", views.api_keys, name="api-keys"),
-    re_path(r"^test/", include("ipho_exam.urls_test", namespace="test")),
+    path("admin/scan/upload", views.upload_scan, name="upload-scan"),
+    path("admin/api_keys", views.api_keys, name="api-keys"),
+    path("test/", include("ipho_exam.urls_test", namespace="test")),
     # re_path(r'^(?P<rep_id>\d+)/submit/?$', views.submit),
 ]

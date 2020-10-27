@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import re_path
+from django.urls import path, re_path
 
 from . import views
 
 app_name = "download"
 urlpatterns = [
-    re_path(r"^$", views.main, {"url": "", "type": "d"}, name="main"),
+    path("", views.main, {"url": "", "type": "d"}, name="main"),
     re_path(r"^(?P<type>[fd])/(?P<url>.*)$", views.main, name="path"),
 ]
