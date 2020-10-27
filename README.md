@@ -2,8 +2,8 @@
 
 ## Dependencies
 Base dependencies
-* Python 2.7
-* Django 1.8.x
+* Python 3.8
+* Django 3.1.x
 * django-crispy-forms
 * mkdocs (for building the docs)
 * bower
