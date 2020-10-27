@@ -3492,7 +3492,7 @@ def auto_translate(request):  # pylint: disable=too-many-locals
             )
             raw_translated_text = cloud_response["translatedText"]
             cachedtr, _ = CachedAutoTranslation.objects.get_or_create(
-                source_and_lang_hash=hash, source_length=source_len
+                source_and_lang_hash=hash_, source_length=source_len
             )
             cachedtr.source_lang = from_lang
             cachedtr.target_lang = to_lang
