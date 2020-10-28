@@ -22,7 +22,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from django.utils.encoding import python_2_unicode_compatible
 
 from ipho_core.models import Student, Delegation
 from ipho_exam.models import Question
@@ -84,7 +83,7 @@ class MarkingAction(models.Model):
 )
 def create_actions_on_exam_creation(
     instance, created, raw, **kwargs
-):  # pylint: disable=unused-argument, invalid-name
+):  # pylint: disable=unused-argument
     # Ignore fixtures and saves for existing courses.
     if not created or raw or instance.type != Question.ANSWER:
         return
@@ -96,7 +95,7 @@ def create_actions_on_exam_creation(
     post_save,
     sender=Delegation,
     dispatch_uid="create_marking_actions_on_delegation_creation",
-)  # pylint: disable=invalid-name
+)
 def create_actions_on_delegation_creation(
     instance, created, raw, **kwargs
 ):  # pylint: disable=unused-argument
@@ -107,7 +106,6 @@ def create_actions_on_delegation_creation(
         MarkingAction.objects.get_or_create(question=question, delegation=instance)
 
 
-@python_2_unicode_compatible
 class MarkingMeta(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     name = models.CharField(max_length=10)
@@ -124,7 +122,6 @@ class MarkingMeta(models.Model):
         unique_together = index_together = (("question", "name"),)
 
 
-@python_2_unicode_compatible
 class Marking(models.Model):
     marking_meta = models.ForeignKey(MarkingMeta, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)

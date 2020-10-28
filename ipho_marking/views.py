@@ -25,7 +25,7 @@ from collections import OrderedDict
 
 from django.conf import settings
 from django.db.models import Sum, F, Q
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, render
 from django.http import (
@@ -48,7 +48,7 @@ OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 
 
 @permission_required("ipho_core.is_staff")
-def import_exam(request):  # pylint: disable=too-many-locals
+def import_exam(request):
     ctx = {}
     ctx["alerts"] = []
     form = ImportForm(request.POST or None)
@@ -307,7 +307,7 @@ def _get_total(filtered_markings):
 
 
 @permission_required("ipho_core.is_delegation")
-def delegation_export(request, exam_id):  # pylint: disable=too-many-locals
+def delegation_export(request, exam_id):
     delegation = Delegation.objects.get(members=request.user)
 
     all_versions = request.GET.get("v", "O,D,F").split(",")

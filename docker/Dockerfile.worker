@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.8
 
 ENV PYTHONUNBUFFERED 1
 ENV DEBIAN_FRONTEND noninteractive
@@ -53,4 +53,4 @@ ENV DJANGODIR=/app
 RUN mkdir -p /var/run/celery /var/log/celery \
   && chown -R nobody:nogroup /var/run/celery /var/log/celery
 
-CMD celery worker -A exam_tools --statedb=/var/run/celery/worker-example@%h.state -E --concurrency=${CELERY_WORKER} -O fair --uid=nobody --gid=nogroup
+CMD celery -A exam_tools worker --statedb=/var/run/celery/worker-example@%h.state -E --concurrency=${CELERY_WORKER} -O fair --uid=nobody --gid=nogroup

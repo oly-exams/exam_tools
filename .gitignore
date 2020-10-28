@@ -6,6 +6,7 @@ exam_tools/settings.py
 venv
 ipho.db
 ipho.db.bak*
+*.db
 db/
 exams-docs
 outcode_raw.svg
@@ -14,6 +15,7 @@ runserver.sh
 _docs_html
 .vscode/
 static_bower
+node_modules
 .spyderproject
 test_*.pdf
 docs/*.html
@@ -89,6 +91,10 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+
+# Cypress
+cypress/screenshots/
+cypress/videos/
 
 # Translations
 *.mo

@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.8
 
 ENV PYTHONUNBUFFERED 1
 ENV DEBIAN_FRONTEND noninteractive
@@ -9,6 +9,17 @@ RUN apt-get update && apt-get install -y \
   mercurial \
   tidy \
   inkscape imagemagick \
+  libgtk2.0-0 \
+  libgtk-3-0 \
+  libgbm-dev \
+  libnotify-dev \
+  libgconf-2-4 \
+  libnss3 \
+  libxss1 \
+  libasound2 \
+  libxtst6 \
+  xauth \
+  xvfb \
   --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
@@ -23,9 +34,13 @@ COPY . /app
 
 RUN cd app \
   && npm -g install bower \
-  && bower --allow-root install
+  && npm -g install cypress --unsafe-perm=true --allow-root --save-dev cypress \
+  && bower --allow-root install  \
+  && cypress install --force
 
-RUN sed 's/ipho.db/db\/db.sqlite/g' /app/exam_tools/settings_example.py > /app/exam_tools/settings.py
+RUN cd /app && exec npx cypress verify
+
+RUN sed 's/ipho.db/db\/db.sqlite/g' /app/exam_tools/settings_testing.py > /app/exam_tools/settings.py
 
 WORKDIR /app
 

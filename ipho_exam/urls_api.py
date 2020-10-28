@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import include, url
+from django.conf.urls import include, re_path
 
 from rest_framework.routers import DefaultRouter
 from ipho_exam import views_api
@@ -25,7 +25,7 @@ router.register(r"documents", views_api.DocumentViewSet)
 
 app_name = "api-exam"
 urlpatterns = [
-    url(r"^", include(router.urls)),
-    url(r"^schema", views_api.SwaggerSchemaView.as_view(), name="schema"),
-    # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    re_path(r"^", include(router.urls)),
+    re_path(r"^schema", views_api.SwaggerSchemaView.as_view(), name="schema"),
+    # re_path(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

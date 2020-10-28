@@ -2,8 +2,8 @@
 
 ## Dependencies
 Base dependencies
-* Python 2.7
-* Django 1.8.x
+* Python 3.8
+* Django 3.1.x
 * django-crispy-forms
 * mkdocs (for building the docs)
 * bower
@@ -154,4 +154,45 @@ session.
 
 ```bash
 docker-compose run --rm web bash
+```
+
+## Using Precommit Hooks
+Developers can use the precommit hooks to automatically format the code and get feedback. Install all dev dependencies
+```bash
+pip install -r requirements_dev.txt
+```
+followed by:
+
+```bash
+pre-commit install
+```
+
+Now the precommit hooks will run before every commit, and check the files that where modified. You can also run the hooks manually:
+
+```bash
+pre-commit run
+pre-commit run --all-files
+```
+
+
+## Testing with Cypress and Django
+
+### Django
+
+Simply run
+```bash
+python manage.py test
+```
+
+### Cypress
+
+1. Install Cypress (https://docs.cypress.io/guides/getting-started/installing-cypress.html)
+2. Start the server on localhost:8000 (e.g. with docker-compose)
+3. Open the Cypress Test Runner with:
+```bash
+npx cypress open
+```
+4. Or run the tests with:
+```bash
+npx cypress run
 ```
