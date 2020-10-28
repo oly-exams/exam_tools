@@ -2537,12 +2537,12 @@ def print_submissions_translation(request):
 @permission_required("ipho_core.is_delegation_print")
 @ensure_csrf_cookie
 def submission_delegation_list_submitted(request):
-    delegation = Delegation.objects.get(members=request.user)
+    delegation = Delegation.objects.filter(members=request.user)
 
     exams = (
         Exam.objects.filter(hidden=False, show_delegation_submissions=True)
         .filter(
-            delegation_status__delegation=delegation,
+            delegation_status__delegation__in=delegation,
             delegation_status__action=ExamAction.TRANSLATION,
             delegation_status__status=ExamAction.SUBMITTED,
         )
