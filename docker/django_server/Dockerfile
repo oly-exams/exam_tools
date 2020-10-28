@@ -13,16 +13,23 @@ RUN apt-get update && apt-get install -y \
   imagemagick \
   --no-install-recommends && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY ./requirements.txt /
+COPY ./requirements.txt .
 RUN pip install -r requirements.txt --no-cache-dir
 
-COPY ./bower.json /
-RUN npm install -g bower && bower --allow-root install && bower cache --allow-root clean
+RUN npm install -g bower && npm cache clean --force
+
+# create non-root-user
+RUN addgroup --gid 5000 container
+RUN useradd --create-home --uid 5000 --gid 5000 --shell /bin/bash container
+ENV PATH=$PATH:/home/container/.local/bin
+USER 5000:5000
+WORKDIR /home/container
+
+COPY ./bower.json .
+RUN bower install && bower cache clean
 
 ARG SETTINGS=settings
 ENV DJANGO_SETTINGS_MODULE=exam_tools.$SETTINGS
 
-#we expect the source to be mounted as app!
-WORKDIR /app
-
+# we expect the source to be mounted from extern
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

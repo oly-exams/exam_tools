@@ -1,0 +1,23 @@
+version: "2"
+
+# this is a collection file, which sadly needs to be v2 since extends
+# was removed in v3, with (yet) no replacement. Current recommendation in v3:
+# docker-compose -f docker/x1/docker-compose.yml -f docker/x2/...yml ... up
+
+services:
+    pre-commit:
+        extends:
+            file: docker/pre-commit/docker-compose.yml
+            service: pre-commit
+    django_server:
+        extends:
+            file: docker/django_server/docker-compose.yml
+            service: django_server
+    testing_cypress:
+        extends:
+            file: docker/testing_cypress/docker-compose.yml
+            service: testing_cypress
+    testing_cypress_old:
+        extends:
+            file: docker/testing_cypress_old/docker-compose.yml
+            service: testing_cypress_old

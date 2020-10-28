@@ -1,0 +1,16 @@
+version: "3.2"
+services:
+    testing_cypress:
+        build:
+            context: ../../
+            dockerfile: docker/testing_cypress/Dockerfile
+            cache_from:
+                - ${IMG:-testing_cypress}
+        image: ${IMG:-testing_cypress}
+        container_name: testing_cypress
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        volumes:
+            - ../../:/home/container/workdir:rw
+        working_dir: /home/container/workdir
+        network_mode: host

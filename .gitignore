@@ -20,7 +20,7 @@ node_modules
 test_*.pdf
 docs/*.html
 out/*.pdf
-
+reports
 
 
 

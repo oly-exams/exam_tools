@@ -1,0 +1,18 @@
+version: "3.2"
+services:
+    django_server:
+        build:
+            context: ../../
+            dockerfile: docker/django_server/Dockerfile
+            cache_from:
+                - ${IMG:-django_server}
+        image: ${IMG:-django_server}
+        container_name: django_server
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        volumes:
+            - ../../:/home/container/workdir:rw
+        working_dir: /home/container/workdir
+        hostname: exam_tools
+        ports:
+            - 8000:8000

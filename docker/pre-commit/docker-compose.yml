@@ -1,0 +1,15 @@
+version: "3.2"
+services:
+    pre-commit:
+        build:
+            context: ../../
+            dockerfile: docker/pre-commit/Dockerfile
+            cache_from:
+                - ${IMG:-pre-commit}
+        image: ${IMG:-pre-commit}
+        container_name: pre-commit
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        volumes:
+            - ../../:/home/container/workdir:rw
+        working_dir: /home/container/workdir
