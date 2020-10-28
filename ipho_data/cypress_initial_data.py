@@ -16,7 +16,6 @@ def set_up_basic_test_database(clear_cache=False):
         cache.delete_database()
     if not cache.db_filepath.exists():
         cache.init_database()
-        cache.create_permissions()
         cache.create_groups()
         # cache.create_olyexams_superuser(pw_strategy="create")
         cache.create_organizer_user(pw_strategy="trivial")

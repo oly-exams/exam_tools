@@ -46,7 +46,13 @@ DATABASES = {
     }
 }
 
-BROKER_URL = "amqp://user:pass@rabbit:5672/"
+CELERY_BROKER_URL = "amqp://user:pass@rabbit:5672/"
+
+SITE_URL = "http://web:8000"
+ALLOWED_HOSTS += (
+    "web",
+    "localhost",
+)
 
 
 # Make this unique, and don't share it with anybody.

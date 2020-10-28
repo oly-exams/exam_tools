@@ -220,8 +220,10 @@ INKSCAPE_BIN = "inkscape"
 
 # Celery SETTINGS_DIR
 CELERY_ACCEPT_CONTENT = ["pickle", "json", "msgpack", "yaml"]
-CELERY_RESULT_BACKEND = "djcelery.backends.database:DatabaseBackend"
-CELERYD_TASK_TIME_LIMIT = (
+CELERY_TASK_SERIALIZER = "pickle"
+CELERY_RESULT_SERIALIZER = "pickle"
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_TASK_TIME_LIMIT = (
     15 * 60
 )  # task execution time limit in seconds before the workers are killed using SIGKILL
 
@@ -409,7 +411,7 @@ INSTALLED_APPS = (
     "django.contrib.humanize",
     "crispy_forms",
     "django_ace",
-    "djcelery",
+    "django_celery_results",
     "rest_framework",
     "rest_framework_swagger",
     "polymorphic",
@@ -430,6 +432,7 @@ REST_FRAMEWORK = {
         "ipho_exam.permissions.HasValidApiKey",
     ],
     "PAGE_SIZE": 10,
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
 }
 
 SWAGGER_SETTINGS = {

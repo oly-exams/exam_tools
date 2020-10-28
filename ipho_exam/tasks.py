@@ -19,7 +19,7 @@
 from hashlib import md5
 from celery import shared_task
 
-from djcelery.models import TaskMeta
+from django_celery_results.models import TaskResult
 from django.core.files.base import ContentFile
 from django.utils import timezone
 
@@ -178,6 +178,6 @@ def student_exam_document(self, questions, student_languages, cover=None, commit
 
 @shared_task(bind=True)
 def cleanup_meta(self):  # pylint: disable=unused-argument
-    TaskMeta.objects.filter(
+    TaskResult.objects.filter(
         date_done__lte=timezone.now() - timezone.timedelta(minutes=25)
     ).delete()

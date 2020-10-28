@@ -23,7 +23,7 @@ from hashlib import md5
 import requests
 
 from django.http import HttpRequest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from django.template.loader import render_to_string
 

@@ -15,59 +15,59 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.urls import path, re_path
 
 from . import views
 
 app_name = "poll"
 urlpatterns = [
     # staff urls
-    url(r"^staff/$", views.staff_index, name="staff-index"),
-    url(
+    path("staff/", views.staff_index, name="staff-index"),
+    re_path(
         r"^staff/partials/(?P<qtype>\w+)$",
         views.staff_index_partial,
         name="staff-index-partials",
     ),
-    url(
-        r"^staff/question/(?P<question_pk>\d+)/set/result/(?P<result>\d+)$",
+    path(
+        "staff/question/<int:question_pk>/set/result/<int:result>",
         views.staff_set_result,
         name="staff-set-result",
     ),
-    url(
-        r"^staff/question/(?P<question_pk>\d+)/set/impl/(?P<impl>\d+)$",
+    path(
+        "staff/question/<int:question_pk>/set/impl/<int:impl>",
         views.staff_set_impl,
         name="staff-set-impl",
     ),
-    url(r"^question/detail/(?P<question_pk>\d+)/$", views.question, name="question"),
-    url(
-        r"^question/large/(?P<question_pk>\d+)/$",
+    path("question/detail/<int:question_pk>/", views.question, name="question"),
+    path(
+        "question/large/<int:question_pk>/",
         views.question_large,
         name="question_large",
     ),
-    url(r"^question/add/$", views.add_question, name="add-question"),
-    url(
-        r"^question/(?P<question_pk>\d+)/delete/$",
+    path("question/add/", views.add_question, name="add-question"),
+    path(
+        "question/<int:question_pk>/delete/",
         views.delete_question,
         name="delete-question",
     ),
-    url(
-        r"^question/(?P<question_pk>\d+)/edit/$",
+    path(
+        "question/<int:question_pk>/edit/",
         views.edit_question,
         name="edit-question",
     ),
-    url(r"^question/(?P<question_pk>\d+)/$", views.set_end_date, name="set-end-date"),
-    url(
-        r"^question/(?P<question_pk>\d+)/remove-end-date$",
+    path("question/<int:question_pk>/", views.set_end_date, name="set-end-date"),
+    path(
+        "question/<int:question_pk>/remove-end-date",
         views.remove_end_date,
         name="remove-end-date",
     ),
-    url(
-        r"^question/(?P<question_pk>\d+)/close$",
+    path(
+        "question/<int:question_pk>/close",
         views.close_question,
         name="close-question",
     ),
     # delegation urls
-    url(r"^$", views.voter_index, name="voter-index"),
-    url(r"^err/(?P<err_id>\d+)$", views.voter_index, name="voter-index_err"),
-    url(r"^voted/$", views.voted, name="voted"),
+    path("", views.voter_index, name="voter-index"),
+    path("err/<int:err_id>", views.voter_index, name="voter-index_err"),
+    path("voted/", views.voted, name="voted"),
 ]

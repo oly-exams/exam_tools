@@ -15,15 +15,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render
 from django.template import RequestContext
 from django.templatetags.static import static
 
 
 def index(request):
-    return render_to_response(
-        "example_exam/index.html", context=RequestContext(request)
-    )
+    return render(request, "example_exam/index.html", context=RequestContext(request))
 
 
 def view_exam(request, display_tpl="show"):
@@ -33,7 +31,8 @@ def view_exam(request, display_tpl="show"):
     )
     context = RequestContext(request)
     context["base_template"] = base_template
-    return render_to_response(
+    return render(
+        request,
         "example_exam/theo_2011_Q1.html",
         context=context,
     )
@@ -150,10 +149,10 @@ def inline_edit(request):
 
 
 def mathquill(request):
-    return render_to_response("test_mathquill.html", context=RequestContext(request))
+    return render(request, "test_mathquill.html", context=RequestContext(request))
 
 
 def mathquill_toolbar(request):
-    return render_to_response(
-        "test_mathquill_toolbar.html", context=RequestContext(request)
+    return render(
+        request, "test_mathquill_toolbar.html", context=RequestContext(request)
     )

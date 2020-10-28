@@ -16,10 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.http import HttpResponseForbidden
-from django.utils.encoding import python_2_unicode_compatible
 
 
-@python_2_unicode_compatible
 class IphoExamException(Exception):
     def __init__(self, response):
         super().__init__()
