@@ -29,6 +29,7 @@
             docker-compose
             --env-file="$ENV_FILE"
             -f docker/$SERVICE_NAME/docker-compose.yml
+            --exit-code-from $SERVICE_NAME
             up $SERVICE_NAME
 
 .test:pull_and_run_2:
@@ -45,10 +46,13 @@
         - IMG_2="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_2"
         - docker pull $IMG_2
         - docker tag $IMG_2 $SERVICE_NAME_2
-        - echo $ENV_FILE
-        - >
-            docker-compose
-            --env-file="$ENV_FILE"
-            -f docker/$SERVICE_NAME_1/docker-compose.yml
-            -f docker/$SERVICE_NAME_2/docker-compose.yml
-            up $SERVICE_NAME_1 $SERVICE_NAME_2
+        - echo "$ENV_FILE"
+        - echo "$PWD"
+        - docker-compose --env-file=docker/env/testing_cypress.env -f docker/django_server/docker-compose.yml -f docker/testing_cypress/docker-compose.yml up django_server testing_cypress
+        # - >
+        #     docker-compose
+        #     --env-file="$ENV_FILE"
+        #     -f docker/$SERVICE_NAME_1/docker-compose.yml
+        #     -f docker/$SERVICE_NAME_2/docker-compose.yml
+        #     --exit-code-from $SERVICE_NAME_1
+        #     up $SERVICE_NAME_1 $SERVICE_NAME_2
