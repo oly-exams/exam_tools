@@ -1,6 +1,6 @@
 version: "3.2"
 services:
-    pre-commit:
+    pre_commit:
         build:
             context: ../../
             dockerfile: docker/pre-commit/Dockerfile
@@ -13,3 +13,4 @@ services:
         volumes:
             - ../../:/home/container/workdir:rw
         working_dir: /home/container/workdir
+        command: ${PRE_COMMIT_COMMAND:-}

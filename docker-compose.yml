@@ -6,10 +6,10 @@ version: "2"
 # Might fail with missmatching version error depending on your docker-compose!
 
 services:
-    pre-commit:
+    pre_commit:
         extends:
-            file: docker/pre-commit/docker-compose.yml
-            service: pre-commit
+            file: docker/pre_commit/docker-compose.yml
+            service: pre_commit
     django_server:
         extends:
             file: docker/django_server/docker-compose.yml

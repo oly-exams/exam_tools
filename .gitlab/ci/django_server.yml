@@ -12,4 +12,4 @@ test:django_server:
     extends: .test:pull_and_run
     variables:
         SERVICE_NAME: django_server
-        CMD: python manage.py test
+        ENV_FILE: ./docker/env/testing_django.env

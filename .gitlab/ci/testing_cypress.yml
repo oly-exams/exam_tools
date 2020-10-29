@@ -1,4 +1,4 @@
-build:django_server:
+build:testing_cypress:
     extends: .build:build_cached_push
     variables:
         SERVICE_NAME: testing_cypress
@@ -6,10 +6,11 @@ build:django_server:
         - if: '$DOCKER_CACHE == "0"'
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
-            - "docker/django_server/*"
+            - "docker/testing_cypress/*"
 
-test:django_server:
-    extends: .test:pull_and_run2
+test:testing_cypress:
+    extends: .test:pull_and_run_2
     variables:
         SERVICE_NAME1: django_server
         SERVICE_NAME2: testing_cypress
+        ENV_FILE: ./docker/env/testing_cypress.env

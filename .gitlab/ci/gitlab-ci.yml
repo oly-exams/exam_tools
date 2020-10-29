@@ -33,6 +33,6 @@ before_script:
 
 include:  #relative to project root
     - local: ".gitlab/ci/templates.yml"
-    - local: ".gitlab/ci/pre-commit.yml"
+    - local: ".gitlab/ci/pre_commit.yml"
     - local: ".gitlab/ci/django_server.yml"
     - local: ".gitlab/ci/testing_cypress.yml"

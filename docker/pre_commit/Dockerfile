@@ -16,6 +16,8 @@ WORKDIR /home/container
 
 # we need a dummy git repo
 RUN pip install pre-commit pylint pylint-django
+COPY ./requirements.txt .
+RUN pip install -r requirements.txt
 RUN git init
 COPY .pre-commit-config.yaml .
 RUN pre-commit install-hooks

@@ -17,4 +17,4 @@ services:
             - 8000:8000
         environment:
             - DJANGO_SETTINGS_MODULE=exam_tools.${DJANGO_SERVER_SETTINGS:-settings}
-        command: ${DJANGO_SERVER_CMD:-}
+        command: ${DJANGO_SERVER_COMMAND:-}
