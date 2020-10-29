@@ -41,4 +41,3 @@ Please click on *Submit* only when you are sure about the translations. You will
 ## Summary overview
 
 After the exam has been submitted for printing, you will still be able to review your choices, but no changes are anymore allowed.
-
