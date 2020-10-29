@@ -15,3 +15,8 @@ test:django_server:
     variables:
         SERVICE_NAME: django_server
         ENV_FILE: docker/env/testing_django.env
+    after_script:
+        - cp unittest_reports $CI_PROJECT_DIR/unittest_reports
+    artifacts:
+        reports:
+            junit: $CI_PROJECT_DIR/unittest_reports/*.xml
