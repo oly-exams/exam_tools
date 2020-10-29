@@ -8,9 +8,9 @@ build:testing_cypress:
         - changes:
             - "docker/testing_cypress/*"
 
-test:testing_cypress:
-    extends: .test:pull_and_run_2
-    variables:
-        SERVICE_NAME_1: testing_cypress
-        SERVICE_NAME_2: django_server
-        ENV_FILE: docker/env/testing_cypress.env
+# test:testing_cypress:
+#     extends: .test:pull_and_run_2
+#     variables:
+#         SERVICE_NAME_1: testing_cypress
+#         SERVICE_NAME_2: django_server
+#         ENV_FILE: docker/env/testing_cypress.env
