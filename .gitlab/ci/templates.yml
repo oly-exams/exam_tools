@@ -24,4 +24,18 @@
         - IMG="$PROJ_REG/$IMG_NAME:$SERVICE_NAME"
         - docker pull $IMG
         - docker tag $IMG $SERVICE_NAME
-        - docker-compose -f docker/$SERVICE_NAME/docker-compose.yml run $SERVICE_NAME $CMD
+        - docker-compose -f docker/$SERVICE_NAME/docker-compose.yml up $SERVICE_NAME $CMD
+
+.test:pull_and_run2:
+    stage: test
+    #if we push faster than CI runs, kill old pipeline jobs
+    interruptible: true
+    variables:
+    script:
+        - IMG1="$PROJ_REG/$IMG_NAME:$SERVICE_NAME1"
+        - docker pull $IMG1
+        - docker tag $IMG1 $SERVICE_NAME1
+        - IMG2="$PROJ_REG/$IMG_NAME:$SERVICE_NAME2"
+        - docker pull $IMG2
+        - docker tag $IMG2 $SERVICE_NAME2
+        - docker-compose -f docker/$SERVICE_NAME1/docker-compose.yml -f docker/$SERVICE_NAME2/docker-compose.yml up $SERVICE_NAME1 $SERVICE_NAME2

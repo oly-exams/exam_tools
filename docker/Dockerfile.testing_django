@@ -1,7 +1,0 @@
-ARG TEST_IMAGE
-
-FROM $TEST_IMAGE
-
-RUN exec mkdir -p unittest_reports
-
-ENTRYPOINT ["python", "manage.py", "test"]

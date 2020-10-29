@@ -12,8 +12,5 @@ services:
         tty: true        # docker run -t
         volumes:
             - ../../:/home/container/workdir:rw
-        working_dir: /home/container/workdir
-        network_mode: host
-
-        # networks:
-            # - exam_tools_net
+        working_dir: /home/container/workdir/e2e
+        network_mode: host  #will be changed to a docker-network later

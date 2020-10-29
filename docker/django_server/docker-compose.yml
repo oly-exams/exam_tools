@@ -13,11 +13,8 @@ services:
         volumes:
             - ../../:/home/container/workdir:rw
         working_dir: /home/container/workdir
-        hostname: exam_tools
         ports:
             - 8000:8000
-        command: "./cypress_server.sh"
-        # expose:
-        #     - 8000
-        # networks:
-        #     - exam_tools_net
+        environment:
+            - DJANGO_SETTINGS_MODULE=exam_tools.${DJANGO_SERVER_SETTINGS:-settings}
+        command: ${DJANGO_SERVER_CMD:-}

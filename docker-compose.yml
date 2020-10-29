@@ -22,7 +22,3 @@ services:
         extends:
             file: docker/testing_cypress_old/docker-compose.yml
             service: testing_cypress_old
-# networks:
-#   exam_tools_net:
-#     driver: bridge
-#     name: exam_tools_net
