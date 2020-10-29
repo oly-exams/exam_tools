@@ -13,4 +13,4 @@ test:testing_cypress:
     variables:
         SERVICE_NAME_1: django_server
         SERVICE_NAME_2: testing_cypress
-        ENV_FILE: ./docker/env/testing_cypress.env
+        ENV_FILE: docker/env/testing_cypress.env

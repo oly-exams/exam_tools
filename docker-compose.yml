@@ -18,7 +18,3 @@ services:
         extends:
             file: docker/testing_cypress/docker-compose.yml
             service: testing_cypress
-    testing_cypress_old:
-        extends:
-            file: docker/testing_cypress_old/docker-compose.yml
-            service: testing_cypress_old
