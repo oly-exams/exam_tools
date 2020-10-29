@@ -1,4 +1,4 @@
-FROM python:3.6-slim-buster
+FROM python:3.8-slim-buster
 
 ENV PYTHONUNBUFFERED 1
 ENV DEBIAN_FRONTEND noninteractive
@@ -27,9 +27,6 @@ WORKDIR /home/container
 
 COPY ./bower.json .
 RUN bower install && bower cache clean
-
-ARG SETTINGS=settings
-ENV DJANGO_SETTINGS_MODULE=exam_tools.$SETTINGS
 
 # we expect the source to be mounted from extern
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

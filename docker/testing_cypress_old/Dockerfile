@@ -27,7 +27,7 @@ USER 5000:5000
 
 RUN cypress install --force
 
-RUN ["mkdir", "-p", "cypress/screenshots", "cypress/videos reports"]
+RUN ["mkdir", "-p", "cypress/screenshots", "cypress/videos cypress/reports"]
 USER root:root
 
 CMD /bin/bash ./cypress_helper.sh

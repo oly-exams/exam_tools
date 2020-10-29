@@ -3,6 +3,7 @@ version: "2"
 # this is a collection file, which sadly needs to be v2 since extends
 # was removed in v3, with (yet) no replacement. Current recommendation in v3:
 # docker-compose -f docker/x1/docker-compose.yml -f docker/x2/...yml ... up
+# Might fail with missmatching version error depending on your docker-compose!
 
 services:
     pre-commit:
@@ -21,3 +22,7 @@ services:
         extends:
             file: docker/testing_cypress_old/docker-compose.yml
             service: testing_cypress_old
+# networks:
+#   exam_tools_net:
+#     driver: bridge
+#     name: exam_tools_net
