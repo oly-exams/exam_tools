@@ -1,4 +1,4 @@
-FROM cypress/base
+FROM cypress/included
 
 # create non-root-user
 RUN addgroup --gid 5000 container
