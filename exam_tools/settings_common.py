@@ -58,6 +58,10 @@ VERSION_DATE = f"{GIT_HEAD_DATE} {GIT_HEAD_SHA}"
 
 OFFICIAL_DELEGATION = "Official"
 
+# Fields not available to exam state
+CONTROL_EXAM_STATE_DISABLED_FIELDS = ["code", "name"]
+
+
 # Demo mode shows watermark and turns off some functionality
 DEMO_MODE = False
 # Allow user sign-up for demo
@@ -416,6 +420,7 @@ INSTALLED_APPS = (
     "rest_framework_swagger",
     "polymorphic",
     "ipho_core",
+    "ipho_control",
     "ipho_exam",
     "ipho_poll",
     "ipho_marking",

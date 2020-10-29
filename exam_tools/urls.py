@@ -47,6 +47,7 @@ urlpatterns = [
         },
         name="home",
     ),
+    path("control/", include("ipho_control.urls")),
     path("exam/", include("ipho_exam.urls")),
     path("poll/", include("ipho_poll.urls")),
     path("marking/", include("ipho_marking.urls")),

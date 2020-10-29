@@ -1,3 +1,15 @@
-# from django.contrib import admin
+
+from django.contrib import admin
+
+from ipho_control.models import (
+    ExamState,
+)
 
 # Register your models here.
+
+class ExamStateAdmin(admin.ModelAdmin):
+    list_display = ("name", "exam", "settings")
+    list_filter = ("exam",)
+
+
+admin.site.register(ExamState, ExamStateAdmin)
