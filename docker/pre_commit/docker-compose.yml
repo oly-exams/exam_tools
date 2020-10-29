@@ -3,11 +3,11 @@ services:
     pre_commit:
         build:
             context: ../../
-            dockerfile: docker/pre-commit/Dockerfile
+            dockerfile: docker/pre_commit/Dockerfile
             cache_from:
-                - pre-commit
-        image: pre-commit
-        container_name: pre-commit
+                - pre_commit
+        image: pre_commit
+        container_name: pre_commit
         stdin_open: true # docker run -i
         tty: true        # docker run -t
         volumes:

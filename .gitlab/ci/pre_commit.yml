@@ -7,7 +7,7 @@ build:pre_commit:
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
             - docker/pre_commit/*
-            - .pre_commit-config.yaml
+            - .pre-commit-config.yaml
 
 test:pre_commit:
     extends: .test:pull_and_run
