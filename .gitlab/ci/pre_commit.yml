@@ -8,6 +8,7 @@ build:pre_commit:
         - changes:
             - docker/pre_commit/*
             - .pre-commit-config.yaml
+            - requirements.txt
 
 test:pre_commit:
     extends: .test:pull_and_run

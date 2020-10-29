@@ -7,6 +7,8 @@ build:django_server:
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
             - "docker/django_server/*"
+            - requirements.txt
+            - bower.json
 
 test:django_server:
     extends: .test:pull_and_run
