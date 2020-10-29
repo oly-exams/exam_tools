@@ -10,17 +10,17 @@ build:pre_commit:
             - .pre-commit-config.yaml
             - requirements.txt
 
-# test:pre_commit:
-#     extends: .test:pull_and_run
-#     variables:
-#         SERVICE_NAME: pre_commit
-#
-# merge:pre_commit:
-#     extends: .test:pull_and_run
-#     rules:
-#         - if: '$CI_PIPELINE_SOURCE == "web"'
-#         - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-#     variables:
-#         SERVICE_NAME: pre_commit
-#         ENV_FILE: ./docker/env/pre_commit_all.env
+test:pre_commit:
+    extends: .test:pull_and_run
+    variables:
+        SERVICE_NAME: pre_commit
+
+merge:pre_commit:
+    extends: .test:pull_and_run
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "web"'
+        - if: '$CI_PIPELINE_SOURCE == "schedule"'
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    variables:
+        SERVICE_NAME: pre_commit
+        ENV_FILE: ./docker/env/pre_commit_all.env
