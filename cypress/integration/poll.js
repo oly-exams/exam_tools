@@ -4,6 +4,14 @@ describe('Polls', function() {
 
 
     it('Test Voting', function() {
+        cy.login('admin','1234')
+        cy.visit('poll/staff/')
+        cy.get('#drafted-container #question-2 .btn-toolbar > :nth-child(3) > .btn').click()
+        cy.get('[data-min="1"] > .btn').click()
+        cy.get('.modal-footer > .btn-primary').click()
+        cy.wait(500)
+        cy.logout()
+
         cy.login('ARM','1234')
         cy.visit('/poll/')
         // Check available questions
@@ -53,11 +61,12 @@ describe('Polls', function() {
         cy.login('admin','1234')
         cy.visit('poll/staff/')
         // Open vote
-        cy.get('#drafted-container .btn-toolbar > :nth-child(3) > .btn').click()
+        cy.get('#drafted-container #question-1 .btn-toolbar > :nth-child(3) > .btn').click()
         cy.get('[data-min="1"] > .btn').click()
         cy.get('.modal-footer > .btn-primary').click()
         cy.wait(500)
         cy.logout()
+
         cy.login('ARM','1234')
         cy.visit('/poll/')
         // Check if vote is open

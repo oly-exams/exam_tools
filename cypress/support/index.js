@@ -23,5 +23,5 @@ import './commands'
 beforeEach(() => {
     // this runs prior to every test
     // across all files no matter what
-    // cy.exec('python ipho_data/cypress_initial_data.py', {timeout:240000})
+    cy.exec('cp ipho-backup.db ipho.db', {timeout:240000})
   })
