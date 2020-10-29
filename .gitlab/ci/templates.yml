@@ -45,6 +45,7 @@
         - IMG_2="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_2"
         - docker pull $IMG_2
         - docker tag $IMG_2 $SERVICE_NAME_2
+        - echo $ENV_FILE
         - >
             docker-compose
             --env-file="$ENV_FILE"
