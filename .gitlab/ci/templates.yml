@@ -29,8 +29,7 @@
             docker-compose
             --env-file="$ENV_FILE"
             -f docker/$SERVICE_NAME/docker-compose.yml
-            --exit-code-from $SERVICE_NAME
-            up $SERVICE_NAME
+            up --abort-on-container-exit $SERVICE_NAME
 
 .test:pull_and_run_2:
     stage: test
@@ -51,5 +50,4 @@
             --env-file="$ENV_FILE"
             -f docker/$SERVICE_NAME_1/docker-compose.yml
             -f docker/$SERVICE_NAME_2/docker-compose.yml
-            --exit-code-from $SERVICE_NAME_1
-            up $SERVICE_NAME_1 $SERVICE_NAME_2
+            up --abort-on-container-exit $SERVICE_NAME_1 $SERVICE_NAME_2
