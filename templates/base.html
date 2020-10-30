@@ -29,11 +29,26 @@
       padding-top: 20px;
       padding-bottom: 20px;
     }
+    .debug-warning {
+      position:fixed;
+      top: 0;
+      width: 100%;
+      padding: 4px 20px;
+      box-sizing: border-box;
+      z-index: 1;
+      background-color: rgb(255, 130, 130);
+      color: rgb(119, 0, 0);
+      text-align: center;
+    }
     </style>
   </head>
 
   <body>
 
+      {% if DEBUG %}
+      <div class="debug-warning" style="position: relative; margin-top: -20px;">This instance is in <strong>Debug Mode!</strong></div>
+      <div class="debug-warning">This instance is in <strong>Debug Mode!</strong></div>
+      {% endif %}
       {% if DEMO_MODE %}
       <div class="alert alert-info" role="alert"><div class="container"><strong>DEMO VERSION.</strong> This is a demo version of the Exam Tools. (v{{ VERSION }} - {{ VERSION_DATE }})</div></div>
       {% endif %}
