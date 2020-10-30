@@ -6,6 +6,7 @@ BOWER_POSTINSTALL=bower_postinstall
 
 
 # ace
+mkdir -p $STATIC
 cp -r $STATIC_BOWER/ace-builds/src-min $STATIC/ace
 
 # bootstrap and bootstrap-datetimepicker

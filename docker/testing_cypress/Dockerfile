@@ -9,5 +9,3 @@ ENV PATH=$PATH:/home/container/.local/bin
 WORKDIR /home/container
 
 RUN ["mkdir", "-p", "cypress/screenshots", "cypress/videos", "cypress/reports"]
-
-CMD ["/bin/bash", "./cypress_helper.sh"]

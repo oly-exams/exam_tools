@@ -8,10 +8,7 @@ build:django_server:
         - changes:
             - docker/django_server/*
             - requirements.txt
-            - bower.json
-            - .bowerrc
-            - bower_postinstall.sh
-            - bower_postinstall/*
+            - bower/*
             - static/*
 
 test:django_server:

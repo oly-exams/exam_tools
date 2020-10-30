@@ -5,12 +5,13 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y \
   git \
-  sqlite3 \
-  postgresql-client \
   npm \
+  patch \
   nodejs \
+  sqlite3 \
   inkscape \
   imagemagick \
+  postgresql-client \
   --no-install-recommends && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY ./requirements.txt .
@@ -25,8 +26,9 @@ ENV PATH=$PATH:/home/container/.local/bin
 USER 5000:5000
 WORKDIR /home/container
 
-COPY .bowerrc bower.json bower_postinstall.sh bower_postinstall static ./
-RUN bower install && bower cache clean
+# we need to write as container to these folder
+COPY --chown=5000:5000 bower ./bower
+RUN cd bower && bower install && bower cache clean && rm -rf static_bower
 
 # we expect the source to be mounted from extern
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

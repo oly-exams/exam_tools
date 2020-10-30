@@ -24,12 +24,10 @@ import sys
 from .settings_common import *
 
 # Printing paths for sanity's sake
-STATIC_PATH = os.getenv("STATIC_PATH", STATIC_PATH)
-
 print("Settings directory:", SETTINGS_DIR, file=sys.stderr)
 print("Project root:", PROJECT_PATH, file=sys.stderr)
 print("Templates:", TEMPLATE_PATH, file=sys.stderr)
-print("Static:", STATIC_PATH, file=sys.stderr)
+print("Staticfiles Dirs:", STATICFILES_DIRS, file=sys.stderr)
 
 DEBUG = True
 # TEMPLATE_DEBUG = DEBUG

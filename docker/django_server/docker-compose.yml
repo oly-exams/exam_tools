@@ -17,5 +17,5 @@ services:
             - 8000:8000
         environment:
             - DJANGO_SETTINGS_MODULE=exam_tools.${DJANGO_SERVER_SETTINGS:-settings}
-            - STATIC_PATH=${DJANGO_SERVER_STATIC_PATH:-/home/container/static}
+            - BOWER_STATIC_PATH=${DJANGO_SERVER_BOWER_STATIC_PATH:-/home/container/bower/static}
         command: ${DJANGO_SERVER_COMMAND:-}

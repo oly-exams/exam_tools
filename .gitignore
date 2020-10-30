@@ -14,7 +14,6 @@ outcode_raw.svg
 runserver.sh
 _docs_html
 .vscode/
-static_bower
 node_modules
 .spyderproject
 test_*.pdf
