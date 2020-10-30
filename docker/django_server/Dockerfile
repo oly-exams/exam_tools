@@ -25,7 +25,7 @@ ENV PATH=$PATH:/home/container/.local/bin
 USER 5000:5000
 WORKDIR /home/container
 
-COPY ./bower.json .
+COPY .bowerrc bower.json bower_postinstall.sh bower_postinstall static ./
 RUN bower install && bower cache clean
 
 # we expect the source to be mounted from extern

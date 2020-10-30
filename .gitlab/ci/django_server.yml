@@ -6,9 +6,13 @@ build:django_server:
         - if: '$DOCKER_CACHE == "0"'
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
-            - "docker/django_server/*"
+            - docker/django_server/*
             - requirements.txt
             - bower.json
+            - .bowerrc
+            - bower_postinstall.sh
+            - bower_postinstall/*
+            - static/*
 
 test:django_server:
     extends: .test:pull_and_run

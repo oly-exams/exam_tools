@@ -1,4 +1,5 @@
-FROM cypress/included
+# 2020, Oct: cypress does not offer a latest tag
+FROM cypress/included:5.5.0
 
 # create non-root-user
 RUN addgroup --gid 5000 container

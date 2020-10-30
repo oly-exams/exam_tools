@@ -6,7 +6,7 @@ build:testing_cypress:
         - if: '$DOCKER_CACHE == "0"'
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
-            - "docker/testing_cypress/*"
+            - docker/testing_cypress/*
 
 test:testing_cypress:
     extends: .test:pull_and_run_2
