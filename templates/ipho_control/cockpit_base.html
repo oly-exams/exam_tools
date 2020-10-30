@@ -3,12 +3,25 @@
 {% load crispy_forms_tags %}
 
 {% block extra-head %}
+<style>
+  .label-setting-active {
+    color:black;
+    background-color: #ffbf00;
+  }
+  .label-setting-inactive {
+    color:black;
+    background-color: rgb(127, 158, 251);
+  }
+  .label{
+    cursor: default;
+  }
+</style>
 {% endblock %}
 
-{% block pageheader %}<h1>{{ h1 }}</h1>{% endblock %}
+{% block pageheader %}<h1 style="margin-top: 10px;">{{ h1 }}</h1>{% endblock %}
 
 {% block page-content %}
-{# modal for creating a new question and editing questions. #}
+{# modal for switching the state #}
 <div class="modal fade" id="switch-state-modal" tabindex="-1" aria-labelledby="modalLabel">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -16,15 +29,29 @@
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
         <h4 class="modal-title" id="modalLabel"> Title </h4>
       </div>
-      <form role="form" method="post" action="">{% csrf_token %}
-          <div class="modal-body">
-            Body
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Abort</button>
-            <button id="switch-state-submit" data-href="" class="btn btn-primary disabled">Switch</button>
-          </div>
-      </form>
+      <div class="modal-body">
+        Body
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Abort</button>
+        <button id="switch-state-submit" data-href="" class="btn btn-primary disabled">Switch</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+{# modal for switching the state #}
+<div class="modal fade" id="history-modal" tabindex="-1" aria-labelledby="modalLabel">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title" id="modalLabel"> Title </h4>
+      </div>
+      <div class="modal-body">
+        Body
+      </div>
     </div>
   </div>
 </div>
@@ -53,7 +80,7 @@
 
     <div class="row">
       <div class="col-md-6">
-        <h4>Current state:</h4>
+        <h3>Current state:</h3>
         <div class="panel panel-primary">
           <div style="font-size: 16px;" class="panel-heading">
             <div style="font-size: 20px;">
@@ -61,11 +88,11 @@
             </div>
             {% for name, setting in active_exam.state.exam_settings.items %}
               {% if setting is True %}
-                <span class="label label-success">{{ name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+                <span class="label label-setting-active" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
               {% elif setting is False %}  
-                <span class="label label-danger">{{ name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
+                <span class="label label-setting-inactive" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
               {% else %}
-                <span class="label label-default">{{ name }}: {{ setting }}</span>
+                <span class="label label-default" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: {{ setting }}</span>
               {% endif %}
             {% endfor %}
           </div>
@@ -78,42 +105,85 @@
           </div>
         </div>
         {% if question_settings %}
-          <h4>Question settings:</h4>
+          <h3>Question settings:</h3>
           {% include "ipho_control/question_settings.html" %}
         {% endif %}
       </div>
       <div class="col-md-6" id="state-list">
-        <h4>Available states: </h4>
+        <h3>Available states: 
+        {% if superuser %}
+          <a role="button" class="btn btn-default" target="_blank" href="{% url 'control:add-state' %}">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New State
+          </a>
+        {% endif %}
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#history-modal" data-modal-url="{% url 'control:exam-history' active_exam.exam.pk %}" >
+          Show History
+          <span class="glyphicon glyphicon-time" aria-hidden="true"></span> 
+        </button>
+        </h3>
         <div style="overflow-y:auto; max-height: 55vh;">
           {% for state in states %}
+          {% with checks=checks_list|lookup:state.pk %}
           <div class="panel panel-info state-panel {% if state.is_current_state %}current-state{% endif %}">
             <div class="panel-heading" style="display: flex; justify-content: space-between;">
               <div>
-                <div>
+                <div style="font-size: 20px;">
                   {{ state.name }}
                 </div>
                 {% for name, setting in state.exam_settings.items %}
-                {% if setting is True %}
-                  <span class="label label-success">{{ name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
-                {% elif setting is False %}  
-                  <span class="label label-danger">{{ name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
-                {% else %}
-                  <span class="label label-default">{{ name }}: {{ setting }}</span>
-                {% endif %}
-              {% endfor %}
+                  {% if setting is True %}
+                    <span class="label label-setting-active" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+                  {% elif setting is False %}  
+                    <span class="label label-setting-inactive" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
+                  {% else %}
+                    <span class="label label-default" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: {{ setting }}</span>
+                  {% endif %}
+                {% endfor %}
               </div>
-              <div style="flex-grow:4;">
-                <span class="label label-success">Check 1: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
-                <span class="label label-danger">Check 2: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
-              </div>
-              <button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#switch-state-modal" data-modal-url="{% url 'control:switch-state' active_exam.exam.pk state.pk %}">Switch state</button>
+              {% if superuser %}
+                <div>
+                  <a role="button" class="btn btn-default" target="_blank" href="{% url 'control:edit-state' state.pk %}">
+                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                  </a>
+                </div>
+              {% endif %}
             </div>
             <div class="panel-body">
               <p>
                 {{ state.description }}
               </p>
             </div>
+            <div class="panel-footer" style="display: flex; flex-wrap: nowrap; justify-content: space-between; font-size: 20px;">
+                <div>
+                  {% for check in checks.warnings %}
+                    {% if check.passed %}
+                      <span class="label label-success" data-toggle="tooltip" title="{{ checks.help_texts|lookup:check.name }}">{{ check.pretty }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+                    {% else %}
+                      <span class="label label-warning" data-toggle="tooltip" data-html="true" title="{{ checks.help_texts|lookup:check.name }} </br> {{ check.message }}">{{ check.pretty }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
+                    {% endif %}
+                  {% endfor %}
+                  {% for check in checks.errors %}
+                    {% if check.passed %}
+                      <span class="label label-success" data-toggle="tooltip" title="{{ checks.help_texts|lookup:check.name }}">{{ check.pretty }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+                    {% else %}
+                      <span class="label label-danger" data-toggle="tooltip" data-html="true" title="{{ checks.help_texts|lookup:check.name }} </br> {{ check.message }}">{{ check.pretty }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
+                    {% endif %}
+                  {% endfor %}
+                </div>  
+                {% if state.is_applicable and not state.is_current_state %}
+                  <button type="button" class="btn btn-warning btn-lg pull-right" data-toggle="modal" data-target="#switch-state-modal" data-modal-url="{% url 'control:switch-state' active_exam.exam.pk state.pk %}">Switch state</button>
+                {% elif state.is_current_state %}
+                  <span data-toggle="tooltip" title="Cannot switch to current state." >
+                    <button type="button" class="btn btn-primary btn-lg pull-right disabled" >Current state</button>
+                  </span>
+                {% else %}
+                  <span data-toggle="tooltip" title="Checks failed. Cannot switch to this state." >
+                    <button type="button" class="btn btn-warning btn-lg pull-right disabled" >Cannot switch state</button>
+                  </span>
+                {% endif %}
+                </div>
           </div>
+          {% endwith %}
           {% endfor %}
       </div>
       </div>
@@ -125,7 +195,17 @@
 {% block extra-script %}
 <script>
   $('document').ready(function(){
-    $( "#state-list .current-state")[0].scrollIntoView();
+
+    $('[data-toggle="tooltip"]').tooltip(); 
+    if($( "#state-list").find(".current-state").length){
+      console.log($( "#state-list").find(".current-state"));
+      $( "#state-list").find(".current-state")[0].scrollIntoView();
+    }
+    
+  })
+  $('document').ready(function(){
+    
+    
 
     function getCookie(name) {
         var cookieValue = null;
@@ -174,6 +254,7 @@
                 modal.find('.modal-body').html(data['body']);
                 $('#switch-state-submit').removeClass('disabled');
                 $('#switch-state-submit').data('href', href);
+                $('[data-toggle="tooltip"]').tooltip(); 
               }else{
                 modal.find('.modal-title').text("Error");
                 modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')
@@ -208,6 +289,36 @@
         });
     });
     
+    $('#history-modal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var href = button.data('modal-url');
+      var modal = $(this);
+
+      modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+      modal.find('.modal-body').html('');
+      $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+              if(data['success']){
+                modal.find('.modal-title').html(data['title']);
+                modal.find('.modal-body').html(data['body']);
+                $('[data-toggle="tooltip"]').tooltip(); 
+                $("time[data-format]").each(function () {
+                  var el = $(this);
+                  var dt = moment(el.attr("datetime"));
+                  el.text(dt.format(el.data("format")));
+                });
+              }else{
+                modal.find('.modal-title').text("Error");
+                modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')
+              }
+                
+            },
+        });
+    });
+
+
   });
 </script>
 {% endblock %}

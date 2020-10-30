@@ -2,53 +2,23 @@
 
 # Create your views here.
 
-from django.shortcuts import get_object_or_404, render, redirect
-from django.http import (
-    HttpResponseRedirect,
-    HttpResponse,
-    HttpResponseNotModified,
-    JsonResponse,
-    Http404,
-    HttpResponseForbidden,
-)
-from django.http.request import QueryDict
+from django.shortcuts import get_object_or_404, render
+from django.http import JsonResponse
 
-from django.forms import modelformset_factory, inlineformset_factory
+from django.forms import inlineformset_factory
 from django.urls import reverse
 from django.contrib.auth.decorators import (
-    login_required,
     permission_required,
     user_passes_test,
 )
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template.context_processors import csrf
-from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.db.models import (
-    Q,
-    Sum,
-    Case,
-    When,
-    IntegerField,
-    F,
-    Max,
-)
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Submit,
-    Layout,
-    Field,
-    Fieldset,
-    MultiField,
-    Div,
-    HTML,
-    Row,
-)
-from crispy_forms.bootstrap import InlineField
 
-from ipho_control.models import ExamState
-from ipho_control.forms import ExamStateForm, SwitchStateForm
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+
+from ipho_control.models import ExamState, ExamHistory
+from ipho_control.forms import ExamStateForm
 from ipho_exam.models import Exam, Question
 
 
@@ -75,7 +45,7 @@ def add_edit_state(request, state_id=None):
     return render(request, "ipho_control/add_state.html", ctx)
 
 
-def state_context(is_superuser=False, exam_id=None):
+def exam_state_context(is_superuser=False, exam_id=None):
     """helper function to create context for cockpit_base.html"""
     exams = Exam.objects.order_by("name")
     if not is_superuser:
@@ -95,7 +65,7 @@ def state_context(is_superuser=False, exam_id=None):
         ):
             state = None
         if state is None:
-            av_set = ExamState.get_available_exam_settings()
+            av_set = ExamState.get_available_exam_field_names()
             exam_settings = {s: getattr(exam, s) for s in av_set}
 
             class UndefState:
@@ -103,6 +73,7 @@ def state_context(is_superuser=False, exam_id=None):
                 undef = True
                 description = "This is not a predefined state. No additional information available."
                 exam_settings = None
+
             undef_state = UndefState()
             undef_state.exam_settings = exam_settings
 
@@ -115,17 +86,21 @@ def state_context(is_superuser=False, exam_id=None):
 
     return exam_list, active_exam
 
+
 def alert_dismissible(msg, level="success"):
+    """Helper function to generate bootstrap alerts"""
     return f"""<div class="alert alert-{level} alert-dismissible" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <p>{msg}</p>
                 </div>"""
 
+
+@permission_required("ipho_core.is_staff")
 def cockpit(request, exam_id=None, new_state=False):
     ctx = {}
     ctx["alerts"] = []
     ctx["h1"] = "Cockpit"
-    exam_list, active_exam = state_context(request.user.is_superuser, exam_id)
+    exam_list, active_exam = exam_state_context(request.user.is_superuser, exam_id)
     exam = active_exam["exam"]
     state = active_exam["state"]
     if new_state:
@@ -167,7 +142,13 @@ def cockpit(request, exam_id=None, new_state=False):
         active_exam["state"] = active_exam["undef_state"]
 
     states = ExamState.objects.filter(exam=exam)
-
+    if not request.user.is_superuser:
+        states = states.filter(available_to_organizers=True)
+    ctx["help_texts_settings"] = ExamState.get_exam_field_help_texts()
+    ctx["checks_list"] = {}
+    for state in states:
+        ctx["checks_list"][state.pk] = state.run_checks(return_all=True)
+    ctx["superuser"] = request.user.is_superuser
     ctx["states"] = states
     ctx["active_exam"] = active_exam
     ctx["exam_list"] = exam_list
@@ -175,45 +156,77 @@ def cockpit(request, exam_id=None, new_state=False):
     return render(request, "ipho_control/cockpit_base.html", context=ctx)
 
 
+@permission_required("ipho_core.is_staff")
 def switch_state(request, exam_id, state_id):
     """view to render the switch state modal"""
     exam = Exam.objects.filter(pk=exam_id).first()
     state = ExamState.objects.filter(pk=state_id).first()
+
+    # check whether we can switch to this state
     if exam is None or state is None:
-        return JsonResponse({"success":False, "error": "Exam or State undefined. Please contact support."})
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Exam or State undefined. Please contact support.",
+            }
+        )
     if state.exam != exam:
-        return JsonResponse({"success":False, "error": "Exam and State do not match. Please contact support."})
-    if not (state.is_applicable_organizers() or (state.is_applicable() and request.user.is_superuser)):
-        return JsonResponse({"success":False, "error": "Cannot switch to this state."})
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Exam and State do not match. Please contact support.",
+            }
+        )
+    if not (
+        state.is_applicable_organizers()
+        or (state.is_applicable() and request.user.is_superuser)
+    ):
+        return JsonResponse({"success": False, "error": "Cannot switch to this state."})
     if request.method == "POST":
-        state.apply()
+        state.apply(username=str(request.user))
         title = f"State <strong>{state.name}</strong> applied"
         body = ""
-        return JsonResponse({'success':True,'title':title, 'body':body})
+        return JsonResponse({"success": True, "title": title, "body": body})
+
     # run checks and refactor results
     checks = state.run_checks()
-    warning_list = [w['message'] for w in checks['warnings']]
-    
-    print(checks)
-    print(warning_list)
+    warning_list = [w["message"] for w in checks["warnings"]]
 
-    ctx = {"warnings":warning_list, }
-    ctx["before_switch"] = state.before_switching
+    # get current exam settings
+    available_setttings = ExamState.get_available_exam_field_names()
+    current_exam_settings = {s: getattr(exam, s) for s in available_setttings}
+
+    changelog = {"changed": [], "unchanged": []}
+    for s in available_setttings:
+        if current_exam_settings[s] == state.exam_settings[s]:
+            changelog["unchanged"].append({"name": s, "new": state.exam_settings[s]})
+        else:
+            changed = {
+                "name": s,
+                "old": current_exam_settings[s],
+                "new": state.exam_settings[s],
+            }
+            changelog["changed"].append(changed)
+    ctx = {}
+    ctx["state"] = state
+    ctx["help_texts_settings"] = state.get_exam_field_help_texts()
+    ctx["changelog"] = changelog
+    ctx["warnings"] = warning_list
     ctx.update(csrf(request))
     body = render_to_string("ipho_control/switch_state.html", ctx)
     title = f"Switch Exam <strong>{exam.name}</strong> to State <strong>{state.name}</strong>"
-    return JsonResponse({'success':True,'title':title, 'body':body})
-
-def cockpit_base(request):
-    """view to render the base of all cockpit views"""
-    pass
+    return JsonResponse({"success": True, "title": title, "body": body})
 
 
-def state_overview(request, exam_id):
-    """view to display and edit all states"""
-    pass
-
-
-def exam_cockpit(request, exam_id):
-    """view to display current state and question flags"""
-    pass
+@permission_required("ipho_core.is_staff")
+def exam_history(request, exam_id):
+    exam = get_object_or_404(Exam, pk=exam_id)
+    history = ExamHistory.objects.filter(exam=exam).order_by("-timestamp")
+    ctx = {}
+    ctx["help_texts_settings"] = ExamState.get_exam_field_help_texts()
+    ctx["history"] = history
+    res = {}
+    res["body"] = render_to_string("ipho_control/exam_history.html", ctx)
+    res["title"] = f"History for {exam.name}"
+    res["success"] = True
+    return JsonResponse(res)

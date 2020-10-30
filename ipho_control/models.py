@@ -16,44 +16,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import inspect
-from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.db import models
-from django.db.models import F, Q
 from ipho_exam.models import Exam, Question
 
 import ipho_control.state_checks as state_checks
-
-EXAM_STATE_DISABLED_FIELDS = getattr(settings, "CONTROL_EXAM_STATE_DISABLED_FIELDS")
-EXAM_STATE_QUESTION_FIELDS = getattr(settings, "CONTROL_EXAM_STATE_QUESTION_FIELDS")
-
-
-def get_available_exam_fields():
-    # TODO: should this be a staticmethod of Exam?
-    all_fields = Exam._meta.get_fields()
-    available_fields = [
-        field
-        for field in all_fields
-        if field.name not in EXAM_STATE_DISABLED_FIELDS
-        and hasattr(field, "default")
-        and field.default is not models.fields.NOT_PROVIDED
-    ]
-    available_fields.sort(key=lambda o: o.name)
-    return available_fields
-
-
-def get_default_exam_state_settings():
-    available_fields = get_available_exam_fields()
-    default_settings = {f.name: f.default for f in available_fields}
-    return default_settings
-
-
-def get_selectable_question_fields():
-    all_fields = Question._meta.get_fields()
-    available_fields = [
-        field for field in all_fields if field.name in EXAM_STATE_QUESTION_FIELDS
-    ]
-    available_fields.sort(key=lambda o: o.name)
-    return available_fields
 
 
 class ExamStateManager(models.Manager):
@@ -68,7 +37,11 @@ class ExamState(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
 
-    before_switching = models.TextField(null=True, blank=True, help_text="Text displayed when confirming switching to this state.")
+    before_switching = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Text displayed when confirming switching to this state.",
+    )
 
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
 
@@ -77,7 +50,7 @@ class ExamState(models.Model):
     )
 
     exam_settings = models.JSONField(
-        default=get_default_exam_state_settings,
+        default=Exam.get_default_control_settings,
         help_text="A dictionnary containing fields and settings.",
     )
 
@@ -120,53 +93,86 @@ class ExamState(models.Model):
     def __str__(self):
         return f"{self.name} {self.exam}"
 
-    def apply(self):
+    def clean(self):
+        if set(self.exam_settings.keys()) != set(self.get_available_exam_field_names()):
+            raise ValidationError(
+                f"Exam settings don't match available keys. Settings: {self.exam_settings}, Available: {self.get_available_exam_field_names()}",
+                code="invalid",
+            )
+        controllable_q_fields = [f.name for f in Question.get_controllable_fields()]
+        if not set(self.available_question_settings).issubset(
+            set(controllable_q_fields)
+        ):
+            raise ValidationError(
+                f"Question settings {self.available_question_settings} are not a subset of the controllable settings: {controllable_q_fields}",
+                code="invalid",
+            )
+        checks = {c[0] for c in self.get_check_choices()}
+        if not set(self.checks_warning).issubset(checks):
+            raise ValidationError(
+                f"Warning checks {self.checks_warning} are not a subset of the available checks: {checks}",
+                code="invalid",
+            )
+        if not set(self.checks_error).issubset(checks):
+            raise ValidationError(
+                f"Error checks {self.checks_error} are not a subset of the available checks: {checks}",
+                code="invalid",
+            )
+
+    def apply(self, username=None):
         """ apply the settings to exam"""
         self.is_applicable(raise_errs=True)
         # Apply new settings
         new_settings = self.exam_settings
         for key, val in new_settings.items():
             setattr(self.exam, key, val)
-        self.exam.save()
 
-    def update_settings(self, new_settings):
-        assert isinstance(new_settings, dict)
-        assert set(new_settings.keys()) <= set(
-            self.exam_settings.keys()
-        ), "Keys of provided setting don't match available keys."
-        self.exam_settings.update(new_settings)
-        self.save()
+        # create ExamHistory with username (which cannot be set on the post save)
+        ex_hist = ExamHistory(exam=self.exam, to_settings=new_settings, to_state=self)
+        if username is not None:
+            ex_hist.user = username
+        ex_hist.save()
+        try:
+            # Save the exam, this will trigger the post save, which will not generate a new history
+            self.exam.save()
+        except:
+            # Delete the history if something went wrong.
+            ex_hist.delete()
+            raise
 
     def is_current_state(self):
         current_settings = {
-            k: getattr(self.exam, k) for k in self.get_available_exam_settings()
+            k: getattr(self.exam, k) for k in self.get_available_exam_field_names()
         }
         return self.exam_settings == current_settings
 
-    def _check_warnings(self):
+    def _check_warnings(self, return_all=False):
         warnings = []
         for check in self.checks_warning:
             func = getattr(state_checks, check)
             res = func(self.exam)
-            if not res["passed"]:
+            if not res["passed"] or return_all:
+                res["name"] = check
                 warnings.append(res)
         return warnings
 
-    def _check_errors(self, raise_errs=False):
+    def _check_errors(self, raise_errs=False, return_all=False):
         errors = []
         for check in self.checks_error:
             func = getattr(state_checks, check)
             res = func(self.exam)
-            if not res["passed"]:
+            if not res["passed"] or return_all:
+                res["name"] = check
                 errors.append(res)
-                if raise_errs:
+                if raise_errs and not res["passed"]:
                     raise ValueError(f"State {self.name} is blocked. {res['message']} ")
         return errors
 
-    def run_checks(self):
-        warnings = self._check_warnings()
-        errors = self._check_errors()
-        return {"warnings": warnings, "errors": errors}
+    def run_checks(self, return_all=False):
+        warnings = self._check_warnings(return_all=return_all)
+        errors = self._check_errors(return_all=return_all)
+        help_texts = dict(self.get_check_choices())
+        return {"warnings": warnings, "errors": errors, "help_texts": help_texts}
 
     def is_applicable(self, raise_errs=False):
         return not bool(self._check_errors(raise_errs=raise_errs))
@@ -177,14 +183,14 @@ class ExamState(models.Model):
     def get_available_question_settings(self):
         return [
             s.name
-            for s in get_selectable_question_fields()
+            for s in Question.get_controllable_fields()
             if s.name in self.available_question_settings
         ]
 
     @classmethod
     def get_current_state(cls, exam):
         current_settings = {
-            k: getattr(exam, k) for k in cls.get_available_exam_settings()
+            k: getattr(exam, k) for k in cls.get_available_exam_field_names()
         }
         # objects.filter(..).first() returns state or None, note that this filter provides a unique state
         current_state = cls.objects.filter(
@@ -193,8 +199,22 @@ class ExamState(models.Model):
         return current_state
 
     @classmethod
-    def get_available_exam_settings(cls):
-        return [f.name for f in get_available_exam_fields()]
+    def get_available_exam_fields(cls):
+        return Exam.get_controllable_fields()
+
+    @classmethod
+    def get_available_exam_field_names(cls):
+        return [f.name for f in cls.get_available_exam_fields()]
+
+    @classmethod
+    def get_exam_field_help_texts(cls):
+        res = {}
+        for f in cls.get_available_exam_fields():
+            if hasattr(f, "help_text"):
+                res[f.name] = f.help_text
+            else:
+                res[f.name] = None
+        return res
 
     @classmethod
     def get_applicable_states(cls, exam, is_superuser=False):
@@ -208,13 +228,13 @@ class ExamState(models.Model):
         return res
 
     @staticmethod
-    def get_available_checks():
+    def get_check_choices():
         func_list = inspect.getmembers(state_checks, inspect.isfunction)
         return [(f[0], inspect.getdoc(f[1])) for f in func_list]
 
     @staticmethod
-    def get_selectable_question_choices():
-        available_fields = get_selectable_question_fields()
+    def get_question_setting_choices():
+        available_fields = Question.get_controllable_fields()
         choices = []
         for field in available_fields:
             if hasattr(field, "help_text"):
@@ -222,3 +242,48 @@ class ExamState(models.Model):
             else:
                 choices.append([field.name, field.name])
         return choices
+
+
+class ExamHistory(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    user = models.CharField(max_length=200, default="Some superuser")
+    to_state = models.ForeignKey(
+        ExamState,
+        on_delete=models.CASCADE,
+        help_text="The state to which the exam was changed (if applicable)",
+        null=True,
+        blank=True,
+    )
+    to_settings = models.JSONField(
+        default=Exam.get_default_control_settings,
+        help_text="The settings to which the exam was changed.",
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def get_latest(cls, exam):
+        if cls.objects.filter(exam=exam).exists():
+            return cls.objects.filter(exam=exam).latest("timestamp")
+        return None
+
+    class Meta:
+        verbose_name_plural = "exam histories"
+
+
+@receiver(post_save, sender=Exam, dispatch_uid="create_exam_history_on_exam_change")
+def create_actions_on_exam_creation(
+    instance, created, raw, **kwargs
+):  # pylint: disable=unused-argument
+    # Ignore fixtures.
+    if raw:
+        return
+    current_settings = {
+        k: getattr(instance, k) for k in ExamState.get_available_exam_field_names()
+    }
+    latest_history = ExamHistory.get_latest(instance)
+    if latest_history is not None and latest_history.to_settings == current_settings:
+        return
+
+    ex_hist = ExamHistory(to_settings=current_settings, exam=instance)
+    ex_hist.to_state = ExamState.get_current_state(instance)
+    ex_hist.save()

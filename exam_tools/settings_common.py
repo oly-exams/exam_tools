@@ -58,13 +58,6 @@ VERSION_DATE = f"{GIT_HEAD_DATE} {GIT_HEAD_SHA}"
 
 OFFICIAL_DELEGATION = "Official"
 
-# Fields not available to exam state
-CONTROL_EXAM_STATE_DISABLED_FIELDS = ["code", "name"]
-
-# Question fields selectable in ExamState.available_question_settings
-# Those settings can be chosen in the exam state to be selectable by the organizers
-CONTROL_EXAM_STATE_QUESTION_FIELDS = ["feedback_active", ]
-
 # Demo mode shows watermark and turns off some functionality
 DEMO_MODE = False
 # Allow user sign-up for demo

@@ -421,11 +421,45 @@ class Exam(models.Model):
         default=False, help_text="Show submissions of the delegation"
     )
 
+    # Fields controllable by the control app
+    # NOTE: only fields having a default value are respected.
+    _controllable_fields = [
+        "active",
+        "hidden",
+        "marking_active",
+        "moderation_active",
+        "show_scans",
+        "hide_feedback",
+        "show_delegation_submissions",
+    ]
+
     def __str__(self):
         return "%s" % (self.name)
 
     def natural_key(self):
         return (self.name,)
+
+    @classmethod
+    def get_controllable_fields(cls):
+        """returns the fields available to the control app (i.e. changeable in ExamState)"""
+        all_fields = cls._meta.get_fields()
+        # controllable fields need to have a default value
+        available_fields = [
+            field
+            for field in all_fields
+            if field.name in cls._controllable_fields
+            and hasattr(field, "default")
+            and field.default is not models.fields.NOT_PROVIDED
+        ]
+        available_fields.sort(key=lambda o: o.name)
+        return available_fields
+
+    @classmethod
+    def get_default_control_settings(cls):
+        """returns the default values for controllable fields"""
+        available_fields = cls.get_controllable_fields()
+        default_settings = {f.name: f.default for f in available_fields}
+        return default_settings
 
 
 class QuestionManager(models.Manager):
@@ -460,6 +494,11 @@ class Question(models.Model):
         default=0, help_text="How many pages for working sheets"
     )
 
+    # Fields controllable by the control app
+    _controllable_fields = [
+        "feedback_active",
+    ]
+
     ## TODO: add template field
 
     class Meta:
@@ -492,6 +531,16 @@ class Question(models.Model):
         if not user.has_perm("ipho_core.can_see_boardmeeting"):
             return self.exam.show_delegation_submissions and self.exam.active
         return self.exam.active
+
+    @classmethod
+    def get_controllable_fields(cls):
+        """returns the fields available to the control app"""
+        all_fields = cls._meta.get_fields()
+        available_fields = [
+            field for field in all_fields if field.name in cls._controllable_fields
+        ]
+        available_fields.sort(key=lambda o: o.name)
+        return available_fields
 
 
 class VersionNodeManager(models.Manager):

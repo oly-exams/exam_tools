@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.urls import path, re_path
+from django.urls import path
 
 from . import views
 
@@ -23,8 +23,18 @@ app_name = "control"
 urlpatterns = [
     path("cockpit", views.cockpit, name="cockpit"),
     path("cockpit/<int:exam_id>", views.cockpit, name="cockpit-id"),
-    path("cockpit/<int:exam_id>/new-state", views.cockpit, kwargs={"new_state":True}, name="cockpit-new-state"),
-    path("cockpit/switch-state/<int:exam_id>/<int:state_id>", views.switch_state, name="switch-state"),
+    path(
+        "cockpit/<int:exam_id>/new-state",
+        views.cockpit,
+        kwargs={"new_state": True},
+        name="cockpit-new-state",
+    ),
+    path(
+        "cockpit/switch-state/<int:exam_id>/<int:state_id>",
+        views.switch_state,
+        name="switch-state",
+    ),
+    path("cockpit/exam_history/<int:exam_id>", views.exam_history, name="exam-history"),
     path("state/add", views.add_edit_state, name="add-state"),
     path("state/edit/<int:state_id>", views.add_edit_state, name="edit-state"),
 ]

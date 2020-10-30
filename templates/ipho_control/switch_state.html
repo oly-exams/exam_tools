@@ -2,10 +2,50 @@
 <p>
     {{ state.description }}
 </p>
-<h4>Settings</h4>
+
+{% if changelog.unchanged %}
+    <h4>Unchanged Settings:</h4>
+    {% for item in changelog.unchanged %}
+        {% if item.new is True %}
+            <span class="label label-setting-active" data-toggle="tooltip" title="{{ help_texts_settings|lookup:item.name }}">{{ item.name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+        {% elif item.new is False %}  
+            <span class="label label-setting-inactive" data-toggle="tooltip" title="{{ help_texts_settings|lookup:item.name }}">{{ item.name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
+        {% else %}
+            <span class="label label-default"  data-toggle="tooltip" title="{{ help_texts_settings|lookup:item.name }}">{{ item.name }}: {{ item.new }}</span>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <h4>No unchanged settings</h4>
+{% endif %}
+
+{% if changelog.changed %}
+    <h4><strong>Changed</strong> Settings:</h4>
+    {% for item in changelog.changed %}
+        <span class="label label-primary" style="font-size: 12px; margin-right: 1em;"  data-toggle="tooltip" title="{{ help_texts_settings|lookup:item.name }}">
+            {{ item.name }}: From:
+            {% if item.old is True %}
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
+            {% elif item.old is False %}  
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            {% else %}
+                {{ item.old }}
+            {% endif %}
+            To:
+            {% if item.new is True %}
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
+            {% elif item.new is False %}  
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            {% else %}
+                {{ item.new }}
+            {% endif %}
+        </span>
+    {% endfor %}
+{% else %}
+    <h4>No changed settings</h4>
+{% endif %}
 
 {% if warnings %}
-<h4>Warnings</h4>
+<h4><strong>Warnings</strong></h4>
 <p>The following warnings occurred. Check with support if you want to proceed nonetheless.</p>
 <div class="alert alert-warning" role="alert">
     <ul>
@@ -17,9 +57,9 @@
     </ul>
 </div>
 {% endif %}
-{% if before_switch %}
+{% if state.before_switching %}
 <h4>Other considerations</h4>
 <p>
-{{ before_switch }}
+{{ state.before_switching }}
 </p>
 {% endif %}

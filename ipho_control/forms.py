@@ -15,31 +15,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os.path
-import json
-from django.conf import settings
-from django import forms
-from django.forms import (
-    ModelForm,
-    Form,
-    MultiValueField,
-    MultiWidget,
-)  # , HiddenInput, DateInput, RadioSelect
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, Fieldset, MultiField, Div, HTML
-from django.utils.safestring import mark_safe
 
-from django.core.exceptions import ValidationError
+from django import forms
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit, Layout, Fieldset, Div, Field
 
 from ipho_control.models import (
     ExamState,
-    get_available_exam_fields,
 )
 
-EXAM_STATE_DISABLED_FIELDS = getattr(settings, "CONTROL_EXAM_STATE_DISABLED_FIELDS")
 
-
-class ExamStateForm(ModelForm):
+class ExamStateForm(forms.ModelForm):
     exam_settings_prefix = "exam_settings_"
 
     def __init__(self, *args, **kwargs):
@@ -54,15 +40,16 @@ class ExamStateForm(ModelForm):
             initial_exam_settings = self.instance.exam_settings
 
         exam_fields = []
-        for model_field in get_available_exam_fields():
+
+        for model_field in ExamState.get_available_exam_fields():
             exam_fields.append(self.exam_settings_prefix + model_field.name)
             tmp_field = model_field.formfield()
             if initial_exam_settings:
                 tmp_field.initial = initial_exam_settings[model_field.name]
             self.fields[self.exam_settings_prefix + model_field.name] = tmp_field
 
-        check_choices = self.instance.get_available_checks()
-        question_setting_choices = self.instance.get_selectable_question_choices()
+        check_choices = self.instance.get_check_choices()
+        question_setting_choices = self.instance.get_question_setting_choices()
         self.fields["checks_warning"] = forms.MultipleChoiceField(
             label="Checks warning the user",
             choices=check_choices,
@@ -97,17 +84,27 @@ class ExamStateForm(ModelForm):
                 Fieldset(
                     "ExamState",
                     "name",
+                    Field("description", style="height: 16ex;"),
                     "exam",
                     "position",
                     "available_to_organizers",
-                    "before_switching",
-                    "description",
+                    Field("before_switching", style="height: 16ex;"),
+                    css_class="col-md-4",
+                ),
+                Fieldset(
+                    "Checks",
                     "checks_warning",
                     "checks_error",
-                    "available_question_settings",
-                    css_class="col-md-5",
+                    css_class="col-md-4",
                 ),
-                Fieldset("Exam Settings", *exam_fields, css_class="col-md-5"),
+                Div(
+                    Fieldset("Question Settings", "available_question_settings"),
+                    Fieldset(
+                        "Exam Settings",
+                        *exam_fields,
+                    ),
+                    css_class="col-md-4",
+                ),
                 css_class="row",
             )
         )
@@ -144,10 +141,3 @@ class ExamStateForm(ModelForm):
         widgets = {
             "exam_settings": forms.HiddenInput(),
         }
-
-class SwitchStateForm(Form):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args,exam=None, **kwargs)
-        
-        #self.fields["state"] = forms.RadioSelect
-        
