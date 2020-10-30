@@ -354,12 +354,10 @@ STATICFILES_DIRS = (
     STATIC_PATH,
 )
 
-BOWER_STATIC_PATH = os.getenv("BOWER_STATIC_PATH", None)
-if BOWER_STATIC_PATH:
-    STATICFILES_DIRS = (
-        STATIC_PATH,
-        BOWER_STATIC_PATH,
-    )
+BOWER_STATIC_PATH = os.getenv(
+    "BOWER_STATIC_PATH", os.path.join(PROJECT_PATH, "bower", "static")
+)
+STATICFILES_DIRS = (STATIC_PATH, BOWER_STATIC_PATH)
 
 
 # List of finder classes that know how to find static files in

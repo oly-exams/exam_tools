@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# exit when any command fails
+set -e
+
 STATIC_BOWER=static_bower
 STATIC=static
 BOWER_POSTINSTALL=bower_postinstall

@@ -9,7 +9,6 @@ build:django_server:
             - docker/django_server/*
             - requirements.txt
             - bower/*
-            - static/*
 
 test:django_server:
     extends: .test:pull_and_run
