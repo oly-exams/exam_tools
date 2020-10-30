@@ -3,11 +3,11 @@ services:
     testing_cypress:
         build:
             context: ../../
-            dockerfile: docker/testing_cypress/Dockerfile
+            dockerfile: docker/testing_cypress/Dockerfile${VARIANT:-}
             cache_from:
-                - testing_cypress
-        image: testing_cypress
-        container_name: testing_cypress
+                - testing_cypress${VARIANT:-}
+        image: testing_cypress${VARIANT:-}
+        container_name: testing_cypress${VARIANT:-}
         stdin_open: true # docker run -i
         tty: true        # docker run -t
         volumes:
