@@ -1,2 +1,2 @@
 FROM scratch
-COPY --from=testing_cypress / /
+COPY --from=django_server / /

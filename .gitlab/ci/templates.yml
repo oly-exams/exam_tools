@@ -14,9 +14,9 @@
         - ALL_COMPOSE_FILES_WITH_F=$(echo docker/*/docker-compose.yml | sed 's/ / -f /g')
         # the initial one does not have a "-f" since it has no leading " "
         - docker-compose -f $ALL_COMPOSE_FILES_WITH_F build --pull $SERVICE_NAME
-        - VARIANT=".squash" docker-compose -f $ALL_COMPOSE_FILES_WITH_F build --pull $SERVICE_NAME
-        - docker tag $SERVICE_NAME.squash $IMG.squash
-        - docker push $IMG.squash
+        - VARIANT="_squash" docker-compose -f $ALL_COMPOSE_FILES_WITH_F build --pull $SERVICE_NAME
+        - docker tag ${SERVICE_NAME}_squash ${IMG}_squash
+        - docker push ${IMG}_squash
 
 
 .test:pull_and_run:
@@ -27,7 +27,7 @@
         ENV_FILE: {}
         # SERVICE_NAME is expected
     script:
-        - IMG="$PROJ_REG/$IMG_NAME:$SERVICE_NAME.squash"
+        - IMG="$PROJ_REG/$IMG_NAME:${SERVICE_NAME}_squash"
         - docker pull $IMG
         - docker tag $IMG $SERVICE_NAME
         - ALL_COMPOSE_FILES_WITH_F=$(echo docker/*/docker-compose.yml | sed 's/ / -f /g')
@@ -45,10 +45,10 @@
         # SERVICE_NAME_1 is expected
         # SERVICE_NAME_2 is expected
     script:
-        - IMG_1="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_1"
+        - IMG_1="$PROJ_REG/$IMG_NAME:${SERVICE_NAME_1}_squash"
         - docker pull $IMG_1
         - docker tag $IMG_1 $SERVICE_NAME_1
-        - IMG_2="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_2"
+        - IMG_2="$PROJ_REG/$IMG_NAME:${SERVICE_NAME_2}_squash"
         - docker pull $IMG_2
         - docker tag $IMG_2 $SERVICE_NAME_2
         - ALL_COMPOSE_FILES_WITH_F=$(echo docker/*/docker-compose.yml | sed 's/ / -f /g')
