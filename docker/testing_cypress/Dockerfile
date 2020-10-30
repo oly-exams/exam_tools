@@ -9,3 +9,7 @@ ENV PATH=$PATH:/home/container/.local/bin
 WORKDIR /home/container
 
 RUN ["mkdir", "-p", "cypress/screenshots", "cypress/videos", "cypress/reports"]
+# its not considered good practice to set entrypoint if a CMD can do the same
+# clearing the parent images entrypoint
+ENTRYPOINT []
+CMD npx wait-on http-get://localhost:8000 && cypress run

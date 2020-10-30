@@ -14,5 +14,3 @@ services:
             - ../../:/home/container/workdir:rw
         working_dir: /home/container/workdir/e2e
         network_mode: host  #will be changed to a docker-network later
-        depends_on:
-            - django_server

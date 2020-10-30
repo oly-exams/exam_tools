@@ -18,3 +18,5 @@ services:
         extends:
             file: docker/testing_cypress/docker-compose.yml
             service: testing_cypress
+        depends_on:
+            - django_server
