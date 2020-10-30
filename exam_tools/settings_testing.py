@@ -24,7 +24,7 @@ import sys
 from .settings_common import *
 
 # Printing paths for sanity's sake
-STATIC_PATH = os.getenv("DJANGO_SERVER_STATIC_PATH", STATIC_PATH)
+STATIC_PATH = os.getenv("STATIC_PATH", STATIC_PATH)
 
 print("Settings directory:", SETTINGS_DIR, file=sys.stderr)
 print("Project root:", PROJECT_PATH, file=sys.stderr)
