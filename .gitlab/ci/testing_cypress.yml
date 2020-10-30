@@ -2,6 +2,7 @@ build:testing_cypress:
     extends: .build:build_cached_push
     variables:
         SERVICE_NAME: testing_cypress
+        DEPENDENT_SERVICE: django_server
     rules:
         - if: '$DOCKER_CACHE == "0"'
         - if: '$IMG_NAME != $IMG_COMPARE'
