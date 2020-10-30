@@ -1,0 +1,25 @@
+<h4>State {{ state.name }}</h4>
+<p>
+    {{ state.description }}
+</p>
+<h4>Settings</h4>
+
+{% if warnings %}
+<h4>Warnings</h4>
+<p>The following warnings occurred. Check with support if you want to proceed nonetheless.</p>
+<div class="alert alert-warning" role="alert">
+    <ul>
+        {% for warning in warnings %}
+            <li>
+                {{ warning }}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% if before_switch %}
+<h4>Other considerations</h4>
+<p>
+{{ before_switch }}
+</p>
+{% endif %}

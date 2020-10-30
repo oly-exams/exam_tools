@@ -21,6 +21,10 @@ from . import views
 
 app_name = "control"
 urlpatterns = [
-    path("state/add", views.add_state, name="add-state"),
-    path("state/edit/<int:state_id>", views.edit_state, name="edit-state"),
+    path("cockpit", views.cockpit, name="cockpit"),
+    path("cockpit/<int:exam_id>", views.cockpit, name="cockpit-id"),
+    path("cockpit/<int:exam_id>/new-state", views.cockpit, kwargs={"new_state":True}, name="cockpit-new-state"),
+    path("cockpit/switch-state/<int:exam_id>/<int:state_id>", views.switch_state, name="switch-state"),
+    path("state/add", views.add_edit_state, name="add-state"),
+    path("state/edit/<int:state_id>", views.add_edit_state, name="edit-state"),
 ]

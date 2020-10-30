@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 
 from ipho_control.models import (
@@ -7,8 +6,9 @@ from ipho_control.models import (
 
 # Register your models here.
 
+
 class ExamStateAdmin(admin.ModelAdmin):
-    list_display = ("name", "exam", "settings")
+    list_display = ("name", "exam", "position", "exam_settings")
     list_filter = ("exam",)
 
 

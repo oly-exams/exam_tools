@@ -19,7 +19,12 @@ import os.path
 import json
 from django.conf import settings
 from django import forms
-from django.forms import ModelForm, Form, MultiValueField, MultiWidget  # , HiddenInput, DateInput, RadioSelect
+from django.forms import (
+    ModelForm,
+    Form,
+    MultiValueField,
+    MultiWidget,
+)  # , HiddenInput, DateInput, RadioSelect
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Fieldset, MultiField, Div, HTML
 from django.utils.safestring import mark_safe
@@ -31,56 +36,92 @@ from ipho_control.models import (
     get_available_exam_fields,
 )
 
+EXAM_STATE_DISABLED_FIELDS = getattr(settings, "CONTROL_EXAM_STATE_DISABLED_FIELDS")
+
 
 class ExamStateForm(ModelForm):
-    settings_prefix = "settings_"
+    exam_settings_prefix = "exam_settings_"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['settings'].required = False
+        # set hidden field to non required
+        self.fields["exam_settings"].required = False
 
-        default_settings = None
+        # prepare initial data
+        initial_exam_settings = None
+
         if kwargs.get("instance"):
-            default_settings = self.instance.settings
-        
+            initial_exam_settings = self.instance.exam_settings
+
         exam_fields = []
         for model_field in get_available_exam_fields():
-            exam_fields.append(self.settings_prefix + model_field.name)
+            exam_fields.append(self.exam_settings_prefix + model_field.name)
             tmp_field = model_field.formfield()
-            if default_settings:
-                tmp_field.initial = default_settings[model_field.name]
-            self.fields[self.settings_prefix + model_field.name] = tmp_field
+            if initial_exam_settings:
+                tmp_field.initial = initial_exam_settings[model_field.name]
+            self.fields[self.exam_settings_prefix + model_field.name] = tmp_field
+
+        check_choices = self.instance.get_available_checks()
+        question_setting_choices = self.instance.get_selectable_question_choices()
+        self.fields["checks_warning"] = forms.MultipleChoiceField(
+            label="Checks warning the user",
+            choices=check_choices,
+            widget=forms.CheckboxSelectMultiple,
+            required=False,
+        )
+        self.fields["checks_error"] = forms.MultipleChoiceField(
+            label="Checks throwing an error",
+            choices=check_choices,
+            widget=forms.CheckboxSelectMultiple,
+            required=False,
+        )
+        self.fields["available_question_settings"] = forms.MultipleChoiceField(
+            label="Question settings available to the organizer",
+            choices=question_setting_choices,
+            widget=forms.CheckboxSelectMultiple,
+            required=False,
+        )
+
         self.helper = FormHelper()
         # self.helper.layout = Layout(Field('title', placeholder='Enter question text'), Field('question'))
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.helper.form_tag = True
         self.helper.disable_csrf = False
-        self.helper.form_method = 'post'
-        self.helper.form_action = ''
+        self.helper.form_method = "post"
+        self.helper.form_action = ""
         self.helper.add_input(Submit("submit", "Submit"))
 
         self.helper.layout = Layout(
             Div(
                 Fieldset(
-            'ExamState',
-            'name',
-            "available_to_organizers",
-            'description',
-            'exam',css_class='col-md-5'),
-            Fieldset(
-                'Exam Settings',
-                *exam_fields,
-                css_class='col-md-5'
-            ), 
-            css_class='row')
+                    "ExamState",
+                    "name",
+                    "exam",
+                    "position",
+                    "available_to_organizers",
+                    "before_switching",
+                    "description",
+                    "checks_warning",
+                    "checks_error",
+                    "available_question_settings",
+                    css_class="col-md-5",
+                ),
+                Fieldset("Exam Settings", *exam_fields, css_class="col-md-5"),
+                css_class="row",
+            )
         )
-        
 
     def clean(self):
         cleaned_data = super().clean()
-        setting_fields = [key for key in cleaned_data if key.startswith(self.settings_prefix)]
-        settings = {key[len(self.settings_prefix):]: cleaned_data[key] for key in setting_fields}
-        cleaned_data["settings"] = settings
+        setting_fields = [
+            key for key in cleaned_data if key.startswith(self.exam_settings_prefix)
+        ]
+        exam_settings = {
+            key[len(self.exam_settings_prefix) :]: cleaned_data[key]
+            for key in setting_fields
+        }
+        cleaned_data["exam_settings"] = exam_settings
         self.validate_unique()
         for key in setting_fields:
             del cleaned_data[key]
@@ -88,7 +129,25 @@ class ExamStateForm(ModelForm):
 
     class Meta:
         model = ExamState
-        fields = ["name", "description", "exam", "available_to_organizers", "settings"]
+        fields = [
+            "name",
+            "description",
+            "exam",
+            "position",
+            "available_to_organizers",
+            "before_switching",
+            "exam_settings",
+            "checks_warning",
+            "checks_error",
+            "available_question_settings",
+        ]
         widgets = {
-            "settings": forms.HiddenInput(),
+            "exam_settings": forms.HiddenInput(),
         }
+
+class SwitchStateForm(Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,exam=None, **kwargs)
+        
+        #self.fields["state"] = forms.RadioSelect
+        

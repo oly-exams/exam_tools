@@ -1,0 +1,213 @@
+{% extends "ipho_control/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block extra-head %}
+{% endblock %}
+
+{% block pageheader %}<h1>{{ h1 }}</h1>{% endblock %}
+
+{% block page-content %}
+{# modal for creating a new question and editing questions. #}
+<div class="modal fade" id="switch-state-modal" tabindex="-1" aria-labelledby="modalLabel">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title" id="modalLabel"> Title </h4>
+      </div>
+      <form role="form" method="post" action="">{% csrf_token %}
+          <div class="modal-body">
+            Body
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Abort</button>
+            <button id="switch-state-submit" data-href="" class="btn btn-primary disabled">Switch</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+    <div id="alerts-container">
+        {% for alert in alerts %}
+        {{ alert|safe }}
+        {% endfor %}
+    </div>
+    <ul class="nav nav-tabs">
+      {% for exam in exam_list %}
+      <li role="presentation" class="{% if exam.active_tab %}active{% endif %}">
+        <a style="font-size: 18px;" href="{% if not exam.active_tab %}{% url 'control:cockpit-id' exam.exam.pk%}{% endif %}">
+          <span>
+            {{ exam.exam.name }}
+          </span>
+          {% if exam.state and not exam.state.undef %}
+          <span class="label label-default">
+            {{ exam.state.name }}
+          </span>
+          {% endif %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+
+    <div class="row">
+      <div class="col-md-6">
+        <h4>Current state:</h4>
+        <div class="panel panel-primary">
+          <div style="font-size: 16px;" class="panel-heading">
+            <div style="font-size: 20px;">
+              {{ active_exam.state.name }}
+            </div>
+            {% for name, setting in active_exam.state.exam_settings.items %}
+              {% if setting is True %}
+                <span class="label label-success">{{ name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+              {% elif setting is False %}  
+                <span class="label label-danger">{{ name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
+              {% else %}
+                <span class="label label-default">{{ name }}: {{ setting }}</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="panel-body">
+            
+            <p>
+              {{ active_exam.state.description }}
+            </p>
+            
+          </div>
+        </div>
+        {% if question_settings %}
+          <h4>Question settings:</h4>
+          {% include "ipho_control/question_settings.html" %}
+        {% endif %}
+      </div>
+      <div class="col-md-6" id="state-list">
+        <h4>Available states: </h4>
+        <div style="overflow-y:auto; max-height: 55vh;">
+          {% for state in states %}
+          <div class="panel panel-info state-panel {% if state.is_current_state %}current-state{% endif %}">
+            <div class="panel-heading" style="display: flex; justify-content: space-between;">
+              <div>
+                <div>
+                  {{ state.name }}
+                </div>
+                {% for name, setting in state.exam_settings.items %}
+                {% if setting is True %}
+                  <span class="label label-success">{{ name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+                {% elif setting is False %}  
+                  <span class="label label-danger">{{ name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
+                {% else %}
+                  <span class="label label-default">{{ name }}: {{ setting }}</span>
+                {% endif %}
+              {% endfor %}
+              </div>
+              <div style="flex-grow:4;">
+                <span class="label label-success">Check 1: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+                <span class="label label-danger">Check 2: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
+              </div>
+              <button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#switch-state-modal" data-modal-url="{% url 'control:switch-state' active_exam.exam.pk state.pk %}">Switch state</button>
+            </div>
+            <div class="panel-body">
+              <p>
+                {{ state.description }}
+              </p>
+            </div>
+          </div>
+          {% endfor %}
+      </div>
+      </div>
+    </div>
+    
+
+{% endblock %}
+
+{% block extra-script %}
+<script>
+  $('document').ready(function(){
+    $( "#state-list .current-state")[0].scrollIntoView();
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+    $('#switch-state-modal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var href = button.data('modal-url');
+      var modal = $(this);
+
+      modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+      modal.find('.modal-body').html('');
+      $('#switch-state-submit').addClass('disabled');
+      $('#switch-state-submit').data('href', '');
+      $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+              if(data['success']){
+                modal.find('.modal-title').html(data['title']);
+                modal.find('.modal-body').html(data['body']);
+                $('#switch-state-submit').removeClass('disabled');
+                $('#switch-state-submit').data('href', href);
+              }else{
+                modal.find('.modal-title').text("Error");
+                modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')
+              }
+                
+            },
+        });
+    });
+
+    $('#switch-state-submit').on('click', function (event) {
+      event.preventDefault();
+      var button = $(this);
+      var href = button.data('href');
+      var modal = $('#switch-state-modal');
+
+      modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+      modal.find('.modal-body').html('');
+      $('#switch-state-submit').addClass('disabled');
+      $.ajax({
+            url: href,
+            dataType: 'json',
+            method: 'post',
+            success: function(data) {
+              if(data['success']){
+                window.location.href = '{% url "control:cockpit-new-state" active_exam.exam.pk %}';
+              }else{
+                modal.find('.modal-title').text("Error");
+                modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')
+              }
+                
+            },
+        });
+    });
+    
+  });
+</script>
+{% endblock %}

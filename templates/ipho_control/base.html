@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header" style="margin-top: 20px;">
+      {% block pageheader %}{% endblock %}
+    </div>
+
+    {% block page-content %}{% endblock %}
+</div> <!-- /container -->
+
+{% endblock %}

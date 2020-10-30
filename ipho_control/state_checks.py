@@ -5,7 +5,7 @@ from ipho_marking.models import MarkingAction
 
 def true_condition(exam):  # pylint: disable=unused-argument
     """A check that always passes."""
-    return {"passed": True, "message": ""}
+    return {"passed": True, "message": "True check"}
 
 
 def all_translations_submitted(exam):  # pylint: disable=unused-argument
@@ -28,7 +28,7 @@ def all_translations_submitted(exam):  # pylint: disable=unused-argument
         delegations = " ".join(delegations)
         return {
             "passed": False,
-            "message": f"The following delegations have not submitted one or multiple exams: {delegations}",
+            "message": f"Unsubmitted documents! The following delegations have not submitted one or multiple exams: {delegations}",
         }
     return {"passed": True, "message": "All translations submitted."}
 
@@ -47,13 +47,13 @@ def exam_translations_submitted(exam):
             "message": f"There are {count} unsubmitted translations",
         }
     if count:
-        delegations = unsubmitted_actions.delegation.distinct().values_list(
-            "name", flat=True
+        delegations = unsubmitted_actions.values("delegation").distinct().values_list(
+            "delegation__name", flat=True
         )
         delegations = " ".join(delegations)
         return {
             "passed": False,
-            "message": f"The following delegations have not yet submitted: {delegations}",
+            "message": f"Unsubmitted documents! The following delegations have not yet submitted: {delegations}",
         }
     return {"passed": True, "message": "All translations submitted."}
 
