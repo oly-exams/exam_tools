@@ -15,9 +15,13 @@ test:testing_cypress:
         SERVICE_NAME_1: testing_cypress
         SERVICE_NAME_2: django_server
         ENV_FILE: docker/env/testing_cypress.env
+    after_script:
+        # copying makes the folderstructure look nicer on gitlab
+        - cp e2e/cypress/videos $CI_PROJECT_DIR/videos
+        - cp e2e/cypress/screenshots $CI_PROJECT_DIR/screenshots
     artifacts:
         paths:
-            - e2e/cypress/videos
-            - e2e/cypress/screenshots
+            - $CI_PROJECT_DIR/videos
+            - $CI_PROJECT_DIR/screenshots
         reports:
             junit: e2e/cypress/reports/*.xml
