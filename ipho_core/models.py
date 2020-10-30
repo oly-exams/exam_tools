@@ -45,6 +45,7 @@ class IphoPerm(models.Model):
             ),
             ("is_staff", "Is an organizer"),
             ("can_impersonate", "Can impersonate delegations"),
+            ("can_access_control", "Can access the control app"),
             ("print_technopark", "Can print in Technopark"),
             ("print_irchel", "Can print in Irchel"),
             ("is_printstaff", "Is a print staff"),

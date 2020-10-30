@@ -21,11 +21,11 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Fieldset, Div, Field
 
 from ipho_control.models import (
-    ExamState,
+    ExamControlState,
 )
 
 
-class ExamStateForm(forms.ModelForm):
+class ExamControlStateForm(forms.ModelForm):
     exam_settings_prefix = "exam_settings_"
 
     def __init__(self, *args, **kwargs):
@@ -41,7 +41,7 @@ class ExamStateForm(forms.ModelForm):
 
         exam_fields = []
 
-        for model_field in ExamState.get_available_exam_fields():
+        for model_field in ExamControlState.get_available_exam_fields():
             exam_fields.append(self.exam_settings_prefix + model_field.name)
             tmp_field = model_field.formfield()
             if initial_exam_settings:
@@ -82,7 +82,7 @@ class ExamStateForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Fieldset(
-                    "ExamState",
+                    "ExamControlState",
                     "name",
                     Field("description", style="height: 16ex;"),
                     "exam",
@@ -125,7 +125,7 @@ class ExamStateForm(forms.ModelForm):
         return cleaned_data
 
     class Meta:
-        model = ExamState
+        model = ExamControlState
         fields = [
             "name",
             "description",

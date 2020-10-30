@@ -101,7 +101,7 @@
                   {% if perms.ipho_core.is_staff and perms.ipho_core.can_impersonate %}
                   <li class="dropdown-header">Django admin</li>
                   {% if user.is_superuser %}
-                  <li><a href="{% url 'admin:index' %}">Admin
+                  <li><a href="{% url 'admin:index' %}">Admin</a></li>
                   {% endif %}
                   {% if perms.ipho_core.can_impersonate %}
                   <li><a href="{% url 'impersonate' %}">Impersonate delegation</a></li>
@@ -110,6 +110,11 @@
                   <li><a href="{% url 'exam:auto-translate-count' %}">Auto translate costs</a></li>
                   {% endif %}
                   <li class="divider"></li>
+                  {% endif %}
+                  {% if perms.ipho_core.can_access_control or user.is_superuser %}
+                    <li class="dropdown-header">Event Management</li>
+                    <li><a href="{% url 'control:cockpit' %}">Cockpit</a></li>
+                    <li class="divider"></li>
                   {% endif %}
                   {% if perms.ipho_core.is_staff %}
                   <li class="dropdown-header">Exam</li>

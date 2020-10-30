@@ -1,6 +1,19 @@
-# from django.shortcuts import render
-
-# Create your views here.
+# Exam Tools
+#
+# Copyright (C) 2014 - 2019 Oly Exams Team
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
@@ -17,24 +30,24 @@ from django.template.loader import render_to_string
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
-from ipho_control.models import ExamState, ExamHistory
-from ipho_control.forms import ExamStateForm
+from ipho_control.models import ExamControlState, ExamControlHistory
+from ipho_control.forms import ExamControlStateForm
 from ipho_exam.models import Exam, Question
 
 
 @user_passes_test(lambda u: u.is_superuser)
 def add_edit_state(request, state_id=None):
-    """view to add or edit ExamStates"""
+    """view to add or edit ExamControlStates"""
     state = None
     ctx = {}
     ctx["alerts"] = []
     ctx["h1"] = "Add Exam State"
     ctx["lead"] = "Add another Exam State to the cockpit"
     if state_id is not None:
-        state = get_object_or_404(ExamState, pk=state_id)
+        state = get_object_or_404(ExamControlState, pk=state_id)
         ctx["h1"] = "Edit Exam State"
         ctx["lead"] = "Edit the following Exam State"
-    form = ExamStateForm(request.POST or None, instance=state)
+    form = ExamControlStateForm(request.POST or None, instance=state)
     if form.is_valid():
         form.save()
 
@@ -57,7 +70,7 @@ def exam_state_context(is_superuser=False, exam_id=None):
     active_exam = None
     for exam in exams:
         ctx = {"exam": exam}
-        state = ExamState.get_current_state(exam)
+        state = ExamControlState.get_current_state(exam)
         if (
             not is_superuser
             and state is not None
@@ -65,7 +78,7 @@ def exam_state_context(is_superuser=False, exam_id=None):
         ):
             state = None
         if state is None:
-            av_set = ExamState.get_available_exam_field_names()
+            av_set = ExamControlState.get_available_exam_field_names()
             exam_settings = {s: getattr(exam, s) for s in av_set}
 
             class UndefState:
@@ -95,17 +108,21 @@ def alert_dismissible(msg, level="success"):
                 </div>"""
 
 
-@permission_required("ipho_core.is_staff")
-def cockpit(request, exam_id=None, new_state=False):
+@permission_required("ipho_core.can_access_control")
+def cockpit(request, exam_id=None, changed_state=False, deleted_state=False):
     ctx = {}
     ctx["alerts"] = []
     ctx["h1"] = "Cockpit"
     exam_list, active_exam = exam_state_context(request.user.is_superuser, exam_id)
     exam = active_exam["exam"]
     state = active_exam["state"]
-    if new_state:
-        new_state_msg = f"<strong>Success.</strong> Changed state to {state.name}."
-        ctx["alerts"].append(alert_dismissible(new_state_msg))
+    if changed_state and state is not None:
+        changed_state_msg = f"<strong>Success.</strong> Changed state to {state.name}."
+        ctx["alerts"].append(alert_dismissible(changed_state_msg))
+    if deleted_state:
+        del_state_msg = "<strong>State deleted.</strong>"
+        ctx["alerts"].append(alert_dismissible(del_state_msg, "warning"))
+
     if state is not None and state.get_available_question_settings():
         QuestionFormSet = inlineformset_factory(  # pylint: disable=invalid-name
             parent_model=Exam,
@@ -141,10 +158,10 @@ def cockpit(request, exam_id=None, new_state=False):
     if state is None and "undef_state" in active_exam:
         active_exam["state"] = active_exam["undef_state"]
 
-    states = ExamState.objects.filter(exam=exam)
+    states = ExamControlState.objects.filter(exam=exam)
     if not request.user.is_superuser:
         states = states.filter(available_to_organizers=True)
-    ctx["help_texts_settings"] = ExamState.get_exam_field_help_texts()
+    ctx["help_texts_settings"] = ExamControlState.get_exam_field_help_texts()
     ctx["checks_list"] = {}
     for state in states:
         ctx["checks_list"][state.pk] = state.run_checks(return_all=True)
@@ -156,11 +173,11 @@ def cockpit(request, exam_id=None, new_state=False):
     return render(request, "ipho_control/cockpit_base.html", context=ctx)
 
 
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.can_access_control")
 def switch_state(request, exam_id, state_id):
     """view to render the switch state modal"""
     exam = Exam.objects.filter(pk=exam_id).first()
-    state = ExamState.objects.filter(pk=state_id).first()
+    state = ExamControlState.objects.filter(pk=state_id).first()
 
     # check whether we can switch to this state
     if exam is None or state is None:
@@ -193,7 +210,7 @@ def switch_state(request, exam_id, state_id):
     warning_list = [w["message"] for w in checks["warnings"]]
 
     # get current exam settings
-    available_setttings = ExamState.get_available_exam_field_names()
+    available_setttings = ExamControlState.get_available_exam_field_names()
     current_exam_settings = {s: getattr(exam, s) for s in available_setttings}
 
     changelog = {"changed": [], "unchanged": []}
@@ -218,12 +235,28 @@ def switch_state(request, exam_id, state_id):
     return JsonResponse({"success": True, "title": title, "body": body})
 
 
-@permission_required("ipho_core.is_staff")
+@user_passes_test(lambda u: u.is_superuser)
+def delete_state(request, state_id):
+    state = get_object_or_404(ExamControlState, pk=state_id)
+    if request.method == "POST":
+        state.delete()
+        return JsonResponse({"success": True})
+
+    res = {}
+    res["title"] = f"Delete state {state.name}"
+    res["body"] = "Are you sure?"
+    if state.is_current_state():
+        res["body"] = "This is the <strong>current state</strong>, are you really sure?"
+    res["success"] = True
+    return JsonResponse(res)
+
+
+@permission_required("ipho_core.can_access_control")
 def exam_history(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
-    history = ExamHistory.objects.filter(exam=exam).order_by("-timestamp")
+    history = ExamControlHistory.objects.filter(exam=exam).order_by("-timestamp")
     ctx = {}
-    ctx["help_texts_settings"] = ExamState.get_exam_field_help_texts()
+    ctx["help_texts_settings"] = ExamControlState.get_exam_field_help_texts()
     ctx["history"] = history
     res = {}
     res["body"] = render_to_string("ipho_control/exam_history.html", ctx)

@@ -25,13 +25,13 @@ from ipho_exam.models import Exam, Question
 import ipho_control.state_checks as state_checks
 
 
-class ExamStateManager(models.Manager):
+class ExamControlStateManager(models.Manager):
     def get_by_natural_key(self, name, exam):
         return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam))
 
 
-class ExamState(models.Model):
-    objects = ExamStateManager()
+class ExamControlState(models.Model):
+    objects = ExamControlStateManager()
 
     position = models.PositiveIntegerField()
     name = models.CharField(max_length=200)
@@ -127,8 +127,10 @@ class ExamState(models.Model):
         for key, val in new_settings.items():
             setattr(self.exam, key, val)
 
-        # create ExamHistory with username (which cannot be set on the post save)
-        ex_hist = ExamHistory(exam=self.exam, to_settings=new_settings, to_state=self)
+        # create ExamControlHistory with username (which cannot be set on the post save)
+        ex_hist = ExamControlHistory(
+            exam=self.exam, to_settings=new_settings, to_state=self
+        )
         if username is not None:
             ex_hist.user = username
         ex_hist.save()
@@ -244,11 +246,11 @@ class ExamState(models.Model):
         return choices
 
 
-class ExamHistory(models.Model):
+class ExamControlHistory(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     user = models.CharField(max_length=200, default="Some superuser")
     to_state = models.ForeignKey(
-        ExamState,
+        ExamControlState,
         on_delete=models.CASCADE,
         help_text="The state to which the exam was changed (if applicable)",
         null=True,
@@ -278,12 +280,13 @@ def create_actions_on_exam_creation(
     if raw:
         return
     current_settings = {
-        k: getattr(instance, k) for k in ExamState.get_available_exam_field_names()
+        k: getattr(instance, k)
+        for k in ExamControlState.get_available_exam_field_names()
     }
-    latest_history = ExamHistory.get_latest(instance)
+    latest_history = ExamControlHistory.get_latest(instance)
     if latest_history is not None and latest_history.to_settings == current_settings:
         return
 
-    ex_hist = ExamHistory(to_settings=current_settings, exam=instance)
-    ex_hist.to_state = ExamState.get_current_state(instance)
+    ex_hist = ExamControlHistory(to_settings=current_settings, exam=instance)
+    ex_hist.to_state = ExamControlState.get_current_state(instance)
     ex_hist.save()

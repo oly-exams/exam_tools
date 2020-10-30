@@ -24,10 +24,16 @@ urlpatterns = [
     path("cockpit", views.cockpit, name="cockpit"),
     path("cockpit/<int:exam_id>", views.cockpit, name="cockpit-id"),
     path(
-        "cockpit/<int:exam_id>/new-state",
+        "cockpit/<int:exam_id>/changed-state",
         views.cockpit,
-        kwargs={"new_state": True},
-        name="cockpit-new-state",
+        kwargs={"changed_state": True},
+        name="cockpit-changed-state",
+    ),
+    path(
+        "cockpit/<int:exam_id>/deleted",
+        views.cockpit,
+        kwargs={"deleted_state": True},
+        name="cockpit-deleted-state",
     ),
     path(
         "cockpit/switch-state/<int:exam_id>/<int:state_id>",
@@ -37,4 +43,5 @@ urlpatterns = [
     path("cockpit/exam_history/<int:exam_id>", views.exam_history, name="exam-history"),
     path("state/add", views.add_edit_state, name="add-state"),
     path("state/edit/<int:state_id>", views.add_edit_state, name="edit-state"),
+    path("state/delete/<int:state_id>", views.delete_state, name="delete-state"),
 ]
