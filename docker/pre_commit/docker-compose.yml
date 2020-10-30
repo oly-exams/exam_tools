@@ -5,7 +5,7 @@ services:
             context: ../../
             dockerfile: docker/pre_commit/Dockerfile${VARIANT:-}
             cache_from:
-                - pre_commit${VARIANT:-}
+                - pre_commit
         image: pre_commit${VARIANT:-}
         container_name: pre_commit${VARIANT:-}
         stdin_open: true # docker run -i

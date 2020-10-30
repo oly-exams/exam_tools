@@ -5,7 +5,7 @@ services:
             context: ../../
             dockerfile: docker/testing_cypress/Dockerfile${VARIANT:-}
             cache_from:
-                - testing_cypress${VARIANT:-}
+                - testing_cypress
         image: testing_cypress${VARIANT:-}
         container_name: testing_cypress${VARIANT:-}
         stdin_open: true # docker run -i

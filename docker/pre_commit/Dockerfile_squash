@@ -1,2 +1,2 @@
 FROM scratch
-COPY --from=pre-commit / /
+COPY --from=pre_commit / /

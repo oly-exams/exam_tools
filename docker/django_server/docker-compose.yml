@@ -5,7 +5,7 @@ services:
             context: ../../
             dockerfile: docker/django_server/Dockerfile${VARIANT:-}
             cache_from:
-                - django_server${VARIANT:-}
+                - django_server
         image: django_server${VARIANT:-}
         container_name: django_server${VARIANT:-}
         stdin_open: true # docker run -i
