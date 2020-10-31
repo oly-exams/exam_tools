@@ -17,9 +17,10 @@
         - docker push ${IMG}
         # also adding a squashed version for quicker loading in the tests
         - ./.gitlab/ci/create_Dockerfile_squash.sh $SERVICE_NAME
+        - IMG_SQ="${IMG}_squash"
         - VARIANT="_squash" docker-compose -f $ALL_COMPOSE_FILES_WITH_F build $SERVICE_NAME
-        - docker tag ${SERVICE_NAME}_squash ${IMG}_squash
-        - docker push ${IMG}_squash
+        - docker tag ${SERVICE_NAME}_squash $IMG_SQ
+        - docker push $IMG_SQ
 
 
 .test:pull_and_run:
@@ -30,9 +31,9 @@
         ENV_FILE: {}
         # SERVICE_NAME is expected
     script:
-        - IMG="$PROJ_REG/$IMG_NAME:${SERVICE_NAME}_squash"
-        - docker pull $IMG
-        - docker tag $IMG $SERVICE_NAME
+        - IMG_SQ="$PROJ_REG/$IMG_NAME:${SERVICE_NAME}_squash"
+        - docker pull $IMG_SQ
+        - docker tag $IMG_SQ $SERVICE_NAME
         - ALL_COMPOSE_FILES_WITH_F=$(echo docker/*/docker-compose.yml | sed 's/ / -f /g')
         - >
             docker-compose
@@ -48,12 +49,12 @@
         # SERVICE_NAME_1 is expected
         # SERVICE_NAME_2 is expected
     script:
-        - IMG_1="$PROJ_REG/$IMG_NAME:${SERVICE_NAME_1}_squash"
-        - docker pull $IMG_1
-        - docker tag $IMG_1 $SERVICE_NAME_1
-        - IMG_2="$PROJ_REG/$IMG_NAME:${SERVICE_NAME_2}_squash"
-        - docker pull $IMG_2
-        - docker tag $IMG_2 $SERVICE_NAME_2
+        - IMG_SQ_1="$PROJ_REG/$IMG_NAME:${SERVICE_NAME_1}_squash"
+        - docker pull $IMG_SQ_1
+        - docker tag $IMG_SQ_1 $SERVICE_NAME_1
+        - IMG_SQ_2="$PROJ_REG/$IMG_NAME:${SERVICE_NAME_2}_squash"
+        - docker pull $IMG_SQ_2
+        - docker tag $IMG_SQ_2 $SERVICE_NAME_2
         - ALL_COMPOSE_FILES_WITH_F=$(echo docker/*/docker-compose.yml | sed 's/ / -f /g')
         - >
             docker-compose

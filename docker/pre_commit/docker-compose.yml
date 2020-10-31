@@ -7,7 +7,7 @@ services:
             cache_from:
                 - pre_commit
         image: pre_commit${VARIANT:-}
-        container_name: pre_commit${VARIANT:-}
+        container_name: pre_commit
         stdin_open: true # docker run -i
         tty: true        # docker run -t
         volumes:

@@ -7,7 +7,7 @@ services:
             cache_from:
                 - django_server
         image: django_server${VARIANT:-}
-        container_name: django_server${VARIANT:-}
+        container_name: django_server
         stdin_open: true # docker run -i
         tty: true        # docker run -t
         volumes:

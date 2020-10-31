@@ -8,4 +8,4 @@
 
 echo "FROM scratch" > docker/$1/Dockerfile_squash
 echo "COPY --from=$1 / /" >> docker/$1/Dockerfile_squash
-grep "ENV\|WORKDIR\|USER\|ENTRYPOINT\|CMD" docker/pre_commit/Dockerfile >> docker/$1/Dockerfile_squash
+grep "ENV\|WORKDIR\|USER\|CMD\|ENTRYPOINT" docker/$1/Dockerfile >> docker/$1/Dockerfile_squash
