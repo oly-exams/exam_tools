@@ -17,15 +17,14 @@
     </div>
 </div>
     <div class="panel-body">
-        {% for name, setting in h.to_settings.items %}
-        {% if setting is True %}
-        <span class="label label-setting-active" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
-        {% elif setting is False %}  
-        <span class="label label-setting-inactive" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
-        {% else %}
-        <span class="label label-default" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: {{ setting }}</span>
+        {% include "ipho_control/state_labels.html" with settings=h.to_settings help_texts=help_texts_settings only %}
+        
+        {% if h.changes_to_previous %}
+            <h4>Changed:</h4>
+            <div>
+                {% include "ipho_control/state_labels_changelog.html" with settings=h.changes_to_previous help_texts=help_texts_settings only %}
+            </div>
         {% endif %}
-    {% endfor %}
     </div>
 </div>
 

@@ -213,17 +213,16 @@ def switch_state(request, exam_id, state_id):
     available_setttings = ExamControlState.get_available_exam_field_names()
     current_exam_settings = {s: getattr(exam, s) for s in available_setttings}
 
-    changelog = {"changed": [], "unchanged": []}
+    changelog = {"changed": {}, "unchanged": {}}
     for s in available_setttings:
-        if current_exam_settings[s] == state.exam_settings[s]:
-            changelog["unchanged"].append({"name": s, "new": state.exam_settings[s]})
+        if current_exam_settings[s] == state.exam_settings.get(s):
+            changelog["unchanged"][s] = state.exam_settings.get(s)
         else:
             changed = {
-                "name": s,
-                "old": current_exam_settings[s],
-                "new": state.exam_settings[s],
+                "old": current_exam_settings.get(s),
+                "new": state.exam_settings.get(s),
             }
-            changelog["changed"].append(changed)
+            changelog["changed"][s] = changed
     ctx = {}
     ctx["state"] = state
     ctx["help_texts_settings"] = state.get_exam_field_help_texts()

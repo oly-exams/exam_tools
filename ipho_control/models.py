@@ -262,6 +262,30 @@ class ExamControlHistory(models.Model):
     )
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def get_previous(self):
+        return (
+            ExamControlHistory.objects.filter(
+                timestamp__lt=self.timestamp, exam=self.exam
+            )
+            .order_by("-timestamp")
+            .first()
+        )
+
+    def changes_to_previous(self):
+        res = {}
+        previous = self.get_previous()
+        if previous is None:
+            return {}
+        previous_settings = previous.to_settings
+        for s in ExamControlState.get_available_exam_field_names():
+            if self.to_settings.get(s) != previous_settings.get(s):
+                changed = {
+                    "new": self.to_settings.get(s),
+                    "old": previous_settings.get(s),
+                }
+                res[s] = changed
+        return res
+
     @classmethod
     def get_latest(cls, exam):
         if cls.objects.filter(exam=exam).exists():
@@ -270,6 +294,7 @@ class ExamControlHistory(models.Model):
 
     class Meta:
         verbose_name_plural = "exam histories"
+        ordering = ["-timestamp"]
 
 
 @receiver(post_save, sender=Exam, dispatch_uid="create_exam_history_on_exam_change")

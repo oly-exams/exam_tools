@@ -1,0 +1,20 @@
+{% for name, item in settings.items %}
+  <span class="label label-primary" data-toggle="tooltip" title="{{ help_texts|get:name }}">{% spaceless %}
+      {{ name }}: From:
+      {% if item.old is True %}
+          <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
+      {% elif item.old is False %}  
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+      {% else %}
+          {{ item.old }}
+      {% endif %}
+      To:
+      {% if item.new is True %}
+          <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
+      {% elif item.new is False %}  
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+      {% else %}
+          {{ item.new }}
+      {% endif %}
+  {% endspaceless %}</span>
+{% endfor %}

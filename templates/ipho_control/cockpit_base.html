@@ -105,15 +105,7 @@
             <div style="font-size: 20px;">
               {{ active_exam.state.name }}
             </div>
-            {% for name, setting in active_exam.state.exam_settings.items %}
-              {% if setting is True %}
-                <span class="label label-setting-active" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
-              {% elif setting is False %}  
-                <span class="label label-setting-inactive" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
-              {% else %}
-                <span class="label label-default" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: {{ setting }}</span>
-              {% endif %}
-            {% endfor %}
+            {% include "ipho_control/state_labels.html" with settings=active_exam.state.exam_settings help_texts=help_texts_settings only %}
           </div>
           <div class="panel-body">
             
@@ -149,15 +141,7 @@
                 <div style="font-size: 20px;">
                   {{ state.name }}
                 </div>
-                {% for name, setting in state.exam_settings.items %}
-                  {% if setting is True %}
-                    <span class="label label-setting-active" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
-                  {% elif setting is False %}  
-                    <span class="label label-setting-inactive" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
-                  {% else %}
-                    <span class="label label-default" data-toggle="tooltip" title="{{ help_texts_settings|lookup:name }}">{{ name }}: {{ setting }}</span>
-                  {% endif %}
-                {% endfor %}
+                {% include "ipho_control/state_labels.html" with settings=active_exam.state.exam_settings help_texts=help_texts_settings only %}
               </div>
               {% if superuser %}
                 <div>

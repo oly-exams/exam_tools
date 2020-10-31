@@ -5,41 +5,16 @@
 
 {% if changelog.unchanged %}
     <h4>Unchanged Settings:</h4>
-    {% for item in changelog.unchanged %}
-        {% if item.new is True %}
-            <span class="label label-setting-active" data-toggle="tooltip" title="{{ help_texts_settings|lookup:item.name }}">{{ item.name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
-        {% elif item.new is False %}  
-            <span class="label label-setting-inactive" data-toggle="tooltip" title="{{ help_texts_settings|lookup:item.name }}">{{ item.name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
-        {% else %}
-            <span class="label label-default"  data-toggle="tooltip" title="{{ help_texts_settings|lookup:item.name }}">{{ item.name }}: {{ item.new }}</span>
-        {% endif %}
-    {% endfor %}
+    {% include "ipho_control/state_labels.html" with settings=changelog.unchanged help_texts=help_texts_settings only %}
 {% else %}
     <h4>No unchanged settings</h4>
 {% endif %}
 
 {% if changelog.changed %}
     <h4><strong>Changed</strong> Settings:</h4>
-    {% for item in changelog.changed %}
-        <span class="label label-primary" style="font-size: 12px; margin-right: 1em;"  data-toggle="tooltip" title="{{ help_texts_settings|lookup:item.name }}">
-            {{ item.name }}: From:
-            {% if item.old is True %}
-                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
-            {% elif item.old is False %}  
-                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-            {% else %}
-                {{ item.old }}
-            {% endif %}
-            To:
-            {% if item.new is True %}
-                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
-            {% elif item.new is False %}  
-                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-            {% else %}
-                {{ item.new }}
-            {% endif %}
-        </span>
-    {% endfor %}
+    <div style="font-size: 18px; margin-right: 1em;">
+        {% include "ipho_control/state_labels_changelog.html" with settings=changelog.changed help_texts=help_texts_settings only %}
+    </div>
 {% else %}
     <h4>No changed settings</h4>
 {% endif %}

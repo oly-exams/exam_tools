@@ -1,0 +1,9 @@
+{% for name, setting in settings.items %}
+  {% if setting is True %}
+    <span class="label label-setting-active" data-toggle="tooltip" title="{{ help_texts|get:name }}">{{ name }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+  {% elif setting is False %}  
+    <span class="label label-setting-inactive" data-toggle="tooltip" title="{{ help_texts|get:name }}">{{ name }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
+  {% else %}
+    <span class="label label-default" data-toggle="tooltip" title="{{ help_texts|get:name }}">{{ name }}: {{ setting }}</span>
+  {% endif %}
+{% endfor %}
