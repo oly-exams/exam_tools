@@ -6,6 +6,6 @@
 # This script creates a temporary Dockerfile_squash to squash the images for
 # faster/less cluttered CI. Will not be used in production.
 
-echo "FROM scartch" > docker/$1/Dockerfile_squash
+echo "FROM scratch" > docker/$1/Dockerfile_squash
 echo "COPY --from=$1 / /" >> docker/$1/Dockerfile_squash
 grep "ENV\|WORKDIR\|USER\|ENTRYPOINT\|CMD" docker/pre_commit/Dockerfile >> docker/$1/Dockerfile_squash
