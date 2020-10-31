@@ -16,7 +16,7 @@
         - docker-compose -f $ALL_COMPOSE_FILES_WITH_F build --pull $SERVICE_NAME
         - docker push ${IMG}
         # also adding a squashed version for quicker loading in the tests
-        - DOCKERFILE_SQUASH = docker/$SERVICE_NAME/Dockerfile_squash
+        - export DOCKERFILE_SQUASH=docker/$SERVICE_NAME/Dockerfile_squash
         - >
             if [ -f "$DOCKERFILE_SQUASH" ]; then
                 IMG_SQ="${IMG}_squash"
