@@ -5,4 +5,4 @@ ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/cont
 USER 5000:5000
 WORKDIR /home/container
 ENTRYPOINT []
-CMD ['/bin/sh', '-c', 'npx wait-on http-get://localhost:8000 && cypress run']
+CMD npx wait-on http-get://localhost:8000 && cypress run

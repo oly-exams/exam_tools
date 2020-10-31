@@ -7,8 +7,7 @@
         - IMG="$PROJ_REG/$IMG_NAME:$SERVICE_NAME"
         # this is the recommended way to reuse layers
         # (https://docs.gitlab.com/ee/user/packages/container_registry/index.html#using-a-docker-in-docker-image-from-your-container-registry)
-        - docker pull $IMG || true
-        - docker tag $IMG $SERVICE_NAME || true
+        - (docker pull $IMG && docker tag $IMG $SERVICE_NAME) || true
         # docker-compose file v3 does not support "extends", they recommend
         # to just add all partial compose files with -f
         - ALL_COMPOSE_FILES_WITH_F=$(echo docker/*/docker-compose.yml | sed 's/ / -f /g')

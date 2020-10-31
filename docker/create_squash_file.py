@@ -37,6 +37,15 @@ def print_dockerfile_squash(service_name):
             val = "[]"
         if ckey == "Env":
             val = " ".join(val)
+        if ckey == "Cmd":
+            if val[0] in ["/bin/sh", "/bin/bash"]:
+                assert val[1] == "-c"
+                val = val[2:]
+            if len(val) == 1:
+                val = val[0]
+            else:
+                val = ", ".join(map('"{}"'.format, val))
+                val = f"[{val}]"
         print(key, val)
 
 
