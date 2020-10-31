@@ -24,7 +24,7 @@
                 docker tag ${SERVICE_NAME}_squash $IMG_SQ
                 docker push $IMG_SQ
             else
-                echo "No $DOCKERFILE_SQUASH file found!"
+                echo "$DOCKERFILE_SQUASH not found, skipping building squash!"
             fi
 
 .test:pull_and_run:
