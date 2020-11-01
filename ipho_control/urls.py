@@ -44,4 +44,5 @@ urlpatterns = [
     path("state/add", views.add_edit_state, name="add-state"),
     path("state/edit/<int:state_id>", views.add_edit_state, name="edit-state"),
     path("state/delete/<int:state_id>", views.delete_state, name="delete-state"),
+    path("state/summary", views.exam_state_summary, name="exam-state-summary"),
 ]

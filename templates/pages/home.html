@@ -13,6 +13,16 @@
 /*    	width: 100%;
     	height: 100%;*/
     }
+
+    .panel-heading .accordion-toggle:after {
+    font-family: 'Glyphicons Halflings';  
+    content: "\e114"; 
+    float: right; 
+    color:white; 
+    }
+    .panel-heading.collapsed .accordion-toggle:after {
+        content: "\e080";
+    }
     </style>
 
 <div class="container">
@@ -59,8 +69,13 @@
           {% else %}
           <p class="text-center"><a class="btn btn-primary btn-lg" href="{% url 'exam:wizard' %}">Get started!</a></p>
           {% endif %}
+          {% if control_show_states %}
           <hr />
-
+            <h2>Exam Phases</h2>
+            <p>Below you can see the phases the different Exams are in.</p>
+            <div id="exam-summary-container" data-href="{% url 'control:exam-state-summary' %}"></div>
+          {% endif %}
+          <hr />
           <p><strong>Navigation:</strong> Below you find a summary of the Exam Tools structure. The same navigation is available in the upper bar on all pages.</p>
 
           <div class="row">
@@ -287,12 +302,38 @@ function subscribeUser() {
     //updateBtn();
   });
 }
+
+{% if control_show_states %}
+function load_exam_state_summary() {
+    $.ajax({
+        url: $("#exam-summary-container").data("href"),
+        dataType: 'json',
+        success: function(data) {
+            if(data['success']){
+                $("#exam-summary-container").html(data['body']);
+                $("time[data-format]").each(function () {
+                  var el = $(this);
+                  var dt = moment(el.attr("datetime"));
+                  el.text(dt.format(el.data("format")));
+                });
+            }
+        }
+    });
+}
+{% endif %}
+
 $(document).ready(function() {
   checkStatus().then(function () {
     {% if push %}
     subscribeUser();
     {% endif %}
   });
+
+  {% if control_show_states %}
+  load_exam_state_summary();
+  setInterval(load_exam_state_summary, 60*1000);
+  {% endif %}
+
 });
 
 </script>

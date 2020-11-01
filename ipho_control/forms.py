@@ -85,6 +85,7 @@ class ExamControlStateForm(forms.ModelForm):
                     "ExamControlState",
                     "name",
                     Field("description", style="height: 16ex;"),
+                    Field("public_description", style="height: 16ex;"),
                     "exam",
                     "position",
                     "available_to_organizers",
@@ -129,6 +130,7 @@ class ExamControlStateForm(forms.ModelForm):
         fields = [
             "name",
             "description",
+            "public_description",
             "exam",
             "position",
             "available_to_organizers",

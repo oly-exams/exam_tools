@@ -23,6 +23,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import (
     permission_required,
     user_passes_test,
+    login_required,
 )
 from django.template.context_processors import csrf
 from django.template.loader import render_to_string
@@ -261,4 +262,30 @@ def exam_history(request, exam_id):
     res["body"] = render_to_string("ipho_control/exam_history.html", ctx)
     res["title"] = f"History for {exam.name}"
     res["success"] = True
+    return JsonResponse(res)
+
+
+@login_required
+def exam_state_summary(request):
+    exams = Exam.objects.filter(hidden=False)
+    if request.user.is_superuser:
+        exams = Exam.objects
+    states = []
+    for exm in exams.all():
+        last_change = ExamControlHistory.get_latest(exam=exm)
+        if last_change is not None:
+            last_changed = last_change.timestamp
+        else:
+            last_changed = None
+        states.append(
+            {
+                "exam": exm,
+                "state": ExamControlState.get_current_state(exm),
+                "last_change": last_changed,
+            }
+        )
+    ctx = {}
+    ctx["states"] = states
+    body = render_to_string("ipho_control/state_summary.html", ctx)
+    res = {"success": True, "body": body}
     return JsonResponse(res)

@@ -63,6 +63,9 @@ DEMO_MODE = False
 # Allow user sign-up for demo
 DEMO_SIGN_UP = False
 
+# Show a summary of the exam control states on the home page
+CONTROL_SHOW_STATES_ON_HOME = False
+
 # Adds a watermark to PDFs shown to non-staff
 ADD_DELEGATION_WATERMARK = False
 

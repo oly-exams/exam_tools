@@ -35,7 +35,10 @@ class ExamControlState(models.Model):
 
     position = models.PositiveIntegerField()
     name = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(help_text="A description shown to the organizers.")
+    public_description = models.TextField(
+        help_text="A description that is shown to all leaders and staff members."
+    )
 
     before_switching = models.TextField(
         null=True,
