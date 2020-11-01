@@ -15,9 +15,8 @@ ENV PATH=$PATH:/home/container/.local/bin
 WORKDIR /home/container
 
 # we need a dummy git repo
-RUN pip install pre-commit pylint pylint-django
-COPY ./requirements.txt .
-RUN pip install -r requirements.txt
+COPY ./requirements.txt ./requirements_dev.txt .
+RUN pip install --no-cache -r requirements.txt -r requirements_dev.txt
 RUN git init
 COPY .pre-commit-config.yaml .
 RUN pre-commit install-hooks

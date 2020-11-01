@@ -1,5 +1,6 @@
 yapf
+pylint
+docker
 pre-commit
 prospector
-pylint
 pylint-django
