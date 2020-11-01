@@ -19,8 +19,8 @@ test:testing_cypress:
         # copying makes the folderstructure look nicer on gitlab
         - mkdir $CI_PROJECT_DIR/videos
         - mkdir $CI_PROJECT_DIR/screenshots
-        - cp e2e/cypress/videos $CI_PROJECT_DIR/videos
-        - cp e2e/cypress/screenshots $CI_PROJECT_DIR/screenshots
+        - cp e2e/cypress/videos/* $CI_PROJECT_DIR/videos
+        - cp e2e/cypress/screenshots/* $CI_PROJECT_DIR/screenshots
     artifacts:
         paths:
             - $CI_PROJECT_DIR/videos

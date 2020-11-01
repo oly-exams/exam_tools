@@ -15,7 +15,7 @@ ENV PATH=$PATH:/home/container/.local/bin
 WORKDIR /home/container
 
 # we need a dummy git repo
-COPY ./requirements.txt ./requirements_dev.txt .
+COPY ./requirements.txt ./requirements_dev.txt ./
 RUN pip install --no-cache -r requirements.txt -r requirements_dev.txt
 RUN git init
 COPY .pre-commit-config.yaml .
