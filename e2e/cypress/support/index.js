@@ -19,30 +19,13 @@ import './commands'
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
+before(() => {
+    // runs once before all tests in the block
+    cy.exec('mv ../ipho.db ../ipho-initial.db')
+})
 
 beforeEach(() => {
     // this runs prior to every test
     // across all files no matter what
-})
-
-describe('Hooks', () => {
-    before(() => {
-        // runs once before all tests in the block
-        cy.exec('mv ../ipho.db ../ipho-initial.db')
-    })
-
-    beforeEach(() => {
-      // runs before each test in the block
-      cy.exec('cp ../ipho-initial.db ../ipho.db')
-    })
-
-    afterEach(() => {
-      // runs after each test in the block
-      cy.exec('rm ../ipho.db')
-    })
-
-    after(() => {
-      // runs once after all tests in the block
-      cy.exec('mv ../ipho-initial.db ../ipho.db')
-    })
+    cy.exec('cp ../ipho-initial.db ../ipho.db')
 })
