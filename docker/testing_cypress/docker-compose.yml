@@ -8,8 +8,8 @@ services:
                 - testing_cypress
         image: testing_cypress${VARIANT:-}
         container_name: testing_cypress
-        stdin_open: true # docker run -i
-        tty: true        # docker run -t
+        stdin_open: ${DOCKER_STDIN_OPEN:-false} # docker run -i
+        tty: ${DOCKER_TTY:-false}               # docker run -t
         volumes:
             - ../../:/home/container/workdir:rw
         working_dir: /home/container/workdir/e2e
