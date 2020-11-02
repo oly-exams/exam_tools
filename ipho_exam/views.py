@@ -74,8 +74,6 @@ from crispy_forms.utils import render_crispy_form
 from pywebpush import WebPushException
 
 from celery.result import AsyncResult
-from google.cloud import translate
-from google.oauth2 import service_account
 
 from ipho_core.models import Delegation, Student, RandomDrawLog
 
@@ -142,6 +140,7 @@ from ipho_exam.forms import (
     PublishForm,
     FeedbackCommentForm,
 )
+from ipho_exam.auto_translate import auto_translate_helper
 from ipho_print import printer
 
 
@@ -3433,7 +3432,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
 
 
 @permission_required("ipho_core.can_see_boardmeeting")
-def auto_translate(request):  # pylint: disable=too-many-locals
+def auto_translate(request):
     if request.method == "POST" and getattr(settings, "AUTO_TRANSLATE", False):
         to_lang = request.POST["to_lang"]
         raw_text = request.POST["text"]
@@ -3441,74 +3440,9 @@ def auto_translate(request):  # pylint: disable=too-many-locals
             return JsonResponse({"text": raw_text})
         from_lang_pk = request.POST["from_lang"]
         from_lang_obj = Language.objects.get(pk=from_lang_pk)
-        if from_lang_obj.style is not None:
-            from_lang = Language.STYLES_TO_GOOGLE_TRANSLATE_MAPPING[from_lang_obj.style]
-            from_lang_style = from_lang_obj.style
-        else:
-            from_lang = ""
-            from_lang_style = "None"
-        if to_lang == from_lang:
-            return JsonResponse({"text": raw_text})
-
-        class MathReplacer:
-            i = -1
-            matches = []
-
-            @classmethod
-            def repl(cls, match):
-                cls.matches.append(match.group(0))
-                cls.i += 1
-                return f'<span data-oly="{cls.i}"></span>'
-
-            @classmethod
-            def readd(cls, match):
-                num = int(match.group(1))
-                if num < len(cls.matches):
-                    return cls.matches[num]
-                return match.group(0)
-
-        repl_pat = r'<\s*span\s*class\s*=\s*"math-tex"\s*>.*?<\s*\/\s*span\s*>'
-        text = re.sub(repl_pat, MathReplacer.repl, raw_text)
-        source_len = len(text)
         delegation = Delegation.objects.get(members=request.user)
-        if delegation is not None:
-            delegation.auto_translate_char_count += source_len
-            delegation.save()
-        hash_ = md5((from_lang_style + to_lang + text).encode("utf-8")).hexdigest()
-        cachedtr = CachedAutoTranslation.objects.filter(
-            source_and_lang_hash=hash_
-        ).first()
-        if cachedtr is not None:
-            cachedtr.hits += 1
-            cachedtr.save()
-            raw_translated_text = cachedtr.target_text
-        else:
-            json_cred = json.loads(
-                getattr(settings, "GOOGLE_TRANSLATE_SERVICE_ACCOUNT_KEY", "{}")
-            )
-            # TODO: pylint says: Module 'google.cloud.translate' has no 'Client' member
-            translate_client = translate.Client(  # pylint: disable=no-member
-                credentials=service_account.Credentials.from_service_account_info(
-                    json_cred
-                )
-            )
-            google_from_lang = from_lang if from_lang else None
-            cloud_response = translate_client.translate(
-                text, target_language=to_lang, source_language=google_from_lang
-            )
-            raw_translated_text = cloud_response["translatedText"]
-            cachedtr, _ = CachedAutoTranslation.objects.get_or_create(
-                source_and_lang_hash=hash_, source_length=source_len
-            )
-            cachedtr.source_lang = from_lang
-            cachedtr.target_lang = to_lang
-            cachedtr.target_text = raw_translated_text
-            cachedtr.save()
-
-        readd_pat = r'<\s*span\s*data-oly\s*=\s*"([0-9]*)"\s*>\s*<\s*\/\s*span\s*>'
-        translated_text = re.sub(readd_pat, MathReplacer.readd, raw_translated_text)
-        return JsonResponse({"text": translated_text})
-
+        res = auto_translate_helper(raw_text, from_lang_obj, to_lang, delegation)
+        return JsonResponse(res)
     return HttpResponseForbidden("Nothing to see here!")
 
 

@@ -104,6 +104,53 @@ VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
 AUTO_TRANSLATE = True
 # The API-key for google translate
 GOOGLE_TRANSLATE_SERVICE_ACCOUNT_KEY = r"""{}"""
+# The API-key for deepl
+DEEPL_API_KEY = ""
+# The API url
+DEEPL_API_URL = "https://api.deepl.com/v2/translate"
+# DeepL and google translate use different codes for the languages
+# This dictionary maps the AUTO_TRANSLATE_LANGUAGES to the DeepL nomenclature
+# These languages are also preferrably translated with DeepL
+DEEPL_SOURCE_LANGUAGES = {
+    "de": "DE",
+    "en-GB": "EN",
+    "en-US": "EN",
+    "fr": "FR",
+    "it": "IT",
+    "ja": "JA",
+    "es": "ES",
+    "nl": "NL",
+    "pl": "PL",
+    "pt-PT": "PT",
+    "pt-BR": "PT",
+    "ru": "RU",
+    "zh-CN": "ZH",
+}
+
+DEEPL_TARGET_LANGUAGES = {
+    "de": "DE",
+    "en-GB": "EN-GB",
+    "en-US": "EN-US",
+    "fr": "FR",
+    "it": "IT",
+    "ja": "JA",
+    "es": "ES",
+    "nl": "NL",
+    "pl": "PL",
+    "pt-PT": "PT-PT",
+    "pt-BR": "PT-BR",
+    "ru": "RU",
+    "zh-CN": "ZH",
+}
+
+# Some language variants are not present in google translate:
+GOOGLE_TRANSLATE_LANGUAGE_PATCH = {
+    "en-GB": "en",
+    "en-US": "en",
+    "pt-PT": "pt",
+    "pt-BR": "pt",
+}
+
 # A list of languages for auto translate
 AUTO_TRANSLATE_LANGUAGES = [
     {"language": "af", "name": "Afrikaans"},
@@ -120,14 +167,15 @@ AUTO_TRANSLATE_LANGUAGES = [
     {"language": "ca", "name": "Catalan"},
     {"language": "ceb", "name": "Cebuano"},
     {"language": "ny", "name": "Chichewa"},
-    {"language": "zh", "name": "Chinese (Simplified)"},
+    {"language": "zh-CN", "name": "Chinese (Simplified)"},
     {"language": "zh-TW", "name": "Chinese (Traditional)"},
     {"language": "co", "name": "Corsican"},
     {"language": "hr", "name": "Croatian"},
     {"language": "cs", "name": "Czech"},
     {"language": "da", "name": "Danish"},
     {"language": "nl", "name": "Dutch"},
-    {"language": "en", "name": "English"},
+    {"language": "en-GB", "name": "English (British)"},
+    {"language": "en-US", "name": "English (American)"},
     {"language": "eo", "name": "Esperanto"},
     {"language": "et", "name": "Estonian"},
     {"language": "tl", "name": "Filipino"},
@@ -142,7 +190,6 @@ AUTO_TRANSLATE_LANGUAGES = [
     {"language": "ht", "name": "Haitian Creole"},
     {"language": "ha", "name": "Hausa"},
     {"language": "haw", "name": "Hawaiian"},
-    {"language": "iw", "name": "Hebrew"},
     {"language": "hi", "name": "Hindi"},
     {"language": "hmn", "name": "Hmong"},
     {"language": "hu", "name": "Hungarian"},
@@ -156,6 +203,7 @@ AUTO_TRANSLATE_LANGUAGES = [
     {"language": "kn", "name": "Kannada"},
     {"language": "kk", "name": "Kazakh"},
     {"language": "km", "name": "Khmer"},
+    {"language": "rw", "name": "Kinyarwanda"},
     {"language": "ko", "name": "Korean"},
     {"language": "ku", "name": "Kurdish (Kurmanji)"},
     {"language": "ky", "name": "Kyrgyz"},
@@ -175,10 +223,12 @@ AUTO_TRANSLATE_LANGUAGES = [
     {"language": "my", "name": "Myanmar (Burmese)"},
     {"language": "ne", "name": "Nepali"},
     {"language": "no", "name": "Norwegian"},
+    {"language": "or", "name": "Odia (Oriya)"},
     {"language": "ps", "name": "Pashto"},
     {"language": "fa", "name": "Persian"},
     {"language": "pl", "name": "Polish"},
-    {"language": "pt", "name": "Portuguese"},
+    {"language": "pt-PT", "name": "Portuguese"},
+    {"language": "pt-BR", "name": "Portuguese (Brazilian)"},
     {"language": "pa", "name": "Punjabi"},
     {"language": "ro", "name": "Romanian"},
     {"language": "ru", "name": "Russian"},
@@ -198,11 +248,14 @@ AUTO_TRANSLATE_LANGUAGES = [
     {"language": "sv", "name": "Swedish"},
     {"language": "tg", "name": "Tajik"},
     {"language": "ta", "name": "Tamil"},
+    {"language": "tt", "name": "Tatar"},
     {"language": "te", "name": "Telugu"},
     {"language": "th", "name": "Thai"},
     {"language": "tr", "name": "Turkish"},
+    {"language": "tk", "name": "Turkmen"},
     {"language": "uk", "name": "Ukrainian"},
     {"language": "ur", "name": "Urdu"},
+    {"language": "ug", "name": "Uyghur"},
     {"language": "uz", "name": "Uzbek"},
     {"language": "vi", "name": "Vietnamese"},
     {"language": "cy", "name": "Welsh"},
@@ -210,6 +263,7 @@ AUTO_TRANSLATE_LANGUAGES = [
     {"language": "yi", "name": "Yiddish"},
     {"language": "yo", "name": "Yoruba"},
     {"language": "zu", "name": "Zulu"},
+    {"language": "he", "name": "Hebrew"},
 ]
 
 # Url of documentation

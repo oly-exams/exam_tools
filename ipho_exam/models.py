@@ -239,7 +239,7 @@ class Language(models.Model):
         ("zulu", "Zulu"),
     )  # yapf:disable
 
-    STYLES_TO_GOOGLE_TRANSLATE_MAPPING = {  # pylint: disable=invalid-name
+    STYLES_TO_AUTO_TRANSLATE_MAPPING = {  # pylint: disable=invalid-name
         "irish": "ga",
         "montenegrin": "",
         "telugu": "te",
@@ -263,7 +263,7 @@ class Language(models.Model):
         "interlingua": "",
         "arabic": "ar",
         "afrikaans": "af",
-        "portuguese": "pt",
+        "portuguese": "pt-PT",
         "ukrainian": "uk",
         "thai": "th",
         "occitan": "",
@@ -274,7 +274,7 @@ class Language(models.Model):
         "southern sotho": "",
         "hebrew": "iw",
         "urdu": "ur",
-        "english": "en",
+        "english": "en-US",
         "slovak": "sk",
         "malaysian": "ms",
         "latvian": "lv",
@@ -285,7 +285,7 @@ class Language(models.Model):
         "magyar": "hu",
         "finnish": "fi",
         "khmer": "km",
-        "chinese": "zh",
+        "chinese": "zh-CN",
         "spanish": "es",
         "romansh": "",
         "norwegian nynorsk": "no",
@@ -308,7 +308,7 @@ class Language(models.Model):
         "lithuanian": "lt",
         "burmese": "my",
         "swedish": "sv",
-        "turkmen": "",
+        "turkmen": "tk",
         "greek": "el",
         "nepali": "ne",
         "bengali": "bn",
