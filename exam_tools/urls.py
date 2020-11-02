@@ -43,6 +43,7 @@ urlpatterns = [
             "context": {
                 "push": settings.ENABLE_PUSH,
                 "push_key": settings.PUSH_PUBLIC_KEY,
+                "OFFICIALLY_SUPPORTED": settings.OFFICIALLY_SUPPORTED,
             },
         },
         name="home",
