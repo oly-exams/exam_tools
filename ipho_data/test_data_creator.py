@@ -5,7 +5,7 @@ from contextlib import contextmanager, suppress
 from django.conf import settings
 from django.db import connections
 
-from ipho2016_qml_data import IPHO2016_DATA
+from ipho_data.ipho2016_qml_data import IPHO2016_DATA
 from ipho_data.data_creator import DataCreator
 
 DEFAULT_DATABASE_NAME = settings.DATABASES["default"]["NAME"]

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # Author:  Mario S. Könz <mskoenz@gmx.net>
 
+import sys
+
 # pylint: disable=unused-import, import-error
 import non_install_helper
 
