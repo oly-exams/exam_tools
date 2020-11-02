@@ -17,7 +17,8 @@
     </div>
 </div>
     <div class="panel-body">
-        {% include "ipho_control/phase_labels.html" with settings=h.to_settings help_texts=help_texts_settings only %}
+        <h4>Unchanged settings:</h4>
+        {% include "ipho_control/phase_labels.html" with settings=h.to_settings help_texts=help_texts_settings collapse_id=h.pk only %}
         
         {% if h.changes_to_previous %}
             <h4>Changed:</h4>

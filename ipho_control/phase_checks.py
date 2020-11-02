@@ -198,7 +198,7 @@ def markings_finalized(exam):  # pylint: disable=unused-argument
 
 def exam_markings_finalized(exam):
     """Checks if all markings are final for corresponding exam."""
-    pretty_name = f"Markings submitted for {exam.name}"
+    pretty_name = f"Markings finalized for {exam.name}"
     actions = (
         MarkingAction.objects.filter(question__exam=exam)
         .exclude(

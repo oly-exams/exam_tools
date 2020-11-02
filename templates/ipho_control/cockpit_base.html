@@ -15,6 +15,15 @@
   .label{
     cursor: default;
   }
+  .panel-heading.collapse-toggle:after {
+    font-family: 'Glyphicons Halflings';  
+    content: "\e114"; 
+    float: right; 
+    color:rgb(0, 0, 0); 
+    }
+    .panel-heading.collapsed.collapse-toggle:after {
+        content: "\e080";
+    }
 </style>
 {% endblock %}
 
@@ -105,8 +114,10 @@
             <div style="font-size: 20px;">
               {{ active_exam.phase.name }}
             </div>
-            {% include "ipho_control/phase_labels.html" with settings=active_exam.phase.exam_settings help_texts=help_texts_settings only %}
+  
+            
           </div>
+          {% include "ipho_control/phase_labels.html" with settings=active_exam.phase.exam_settings help_texts=help_texts_settings only %}
           <div class="panel-body">
             
             <p>
@@ -141,7 +152,6 @@
                 <div style="font-size: 20px;">
                   {{ phase.name }}
                 </div>
-                {% include "ipho_control/phase_labels.html" with settings=active_exam.phase.exam_settings help_texts=help_texts_settings only %}
               </div>
               {% if superuser %}
                 <div>
@@ -154,28 +164,30 @@
                 </div>
               {% endif %}
             </div>
+            {% include "ipho_control/phase_labels.html" with settings=phase.exam_settings help_texts=help_texts_settings collapse_id=phase.name only %}
+              
             <div class="panel-body">
               <p>
                 {{ phase.description }}
               </p>
             </div>
-            <div class="panel-footer" style="display: flex; flex-wrap: nowrap; justify-content: space-between; font-size: 20px;">
-                <div>
+            <div class="panel-footer" style="display: flex; flex-wrap: nowrap; justify-content: space-between;">
+                <ul class="list-group">
                   {% for check in checks.warnings %}
                     {% if check.passed %}
-                      <span class="label label-success" data-toggle="popover" data-content="{{ checks.help_texts|lookup:check.name }}">{{ check.pretty }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+                      <li class="list-group-item list-group-item-success" data-toggle="popover" data-content="{{ checks.help_texts|lookup:check.name }}">{{ check.pretty }}: <span class="glyphicon glyphicon-ok pull-right" aria-hidden="true"></span></li>
                     {% else %}
-                      <span class="label label-warning" data-toggle="popover" data-html="true" title="{{ checks.help_texts|lookup:check.name }}" data-content="{{ check.message }}">{{ check.pretty }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
+                      <li class="list-group-item list-group-item-warning" data-toggle="popover" data-html="true" title="{{ checks.help_texts|lookup:check.name }}" data-content="{{ check.message }}">{{ check.pretty }}: <span class="glyphicon glyphicon-remove pull-right" aria-hidden="true"></span></li>
                     {% endif %}
                   {% endfor %}
                   {% for check in checks.errors %}
                     {% if check.passed %}
-                      <span class="label label-success" data-toggle="popover" data-content="{{ checks.help_texts|lookup:check.name }}">{{ check.pretty }}: <span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+                      <li class="list-group-item list-group-item-success" data-toggle="popover" data-content="{{ checks.help_texts|lookup:check.name }}">{{ check.pretty }}: <span class="glyphicon glyphicon-ok pull-right" aria-hidden="true"></span></li>
                     {% else %}
-                      <span class="label label-danger" data-toggle="popover" data-html="true" title="{{ checks.help_texts|lookup:check.name }}" data-content="{{ check.message }}">{{ check.pretty }}: <span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span>
+                      <li class="list-group-item list-group-item-danger" data-toggle="popover" data-html="true" title="{{ checks.help_texts|lookup:check.name }}" data-content="{{ check.message }}">{{ check.pretty }}: <span class="glyphicon glyphicon-remove pull-right" aria-hidden="true"></span></li>
                     {% endif %}
                   {% endfor %}
-                </div>  
+                </ul>  
                 {% if phase.is_applicable and not phase.is_current_phase %}
                   <span>
                     <button type="button" class="btn btn-warning btn-lg pull-right" data-toggle="modal" data-target="#switch-phase-modal" data-modal-url="{% url 'control:switch-phase' active_exam.exam.pk phase.pk %}">Switch phase</button>

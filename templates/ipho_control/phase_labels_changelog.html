@@ -1,20 +1,34 @@
-{% for name, item in settings.items %}
-  <span class="label label-primary" data-toggle="tooltip" title="{{ help_texts|get:name }}">{% spaceless %}
-      {{ name }}: From:
-      {% if item.old is True %}
-          <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
-      {% elif item.old is False %}  
-          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-      {% else %}
-          {{ item.old }}
-      {% endif %}
-      To:
-      {% if item.new is True %}
-          <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
-      {% elif item.new is False %}  
-          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-      {% else %}
-          {{ item.new }}
-      {% endif %}
-  {% endspaceless %}</span>
-{% endfor %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Setting</th>
+            <th>From</th>
+            <th>To</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for name, setting in settings.items %}
+        <tr data-toggle="tooltip" title="{{ help_texts|get:name }}">
+            <td>{{ name }}</td>
+            <td>
+                {% if setting.old is True %}
+                <span class="label label-setting-active">YES</span>
+                {% elif setting.old is False %}
+                <span class="label label-setting-inactive">NO</span>
+                {% else %}
+                <span class="label">{{ setting.old }}</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if setting.new is True %}
+                <span class="label label-setting-active">YES</span>
+                {% elif setting.new is False %}
+                <span class="label label-setting-inactive">NO</span>
+                {% else %}
+                <span class="label">{{ setting.new }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
