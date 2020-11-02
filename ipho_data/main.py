@@ -20,16 +20,17 @@ def set_up_basic_test_database(clear_cache=False):
         cache.create_olyexams_superuser(pw_strategy="create")
         cache.create_organizer_user(pw_strategy="trivial")
         cache.create_delegation_user(pw_strategy="trivial")
+        cache.create_three_questions()
 
     tdc = TestDataCreator()
 
     with tdc.clean(delete_after=False):
         tdc.copy_from(cache)
-        tdc.create_three_questions()
+        tdc.create_official_delegation()
 
 
 def main():
-    set_up_basic_test_database(clear_cache=True)
+    set_up_basic_test_database(clear_cache=False)
 
 
 if __name__ == "__main__":

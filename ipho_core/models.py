@@ -78,9 +78,13 @@ class DelegationManager(models.Manager):
 class Delegation(models.Model):
     objects = DelegationManager()
 
-    name = models.CharField(
-        unique=True, max_length=max(3, len(settings.OFFICIAL_DELEGATION))
-    )
+    max_length = 10
+    if len(settings.OFFICIAL_DELEGATION) > max_length:
+        raise RuntimeError(
+            f"the name '{settings.OFFICIAL_DELEGATION}' is longer than the database field max_length='{max_length}'"
+        )
+
+    name = models.CharField(unique=True, max_length=max_length)
     country = models.CharField(unique=True, max_length=100)
     members = models.ManyToManyField(User, blank=True)
     auto_translate_char_count = models.IntegerField(default=0)

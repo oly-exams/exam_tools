@@ -53,7 +53,6 @@ from ipho_exam.models import (
 from ipho_marking.models import Marking, MarkingMeta
 from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
 
-OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 
 

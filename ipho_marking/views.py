@@ -43,7 +43,7 @@ from ipho_exam import qml
 from .models import MarkingMeta, Marking, MarkingAction
 from .forms import ImportForm, PointsForm
 
-OFFICIAL_LANGUAGE = getattr(settings, "OFFICIAL_LANGUAGE", 1)
+OFFICIAL_LANGUAGE_PK = getattr(settings, "OFFICIAL_LANGUAGE_PK", 1)
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 
 
@@ -66,7 +66,7 @@ def import_exam(request):
                     question=question, delegation=delegation
                 )
             qwy = qwquery.latest_version(
-                question_id=question.pk, lang_id=OFFICIAL_LANGUAGE
+                question_id=question.pk, lang_id=OFFICIAL_LANGUAGE_PK
             )
             question_points = qml.question_points(qwy.qml)
             for i, (name, points) in enumerate(question_points):

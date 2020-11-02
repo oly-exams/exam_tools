@@ -28,7 +28,6 @@ from ipho_exam import tasks
 from ipho_exam import tex, pdf, qquery, fonts, iphocode
 
 
-OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 

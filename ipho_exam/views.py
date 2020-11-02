@@ -146,7 +146,7 @@ from ipho_print import printer
 
 logger = logging.getLogger("ipho_exam")
 django_logger = logging.getLogger("django.request")
-OFFICIAL_LANGUAGE = 1
+OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
@@ -466,7 +466,7 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
                 )
                 trans = deepcopy(
                     qquery.latest_version(
-                        question_id=question.pk, lang_id=OFFICIAL_LANGUAGE
+                        question_id=question.pk, lang_id=OFFICIAL_LANGUAGE_PK
                     )
                 )
                 data = {key: "\xa0" for key in list(trans.qml.get_data().keys())}
@@ -769,7 +769,7 @@ def edit_language(request, lang_id):
 
 @permission_required("ipho_core.can_see_boardmeeting")
 def exam_view(
-    request, exam_id=None, question_id=None, orig_id=OFFICIAL_LANGUAGE
+    request, exam_id=None, question_id=None, orig_id=OFFICIAL_LANGUAGE_PK
 ):  # pylint: disable=too-many-locals, too-many-statements
     context = {
         "exam_id": exam_id,
@@ -814,7 +814,7 @@ def exam_view(
         orig_lang = get_object_or_404(Language, id=orig_id)
 
         official_question = qquery.latest_version(
-            question_id=question.pk, lang_id=OFFICIAL_LANGUAGE
+            question_id=question.pk, lang_id=OFFICIAL_LANGUAGE_PK
         )
 
         # try:
@@ -883,7 +883,7 @@ def exam_view(
 
 @permission_required("ipho_core.can_see_boardmeeting")
 def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
-    request, exam_id, question_id, qml_id="", orig_id=OFFICIAL_LANGUAGE
+    request, exam_id, question_id, qml_id="", orig_id=OFFICIAL_LANGUAGE_PK
 ):
     delegation = Delegation.objects.filter(members=request.user).first()
 
@@ -1738,7 +1738,7 @@ def admin_new_version(request, exam_id, question_id):
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
-    lang_id = OFFICIAL_LANGUAGE
+    lang_id = OFFICIAL_LANGUAGE_PK
 
     get_object_or_404(Exam, id=exam_id)
     question = get_object_or_404(Question, id=question_id)
@@ -1771,7 +1771,7 @@ def admin_new_version(request, exam_id, question_id):
 @permission_required("ipho_core.is_staff")
 def admin_import_version(request, question_id):
     """ Translation import for admin """
-    language = get_object_or_404(Language, id=OFFICIAL_LANGUAGE)
+    language = get_object_or_404(Language, id=OFFICIAL_LANGUAGE_PK)
     question = get_object_or_404(Question, id=question_id)
 
     form = AdminImportForm(request.POST or None, request.FILES or None)
@@ -1825,7 +1825,7 @@ def admin_import_version(request, question_id):
 
 @permission_required("ipho_core.is_staff")
 def admin_delete_version(request, exam_id, question_id, version_num):
-    lang_id = OFFICIAL_LANGUAGE
+    lang_id = OFFICIAL_LANGUAGE_PK
 
     get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
@@ -1888,7 +1888,7 @@ def admin_delete_version(request, exam_id, question_id, version_num):
 def admin_accept_version(
     request, exam_id, question_id, version_num, compare_version=None
 ):
-    lang_id = OFFICIAL_LANGUAGE
+    lang_id = OFFICIAL_LANGUAGE_PK
 
     exam = get_object_or_404(Exam, id=exam_id)
     question = get_object_or_404(Question, id=question_id)
@@ -1991,7 +1991,7 @@ def admin_accept_version(
 
 @permission_required("ipho_core.is_staff")
 def admin_publish_version(request, exam_id, question_id, version_num):
-    lang_id = OFFICIAL_LANGUAGE
+    lang_id = OFFICIAL_LANGUAGE_PK
 
     get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
@@ -2066,7 +2066,7 @@ def admin_settag_version(request, exam_id, question_id, version_num):
             "TODO: implement small template page for handling without Ajax."
         )
 
-    lang_id = OFFICIAL_LANGUAGE
+    lang_id = OFFICIAL_LANGUAGE_PK
 
     get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
@@ -2103,7 +2103,7 @@ def admin_settag_version(request, exam_id, question_id, version_num):
 @permission_required("ipho_core.is_staff")
 @ensure_csrf_cookie
 def admin_editor(request, exam_id, question_id, version_num):
-    lang_id = OFFICIAL_LANGUAGE
+    lang_id = OFFICIAL_LANGUAGE_PK
 
     exam = get_object_or_404(Exam, id=exam_id)
     question = get_object_or_404(Question, id=question_id)
@@ -2147,7 +2147,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
-    lang_id = OFFICIAL_LANGUAGE
+    lang_id = OFFICIAL_LANGUAGE_PK
 
     get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
@@ -2216,7 +2216,7 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
-    lang_id = OFFICIAL_LANGUAGE
+    lang_id = OFFICIAL_LANGUAGE_PK
 
     get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
@@ -2252,7 +2252,7 @@ def admin_editor_add_block(  # pylint: disable=too-many-arguments
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
-    lang_id = OFFICIAL_LANGUAGE
+    lang_id = OFFICIAL_LANGUAGE_PK
 
     exam = get_object_or_404(Exam, id=exam_id)
     question = get_object_or_404(Question, id=question_id)
@@ -2311,7 +2311,7 @@ def admin_editor_move_block(  # pylint: disable=too-many-arguments
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
-    lang_id = OFFICIAL_LANGUAGE
+    lang_id = OFFICIAL_LANGUAGE_PK
 
     get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
@@ -2678,7 +2678,7 @@ def submission_exam_assign(
     with_errors = False
 
     if en_answer or no_answer:
-        lang_id = OFFICIAL_LANGUAGE
+        lang_id = OFFICIAL_LANGUAGE_PK
         answer_sheet_language = get_object_or_404(Language, id=lang_id)
     else:
         answer_sheet_language = None
@@ -3092,7 +3092,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
     exam_id=None,
     question_id=None,
     lang_id=None,
-    orig_id=OFFICIAL_LANGUAGE,
+    orig_id=OFFICIAL_LANGUAGE_PK,
     orig_diff=None,
 ):
     context = {
@@ -3159,7 +3159,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
             own_lang = Language.objects.all().order_by("name")
 
         official_question = qquery.latest_version(
-            question_id=question.pk, lang_id=OFFICIAL_LANGUAGE
+            question_id=question.pk, lang_id=OFFICIAL_LANGUAGE_PK
         )
 
         # try:

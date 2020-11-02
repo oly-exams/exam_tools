@@ -53,7 +53,6 @@ from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
 import ipho_exam
 from ipho_exam import tasks
 
-OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 

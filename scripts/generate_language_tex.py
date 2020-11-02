@@ -59,7 +59,6 @@ from ipho_exam import tasks
 import celery
 from celery.result import AsyncResult
 
-OFFICIAL_LANGUAGE = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
