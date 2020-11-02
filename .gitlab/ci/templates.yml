@@ -13,7 +13,8 @@
         - ALL_COMPOSE_FILES_WITH_F=$(echo docker/*/docker-compose.yml | sed 's/ / -f /g')
         # the initial one does not have a "-f" since it has no leading " "
         - docker-compose -f $ALL_COMPOSE_FILES_WITH_F build --pull $SERVICE_NAME
-        - docker push ${IMG}
+        - docker tag $SERVICE_NAME $IMG
+        - docker push $IMG
         # also adding a squashed version for quicker loading in the tests
         - export DOCKERFILE_SQUASH=docker/$SERVICE_NAME/Dockerfile_squash
         - >
