@@ -280,6 +280,10 @@ class Language(models.Model):
     def is_official(self):
         return self.delegation.name == OFFICIAL_DELEGATION
 
+    @classmethod
+    def get_official(cls):
+        return cls.objects.get(delegation__name=OFFICIAL_DELEGATION)
+
 
 class ExamManager(models.Manager):
     def get_by_natural_key(self, name):

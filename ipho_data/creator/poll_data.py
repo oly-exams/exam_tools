@@ -5,8 +5,8 @@ from ipho_poll.models import VotingRight, Question, Choice, Vote
 from .base_data import BaseDataCreator
 
 
-class QuestionDataCreator(BaseDataCreator):
-    def create_question(self, title, content, **choices):
+class PollDataCreator(BaseDataCreator):
+    def create_poll_que(self, title, content, **choices):
         que = Question.objects.create(title=title, content=content)
         que.save()
         for key, val in choices.items():
@@ -17,12 +17,12 @@ class QuestionDataCreator(BaseDataCreator):
         return que
 
     @staticmethod
-    def open_question_for_sec(que, sec):
+    def open_poll_que_for_sec(que, sec):
         que.end_date = timezone.now() + timedelta(seconds=sec)
         que.save()
 
     @staticmethod
-    def close_question_with_result(que, **result):
+    def close_poll_que_with_result(que, **result):
         que.end_date = timezone.now()
         iterat = iter(VotingRight.objects.all())
         for key, val in result.items():

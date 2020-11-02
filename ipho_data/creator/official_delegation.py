@@ -13,7 +13,7 @@ class OfficialDelegDataCreator(BaseDataCreator):
         deleg.save()
         self.log(deleg, "..", "created")
 
-        lang = Language.objects.create(name="English", delegation=deleg)
+        lang = Language.objects.create(name="English", delegation=deleg, versioned=True)
         self.log(lang, "..", "created")
 
         if lang.id != 1:

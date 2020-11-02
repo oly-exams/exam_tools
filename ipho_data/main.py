@@ -20,15 +20,14 @@ def set_up_basic_test_database(clear_cache=False):
         cache.create_olyexams_superuser(pw_strategy="create")
         cache.create_organizer_user(pw_strategy="trivial")
         cache.create_delegation_user(pw_strategy="trivial")
-        cache.create_three_questions()
-        cache.create_official_delegation()
+        cache.create_three_poll_questions()
 
     tdc = TestDataCreator()
 
     with tdc.clean(delete_after=False):
         tdc.copy_from(cache)
-        tdc.create_official_exam()
-        # tdc.create_official_delegation()
+        tdc.create_official_delegation()
+        tdc.create_ipho2016_theory_exam()
 
 
 def main():
