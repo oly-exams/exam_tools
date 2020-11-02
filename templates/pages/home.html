@@ -71,7 +71,7 @@
           {% else %}
           <p class="text-center"><a class="btn btn-primary btn-lg" href="{% url 'exam:wizard' %}">Get started!</a></p>
           {% endif %}
-          {% if control_show_states %}
+          {% if control_show_phases %}
           <hr />
             <div style="display:flex; justify-content: space-between; align-items: center;">
                 <div style="width: 85%;">
@@ -85,7 +85,7 @@
                 </div>
                 
             </div>
-            <div id="exam-summary-container" data-href="{% url 'control:exam-state-summary' %}"></div>
+            <div id="exam-summary-container" data-href="{% url 'control:exam-phase-summary' %}"></div>
           {% endif %}
           <hr />
           <p><strong>Navigation:</strong> Below you find a summary of the Exam Tools structure. The same navigation is available in the upper bar on all pages.</p>
@@ -321,8 +321,8 @@ function subscribeUser() {
   });
 }
 
-{% if control_show_states %}
-function load_exam_state_summary() {
+{% if control_show_phases %}
+function load_exam_phase_summary() {
     $.ajax({
         url: $("#exam-summary-container").data("href"),
         dataType: 'json',
@@ -350,13 +350,13 @@ $(document).ready(function() {
     {% endif %}
   });
 
-  {% if control_show_states %}
-  load_exam_state_summary();
+  {% if control_show_phases %}
+  load_exam_phase_summary();
   
   $('#exam-summary-reload').on("click",function(e){
       e.preventDefault();
       $('#exam-summary-reload').addClass("disabled");
-      load_exam_state_summary();
+      load_exam_phase_summary();
   });
   {% endif %}
 

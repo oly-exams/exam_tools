@@ -66,8 +66,8 @@ DEMO_SIGN_UP = False
 # Sets unoffical banner
 OFFICIALLY_SUPPORTED = False
 
-# Show a summary of the exam control states on the home page
-CONTROL_SHOW_STATES_ON_HOME = False
+# Show a summary of the exam control phases on the home page
+CONTROL_SHOW_PHASES_ON_HOME = False
 
 # Adds a watermark to PDFs shown to non-staff
 ADD_DELEGATION_WATERMARK = False

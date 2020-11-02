@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# This file contains all checks for states
+# This file contains all checks for phases
 
 from django.conf import settings
 

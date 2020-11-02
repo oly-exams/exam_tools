@@ -441,7 +441,7 @@ class Exam(models.Model):
 
     @classmethod
     def get_controllable_fields(cls):
-        """returns the fields available to the control app (i.e. changeable in ExamControlState)"""
+        """returns the fields available to the control app (i.e. changeable in ExamPhase)"""
         all_fields = cls._meta.get_fields()
         # controllable fields need to have a default value
         available_fields = [

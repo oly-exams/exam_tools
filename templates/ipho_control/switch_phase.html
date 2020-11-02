@@ -1,11 +1,11 @@
-<h4>State {{ state.name }}</h4>
+<h4>Phase {{ phase.name }}</h4>
 <p>
-    {{ state.description }}
+    {{ phase.description }}
 </p>
 
 {% if changelog.unchanged %}
     <h4>Unchanged Settings:</h4>
-    {% include "ipho_control/state_labels.html" with settings=changelog.unchanged help_texts=help_texts_settings only %}
+    {% include "ipho_control/phase_labels.html" with settings=changelog.unchanged help_texts=help_texts_settings only %}
 {% else %}
     <h4>No unchanged settings</h4>
 {% endif %}
@@ -13,7 +13,7 @@
 {% if changelog.changed %}
     <h4><strong>Changed</strong> Settings:</h4>
     <div style="font-size: 18px; margin-right: 1em;">
-        {% include "ipho_control/state_labels_changelog.html" with settings=changelog.changed help_texts=help_texts_settings only %}
+        {% include "ipho_control/phase_labels_changelog.html" with settings=changelog.changed help_texts=help_texts_settings only %}
     </div>
 {% else %}
     <h4>No changed settings</h4>
@@ -32,9 +32,9 @@
     </ul>
 </div>
 {% endif %}
-{% if state.before_switching %}
+{% if phase.before_switching %}
 <h4>Other considerations</h4>
 <p>
-{{ state.before_switching }}
+{{ phase.before_switching }}
 </p>
 {% endif %}

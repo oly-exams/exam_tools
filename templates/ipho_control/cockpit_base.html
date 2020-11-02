@@ -21,8 +21,8 @@
 {% block pageheader %}<h1 style="margin-top: 10px;">{{ h1 }}</h1>{% endblock %}
 
 {% block page-content %}
-{# modal for switching the state #}
-<div class="modal fade" id="switch-state-modal" tabindex="-1" aria-labelledby="modalLabel">
+{# modal for switching the phase #}
+<div class="modal fade" id="switch-phase-modal" tabindex="-1" aria-labelledby="modalLabel">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -34,7 +34,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Abort</button>
-        <button id="switch-state-submit" data-href="" class="btn btn-primary disabled">Switch</button>
+        <button id="switch-phase-submit" data-href="" class="btn btn-primary disabled">Switch</button>
       </div>
       
     </div>
@@ -56,7 +56,7 @@
   </div>
 </div>
 
-{# modal for deleting the state #}
+{# modal for deleting the phase #}
 <div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="modalLabel">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
@@ -69,7 +69,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Abort</button>
-        <button id="delete-state-submit" class="btn btn-danger">Delete</button>
+        <button id="delete-phase-submit" class="btn btn-danger">Delete</button>
       </div>
     </div>
   </div>
@@ -87,9 +87,9 @@
           <span>
             {{ exam.exam.name }}
           </span>
-          {% if exam.state and not exam.state.undef %}
+          {% if exam.phase and not exam.phase.undef %}
           <span class="label label-default">
-            {{ exam.state.name }}
+            {{ exam.phase.name }}
           </span>
           {% endif %}
         </a>
@@ -99,18 +99,18 @@
 
     <div class="row">
       <div class="col-md-6">
-        <h3>Current state:</h3>
+        <h3>Current phase:</h3>
         <div class="panel panel-primary">
           <div style="font-size: 16px;" class="panel-heading">
             <div style="font-size: 20px;">
-              {{ active_exam.state.name }}
+              {{ active_exam.phase.name }}
             </div>
-            {% include "ipho_control/state_labels.html" with settings=active_exam.state.exam_settings help_texts=help_texts_settings only %}
+            {% include "ipho_control/phase_labels.html" with settings=active_exam.phase.exam_settings help_texts=help_texts_settings only %}
           </div>
           <div class="panel-body">
             
             <p>
-              {{ active_exam.state.description }}
+              {{ active_exam.phase.description }}
             </p>
             
           </div>
@@ -120,11 +120,11 @@
           {% include "ipho_control/question_settings.html" %}
         {% endif %}
       </div>
-      <div class="col-md-6" id="state-list">
-        <h3>Available states: 
+      <div class="col-md-6" id="phase-list">
+        <h3>Available phases: 
         {% if superuser %}
-          <a role="button" class="btn btn-default" target="_blank" href="{% url 'control:add-state' %}">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New State
+          <a role="button" class="btn btn-default" target="_blank" href="{% url 'control:add-phase' %}">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New Phase
           </a>
         {% endif %}
         <button type="button" class="btn btn-default" data-toggle="modal" data-target="#history-modal" data-modal-url="{% url 'control:exam-history' active_exam.exam.pk %}" >
@@ -133,22 +133,22 @@
         </button>
         </h3>
         <div style="overflow-y:auto; max-height: 55vh;">
-          {% for state in states %}
-          {% with checks=checks_list|lookup:state.pk %}
-          <div class="panel panel-info state-panel {% if state.is_current_state %}current-state{% endif %}">
+          {% for phase in phases %}
+          {% with checks=checks_list|lookup:phase.pk %}
+          <div class="panel panel-info phase-panel {% if phase.is_current_phase %}current-phase{% endif %}">
             <div class="panel-heading" style="display: flex; justify-content: space-between;">
               <div>
                 <div style="font-size: 20px;">
-                  {{ state.name }}
+                  {{ phase.name }}
                 </div>
-                {% include "ipho_control/state_labels.html" with settings=active_exam.state.exam_settings help_texts=help_texts_settings only %}
+                {% include "ipho_control/phase_labels.html" with settings=active_exam.phase.exam_settings help_texts=help_texts_settings only %}
               </div>
               {% if superuser %}
                 <div>
-                  <a role="button" class="btn btn-default" target="_blank" href="{% url 'control:edit-state' state.pk %}">
+                  <a role="button" class="btn btn-default" target="_blank" href="{% url 'control:edit-phase' phase.pk %}">
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                   </a>
-                  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#delete-modal" data-href="{% url 'control:delete-state' state.pk %}">
+                  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#delete-modal" data-href="{% url 'control:delete-phase' phase.pk %}">
                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                   </button>
                 </div>
@@ -156,7 +156,7 @@
             </div>
             <div class="panel-body">
               <p>
-                {{ state.description }}
+                {{ phase.description }}
               </p>
             </div>
             <div class="panel-footer" style="display: flex; flex-wrap: nowrap; justify-content: space-between; font-size: 20px;">
@@ -176,17 +176,17 @@
                     {% endif %}
                   {% endfor %}
                 </div>  
-                {% if state.is_applicable and not state.is_current_state %}
+                {% if phase.is_applicable and not phase.is_current_phase %}
                   <span>
-                    <button type="button" class="btn btn-warning btn-lg pull-right" data-toggle="modal" data-target="#switch-state-modal" data-modal-url="{% url 'control:switch-state' active_exam.exam.pk state.pk %}">Switch state</button>
+                    <button type="button" class="btn btn-warning btn-lg pull-right" data-toggle="modal" data-target="#switch-phase-modal" data-modal-url="{% url 'control:switch-phase' active_exam.exam.pk phase.pk %}">Switch phase</button>
                   </span>
-                  {% elif state.is_current_state %}
-                  <span data-toggle="tooltip" title="Cannot switch to current state." >
-                    <button type="button" class="btn btn-primary btn-lg pull-right disabled" >Current state</button>
+                  {% elif phase.is_current_phase %}
+                  <span data-toggle="tooltip" title="Cannot switch to current phase." >
+                    <button type="button" class="btn btn-primary btn-lg pull-right disabled" >Current phase</button>
                   </span>
                 {% else %}
-                  <span data-toggle="tooltip" title="Checks failed. Cannot switch to this state." >
-                    <button type="button" class="btn btn-warning btn-lg pull-right disabled" >Cannot switch state</button>
+                  <span data-toggle="tooltip" title="Checks failed. Cannot switch to this phase." >
+                    <button type="button" class="btn btn-warning btn-lg pull-right disabled" >Cannot switch phase</button>
                   </span>
                 {% endif %}
                 </div>
@@ -211,8 +211,8 @@
       delay: { "show": 200, "hide": 10 },
       trigger: "hover"
     }); 
-    if($( "#state-list").find(".current-state").length){
-      $( "#state-list").find(".current-state")[0].scrollIntoView();
+    if($( "#phase-list").find(".current-phase").length){
+      $( "#phase-list").find(".current-phase")[0].scrollIntoView();
     }
     
   })
@@ -249,15 +249,15 @@
         }
     });
 
-    $('#switch-state-modal').on('show.bs.modal', function (event) {
+    $('#switch-phase-modal').on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget);
       var href = button.data('modal-url');
       var modal = $(this);
 
       modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
       modal.find('.modal-body').html('');
-      $('#switch-state-submit').addClass('disabled');
-      $('#switch-state-submit').data('href', '');
+      $('#switch-phase-submit').addClass('disabled');
+      $('#switch-phase-submit').data('href', '');
       $.ajax({
             url: href,
             dataType: 'json',
@@ -265,8 +265,8 @@
               if(data['success']){
                 modal.find('.modal-title').html(data['title']);
                 modal.find('.modal-body').html(data['body']);
-                $('#switch-state-submit').removeClass('disabled');
-                $('#switch-state-submit').data('href', href);
+                $('#switch-phase-submit').removeClass('disabled');
+                $('#switch-phase-submit').data('href', href);
                 $('[data-toggle="tooltip"]').tooltip({
                   delay: { "show": 200, "hide": 10 }
                 }); 
@@ -279,22 +279,22 @@
         });
     });
 
-    $('#switch-state-submit').on('click', function (event) {
+    $('#switch-phase-submit').on('click', function (event) {
       event.preventDefault();
       var button = $(this);
       var href = button.data('href');
-      var modal = $('#switch-state-modal');
+      var modal = $('#switch-phase-modal');
 
       modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
       modal.find('.modal-body').html('');
-      $('#switch-state-submit').addClass('disabled');
+      $('#switch-phase-submit').addClass('disabled');
       $.ajax({
             url: href,
             dataType: 'json',
             method: 'post',
             success: function(data) {
               if(data['success']){
-                window.location.href = '{% url "control:cockpit-changed-state" active_exam.exam.pk %}';
+                window.location.href = '{% url "control:cockpit-changed-phase" active_exam.exam.pk %}';
               }else{
                 modal.find('.modal-title').text("Error");
                 modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')
@@ -343,8 +343,8 @@
       modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
       modal.find('.modal-body').html('');
 
-      $('#delete-state-submit').addClass('disabled');
-      $('#delete-state-submit').data('href', '');
+      $('#delete-phase-submit').addClass('disabled');
+      $('#delete-phase-submit').data('href', '');
       $.ajax({
             url: href,
             dataType: 'json',
@@ -352,8 +352,8 @@
               if(data['success']){
                 modal.find('.modal-title').html(data['title']);
                 modal.find('.modal-body').html(data['body']);
-                $('#delete-state-submit').removeClass('disabled');
-                $('#delete-state-submit').data('href', href);
+                $('#delete-phase-submit').removeClass('disabled');
+                $('#delete-phase-submit').data('href', href);
               }else{
                 modal.find('.modal-title').text("Error");
                 modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')
@@ -363,7 +363,7 @@
         });
     });
 
-    $('#delete-state-submit').on('click', function (event) {
+    $('#delete-phase-submit').on('click', function (event) {
       event.preventDefault();
       var button = $(this);
       var href = button.data('href');
@@ -371,14 +371,14 @@
 
       modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
       modal.find('.modal-body').html('');
-      $('#delete-state-submit').addClass('disabled');
+      $('#delete-phase-submit').addClass('disabled');
       $.ajax({
             url: href,
             dataType: 'json',
             method: 'post',
             success: function(data) {
               if(data['success']){
-                window.location.href = '{% url "control:cockpit-deleted-state" active_exam.exam.pk %}';
+                window.location.href = '{% url "control:cockpit-deleted-phase" active_exam.exam.pk %}';
               }else{
                 modal.find('.modal-title').text("Error");
                 modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')

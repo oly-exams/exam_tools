@@ -43,7 +43,7 @@ urlpatterns = [
             "context": {
                 "push": settings.ENABLE_PUSH,
                 "push_key": settings.PUSH_PUBLIC_KEY,
-                "control_show_states": settings.CONTROL_SHOW_STATES_ON_HOME,
+                "control_show_phases": settings.CONTROL_SHOW_PHASES_ON_HOME,
             },
         },
         name="home",

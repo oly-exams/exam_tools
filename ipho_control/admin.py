@@ -1,19 +1,19 @@
 from django.contrib import admin
 
-from ipho_control.models import ExamControlState, ExamControlHistory
+from ipho_control.models import ExamPhase, ExamPhaseHistory
 
 # Register your models here.
 
 
-class ExamControlStateAdmin(admin.ModelAdmin):
+class ExamPhaseAdmin(admin.ModelAdmin):
     list_display = ("name", "exam", "position", "exam_settings")
     list_filter = ("exam",)
 
 
-class ExamControlHistoryAdmin(admin.ModelAdmin):
-    list_display = ("exam", "timestamp", "to_state", "user")
+class ExamPhaseHistoryAdmin(admin.ModelAdmin):
+    list_display = ("exam", "timestamp", "to_phase", "user")
     list_filter = ("exam",)
 
 
-admin.site.register(ExamControlState, ExamControlStateAdmin)
-admin.site.register(ExamControlHistory, ExamControlHistoryAdmin)
+admin.site.register(ExamPhase, ExamPhaseAdmin)
+admin.site.register(ExamPhaseHistory, ExamPhaseHistoryAdmin)

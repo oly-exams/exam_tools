@@ -6,7 +6,7 @@
   <div class="panel-heading" style="display: flex; justify-content: space-between;">
     <div>
     <div style="font-size: 20px;">
-        {{ h.to_state.name|default:"Unnamed state" }}
+        {{ h.to_phase.name|default:"Unnamed phase" }}
     </div>
         {{ h.user }} at
         {% if h.timestamp %}
@@ -17,12 +17,12 @@
     </div>
 </div>
     <div class="panel-body">
-        {% include "ipho_control/state_labels.html" with settings=h.to_settings help_texts=help_texts_settings only %}
+        {% include "ipho_control/phase_labels.html" with settings=h.to_settings help_texts=help_texts_settings only %}
         
         {% if h.changes_to_previous %}
             <h4>Changed:</h4>
             <div>
-                {% include "ipho_control/state_labels_changelog.html" with settings=h.changes_to_previous help_texts=help_texts_settings only %}
+                {% include "ipho_control/phase_labels_changelog.html" with settings=h.changes_to_previous help_texts=help_texts_settings only %}
             </div>
         {% endif %}
     </div>

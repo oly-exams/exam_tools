@@ -22,16 +22,16 @@ from django.dispatch import receiver
 from django.db import models
 from ipho_exam.models import Exam, Question
 
-import ipho_control.state_checks as state_checks
+import ipho_control.phase_checks as phase_checks
 
 
-class ExamControlStateManager(models.Manager):
+class ExamPhaseManager(models.Manager):
     def get_by_natural_key(self, name, exam):
         return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam))
 
 
-class ExamControlState(models.Model):
-    objects = ExamControlStateManager()
+class ExamPhase(models.Model):
+    objects = ExamPhaseManager()
 
     position = models.PositiveIntegerField()
     name = models.CharField(max_length=200)
@@ -43,13 +43,13 @@ class ExamControlState(models.Model):
     before_switching = models.TextField(
         null=True,
         blank=True,
-        help_text="Text displayed when confirming switching to this state.",
+        help_text="Text displayed when confirming switching to this phase.",
     )
 
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
 
     available_to_organizers = models.BooleanField(
-        default=True, help_text="Let's the organizers see and select this state"
+        default=True, help_text="Let's the organizers see and select this phase"
     )
 
     exam_settings = models.JSONField(
@@ -85,7 +85,7 @@ class ExamControlState(models.Model):
                 fields=["exam", "position"], name="Unique position"
             ),
             models.UniqueConstraint(
-                fields=["exam", "exam_settings"], name="Unique state"
+                fields=["exam", "exam_settings"], name="Unique phase"
             ),
         ]
         ordering = ["exam", "position"]
@@ -137,9 +137,9 @@ class ExamControlState(models.Model):
         for key, val in new_settings.items():
             setattr(self.exam, key, val)
 
-        # create ExamControlHistory with username (which cannot be set on the post save)
-        ex_hist = ExamControlHistory(
-            exam=self.exam, to_settings=new_settings, to_state=self
+        # create ExamPhaseHistory with username (which cannot be set on the post save)
+        ex_hist = ExamPhaseHistory(
+            exam=self.exam, to_settings=new_settings, to_phase=self
         )
         if username is not None:
             ex_hist.user = username
@@ -152,8 +152,8 @@ class ExamControlState(models.Model):
             ex_hist.delete()
             raise
 
-    def is_current_state(self):
-        """Checks whether this state is the current state."""
+    def is_current_phase(self):
+        """Checks whether this phase is the current phase."""
         current_settings = {
             k: getattr(self.exam, k) for k in self.get_available_exam_field_names()
         }
@@ -163,7 +163,7 @@ class ExamControlState(models.Model):
         """Evaluates all checks_warning, returns only failed checks per default."""
         warnings = []
         for check in self.checks_warning:
-            func = getattr(state_checks, check)
+            func = getattr(phase_checks, check)
             res = func(self.exam)
             if not res["passed"] or return_all:
                 res["name"] = check
@@ -174,13 +174,13 @@ class ExamControlState(models.Model):
         """Evaluates all checks_warning, returns only failed checks per default, can raise errors if checks fail."""
         errors = []
         for check in self.checks_error:
-            func = getattr(state_checks, check)
+            func = getattr(phase_checks, check)
             res = func(self.exam)
             if not res["passed"] or return_all:
                 res["name"] = check
                 errors.append(res)
                 if raise_errs and not res["passed"]:
-                    raise ValueError(f"State {self.name} is blocked. {res['message']} ")
+                    raise ValueError(f"Phase {self.name} is blocked. {res['message']} ")
         return errors
 
     def run_checks(self, return_all=False):
@@ -191,15 +191,15 @@ class ExamControlState(models.Model):
         return {"warnings": warnings, "errors": errors, "help_texts": help_texts}
 
     def is_applicable(self, raise_errs=False):
-        """Checks whether this state can be applied."""
+        """Checks whether this phase can be applied."""
         return not bool(self._check_errors(raise_errs=raise_errs))
 
     def is_applicable_organizers(self):
-        """Checks whether this state can be applied by organizers."""
+        """Checks whether this phase can be applied by organizers."""
         return self.is_applicable() and self.available_to_organizers
 
     def get_available_question_settings(self):
-        """Returns question settings which can be changed in this state."""
+        """Returns question settings which can be changed in this phase."""
         return [
             s.name
             for s in Question.get_controllable_fields()
@@ -207,16 +207,16 @@ class ExamControlState(models.Model):
         ]
 
     @classmethod
-    def get_current_state(cls, exam):
-        """Returns the current state of exam, None if it doesn't exist."""
+    def get_current_phase(cls, exam):
+        """Returns the current phase of exam, None if it doesn't exist."""
         current_settings = {
             k: getattr(exam, k) for k in cls.get_available_exam_field_names()
         }
-        # objects.filter(..).first() returns state or None, note that this filter provides a unique state
-        current_state = cls.objects.filter(
+        # objects.filter(..).first() returns phase or None, note that this filter provides a unique phase
+        current_phase = cls.objects.filter(
             exam=exam, exam_settings=current_settings
         ).first()
-        return current_state
+        return current_phase
 
     @classmethod
     def get_available_exam_fields(cls):
@@ -240,21 +240,21 @@ class ExamControlState(models.Model):
         return res
 
     @classmethod
-    def get_applicable_states(cls, exam, is_superuser=False):
-        """Returns all states which can be applied to exam."""
-        states = cls.objects.filter(exam=exam).all()
+    def get_applicable_phases(cls, exam, is_superuser=False):
+        """Returns all phases which can be applied to exam."""
+        phases = cls.objects.filter(exam=exam).all()
         res = []
-        for state in states:
+        for phase in phases:
             if (
-                state.is_applicable() and is_superuser
-            ) or state.is_applicable_organizers():
-                res.append(state)
+                phase.is_applicable() and is_superuser
+            ) or phase.is_applicable_organizers():
+                res.append(phase)
         return res
 
     @staticmethod
     def get_check_choices():
         """Returns a list of tuples [(check.name, check.docstring)], listing all available checks."""
-        func_list = inspect.getmembers(state_checks, inspect.isfunction)
+        func_list = inspect.getmembers(phase_checks, inspect.isfunction)
         return [(f[0], inspect.getdoc(f[1])) for f in func_list]
 
     @staticmethod
@@ -270,13 +270,13 @@ class ExamControlState(models.Model):
         return choices
 
 
-class ExamControlHistory(models.Model):
+class ExamPhaseHistory(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     user = models.CharField(max_length=200, default="Some superuser")
-    to_state = models.ForeignKey(
-        ExamControlState,
+    to_phase = models.ForeignKey(
+        ExamPhase,
         on_delete=models.CASCADE,
-        help_text="The state to which the exam was changed (if applicable)",
+        help_text="The phase to which the exam was changed (if applicable)",
         null=True,
         blank=True,
     )
@@ -287,9 +287,9 @@ class ExamControlHistory(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def get_previous(self):
-        """Returns the previous state of self belonging to the same exam."""
+        """Returns the previous phase of self belonging to the same exam."""
         return (
-            ExamControlHistory.objects.filter(
+            ExamPhaseHistory.objects.filter(
                 timestamp__lt=self.timestamp, exam=self.exam
             )
             .order_by("-timestamp")
@@ -297,13 +297,13 @@ class ExamControlHistory(models.Model):
         )
 
     def changes_to_previous(self):
-        """Returns the exam state changes to the previous state"""
+        """Returns the exam phase changes to the previous phase"""
         res = {}
         previous = self.get_previous()
         if previous is None:
             return {}
         previous_settings = previous.to_settings
-        for s in ExamControlState.get_available_exam_field_names():
+        for s in ExamPhase.get_available_exam_field_names():
             if self.to_settings.get(s) != previous_settings.get(s):
                 changed = {
                     "new": self.to_settings.get(s),
@@ -314,7 +314,7 @@ class ExamControlHistory(models.Model):
 
     @classmethod
     def get_latest(cls, exam):
-        """Returns the latest state of exam"""
+        """Returns the latest phase of exam"""
         if cls.objects.filter(exam=exam).exists():
             return cls.objects.filter(exam=exam).latest("timestamp")
         return None
@@ -328,19 +328,18 @@ class ExamControlHistory(models.Model):
 def create_actions_on_exam_creation(
     instance, created, raw, **kwargs
 ):  # pylint: disable=unused-argument
-    """Creates an ExamControlHistory when exam settings are modified."""
+    """Creates an ExamPhaseHistory when exam settings are modified."""
     # Ignore fixtures.
     if raw:
         return
     current_settings = {
-        k: getattr(instance, k)
-        for k in ExamControlState.get_available_exam_field_names()
+        k: getattr(instance, k) for k in ExamPhase.get_available_exam_field_names()
     }
-    # Check whether there is a History with the same state, if yes, abort.
-    latest_history = ExamControlHistory.get_latest(instance)
+    # Check whether there is a History with the same phase, if yes, abort.
+    latest_history = ExamPhaseHistory.get_latest(instance)
     if latest_history is not None and latest_history.to_settings == current_settings:
         return
 
-    ex_hist = ExamControlHistory(to_settings=current_settings, exam=instance)
-    ex_hist.to_state = ExamControlState.get_current_state(instance)
+    ex_hist = ExamPhaseHistory(to_settings=current_settings, exam=instance)
+    ex_hist.to_phase = ExamPhase.get_current_phase(instance)
     ex_hist.save()
