@@ -36,11 +36,13 @@ class ExamControlStateForm(forms.ModelForm):
         # prepare initial data
         initial_exam_settings = None
 
+        # if an instance is specified in the constructor, get initial data from there.
         if kwargs.get("instance"):
             initial_exam_settings = self.instance.exam_settings
 
         exam_fields = []
 
+        # Add fields for exam settings
         for model_field in ExamControlState.get_available_exam_fields():
             exam_fields.append(self.exam_settings_prefix + model_field.name)
             tmp_field = model_field.formfield()
@@ -48,6 +50,7 @@ class ExamControlStateForm(forms.ModelForm):
                 tmp_field.initial = initial_exam_settings[model_field.name]
             self.fields[self.exam_settings_prefix + model_field.name] = tmp_field
 
+        # Add form fields for the rest of the JsonFields
         check_choices = self.instance.get_check_choices()
         question_setting_choices = self.instance.get_question_setting_choices()
         self.fields["checks_warning"] = forms.MultipleChoiceField(
@@ -69,8 +72,8 @@ class ExamControlStateForm(forms.ModelForm):
             required=False,
         )
 
+        # Add crispy FormHelper
         self.helper = FormHelper()
-        # self.helper.layout = Layout(Field('title', placeholder='Enter question text'), Field('question'))
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.helper.form_tag = True
@@ -112,6 +115,7 @@ class ExamControlStateForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        # create exam_settings json
         setting_fields = [
             key for key in cleaned_data if key.startswith(self.exam_settings_prefix)
         ]
@@ -120,6 +124,8 @@ class ExamControlStateForm(forms.ModelForm):
             for key in setting_fields
         }
         cleaned_data["exam_settings"] = exam_settings
+
+        # Validate again to ensure the uniquenesses involving settings
         self.validate_unique()
         for key in setting_fields:
             del cleaned_data[key]

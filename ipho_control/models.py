@@ -122,6 +122,13 @@ class ExamControlState(models.Model):
                 code="invalid",
             )
 
+        double_checks = set(self.checks_error).intersection(set(self.checks_warning))
+        if double_checks:
+            raise ValidationError(
+                f"Checks cannot be both warnings and errors. The following checks have been selected twice {double_checks}.",
+                code="invalid",
+            )
+
     def apply(self, username=None):
         """ apply the settings to exam"""
         self.is_applicable(raise_errs=True)
@@ -146,12 +153,14 @@ class ExamControlState(models.Model):
             raise
 
     def is_current_state(self):
+        """Checks whether this state is the current state."""
         current_settings = {
             k: getattr(self.exam, k) for k in self.get_available_exam_field_names()
         }
         return self.exam_settings == current_settings
 
     def _check_warnings(self, return_all=False):
+        """Evaluates all checks_warning, returns only failed checks per default."""
         warnings = []
         for check in self.checks_warning:
             func = getattr(state_checks, check)
@@ -162,6 +171,7 @@ class ExamControlState(models.Model):
         return warnings
 
     def _check_errors(self, raise_errs=False, return_all=False):
+        """Evaluates all checks_warning, returns only failed checks per default, can raise errors if checks fail."""
         errors = []
         for check in self.checks_error:
             func = getattr(state_checks, check)
@@ -174,18 +184,22 @@ class ExamControlState(models.Model):
         return errors
 
     def run_checks(self, return_all=False):
+        """Runs all checks, returns only failed checks per default."""
         warnings = self._check_warnings(return_all=return_all)
         errors = self._check_errors(return_all=return_all)
         help_texts = dict(self.get_check_choices())
         return {"warnings": warnings, "errors": errors, "help_texts": help_texts}
 
     def is_applicable(self, raise_errs=False):
+        """Checks whether this state can be applied."""
         return not bool(self._check_errors(raise_errs=raise_errs))
 
     def is_applicable_organizers(self):
+        """Checks whether this state can be applied by organizers."""
         return self.is_applicable() and self.available_to_organizers
 
     def get_available_question_settings(self):
+        """Returns question settings which can be changed in this state."""
         return [
             s.name
             for s in Question.get_controllable_fields()
@@ -194,6 +208,7 @@ class ExamControlState(models.Model):
 
     @classmethod
     def get_current_state(cls, exam):
+        """Returns the current state of exam, None if it doesn't exist."""
         current_settings = {
             k: getattr(exam, k) for k in cls.get_available_exam_field_names()
         }
@@ -205,14 +220,17 @@ class ExamControlState(models.Model):
 
     @classmethod
     def get_available_exam_fields(cls):
+        """Returns the exam fields which are available in in exam_settings."""
         return Exam.get_controllable_fields()
 
     @classmethod
     def get_available_exam_field_names(cls):
+        """Returns the names of the exam fields which are available in in exam_settings."""
         return [f.name for f in cls.get_available_exam_fields()]
 
     @classmethod
     def get_exam_field_help_texts(cls):
+        """"Returns a dictionary {field_name:help_text}"""
         res = {}
         for f in cls.get_available_exam_fields():
             if hasattr(f, "help_text"):
@@ -223,6 +241,7 @@ class ExamControlState(models.Model):
 
     @classmethod
     def get_applicable_states(cls, exam, is_superuser=False):
+        """Returns all states which can be applied to exam."""
         states = cls.objects.filter(exam=exam).all()
         res = []
         for state in states:
@@ -234,11 +253,13 @@ class ExamControlState(models.Model):
 
     @staticmethod
     def get_check_choices():
+        """Returns a list of tuples [(check.name, check.docstring)], listing all available checks."""
         func_list = inspect.getmembers(state_checks, inspect.isfunction)
         return [(f[0], inspect.getdoc(f[1])) for f in func_list]
 
     @staticmethod
     def get_question_setting_choices():
+        """Returns a list of tuples [(question_setting.name, question_setting.help_text)], listing all question settings that can be set in available_question_settings."""
         available_fields = Question.get_controllable_fields()
         choices = []
         for field in available_fields:
@@ -266,6 +287,7 @@ class ExamControlHistory(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def get_previous(self):
+        """Returns the previous state of self belonging to the same exam."""
         return (
             ExamControlHistory.objects.filter(
                 timestamp__lt=self.timestamp, exam=self.exam
@@ -275,6 +297,7 @@ class ExamControlHistory(models.Model):
         )
 
     def changes_to_previous(self):
+        """Returns the exam state changes to the previous state"""
         res = {}
         previous = self.get_previous()
         if previous is None:
@@ -291,6 +314,7 @@ class ExamControlHistory(models.Model):
 
     @classmethod
     def get_latest(cls, exam):
+        """Returns the latest state of exam"""
         if cls.objects.filter(exam=exam).exists():
             return cls.objects.filter(exam=exam).latest("timestamp")
         return None
@@ -304,6 +328,7 @@ class ExamControlHistory(models.Model):
 def create_actions_on_exam_creation(
     instance, created, raw, **kwargs
 ):  # pylint: disable=unused-argument
+    """Creates an ExamControlHistory when exam settings are modified."""
     # Ignore fixtures.
     if raw:
         return
@@ -311,6 +336,7 @@ def create_actions_on_exam_creation(
         k: getattr(instance, k)
         for k in ExamControlState.get_available_exam_field_names()
     }
+    # Check whether there is a History with the same state, if yes, abort.
     latest_history = ExamControlHistory.get_latest(instance)
     if latest_history is not None and latest_history.to_settings == current_settings:
         return

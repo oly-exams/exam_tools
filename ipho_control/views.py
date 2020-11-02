@@ -60,7 +60,7 @@ def add_edit_state(request, state_id=None):
 
 
 def exam_state_context(is_superuser=False, exam_id=None):
-    """helper function to create context for cockpit_base.html"""
+    """Helper function to create context for cockpit_base.html"""
     exams = Exam.objects.order_by("name")
     if not is_superuser:
         exams = exams.filter(hidden=False)
@@ -79,6 +79,7 @@ def exam_state_context(is_superuser=False, exam_id=None):
         ):
             state = None
         if state is None:
+            # Create a dummy state
             av_set = ExamControlState.get_available_exam_field_names()
             exam_settings = {s: getattr(exam, s) for s in av_set}
 
@@ -111,6 +112,7 @@ def alert_dismissible(msg, level="success"):
 
 @permission_required("ipho_core.can_access_control")
 def cockpit(request, exam_id=None, changed_state=False, deleted_state=False):
+    """The main view for the control cockpit"""
     ctx = {}
     ctx["alerts"] = []
     ctx["h1"] = "Cockpit"
@@ -125,6 +127,7 @@ def cockpit(request, exam_id=None, changed_state=False, deleted_state=False):
         ctx["alerts"].append(alert_dismissible(del_state_msg, "warning"))
 
     if state is not None and state.get_available_question_settings():
+        # create the formset for the question settings
         QuestionFormSet = inlineformset_factory(  # pylint: disable=invalid-name
             parent_model=Exam,
             model=Question,
@@ -132,7 +135,7 @@ def cockpit(request, exam_id=None, changed_state=False, deleted_state=False):
             extra=0,
             can_delete=False,
         )
-
+        # create the formset helper
         class QuestionFormSetHelper(FormHelper):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -144,6 +147,7 @@ def cockpit(request, exam_id=None, changed_state=False, deleted_state=False):
                         exam.pk,
                     ],
                 )
+                # use a custom template to render the question names
                 self.template = "ipho_control/table_inline_formset.html"
                 self.render_required_fields = True
                 self.add_input(Submit("submit", "Save"))
@@ -214,6 +218,7 @@ def switch_state(request, exam_id, state_id):
     available_setttings = ExamControlState.get_available_exam_field_names()
     current_exam_settings = {s: getattr(exam, s) for s in available_setttings}
 
+    # create changelog to display changes
     changelog = {"changed": {}, "unchanged": {}}
     for s in available_setttings:
         if current_exam_settings[s] == state.exam_settings.get(s):
@@ -237,6 +242,7 @@ def switch_state(request, exam_id, state_id):
 
 @user_passes_test(lambda u: u.is_superuser)
 def delete_state(request, state_id):
+    """View for the delete state modal"""
     state = get_object_or_404(ExamControlState, pk=state_id)
     if request.method == "POST":
         state.delete()
@@ -253,6 +259,7 @@ def delete_state(request, state_id):
 
 @permission_required("ipho_core.can_access_control")
 def exam_history(request, exam_id):
+    """View for the exam history modal"""
     exam = get_object_or_404(Exam, pk=exam_id)
     history = ExamControlHistory.objects.filter(exam=exam).order_by("-timestamp")
     ctx = {}
@@ -267,6 +274,7 @@ def exam_history(request, exam_id):
 
 @login_required
 def exam_state_summary(request):
+    """View for the exam summary on home"""
     exams = Exam.objects.filter(hidden=False)
     if not request.user.has_perm("ipho_core.is_staff"):
         exams = exams.filter(active=True)
