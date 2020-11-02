@@ -25,7 +25,7 @@ from google.oauth2 import service_account
 
 from django.conf import settings
 
-from ipho_exam.models import CachedAutoTranslation, Language
+from ipho_exam.models import CachedAutoTranslation
 
 
 django_logger = logging.getLogger("django.request")
@@ -192,13 +192,11 @@ def translate_deepl(from_lang, to_lang, text):
 def auto_translate_helper(raw_text, from_lang_obj, to_lang, delegation):
     # sanitize to_lang and from_lang
     if from_lang_obj.style is not None:
-        from_lang = Language.STYLES_TO_AUTO_TRANSLATE_MAPPING[from_lang_obj.style]
+        from_lang = settings.STYLES_TO_AUTO_TRANSLATE_MAPPING[from_lang_obj.style]
         from_lang_style = from_lang_obj.style
     else:
         from_lang = ""
         from_lang_style = "None"
-    print(to_lang)
-    print(from_lang, from_lang_obj)
     if to_lang == from_lang:
         return {"text": raw_text}
     if to_lang not in AUTO_TRANSLATE_LANGUAGE_LIST:
