@@ -206,7 +206,7 @@ def check_add_watermark(request, doc):
         user = request.user
         if not (
             user.is_staff
-            or user.has_perm("ipho_core.is_staff")
+            or user.has_perm("ipho_core.is_organizer")
             or user.has_perm("ipho_core.is_printstaff")
             or user.has_perm("ipho_core.is_marker")
         ):

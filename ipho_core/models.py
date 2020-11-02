@@ -43,7 +43,7 @@ class IphoPerm(models.Model):
                 "can_see_boardmeeting",
                 "Can see the exam, feedbacks, and votes when they are available to delegations",
             ),
-            ("is_staff", "Is an organizer"),
+            ("is_organizer", "Is an organizer"),
             ("can_impersonate", "Can impersonate delegations"),
             ("can_access_control", "Can access the control app"),
             ("print_technopark", "Can print in Technopark"),

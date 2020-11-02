@@ -55,7 +55,7 @@
         "iphoperm"
       ],
       [
-        "is_staff",
+        "is_organizer",
         "ipho_core",
         "iphoperm"
       ],
@@ -449,7 +449,7 @@
     "name": "Author",
     "permissions": [
       [
-        "is_staff",
+        "is_organizer",
         "ipho_core",
         "iphoperm"
       ],

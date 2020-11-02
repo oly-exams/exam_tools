@@ -21,7 +21,7 @@
     <tr>
         <td>{{ fb.pk }}</td>
         <td>
-          {% if perms.ipho_core.is_staff %}
+          {% if perms.ipho_core.is_organizer %}
             <div class="btn-group">
               <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                 {{ fb.status_display }}

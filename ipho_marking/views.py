@@ -47,7 +47,7 @@ OFFICIAL_LANGUAGE_PK = getattr(settings, "OFFICIAL_LANGUAGE_PK", 1)
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 
 
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 def import_exam(request):
     ctx = {}
     ctx["alerts"] = []
@@ -225,12 +225,12 @@ def staff_stud_detail(request, version, stud_id, question_id):
     return render(request, "ipho_marking/staff_edit.html", ctx)
 
 
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 def export_with_total(request):
     return export(request, include_totals=True)
 
 
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 def export(request, include_totals=False):  # pylint: disable=too-many-locals
     versions = request.GET.get("v", "O,D,F").split(",")
 
@@ -1311,7 +1311,7 @@ def moderation_confirmed(request, question_id, delegation_id):
     return render(request, "ipho_marking/moderation_confirmed.html", ctx)
 
 
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 def marking_submissions(request):
     ctx = {
         "summaries": [
@@ -1358,7 +1358,7 @@ def marking_submissions(request):
     return render(request, "ipho_marking/marking_submissions.html", ctx)
 
 
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 def export_countries_to_moderate(request):
     csv_rows = []
     title_row = ["Country", "Code"]
@@ -1404,7 +1404,7 @@ def export_countries_to_moderate(request):
 
 def progress(request):
     vid = request.GET.get("version", "O")
-    if request.user.has_perm("ipho_core.is_staff"):
+    if request.user.has_perm("ipho_core.is_organizer"):
         all_versions = Marking.MARKING_VERSIONS
     elif request.user.has_perm("ipho_core.is_marker"):
         all_versions = OrderedDict(

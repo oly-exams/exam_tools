@@ -55,3 +55,6 @@ class TestDataCreator(DataCreator):
             "Q3", "Favorite color", r="red", b="blue", g="green"
         )
         self.close_question_with_result(que3, r=1, b=2, g=3)
+
+    def create_official_exam(self):
+        self.create_exam("Theory", "T")

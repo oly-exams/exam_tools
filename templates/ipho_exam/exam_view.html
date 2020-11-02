@@ -164,7 +164,7 @@ body { margin-bottom: 70px; }
               <div class="modal-body feedback"></div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                {% if not perms.ipho_core.is_staff %}
+                {% if not perms.ipho_core.is_organizer %}
                   {% if question.feedback_active%}
                     <button id="modal-form-submit" type="submit" class="btn btn-primary">Send feedback</button>
                   {% endif %}

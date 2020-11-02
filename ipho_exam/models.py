@@ -418,7 +418,7 @@ class Question(models.Model):
         return self.versionnode_set.filter(status="C").exists()
 
     def check_permission(self, user):
-        if user.has_perm("ipho_core.is_staff"):
+        if user.has_perm("ipho_core.is_organizer"):
             return True
 
         if not user.has_perm("ipho_core.can_see_boardmeeting"):

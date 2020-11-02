@@ -21,16 +21,21 @@ def set_up_basic_test_database(clear_cache=False):
         cache.create_organizer_user(pw_strategy="trivial")
         cache.create_delegation_user(pw_strategy="trivial")
         cache.create_three_questions()
+        cache.create_official_delegation()
 
     tdc = TestDataCreator()
 
     with tdc.clean(delete_after=False):
         tdc.copy_from(cache)
-        tdc.create_official_delegation()
+        tdc.create_official_exam()
+        # tdc.create_official_delegation()
 
 
 def main():
-    set_up_basic_test_database(clear_cache=False)
+    clear = False
+    if len(sys.argv) > 1:
+        clear = bool(sys.argv[1])
+    set_up_basic_test_database(clear_cache=clear)
 
 
 if __name__ == "__main__":

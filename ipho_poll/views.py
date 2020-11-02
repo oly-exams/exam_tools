@@ -52,14 +52,14 @@ from .forms import ChoiceFormHelper, VoteFormHelper
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 @ensure_csrf_cookie
 def staff_index(request):
     return render(request, "ipho_poll/staff-index.html")
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 @ensure_csrf_cookie
 def staff_index_partial(request, qtype):
     if qtype == "drafted":
@@ -87,7 +87,7 @@ def staff_index_partial(request, qtype):
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 @ensure_csrf_cookie
 def question(request, question_pk):
     que = get_object_or_404(Question, pk=question_pk)
@@ -128,7 +128,7 @@ def question(request, question_pk):
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 def staff_set_result(request, question_pk, result):
     que = get_object_or_404(Question, pk=question_pk)
     que.vote_result = result
@@ -137,7 +137,7 @@ def staff_set_result(request, question_pk, result):
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 def staff_set_impl(request, question_pk, impl):
     que = get_object_or_404(Question, pk=question_pk)
     que.implementation = impl
@@ -146,7 +146,7 @@ def staff_set_impl(request, question_pk, impl):
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 @ensure_csrf_cookie
 def question_large(request, question_pk):
     que = get_object_or_404(Question, pk=question_pk)
@@ -242,7 +242,7 @@ def question_large(request, question_pk):
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 @ensure_csrf_cookie
 def add_question(request):
     if not request.is_ajax:
@@ -310,7 +310,7 @@ def add_question(request):
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 @ensure_csrf_cookie
 def edit_question(request, question_pk):
     ChoiceFormset = inlineformset_factory(  # pylint: disable=invalid-name
@@ -355,7 +355,7 @@ def edit_question(request, question_pk):
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 @ensure_csrf_cookie
 def delete_question(request, question_pk):
     que = get_object_or_404(Question, pk=question_pk)
@@ -382,7 +382,7 @@ def delete_question(request, question_pk):
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 @ensure_csrf_cookie
 def set_end_date(request, question_pk):
     que = get_object_or_404(Question, pk=question_pk)
@@ -455,7 +455,7 @@ def set_end_date(request, question_pk):
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 @ensure_csrf_cookie
 def remove_end_date(request, question_pk):
     que = get_object_or_404(Question, pk=question_pk)
@@ -468,7 +468,7 @@ def remove_end_date(request, question_pk):
 
 
 @login_required
-@permission_required("ipho_core.is_staff")
+@permission_required("ipho_core.is_organizer")
 @ensure_csrf_cookie
 def close_question(request, question_pk):
     que = get_object_or_404(Question, pk=question_pk)
