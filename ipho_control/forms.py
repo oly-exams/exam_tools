@@ -54,13 +54,13 @@ class ExamPhaseForm(forms.ModelForm):
         check_choices = self.instance.get_check_choices()
         question_setting_choices = self.instance.get_question_setting_choices()
         self.fields["checks_warning"] = forms.MultipleChoiceField(
-            label="Checks warning the user",
+            label="Checks warning the user on failure",
             choices=check_choices,
             widget=forms.CheckboxSelectMultiple,
             required=False,
         )
         self.fields["checks_error"] = forms.MultipleChoiceField(
-            label="Checks throwing an error",
+            label="Checks throwing an error  on failure",
             choices=check_choices,
             widget=forms.CheckboxSelectMultiple,
             required=False,
