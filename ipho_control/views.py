@@ -268,8 +268,11 @@ def exam_history(request, exam_id):
 @login_required
 def exam_state_summary(request):
     exams = Exam.objects.filter(hidden=False)
+    if not request.user.has_perm("ipho_core.is_staff"):
+        exams = exams.filter(active=True)
     if request.user.is_superuser:
         exams = Exam.objects
+
     states = []
     for exm in exams.all():
         last_change = ExamControlHistory.get_latest(exam=exm)
