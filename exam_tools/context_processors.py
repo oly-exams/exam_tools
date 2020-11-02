@@ -27,4 +27,5 @@ def ipho_context(request):
         "DOCS_URL": settings.DOCS_URL,
         "STATIC_PATH": settings.STATIC_PATH,
         "DEBUG": getattr(settings, "DEBUG", False),
+        "OFFICIALLY_SUPPORTED": settings.OFFICIALLY_SUPPORTED,
     }

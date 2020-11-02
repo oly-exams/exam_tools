@@ -63,6 +63,9 @@ DEMO_MODE = False
 # Allow user sign-up for demo
 DEMO_SIGN_UP = False
 
+# Sets unoffical banner
+OFFICIALLY_SUPPORTED = False
+
 # Adds a watermark to PDFs shown to non-staff
 ADD_DELEGATION_WATERMARK = False
 
