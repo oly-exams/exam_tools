@@ -43,7 +43,7 @@ from ipho_exam import qml
 from .models import MarkingMeta, Marking, MarkingAction
 from .forms import ImportForm, PointsForm
 
-OFFICIAL_LANGUAGE_PK = getattr(settings, "OFFICIAL_LANGUAGE_PK", 1)
+OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 
 
