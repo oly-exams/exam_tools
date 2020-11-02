@@ -29,11 +29,38 @@
       padding-top: 20px;
       padding-bottom: 20px;
     }
+    .fixed-banner {
+      position:fixed;
+      top: 0;
+      width: 100%;
+      padding: 4px 20px;
+      box-sizing: border-box;
+      z-index: 1;
+      text-align: center;
+    }
+    .unsupported-warning {
+      background-color: rgb(255, 201, 130);
+      color: rgb(119, 77, 0);
+    }
+    .debug-warning {
+      z-index: 2;
+      background-color: rgb(255, 130, 130);
+      color: rgb(119, 0, 0);
+    }
+
     </style>
   </head>
 
   <body>
 
+      {% if DEBUG %}
+      <div class="fixed-banner debug-warning" style="position: relative; margin-top: -20px;">This instance is in <strong>Debug Mode!</strong></div>
+      <div class="fixed-banner debug-warning">This instance is in <strong>Debug Mode!</strong></div>
+      {% endif %}
+      {% if not DEBUG and not OFFICIALLY_SUPPORTED %}
+        <div class="fixed-banner unsupported-warning" style="position: relative; margin-top: -20px;"><strong>Open Source Exam Tools!</strong> created by OlyExams, but run without OlyExams event support!</div>
+        <div class="fixed-banner unsupported-warning"><strong>Open Source Exam Tools!</strong> created by OlyExams, but run without OlyExams event support!</div>
+      {% endif %}
       {% if DEMO_MODE %}
       <div class="alert alert-info" role="alert"><div class="container"><strong>DEMO VERSION.</strong> This is a demo version of the Exam Tools. (v{{ VERSION }} - {{ VERSION_DATE }})</div></div>
       {% endif %}
@@ -199,7 +226,7 @@
       <div class="footer">
           <hr />
           <div class="container">
-              <p class="text-muted">Copyright © 2014 - 2019 <a href="http://oly-exams.org/">Oly Exams Team</a>. Version {{ VERSION }} - {{ VERSION_DATE }}.</p>
+              <p class="text-muted">Copyright © 2014 - 2019 <a href="http://oly-exams.org/">Oly Exams Team</a>. Version {{ VERSION }} - {{ VERSION_DATE }}. <a href="https://gitlab.com/oly-exams/exam_tools">Source</a></p>
           </div>
       </div>
     <script src="{% static "jquery/js/jquery-1.11.2.min.js" %}"></script>

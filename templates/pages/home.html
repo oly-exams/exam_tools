@@ -48,7 +48,9 @@
               Originally developed for the International Physics Olympiad 2016 held in Zurich, Switzerland, Exam Tools has since
               been used at several Scientific Olympiads to support the exam discussion, translation and administration process.
               Exam feedbacks, translations, printing, voting, corrections and ranking are among the features of this new tool.
+              {% if OFFICIALLY_SUPPORTED %}
               The <a href="http://oly-exams.org">OlyExams</a> team and the local organizers are proud to offer Exam Tools also for the present Olympiad.
+              {% endif %}
           </p>
           <p>
               During the registration process you will need to confirm that your delegation will join with at least one supported notebook computer, and that you were successfully able to translate the test exams. Note that the organizers will not provide any notebooks or workstations to the delegations (except upon prior arrangement).
@@ -205,8 +207,14 @@
         </div>
         <div class="col-md-3">
           <h2>Help</h2>
-          <p>If you need help with the Exam Tools, please contact a Leader Guide or IT Staff member. For general feedback or bug reports, you can also contact us at <br />
-              <a href="mailto:exam-tools-users@oly-exams.org"><i class="fa fa-envelope-o"></i> exam-tools-users@oly-exams.org</a>.</p>
+          <p>If you need help with the Exam Tools, please contact a Leader Guide or IT Staff member. 
+              {% if OFFICIALLY_SUPPORTED %}
+              For general feedback or bug reports, you can also contact us at <br />
+              <a href="mailto:exam-tools-users@oly-exams.org"><i class="fa fa-envelope-o"></i> exam-tools-users@oly-exams.org</a>.
+              {% else %}
+              Note that this event is run without OlyExams support.
+              {% endif %}
+            </p>
 
           <h2>User guide</h2>
           <p>Please refer to the documentation section for a detailed user guide which explains the Exam Tools and how to perfom a test exam translation required by the registration process.</p>
