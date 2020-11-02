@@ -71,8 +71,18 @@
           {% endif %}
           {% if control_show_states %}
           <hr />
-            <h2>Exam Phases</h2>
-            <p>Below you can see the phases the different Exams are in.</p>
+            <div style="display:flex; justify-content: space-between; align-items: center;">
+                <div style="width: 85%;">
+                    <h2>Exam Phases</h2>
+                    <p>Below you can see the phases the different Exams are in.</p>
+                </div>
+                <div>
+                    <button class="btn btn-default btn-lg" id="exam-summary-reload" style="font-size:22px;">
+                        <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                    </button>
+                </div>
+                
+            </div>
             <div id="exam-summary-container" data-href="{% url 'control:exam-state-summary' %}"></div>
           {% endif %}
           <hr />
@@ -316,6 +326,9 @@ function load_exam_state_summary() {
                   var dt = moment(el.attr("datetime"));
                   el.text(dt.format(el.data("format")));
                 });
+                setTimeout(function(){
+                    $('#exam-summary-reload').removeClass("disabled");
+                },5000)
             }
         }
     });
@@ -331,7 +344,12 @@ $(document).ready(function() {
 
   {% if control_show_states %}
   load_exam_state_summary();
-  setInterval(load_exam_state_summary, 60*1000);
+  
+  $('#exam-summary-reload').on("click",function(e){
+      e.preventDefault();
+      $('#exam-summary-reload').addClass("disabled");
+      load_exam_state_summary();
+  });
   {% endif %}
 
 });
