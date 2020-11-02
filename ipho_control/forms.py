@@ -60,7 +60,7 @@ class ExamPhaseForm(forms.ModelForm):
             required=False,
         )
         self.fields["checks_error"] = forms.MultipleChoiceField(
-            label="Checks throwing an error  on failure",
+            label="Checks throwing an error on failure",
             choices=check_choices,
             widget=forms.CheckboxSelectMultiple,
             required=False,
