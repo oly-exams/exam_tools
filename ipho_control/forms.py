@@ -32,7 +32,6 @@ class ExamPhaseForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # set hidden field to non required
         self.fields["exam_settings"].required = False
-
         # prepare initial data
         initial_exam_settings = None
 
@@ -89,7 +88,6 @@ class ExamPhaseForm(forms.ModelForm):
                     "name",
                     Field("description", style="height: 16ex;"),
                     Field("public_description", style="height: 16ex;"),
-                    "exam",
                     "position",
                     "available_to_organizers",
                     Field("before_switching", style="height: 16ex;"),
@@ -137,7 +135,6 @@ class ExamPhaseForm(forms.ModelForm):
             "name",
             "description",
             "public_description",
-            "exam",
             "position",
             "available_to_organizers",
             "before_switching",

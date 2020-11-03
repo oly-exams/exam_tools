@@ -41,7 +41,7 @@ urlpatterns = [
         name="switch-phase",
     ),
     path("cockpit/exam_history/<int:exam_id>", views.exam_history, name="exam-history"),
-    path("phase/add", views.add_edit_phase, name="add-phase"),
+    path("phase/add/<int:exam_id>", views.add_edit_phase, name="add-phase"),
     path("phase/edit/<int:phase_id>", views.add_edit_phase, name="edit-phase"),
     path("phase/delete/<int:phase_id>", views.delete_phase, name="delete-phase"),
     path("phase/summary", views.exam_phase_summary, name="exam-phase-summary"),

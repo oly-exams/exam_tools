@@ -37,17 +37,22 @@ from ipho_exam.models import Exam, Question
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def add_edit_phase(request, phase_id=None):
+def add_edit_phase(request, phase_id=None, exam_id=None):
     """view to add or edit ExamPhases"""
     phase = None
     ctx = {}
     ctx["alerts"] = []
     ctx["h1"] = "Add Exam Phase"
     ctx["lead"] = "Add another Exam Phase to the cockpit"
+    if exam_id is not None:
+        exam = get_object_or_404(Exam, pk=exam_id)
+        phase = ExamPhase(exam=exam)
+        ctx["h1"] = f"Add Exam Phase for { exam.name }"
     if phase_id is not None:
         phase = get_object_or_404(ExamPhase, pk=phase_id)
         ctx["h1"] = "Edit Exam Phase"
         ctx["lead"] = "Edit the following Exam Phase"
+
     form = ExamPhaseForm(request.POST or None, instance=phase)
     if form.is_valid():
         form.save()
