@@ -112,6 +112,7 @@ class UserDataCreator(BaseDataCreator):
                     username=username,
                     password=password,
                     voting_power=voting_power,
+                    group="Delegation",
                 )
 
                 if not hasattr(user, "autologin"):
