@@ -70,7 +70,10 @@ def exam_phase_context(is_superuser=False, exam_id=None):
     if not is_superuser:
         exams = exams.filter(hidden=False)
     if exam_id is None:
-        exam_id = exams.first().pk
+        if exams.exists():
+            exam_id = exams.first().pk
+        else:
+            return [], None
     exams = exams.all()
     exam_list = []
     active_exam = None
@@ -122,6 +125,10 @@ def cockpit(request, exam_id=None, changed_phase=False, deleted_phase=False):
     ctx["alerts"] = []
     ctx["h1"] = "Cockpit"
     exam_list, active_exam = exam_phase_context(request.user.is_superuser, exam_id)
+    if active_exam is None:
+        return render(
+            request, "ipho_control/cockpit_base.html", context={"h1": "Cockpit"}
+        )
     exam = active_exam["exam"]
     phase = active_exam["phase"]
     if changed_phase and phase is not None:
