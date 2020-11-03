@@ -78,7 +78,7 @@
                     <h2>Exam Phases</h2>
                     <p>Below you can see the phases the different Exams are in.</p>
                 </div>
-                <div>
+                <div id="exam-summary-reload-container">
                     <button class="btn btn-default btn-lg" id="exam-summary-reload" style="font-size:22px;">
                         <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
                     </button>
@@ -336,6 +336,8 @@ function load_exam_phase_summary() {
                 });
                 setTimeout(function(){
                     $('#exam-summary-reload').removeClass("disabled");
+                    $('#exam-summary-reload-container').prop("title", "");
+                    $('#exam-summary-reload-container').tooltip("destroy");
                 },5000)
             }
         }
@@ -356,6 +358,8 @@ $(document).ready(function() {
   $('#exam-summary-reload').on("click",function(e){
       e.preventDefault();
       $('#exam-summary-reload').addClass("disabled");
+      $('#exam-summary-reload-container').prop("title", "Please wait 5 seconds before reloading again.");
+      $('#exam-summary-reload-container').tooltip();
       load_exam_phase_summary();
   });
   {% endif %}
