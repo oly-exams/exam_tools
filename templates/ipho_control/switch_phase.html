@@ -5,7 +5,7 @@
 
 {% if changelog.unchanged %}
     <h4>Unchanged Settings:</h4>
-    {% include "ipho_control/phase_labels.html" with settings=changelog.unchanged help_texts=help_texts_settings only %}
+    {% include "ipho_control/phase_labels.html" with settings=changelog.unchanged help_texts=help_texts_settings collapse_id="switch_phase" only %}
 {% else %}
     <h4>No unchanged settings</h4>
 {% endif %}
