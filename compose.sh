@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # 2020 Oct: this is a convenience bash script to prevent users from having
 # to specify all partial docker-compose.yml files with -f.

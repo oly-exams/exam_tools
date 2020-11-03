@@ -8,7 +8,6 @@
         # this is the recommended way to reuse layers
         # (https://docs.gitlab.com/ee/user/packages/container_registry/index.html#using-a-docker-in-docker-image-from-your-container-registry)
         - (docker pull -q $IMG && docker tag $IMG $SERVICE_NAME) || true
-        - ls $CI_PROJECT_DIR/compose.sh
         - $CI_PROJECT_DIR/compose.sh build --pull $SERVICE_NAME
         - docker tag $SERVICE_NAME $IMG
         - docker push $IMG
