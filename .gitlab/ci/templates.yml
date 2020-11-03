@@ -7,25 +7,10 @@
         - IMG="$PROJ_REG/$IMG_NAME:$SERVICE_NAME"
         # this is the recommended way to reuse layers
         # (https://docs.gitlab.com/ee/user/packages/container_registry/index.html#using-a-docker-in-docker-image-from-your-container-registry)
-        - (docker pull $IMG && docker tag $IMG $SERVICE_NAME) || true
-        # docker-compose file v3 does not support "extends", they recommend
-        # to just add all partial compose files with -f
-        - ALL_COMPOSE_FILES_WITH_F=$(echo docker/*/docker-compose.yml | sed 's/ / -f /g')
-        # the initial one does not have a "-f" since it has no leading " "
-        - docker-compose -f $ALL_COMPOSE_FILES_WITH_F build --pull $SERVICE_NAME
+        - (docker pull -q $IMG && docker tag $IMG $SERVICE_NAME) || true
+        - $CI_PROJECT_DIR/compose.sh build --pull $SERVICE_NAME
         - docker tag $SERVICE_NAME $IMG
         - docker push $IMG
-        # also adding a squashed version for quicker loading in the tests
-        - export DOCKERFILE_SQUASH=docker/$SERVICE_NAME/Dockerfile_squash
-        - >
-            if [ -f "$DOCKERFILE_SQUASH" ]; then
-                IMG_SQ="${IMG}_squash"
-                VARIANT="_squash" docker-compose -f $ALL_COMPOSE_FILES_WITH_F build $SERVICE_NAME
-                docker tag ${SERVICE_NAME}_squash $IMG_SQ
-                docker push $IMG_SQ
-            else
-                echo "$DOCKERFILE_SQUASH not found, skipping building squash!"
-            fi
 
 .test:pull_and_run:
     stage: test
@@ -36,14 +21,8 @@
         # SERVICE_NAME is expected
     script:
         - IMG="$PROJ_REG/$IMG_NAME:$SERVICE_NAME"
-        # try to get squashed version if possible, otherwise the normal version
-        - (docker pull ${IMG}_squash && docker tag ${IMG}_squash $SERVICE_NAME) || (docker pull $IMG && docker tag $IMG $SERVICE_NAME)
-        - ALL_COMPOSE_FILES_WITH_F=$(echo docker/*/docker-compose.yml | sed 's/ / -f /g')
-        - >
-            docker-compose
-            --env-file="$ENV_FILE"
-            -f $ALL_COMPOSE_FILES_WITH_F
-            up --abort-on-container-exit $SERVICE_NAME
+        - docker pull -q $IMG && docker tag $IMG $SERVICE_NAME
+        - $CI_PROJECT_DIR/compose.sh --env-file="$ENV_FILE" up --abort-on-container-exit $SERVICE_NAME
 
 .test:pull_and_run_2:
     stage: test
@@ -54,12 +33,7 @@
         # SERVICE_NAME_2 is expected
     script:
         - IMG_1="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_1"
-        - (docker pull ${IMG_1}_squash && docker tag ${IMG_1}_squash $SERVICE_NAME_1) || (docker pull $IMG_1 && docker tag $IMG_1 $SERVICE_NAME_1)
+        - docker pull -q $IMG_1 && docker tag $IMG_1 $SERVICE_NAME_1
         - IMG_2="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_2"
-        - (docker pull ${IMG_2}_squash && docker tag ${IMG_2}_squash $SERVICE_NAME_2) || (docker pull $IMG_2 && docker tag $IMG_2 $SERVICE_NAME_2)
-        - ALL_COMPOSE_FILES_WITH_F=$(echo docker/*/docker-compose.yml | sed 's/ / -f /g')
-        - >
-            docker-compose
-            --env-file="$ENV_FILE"
-            -f $ALL_COMPOSE_FILES_WITH_F
-            up --abort-on-container-exit $SERVICE_NAME_1 $SERVICE_NAME_2
+        - docker pull -q $IMG_2 && docker tag $IMG_2 $SERVICE_NAME_2
+        - ./compose.sh --env-file="$ENV_FILE" up --abort-on-container-exit $SERVICE_NAME_1 $SERVICE_NAME_2
