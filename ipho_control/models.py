@@ -49,7 +49,8 @@ class ExamPhase(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
 
     available_to_organizers = models.BooleanField(
-        default=True, help_text="Let's the organizers see and select this phase"
+        default=True,
+        help_text='Lets organizers with the "can_access_control" permission see and select this phase.',
     )
 
     exam_settings = models.JSONField(
