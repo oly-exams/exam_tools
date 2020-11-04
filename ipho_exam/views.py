@@ -259,7 +259,7 @@ def translations_list(request):
             ),
             id=request.GET["exam_id"],
         )
-        in_progress = ExamAction.is_in_progress(
+        in_progress = ExamAction.action_in_progress(
             ExamAction.TRANSLATION, exam=exam, delegation=delegation
         )
         trans_list = TranslationNode.objects.filter(
@@ -300,7 +300,7 @@ def translations_list(request):
         can_translate__gte=Exam.get_translatability(request.user)
     )
     for exam in exam_list:
-        exam.is_active = ExamAction.is_in_progress(
+        exam.is_active = ExamAction.action_in_progress(
             ExamAction.TRANSLATION, exam=exam, delegation=delegation
         )
     return render(
@@ -3225,7 +3225,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
     exam_list = [
         ex
         for ex in Exam.objects.for_user(request.user)
-        if ExamAction.is_in_progress(
+        if ExamAction.action_in_progress(
             ExamAction.TRANSLATION, exam=ex, delegation=delegation
         )
     ]  # TODO: allow admin to see all exams

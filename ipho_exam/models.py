@@ -1049,7 +1049,7 @@ class ExamAction(models.Model):
     natural_key.dependencies = ["ipho_exam.exam", "ipho_core.delegation"]
 
     @staticmethod
-    def is_in_progress(action, exam, delegation):
+    def action_in_progress(action, exam, delegation):
         translation_submitted = ExamAction.objects.filter(
             exam=exam, delegation=delegation, action=action, status=ExamAction.SUBMITTED
         ).exists()
@@ -1057,7 +1057,7 @@ class ExamAction(models.Model):
 
     @staticmethod
     def require_in_progress(action, exam, delegation):
-        if not ExamAction.is_in_progress(action, exam, delegation):
+        if not ExamAction.action_in_progress(action, exam, delegation):
             return IphoExamForbidden(
                 "You cannot perfom this action: this exam is submitted. Contact the staff if you have good reasons to request a reset."
             )

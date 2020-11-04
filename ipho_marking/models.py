@@ -69,7 +69,7 @@ class MarkingAction(models.Model):
         return self.status == MarkingAction.OPEN
 
     @staticmethod
-    def exam_in_progress(exam, delegation):
+    def marking_in_progress(exam, delegation):
         marks_open = MarkingAction.objects.filter(
             question__exam=exam, delegation=delegation, status=MarkingAction.OPEN
         ).exists()

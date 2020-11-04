@@ -66,7 +66,9 @@ def import_exam(request):
                     question=question, delegation=delegation
                 )
             qwy = qwquery.latest_version(
-                question_id=question.pk, lang_id=OFFICIAL_LANGUAGE_PK
+                question_id=question.pk,
+                lang_id=OFFICIAL_LANGUAGE_PK,
+                user=request.user,
             )
             question_points = qml.question_points(qwy.qml)
             for i, (name, points) in enumerate(question_points):
@@ -317,7 +319,7 @@ def delegation_export(request, exam_id):
     # check if the delegation should see all versions
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     if (
-        MarkingAction.exam_in_progress(delegation=delegation, exam=exam)
+        MarkingAction.marking_in_progress(delegation=delegation, exam=exam)
         and not settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY
     ):
         allowed_versions = ["D"]
