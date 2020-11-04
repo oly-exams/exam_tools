@@ -241,9 +241,11 @@ def export(request, include_totals=False):  # pylint: disable=too-many-locals
     )
     for meta in mmeta:
         title_row.append(f"{meta.question.name} - {meta.name} ({meta.max_points})")
-    exams = Exam.objects.filter(hidden=False)
-    questions = Question.objects.filter(exam__hidden=False, code="A").order_by(
-        "exam", "position"
+    exams = Exam.objects.for_user(request.user)
+    questions = (
+        Question.objects.for_user(request.user)
+        .filter(code="A")
+        .order_by("exam", "position")
     )
     if include_totals:
         for question in questions:
@@ -313,7 +315,7 @@ def delegation_export(request, exam_id):
     all_versions = request.GET.get("v", "O,D,F").split(",")
 
     # check if the delegation should see all versions
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     if (
         MarkingAction.exam_in_progress(delegation=delegation, exam=exam)
         and not settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY
@@ -374,7 +376,10 @@ def delegation_summary(
 
     exam_list = []
     for exam in (
-        Exam.objects.filter(marking_active=True, hidden=False).order_by("pk").all()
+        Exam.objects.for_user(request.user)
+        .filter(marking_active=True)
+        .order_by("pk")
+        .all()
     ):
         answer_sheet_list = Question.objects.filter(
             exam=exam, type=Question.ANSWER
@@ -514,7 +519,7 @@ def delegation_summary(
             Marking.objects.filter(
                 version=vid,
                 student=student["id"],
-                marking_meta__question__exam__hidden=False,
+                marking_meta__question__exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
             )
             .values("marking_meta__question__exam")
             .annotate(exam_points=Sum("points"))
@@ -530,9 +535,9 @@ def delegation_summary(
         )
         points_per_student.append((student, stud_exam_points_list, total))
 
-    active_exams = Exam.objects.filter(hidden=False, marking_active=True)
+    active_exams = Exam.objects.for_user(request.user).filter(marking_active=True)
     scans_table_per_exam = []
-    scan_show_exams = Exam.objects.filter(hidden=False, show_scans=True)
+    scan_show_exams = Exam.objects.for_user(request.user).filter(show_scans=True)
     for exam in scan_show_exams:
         questions = exam.question_set.filter(type=Question.ANSWER)
         scans_of_students = []
@@ -552,7 +557,9 @@ def delegation_summary(
         scans_table_per_exam.append((exam, questions, scans_of_students))
 
     final_points_exams = (
-        MarkingMeta.objects.filter(question__exam__hidden=False)
+        MarkingMeta.objects.filter(
+            question__exam__visibility__gte=Exam.VISIBLE_BOARDMEETING
+        )
         .values("question__exam")
         .annotate(exam_points=Sum("max_points"))
         .values("question__exam__name", "exam_points")
@@ -585,7 +592,12 @@ def delegation_stud_edit(
             "You do not have permission to access this student."
         )
 
-    question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
+    question = get_object_or_404(
+        Question,
+        id=question_id,
+        exam__marking_active=True,
+        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+    )
     version = "D"
 
     ctx = {}
@@ -675,7 +687,12 @@ def delegation_edit_all(request, question_id):
     delegation = Delegation.objects.get(members=request.user)
     students = Student.objects.filter(delegation=delegation).order_by("code")
 
-    question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
+    question = get_object_or_404(
+        Question,
+        id=question_id,
+        exam__marking_active=True,
+        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+    )
     version = "D"
 
     ctx = {}
@@ -748,7 +765,12 @@ def delegation_stud_view(request, stud_id, question_id):
             "You do not have permission to access this student."
         )
 
-    question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
+    question = get_object_or_404(
+        Question,
+        id=question_id,
+        exam__marking_active=True,
+        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+    )
     versions = ["O", "D", "F"]
     versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
 
@@ -794,7 +816,12 @@ def delegation_view_all(request, question_id):
     delegation = Delegation.objects.get(members=request.user)
     students = Student.objects.filter(delegation=delegation)
 
-    question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
+    question = get_object_or_404(
+        Question,
+        id=question_id,
+        exam__marking_active=True,
+        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+    )
     versions = ["O", "D", "F"]
     versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
 
@@ -860,7 +887,12 @@ def delegation_confirm(
     request, question_id, final_confirmation=False
 ):  # pylint: disable=too-many-locals, too-many-return-statements, too-many-branches, too-many-statements
     delegation = Delegation.objects.get(members=request.user)
-    question = get_object_or_404(Question, id=question_id, exam__marking_active=True)
+    question = get_object_or_404(
+        Question,
+        id=question_id,
+        exam__marking_active=True,
+        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+    )
     form_error = ""
 
     marking_action, _ = MarkingAction.objects.get_or_create(
@@ -1065,9 +1097,11 @@ def delegation_confirm(
 
 @permission_required("ipho_core.is_marker")
 def moderation_index(request, question_id=None):
-    questions = Question.objects.filter(
-        exam__hidden=False, exam__moderation_active=True, type=Question.ANSWER
-    ).order_by("exam__code", "position")
+    questions = (
+        Question.objects.for_user(request.user)
+        .filter(exam__moderation_active=True, type=Question.ANSWER)
+        .order_by("exam__code", "position")
+    )
     question = (
         None if question_id is None else get_object_or_404(Question, id=question_id)
     )
@@ -1089,7 +1123,10 @@ def moderation_detail(
     request, question_id, delegation_id
 ):  # pylint: disable=too-many-locals
     question = get_object_or_404(
-        Question, id=question_id, exam__hidden=False, exam__moderation_active=True
+        Question,
+        id=question_id,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER,
+        exam__moderation_active=True,
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)
 
@@ -1186,9 +1223,11 @@ def moderation_detail(
 
 @permission_required("ipho_core.is_marker")
 def official_marking_index(request, question_id=None):
-    questions = Question.objects.filter(
-        exam__hidden=False, type=Question.ANSWER
-    ).order_by("exam__code", "position")
+    questions = (
+        Question.objects.for_user(request.user)
+        .filter(type=Question.ANSWER)
+        .order_by("exam__code", "position")
+    )
     question = (
         None if question_id is None else get_object_or_404(Question, id=question_id)
     )
@@ -1207,7 +1246,9 @@ def official_marking_index(request, question_id=None):
 
 @permission_required("ipho_core.is_marker")
 def official_marking_detail(request, question_id, delegation_id):
-    question = get_object_or_404(Question, id=question_id, exam__hidden=False)
+    question = get_object_or_404(
+        Question, id=question_id, exam__visibility__gte=Exam.VISIBLE_ORGANIZER
+    )
     delegation = get_object_or_404(Delegation, id=delegation_id)
     marking_action = get_object_or_404(
         MarkingAction, delegation=delegation, question=question
@@ -1273,7 +1314,9 @@ def official_marking_detail(request, question_id, delegation_id):
 
 @permission_required("ipho_core.is_marker")
 def official_marking_confirmed(request, question_id, delegation_id):
-    question = get_object_or_404(Question, id=question_id, exam__hidden=False)
+    question = get_object_or_404(
+        Question, id=question_id, exam__visibility__gte=Exam.VISIBLE_ORGANIZER
+    )
     delegation = get_object_or_404(Delegation, id=delegation_id)
 
     markings = (
@@ -1293,7 +1336,10 @@ def official_marking_confirmed(request, question_id, delegation_id):
 @permission_required("ipho_core.is_marker")
 def moderation_confirmed(request, question_id, delegation_id):
     question = get_object_or_404(
-        Question, id=question_id, exam__hidden=False, exam__moderation_active=True
+        Question,
+        id=question_id,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER,
+        exam__moderation_active=True,
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)
 
@@ -1350,9 +1396,9 @@ def marking_submissions(request):
                 .order_by("delegation__country")
                 .values_list("delegation__country", flat=True),
             )
-            for question in Question.objects.filter(
-                exam__marking_active=True, type=Question.ANSWER
-            ).order_by("exam__pk", "position")
+            for question in Question.objects.for_user(request.user)
+            .filter(exam__marking_active=True, type=Question.ANSWER)
+            .order_by("exam__pk", "position")
         ]
     }
     return render(request, "ipho_marking/marking_submissions.html", ctx)
@@ -1363,8 +1409,10 @@ def export_countries_to_moderate(request):
     csv_rows = []
     title_row = ["Country", "Code"]
 
-    questions = Question.objects.filter(exam__hidden=False, code="A").order_by(
-        "exam", "position"
+    questions = (
+        Question.objects.for_user(request.user)
+        .filter(code="A")
+        .order_by("exam", "position")
     )
     for question in questions:
         title_row.append(f"{question.exam.code}-{question.position}")
@@ -1374,9 +1422,11 @@ def export_countries_to_moderate(request):
         "country"
     ):
         x = [delegation.country, delegation.name]
-        for question in Question.objects.filter(
-            exam__marking_active=True, type=Question.ANSWER
-        ).order_by("exam__pk", "position"):
+        for question in (
+            Question.objects.for_user(request.user)
+            .filter(exam__marking_active=True, type=Question.ANSWER)
+            .order_by("exam__pk", "position")
+        ):
             for status in list(
                 MarkingAction.objects.filter(
                     question=question, delegation=delegation
@@ -1418,7 +1468,7 @@ def progress(request):
     students = Student.objects.all().values("id", "code")
 
     marking_statuses = []
-    for exam in Exam.objects.all():
+    for exam in Exam.objects.for_user(request.user).all():
         questions = Question.objects.filter(exam=exam, type=Question.ANSWER)
         metas_groups = [
             MarkingMeta.objects.filter(question=question) for question in questions

@@ -45,7 +45,7 @@ def add_edit_phase(request, phase_id=None, exam_id=None):
     ctx["h1"] = "Add Exam Phase"
     ctx["lead"] = "Add another Exam Phase to the cockpit"
     if exam_id is not None:
-        exam = get_object_or_404(Exam, pk=exam_id)
+        exam = get_object_or_404(Exam.objects.for_user(request.user), pk=exam_id)
         phase = ExamPhase(exam=exam)
         ctx["h1"] = f"Add Exam Phase for { exam.name }"
     if phase_id is not None:
@@ -64,11 +64,9 @@ def add_edit_phase(request, phase_id=None, exam_id=None):
     return render(request, "ipho_control/add_phase.html", ctx)
 
 
-def exam_phase_context(is_superuser=False, exam_id=None):
+def exam_phase_context(user, exam_id=None):
     """Helper function to create context for cockpit_base.html."""
-    exams = Exam.objects.order_by("name")
-    if not is_superuser:
-        exams = exams.filter(hidden=False)
+    exams = Exam.objects.for_user(user).order_by("name")
     if exam_id is None:
         if exams.exists():
             exam_id = exams.first().pk
@@ -81,7 +79,7 @@ def exam_phase_context(is_superuser=False, exam_id=None):
         ctx = {"exam": exam}
         phase = ExamPhase.get_current_phase(exam)
         if (
-            not is_superuser
+            not user.is_superuser
             and phase is not None
             and not phase.is_applicable_organizers()
         ):
@@ -124,7 +122,7 @@ def cockpit(request, exam_id=None, changed_phase=False, deleted_phase=False):
     ctx = {}
     ctx["alerts"] = []
     ctx["h1"] = "Cockpit"
-    exam_list, active_exam = exam_phase_context(request.user.is_superuser, exam_id)
+    exam_list, active_exam = exam_phase_context(request.user, exam_id)
     if active_exam is None:
         return render(
             request, "ipho_control/cockpit_base.html", context={"h1": "Cockpit"}
@@ -193,7 +191,7 @@ def cockpit(request, exam_id=None, changed_phase=False, deleted_phase=False):
 @permission_required("ipho_core.can_access_control")
 def switch_phase(request, exam_id, phase_id):
     """View for the switch phase modal."""
-    exam = Exam.objects.filter(pk=exam_id).first()
+    exam = Exam.objects.for_user(request.user).filter(pk=exam_id).first()
     phase = ExamPhase.objects.filter(pk=phase_id).first()
 
     # check whether we can switch to this phase
@@ -272,7 +270,7 @@ def delete_phase(request, phase_id):
 @permission_required("ipho_core.can_access_control")
 def exam_history(request, exam_id):
     """View for the exam history modal."""
-    exam = get_object_or_404(Exam, pk=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), pk=exam_id)
     history = ExamPhaseHistory.objects.filter(exam=exam).order_by("-timestamp")
     ctx = {}
     ctx["help_texts_settings"] = ExamPhase.get_exam_field_help_texts()
@@ -287,12 +285,7 @@ def exam_history(request, exam_id):
 @login_required
 def exam_phase_summary(request):
     """View for the exam summary on home."""
-    exams = Exam.objects.filter(hidden=False)
-    if not request.user.has_perm("ipho_core.is_staff"):
-        exams = exams.filter(active=True)
-    if request.user.is_superuser:
-        exams = Exam.objects
-
+    exams = Exam.objects.for_user(request.user)
     phases = []
     for exm in exams.all():
         last_change = ExamPhaseHistory.get_latest(exam=exm)

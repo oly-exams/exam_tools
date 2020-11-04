@@ -177,13 +177,10 @@ def main(request):
     else:
         other_lang = Language.objects.filter(hidden=False).order_by("name")
     ## Exam section
-    exam_list = Exam.objects.filter(
-        hidden=False, active=True
-    )  # TODO: allow admin to see all exams
+    exam_list = Exam.objects.for_user(request.user)
     exams_open = ExamAction.objects.filter(
         delegation=delegation,
-        exam__in=exam_list,
-        exam__active=True,
+        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
         action=ExamAction.TRANSLATION,
         status=ExamAction.OPEN,
     ).values("exam__pk", "exam__name")
@@ -218,10 +215,9 @@ def wizard(request):
         hidden=False, delegation=delegation
     ).order_by("name")
     ## Exam section
-    exam_list = Exam.objects.filter(hidden=False, active=True)
+    exam_list = Exam.objects.for_user(request.user)
     open_submissions = ExamAction.objects.filter(
         exam__in=exam_list,
-        exam__active=True,
         delegation=delegation,
         action=ExamAction.TRANSLATION,
         status=ExamAction.OPEN,
@@ -290,13 +286,14 @@ def translations_list(request):
                 "exam": exam,
                 "node_list": node_list,
                 "official_nodes": official_nodes,
-                "exam_active": exam.active and in_progress,
+                "exam_active": exam.visibility >= Exam.VISIBLE_BOARDMEETING
+                and in_progress,
             },
         )
 
-    exam_list = Exam.objects.filter(hidden=False, active=True)
+    exam_list = Exam.objects.for_user(request.user)
     for exam in exam_list:
-        exam.is_active = exam.active and ExamAction.is_in_progress(
+        exam.is_active = ExamAction.is_in_progress(
             ExamAction.TRANSLATION, exam=exam, delegation=delegation
         )
     return render(
@@ -311,7 +308,7 @@ def translations_list(request):
 @permission_required("ipho_core.can_see_boardmeeting")
 @ensure_csrf_cookie
 def list_all_translations(request):
-    exams = Exam.objects.filter(hidden=False, active=True)
+    exams = Exam.objects.for_user(request.user)
     delegations = Delegation.objects.all()
 
     def get_or_none(model, *args, **kwargs):
@@ -403,7 +400,7 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
             "TODO: implement small template page for handling without Ajax."
         )
     delegation = Delegation.objects.get(members=request.user)
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     should_forbid = ExamAction.require_in_progress(
         ExamAction.TRANSLATION, exam=exam, delegation=delegation
     )
@@ -787,13 +784,11 @@ def exam_view(
     last_saved = None
     checksum = None
 
-    exam_list = list(Exam.objects.filter(hidden=False, active=True))
+    exam_list = list(Exam.objects.for_user(request.user))
 
+    exam = None
     if exam_id is not None:
-        exam = get_object_or_404(Exam, id=exam_id, hidden=False, active=True)
-
-    if not exam in exam_list:
-        exam = None
+        exam = Exam.objects.for_user(request.user).filter(pk=exam_id).first()
 
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
@@ -889,7 +884,10 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
 
     if exam_id is not None:
         exam = get_object_or_404(
-            Exam, id=exam_id, hidden=False, active=True, hide_feedback=False
+            Exam,
+            id=exam_id,
+            visibility__gte=Exam.VISIBLE_BOARDMEETING,
+            hide_feedback=False,
         )
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
@@ -1063,7 +1061,9 @@ def feedback_partial_like(request, status, feedback_id):
 def feedback_numbers(request, exam_id, question_id):
     if exam_id is not None:
         # # TODO: set correct flags
-        exam = get_object_or_404(Exam, id=exam_id, hidden=False, active=True)
+        exam = get_object_or_404(
+            Exam, id=exam_id, visibility__gte=Exam.VISIBLE_BOARDMEETING
+        )
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
     feedbacks = Feedback.objects.filter(question=question).all()
@@ -1084,9 +1084,14 @@ def feedbacks_list(
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     exam = None
     if exam_id is not None:
-        exam = get_object_or_404(Exam, id=exam_id, hidden=False, hide_feedback=False)
+        exam = get_object_or_404(
+            Exam,
+            id=exam_id,
+            visibility__gte=Exam.VISIBLE_BOARDMEETING,
+            hide_feedback=False,
+        )
 
-    exam_list = Exam.objects.filter(hidden=False, active=True, hide_feedback=False)
+    exam_list = Exam.objects.for_user(request.user).filter(hide_feedback=False)
     exam_filter_list = [
         exam,
     ]
@@ -1095,7 +1100,9 @@ def feedbacks_list(
         exam_filter_list = exam_list
     delegation = Delegation.objects.filter(members=request.user).first()
 
-    questions_f = Question.objects.filter(exam__in=exam_filter_list).all()
+    questions_f = (
+        Question.objects.for_user(request.user).filter(exam__in=exam_filter_list).all()
+    )
 
     def get_or_none(model, *args, **kwargs):
         try:
@@ -1144,7 +1151,9 @@ def feedbacks_list(
         if not int(request.GET["exam_id"]) in [ex.pk for ex in exam_list]:
             raise Http404("Not such active exam.")
 
-        questions = Question.objects.filter(exam=request.GET["exam_id"])
+        questions = Question.objects.for_user(request.user).filter(
+            exam=request.GET["exam_id"]
+        )
         feedbacks = (
             Feedback.objects.filter(question__in=questions)
             .filter(
@@ -1330,7 +1339,9 @@ def feedback_set_status(request, feedback_id, status):
 
 @permission_required("ipho_core.is_organizer")
 def feedbacks_export(request):
-    questions = Question.objects.all().order_by("exam", "position", "type")
+    questions = Question.objects.for_user(request.user).order_by(
+        "exam", "position", "type"
+    )
     return render(
         request,
         "ipho_exam/admin_feedbacks_export.html",
@@ -1713,7 +1724,9 @@ def admin_edit_question(request, exam_id, question_id):
 @ensure_csrf_cookie
 def admin_list(request):
     if request.is_ajax and "exam_id" in request.GET:
-        exam = get_object_or_404(Exam, id=request.GET["exam_id"])
+        exam = get_object_or_404(
+            Exam.objects.for_user(request.user), id=request.GET["exam_id"]
+        )
         return JsonResponse(
             {
                 "content": render_to_string(
@@ -1722,7 +1735,7 @@ def admin_list(request):
             }
         )
 
-    exam_list = Exam.objects.all()
+    exam_list = Exam.objects.for_user(request.user).all()
     return render(
         request,
         "ipho_exam/admin.html",
@@ -1740,7 +1753,7 @@ def admin_new_version(request, exam_id, question_id):
         )
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(Exam, id=exam_id)
+    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     question = get_object_or_404(Question, id=question_id)
 
     lang = get_object_or_404(Language, id=lang_id)
@@ -1827,7 +1840,9 @@ def admin_import_version(request, question_id):
 def admin_delete_version(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
+    get_object_or_404(
+        Exam.objects.for_user(request.user), id=exam_id
+    )  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
     lang = get_object_or_404(Language, id=lang_id)
 
@@ -1890,7 +1905,7 @@ def admin_accept_version(
 ):
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     question = get_object_or_404(Question, id=question_id)
 
     lang = get_object_or_404(Language, id=lang_id)
@@ -1993,7 +2008,9 @@ def admin_accept_version(
 def admin_publish_version(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
+    get_object_or_404(
+        Exam.objects.for_user(request.user), id=exam_id
+    )  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
     lang = get_object_or_404(Language, id=lang_id)
 
@@ -2068,7 +2085,9 @@ def admin_settag_version(request, exam_id, question_id, version_num):
 
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
+    get_object_or_404(
+        Exam.objects.for_user(request.user), id=exam_id
+    )  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
     lang = get_object_or_404(Language, id=lang_id)
 
@@ -2105,7 +2124,7 @@ def admin_settag_version(request, exam_id, question_id, version_num):
 def admin_editor(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     question = get_object_or_404(Question, id=question_id)
 
     lang = get_object_or_404(Language, id=lang_id)
@@ -2149,7 +2168,9 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
         )
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
+    get_object_or_404(
+        Exam.objects.for_user(request.user), id=exam_id
+    )  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
 
     lang = get_object_or_404(Language, id=lang_id)
@@ -2218,7 +2239,9 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
         )
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
+    get_object_or_404(
+        Exam.objects.for_user(request.user), id=exam_id
+    )  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
 
     lang = get_object_or_404(Language, id=lang_id)
@@ -2254,7 +2277,7 @@ def admin_editor_add_block(  # pylint: disable=too-many-arguments
         )
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     question = get_object_or_404(Question, id=question_id)
 
     lang = get_object_or_404(Language, id=lang_id)
@@ -2313,7 +2336,9 @@ def admin_editor_move_block(  # pylint: disable=too-many-arguments
         )
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(Exam, id=exam_id)  # mskoenz: remove?
+    get_object_or_404(
+        Exam.objects.for_user(request.user), id=exam_id
+    )  # mskoenz: remove?
     question = get_object_or_404(Question, id=question_id)
 
     lang = get_object_or_404(Language, id=lang_id)
@@ -2358,7 +2383,7 @@ def submission_exam_list(request):
     delegation = Delegation.objects.get(members=request.user)
 
     exams_open = (
-        Exam.objects.filter(hidden=False, active=True)
+        Exam.objects.for_user(request.user)
         .exclude(
             delegation_status__in=ExamAction.objects.filter(
                 delegation=delegation,
@@ -2369,9 +2394,7 @@ def submission_exam_list(request):
         .distinct()
     )
     exams_closed = (
-        Exam.objects.filter(
-            hidden=False,
-        )
+        Exam.objects.for_user(request.user)
         .filter(
             delegation_status__delegation=delegation,
             delegation_status__action=ExamAction.TRANSLATION,
@@ -2430,7 +2453,7 @@ def _get_submission_languages(exam, delegation, count_answersheets=True):
 @permission_required("ipho_core.is_organizer")
 def admin_submissions_translation(request):
     exams = {}
-    for exam in Exam.objects.filter(active=True):
+    for exam in Exam.objects.for_user(request.user):
         remaining_countries = (
             ExamAction.objects.filter(
                 exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
@@ -2479,7 +2502,7 @@ def admin_submissions_translation(request):
 @permission_required("ipho_core.is_printstaff")
 def print_submissions_translation(request):
     exams = {}
-    for exam in Exam.objects.filter(active=True):
+    for exam in Exam.objects.for_user(request.user):
 
         remaining_countries = (
             ExamAction.objects.filter(
@@ -2539,7 +2562,8 @@ def submission_delegation_list_submitted(request):
     delegation = Delegation.objects.filter(members=request.user)
 
     exams = (
-        Exam.objects.filter(hidden=False, show_delegation_submissions=True)
+        Exam.objects.for_user(request.user)
+        .filter(show_delegation_submissions=True)
         .filter(
             delegation_status__delegation__in=delegation,
             delegation_status__action=ExamAction.TRANSLATION,
@@ -2587,7 +2611,7 @@ def upload_scan_delegation(request, exam_id, position, student_id):
             "TODO: implement small template page for handling without Ajax."
         )
     user = request.user
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     student = get_object_or_404(Student, id=student_id)
     if not student.delegation.members.filter(pk=user.pk).exists():
         return HttpResponseForbidden(
@@ -2656,7 +2680,7 @@ def upload_scan_delegation(request, exam_id, position, student_id):
 def submission_exam_assign(
     request, exam_id
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
     no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
     en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
@@ -2841,7 +2865,7 @@ def submission_exam_assign(
 def submission_exam_confirm(
     request, exam_id
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
     no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
     en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
@@ -2970,7 +2994,7 @@ def submission_exam_confirm(
 def submission_exam_submitted(
     request, exam_id
 ):  # pylint: disable=too-many-locals, too-many-branches
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
     no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
     en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
@@ -3042,7 +3066,7 @@ def submission_exam_submitted(
 
 @permission_required("ipho_core.is_organizer")
 def admin_submission_list(request, exam_id):
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
     submissions = StudentSubmission.objects.filter(
         exam=exam, student__delegation=delegation
@@ -3060,7 +3084,7 @@ def admin_submission_list(request, exam_id):
 
 @permission_required("ipho_core.is_organizer")
 def admin_submission_assign(request, exam_id):
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
 
     if request.POST:
@@ -3118,7 +3142,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
     checksum = None
 
     if exam_id is not None:
-        exam = get_object_or_404(Exam, id=exam_id, active=True, hidden=False)
+        exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
     elif exam is not None and exam.question_set.count() > 0:
@@ -3133,7 +3157,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
 
     exam_list = [
         ex
-        for ex in Exam.objects.filter(hidden=False, active=True)
+        for ex in Exam.objects.for_user(request.user)
         if ExamAction.is_in_progress(
             ExamAction.TRANSLATION, exam=ex, delegation=delegation
         )
@@ -3648,7 +3672,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
 
     user = request.user
     if not user.has_perm("ipho_core.can_see_boardmeeting"):
-        exam = get_object_or_404(Exam, id=exam_id)
+        exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
         if not exam.show_delegation_submissions:
             return HttpResponseForbidden(
                 "You do not have permission to view this document."
@@ -3688,7 +3712,7 @@ def pdf_exam_pos_student(
                 "You do not have permission to view this document."
             )
         if not user.has_perm("ipho_core.can_see_boardmeeting"):
-            exam = get_object_or_404(Exam, id=exam_id)
+            exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
             if not exam.show_delegation_submissions:
                 return HttpResponseForbidden(
                     "You do not have permission to view this document."
@@ -3741,7 +3765,7 @@ def pdf_exam_pos_student(
 
 @login_required
 def pdf_exam_pos_student_status(request, exam_id, position, student_id):
-    get_object_or_404(Exam, id=exam_id)
+    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     get_object_or_404(Student, id=student_id)
 
     doc = get_object_or_404(
@@ -3847,7 +3871,7 @@ def bulk_print(
                 ),
             )
         )
-    exams = Exam.objects.filter(hidden=False)
+    exams = Exam.objects.for_user(request.user)
     delegations = Delegation.objects.all()
 
     def get_or_none(model, *args, **kwargs):
@@ -3857,7 +3881,9 @@ def bulk_print(
             return None
 
     filter_ex = exams
-    exam = get_or_none(Exam, id=request.GET.get("ex", None))
+    exam = get_or_none(
+        Exam.objects.for_user(request.user), id=request.GET.get("ex", None)
+    )
     if exam is not None:
         filter_ex = [
             exam,
@@ -4142,7 +4168,7 @@ def upload_scan(request):
 @permission_required("ipho_core.is_printstaff")
 def extra_sheets(request, exam_id=None):
     if exam_id is None:
-        exams = Exam.objects.filter(hidden=False)
+        exams = Exam.objects.for_user(request.user)
         return render(
             request, "ipho_exam/extra_sheets_select_exam.html", {"exams": exams}
         )

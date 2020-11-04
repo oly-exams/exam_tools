@@ -47,7 +47,10 @@ import decimal
 
 def moderation_detail(question_id, delegation_id, request=HttpRequest()):
     question = get_object_or_404(
-        Question, id=question_id, exam__hidden=False, exam__moderation_active=True
+        Question,
+        id=question_id,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER,
+        exam__moderation_active=True,
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)
     metas = MarkingMeta.objects.filter(question=question)
@@ -144,7 +147,7 @@ def moderation_detail(question_id, delegation_id, request=HttpRequest()):
 
 
 answer_sheets = Question.objects.filter(
-    exam__hidden=False, exam__moderation_active=True, code="A"
+    exam__visibility__gte=Exam.VISIBLE_ORGANIZER, exam__moderation_active=True, code="A"
 )
 all_delegations = Delegation.objects.all()
 

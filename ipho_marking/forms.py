@@ -26,7 +26,10 @@ from .models import Marking
 
 
 class ImportForm(Form):
-    exam = forms.ModelChoiceField(queryset=Exam.objects.all(), label="Select exam")
+    exam = forms.ModelChoiceField(
+        queryset=Exam.objects.filter(visibility=Exam.VISIBLE_ORGANIZER).all(),
+        label="Select exam",
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
