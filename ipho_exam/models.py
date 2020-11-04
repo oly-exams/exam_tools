@@ -289,18 +289,158 @@ class ExamManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
 
+    def for_user(self, user):
+        queryset = self.get_queryset()
+        if user.is_superuser:
+            return queryset.filter(visibility__gte=Exam.VISIBLE_SUPERUSER_ONLY)
+        if user.has_perm("ipho_core.is_organizer"):
+            return queryset.filter(visibility__gte=Exam.VISIBLE_ORGANIZER)
+        if user.has_perm("ipho_core.can_see_boardmeeting"):
+            return queryset.filter(visibility__gte=Exam.VISIBLE_BOARDMEETING)
+        return self.none()
+
 
 class Exam(models.Model):
     objects = ExamManager()
 
     code = models.CharField(max_length=8)
     name = models.CharField(max_length=100, unique=True)
+    hidden = models.BooleanField(
+        default=False, help_text="Exam is viewable for non superusers."
+    )
+
     active = models.BooleanField(
         default=True, help_text="Exam is editable and viewable by delegations."
     )
-    hidden = models.BooleanField(
-        default=False, help_text="Exam is hidden from everyone except superusers."
+
+    VISIBLE_SUPERUSER_ONLY = -1
+    VISIBLE_ORGANIZER = 0
+    VISIBLE_BOARDMEETING = 1
+
+    VISIBILITY_CHOICES = (
+        (VISIBLE_SUPERUSER_ONLY, "Superuser only"),
+        (VISIBLE_ORGANIZER, "Organizer only"),
+        (VISIBLE_BOARDMEETING, "Boardmeeting members"),
     )
+
+    visibility = models.IntegerField(
+        default=0,
+        choices=VISIBILITY_CHOICES,
+        help_text="Sets the visibility of the exam for organizers and delegations.",
+        verbose_name="Exam Visibility",
+    )
+
+    CAN_TRANSLATE_NOBODY = -1
+    CAN_TRANSLATE_ORGANIZER = 0
+    CAN_TRANSLATE_BOARDMEETING = 1
+
+    CAN_TRANSLATE_CHOICES = (
+        (CAN_TRANSLATE_NOBODY, "Nobody"),
+        (CAN_TRANSLATE_ORGANIZER, "Organizer only"),
+        (CAN_TRANSLATE_BOARDMEETING, "Boardmeeting members"),
+    )
+
+    can_translate = models.IntegerField(
+        default=-1,
+        choices=CAN_TRANSLATE_CHOICES,
+        help_text="Sets the ability to translate for organizers and delegations.",
+        verbose_name="Can Translate",
+    )
+
+    FEEDBACK_READONLY = -1
+    FEEDBACK_CAN_BE_OPENED = 0
+    FEEDBACK_INVISIBLE = 1
+
+    FEEDBACK_CHOICES = (
+        (FEEDBACK_READONLY, "Read only"),
+        (FEEDBACK_CAN_BE_OPENED, "Can be opened"),
+        (FEEDBACK_INVISIBLE, "Invisible"),
+    )
+
+    feedback = models.IntegerField(
+        default=-1,
+        choices=FEEDBACK_CHOICES,
+        help_text="Sets the status of the feedbacks for all questions.",
+        verbose_name="Feedback",
+    )
+
+    PRINTING_NOT_VISIBLE = -1
+    PRINTING_WHEN_SUBMITTED = 0
+
+    PRINTING_CHOICES = (
+        (PRINTING_NOT_VISIBLE, "No, not visible"),
+        (PRINTING_WHEN_SUBMITTED, "When submitted"),
+    )
+
+    printing = models.IntegerField(
+        default=-1,
+        choices=PRINTING_CHOICES,
+        help_text="Sets the ability to print the exam.",
+        verbose_name="Exam Printing",
+    )
+
+    SCANNING_NOT_POSSIBLE = -1
+    SCANNING_STUDENT_ANSWER = 0
+
+    SCANNING_CHOICES = (
+        (PRINTING_NOT_VISIBLE, "Not possible"),
+        (PRINTING_WHEN_SUBMITTED, "Student answer"),
+    )
+
+    scanning = models.IntegerField(
+        default=-1,
+        choices=SCANNING_CHOICES,
+        help_text="Sets the ability for scans being uploaded.",
+        verbose_name="Exam Scanning",
+    )
+
+    DELEGATION_SCAN_ACCESS_NO = -1
+    DELEGATION_SCAN_ACCESS_STUDENT_ANSWER = 0  # pylint: disable=invalid-name
+
+    DELEGATION_SCAN_ACCESS_CHOICES = (
+        (DELEGATION_SCAN_ACCESS_NO, "No"),
+        (DELEGATION_SCAN_ACCESS_STUDENT_ANSWER, "Student answer"),
+    )
+
+    delegation_scan_access = models.IntegerField(
+        default=-1,
+        choices=DELEGATION_SCAN_ACCESS_CHOICES,
+        help_text="Sets the access to the scanned exams for delegations.",
+        verbose_name="Delegation Scan Access",
+    )
+
+    MARKING_CLOSED = -1
+    MARKING_ORANIZER_ONLY = 0
+    MARKING_DELEGATION = 1
+
+    MARKING_CHOICES = (
+        (MARKING_CLOSED, "Not open"),
+        (MARKING_ORANIZER_ONLY, "Organizer only"),
+        (MARKING_DELEGATION, "Organizer done, delegation can submit"),
+    )
+
+    marking = models.IntegerField(
+        default=-1,
+        choices=MARKING_CHOICES,
+        help_text="Sets the ability to enter marks for organizers and delegations.",
+        verbose_name="Marking",
+    )
+
+    MODERATION_CLOSED = -1
+    MODERATION_OPEN = 0
+
+    MODERATION_CHOICES = (
+        (MODERATION_CLOSED, "Not open"),
+        (MODERATION_OPEN, "Can be moderated"),
+    )
+
+    marking = models.IntegerField(
+        default=-1,
+        choices=MARKING_CHOICES,
+        help_text="Allow access to moderation interface.",
+        verbose_name="Moderation",
+    )
+
     marking_active = models.BooleanField(
         default=False,
         help_text="Allow marking submission from delegations. Activate only after official marks are entered.",
@@ -321,13 +461,14 @@ class Exam(models.Model):
     # Fields controllable by the control app
     # NOTE: only fields having a default value are respected.
     _controllable_fields = [
-        "active",
-        "hidden",
-        "marking_active",
-        "moderation_active",
-        "show_scans",
-        "hide_feedback",
-        "show_delegation_submissions",
+        "visibility",
+        "can_translate",
+        "feedback",
+        "printing",
+        "scanning",
+        "delegation_scan_access",
+        "marking",
+        "moderation",
     ]
 
     def __str__(self):
@@ -358,10 +499,23 @@ class Exam(models.Model):
         default_settings = {f.name: f.default for f in available_fields}
         return default_settings
 
+    @classmethod
+    def get_visibility(cls, user):
+        if user.is_superuser:
+            return cls.VISIBLE_SUPERUSER_ONLY
+        if user.has_perm("ipho_core.is_organizer"):
+            return cls.VISIBLE_ORGANIZER
+        if user.has_perm("ipho_core.can_see_boardmeeting"):
+            return cls.VISIBLE_BOARDMEETING
+        return cls.VISIBLE_BOARDMEETING + 1
+
 
 class QuestionManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):
         return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam_name))
+
+    def for_user(self, user):
+        return self.get_queryset().filter(exam__in=Exam.objects.for_user(user))
 
 
 class Question(models.Model):
@@ -422,12 +576,15 @@ class Question(models.Model):
         return self.versionnode_set.filter(status="C").exists()
 
     def check_permission(self, user):
-        if user.has_perm("ipho_core.is_organizer"):
+        for_user = self.exam in Exam.objects.for_user(user).all()
+        if for_user:
             return True
-
-        if not user.has_perm("ipho_core.can_see_boardmeeting"):
-            return self.exam.show_delegation_submissions and self.exam.active
-        return self.exam.active
+        if user.has_perm("ipho_core.is_delegation_print"):
+            return (
+                self.exam.printing == Exam.PRINTING_WHEN_SUBMITTED
+                and self.exam.visibility >= Exam.VISIBLE_BOARDMEETING
+            )
+        return False
 
     @classmethod
     def get_controllable_fields(cls):
