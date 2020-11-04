@@ -318,22 +318,18 @@ def list_all_translations(request):
     exams = Exam.objects.for_user(request.user)
     delegations = Delegation.objects.all()
 
-    def get_or_none(model, *args, **kwargs):
-        try:
-            return model.objects.get(*args, **kwargs)
-        except model.DoesNotExist:
-            return None
-
     filter_ex = exams
-    exam = get_or_none(
-        Exam.objects.for_user(request.user), id=request.GET.get("ex", None)
+    exam = (
+        Exam.objects.for_user(request.user)
+        .filter(id=request.GET.get("ex", None))
+        .first()
     )
     if exam is not None:
         filter_ex = [
             exam,
         ]
     filter_dg = delegations
-    delegation = get_or_none(Delegation, id=request.GET.get("dg", None))
+    delegation = Delegation.objects.filter(id=request.GET.get("dg", None)).first()
     if delegation is not None:
         filter_dg = [
             delegation,
@@ -911,7 +907,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             Exam,
             id=exam_id,
             visibility__gte=Exam.VISIBLE_BOARDMEETING,
-            hide_feedback=False,
+            feedback__gte=Exam.FEEDBACK_READONLY,
         )
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
@@ -970,11 +966,9 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         context = {}
         context.update(csrf(request))
         form_html = render_crispy_form(form, context=context)
-        if question.feedback_active:
-            print(question)
+        if question.check_feedback_editable():
             ctxt["form_html"] = form_html
         else:
-            print("else", question)
             ctxt["form_html"] = ""
     feedbacks = (
         Feedback.objects.filter(question=question, qml_id=qml_id)
@@ -1000,7 +994,8 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             "pk",
             "question__pk",
             "question__name",
-            "question__feedback_active",
+            "question__feedback_status",
+            "question__exam__feedback",
             "delegation__name",
             "delegation__country",
             "status",
@@ -1048,7 +1043,8 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         fback["status_display"] = choices[fback["status"]]
         fback["enable_likes"] = (
             (fback["delegation_likes"] == 0)
-            and fback["question__feedback_active"]
+            and fback["question__feedback_status"] == Question.FEEDBACK_OPEN
+            and fback["question__exam__feedback"] >= Exam.FEEDBACK_CAN_BE_OPENED
             and delegation is not None
         )
     feedbacks = list(feedbacks)
@@ -1068,7 +1064,10 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
 @permission_required("ipho_core.can_see_boardmeeting")
 def feedback_partial_like(request, status, feedback_id):
     feedback = get_object_or_404(
-        Feedback, pk=feedback_id, question__feedback_active=True
+        Feedback,
+        pk=feedback_id,
+        question__feedback_status=Question.FEEDBACK_OPEN,
+        question__exam__feedback__gte=Exam.FEEDBACK_CAN_BE_OPENED,
     )
     delegation = Delegation.objects.get(members=request.user)
     Like.objects.get_or_create(
@@ -1109,13 +1108,14 @@ def feedbacks_list(
     exam = None
     if exam_id is not None:
         exam = get_object_or_404(
-            Exam,
+            Exam.objects.for_user(request.user),
             id=exam_id,
-            visibility__gte=Exam.VISIBLE_BOARDMEETING,
-            hide_feedback=False,
+            feedback__gte=Exam.FEEDBACK_READONLY,
         )
 
-    exam_list = Exam.objects.for_user(request.user).filter(hide_feedback=False)
+    exam_list = Exam.objects.for_user(request.user).filter(
+        feedback__gte=Exam.FEEDBACK_READONLY
+    )
     exam_filter_list = [
         exam,
     ]
@@ -1127,12 +1127,6 @@ def feedbacks_list(
     questions_f = (
         Question.objects.for_user(request.user).filter(exam__in=exam_filter_list).all()
     )
-
-    def get_or_none(model, *args, **kwargs):
-        try:
-            return model.objects.get(*args, **kwargs)
-        except model.DoesNotExist:
-            return None
 
     status_list = Feedback.STATUS_CHOICES
     filter_st = [s[0] for s in status_list]
@@ -1147,7 +1141,7 @@ def feedbacks_list(
     qf_pk = request.GET.get("qu", None)
     if qf_pk is not None:
         qf_pk = qf_pk.rstrip("/")
-    question_f = get_or_none(Question.objects.for_user(request.user), pk=qf_pk)
+    question_f = Question.objects.for_user(request.user).filter(pk=qf_pk).first()
     if question_f is not None:
         filter_qu = [
             question_f,
@@ -1206,7 +1200,8 @@ def feedbacks_list(
                 "pk",
                 "question__pk",
                 "question__name",
-                "question__feedback_active",
+                "question__feedback_status",
+                "question__exam__feedback",
                 "delegation__name",
                 "delegation__country",
                 "status",
@@ -1251,9 +1246,16 @@ def feedbacks_list(
             fback["like_delegations"] = [like_del_string, like_del_slug]
             fback["unlike_delegations"] = [unlike_del_string, unlike_del_slug]
             fback["status_display"] = choices[fback["status"]]
+            fback["commentable"] = Question.objects.get(
+                pk=fback["question__pk"]
+            ).check_feedback_commentable()
+            fback["exam_feedback_editable"] = Question.objects.get(
+                pk=fback["question__pk"]
+            ).exam.check_feedback_editable()
             fback["enable_likes"] = (
                 (fback["delegation_likes"] == 0)
-                and fback["question__feedback_active"]
+                and fback["question__feedback_status"] == Question.FEEDBACK_OPEN
+                and fback["question__exam__feedback"] >= Exam.FEEDBACK_CAN_BE_OPENED
                 and delegation is not None
             )
         feedbacks = list(feedbacks)
@@ -1311,8 +1313,24 @@ def feedbacks_add_comment(request, feedback_id=None):
         feedback = get_object_or_404(Feedback, id=feedback_id)
     else:
         raise Exception("No feedback_id")
-    ## Language section
+
     form = FeedbackCommentForm(request.POST or None)
+
+    if not feedback.question.check_feedback_commentable():
+        if not request.method == "POST":
+            form = FeedbackCommentForm(initial={"comment": feedback.org_comment})
+            form.cleaned_data = []
+        form.add_error(None, "Question not commentable, please reload the page.")
+        context = {}
+        context.update(csrf(request))
+        form_html = render_crispy_form(form, context=context)
+        return JsonResponse(
+            {
+                "success": False,
+                "form": form_html,
+            }
+        )
+
     if form.is_valid():
         feedback.org_comment = form.cleaned_data["comment"]
         feedback.save()
@@ -1344,7 +1362,10 @@ def feedbacks_add_comment(request, feedback_id=None):
 @permission_required("ipho_core.is_delegation")
 def feedback_like(request, status, feedback_id):
     feedback = get_object_or_404(
-        Feedback, pk=feedback_id, question__feedback_active=True
+        Feedback,
+        pk=feedback_id,
+        question__feedback_status=Question.FEEDBACK_OPEN,
+        question__exam__feedback__gte=Exam.FEEDBACK_CAN_BE_OPENED,
     )
     delegation = Delegation.objects.get(members=request.user)
     Like.objects.get_or_create(
@@ -3945,15 +3966,11 @@ def bulk_print(
     exams = Exam.objects.for_user(request.user)
     delegations = Delegation.objects.all()
 
-    def get_or_none(model, *args, **kwargs):
-        try:
-            return model.objects.get(*args, **kwargs)
-        except model.DoesNotExist:
-            return None
-
     filter_ex = exams
-    exam = get_or_none(
-        Exam.objects.for_user(request.user), id=request.GET.get("ex", None)
+    exam = (
+        Exam.objects.for_user(request.user)
+        .filter(id=request.GET.get("ex", None))
+        .first()
     )
     if exam is not None:
         filter_ex = [
@@ -3980,7 +3997,7 @@ def bulk_print(
         filter_pos.remove(0)
 
     filter_dg = delegations
-    delegation = get_or_none(Delegation, id=request.GET.get("dg", None))
+    delegation = Delegation.objects.filter(id=request.GET.get("dg", None)).first()
     if delegation is not None:
         filter_dg = [
             delegation,
@@ -4000,7 +4017,7 @@ def bulk_print(
         for pk in request.POST.getlist(  # pylint: disable=invalid-name
             "printouts[]", []
         ):
-            doc = get_or_none(Document, pk=pk)
+            doc = Document.objects.filter(pk=pk).first()
             if doc is not None:
                 printer.send2queue(
                     doc.file,
@@ -4013,7 +4030,7 @@ def bulk_print(
                 log = PrintLog(document=doc, type="P")
                 log.save()
         for pk in request.POST.getlist("scans[]", []):  # pylint: disable=invalid-name
-            doc = get_or_none(Document, pk=pk)
+            doc = Document.objects.filter(pk=pk).first()
             if doc is not None:
                 printer.send2queue(
                     doc.scan_file,

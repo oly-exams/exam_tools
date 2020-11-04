@@ -103,7 +103,7 @@ class ExamAdmin(admin.ModelAdmin):
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ("name", "exam", "feedback_active", "position")
+    list_display = ("name", "exam", "feedback_status", "position")
     list_filter = ("exam",)
 
 

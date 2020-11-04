@@ -347,9 +347,9 @@ class Exam(models.Model):
         verbose_name="Can Translate",
     )
 
-    FEEDBACK_READONLY = -1
-    FEEDBACK_CAN_BE_OPENED = 0
-    FEEDBACK_INVISIBLE = 1
+    FEEDBACK_READONLY = 0
+    FEEDBACK_CAN_BE_OPENED = 1
+    FEEDBACK_INVISIBLE = -1
 
     FEEDBACK_CHOICES = (
         (FEEDBACK_READONLY, "Read only"),
@@ -358,7 +358,7 @@ class Exam(models.Model):
     )
 
     feedback = models.IntegerField(
-        default=-1,
+        default=0,
         choices=FEEDBACK_CHOICES,
         help_text="Sets the status of the feedbacks for all questions.",
         verbose_name="Feedback",
@@ -526,6 +526,12 @@ class Exam(models.Model):
             return False
         return self.can_translate >= Exam.get_translatability(user)
 
+    def check_feedback_visible(self):
+        return self.feedback >= Exam.FEEDBACK_READONLY
+
+    def check_feedback_editable(self):
+        return self.feedback >= Exam.FEEDBACK_CAN_BE_OPENED
+
 
 class QuestionManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):
@@ -555,16 +561,31 @@ class Question(models.Model):
         help_text="Sorting index inside one exam"
     )
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, default=QUESTION)
-    feedback_active = models.BooleanField(
-        default=False, help_text="Are feedbacks allowed?"
+
+    FEEDBACK_CLOSED = -1
+    FEEDBACK_ORGANIZER_COMMENT = 0
+    FEEDBACK_OPEN = 1
+
+    FEEDBACK_CHOICES = (
+        (FEEDBACK_CLOSED, "Closed"),
+        (FEEDBACK_OPEN, "Open"),
+        (FEEDBACK_ORGANIZER_COMMENT, "Closed, Organizer can still comment."),
     )
+
+    feedback_status = models.IntegerField(
+        default=-1,
+        choices=FEEDBACK_CHOICES,
+        help_text="Sets the status of the feedbacks for this questions.",
+        verbose_name="Feedback",
+    )
+
     working_pages = models.PositiveSmallIntegerField(
         default=0, help_text="How many pages for working sheets"
     )
 
     # Fields controllable by the control app
     _controllable_fields = [
-        "feedback_active",
+        "feedback_status",
     ]
 
     ## TODO: add template field
@@ -602,6 +623,25 @@ class Question(models.Model):
                 and self.exam.visibility >= Exam.VISIBLE_BOARDMEETING
             )
         return False
+
+    def check_feedback_visible(self):
+        return self.exam.check_feedback_visible()
+
+    def check_feedback_editable(self):
+        editable = self.feedback_status == Question.FEEDBACK_OPEN
+        return (
+            self.check_feedback_visible()
+            and self.exam.check_feedback_editable()
+            and editable
+        )
+
+    def check_feedback_commentable(self):
+        commentable = self.feedback_status >= Question.FEEDBACK_ORGANIZER_COMMENT
+        return (
+            self.check_feedback_visible()
+            and self.exam.check_feedback_editable()
+            and commentable
+        )
 
     @classmethod
     def get_controllable_fields(cls):
