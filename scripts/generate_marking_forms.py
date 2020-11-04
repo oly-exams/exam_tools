@@ -147,7 +147,9 @@ def moderation_detail(question_id, delegation_id, request=HttpRequest()):
 
 
 answer_sheets = Question.objects.filter(
-    exam__visibility__gte=Exam.VISIBLE_ORGANIZER, exam__moderation_active=True, code="A"
+    exam__visibility__gte=Exam.VISIBLE_ORGANIZER,
+    exam__moderation_active=True,
+    type=Question.ANSWER,
 )
 all_delegations = Delegation.objects.all()
 

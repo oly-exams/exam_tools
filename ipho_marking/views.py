@@ -246,7 +246,7 @@ def export(request, include_totals=False):  # pylint: disable=too-many-locals
     exams = Exam.objects.for_user(request.user)
     questions = (
         Question.objects.for_user(request.user)
-        .filter(code="A")
+        .filter(type=Question.ANSWER)
         .order_by("exam", "position")
     )
     if include_totals:
@@ -1413,7 +1413,7 @@ def export_countries_to_moderate(request):
 
     questions = (
         Question.objects.for_user(request.user)
-        .filter(code="A")
+        .filter(type=Question.ANSWER)
         .order_by("exam", "position")
     )
     for question in questions:
