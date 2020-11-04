@@ -253,7 +253,12 @@ def translations_list(request):
 
     # if request.is_ajax and 'exam_id' in request.GET:
     if "exam_id" in request.GET:
-        exam = get_object_or_404(Exam, id=request.GET["exam_id"])
+        exam = get_object_or_404(
+            Exam.objects.for_user(request.user).filter(
+                can_translate__gte=Exam.get_translatability(request.user)
+            ),
+            id=request.GET["exam_id"],
+        )
         in_progress = ExamAction.is_in_progress(
             ExamAction.TRANSLATION, exam=exam, delegation=delegation
         )
@@ -291,7 +296,9 @@ def translations_list(request):
             },
         )
 
-    exam_list = Exam.objects.for_user(request.user)
+    exam_list = Exam.objects.for_user(request.user).filter(
+        can_translate__gte=Exam.get_translatability(request.user)
+    )
     for exam in exam_list:
         exam.is_active = ExamAction.is_in_progress(
             ExamAction.TRANSLATION, exam=exam, delegation=delegation
@@ -318,7 +325,9 @@ def list_all_translations(request):
             return None
 
     filter_ex = exams
-    exam = get_or_none(Exam, id=request.GET.get("ex", None))
+    exam = get_or_none(
+        Exam.objects.for_user(request.user), id=request.GET.get("ex", None)
+    )
     if exam is not None:
         filter_ex = [
             exam,
@@ -463,7 +472,9 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
                 )
                 trans = deepcopy(
                     qquery.latest_version(
-                        question_id=question.pk, lang_id=OFFICIAL_LANGUAGE_PK
+                        question_id=question.pk,
+                        lang_id=OFFICIAL_LANGUAGE_PK,
+                        user=request.user,
                     )
                 )
                 data = {key: "\xa0" for key in list(trans.qml.get_data().keys())}
@@ -514,7 +525,9 @@ def add_pdf_node(request, question_id, lang_id):
             "TODO: implement small template page for handling without Ajax."
         )
     delegation = Delegation.objects.get(members=request.user)
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
     lang = get_object_or_404(Language, id=lang_id)
     if not lang.check_permission(request.user):
         return HttpResponseForbidden(
@@ -557,9 +570,9 @@ def add_pdf_node(request, question_id, lang_id):
 def translation_export(request, question_id, lang_id, version_num=None):
     """ Translation export, both for normal editor and admin editor """
     if version_num is None:
-        trans = qquery.latest_version(question_id, lang_id)
+        trans = qquery.latest_version(question_id, lang_id, user=request.user)
     else:
-        trans = qquery.get_version(question_id, lang_id, version_num)
+        trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
 
     content = qml.xml2string(trans.qml.make_xml())
     # content = qml.unescape_entities(content)  # original: remove escapes here - not safe!
@@ -576,7 +589,13 @@ def translation_import(request, question_id, lang_id):
     """ Translation import (only for delegations) """
     delegation = Delegation.objects.get(members=request.user)
     language = get_object_or_404(Language, id=lang_id)
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
+    if not question.exam.check_translatability(request.user):
+        return HttpResponseForbidden(
+            "You do not have the permissions to edit this question."
+        )
     if not language.check_permission(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to edit this language."
@@ -621,8 +640,13 @@ def translation_import(request, question_id, lang_id):
 @csrf_protect
 def translation_import_confirm(request, slug):
     trans_import = get_object_or_404(TranslationImportTmp, slug=slug)
-    trans = qquery.latest_version(trans_import.question.pk, trans_import.language.pk)
-
+    trans = qquery.latest_version(
+        trans_import.question.pk, trans_import.language.pk, user=request.user
+    )
+    if not trans_import.question.exam.check_translatability(request.user):
+        return HttpResponseForbidden(
+            "You do not have the permissions to edit this question."
+        )
     if request.POST:
         trans.node.text = trans_import.content
         trans.node.save()
@@ -801,7 +825,7 @@ def exam_view(
     ## * deal with errors when node not found: no content
 
     if question:
-        if not question.check_permission(request.user):
+        if not question.check_visibility(request.user):
             return HttpResponseForbidden(
                 "You do not have the permissions to view this question."
             )
@@ -809,7 +833,7 @@ def exam_view(
         orig_lang = get_object_or_404(Language, id=orig_id)
 
         official_question = qquery.latest_version(
-            question_id=question.pk, lang_id=OFFICIAL_LANGUAGE_PK
+            question_id=question.pk, lang_id=OFFICIAL_LANGUAGE_PK, user=request.user
         )
 
         # try:
@@ -1123,7 +1147,7 @@ def feedbacks_list(
     qf_pk = request.GET.get("qu", None)
     if qf_pk is not None:
         qf_pk = qf_pk.rstrip("/")
-    question_f = get_or_none(Question, pk=qf_pk)
+    question_f = get_or_none(Question.objects.for_user(request.user), pk=qf_pk)
     if question_f is not None:
         filter_qu = [
             question_f,
@@ -1604,7 +1628,7 @@ def admin_add_question(request, exam_id):
 
     ## Question section
     question_form = ExamQuestionForm(request.POST or None)
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
 
     if question_form.is_valid():
         question_form.instance.exam = exam
@@ -1646,7 +1670,9 @@ def admin_delete_question(request, exam_id, question_id):
     delete_message = "This action <strong>CANNOT</strong> be undone. <strong>All versions and all translations</strong> of this question will be lost."
 
     if delete_form.is_valid():
-        question = get_object_or_404(Question, id=question_id)
+        question = get_object_or_404(
+            Question.objects.for_user(request.user), id=question_id
+        )
         if question.name == delete_form.cleaned_data.get("verify"):
             question.delete()
             return JsonResponse(
@@ -1690,7 +1716,9 @@ def admin_edit_question(request, exam_id, question_id):
         )
 
     ## Question section
-    instance = get_object_or_404(Question, pk=question_id)
+    instance = get_object_or_404(
+        Question.objects.for_user(request.user), pk=question_id
+    )
     question_form = ExamQuestionForm(request.POST or None, instance=instance)
 
     if question_form.is_valid():
@@ -1754,7 +1782,9 @@ def admin_new_version(request, exam_id, question_id):
     lang_id = OFFICIAL_LANGUAGE_PK
 
     get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
@@ -1785,7 +1815,9 @@ def admin_new_version(request, exam_id, question_id):
 def admin_import_version(request, question_id):
     """ Translation import for admin """
     language = get_object_or_404(Language, id=OFFICIAL_LANGUAGE_PK)
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
 
     form = AdminImportForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -1843,7 +1875,9 @@ def admin_delete_version(request, exam_id, question_id, version_num):
     get_object_or_404(
         Exam.objects.for_user(request.user), id=exam_id
     )  # mskoenz: remove?
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
     lang = get_object_or_404(Language, id=lang_id)
 
     if lang.versioned:
@@ -1906,7 +1940,9 @@ def admin_accept_version(
     lang_id = OFFICIAL_LANGUAGE_PK
 
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
 
     lang = get_object_or_404(Language, id=lang_id)
 
@@ -2011,7 +2047,9 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     get_object_or_404(
         Exam.objects.for_user(request.user), id=exam_id
     )  # mskoenz: remove?
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
     lang = get_object_or_404(Language, id=lang_id)
 
     assert lang.versioned
@@ -2088,7 +2126,9 @@ def admin_settag_version(request, exam_id, question_id, version_num):
     get_object_or_404(
         Exam.objects.for_user(request.user), id=exam_id
     )  # mskoenz: remove?
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
     lang = get_object_or_404(Language, id=lang_id)
 
     ## Version section
@@ -2125,7 +2165,9 @@ def admin_editor(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
 
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
@@ -2171,7 +2213,9 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     get_object_or_404(
         Exam.objects.for_user(request.user), id=exam_id
     )  # mskoenz: remove?
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
@@ -2242,7 +2286,9 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
     get_object_or_404(
         Exam.objects.for_user(request.user), id=exam_id
     )  # mskoenz: remove?
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
@@ -2278,7 +2324,9 @@ def admin_editor_add_block(  # pylint: disable=too-many-arguments
     lang_id = OFFICIAL_LANGUAGE_PK
 
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
@@ -2339,7 +2387,9 @@ def admin_editor_move_block(  # pylint: disable=too-many-arguments
     get_object_or_404(
         Exam.objects.for_user(request.user), id=exam_id
     )  # mskoenz: remove?
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
 
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
@@ -2384,6 +2434,7 @@ def submission_exam_list(request):
 
     exams_open = (
         Exam.objects.for_user(request.user)
+        .filter(can_translate=Exam.get_translatability(request.user))
         .exclude(
             delegation_status__in=ExamAction.objects.filter(
                 delegation=delegation,
@@ -2681,6 +2732,10 @@ def submission_exam_assign(
     request, exam_id
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+    if not exam.check_translatability(request.user):
+        return HttpResponseForbidden(
+            "You do not have the permissions to submit for this exam."
+        )
     delegation = Delegation.objects.get(members=request.user)
     no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
     en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
@@ -2866,6 +2921,10 @@ def submission_exam_confirm(
     request, exam_id
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+    if not exam.check_translatability(request.user):
+        return HttpResponseForbidden(
+            "You do not have the permissions to submit for this exam."
+        )
     delegation = Delegation.objects.get(members=request.user)
     no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
     en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
@@ -3143,8 +3202,16 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
 
     if exam_id is not None:
         exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+        if not exam.check_translatability(request.user):
+            return HttpResponseForbidden(
+                "You do not have the permissions to edit this exam."
+            )
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
+        if not question.exam.check_translatability(request.user):
+            return HttpResponseForbidden(
+                "You do not have the permissions to edit this question."
+            )
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.first()
 
@@ -3168,7 +3235,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
     ## * deal with errors when node not found: no content
 
     if question:
-        if not question.check_permission(request.user):
+        if not question.check_visibility(request.user):
             return HttpResponseForbidden(
                 "You do not have the permissions to view this question."
             )
@@ -3183,7 +3250,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
             own_lang = Language.objects.all().order_by("name")
 
         official_question = qquery.latest_version(
-            question_id=question.pk, lang_id=OFFICIAL_LANGUAGE_PK
+            question_id=question.pk, lang_id=OFFICIAL_LANGUAGE_PK, user=request.user
         )
 
         # try:
@@ -3380,14 +3447,14 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
 
 @permission_required("ipho_core.can_see_boardmeeting")
 def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False):
-    if not Question.objects.get(pk=question_id).check_permission(request.user):
+    if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
         )
     if version_num is not None and request.user.has_perm("ipho_core.is_organizer"):
-        trans = qquery.get_version(question_id, lang_id, version_num)
+        trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
     else:
-        trans = qquery.latest_version(question_id, lang_id)
+        trans = qquery.latest_version(question_id, lang_id, user=request.user)
 
     filename = "exam-{}-{}{}-{}.pdf".format(
         slugify(trans.question.exam.name),
@@ -3513,20 +3580,24 @@ def auto_translate_count(request):
 def compiled_question_diff(  # pylint: disable=too-many-locals
     request, question_id, lang_id, old_version_num=None, new_version_num=None
 ):
-    if not Question.objects.get(pk=question_id).check_permission(request.user):
+    if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
         )
 
     if new_version_num is None:
-        trans_new = qquery.latest_version(question_id, lang_id)
+        trans_new = qquery.latest_version(question_id, lang_id, user=request.user)
         new_version_num = trans_new.node.version
     else:
-        trans_new = qquery.get_version(question_id, lang_id, new_version_num)
+        trans_new = qquery.get_version(
+            question_id, lang_id, new_version_num, user=request.user
+        )
 
     if old_version_num is None:
         old_version_num = max(1, int(new_version_num) - 1)
-    trans_old = qquery.get_version(question_id, lang_id, old_version_num)
+    trans_old = qquery.get_version(
+        question_id, lang_id, old_version_num, user=request.user
+    )
 
     lang = trans_old.lang
     question = trans_old.question
@@ -3602,14 +3673,14 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
 
 @login_required
 def compiled_question_odt(request, question_id, lang_id, version_num=None):
-    if not Question.objects.get(pk=question_id).check_permission(request.user):
+    if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
         )
     if version_num is not None and request.user.has_perm("ipho_core.is_organizer"):
-        trans = qquery.get_version(question_id, lang_id, version_num)
+        trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
     else:
-        trans = qquery.latest_version(question_id, lang_id)
+        trans = qquery.latest_version(question_id, lang_id, user=request.user)
     filename = f"Exam - {trans.question.exam.name} Q{trans.question.position} - {trans.lang.name}.odt"
 
     trans_content, ext_resources = trans.qml.make_xhtml()
@@ -3631,14 +3702,14 @@ def compiled_question_odt(request, question_id, lang_id, version_num=None):
 
 @login_required
 def compiled_question_html(request, question_id, lang_id, version_num=None):
-    if not Question.objects.get(pk=question_id).check_permission(request.user):
+    if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
         )
     if version_num is not None and request.user.has_perm("ipho_core.is_organizer"):
-        trans = qquery.get_version(question_id, lang_id, version_num)
+        trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
     else:
-        trans = qquery.latest_version(question_id, lang_id)
+        trans = qquery.latest_version(question_id, lang_id, user=request.user)
     trans_content, _ = trans.qml.make_xhtml()
 
     html = """<!DOCTYPE html>

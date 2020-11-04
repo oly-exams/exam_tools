@@ -510,6 +510,22 @@ class Exam(models.Model):
             return cls.VISIBLE_BOARDMEETING
         return cls.VISIBLE_BOARDMEETING + 1
 
+    @classmethod
+    def get_translatability(cls, user):
+        if user.is_superuser or user.has_perm("ipho_core.is_staff"):
+            return Exam.CAN_TRANSLATE_ORGANIZER
+        if user.has_perm("ipho_core.can_see_boardmeeting"):
+            return Exam.CAN_TRANSLATE_BOARDMEETING
+        return Exam.CAN_TRANSLATE_BOARDMEETING + 1
+
+    def check_visibility(self, user):
+        return self.visibility >= Exam.get_visibility(user)
+
+    def check_translatability(self, user):
+        if not self.check_visibility(user):
+            return False
+        return self.can_translate >= Exam.get_translatability(user)
+
 
 class QuestionManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):
@@ -576,9 +592,9 @@ class Question(models.Model):
     def has_published_version(self):
         return self.versionnode_set.filter(status="C").exists()
 
-    def check_permission(self, user):
-        for_user = self.exam in Exam.objects.for_user(user).all()
-        if for_user:
+    def check_visibility(self, user):
+        exam_visible = self.exam.check_visibility(user)
+        if exam_visible:
             return True
         if user.has_perm("ipho_core.is_delegation_print"):
             return (

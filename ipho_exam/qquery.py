@@ -31,11 +31,11 @@ class Qwrapper:
     pass
 
 
-def latest_version(question_id, lang_id):
+def latest_version(question_id, lang_id, user):
     # pylint: disable=attribute-defined-outside-init
     qwp = Qwrapper()
 
-    qwp.question = get_object_or_404(Question, id=question_id)
+    qwp.question = get_object_or_404(Question.objects.for_user(user), id=question_id)
     qwp.lang = get_object_or_404(Language, id=lang_id)
 
     if qwp.lang.is_pdf:
@@ -60,11 +60,11 @@ def latest_version(question_id, lang_id):
     return qwp
 
 
-def get_version(question_id, lang_id, version_num):
+def get_version(question_id, lang_id, version_num, user):
     # pylint: disable=attribute-defined-outside-init
     qwp = Qwrapper()
 
-    qwp.question = get_object_or_404(Question, id=question_id)
+    qwp.question = get_object_or_404(Question.objects.for_user(user), id=question_id)
     qwp.lang = get_object_or_404(Language, id=lang_id)
     qwp.node = get_object_or_404(
         VersionNode, question=qwp.question, language=qwp.lang, version=version_num
