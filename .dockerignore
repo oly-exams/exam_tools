@@ -5,3 +5,6 @@ db/
 venv/
 static_bower/
 node_modules/
+docker
+.dockerignore
+.gitlab

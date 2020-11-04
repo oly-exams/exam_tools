@@ -17,7 +17,7 @@ Celery >=5.0, <6
 git+https://github.com/celery/django-celery-results.git@ed94080cea3d68a38f9ff048657a37b08e74fc35#egg=django-celery-results
 flower >=0.9, <1
 requests >=2.24, <3
-appypod # The odt download is somehow broken, and this package is unmaintaned. Maybe switch to relatorio? 
+appypod # The odt download is somehow broken, and this package is unmaintaned. Maybe switch to relatorio?
 Pillow >=8, <9
 iso3166 >=1, <2
 lxml >=4, <5

@@ -24,7 +24,6 @@ from django.conf import settings
 from django.utils.text import unescape_entities
 from django.template.loader import render_to_string
 
-from exam_tools.settings import TEMPLATE_PATH
 from ipho_exam.models import Figure
 
 
@@ -183,7 +182,7 @@ class StaticExport:
         self.origin = origin
 
     def save(self, dirname):
-        src = os.path.join(TEMPLATE_PATH, self.origin)
+        src = os.path.join(settings.TEMPLATE_PATH, self.origin)
         dst = os.path.join(dirname, os.path.basename(src))
         if os.path.isdir(src):
             shutil.copytree(src, dst)
@@ -196,7 +195,7 @@ class TemplateExport:
         self.origin = origin
 
     def save(self, dirname):
-        src = os.path.join(TEMPLATE_PATH, self.origin)
+        src = os.path.join(settings.TEMPLATE_PATH, self.origin)
         dst = os.path.join(dirname, os.path.basename(src))
         with open(dst, "w") as f:
             static_path = getattr(settings, "STATIC_PATH")

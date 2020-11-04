@@ -1,0 +1,39 @@
+.build:build_cached_push:
+    stage: build
+    # build will not be spawned every time, dont interrupt
+    interruptible: false
+    script:
+        # I cannot build this variable in gitlab, since they dont allow nested $
+        - IMG="$PROJ_REG/$IMG_NAME:$SERVICE_NAME"
+        # this is the recommended way to reuse layers
+        # (https://docs.gitlab.com/ee/user/packages/container_registry/index.html#using-a-docker-in-docker-image-from-your-container-registry)
+        - (docker pull -q $IMG && docker tag $IMG $SERVICE_NAME) || true
+        - $CI_PROJECT_DIR/compose.sh build --pull $SERVICE_NAME
+        - docker tag $SERVICE_NAME $IMG
+        - docker push $IMG
+
+.test:pull_and_run:
+    stage: test
+    #if we push faster than CI runs, kill old pipeline jobs
+    interruptible: true
+    variables:
+        ENV_FILE: {}
+        # SERVICE_NAME is expected
+    script:
+        - IMG="$PROJ_REG/$IMG_NAME:$SERVICE_NAME"
+        - docker pull -q $IMG && docker tag $IMG $SERVICE_NAME
+        - $CI_PROJECT_DIR/compose.sh --env-file="$ENV_FILE" up --abort-on-container-exit $SERVICE_NAME
+
+.test:pull_and_run_2:
+    stage: test
+    interruptible: true
+    variables:
+        ENV_FILE: {}
+        # SERVICE_NAME_1 is expected
+        # SERVICE_NAME_2 is expected
+    script:
+        - IMG_1="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_1"
+        - docker pull -q $IMG_1 && docker tag $IMG_1 $SERVICE_NAME_1
+        - IMG_2="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_2"
+        - docker pull -q $IMG_2 && docker tag $IMG_2 $SERVICE_NAME_2
+        - ./compose.sh --env-file="$ENV_FILE" up --abort-on-container-exit $SERVICE_NAME_1 $SERVICE_NAME_2

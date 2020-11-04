@@ -19,9 +19,13 @@ import './commands'
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
+before(() => {
+    // runs once before all tests in the block
+    cy.exec('mv ../ipho.db ../ipho-initial.db')
+})
 
 beforeEach(() => {
     // this runs prior to every test
     // across all files no matter what
-    cy.exec('python ipho_data/cypress_initial_data.py', {timeout:240000})
-  })
+    cy.exec('cp ../ipho-initial.db ../ipho.db')
+})

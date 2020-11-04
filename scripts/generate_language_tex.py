@@ -56,7 +56,6 @@ from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
 
 import ipho_exam
 from ipho_exam import tasks
-from exam_tools.settings import STATIC_PATH
 import celery
 from celery.result import AsyncResult
 
@@ -65,8 +64,8 @@ OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
 BASE_PATH = "../media/downloads/language_tex"
-FONT_PATH = os.path.join(STATIC_PATH, "noto")
-REPLACEMENTS = [(STATIC_PATH, ".")]
+FONT_PATH = os.path.join(settings.STATIC_PATH, "noto")
+REPLACEMENTS = [(settings.STATIC_PATH, ".")]
 
 
 def compile_question(question, language, logo_file):
@@ -164,7 +163,8 @@ def compile_question(question, language, logo_file):
             if f.endswith(".pdf.svg"):
                 os.remove(os.path.join(folder, f))
         shutil.copyfile(
-            os.path.join(STATIC_PATH, logo_file), os.path.join(folder, logo_file)
+            os.path.join(settings.STATIC_PATH, logo_file),
+            os.path.join(folder, logo_file),
         )
         shutil.make_archive(folder, "zip", root_dir=BASE_PATH, base_dir=base_folder)
     except Exception as e:

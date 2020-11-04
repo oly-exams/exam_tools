@@ -1,5 +1,5 @@
 yapf
-pre-commit
-prospector
 pylint
+docker
+pre-commit
 pylint-django

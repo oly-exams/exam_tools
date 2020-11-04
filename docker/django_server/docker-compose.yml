@@ -1,0 +1,21 @@
+version: "3.2"
+services:
+    django_server:
+        build:
+            context: ../../
+            dockerfile: docker/django_server/Dockerfile${VARIANT:-}
+            cache_from:
+                - django_server
+        image: django_server${VARIANT:-}
+        container_name: django_server
+        stdin_open: ${DOCKER_STDIN_OPEN:-false} # docker run -i
+        tty: ${DOCKER_TTY:-false}               # docker run -t
+        volumes:
+            - ../../:/home/container/workdir:rw
+        working_dir: /home/container/workdir
+        ports:
+            - 8000:8000
+        environment:
+            - DJANGO_SETTINGS_MODULE=exam_tools.${DJANGO_SERVER_SETTINGS:-settings}
+            - BOWER_STATIC_PATH=${DJANGO_SERVER_BOWER_STATIC_PATH:-/home/container/bower/static}
+        command: ${DJANGO_SERVER_COMMAND:-}

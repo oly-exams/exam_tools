@@ -1,0 +1,20 @@
+build:django_server:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: django_server
+    rules:
+        - if: '$DOCKER_CACHE == "0"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
+            - docker/django_server/*
+            - requirements.txt
+            - bower/*
+
+test:django_server:
+    extends: .test:pull_and_run
+    variables:
+        SERVICE_NAME: django_server
+        ENV_FILE: docker/env/testing_django.env
+    artifacts:
+        reports:
+            junit: unittest_reports/*.xml

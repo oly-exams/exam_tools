@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# pylint: disable=unused-wildcard-import
+
 import sys
 
 # Django settings for exam_tools project.
@@ -24,7 +27,7 @@ from .settings_common import *
 print("Settings directory:", SETTINGS_DIR, file=sys.stderr)
 print("Project root:", PROJECT_PATH, file=sys.stderr)
 print("Templates:", TEMPLATE_PATH, file=sys.stderr)
-print("Static:", STATIC_PATH, file=sys.stderr)
+print("Staticfiles Dirs:", STATICFILES_DIRS, file=sys.stderr)
 
 DEBUG = True
 # TEMPLATE_DEBUG = DEBUG
@@ -37,13 +40,14 @@ TEST_OUTPUT_VERBOSE = 2
 
 ADMINS = ()
 
+ALLOWED_HOSTS = []
 MANAGERS = ADMINS
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         "NAME": os.path.join(
-            PROJECT_PATH, "db.sqlite3"
+            PROJECT_PATH, "ipho.db"
         ),  # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         "USER": "",

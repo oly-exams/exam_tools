@@ -65,7 +65,7 @@ cp exam_tools/settings_example.py exam_tools/settings.py
 
 1. Install dependencies using bower, by running at the project root
 ```bash
-bower install
+cd bower && bower install
 ```
 
 1. Initialize DB

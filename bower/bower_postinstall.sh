@@ -1,11 +1,15 @@
 #!/bin/bash
 
+# exit when any command fails
+set -e
+
 STATIC_BOWER=static_bower
 STATIC=static
 BOWER_POSTINSTALL=bower_postinstall
 
 
 # ace
+mkdir -p $STATIC
 cp -r $STATIC_BOWER/ace-builds/src-min $STATIC/ace
 
 # bootstrap and bootstrap-datetimepicker

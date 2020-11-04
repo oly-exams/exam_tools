@@ -49,8 +49,7 @@ class TestDataCreator(DataCreator):
     def create_three_questions(self):
         self.create_question("Q1", "How is it going", y="good", m="meh", n="bad")
 
-        que2 = self.create_question("Q2", "Current day", d="weekday", e="weekend")
-        self.open_question_for_sec(que2, 60)
+        self.create_question("Q2", "Current day", d="weekday", e="weekend")
 
         que3 = self.create_question(
             "Q3", "Favorite color", r="red", b="blue", g="green"

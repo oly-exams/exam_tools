@@ -29,9 +29,9 @@ Cypress.Commands.add('login', (username, password) => {
     // This command is used to log into the page.
     return cy.request({
       url: 'accounts/login/',
-      method: 'GET' 
+      method: 'GET'
     }).then(() => {
-  
+
       cy.getCookie('sessionid').should('not.exist')
       cy.getCookie('csrftoken').its('value').then((token) => {
         var oldToken = token;
@@ -46,14 +46,14 @@ Cypress.Commands.add('login', (username, password) => {
             csrfmiddlewaretoken: token
           }
         }).then(() => {
-  
+
           cy.getCookie('sessionid').should('exist')
           return cy.getCookie('csrftoken').its('value')
-  
+
         })
       })
     })
-  
+
   })
 
   Cypress.Commands.add('logout', () => {

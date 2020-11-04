@@ -14,15 +14,12 @@ outcode_raw.svg
 runserver.sh
 _docs_html
 .vscode/
-static_bower
 node_modules
 .spyderproject
 test_*.pdf
 docs/*.html
 out/*.pdf
-
-
-
+unittest_reports
 
 # Created by https://www.gitignore.io/api/vim,macos,emacs,django,python,pycharm,virtualenv,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=vim,macos,emacs,django,python,pycharm,virtualenv,visualstudiocode
@@ -133,7 +130,6 @@ celerybeat-schedule
 # Environments
 .env
 .venv
-env/
 venv/
 ENV/
 env.bak/

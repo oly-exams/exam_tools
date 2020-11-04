@@ -21,7 +21,7 @@ describe('Basic Functionalities', function() {
     /*
     it('Another Test', function(){
         cy.login('testdelegation','testpw')
-        
+
     })
     */
 })

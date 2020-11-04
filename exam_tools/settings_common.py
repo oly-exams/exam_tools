@@ -347,12 +347,17 @@ STATIC_ROOT = ""
 STATIC_URL = "/static/"
 
 # Additional locations of static files
+BOWER_STATIC_PATH = os.getenv(
+    "BOWER_STATIC_PATH", os.path.join(PROJECT_PATH, "bower", "static")
+)
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     STATIC_PATH,
+    BOWER_STATIC_PATH,
 )
+
 
 # List of finder classes that know how to find static files in
 # various locations.
