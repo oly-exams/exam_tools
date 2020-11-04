@@ -2635,7 +2635,7 @@ def submission_delegation_list_submitted(request):
 
     exams = (
         Exam.objects.for_user(request.user)
-        .filter(show_delegation_submissions=True)
+        .filter(printing=Exam.PRINTING_WHEN_SUBMITTED)
         .filter(
             delegation_status__delegation__in=delegation,
             delegation_status__action=ExamAction.TRANSLATION,
@@ -2692,7 +2692,7 @@ def upload_scan_delegation(request, exam_id, position, student_id):
 
     doc = get_object_or_404(Document, exam=exam, position=position, student=student)
 
-    submission_open = exam.show_delegation_submissions
+    submission_open = exam.scanning >= Exam.SCANNING_STUDENT_ANSWER
 
     form = DelegationScanForm(
         exam,
@@ -3765,7 +3765,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
     user = request.user
     if not user.has_perm("ipho_core.can_see_boardmeeting"):
         exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-        if not exam.show_delegation_submissions:
+        if not exam.printing == Exam.PRINTING_WHEN_SUBMITTED:
             return HttpResponseForbidden(
                 "You do not have permission to view this document."
             )
@@ -3805,7 +3805,7 @@ def pdf_exam_pos_student(
             )
         if not user.has_perm("ipho_core.can_see_boardmeeting"):
             exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-            if not exam.show_delegation_submissions:
+            if not exam.printing == Exam.PRINTING_WHEN_SUBMITTED:
                 return HttpResponseForbidden(
                     "You do not have permission to view this document."
                 )
@@ -3964,6 +3964,12 @@ def bulk_print(
             )
         )
     exams = Exam.objects.for_user(request.user)
+
+    scan_mode_info = [
+        f" Exam {exm.name} is in scanning mode: {exm.get_scanning_display()}"
+        for exm in exams
+    ]
+
     delegations = Delegation.objects.all()
 
     filter_ex = exams
@@ -4126,6 +4132,11 @@ def bulk_print(
         "exam__delegation_status__timestamp",
     ).order_by("exam__delegation_status__timestamp", "student_id", "position")
 
+    for doc in all_docs:
+        exm = Exam.objects.get(pk=doc["exam__id"])
+        doc["exam__printing"] = exm.printing >= Exam.PRINTING_WHEN_SUBMITTED
+        doc["exam__scanning_display"] = exm.get_scanning_display()
+
     paginator = Paginator(all_docs, 50)
     if not page:
         page = request.GET.get("page")
@@ -4161,6 +4172,7 @@ def bulk_print(
         request,
         "ipho_exam/bulk_print.html",
         {
+            "alert_info": scan_mode_info,
             "messages": messages,
             "exams": exams,
             "exam": exam,

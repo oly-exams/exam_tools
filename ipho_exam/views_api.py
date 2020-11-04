@@ -23,7 +23,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 
-from ipho_exam.models import Document
+from ipho_exam.models import Document, Exam
 from ipho_exam.serializers import DocumentSerializer
 from ipho_exam.permissions import HasValidApiKeyOrAdmin
 
@@ -55,7 +55,9 @@ class DocumentViewSet(
     update: Update single entry
     """
     permission_classes = (HasValidApiKeyOrAdmin,)
-    queryset = Document.objects.all()
+    queryset = Document.objects.filter(
+        exam__scanning__gte=Exam.SCANNING_STUDENT_ANSWER
+    ).all()
     serializer_class = DocumentSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("id", "position", "student", "exam", "barcode_base", "num_pages")

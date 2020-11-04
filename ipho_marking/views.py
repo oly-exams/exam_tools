@@ -539,7 +539,9 @@ def delegation_summary(
 
     active_exams = Exam.objects.for_user(request.user).filter(marking_active=True)
     scans_table_per_exam = []
-    scan_show_exams = Exam.objects.for_user(request.user).filter(show_scans=True)
+    scan_show_exams = Exam.objects.for_user(request.user).filter(
+        delegation_scan_access__gte=Exam.DELEGATION_SCAN_ACCESS_STUDENT_ANSWER
+    )
     for exam in scan_show_exams:
         questions = exam.question_set.filter(type=Question.ANSWER)
         scans_of_students = []
