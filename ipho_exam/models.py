@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=too-many-lines
 
 # mskoenz: text_direction on 738 inactive, is this intended?
 #         disabled Document.question_name, since it makes no sense

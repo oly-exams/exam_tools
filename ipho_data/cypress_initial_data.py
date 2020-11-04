@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # Author:  Mario S. Könz <mskoenz@gmx.net>
 
-# pylint: disable=unused-import
-import non_install_helper  # pylint: disable=import-error
+# pylint: disable=unused-import, import-error
+import non_install_helper
 
 import ipho_data.django_setup
 from ipho_data.test_data_creator import TestDataCreator

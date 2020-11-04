@@ -267,7 +267,7 @@ AUTO_TRANSLATE_LANGUAGES = [
 ]
 
 # A map from Language.style -> auto translate languages
-STYLES_TO_AUTO_TRANSLATE_MAPPING = {  # pylint: disable=invalid-name
+STYLES_TO_AUTO_TRANSLATE_MAPPING = {
     "irish": "ga",
     "montenegrin": "",
     "telugu": "te",
