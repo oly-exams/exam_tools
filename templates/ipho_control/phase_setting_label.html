@@ -1,0 +1,18 @@
+
+{% if name in choices %}
+  {% if setting > 0 %}
+  <span class="label label-setting-active">{{ choices|get:name|get:setting }}</span>
+  {% elif setting == 0 %}
+  <span class="label label-setting-inactive">{{ choices|get:name|get:setting }}</span>
+  {% else %}
+  <span class="label label-default">{{ choices|get:name|get:setting }}</span>
+  {% endif %}
+{% else %}
+  {% if setting is True %}
+  <span class="label label-setting-active">YES</span>
+  {% elif setting is False %}
+  <span class="label label-setting-inactive">NO</span>
+  {% else %}
+  <span class="label label-default">{{ setting }}</span>
+  {% endif %}
+{% endif %}

@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections import OrderedDict
 from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
 
@@ -87,16 +88,16 @@ def exam_phase_context(user, exam_id=None):
         if phase is None:
             # Create a dummy phase
             av_set = ExamPhase.get_available_exam_field_names()
-            exam_settings = {s: getattr(exam, s) for s in av_set}
+            exam_settings = OrderedDict((s, getattr(exam, s)) for s in av_set)
 
             class UndefPhase:
                 name = "Unnamed phase"
                 undef = True
                 description = "This is not a predefined phase. No additional information available."
-                exam_settings = None
+                get_ordered_settings = None
 
             undef_phase = UndefPhase()
-            undef_phase.exam_settings = exam_settings
+            undef_phase.get_ordered_settings = exam_settings
 
             ctx["undef_phase"] = undef_phase
         ctx["phase"] = phase
@@ -177,6 +178,8 @@ def cockpit(request, exam_id=None, changed_phase=False, deleted_phase=False):
     if not request.user.is_superuser:
         phases = phases.filter(available_to_organizers=True)
     ctx["help_texts_settings"] = ExamPhase.get_exam_field_help_texts()
+    ctx["choices_settings"] = ExamPhase.get_exam_field_verbose_choices()
+    ctx["verbose_names_settings"] = ExamPhase.get_exam_field_verbose_names()
     ctx["checks_list"] = {}
     for phase in phases:
         ctx["checks_list"][phase.pk] = phase.run_checks(return_all=True)
@@ -229,7 +232,7 @@ def switch_phase(request, exam_id, phase_id):
     current_exam_settings = {s: getattr(exam, s) for s in available_setttings}
 
     # create changelog to display changes
-    changelog = {"changed": {}, "unchanged": {}}
+    changelog = {"changed": OrderedDict(), "unchanged": OrderedDict()}
     for s in available_setttings:
         if current_exam_settings[s] == phase.exam_settings.get(s):
             changelog["unchanged"][s] = phase.exam_settings.get(s)
@@ -242,6 +245,8 @@ def switch_phase(request, exam_id, phase_id):
     ctx = {}
     ctx["phase"] = phase
     ctx["help_texts_settings"] = phase.get_exam_field_help_texts()
+    ctx["choices_settings"] = ExamPhase.get_exam_field_verbose_choices()
+    ctx["verbose_names_settings"] = ExamPhase.get_exam_field_verbose_names()
     ctx["changelog"] = changelog
     ctx["warnings"] = warning_list
     ctx.update(csrf(request))
@@ -274,6 +279,8 @@ def exam_history(request, exam_id):
     history = ExamPhaseHistory.objects.filter(exam=exam).order_by("-timestamp")
     ctx = {}
     ctx["help_texts_settings"] = ExamPhase.get_exam_field_help_texts()
+    ctx["choices_settings"] = ExamPhase.get_exam_field_verbose_choices()
+    ctx["verbose_names_settings"] = ExamPhase.get_exam_field_verbose_names()
     ctx["history"] = history
     res = {}
     res["body"] = render_to_string("ipho_control/exam_history.html", ctx)

@@ -489,7 +489,8 @@ class Exam(models.Model):
             and hasattr(field, "default")
             and field.default is not models.fields.NOT_PROVIDED
         ]
-        available_fields.sort(key=lambda o: o.name)
+        # use the ordering defined in controllable fields
+        available_fields.sort(key=lambda o: cls._controllable_fields.index(o.name))
         return available_fields
 
     @classmethod

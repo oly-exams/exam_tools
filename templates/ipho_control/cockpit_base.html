@@ -117,7 +117,7 @@
   
             
           </div>
-          {% include "ipho_control/phase_labels.html" with settings=active_exam.phase.exam_settings help_texts=help_texts_settings only %}
+          {% include "ipho_control/phase_labels.html" with settings=active_exam.phase.get_ordered_settings help_texts=help_texts_settings choices=choices_settings names=verbose_names_settings only %}
           <div class="panel-body">
             
             <p>
@@ -164,7 +164,7 @@
                 </div>
               {% endif %}
             </div>
-            {% include "ipho_control/phase_labels.html" with settings=phase.exam_settings help_texts=help_texts_settings collapse_id=phase.name only %}
+            {% include "ipho_control/phase_labels.html" with settings=phase.get_ordered_settings help_texts=help_texts_settings choices=choices_settings names=verbose_names_settings collapse_id=phase.name only %}
               
             <div class="panel-body">
               <p>

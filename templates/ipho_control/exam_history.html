@@ -18,12 +18,12 @@
 </div>
     <div class="panel-body">
         <h4>Unchanged settings:</h4>
-        {% include "ipho_control/phase_labels.html" with settings=h.to_settings help_texts=help_texts_settings collapse_id=h.pk only %}
+        {% include "ipho_control/phase_labels.html" with settings=h.to_settings help_texts=help_texts_settings choices=choices_settings names=verbose_names_settings collapse_id=h.pk only %}
         
         {% if h.changes_to_previous %}
             <h4>Changed:</h4>
             <div>
-                {% include "ipho_control/phase_labels_changelog.html" with settings=h.changes_to_previous help_texts=help_texts_settings only %}
+                {% include "ipho_control/phase_labels_changelog.html" with settings=h.changes_to_previous help_texts=help_texts_settings choices=choices_settings names=verbose_names_settings only %}
             </div>
         {% endif %}
     </div>
