@@ -38,7 +38,7 @@ from ipho_exam.models import Exam, Question
 
 @user_passes_test(lambda u: u.is_superuser)
 def add_edit_phase(request, phase_id=None, exam_id=None):
-    """view to add or edit ExamPhases"""
+    """View to add or edit ExamPhases."""
     phase = None
     ctx = {}
     ctx["alerts"] = []
@@ -65,7 +65,7 @@ def add_edit_phase(request, phase_id=None, exam_id=None):
 
 
 def exam_phase_context(is_superuser=False, exam_id=None):
-    """Helper function to create context for cockpit_base.html"""
+    """Helper function to create context for cockpit_base.html."""
     exams = Exam.objects.order_by("name")
     if not is_superuser:
         exams = exams.filter(hidden=False)
@@ -111,7 +111,7 @@ def exam_phase_context(is_superuser=False, exam_id=None):
 
 
 def alert_dismissible(msg, level="success"):
-    """Helper function to generate bootstrap alerts"""
+    """Helper function to generate bootstrap alerts."""
     return f"""<div class="alert alert-{level} alert-dismissible" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <p>{msg}</p>
@@ -120,7 +120,7 @@ def alert_dismissible(msg, level="success"):
 
 @permission_required("ipho_core.can_access_control")
 def cockpit(request, exam_id=None, changed_phase=False, deleted_phase=False):
-    """The main view for the control cockpit"""
+    """Main view for the control cockpit."""
     ctx = {}
     ctx["alerts"] = []
     ctx["h1"] = "Cockpit"
@@ -192,7 +192,7 @@ def cockpit(request, exam_id=None, changed_phase=False, deleted_phase=False):
 
 @permission_required("ipho_core.can_access_control")
 def switch_phase(request, exam_id, phase_id):
-    """view to render the switch phase modal"""
+    """View for the switch phase modal."""
     exam = Exam.objects.filter(pk=exam_id).first()
     phase = ExamPhase.objects.filter(pk=phase_id).first()
 
@@ -254,7 +254,7 @@ def switch_phase(request, exam_id, phase_id):
 
 @user_passes_test(lambda u: u.is_superuser)
 def delete_phase(request, phase_id):
-    """View for the delete phase modal"""
+    """View for the delete phase modal."""
     phase = get_object_or_404(ExamPhase, pk=phase_id)
     if request.method == "POST":
         phase.delete()
@@ -271,7 +271,7 @@ def delete_phase(request, phase_id):
 
 @permission_required("ipho_core.can_access_control")
 def exam_history(request, exam_id):
-    """View for the exam history modal"""
+    """View for the exam history modal."""
     exam = get_object_or_404(Exam, pk=exam_id)
     history = ExamPhaseHistory.objects.filter(exam=exam).order_by("-timestamp")
     ctx = {}
@@ -286,7 +286,7 @@ def exam_history(request, exam_id):
 
 @login_required
 def exam_phase_summary(request):
-    """View for the exam summary on home"""
+    """View for the exam summary on home."""
     exams = Exam.objects.filter(hidden=False)
     if not request.user.has_perm("ipho_core.is_staff"):
         exams = exams.filter(active=True)

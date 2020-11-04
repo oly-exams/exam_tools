@@ -108,7 +108,7 @@ def exam_delegations_submitted(exam):
 
 
 def markings_not_open(exam):  # pylint: disable=unused-argument
-    """Checks if no markings are open."""
+    """Checks whether no markings are open."""
     pretty_name = "All Markings submitted"
     actions = MarkingAction.objects.filter(status=MarkingAction.OPEN,).exclude(
         delegation__name=OFFICIAL_DELEGATION,
@@ -137,7 +137,7 @@ def markings_not_open(exam):  # pylint: disable=unused-argument
 
 
 def exam_markings_not_open(exam):
-    """Checks if no markings are open for corresponding exam."""
+    """Checks whether no markings are open for corresponding exam."""
     pretty_name = f"Markings submitted for {exam.name}"
     actions = MarkingAction.objects.filter(
         status=MarkingAction.OPEN, question__exam=exam
@@ -168,7 +168,7 @@ def exam_markings_not_open(exam):
 
 
 def markings_finalized(exam):  # pylint: disable=unused-argument
-    """Checks if all markings are final for corresponding exam."""
+    """Checks whether all markings are final for corresponding exam."""
     pretty_name = "All Markings final"
     actions = MarkingAction.objects.exclude(status=MarkingAction.FINAL,).exclude(
         delegation__name=OFFICIAL_DELEGATION,
@@ -197,7 +197,7 @@ def markings_finalized(exam):  # pylint: disable=unused-argument
 
 
 def exam_markings_finalized(exam):
-    """Checks if all markings are final for corresponding exam."""
+    """Checks whether all markings are final for corresponding exam."""
     pretty_name = f"Markings finalized for {exam.name}"
     actions = (
         MarkingAction.objects.filter(question__exam=exam)

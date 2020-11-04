@@ -441,7 +441,7 @@ class Exam(models.Model):
 
     @classmethod
     def get_controllable_fields(cls):
-        """returns the fields available to the control app (i.e. changeable in ExamPhase)"""
+        """Returns the fields available to the control app (i.e. changeable in ExamPhase)."""
         all_fields = cls._meta.get_fields()
         # controllable fields need to have a default value
         available_fields = [
@@ -456,7 +456,7 @@ class Exam(models.Model):
 
     @classmethod
     def get_default_control_settings(cls):
-        """returns the default values for controllable fields"""
+        """Returns the default values for controllable fields."""
         available_fields = cls.get_controllable_fields()
         default_settings = {f.name: f.default for f in available_fields}
         return default_settings
@@ -534,7 +534,7 @@ class Question(models.Model):
 
     @classmethod
     def get_controllable_fields(cls):
-        """returns the fields available to the control app"""
+        """Returns the fields available to the control app."""
         all_fields = cls._meta.get_fields()
         available_fields = [
             field for field in all_fields if field.name in cls._controllable_fields
