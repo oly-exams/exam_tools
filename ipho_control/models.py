@@ -37,7 +37,7 @@ class ExamPhase(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(help_text="A description shown to the organizers.")
     public_description = models.TextField(
-        help_text="A description that is shown to all leaders and staff members."
+        help_text="A description shown to all leaders and staff members."
     )
 
     before_switching = models.TextField(
@@ -55,7 +55,7 @@ class ExamPhase(models.Model):
 
     exam_settings = models.JSONField(
         default=Exam.get_default_control_settings,
-        help_text="A dictionnary containing fields and settings.",
+        help_text="A dictionary containing fields and settings.",
     )
 
     available_question_settings = models.JSONField(
@@ -67,14 +67,14 @@ class ExamPhase(models.Model):
 
     checks_warning = models.JSONField(
         default=list,
-        help_text="A list of checks which can trigger a warnign when applying the transition.",
+        help_text="A list of checks that can trigger a warning when applying the transition.",
         null=True,
         blank=True,
     )
 
     checks_error = models.JSONField(
         default=list,
-        help_text="A list of checks which can prevent the transition.",
+        help_text="A list of checks that can prevent the transition.",
         null=True,
         blank=True,
     )
@@ -126,12 +126,12 @@ class ExamPhase(models.Model):
         double_checks = set(self.checks_error).intersection(set(self.checks_warning))
         if double_checks:
             raise ValidationError(
-                f"Checks cannot be both warnings and errors. The following checks have been selected twice {double_checks}.",
+                f"Checks cannot be both warnings and errors. The following checks have been selected twice: {double_checks}.",
                 code="invalid",
             )
 
     def apply(self, username=None):
-        """ apply the settings to exam"""
+        """Apply the settings to exam"""
         self.is_applicable(raise_errs=True)
         # Apply new settings
         new_settings = self.exam_settings
@@ -231,7 +231,7 @@ class ExamPhase(models.Model):
 
     @classmethod
     def get_exam_field_help_texts(cls):
-        """"Returns a dictionary {field_name:help_text}"""
+        """Returns a dictionary {field_name:help_text}."""
         res = {}
         for f in cls.get_available_exam_fields():
             if hasattr(f, "help_text"):
@@ -277,7 +277,7 @@ class ExamPhaseHistory(models.Model):
     to_phase = models.ForeignKey(
         ExamPhase,
         on_delete=models.CASCADE,
-        help_text="The phase to which the exam was changed (if applicable)",
+        help_text="The phase to which the exam was changed (if applicable).",
         null=True,
         blank=True,
     )
@@ -298,7 +298,7 @@ class ExamPhaseHistory(models.Model):
         )
 
     def changes_to_previous(self):
-        """Returns the exam phase changes to the previous phase"""
+        """Returns the exam phase changes to the previous phase."""
         res = {}
         previous = self.get_previous()
         if previous is None:
@@ -315,7 +315,7 @@ class ExamPhaseHistory(models.Model):
 
     @classmethod
     def get_latest(cls, exam):
-        """Returns the latest phase of exam"""
+        """Returns the latest phase of exam."""
         if cls.objects.filter(exam=exam).exists():
             return cls.objects.filter(exam=exam).latest("timestamp")
         return None
