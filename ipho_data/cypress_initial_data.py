@@ -9,9 +9,7 @@ from ipho_data.test_data_creator import TestDataCreator
 
 
 def set_up_basic_test_database():
-    tdc = TestDataCreator(
-        db_name="db_data/database.s3db", data_path="test_data_cypress"
-    )
+    tdc = TestDataCreator(data_path="test_data_cypress")
 
     with tdc.clean(delete_after=False):
         tdc.init_database()
@@ -20,6 +18,7 @@ def set_up_basic_test_database():
         tdc.create_organizer_user(pw_strategy="trivial")
         tdc.create_delegation_user(pw_strategy="trivial")
         tdc.create_three_poll_questions()
+        tdc.create_ipho2016_theory_exam()
 
 
 def main():
