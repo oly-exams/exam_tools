@@ -1,10 +1,11 @@
-FROM python:3.8-slim-buster
+FROM python:3.8
 
 ENV PYTHONUNBUFFERED 1
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y \
   git \
+  libpq-dev \
   --no-install-recommends && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # create non-root-user
@@ -20,4 +21,5 @@ RUN pip install --no-cache -r requirements.txt -r requirements_dev.txt
 RUN git init
 COPY .pre-commit-config.yaml .
 RUN pre-commit install-hooks
+
 CMD ["pre-commit", "run", "--from-ref", "HEAD~1", "--to-ref", "HEAD"]

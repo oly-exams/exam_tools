@@ -17,7 +17,7 @@ services:
             - 8000:8000
         environment:
             - BOWER_STATIC_PATH=${DJANGO_SERVER_BOWER_STATIC_PATH:-/home/container/bower/static}
-        command: python django_server/manage.py runserver
+        command: python manage.py runserver
         healthcheck:
             test: ./docker/wait-for-it.sh localhost:8000 -t 3
             interval: 60s
