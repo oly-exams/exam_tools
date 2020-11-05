@@ -17,5 +17,5 @@ docker-compose -p "exam_tools" \
                -f "$SCRIPTPATH/celery_worker/docker-compose.yml" \
                -f "$SCRIPTPATH/rabbitmq/docker-compose.yml" \
                -f "$SCRIPTPATH/postgres/docker-compose.yml" \
-               -f "$SCRIPTPATH/docker-compose.dev.yml" \
+               -f "$SCRIPTPATH/overwrite/dev.yml" \
                $@

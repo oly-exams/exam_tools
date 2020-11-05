@@ -22,4 +22,4 @@ RUN git init
 COPY .pre-commit-config.yaml .
 RUN pre-commit install-hooks
 
-CMD ["pre-commit", "run", "--from-ref", "HEAD~1", "--to-ref", "HEAD"]
+CMD ["pre-commit", "run"]

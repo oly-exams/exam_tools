@@ -6,5 +6,5 @@ services:
         command: ./e2e/server_with_testdata.sh
 
     testing_cypress:
-        depend_on:
+        depends_on:
             - django_server

@@ -50,4 +50,4 @@ ENV CELERY_WORKER=2
 RUN mkdir -p /var/run/celery /var/log/celery \
   && chown -R nobody:nogroup /var/run/celery /var/log/celery
 
-CMD ./docker/wait-for-it.sh -t 90 $RABBITMQ_HOST:5672 && celery -A exam_tools worker --statedb=/var/run/celery/worker-example@%h.state -E --concurrency=${CELERY_WORKER} -O fair --uid=nobody --gid=nogroup
+CMD /tmp/wait-for-it.sh -t 90 $RABBITMQ_HOST:5672 && celery -A exam_tools worker --statedb=/var/run/celery/worker-example@%h.state -E --concurrency=${CELERY_WORKER} -O fair --uid=nobody --gid=nogroup

@@ -21,6 +21,7 @@ class TestDataCreator(DataCreator):
             if db_name is None:
                 db_name = DEFAULT_DATABASE_NAME
             self.db_filepath = Path(settings.PROJECT_PATH) / db_name
+            self.db_filepath.parent.mkdir(parents=True, exist_ok=True)
             db_setting["NAME"] = str(self.db_filepath)
             connections["default"].settings_dict["NAME"] = db_setting["NAME"]
 

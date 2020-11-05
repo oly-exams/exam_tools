@@ -13,7 +13,7 @@ test:testing_cypress:
     extends: .test:pull_and_run
     variables:
         SERVICE_NAMES: django_server testing_cypress
-        OVERWRITE_COMPOSE: docker/testing_cypress/docker-compose.text.yml
+        OVERWRITE_COMPOSE: docker/overwrite/testing_cypress_test.yml
     after_script:
         # copying makes the folderstructure look nicer on gitlab
         - mkdir $CI_PROJECT_DIR/videos

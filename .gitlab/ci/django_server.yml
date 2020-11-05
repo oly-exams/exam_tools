@@ -14,7 +14,7 @@ test:django_server:
     extends: .test:pull_and_run
     variables:
         ALL_SERVICE_NAME: django_server
-        OVERWRITE_COMPOSE: docker/django_server/docker-compose.text.yml
+        OVERWRITE_COMPOSE: docker/overwrite/django_server_test.yml
     artifacts:
         reports:
             junit: unittest_reports/*.xml

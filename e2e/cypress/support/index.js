@@ -21,11 +21,11 @@ import './commands'
 
 before(() => {
     // runs once before all tests in the block
-    cy.exec('mv ../ipho.db ../ipho-initial.db')
+    cy.exec('mv ../db_data/database.s3db ../db_data/database-initial.s3db')
 })
 
 beforeEach(() => {
     // this runs prior to every test
     // across all files no matter what
-    cy.exec('cp ../ipho-initial.db ../ipho.db')
+    cy.exec('cp ../db_data/database-initial.s3db ../db_data/database.s3db')
 })
