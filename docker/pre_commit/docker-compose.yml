@@ -2,15 +2,13 @@ version: "3.2"
 services:
     pre_commit:
         build:
-            context: ../../
+            context: ../
             dockerfile: docker/pre_commit/Dockerfile${VARIANT:-}
             cache_from:
                 - pre_commit
         image: pre_commit${VARIANT:-}
         container_name: pre_commit
-        stdin_open: ${DOCKER_STDIN_OPEN:-false} # docker run -i
-        tty: ${DOCKER_TTY:-false}               # docker run -t
         volumes:
-            - ../../:/home/container/workdir:rw
+            - ../:/home/container/workdir:rw
         working_dir: /home/container/workdir
         command: ${PRE_COMMIT_COMMAND:-}

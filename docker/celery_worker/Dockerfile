@@ -4,11 +4,11 @@ ENV PYTHONUNBUFFERED 1
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y \
-  postgresql-client \
-  libpq-dev \
+  tidy \
   sqlite3 \
   mercurial \
-  tidy \
+  libpq-dev \
+  postgresql-client \
   inkscape imagemagick \
   texlive texlive-pstricks texlive-xetex texlive-lang-cjk texlive-lang-greek \
   --no-install-recommends && rm -rf /var/lib/apt/lists/*
@@ -20,18 +20,17 @@ RUN apt-get update && apt-get install -y \
 #   curl -o /texlive-2015.tar.gz http://monitor.oly-exams.org:8080/content/texlive-2015.tar.gz \
 #   && tar xzf /texlive-2015.tar.gz -C /usr/local/ \
 #   && ln -s /usr/local/texlive/2015/bin/x86_64-linux /opt/texbin
+COPY ./static/noto/*tf /usr/local/share/fonts/
+RUN chmod 644 /usr/local/share/fonts/*tf && dpkg-reconfigure fontconfig-config
+RUN apt-get update && apt-get install -y \
+    locales \
+    --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 COPY ./requirements.txt /requirements.txt
 
 RUN pip install --no-cache -r requirements.txt
-RUN pip install --no-cache psycopg2-binary>=2.8
 
-COPY . /app
-RUN cp /app/static/noto/*tf /usr/local/share/fonts/ && chmod 644 /usr/local/share/fonts/*tf && dpkg-reconfigure fontconfig-config
 
-RUN apt-get update && apt-get install -y \
-  locales \
-  --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # Set the locale
 # RUN \
@@ -46,12 +45,9 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-WORKDIR /app
-
 ENV CELERY_WORKER=2
-ENV DJANGODIR=/app
 
 RUN mkdir -p /var/run/celery /var/log/celery \
   && chown -R nobody:nogroup /var/run/celery /var/log/celery
 
-CMD celery -A exam_tools worker --statedb=/var/run/celery/worker-example@%h.state -E --concurrency=${CELERY_WORKER} -O fair --uid=nobody --gid=nogroup
+CMD ./docker/wait-for-it.sh -t 90 $RABBITMQ_HOST:5672 && celery -A exam_tools worker --statedb=/var/run/celery/worker-example@%h.state -E --concurrency=${CELERY_WORKER} -O fair --uid=nobody --gid=nogroup

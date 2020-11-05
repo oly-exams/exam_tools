@@ -10,5 +10,12 @@
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=$(dirname $SCRIPT)
 
-ALL_COMPOSE_FILES_WITH_F=$(echo $SCRIPTPATH/docker/*/docker-compose.yml | sed 's/ / -f /g')
-docker-compose -f $ALL_COMPOSE_FILES_WITH_F $@
+docker-compose -p "exam_tools" \
+               --project-directory="$SCRIPTPATH" \
+               --env-file="$SCRIPTPATH/env/dev.yml" \
+               -f "$SCRIPTPATH/django_server/docker-compose.yml" \
+               -f "$SCRIPTPATH/celery_worker/docker-compose.yml" \
+               -f "$SCRIPTPATH/rabbitmq/docker-compose.yml" \
+               -f "$SCRIPTPATH/postgres/docker-compose.yml" \
+               -f "$SCRIPTPATH/docker-compose.dev.yml" \
+               $@

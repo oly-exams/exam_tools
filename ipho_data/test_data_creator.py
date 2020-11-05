@@ -14,19 +14,15 @@ DEFAULT_DATABASE_NAME = settings.DATABASES["default"]["NAME"]
 class TestDataCreator(DataCreator):
     def __init__(self, db_name=None, data_path="test_data", **kwgs):
         data_path = Path(__file__).parent / data_path
-
-        db_setting = settings.DATABASES["default"]
-        if "sqlite3" not in db_setting["ENGINE"]:
-            raise RuntimeError("TestDataCreator supports only sqlite3 at the moment")
-
         super().__init__(data_path, **kwgs)
 
-        if db_name is None:
-            db_name = DEFAULT_DATABASE_NAME
-        self.db_filepath = Path(settings.PROJECT_PATH) / db_name
-
-        db_setting["NAME"] = str(self.db_filepath)
-        connections["default"].settings_dict["NAME"] = db_setting["NAME"]
+        db_setting = settings.DATABASES["default"]
+        if "sqlite3" in db_setting["ENGINE"]:
+            if db_name is None:
+                db_name = DEFAULT_DATABASE_NAME
+            self.db_filepath = Path(settings.PROJECT_PATH) / db_name
+            db_setting["NAME"] = str(self.db_filepath)
+            connections["default"].settings_dict["NAME"] = db_setting["NAME"]
 
     def copy_from(self, copy_from):
         shutil.copy(copy_from.db_filepath, self.db_filepath)

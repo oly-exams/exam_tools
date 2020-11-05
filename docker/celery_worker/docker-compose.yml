@@ -1,0 +1,13 @@
+version: "3.2"
+services:
+    celery_worker:
+        build:
+            context: ../
+            dockerfile: docker/celery_worker/Dockerfile${VARIANT:-}
+            cache_from:
+                - celery_worker
+        image: celery_worker${VARIANT:-}
+        container_name: celery_worker
+        volumes:
+            - ../:/home/container/workdir:rw
+        working_dir: /home/container/workdir

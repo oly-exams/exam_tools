@@ -1,0 +1,17 @@
+version: "3.2"
+services:
+    rabbitmq:
+        image: rabbitmq
+        container_name: rabbitmq
+        ports:
+            - 5672:5672
+        environment:
+            - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-guest}
+            - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
+        volumes:
+             - ./wait-for-it.sh:/tmp/wait-for-it.sh:ro
+        healthcheck:
+            test: /tmp/wait-for-it.sh localhost:5672 -t 3
+            interval: 60s
+            timeout: 10s
+            retries: 2

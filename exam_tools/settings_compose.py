@@ -39,18 +39,18 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "db",
+        "USER": os.environ["POSTGRES_USER"],
+        "PASSWORD": os.environ["POSTGRES_PASSWORD"],
+        "HOST": os.environ["POSTGRES_HOST"],
         "PORT": 5432,
     }
 }
 
-CELERY_BROKER_URL = "amqp://user:pass@rabbit:5672/"
+CELERY_BROKER_URL = f'amqp://{os.environ["RABBITMQ_USER"]}:{os.environ["RABBITMQ_PASSWORD"]}@{os.environ["RABBITMQ_HOST"]}:5672/'
 
-SITE_URL = "http://web:8000"
+SITE_URL = "http://django_server:8000"
 ALLOWED_HOSTS += (
-    "web",
+    "django_server",
     "localhost",
 )
 

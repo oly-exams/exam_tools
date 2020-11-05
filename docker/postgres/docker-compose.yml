@@ -1,0 +1,16 @@
+version: "3.2"
+services:
+  postgres:
+    image: postgres
+    container_name: ${POSTGRES_HOST:-postgres}
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - ../db_data/postgres:/var/lib/postgresql/data:rw
+      - ./wait-for-it.sh:/tmp/wait-for-it.sh:ro
+    healthcheck:
+        test: /tmp/wait-for-it.sh postgres:5432 -t 3
+        interval: 60s
+        timeout: 10s
+        retries: 2

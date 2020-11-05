@@ -1,0 +1,18 @@
+version: "3.2"
+
+services:
+    django_server:
+        command: ./docker/run_if_ready.sh "python manage.py migrate && python manage.py runserver 0.0.0.0:8000" "postgres:5432"
+        # command: ls
+        env_file:
+            - env/dev.env
+        depends_on:
+            - postgres
+            - celery_worker
+
+    celery_worker:
+        env_file:
+            - env/dev.env
+        depends_on:
+            - rabbitmq
+            - postgres

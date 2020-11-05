@@ -2,15 +2,13 @@ version: "3.2"
 services:
     testing_cypress:
         build:
-            context: ../../
+            context: ../
             dockerfile: docker/testing_cypress/Dockerfile${VARIANT:-}
             cache_from:
                 - testing_cypress
         image: testing_cypress${VARIANT:-}
         container_name: testing_cypress
-        stdin_open: ${DOCKER_STDIN_OPEN:-false} # docker run -i
-        tty: ${DOCKER_TTY:-false}               # docker run -t
         volumes:
-            - ../../:/home/container/workdir:rw
+            - ../:/home/container/workdir:rw
         working_dir: /home/container/workdir/e2e
         network_mode: host  #will be changed to a docker-network later
