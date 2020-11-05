@@ -11,4 +11,3 @@ services:
         volumes:
             - ../:/home/container/workdir:rw
         working_dir: /home/container/workdir
-        command: ${PRE_COMMIT_COMMAND:-}

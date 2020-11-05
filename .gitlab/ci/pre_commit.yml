@@ -15,7 +15,7 @@ build:pre_commit:
 test:pre_commit:
     extends: .test:pull_and_run
     variables:
-        SERVICE_NAME: pre_commit
+        ALL_SERVICE_NAME: pre_commit
 
 merge:pre_commit:
     extends: .test:pull_and_run
@@ -24,5 +24,5 @@ merge:pre_commit:
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     variables:
-        SERVICE_NAME: pre_commit
-        ENV_FILE: env/pre_commit_all.env
+        ALL_SERVICE_NAME: pre_commit
+        OVERWRITE_COMPOSE: pre_commit/docker-compose.all.yml

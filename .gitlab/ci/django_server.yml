@@ -13,8 +13,8 @@ build:django_server:
 test:django_server:
     extends: .test:pull_and_run
     variables:
-        SERVICE_NAME: django_server
-        ENV_FILE: env/testing_django.env
+        ALL_SERVICE_NAME: django_server
+        OVERWRITE_COMPOSE: django_server/docker-compose.text.yml
     artifacts:
         reports:
             junit: unittest_reports/*.xml

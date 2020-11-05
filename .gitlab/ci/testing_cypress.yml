@@ -10,11 +10,10 @@ build:testing_cypress:
             - docker/testing_cypress/*
 
 test:testing_cypress:
-    extends: .test:pull_and_run_2
+    extends: .test:pull_and_run
     variables:
-        SERVICE_NAME_1: testing_cypress
-        SERVICE_NAME_2: django_server
-        ENV_FILE: env/testing_cypress.env
+        SERVICE_NAMES: django_server testing_cypress
+        OVERWRITE_COMPOSE: testing_cypress/docker-compose.text.yml
     after_script:
         # copying makes the folderstructure look nicer on gitlab
         - mkdir $CI_PROJECT_DIR/videos

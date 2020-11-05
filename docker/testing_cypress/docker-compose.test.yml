@@ -1,0 +1,10 @@
+version: "3.2"
+services:
+    django_server:
+        environment:
+            - DJANGO_SETTINGS_MODULE=exam_tools.settings_testing
+        command: ./e2e/server_with_testdata.sh
+
+    testing_cypress:
+        depend_on:
+            - django_server

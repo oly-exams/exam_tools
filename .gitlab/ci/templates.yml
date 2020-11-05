@@ -17,23 +17,14 @@
     #if we push faster than CI runs, kill old pipeline jobs
     interruptible: true
     variables:
-        ENV_FILE: {}
-        # SERVICE_NAME is expected
+        OVERWRITE_COMPOSE: {}
+        # ALL_SERVICE_NAME is expected
     script:
-        - IMG="$PROJ_REG/$IMG_NAME:$SERVICE_NAME"
-        - docker pull -q $IMG && docker tag $IMG $SERVICE_NAME
-        - $CI_PROJECT_DIR/docker/compose.sh --env-file="$ENV_FILE" up --abort-on-container-exit $SERVICE_NAME
-
-.test:pull_and_run_2:
-    stage: test
-    interruptible: true
-    variables:
-        ENV_FILE: {}
-        # SERVICE_NAME_1 is expected
-        # SERVICE_NAME_2 is expected
-    script:
-        - IMG_1="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_1"
-        - docker pull -q $IMG_1 && docker tag $IMG_1 $SERVICE_NAME_1
-        - IMG_2="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_2"
-        - docker pull -q $IMG_2 && docker tag $IMG_2 $SERVICE_NAME_2
-        - $CI_PROJECT_DIR/docker/compose.sh --env-file="$ENV_FILE" up --abort-on-container-exit $SERVICE_NAME_1 $SERVICE_NAME_2
+        - >
+            for $SNAME in $ALL_SERVICE_NAME
+            do
+                echo $SNAME
+                IMG="$PROJ_REG/$IMG_NAME:$SNAME"
+                docker pull -q $IMG && docker tag $IMG $SNAME
+            done
+        - $CI_PROJECT_DIR/docker/compose.sh -f "$OVERWRITE_COMPOSE" up --abort-on-container-exit $ALL_SERVICE_NAME
