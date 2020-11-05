@@ -1,0 +1,243 @@
+# Exam Tools
+#
+# Copyright (C) 2014 - 2019 Oly Exams Team
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import re
+import logging
+import json
+from hashlib import md5
+import requests
+from google.cloud import translate_v2 as translate
+from google.oauth2 import service_account
+
+from django.conf import settings
+
+from ipho_exam.models import CachedAutoTranslation
+
+
+django_logger = logging.getLogger("django.request")
+logger = logging.getLogger("exam_tools")
+
+
+AUTO_TRANSLATE_LANGUAGE_LIST = [
+    lang["language"] for lang in settings.AUTO_TRANSLATE_LANGUAGES
+]
+
+
+class DeepLClient:
+    def __init__(self, auth_key=settings.DEEPL_API_KEY):
+        self.parameters = {
+            "split_sentences": "nonewlines",
+            "tag_handling": "xml",
+            "non_splitting_tags": "span",
+            "auth_key": auth_key,
+        }
+        self.url = settings.DEEPL_API_URL
+
+    def translate_multiple(self, texts, source_lang, target_lang, parameters=None):
+        """Translate a list of texts with DeepL"""
+        # prepare request parameters
+        new_parameters = self.parameters.copy()
+        if parameters is not None:
+            new_parameters.update(parameters)
+        if source_lang is not None:
+            new_parameters["source_lang"] = source_lang
+        new_parameters["target_lang"] = target_lang
+
+        if len(texts) > 50:
+            raise ValueError("Can only translate up to 50 texts.")
+        new_parameters["text"] = texts
+
+        # send request
+        response = requests.get(self.url, params=new_parameters)
+
+        # raise error if request was not successful
+        if response.status_code != 200:
+            raise ValueError(
+                f"DeepL returned status code: {response.status_code} \n"
+                f"The response was {response.content} \n"
+                f"With parameters {new_parameters}"
+            )
+
+        # return a list of translated texts
+        res_dict = response.json()
+        translations = res_dict["translations"]
+        translated_texts = [trl["text"] for trl in translations]
+        return translated_texts
+
+    def translate(self, text, source_lang, target_lang, parameters=None):
+        """Translate a string with DeepL"""
+        res = self.translate_multiple(
+            [
+                text,
+            ],
+            source_lang,
+            target_lang,
+            parameters=parameters,
+        )
+        return res[0]
+
+
+class MathReplacer:
+    """Replaces math spans with empty spans"""
+
+    def __init__(self):
+        self.matches = []
+        self.i = -1
+        self.replace_pattern = (
+            r'<\s*span\s*class\s*=\s*"math-tex"\s*>.*?<\s*\/\s*span\s*>'
+        )
+        self.readd_pattern = (
+            r'<\s*span\s*data-oly\s*=\s*"([0-9]*)"\s*>\s*<\s*\/\s*span\s*>'
+        )
+
+    def _repl(self, match):
+        self.matches.append(match.group(0))
+        self.i += 1
+        return f'<span data-oly="{self.i}"></span>'
+
+    def _readd(self, match):
+        num = int(match.group(1))
+        if num < len(self.matches):
+            return self.matches[num]
+        return match.group(0)
+
+    def replace_math(self, raw_text):
+        return re.sub(self.replace_pattern, self._repl, raw_text)
+
+    def readd_math(self, raw_translated_text):
+        return re.sub(self.readd_pattern, self._readd, raw_translated_text)
+
+
+def get_cached_translation(from_lang_style, to_lang, text):
+    hash_ = md5((from_lang_style + to_lang + text).encode("utf-8")).hexdigest()
+    cachedtr = CachedAutoTranslation.objects.filter(source_and_lang_hash=hash_).first()
+    if cachedtr is not None:
+        cachedtr.hits += 1
+        cachedtr.save()
+        return cachedtr.target_text
+    return None
+
+
+def save_cached_translation(
+    from_lang_style, from_lang, from_length, to_lang, text, raw_translated_text
+):
+    hash_ = md5((from_lang_style + to_lang + text).encode("utf-8")).hexdigest()
+    cachedtr, _ = CachedAutoTranslation.objects.get_or_create(
+        source_and_lang_hash=hash_, source_length=from_length
+    )
+    cachedtr.source_lang = from_lang
+    cachedtr.target_lang = to_lang
+    cachedtr.target_text = raw_translated_text
+    cachedtr.save()
+
+
+def translate_google(from_lang, to_lang, text):
+    json_cred = json.loads(
+        getattr(settings, "GOOGLE_TRANSLATE_SERVICE_ACCOUNT_KEY", "{}")
+    )
+    translate_client = translate.Client(
+        credentials=service_account.Credentials.from_service_account_info(json_cred)
+    )
+
+    # Patch languages (e.g. en-US -> en)
+    if from_lang in settings.GOOGLE_TRANSLATE_LANGUAGE_PATCH:
+        from_lang = settings.GOOGLE_TRANSLATE_LANGUAGE_PATCH[from_lang]
+    if to_lang in settings.GOOGLE_TRANSLATE_LANGUAGE_PATCH:
+        to_lang = settings.GOOGLE_TRANSLATE_LANGUAGE_PATCH[to_lang]
+
+    google_from_lang = from_lang if from_lang else None
+
+    # get translated text
+    cloud_response = translate_client.translate(
+        text, target_language=to_lang, source_language=google_from_lang
+    )
+    return cloud_response["translatedText"]
+
+
+def translate_deepl(from_lang, to_lang, text):
+
+    # transform notation
+    deepl_from_lang = settings.DEEPL_SOURCE_LANGUAGES[from_lang]
+    deepl_to_lang = settings.DEEPL_TARGET_LANGUAGES[to_lang]
+
+    translate_client = DeepLClient()
+
+    # translate
+    try:
+        translated_text = translate_client.translate(
+            text, deepl_from_lang, deepl_to_lang
+        )
+    except ValueError as err:
+        # log error and use google as a fallback
+        django_logger.error(err)
+        logger.error(err)
+        translated_text = translate_google(from_lang, to_lang, text)
+    return translated_text
+
+
+def auto_translate_helper(raw_text, from_lang_obj, to_lang, delegation):
+    # sanitize to_lang and from_lang
+    if from_lang_obj.style is not None:
+        from_lang = settings.STYLES_TO_AUTO_TRANSLATE_MAPPING[from_lang_obj.style]
+        from_lang_style = from_lang_obj.style
+    else:
+        from_lang = ""
+        from_lang_style = "None"
+    if to_lang == from_lang:
+        return {"text": raw_text}
+    if to_lang not in AUTO_TRANSLATE_LANGUAGE_LIST:
+        raise ValueError(
+            f"Target Language {to_lang} not in AUTO_TRANSLATE_LANGUAGE_LIST"
+        )
+    if from_lang != "" and from_lang not in AUTO_TRANSLATE_LANGUAGE_LIST:
+        raise ValueError(
+            f"Source Language {from_lang} not in AUTO_TRANSLATE_LANGUAGE_LIST"
+        )
+
+    # replace math with empty spans
+    math_replacer = MathReplacer()
+    text = math_replacer.replace_math(raw_text)
+
+    # update translate_char_count
+    from_length = len(text)
+    if delegation is not None:
+        delegation.auto_translate_char_count += from_length
+        delegation.save()
+
+    # get cached text
+    raw_translated_text = get_cached_translation(from_lang_style, to_lang, text)
+
+    # translate if no cached text exists
+    if raw_translated_text is None:
+        # prefer deepl
+        if (
+            from_lang in settings.DEEPL_SOURCE_LANGUAGES
+            and to_lang in settings.DEEPL_SOURCE_LANGUAGES
+        ):
+            raw_translated_text = translate_deepl(from_lang, to_lang, text)
+        else:
+            raw_translated_text = translate_google(from_lang, to_lang, text)
+
+        # cache result
+        save_cached_translation(
+            from_lang_style, from_lang, from_length, to_lang, text, raw_translated_text
+        )
+
+    # readd math
+    translated_text = math_replacer.readd_math(raw_translated_text)
+
+    return {"text": translated_text}
