@@ -305,13 +305,6 @@ class Exam(models.Model):
 
     code = models.CharField(max_length=8)
     name = models.CharField(max_length=100, unique=True)
-    hidden = models.BooleanField(
-        default=False, help_text="Exam is viewable for non superusers."
-    )
-
-    active = models.BooleanField(
-        default=True, help_text="Exam is editable and viewable by delegations."
-    )
 
     VISIBLE_SUPERUSER_ONLY = -1
     VISIBLE_ORGANIZER = 0
@@ -439,23 +432,6 @@ class Exam(models.Model):
         choices=MODERATION_CHOICES,
         help_text="Allow access to moderation interface.",
         verbose_name="Moderation",
-    )
-
-    marking_active = models.BooleanField(
-        default=False,
-        help_text="Allow marking submission from delegations. Activate only after official marks are entered.",
-    )
-    moderation_active = models.BooleanField(
-        default=False, help_text="Allow access to moderation interface."
-    )
-    show_scans = models.BooleanField(
-        default=False, help_text="Show successful scans to delegation."
-    )
-    hide_feedback = models.BooleanField(
-        default=False, help_text="Hide feedback from delegations"
-    )
-    show_delegation_submissions = models.BooleanField(
-        default=False, help_text="Show submissions of the delegation"
     )
 
     # Fields controllable by the control app
