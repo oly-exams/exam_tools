@@ -488,7 +488,7 @@ class Exam(models.Model):
 
     @classmethod
     def get_translatability(cls, user):
-        if user.is_superuser or user.has_perm("ipho_core.is_staff"):
+        if user.is_superuser or user.has_perm("ipho_core.is_organizer"):
             return Exam.CAN_TRANSLATE_ORGANIZER
         if user.has_perm("ipho_core.can_see_boardmeeting"):
             return Exam.CAN_TRANSLATE_BOARDMEETING
