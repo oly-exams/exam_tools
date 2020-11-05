@@ -21,11 +21,10 @@
         # ALL_SERVICE_NAME is expected
     script:
         - >
-            echo $ALL_SERVICE_NAME
-            for SNAME in $ALL_SERVICE_NAME
-            do
-                echo $SNAME
-                IMG="$PROJ_REG/$IMG_NAME:$SNAME"
-                docker pull -q $IMG && docker tag $IMG $SNAME
+            for SNAME in $ALL_SERVICE_NAME \
+            do \
+                echo $SNAME \
+                IMG="$PROJ_REG/$IMG_NAME:$SNAME" \
+                docker pull -q $IMG && docker tag $IMG $SNAME \
             done
         - $CI_PROJECT_DIR/docker/compose.sh -f "$OVERWRITE_COMPOSE" up --abort-on-container-exit $ALL_SERVICE_NAME
