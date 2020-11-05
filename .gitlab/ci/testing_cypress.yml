@@ -14,7 +14,7 @@ test:testing_cypress:
     variables:
         SERVICE_NAME_1: testing_cypress
         SERVICE_NAME_2: django_server
-        ENV_FILE: docker/env/testing_cypress.env
+        ENV_FILE: env/testing_cypress.env
     after_script:
         # copying makes the folderstructure look nicer on gitlab
         - mkdir $CI_PROJECT_DIR/videos

@@ -14,7 +14,7 @@ test:django_server:
     extends: .test:pull_and_run
     variables:
         SERVICE_NAME: django_server
-        ENV_FILE: docker/env/testing_django.env
+        ENV_FILE: env/testing_django.env
     artifacts:
         reports:
             junit: unittest_reports/*.xml

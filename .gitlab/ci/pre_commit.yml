@@ -25,4 +25,4 @@ merge:pre_commit:
         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     variables:
         SERVICE_NAME: pre_commit
-        ENV_FILE: ./docker/env/pre_commit_all.env
+        ENV_FILE: env/pre_commit_all.env
