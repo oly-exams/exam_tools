@@ -21,6 +21,7 @@
         # ALL_SERVICE_NAME is expected
     script:
         - >
+            echo $ALL_SERVICE_NAME
             for SNAME in $ALL_SERVICE_NAME
             do
                 echo $SNAME
