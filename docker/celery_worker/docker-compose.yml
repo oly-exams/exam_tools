@@ -10,4 +10,5 @@ services:
         container_name: celery_worker
         volumes:
             - ../:/home/container/workdir:rw
+            - ./wait-for-it.sh:/tmp/wait-for-it.sh:ro
         working_dir: /home/container/workdir
