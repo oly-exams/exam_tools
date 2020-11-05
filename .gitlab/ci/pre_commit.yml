@@ -2,7 +2,6 @@ build:pre_commit:
     extends: .build:build_cached_push
     variables:
         SERVICE_NAME: pre_commit
-        OVERWRITE_COMPOSE: docker/overwrite/pre_commit_diff.yml
     rules:
         - if: '$DOCKER_CACHE == "0"'
         - if: '$IMG_NAME != $IMG_COMPARE'
@@ -16,6 +15,7 @@ test:pre_commit:
     extends: .test:pull_and_run
     variables:
         ALL_SERVICE_NAME: pre_commit
+        OVERWRITE_COMPOSE: docker/overwrite/pre_commit_diff.yml
 
 merge:pre_commit:
     extends: .test:pull_and_run
