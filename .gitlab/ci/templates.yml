@@ -21,7 +21,7 @@
         # ALL_SERVICE_NAME is expected
     script:
         - >
-            for $SNAME in $ALL_SERVICE_NAME
+            for SNAME in $ALL_SERVICE_NAME
             do
                 echo $SNAME
                 IMG="$PROJ_REG/$IMG_NAME:$SNAME"
