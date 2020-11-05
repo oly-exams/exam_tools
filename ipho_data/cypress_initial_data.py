@@ -18,6 +18,7 @@ def set_up_basic_test_database():
         tdc.create_organizer_user(pw_strategy="trivial")
         tdc.create_delegation_user(pw_strategy="trivial")
         tdc.create_three_poll_questions()
+        tdc.create_official_delegation()
         tdc.create_ipho2016_theory_exam()
 
 
