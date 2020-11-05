@@ -1,0 +1,45 @@
+build:pre_commit:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: pre_commit
+    rules:
+        - if: '$DOCKER_CACHE == "0"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
+            - docker/pre_commit/*
+            - .pre-commit-config.yaml
+            - requirements.txt
+            - requirements_dev.txt
+
+build:django_server:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: django_server
+    rules:
+        - if: '$DOCKER_CACHE == "0"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
+            - docker/django_server/*
+            - requirements.txt
+            - bower/*
+
+build:celery_worker:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: celery_worker
+    rules:
+        - if: '$DOCKER_CACHE == "0"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
+            - docker/celery_worker/*
+            - requirements.txt
+
+build:testing_cypress:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: testing_cypress
+    rules:
+        - if: '$DOCKER_CACHE == "0"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
+            - docker/testing_cypress/*
