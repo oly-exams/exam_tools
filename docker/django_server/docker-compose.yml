@@ -16,8 +16,8 @@ services:
         working_dir: /home/container/workdir
         ports:
             - 8000:8000
-        expose:
-            - 8000
+        # expose:
+        #     - 8000
         environment:
             - BOWER_STATIC_PATH=${DJANGO_SERVER_BOWER_STATIC_PATH:-/home/container/bower/static}
         command: python manage.py runserver
