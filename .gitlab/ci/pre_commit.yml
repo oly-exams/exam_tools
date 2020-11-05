@@ -25,4 +25,4 @@ merge:pre_commit:
         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     variables:
         ALL_SERVICE_NAME: pre_commit
-        OVERWRITE_COMPOSE: pre_commit/docker-compose.all.yml
+        OVERWRITE_COMPOSE: docker/pre_commit/docker-compose.all.yml
