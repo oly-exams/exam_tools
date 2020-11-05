@@ -23,9 +23,9 @@
         - |
             for SNAME in $ALL_SERVICE_NAME
             do
-                echo pulling $SNAME
+                echo trying to pull $SNAME
                 IMG="$PROJ_REG/$IMG_NAME:$SNAME"
-                docker pull -q $IMG
-                docker tag $IMG $SNAME
+                docker pull -q $IMG    || echo "image found on gitlab registry"
+                docker tag $IMG $SNAME || true
             done
         - $CI_PROJECT_DIR/docker/compose.sh -f "$OVERWRITE_COMPOSE" up --abort-on-container-exit $ALL_SERVICE_NAME
