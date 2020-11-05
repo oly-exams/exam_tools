@@ -20,11 +20,14 @@ import os
 import shutil
 import logging
 from tempfile import mkdtemp
+import re
+import pypandoc
+import latex2mathml.converter
+
 
 from django.http import HttpResponse
 from django.conf import settings
-
-from appy.pod.renderer import Renderer as ODTRenderer
+from django.utils.html import escape
 
 from . import tex
 
@@ -34,8 +37,7 @@ TEMP_PREFIX = getattr(settings, "ODT_TEMP_PREFIX", "render_odt-")
 logger = logging.getLogger("ipho_exam")
 
 
-def render_odt_response(tpl_name, context, filename, ext_resources):
-    origin = os.path.join(TEMPLATE_PATH, tpl_name)
+def render_odt_response(context, filename, ext_resources):
     contextdict = {}
     for data in context:
         contextdict.update(**data)
@@ -45,22 +47,50 @@ def render_odt_response(tpl_name, context, filename, ext_resources):
         tmp = mkdtemp(prefix=TEMP_PREFIX)
 
         for res in ext_resources:
-            res.save(tmp)
+            res.save(tmp, svg_to_png=True)
             if isinstance(res, tex.FigureExport):
                 contextdict["document"] = contextdict["document"].replace(
                     res.figname, f"{tmp}/{res.figname}"
                 )
 
+        ref_name = os.path.join(settings.TEMPLATE_PATH, "ipho_exam/odt/reference.odt")
+        tpl_name = os.path.join(
+            settings.TEMPLATE_PATH, "ipho_exam/odt/tmpl.opendocument"
+        )
+
         output = f"{tmp}/doc.odt"
         logger.debug(
             "Render template '%s' to '%s'", tpl_name, output
         )  # this is recommended by pylint W1201
-        renderer = ODTRenderer(origin, contextdict, output, overwriteExisting=True)
-        renderer.run()
+
+        mathtex_pattern = re.compile(
+            r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</span>'
+        )
+
+        def tex_to_mathml(txt):
+            return mathtex_pattern.sub(
+                lambda m: latex2mathml.converter.convert(escape(m.group(1))),
+                txt.replace(r"\begin{equation}", '<span class="math-tex">\\(').replace(
+                    r"\end{equation}", "\\)</span>"
+                ),
+            )
+
+        text = tex_to_mathml(contextdict["document"])
+        pypandoc.convert_text(
+            text,
+            format="html",
+            to="odt",
+            outputfile=output,
+            extra_args=[
+                "-M512M -RTS",
+                f"--template={tpl_name}",
+                f"--reference-doc={ref_name}",
+                f"--metadata=lang_name:{contextdict['lang_name']}",
+                f"--metadata=title:{contextdict['title']}",
+            ],
+        )
         result = open(output, "rb").read()
-    # except (OSError, PodError), e:
-    #     logger.error("Cannot render '{}' : {}" % (tpl_name, e))
-    #     raise e
+
     finally:
         if output and os.path.exists(tmp):
             shutil.rmtree(tmp)

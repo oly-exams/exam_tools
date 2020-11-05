@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
   git \
   npm \
   patch \
+  pandoc \
   nodejs \
   sqlite3 \
   inkscape \

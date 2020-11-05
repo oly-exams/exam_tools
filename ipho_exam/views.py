@@ -3720,7 +3720,6 @@ def compiled_question_odt(request, question_id, lang_id, version_num=None):
         "document": trans_content,
     }
     return render_odt_response(
-        "ipho_exam/odt/exam_question.odt",
         RequestContext(request, context),
         filename,
         ext_resources,
