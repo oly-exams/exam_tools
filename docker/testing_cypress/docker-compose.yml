@@ -3,10 +3,10 @@ services:
     testing_cypress:
         build:
             context: ../
-            dockerfile: docker/testing_cypress/Dockerfile${VARIANT:-}
+            dockerfile: docker/testing_cypress/Dockerfile
             cache_from:
                 - testing_cypress
-        image: testing_cypress${VARIANT:-}
+        image: testing_cypress
         container_name: testing_cypress
         volumes:
             - ../:/home/container/workdir:rw

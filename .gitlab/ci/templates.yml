@@ -3,6 +3,8 @@
     # build will not be spawned every time, dont interrupt
     interruptible: false
     script:
+        # repository name must be lowercase
+        - IMG_NAME=$(echo "$IMG_NAME" | awk '{print tolower($0)}')
         # I cannot build this variable in gitlab, since they dont allow nested $
         - IMG="$PROJ_REG/$IMG_NAME:$SERVICE_NAME"
         # this is the recommended way to reuse layers
@@ -20,12 +22,13 @@
         OVERWRITE_COMPOSE: {}
         # ALL_SERVICE_NAME is expected
     script:
+        - IMG_NAME=$(echo "$IMG_NAME" | awk '{print tolower($0)}')
         - |
             for SNAME in $ALL_SERVICE_NAME
             do
                 echo trying to pull $SNAME
                 IMG="$PROJ_REG/$IMG_NAME:$SNAME"
-                docker pull -q $IMG    || echo "image found on gitlab registry"
+                docker pull -q $IMG    || true
                 docker tag $IMG $SNAME || true
             done
         - $CI_PROJECT_DIR/docker/compose.sh -f "$OVERWRITE_COMPOSE" up --abort-on-container-exit $ALL_SERVICE_NAME

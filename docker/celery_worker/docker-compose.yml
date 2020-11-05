@@ -3,10 +3,10 @@ services:
     celery_worker:
         build:
             context: ../
-            dockerfile: docker/celery_worker/Dockerfile${VARIANT:-}
+            dockerfile: docker/celery_worker/Dockerfile
             cache_from:
                 - celery_worker
-        image: celery_worker${VARIANT:-}
+        image: celery_worker
         container_name: celery_worker
         volumes:
             - ../:/home/container/workdir:rw

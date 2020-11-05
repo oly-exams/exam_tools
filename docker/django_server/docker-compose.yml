@@ -5,10 +5,10 @@ services:
     django_server:
         build:
             context: ../
-            dockerfile: docker/django_server/Dockerfile${VARIANT:-}
+            dockerfile: docker/django_server/Dockerfile
             cache_from:
                 - django_server
-        image: django_server${VARIANT:-}
+        image: django_server
         container_name: django_server
         volumes:
             - ../:/home/container/workdir:rw
