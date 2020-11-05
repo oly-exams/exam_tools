@@ -210,7 +210,7 @@ class ExamPhase(models.Model):
 
     def get_ordered_settings(self):
         av_set = self.get_available_exam_field_names()
-        return OrderedDict((s, self.exam_settings[s]) for s in av_set)
+        return OrderedDict((s, self.exam_settings.get(s)) for s in av_set)
 
     @classmethod
     def get_current_phase(cls, exam):

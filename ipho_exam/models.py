@@ -416,7 +416,7 @@ class Exam(models.Model):
     MARKING_CHOICES = (
         (MARKING_CLOSED, "Not open"),
         (MARKING_ORANIZER_ONLY, "Organizer only"),
-        (MARKING_DELEGATION, "Organizer done, delegation can submit"),
+        (MARKING_DELEGATION, "Organizer done, delegation can submit and sign off"),
     )
 
     marking = models.IntegerField(
@@ -434,9 +434,9 @@ class Exam(models.Model):
         (MODERATION_OPEN, "Can be moderated"),
     )
 
-    marking = models.IntegerField(
+    moderation = models.IntegerField(
         default=-1,
-        choices=MARKING_CHOICES,
+        choices=MODERATION_CHOICES,
         help_text="Allow access to moderation interface.",
         verbose_name="Moderation",
     )

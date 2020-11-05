@@ -32,6 +32,7 @@ from django.http import (
     HttpResponseRedirect,
     HttpResponse,
     HttpResponseForbidden,
+    Http404,
 )
 from django.contrib.auth.decorators import permission_required
 
@@ -110,6 +111,7 @@ def summary(request):
     for student in students:
         stud_points_list = (
             Marking.objects.filter(version=vid, student=student["id"])
+            .filter(marking_meta__question__exam__marking=Exam.MARKING_ORANIZER_ONLY)
             .values("marking_meta__question")
             .annotate(question_points=Sum("points"))
             .values_list(
@@ -123,6 +125,7 @@ def summary(request):
 
         stud_exam_points_list = (
             Marking.objects.filter(version=vid, student=student["id"])
+            .filter(marking_meta__question__exam__marking=Exam.MARKING_ORANIZER_ONLY)
             .values("marking_meta__question__exam")
             .annotate(exam_points=Sum("points"))
             .values("exam_points")
@@ -130,6 +133,7 @@ def summary(request):
         )
         stud_marking_action_list = (
             MarkingAction.objects.filter(delegation=student["delegation"])
+            .filter(question__exam__marking=Exam.MARKING_ORANIZER_ONLY)
             .values("status")
             .order_by("question__exam", "question__position")
         )
@@ -142,7 +146,8 @@ def summary(request):
         )
 
     questions = (
-        MarkingMeta.objects.all()
+        MarkingMeta.objects.filter(question__exam__marking=Exam.MARKING_ORANIZER_ONLY)
+        .all()
         .values("question")
         .annotate(question_points=Sum("max_points"))
         .values("question__exam__name", "question__name", "question_points")
@@ -151,7 +156,8 @@ def summary(request):
     )
 
     exams = (
-        MarkingMeta.objects.all()
+        MarkingMeta.objects.filter(question__exam__marking=Exam.MARKING_ORANIZER_ONLY)
+        .all()
         .values("question__exam")
         .annotate(exam_points=Sum("max_points"))
         .values("question__exam__name", "exam_points")
@@ -179,9 +185,14 @@ def staff_stud_detail(request, version, stud_id, question_id):
     ctx["msg"] = []
 
     if not request.user.has_perm("ipho_core.is_marker") or version != "O":
-        raise RuntimeError("You cannot modify these markings!")
+        raise Http404("You cannot modify these markings!")
 
-    question = get_object_or_404(Question, id=question_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user).filter(
+            exam__marking=Exam.MARKING_ORANIZER_ONLY
+        ),
+        id=question_id,
+    )
     student = get_object_or_404(Student, id=stud_id)
     marking_action = get_object_or_404(
         MarkingAction, delegation=student.delegation, question=question
@@ -190,7 +201,7 @@ def staff_stud_detail(request, version, stud_id, question_id):
         marking_action.status == MarkingAction.LOCKED
         or marking_action.status == MarkingAction.FINAL
     ):
-        raise RuntimeError("These markings are locked, you cannot modify them!")
+        raise Http404("These markings are locked, you cannot modify them!")
 
     metas = MarkingMeta.objects.filter(question=question)
     FormSet = modelformset_factory(  # pylint: disable=invalid-name
@@ -379,7 +390,7 @@ def delegation_summary(
     exam_list = []
     for exam in (
         Exam.objects.for_user(request.user)
-        .filter(marking_active=True)
+        .filter(marking__gte=Exam.MARKING_DELEGATION)
         .order_by("pk")
         .all()
     ):
@@ -537,7 +548,9 @@ def delegation_summary(
         )
         points_per_student.append((student, stud_exam_points_list, total))
 
-    active_exams = Exam.objects.for_user(request.user).filter(marking_active=True)
+    active_exams = Exam.objects.for_user(request.user).filter(
+        marking__gte=Exam.MARKING_DELEGATION
+    )
     scans_table_per_exam = []
     scan_show_exams = Exam.objects.for_user(request.user).filter(
         delegation_scan_access__gte=Exam.DELEGATION_SCAN_ACCESS_STUDENT_ANSWER
@@ -599,7 +612,7 @@ def delegation_stud_edit(
     question = get_object_or_404(
         Question,
         id=question_id,
-        exam__marking_active=True,
+        exam__marking__gte=Exam.MARKING_DELEGATION,
         exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
     )
     version = "D"
@@ -652,7 +665,7 @@ def delegation_stud_edit(
         form.save()
         students = delegation.student_set.all()
         stud_id_list = [str(s.id) for s in students]
-        next_stud_index = stud_id_list.index(stud_id) + 1
+        next_stud_index = stud_id_list.index(str(stud_id)) + 1
         next_stud_button = ""
         if next_stud_index < len(stud_id_list):
             next_stud_id = stud_id_list[next_stud_index]
@@ -694,7 +707,7 @@ def delegation_edit_all(request, question_id):
     question = get_object_or_404(
         Question,
         id=question_id,
-        exam__marking_active=True,
+        exam__marking__gte=Exam.MARKING_DELEGATION,
         exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
     )
     version = "D"
@@ -772,7 +785,7 @@ def delegation_stud_view(request, stud_id, question_id):
     question = get_object_or_404(
         Question,
         id=question_id,
-        exam__marking_active=True,
+        exam__marking__gte=Exam.MARKING_DELEGATION,
         exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
     )
     versions = ["O", "D", "F"]
@@ -823,7 +836,7 @@ def delegation_view_all(request, question_id):
     question = get_object_or_404(
         Question,
         id=question_id,
-        exam__marking_active=True,
+        exam__marking__gte=Exam.MARKING_DELEGATION,
         exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
     )
     versions = ["O", "D", "F"]
@@ -894,7 +907,7 @@ def delegation_confirm(
     question = get_object_or_404(
         Question,
         id=question_id,
-        exam__marking_active=True,
+        exam__marking__gte=Exam.MARKING_DELEGATION,
         exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
     )
     form_error = ""
@@ -1103,7 +1116,7 @@ def delegation_confirm(
 def moderation_index(request, question_id=None):
     questions = (
         Question.objects.for_user(request.user)
-        .filter(exam__moderation_active=True, type=Question.ANSWER)
+        .filter(exam__moderation__gte=Exam.MODERATION_OPEN, type=Question.ANSWER)
         .order_by("exam__code", "position")
     )
     question = (
@@ -1130,7 +1143,7 @@ def moderation_detail(
         Question,
         id=question_id,
         exam__visibility__gte=Exam.VISIBLE_ORGANIZER,
-        exam__moderation_active=True,
+        exam__moderation=Exam.MODERATION_OPEN,
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)
 
@@ -1141,7 +1154,7 @@ def moderation_detail(
         marking_action.status == MarkingAction.LOCKED
         or marking_action.status == MarkingAction.FINAL
     ):
-        raise RuntimeError("These markings are locked, you cannot modify them!")
+        raise Http404("These markings are locked, you cannot modify them!")
 
     metas = MarkingMeta.objects.filter(question=question)
     students = delegation.student_set.all()
@@ -1230,6 +1243,7 @@ def official_marking_index(request, question_id=None):
     questions = (
         Question.objects.for_user(request.user)
         .filter(type=Question.ANSWER)
+        .filter(exam__marking=Exam.MARKING_ORANIZER_ONLY)
         .order_by("exam__code", "position")
     )
     question = (
@@ -1251,7 +1265,9 @@ def official_marking_index(request, question_id=None):
 @permission_required("ipho_core.is_marker")
 def official_marking_detail(request, question_id, delegation_id):
     question = get_object_or_404(
-        Question, id=question_id, exam__visibility__gte=Exam.VISIBLE_ORGANIZER
+        Question.objects.for_user(request.user),
+        id=question_id,
+        exam__marking=Exam.MARKING_ORANIZER_ONLY,
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)
     marking_action = get_object_or_404(
@@ -1261,7 +1277,7 @@ def official_marking_detail(request, question_id, delegation_id):
         marking_action.status == MarkingAction.LOCKED
         or marking_action.status == MarkingAction.FINAL
     ):
-        raise RuntimeError("These markings are locked, you cannot modify them!")
+        raise Http404("These markings are locked, you cannot modify them!")
 
     metas = MarkingMeta.objects.filter(question=question)
     students = delegation.student_set.all()
@@ -1319,7 +1335,8 @@ def official_marking_detail(request, question_id, delegation_id):
 @permission_required("ipho_core.is_marker")
 def official_marking_confirmed(request, question_id, delegation_id):
     question = get_object_or_404(
-        Question, id=question_id, exam__visibility__gte=Exam.VISIBLE_ORGANIZER
+        Question.objects.for_user(request.user),
+        id=question_id,
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)
 
@@ -1343,7 +1360,7 @@ def moderation_confirmed(request, question_id, delegation_id):
         Question,
         id=question_id,
         exam__visibility__gte=Exam.VISIBLE_ORGANIZER,
-        exam__moderation_active=True,
+        exam__moderation=Exam.MODERATION_OPEN,
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)
 
@@ -1401,7 +1418,7 @@ def marking_submissions(request):
                 .values_list("delegation__country", flat=True),
             )
             for question in Question.objects.for_user(request.user)
-            .filter(exam__marking_active=True, type=Question.ANSWER)
+            .filter(exam__marking__gte=Exam.MARKING_DELEGATION, type=Question.ANSWER)
             .order_by("exam__pk", "position")
         ]
     }
@@ -1428,7 +1445,7 @@ def export_countries_to_moderate(request):
         x = [delegation.country, delegation.name]
         for question in (
             Question.objects.for_user(request.user)
-            .filter(exam__marking_active=True, type=Question.ANSWER)
+            .filter(exam__marking__gte=Exam.MARKING_DELEGATION, type=Question.ANSWER)
             .order_by("exam__pk", "position")
         ):
             for status in list(
