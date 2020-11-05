@@ -532,6 +532,18 @@ class Exam(models.Model):
     def check_feedback_editable(self):
         return self.feedback >= Exam.FEEDBACK_CAN_BE_OPENED
 
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+        if self.pk:
+            previous_feedback = Exam.objects.get(pk=self.pk).feedback
+        else:
+            previous_feedback = None
+        super().save(*args, **kwargs)
+
+        if self.feedback != previous_feedback:
+            for question in self.question_set.all():
+                question.feedback_status = Question.FEEDBACK_CLOSED
+                question.save()
+
 
 class QuestionManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):
