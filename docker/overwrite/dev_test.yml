@@ -4,4 +4,4 @@ services:
     django_server:
         command: /bin/sh -c "docker/wait-for-it.sh -t 90 $$POSTGRES_HOST:5432 && python manage.py migrate"
         environment:
-            DJANGO_SETTINGS_MODULE=exam_tools.settings_compose
+            - DJANGO_SETTINGS_MODULE=exam_tools.settings_compose
