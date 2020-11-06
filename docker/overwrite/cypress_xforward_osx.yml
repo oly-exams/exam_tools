@@ -1,11 +1,11 @@
-# see https://medium.com/@mreichelt/how-to-show-x11-windows-within-docker-on-mac-50759f4b65cb
+# for mac see: https://sourabhbajaj.com/blog/2017/02/07/gui-applications-docker-mac/
 # docker via Docker Desktop
 version: "3.2"
 
 services:
     testing_cypress:
         environment:
-            - DISPLAY=host.docker.internal:0
+            - DISPLAY=$DISPLAY  #comes in via CLI
             - QT_X11_NO_MITSHM=1
         # https://github.com/cypress-io/cypress/issues/350
         ipc: host

@@ -7,6 +7,7 @@ services:
             cache_from:
                 - testing_cypress
         image: testing_cypress
+        hostname: testing_cypress
         container_name: testing_cypress
         volumes:
             - ../:/home/container/workdir:rw
