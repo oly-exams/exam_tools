@@ -8,15 +8,6 @@ services:
                 - testing_cypress
         image: testing_cypress
         container_name: testing_cypress
-        environment: # this works for windows (Sebi)
-            - DISPLAY=host.docker.internal:0
-            - QT_X11_NO_MITSHM=1
-        # for mac see: https://sourabhbajaj.com/blog/2017/02/07/gui-applications-docker-mac/
-        # tl/dr:
-        # on host:
-        # IP=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
-        # xhost + $IP
-        # pass to container: -e DISPLAY=$IP:0
         volumes:
             - ../:/home/container/workdir:rw
         working_dir: /home/container/workdir/e2e
