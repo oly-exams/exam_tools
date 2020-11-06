@@ -36,4 +36,4 @@ test:docker_dev_setup:
     extends: .test:pull_and_run
     variables:
         ALL_SERVICE_NAME: django_server postgres rabbitmq celery_worker
-        OVERWRITE_COMPOSE: docker/overwrite/dev_test.yml
+        OVERWRITE_COMPOSE: docker/overwrite/dev.yml docker/overwrite/dev_test.yml

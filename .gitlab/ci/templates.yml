@@ -32,4 +32,5 @@
                     docker tag $IMG $SNAME
                 fi
             done
-        - $CI_PROJECT_DIR/docker/compose.sh -f "$OVERWRITE_COMPOSE" up --abort-on-container-exit $ALL_SERVICE_NAME
+        - ALL_OVERWRITE_WITH_F=$(echo OVERWRITE_COMPOSE | sed 's/ / -f /g')
+        - $CI_PROJECT_DIR/docker/compose.sh -f $ALL_OVERWRITE_WITH_F up --abort-on-container-exit $ALL_SERVICE_NAME
