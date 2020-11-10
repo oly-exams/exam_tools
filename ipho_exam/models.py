@@ -292,11 +292,15 @@ class ExamManager(models.Manager):
     def for_user(self, user):
         queryset = self.get_queryset()
         if user.is_superuser:
-            return queryset.filter(visibility__gte=Exam.VISIBLE_SUPERUSER_ONLY)
+            return queryset.filter(visibility__gte=Exam.VISIBLE_2ND_LVL_SUPPORT_ONLY)
         if user.has_perm("ipho_core.is_organizer"):
-            return queryset.filter(visibility__gte=Exam.VISIBLE_ORGANIZER)
+            return queryset.filter(
+                visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
+            )
         if user.has_perm("ipho_core.can_see_boardmeeting"):
-            return queryset.filter(visibility__gte=Exam.VISIBLE_BOARDMEETING)
+            return queryset.filter(
+                visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+            )
         return self.none()
 
 
@@ -305,15 +309,18 @@ class Exam(models.Model):
 
     code = models.CharField(max_length=8)
     name = models.CharField(max_length=100, unique=True)
-
-    VISIBLE_SUPERUSER_ONLY = -1
-    VISIBLE_ORGANIZER = 0
-    VISIBLE_BOARDMEETING = 1
+    # pylint: disable=invalid-name
+    VISIBLE_2ND_LVL_SUPPORT_ONLY = -1
+    VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT = 0
+    VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING = 1
 
     VISIBILITY_CHOICES = (
-        (VISIBLE_SUPERUSER_ONLY, "Superuser only"),
-        (VISIBLE_ORGANIZER, "Organizer only"),
-        (VISIBLE_BOARDMEETING, "Boardmeeting members"),
+        (VISIBLE_2ND_LVL_SUPPORT_ONLY, "2nd level support only"),
+        (VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT, "Organizer + 2nd level support"),
+        (
+            VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
+            "Boardmeeting + Organizer + 2nd level support",
+        ),
     )
 
     visibility = models.IntegerField(
@@ -330,7 +337,7 @@ class Exam(models.Model):
     CAN_TRANSLATE_CHOICES = (
         (CAN_TRANSLATE_NOBODY, "Nobody"),
         (CAN_TRANSLATE_ORGANIZER, "Organizer only"),
-        (CAN_TRANSLATE_BOARDMEETING, "Boardmeeting members"),
+        (CAN_TRANSLATE_BOARDMEETING, "Boardmeeting members and organizers"),
     )
 
     can_translate = models.IntegerField(
@@ -357,38 +364,38 @@ class Exam(models.Model):
         verbose_name="Feedback",
     )
 
-    PRINTING_NOT_VISIBLE = -1
-    PRINTING_WHEN_SUBMITTED = 0
+    SUBMISSION_PRINTING_NOT_VISIBLE = -1
+    SUBMISSION_PRINTING_WHEN_SUBMITTED = 0
 
-    PRINTING_CHOICES = (
-        (PRINTING_NOT_VISIBLE, "No, not visible"),
-        (PRINTING_WHEN_SUBMITTED, "When submitted"),
+    SUBMISSION_PRINTING_CHOICES = (
+        (SUBMISSION_PRINTING_NOT_VISIBLE, "No, not visible"),
+        (SUBMISSION_PRINTING_WHEN_SUBMITTED, "When submitted"),
     )
 
-    printing = models.IntegerField(
+    submission_printing = models.IntegerField(
         default=-1,
-        choices=PRINTING_CHOICES,
+        choices=SUBMISSION_PRINTING_CHOICES,
         help_text="Sets the ability to print the exam.",
-        verbose_name="Exam Printing",
+        verbose_name="Submission Printing",
     )
 
-    SCANNING_NOT_POSSIBLE = -1
-    SCANNING_STUDENT_ANSWER = 0
+    ANSWER_SHEET_SCANNING_NOT_POSSIBLE = -1
+    ANSWER_SHEET_SCANNING_STUDENT_ANSWER = 0
 
-    SCANNING_CHOICES = (
-        (PRINTING_NOT_VISIBLE, "Not possible"),
-        (PRINTING_WHEN_SUBMITTED, "Student answer"),
+    ANSWER_SHEET_SCANNING_CHOICES = (
+        (ANSWER_SHEET_SCANNING_NOT_POSSIBLE, "Not possible"),
+        (ANSWER_SHEET_SCANNING_STUDENT_ANSWER, "Student answer"),
     )
 
-    scanning = models.IntegerField(
+    answer_sheet_scanning = models.IntegerField(
         default=-1,
-        choices=SCANNING_CHOICES,
+        choices=ANSWER_SHEET_SCANNING_CHOICES,
         help_text="Sets the ability for scans being uploaded.",
-        verbose_name="Exam Scanning",
+        verbose_name="Answer Sheet Scanning",
     )
 
     DELEGATION_SCAN_ACCESS_NO = -1
-    DELEGATION_SCAN_ACCESS_STUDENT_ANSWER = 0  # pylint: disable=invalid-name
+    DELEGATION_SCAN_ACCESS_STUDENT_ANSWER = 0
 
     DELEGATION_SCAN_ACCESS_CHOICES = (
         (DELEGATION_SCAN_ACCESS_NO, "No"),
@@ -440,8 +447,8 @@ class Exam(models.Model):
         "visibility",
         "can_translate",
         "feedback",
-        "printing",
-        "scanning",
+        "submission_printing",
+        "answer_sheet_scanning",
         "delegation_scan_access",
         "marking",
         "moderation",
@@ -479,12 +486,12 @@ class Exam(models.Model):
     @classmethod
     def get_visibility(cls, user):
         if user.is_superuser:
-            return cls.VISIBLE_SUPERUSER_ONLY
+            return cls.VISIBLE_2ND_LVL_SUPPORT_ONLY
         if user.has_perm("ipho_core.is_organizer"):
-            return cls.VISIBLE_ORGANIZER
+            return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
         if user.has_perm("ipho_core.can_see_boardmeeting"):
-            return cls.VISIBLE_BOARDMEETING
-        return cls.VISIBLE_BOARDMEETING + 1
+            return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+        return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING + 1
 
     @classmethod
     def get_translatability(cls, user):
@@ -607,8 +614,9 @@ class Question(models.Model):
             return True
         if user.has_perm("ipho_core.is_delegation_print"):
             return (
-                self.exam.printing == Exam.PRINTING_WHEN_SUBMITTED
-                and self.exam.visibility >= Exam.VISIBLE_BOARDMEETING
+                self.exam.submission_printing == Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
+                and self.exam.visibility
+                >= Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
             )
         return False
 

@@ -56,7 +56,7 @@ class DocumentViewSet(
     """
     permission_classes = (HasValidApiKeyOrAdmin,)
     queryset = Document.objects.filter(
-        exam__scanning__gte=Exam.SCANNING_STUDENT_ANSWER
+        exam__answer_sheet_scanning__gte=Exam.ANSWER_SHEET_SCANNING_STUDENT_ANSWER
     ).all()
     serializer_class = DocumentSerializer
     filter_backends = (DjangoFilterBackend,)

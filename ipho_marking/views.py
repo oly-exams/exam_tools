@@ -532,7 +532,7 @@ def delegation_summary(
             Marking.objects.filter(
                 version=vid,
                 student=student["id"],
-                marking_meta__question__exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+                marking_meta__question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
             )
             .values("marking_meta__question__exam")
             .annotate(exam_points=Sum("points"))
@@ -575,7 +575,7 @@ def delegation_summary(
 
     final_points_exams = (
         MarkingMeta.objects.filter(
-            question__exam__visibility__gte=Exam.VISIBLE_BOARDMEETING
+            question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
         )
         .values("question__exam")
         .annotate(exam_points=Sum("max_points"))
@@ -613,7 +613,7 @@ def delegation_stud_edit(
         Question,
         id=question_id,
         exam__marking__gte=Exam.MARKING_DELEGATION,
-        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
     )
     version = "D"
 
@@ -708,7 +708,7 @@ def delegation_edit_all(request, question_id):
         Question,
         id=question_id,
         exam__marking__gte=Exam.MARKING_DELEGATION,
-        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
     )
     version = "D"
 
@@ -786,7 +786,7 @@ def delegation_stud_view(request, stud_id, question_id):
         Question,
         id=question_id,
         exam__marking__gte=Exam.MARKING_DELEGATION,
-        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
     )
     versions = ["O", "D", "F"]
     versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
@@ -837,7 +837,7 @@ def delegation_view_all(request, question_id):
         Question,
         id=question_id,
         exam__marking__gte=Exam.MARKING_DELEGATION,
-        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
     )
     versions = ["O", "D", "F"]
     versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
@@ -908,7 +908,7 @@ def delegation_confirm(
         Question,
         id=question_id,
         exam__marking__gte=Exam.MARKING_DELEGATION,
-        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
     )
     form_error = ""
 
@@ -1142,7 +1142,7 @@ def moderation_detail(
     question = get_object_or_404(
         Question,
         id=question_id,
-        exam__visibility__gte=Exam.VISIBLE_ORGANIZER,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT,
         exam__moderation=Exam.MODERATION_OPEN,
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)
@@ -1359,7 +1359,7 @@ def moderation_confirmed(request, question_id, delegation_id):
     question = get_object_or_404(
         Question,
         id=question_id,
-        exam__visibility__gte=Exam.VISIBLE_ORGANIZER,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT,
         exam__moderation=Exam.MODERATION_OPEN,
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)

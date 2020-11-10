@@ -82,7 +82,7 @@ def compile_all():
 
         exams = (
             MarkingMeta.objects.filter(
-                question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER
+                question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
             )
             .values("question__exam")
             .annotate(exam_points=Sum("max_points"))

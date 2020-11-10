@@ -27,7 +27,9 @@ from .models import Marking
 
 class ImportForm(Form):
     exam = forms.ModelChoiceField(
-        queryset=Exam.objects.filter(visibility__gte=Exam.VISIBLE_ORGANIZER).all(),
+        queryset=Exam.objects.filter(
+            visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
+        ).all(),
         label="Select exam",
     )
 

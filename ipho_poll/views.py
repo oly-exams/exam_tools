@@ -159,7 +159,9 @@ def question_large(request, question_pk):
         status = "closed"
 
     feedbacks = (
-        que.feedbacks.filter(question__exam__visibility__gte=Exam.VISIBLE_BOARDMEETING)
+        que.feedbacks.filter(
+            question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+        )
         .all()
         .annotate(
             num_likes=Sum(
@@ -531,7 +533,7 @@ def voter_index(request, err_id=None):
 
         que.feedbacks_list = (
             que.feedbacks.filter(
-                question__exam__visibility__gte=Exam.VISIBLE_BOARDMEETING
+                question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
             )
             .all()
             .annotate(

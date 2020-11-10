@@ -180,7 +180,7 @@ def main(request):
     exam_list = Exam.objects.for_user(request.user)
     exams_open = ExamAction.objects.filter(
         delegation=delegation,
-        exam__visibility__gte=Exam.VISIBLE_BOARDMEETING,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
         action=ExamAction.TRANSLATION,
         status=ExamAction.OPEN,
     ).values("exam__pk", "exam__name")
@@ -291,7 +291,8 @@ def translations_list(request):
                 "exam": exam,
                 "node_list": node_list,
                 "official_nodes": official_nodes,
-                "exam_active": exam.visibility >= Exam.VISIBLE_BOARDMEETING
+                "exam_active": exam.visibility
+                >= Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
                 and in_progress,
             },
         )
@@ -906,7 +907,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         exam = get_object_or_404(
             Exam,
             id=exam_id,
-            visibility__gte=Exam.VISIBLE_BOARDMEETING,
+            visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
             feedback__gte=Exam.FEEDBACK_READONLY,
         )
     if question_id is not None:
@@ -1085,7 +1086,9 @@ def feedback_numbers(request, exam_id, question_id):
     if exam_id is not None:
         # # TODO: set correct flags
         exam = get_object_or_404(
-            Exam, id=exam_id, visibility__gte=Exam.VISIBLE_BOARDMEETING
+            Exam,
+            id=exam_id,
+            visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
         )
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
@@ -2635,7 +2638,7 @@ def submission_delegation_list_submitted(request):
 
     exams = (
         Exam.objects.for_user(request.user)
-        .filter(printing=Exam.PRINTING_WHEN_SUBMITTED)
+        .filter(submission_printing=Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED)
         .filter(
             delegation_status__delegation__in=delegation,
             delegation_status__action=ExamAction.TRANSLATION,
@@ -2692,7 +2695,9 @@ def upload_scan_delegation(request, exam_id, position, student_id):
 
     doc = get_object_or_404(Document, exam=exam, position=position, student=student)
 
-    submission_open = exam.scanning >= Exam.SCANNING_STUDENT_ANSWER
+    submission_open = (
+        exam.answer_sheet_scanning >= Exam.ANSWER_SHEET_SCANNING_STUDENT_ANSWER
+    )
 
     form = DelegationScanForm(
         exam,
@@ -3765,7 +3770,7 @@ def pdf_exam_for_student(request, exam_id, student_id):
     user = request.user
     if not user.has_perm("ipho_core.can_see_boardmeeting"):
         exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-        if not exam.printing == Exam.PRINTING_WHEN_SUBMITTED:
+        if not exam.submission_printing == Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED:
             return HttpResponseForbidden(
                 "You do not have permission to view this document."
             )
@@ -3805,7 +3810,7 @@ def pdf_exam_pos_student(
             )
         if not user.has_perm("ipho_core.can_see_boardmeeting"):
             exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-            if not exam.printing == Exam.PRINTING_WHEN_SUBMITTED:
+            if not exam.submission_printing == Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED:
                 return HttpResponseForbidden(
                     "You do not have permission to view this document."
                 )
@@ -4134,8 +4139,12 @@ def bulk_print(
 
     for doc in all_docs:
         exm = Exam.objects.get(pk=doc["exam__id"])
-        doc["exam__printing"] = exm.printing >= Exam.PRINTING_WHEN_SUBMITTED
-        doc["exam__scanning_display"] = exm.get_scanning_display()
+        doc["exam__submission_printing"] = (
+            exm.submission_printing >= Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
+        )
+        doc[
+            "exam__answer_sheet_scanning_display"
+        ] = exm.get_answer_sheet_scanning_display()
 
     paginator = Paginator(all_docs, 50)
     if not page:

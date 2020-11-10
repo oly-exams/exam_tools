@@ -205,7 +205,7 @@ This list shows only documents that have been submitted by the delegations.
             <td align="center">
               <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
               <br />
-              {% if d.exam__printing %}
+              {% if d.exam__submission_printing %}
               <input class="printouts-single" type="checkbox" name="printouts[]" value="{{ d.pk }}" />
               <div class="btn-group">
                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
@@ -262,7 +262,7 @@ This list shows only documents that have been submitted by the delegations.
                 <br />
               
               {% else %}
-              Exam: {{ d.exam__name }} is in scanning mode: {{ d.exam__scanning_display }}
+              Exam: {{ d.exam__name }} is in scanning mode: {{ d.exam__answer_sheet_scanning_display }}
               {% endif %}
             </td>
             <td>

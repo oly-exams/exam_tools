@@ -49,7 +49,7 @@ def moderation_detail(question_id, delegation_id, request=HttpRequest()):
     question = get_object_or_404(
         Question,
         id=question_id,
-        exam__visibility__gte=Exam.VISIBLE_ORGANIZER,
+        exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT,
         exam__moderation_active=True,
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)
@@ -147,7 +147,7 @@ def moderation_detail(question_id, delegation_id, request=HttpRequest()):
 
 
 answer_sheets = Question.objects.filter(
-    exam__visibility__gte=Exam.VISIBLE_ORGANIZER,
+    exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT,
     exam__moderation_active=True,
     type=Question.ANSWER,
 )
