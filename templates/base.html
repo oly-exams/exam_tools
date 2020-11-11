@@ -117,7 +117,7 @@
               {% if perms.ipho_core.can_see_boardmeeting %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
               {% endif %}
-              {% if perms.ipho_core.print_technopark or perms.ipho_core.print_irchel %}
+              {% if perms.ipho_core.print_boardmeeting_site or perms.ipho_core.print_exam_site %}
               <li><a href="{% url 'print:main' %}">Print</a></li>
               {% endif %}
 
