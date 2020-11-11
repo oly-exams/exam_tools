@@ -43,13 +43,13 @@ class MarkingAction(models.Model):
     objects = MarkingActionManager()
 
     OPEN = 0
-    SUBMITTED = 1
-    LOCKED = 2
+    SUBMITTED_FOR_MODERATION = 1
+    LOCKED_BY_MODERATION = 2
     FINAL = 3
     STATUS_CHOICES = (
         (OPEN, "In progress"),
-        (SUBMITTED, "Submitted"),
-        (LOCKED, "Locked"),
+        (SUBMITTED_FOR_MODERATION, "Submitted"),
+        (LOCKED_BY_MODERATION, "Locked"),
         (FINAL, "Final"),
     )
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -142,8 +142,12 @@ class MarkingManager(models.Manager):
 
         # In a first step, we need to find markings which are >=locked/submitted
         # We achieve this by creating individual Q objects for each Action and then concatenating them
-        locked_actions = MarkingAction.objects.filter(status__gte=MarkingAction.LOCKED)
-        subm_actions = MarkingAction.objects.filter(status__gte=MarkingAction.SUBMITTED)
+        locked_actions = MarkingAction.objects.filter(
+            status__gte=MarkingAction.LOCKED_BY_MODERATION
+        )
+        subm_actions = MarkingAction.objects.filter(
+            status__gte=MarkingAction.SUBMITTED_FOR_MODERATION
+        )
         locked_action_q_list = [
             Q(student__delegation=a.delegation, marking_meta__question=a.question)
             for a in locked_actions
@@ -229,7 +233,7 @@ class MarkingManager(models.Manager):
         # We achieve this by creating individual Q objects for each Action and then concatenating them
         un_final_actions = MarkingAction.objects.filter(status__lt=MarkingAction.FINAL)
         un_subm_actions = MarkingAction.objects.filter(
-            status__lt=MarkingAction.SUBMITTED
+            status__lt=MarkingAction.SUBMITTED_FOR_MODERATION
         )
         un_final_action_q_list = [
             Q(student__delegation=a.delegation, marking_meta__question=a.question)

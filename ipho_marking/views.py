@@ -492,7 +492,7 @@ def delegation_summary(
                     "link": reverse("marking:delegation-confirm", args=(question.pk,)),
                     "text": "Submit marks",
                 }
-            elif marking_status == MarkingAction.SUBMITTED:
+            elif marking_status == MarkingAction.SUBMITTED_FOR_MODERATION:
                 if (
                     settings.ACCEPT_MARKS_BEFORE_MODERATION
                     and question.exam.delegation_can_finalize_marking()
@@ -504,7 +504,7 @@ def delegation_summary(
                         "text": "Accept marks without moderation",
                         "tooltip": "You don't need to do anything if you want to have a moderation.",
                     }
-            elif marking_status == MarkingAction.LOCKED:
+            elif marking_status == MarkingAction.LOCKED_BY_MODERATION:
                 if (
                     settings.SIGN_OFF_FINAL_MARKS
                     and question.exam.delegation_can_finalize_marking()
@@ -550,7 +550,7 @@ def delegation_summary(
             if not MarkingAction.objects.filter(
                 question__exam=exam,
                 delegation=delegation,
-                status__lte=MarkingAction.SUBMITTED,
+                status__lte=MarkingAction.SUBMITTED_FOR_MODERATION,
             ).exists():
                 stud_markings_exam = markings.filter(
                     marking_meta__question__exam=exam, student=student
@@ -1002,13 +1002,13 @@ def delegation_confirm(
 
         if (
             not settings.SIGN_OFF_FINAL_MARKS
-            and marking_action.status == MarkingAction.LOCKED
+            and marking_action.status == MarkingAction.LOCKED_BY_MODERATION
         ):
             # if sign off is deactivated, locked marks cannot (don't need to be) signed off
             return HttpResponseRedirect(reverse("marking:delegation-summary"))
         if (
             not settings.ACCEPT_MARKS_BEFORE_MODERATION
-            and not marking_action.status == MarkingAction.LOCKED
+            and not marking_action.status == MarkingAction.LOCKED_BY_MODERATION
         ):
             # if not settings.ACCEPT_MARKS_BEFORE_MODERATION only locked marks can be final-confirmed
             return HttpResponseRedirect(reverse("marking:delegation-summary"))
@@ -1018,9 +1018,9 @@ def delegation_confirm(
         return HttpResponseRedirect(reverse("marking:delegation-summary"))
 
     if final_confirmation:
-        if marking_action.status == MarkingAction.LOCKED:
+        if marking_action.status == MarkingAction.LOCKED_BY_MODERATION:
             vid = "F"
-        elif marking_action.status == MarkingAction.SUBMITTED:
+        elif marking_action.status == MarkingAction.SUBMITTED_FOR_MODERATION:
             vid = "O"
         else:
             return HttpResponseForbidden("An error occured, please contact support!")
@@ -1070,12 +1070,13 @@ def delegation_confirm(
 
     if any(m.points is None for m in markings_query):
         if (
-            final_confirmation and marking_action.status == MarkingAction.LOCKED
-        ):  # if status is LOCKED, all final marks should be there.
+            final_confirmation
+            and marking_action.status == MarkingAction.LOCKED_BY_MODERATION
+        ):  # if status is LOCKED_BY_MODERATION, all final marks should be there.
             msg = f"Some final marks for {question.name} are missing, please contact support!"
         elif (
             final_confirmation
-        ):  # id status is OPEN or SUBMITTED, the orgainzer marks should be finished, but maybe aren't
+        ):  # id status is OPEN or SUBMITTED_FOR_MODERATION, the orgainzer marks should be finished, but maybe aren't
             msg = "Some marks for {} are missing, please wait for the organizers to submit all marks!".format(
                 question.name
             )
@@ -1106,7 +1107,7 @@ def delegation_confirm(
                     error_messages.append(("alert-danger", error_msg))
                     checksum = "none"
                 else:
-                    if marking_action.status == MarkingAction.SUBMITTED:
+                    if marking_action.status == MarkingAction.SUBMITTED_FOR_MODERATION:
                         for off_mark in Marking.objects.filter(
                             marking_meta__question=question,
                             student__delegation=delegation,
@@ -1124,12 +1125,12 @@ def delegation_confirm(
                     marking_action.save()
                     return HttpResponseRedirect(reverse("marking:delegation-summary"))
             else:
-                marking_action.status = MarkingAction.SUBMITTED
+                marking_action.status = MarkingAction.SUBMITTED_FOR_MODERATION
                 marking_action.save()
                 return HttpResponseRedirect(reverse("marking:delegation-summary"))
         elif "reject-final" in request.POST and final_confirmation:
             # i.e. if delegation rejects final marks, unlock marking action
-            marking_action.status = MarkingAction.SUBMITTED
+            marking_action.status = MarkingAction.SUBMITTED_FOR_MODERATION
             marking_action.save()
             return HttpResponseRedirect(reverse("marking:delegation-summary"))
         else:
@@ -1185,7 +1186,7 @@ def delegation_confirm(
         ctx["confirmation_checkbox_label"] = "I accept the final markings."
         ctx["confirm_button_label"] = "Accept"
 
-        if marking_action.status == MarkingAction.LOCKED:
+        if marking_action.status == MarkingAction.LOCKED_BY_MODERATION:
             # i.e. if moderation has happened
             ctx["confirmation_info"] = (
                 "Please check the points displayed below. "
@@ -1221,7 +1222,10 @@ def moderation_index(request, question_id=None):
     if question is not None:
         free_actions = (
             MarkingAction.objects.filter(question=question)
-            .filter(Q(status=MarkingAction.OPEN) | Q(status=MarkingAction.SUBMITTED))
+            .filter(
+                Q(status=MarkingAction.OPEN)
+                | Q(status=MarkingAction.SUBMITTED_FOR_MODERATION)
+            )
             .values("delegation_id")
         )
         delegations = (
@@ -1250,7 +1254,7 @@ def moderation_detail(
         MarkingAction, delegation=delegation, question=question
     )
     if (
-        marking_action.status == MarkingAction.LOCKED
+        marking_action.status == MarkingAction.LOCKED_BY_MODERATION
         or marking_action.status == MarkingAction.FINAL
     ):
         raise Http404("These markings are locked, you cannot modify them!")
@@ -1317,9 +1321,9 @@ def moderation_detail(
         for _, form, _, _, _ in student_forms:
             form.save()
         if settings.SIGN_OFF_FINAL_MARKS:
-            marking_action.status = MarkingAction.LOCKED
+            marking_action.status = MarkingAction.LOCKED_BY_MODERATION
         else:
-            # if sign off is deactivated, jump directly to locked (note that this also locks the moderation!)
+            # if sign off is deactivated, jump directly to final (note that this also locks the moderation!)
             marking_action.status = MarkingAction.FINAL
         marking_action.save()
         return HttpResponseRedirect(
@@ -1359,7 +1363,9 @@ def official_marking_index(request, question_id=None):
             >= Exam.MARKING_ORGANIZER_CAN_ENTER_IF_NOT_FINAL
         )
         if can_edit_submitted:
-            status_q = Q(status=MarkingAction.OPEN) | Q(status=MarkingAction.SUBMITTED)
+            status_q = Q(status=MarkingAction.OPEN) | Q(
+                status=MarkingAction.SUBMITTED_FOR_MODERATION
+            )
         else:
             status_q = Q(status=MarkingAction.OPEN)
 
@@ -1391,7 +1397,7 @@ def official_marking_detail(request, question_id, delegation_id):
         MarkingAction, delegation=delegation, question=question
     )
     if (
-        marking_action.status == MarkingAction.LOCKED
+        marking_action.status == MarkingAction.LOCKED_BY_MODERATION
         or marking_action.status == MarkingAction.FINAL
     ):
         raise Http404("These markings are locked, you cannot modify them!")
@@ -1508,7 +1514,7 @@ def marking_submissions(request):
                 .exclude(delegation__name=OFFICIAL_DELEGATION)
                 .count(),
                 MarkingAction.objects.filter(
-                    question=question, status=MarkingAction.SUBMITTED
+                    question=question, status=MarkingAction.SUBMITTED_FOR_MODERATION
                 )
                 .exclude(delegation__name=OFFICIAL_DELEGATION)
                 .count(),
@@ -1518,7 +1524,7 @@ def marking_submissions(request):
                 .exclude(delegation__name=OFFICIAL_DELEGATION)
                 .values_list("delegation__country", flat=True),
                 MarkingAction.objects.filter(
-                    question=question, status=MarkingAction.LOCKED
+                    question=question, status=MarkingAction.LOCKED_BY_MODERATION
                 )
                 .exclude(delegation__name=OFFICIAL_DELEGATION)
                 .count(),
@@ -1579,11 +1585,11 @@ def export_countries_to_moderate(request):
             ):
                 if status == MarkingAction.FINAL:
                     x.append("no")
-                elif status in [MarkingAction.SUBMITTED]:
+                elif status in [MarkingAction.SUBMITTED_FOR_MODERATION]:
                     x.append("yes")
                 elif status == MarkingAction.OPEN:
                     x.append("maybe")
-                elif status == MarkingAction.LOCKED:
+                elif status == MarkingAction.LOCKED_BY_MODERATION:
                     x.append("no")
 
         csv_rows.append(x)
