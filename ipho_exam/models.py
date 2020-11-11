@@ -297,7 +297,9 @@ class ExamManager(models.Manager):
             return queryset.filter(
                 visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
             )
-        if user.has_perm("ipho_core.can_see_boardmeeting"):
+        if user.has_perm("ipho_core.can_see_boardmeeting") or user.has_perm(
+            "ipho_core.is_marker"
+        ):
             return queryset.filter(
                 visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
             )
@@ -409,21 +411,85 @@ class Exam(models.Model):
         verbose_name="Delegation Scan Access",
     )
 
-    MARKING_CLOSED = -1
-    MARKING_ORANIZER_ONLY = 0
-    MARKING_DELEGATION = 1
+    MARKING_ORGANIZER_VIEW_MODERATION_FINAL = -1
+    MARKING_ORGANIZER_VIEW_WHEN_SUBMITTED = 0
 
-    MARKING_CHOICES = (
-        (MARKING_CLOSED, "Not open"),
-        (MARKING_ORANIZER_ONLY, "Organizer only"),
-        (MARKING_DELEGATION, "Organizer done, delegation can submit and sign off"),
+    MARKING_ORGANIZER_VIEW_CHOICES = (
+        (
+            MARKING_ORGANIZER_VIEW_MODERATION_FINAL,
+            "In moderation and when marks are finalized",
+        ),
+        (
+            MARKING_ORGANIZER_VIEW_WHEN_SUBMITTED,
+            "When the delegation has submitted their marks",
+        ),
     )
 
-    marking = models.IntegerField(
+    marking_organizer_can_see_delegation_marks = models.IntegerField(
         default=-1,
-        choices=MARKING_CHOICES,
-        help_text="Sets the ability to enter marks for organizers and delegations.",
-        verbose_name="Marking",
+        choices=MARKING_ORGANIZER_VIEW_CHOICES,
+        help_text="Sets the access of organizers to the delegation marks",
+        verbose_name="Organizer can see delegation marks",
+    )
+
+    MARKING_DELEGATION_VIEW_NO = -1
+    MARKING_DELEGATION_VIEW_WHEN_SUBMITTED = 0
+    MARKING_DELEGATION_VIEW_YES = 1
+
+    MARKING_DELEGATION_VIEW_CHOICES = (
+        (MARKING_DELEGATION_VIEW_NO, "No"),
+        (
+            MARKING_DELEGATION_VIEW_WHEN_SUBMITTED,
+            "When the delegation has submitted their marks",
+        ),
+        (MARKING_DELEGATION_VIEW_YES, "Yes"),
+    )
+
+    marking_delegation_can_see_organizer_marks = models.IntegerField(
+        default=-1,
+        choices=MARKING_DELEGATION_VIEW_CHOICES,
+        help_text="Sets the access of delegations to the organizer marks",
+        verbose_name="Delegations can see organizer marks",
+    )
+
+    MARKING_ORGANIZER_CAN_ENTER_NOTHING = -1
+    MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED = 0
+    MARKING_ORGANIZER_CAN_ENTER_IF_NOT_FINAL = 1
+
+    MARKING_ORGANIZER_CAN_ENTER_CHOICES = (
+        (MARKING_ORGANIZER_CAN_ENTER_NOTHING, "No"),
+        (
+            MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED,
+            "If delegation has not submitted marks",
+        ),
+        (MARKING_ORGANIZER_CAN_ENTER_IF_NOT_FINAL, "If marks are not finalized"),
+    )
+
+    marking_organizer_can_enter = models.IntegerField(
+        default=-1,
+        choices=MARKING_ORGANIZER_CAN_ENTER_CHOICES,
+        help_text="Sets the ability of markers to edit marks.",
+        verbose_name="Organizers can edit marks",
+    )
+
+    MARKING_DELEGATION_ACTION_NOTHING = -1
+    MARKING_DELEGATION_ACTION_ENTER_SUBMIT = 0
+    MARKING_DELEGATION_ACTION_ENTER_SUBMIT_FINALIZE = 1
+
+    MARKING_DELEGATION_ACTION_CHOICES = (
+        (MARKING_DELEGATION_ACTION_NOTHING, "Nothing"),
+        (MARKING_DELEGATION_ACTION_ENTER_SUBMIT, "Can enter and submit marks"),
+        (
+            MARKING_DELEGATION_ACTION_ENTER_SUBMIT_FINALIZE,
+            "Can enter, submit and finalize marks",
+        ),
+    )
+
+    marking_delegation_action = models.IntegerField(
+        default=-1,
+        choices=MARKING_DELEGATION_ACTION_CHOICES,
+        help_text="Sets the ability of delegations to enter, submit and finalize their marks.",
+        verbose_name="Delegation marking actions",
     )
 
     MODERATION_CLOSED = -1
@@ -450,7 +516,10 @@ class Exam(models.Model):
         "submission_printing",
         "answer_sheet_scanning",
         "delegation_scan_access",
-        "marking",
+        "marking_organizer_can_see_delegation_marks",
+        "marking_organizer_can_enter",
+        "marking_delegation_can_see_organizer_marks",
+        "marking_delegation_action",
         "moderation",
     ]
 
@@ -514,6 +583,18 @@ class Exam(models.Model):
 
     def check_feedback_editable(self):
         return self.feedback >= Exam.FEEDBACK_CAN_BE_OPENED
+
+    def delegation_can_submit_marking(self):
+        return (
+            self.marking_delegation_action
+            >= Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT
+        )
+
+    def delegation_can_finalize_marking(self):
+        return (
+            self.marking_delegation_action
+            >= Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT_FINALIZE
+        )
 
     def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         if self.pk:
@@ -1160,7 +1241,26 @@ def exam_scans_orig_filename(obj, fname):  # pylint: disable=unused-argument
     return f"scans-evaluated/{obj.barcode_base}__{timestamp}.pdf"
 
 
+class DocumentManager(models.Manager):
+    def for_user(self, user):
+        queryset = self.get_queryset()
+        if user.is_superuser or user.has_perm("ipho_core.is_organizer"):
+            return queryset.filter(exam__in=Exam.objects.for_user(user))
+        if user.has_perm("ipho_core.is_delegation"):
+            delegs = Delegation.objects.filter(members=user)
+            return (
+                queryset.filter(exam__in=Exam.objects.for_user(user))
+                .filter(student__delegation__in=delegs)
+                .filter(
+                    exam__delegation_scan_access__gte=Exam.DELEGATION_SCAN_ACCESS_STUDENT_ANSWER
+                )
+            )
+        return queryset.none()
+
+
 class Document(models.Model):
+    objects = DocumentManager()
+
     SCAN_STATUS_CHOICES = (
         ("S", "Success"),
         ("W", "Warning"),

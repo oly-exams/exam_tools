@@ -2966,9 +2966,11 @@ def submission_exam_confirm(
             reverse("exam:submission-exam-submitted", args=(exam.pk,))
         )
 
-    documents = Document.objects.filter(
-        exam=exam, student__delegation=delegation
-    ).order_by("student", "position")
+    documents = (
+        Document.objects.for_user(request.user)
+        .filter(exam=exam, student__delegation=delegation)
+        .order_by("student", "position")
+    )
     all_finished = all([not hasattr(doc, "documenttask") for doc in documents])
 
     if request.POST and all_finished:  # pylint: disable=too-many-nested-blocks
@@ -3109,9 +3111,11 @@ def submission_exam_submitted(
         else:
             assigned_student_language[stud_l.student][stud_l.language] = ""
 
-    documents = Document.objects.filter(
-        exam=exam, student__delegation=delegation
-    ).order_by("student", "position")
+    documents = (
+        Document.objects.for_user(request.user)
+        .filter(exam=exam, student__delegation=delegation)
+        .order_by("student", "position")
+    )
     stud_documents = {
         k: list(g) for k, g in itertools.groupby(documents, key=lambda d: d.student.pk)
     }
@@ -3990,7 +3994,8 @@ def bulk_print(
 
     positions = [
         val["position"]
-        for val in Document.objects.filter(
+        for val in Document.objects.for_user(request.user)
+        .filter(
             exam__in=filter_ex,
         )
         .values("position")
@@ -4028,7 +4033,7 @@ def bulk_print(
         for pk in request.POST.getlist(  # pylint: disable=invalid-name
             "printouts[]", []
         ):
-            doc = Document.objects.filter(pk=pk).first()
+            doc = Document.objects.for_user(request.user).filter(pk=pk).first()
             if doc is not None:
                 printer.send2queue(
                     doc.file,
@@ -4041,7 +4046,7 @@ def bulk_print(
                 log = PrintLog(document=doc, type="P")
                 log.save()
         for pk in request.POST.getlist("scans[]", []):  # pylint: disable=invalid-name
-            doc = Document.objects.filter(pk=pk).first()
+            doc = Document.objects.for_user(request.user).filter(pk=pk).first()
             if doc is not None:
                 printer.send2queue(
                     doc.scan_file,
@@ -4075,7 +4080,7 @@ def bulk_print(
         )
     print(messages)
 
-    all_docs = Document.objects.filter(
+    all_docs = Document.objects.for_user(request.user).filter(
         student__delegation__in=filter_dg,
         exam__in=filter_ex,
         exam__delegation_status__action=ExamAction.TRANSLATION,

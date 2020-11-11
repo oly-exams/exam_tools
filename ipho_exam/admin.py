@@ -97,7 +97,10 @@ class ExamAdmin(admin.ModelAdmin):
         "submission_printing",
         "answer_sheet_scanning",
         "delegation_scan_access",
-        "marking",
+        "marking_organizer_can_see_delegation_marks",
+        "marking_organizer_can_enter",
+        "marking_delegation_can_see_organizer_marks",
+        "marking_delegation_action",
         "moderation",
     )
     inlines = [QuestionInline]

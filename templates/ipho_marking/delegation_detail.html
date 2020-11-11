@@ -11,7 +11,7 @@
 
 {% block page-content %}
 
-{% if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY %}
+{% if show_official_marks %}
 <div class="modal fade" id="copy-modal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -65,13 +65,13 @@
       <table class="table table-striped">
         <tr>
           <th>Subquestion</th>
-          {% if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY %}
+          {% if show_official_marks %}
           <th>Official</th>
           <th><button type="button" class="btn btn-sm btn-default translate-copy-all-button" title="Copy all from official" data-toggle="modal" data-target="#copy-modal"><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i><i class="fa fa-arrow-right" aria-hidden="true"></i><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i></button></th>
           {% endif %}
           <th>Points</th>
         </tr>
-        {% if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY %}
+        {% if show_official_marks %}
         {{ form.management_form }}
         {% for form_item in form %}
           <tr>
@@ -100,16 +100,16 @@
       {% for m, points in markings %}
       <tr>
         <td><strong>{{ m.name }} ({{ m.max_points }})</strong></td>
-        <td>{{ points.O.0.points|default_if_none:'-' }}</td>
-        <td>{{ points.D.0.points|default_if_none:'-' }}</td>
-        <td>{{ points.F.0.points|default_if_none:'-' }}</td>
+        <td>{{ points.O|default_if_none:'-' }}</td>
+        <td>{{ points.D|default_if_none:'-' }}</td>
+        <td>{{ points.F|default_if_none:'-' }}</td>
       </tr>
       {% endfor %}
     </table>
     {% endif %}
 
 </div>
-{% if settings.SHOW_OFFICIAL_MARKS_IMMEDIATELY %}
+{% if show_official_marks %}
 <script>
     function copy_one(name, points) {
         var x = $("input[id='"+name+"']");

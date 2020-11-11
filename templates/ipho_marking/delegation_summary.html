@@ -13,70 +13,144 @@
 
   <!-- Nav tabs -->
   <ul class="nav nav-pills">
-    <li class="active"><a href="#results" data-toggle="tab">Student scans</a></li>
-    <li><a href="#details" data-toggle="tab">Delegation marking</a></li>
-    <li><a href="#finals" data-toggle="tab">Final points</a></li>
+    <li class="active"><a href="#scans" data-toggle="tab">Student scans</a></li>
+    <li><a href="#marking" data-toggle="tab">Delegation marking</a></li>
+    <li><a href="#final-points" data-toggle="tab">Final points</a></li>
   </ul>
 
   <!-- Tab panes -->
   <div class="tab-content" style="margin-top:10px;">
-    <div class="tab-pane" id="details">
 
-      <p class="lead">Submit your marking and see the official marks.</p>
+    <div class="tab-pane active" id="scans">
+      <p class="lead">Download scanned exams.</p>
+      <p class="alert alert-info"><i class="fa fa-info-circle fa-lg"></i> Pending documents still have to be processed
+        by the organizers.</p>
 
-      {% for ctxt in exam_list %}
+      {% for exam,questions,scans_of_students in scans_table_per_exam %}
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h2 class="panel-title">{{ ctxt.name }}</h2>
+          <h2 class="panel-title">{{ exam.name }}</h2>
         </div>
-        <div  class="table-responsive">
+        <table class="table table-strided">
+          <tr>
+            <th>Student</th>
+            {% for question in questions %}
+            <th style="max-width: 10em;">{{ question.name }}</th>
+            {% endfor %}
+          </tr>
+          {% for student,scans_list in scans_of_students %}
+          <tr>
+            <td>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})
+            </td>
+            {% for doc in scans_list %}
+            <td>
+              {% if doc.scan_file and doc.scan_status == 'S' %}
+              <a class="btn btn-success btn-xs"
+                href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i
+                  class="fa fa-file-pdf-o"></i> View scan</a>
+              {% else %}
+              <span class="label label-default">pending</span>
+              {% endif %}
+              {% if doc.scan_file_orig %}
+              <a class="btn btn-default btn-xs"
+                href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i
+                  class="fa fa-fw fa-file-pdf-o"></i> View full scan</a>
+              {% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% empty %}
+      <p class="alert alert-info">There are no files available for download.</p>
+      {% endfor %}
+
+    </div>
+
+    <div class="tab-pane" id="marking">
+      <p class="lead">Submit your marking and see the official marks. 
+        {% if exam_list %}
+        <a class="btn btn-default btn-sm" href="{% url 'marking:delegation-export-all' %}"><i
+        class="fa fa-file-excel-o"></i> Export All</i></a>
+        {% endif %}
+      </p>
+      
+      {% for exam_ctxt in exam_list %}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h2 class="panel-title">{{ exam_ctxt.name }}</h2>
+        </div>
+        <div class="table-responsive">
           <table class="table">
             <tr>
-                <th  style="font-size:16px;">Student</th>
-                {% for question in ctxt.questions %}
-                    <th style="font-size:16px;">{{ question.name }}</th>
-                {% endfor %}
+              <th style="font-size:16px;">Student</th>
+              {% for question_ctxt in exam_ctxt.questions %}
+              <th style="font-size:16px;">{{ question_ctxt.name }} {{ question_ctxt.students }}</th>
+              {% endfor %}
             </tr>
-            {% for student in students %}
+            {% for student_ctxt in exam_ctxt.students %}
             <tr>
-                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
-                {% for question in ctxt.questions %}
-                  <td>
-                        <span class="tooltip-span" data-toggle="tooltip" title="{{ question.view_tooltip }}">
-                          <a {% if not question.view %}disabled{% endif %} style="max-width: 9em;" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-stud-detail' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-eye"></i> View marks</a>
-                        </span>
-                        <span class="tooltip-span" data-toggle="tooltip" title="{{ question.edit_tooltip }}">
-                          <a {% if not question.edit %}disabled{% endif %} style="max-width: 9em;" class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-stud-detail-edit' stud_id=student.pk question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit marks</a>
-                        </span>
-                  </td>
-                {% endfor %}
+              <td>{{ student_ctxt.first_name }} {{ student_ctxt.last_name }} ({{ student_ctxt.code }})</td>
+              {% for question_ctxt in student_ctxt.questions %}
+              <td>
+                <span class="tooltip-span" data-toggle="tooltip" title="{{ question_ctxt.view_tooltip }}">
+                  <a {% if not question_ctxt.view %}disabled{% endif %} style="max-width: 9em;"
+                    class="btn btn-default btn-xs btn-block"
+                    href="{% url 'marking:delegation-stud-detail' stud_id=student_ctxt.pk question_id=question_ctxt.pk %}"><i
+                      class="fa fa-eye"></i> View marks</a>
+                </span>
+                <span class="tooltip-span" data-toggle="tooltip" title="{{ question_ctxt.edit_tooltip }}">
+                  <a {% if not question_ctxt.edit %}disabled{% endif %} style="max-width: 9em;"
+                    class="btn btn-warning btn-xs btn-block"
+                    href="{% url 'marking:delegation-stud-detail-edit' stud_id=student_ctxt.pk question_id=question_ctxt.pk %}"><i
+                      class="fa fa-pencil"></i> Edit marks</a>
+                </span>
+              </td>
+              {% endfor %}
             </tr>
             {% endfor %}
             <tr>
-                <td></td>
-                {% for question in ctxt.questions  %}
-                    <td>
-                      <span class="tooltip-span" data-toggle="tooltip" title="{{ question.view_tooltip }}">
-                        <a {% if not question.view %}disabled{% endif %} style="max-width: 9em;" data-toggle="tooltip" title="{{ question.viewall_tooltip }}" class="btn btn-default btn-xs btn-block" href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i> View all marks</a>
-                      </span>
-                      <span class="tooltip-span" data-toggle="tooltip" title="{{ question.edit_tooltip }}">
-                        <a {% if not question.edit %}disabled{% endif %} style="max-width: 9em;" data-toggle="tooltip" title="{{ question.editall_tooltip }}"class="btn btn-warning btn-xs btn-block" href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i class="fa fa-pencil"></i> Edit all marks</a>
-                      </span>
-                    </td>
-                {% endfor %}
+              <td></td>
+              {% for question in exam_ctxt.questions  %}
+              <td>
+                <span class="tooltip-span" data-toggle="tooltip" title="{{ question.view_tooltip }}">
+                  <a {% if not question.view_all %}disabled{% endif %} style="max-width: 9em;" data-toggle="tooltip"
+                    title="{{ question.viewall_tooltip }}" class="btn btn-default btn-xs btn-block"
+                    href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i>
+                    View all marks</a>
+                </span>
+                <span class="tooltip-span" data-toggle="tooltip" title="{{ question.edit_tooltip }}">
+                  <a {% if not question.edit_all %}disabled{% endif %} style="max-width: 9em;" data-toggle="tooltip"
+                    title="{{ question.editall_tooltip }}" class="btn btn-warning btn-xs btn-block"
+                    href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i
+                      class="fa fa-pencil"></i> Edit all marks</a>
+                </span>
+              </td>
+              {% endfor %}
             </tr>
             <tr>
               <td>
-                <a class="btn btn-default btn-sm" href="{% url 'marking:delegation-export' exam_id=ctxt.pk %}"><i class="fa fa-file-excel-o"></i> Export</i></a>
+                <a class="btn btn-default btn-sm" href="{% url 'marking:delegation-export' exam_id=exam_ctxt.pk %}"><i
+                    class="fa fa-file-excel-o"></i> Export</i></a>
               </td>
-              {% for question in ctxt.questions  %}
+              {% for question in exam_ctxt.questions  %}
               <td>
                 {% for action in question.actions %}
-                  {% if action %}
-                  <span class="tooltip-span" data-toggle="tooltip" title="{{ action.tooltip }}">
-                    <a style="max-width: 20em;" href="{{ action.link }}" class="btn {{ action.class|default:"btn-default" }} btn-sm btn-block" {% if action.disabled %}disabled{% endif %}>{{ action.text }} <i class="fa fa-angle-double-right"></i></a>
-                  </span>
-                  {% endif %}
+                {% if action and action.nolink %}
+                <span class="tooltip-span" data-toggle="tooltip" title="{{ action.tooltip }}">
+                  <button style="max-width: 20em;" href="{{ action.link }}"
+                    class="btn {{ action.class|default:"btn-default" }} btn-sm btn-block"
+                    {% if action.disabled %}disabled{% endif %}>{{ action.text }}</button>
+                </span>
+                {% elif action %}
+                <span class="tooltip-span" data-toggle="tooltip" title="{{ action.tooltip }}">
+                  <a style="max-width: 20em;" href="{{ action.link }}"
+                    class="btn {{ action.class|default:"btn-default" }} btn-sm btn-block"
+                    {% if action.disabled %}disabled{% endif %}>{{ action.text }} <i
+                      class="fa fa-angle-double-right"></i></a>
+                </span>
+                {% endif %}
                 {% endfor %}
 
               </td>
@@ -89,95 +163,52 @@
       <p class="alert alert-info">Marking is currently not enabled for any exam.</p>
       {% endfor %}
 
-      </div>
-      <div class="tab-pane" id="finals">
-        <p class="lead">Final results of your delegation decided after the moderation session.</p>
+    </div>
 
-        <div class="panel panel-default">
-        <table class="table table-striped">
-            <tr>
-                <th>Student</th>
-                {% for e in final_points_exams %}
-                <th>{{ e.question__exam__name }}<br />({{ e.exam_points }})</th>
-                {% endfor %}
-                <th>Total</th>
-            </tr>
+    <div class="tab-pane" id="final-points">
+      <p class="lead">Final results of your delegation decided after the moderation session.</p>
 
-            {% for student, exam_points, total in points_per_student %}
-            <tr>
-                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</td>
-                {% for ep in exam_points %}
-                <td>
-                  {{ ep.exam_points|default_if_none:'-' }}
-                </td>
-                {% endfor %}
-                <td>{{ total|default_if_none:'-' }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        </div>
-      </div>
-
-
-      <div class="tab-pane active" id="results">
-
-      <p class="lead">Download scanned exams.</p>
-      <p class="alert alert-info"><i class="fa fa-info-circle fa-lg"></i> Pending documents still have to be processed by the organizers.</p>
-
-      {% for exam,questions,scans_of_students in scans_table_per_exam %}
       <div class="panel panel-default">
-        <div class="panel-heading">
-          <h2 class="panel-title">{{ exam.name }}</h2>
-        </div>
-        <table class="table table-strided">
-            <tr>
-                <th>Student</th>
-                {% for question in questions %}
-                  <th style="max-width: 10em;">{{ question.name }}</th>
-                {% endfor %}
-            </tr>
-            {% for student,scans_list in scans_of_students %}
-            <tr>
-                <td>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})
-                </td>
-                {% for doc in scans_list %}
-                  <td>
-                  {% if doc.scan_file and doc.scan_status == 'S' %}
-                    <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> View scan</a>
-                  {% else %}
-                    <span class="label label-default">pending</span>
-                  {% endif %}
-                  {% if doc.scan_file_orig %}
-                  <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> View full scan</a>
-                  {% endif %}
-                  </td>
-                {% endfor %}
-            </tr>
+        <table class="table table-striped">
+          <tr>
+            <th>Student</th>
+            {% for e in final_points_exams %}
+            <th>{{ e.question__exam__name }}<br />({{ e.exam_points }})</th>
             {% endfor %}
-          </table>
+            <th>Total</th>
+          </tr>
+
+          {% for student, exam_points, total in points_per_student %}
+          <tr>
+            <td>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</td>
+            {% for ep in exam_points %}
+            <td>
+              {{ ep|default_if_none:'-' }}
+            </td>
+            {% endfor %}
+            <td>{{ total|default_if_none:'-' }}</td>
+          </tr>
+          {% endfor %}
+        </table>
       </div>
-      {% empty %}
-      <p class="alert alert-info">There are no files available for download.</p>
-      {% endfor %}
+    </div>
+  </div>
 
 </div>
-
-</div>
-
 {% endblock %}
 
 {% block extra-script %}
 
 <script>
-$(document).ready(function() {
+  $(document).ready(function () {
     if (location.hash !== '') $('a[href="' + location.hash + '"]').tab('show');
-    return $('a[data-toggle="tab"]').on('shown', function(e) {
+    return $('a[data-toggle="tab"]').on('shown', function (e) {
       return location.hash = $(e.target).attr('href').substr(1);
     });
-});
-$(document).ready(function() {
+  });
+  $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
-});
+  });
 
 </script>
 
