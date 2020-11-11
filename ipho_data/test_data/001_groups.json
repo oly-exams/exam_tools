@@ -55,7 +55,12 @@
         "iphoperm"
       ],
       [
-        "is_organizer",
+        "can_edit_exam",
+        "ipho_core",
+        "iphoperm"
+      ],
+      [
+        "is_organizer_admin",
         "ipho_core",
         "iphoperm"
       ],
@@ -449,7 +454,7 @@
     "name": "Author",
     "permissions": [
       [
-        "is_organizer",
+        "can_edit_exam",
         "ipho_core",
         "iphoperm"
       ],

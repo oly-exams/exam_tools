@@ -121,11 +121,11 @@
               <li><a href="{% url 'print:main' %}">Print</a></li>
               {% endif %}
 
-              {% if perms.ipho_core.is_organizer or perms.ipho_core.is_marker or perms.ipho_core.is_printstaff %}
+              {% if perms.ipho_core.is_organizer_admin or perms.ipho_core.is_marker or perms.ipho_core.is_printstaff or perms.ipho_core.can_edit_exam %}
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin tools <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
-                  {% if perms.ipho_core.is_organizer and perms.ipho_core.can_impersonate %}
+                  {% if perms.ipho_core.is_organizer_admin and perms.ipho_core.can_impersonate %}
                   <li class="dropdown-header">Django admin</li>
                   {% if user.is_superuser %}
                   <li><a href="{% url 'admin:index' %}">Admin</a></li>
@@ -144,12 +144,14 @@
                     <li class="divider"></li>
                   {% endif %}
 
-                  {% if perms.ipho_core.is_organizer %}
+                  {% if perms.ipho_core.can_edit_exam %}
                   <li class="dropdown-header">Exam</li>
                   <li><a href="{% url 'exam:admin' %}">Exam management</a></li>
                   <li><a href="{% url 'exam:figures' %}">Figure management</a></li>
                   <li><a href="{% url 'exam:admin-submissions-translation' %}">Submission progress</a></li>
                   <li class="divider"></li>
+                  {% endif %}
+                  {% if perms.ipho_core.is_organizer_admin %}
                   <li class="dropdown-header">Feedbacks</li>
                   <li><a href="{% url 'exam:admin-feedbacks-export-main' %}">Export feedbacks</a></li>
                   <li><a href="{% url 'send_push' %}">Send push notifications</a></li>
@@ -164,30 +166,31 @@
                   <li><a href="{% url 'exam:upload-scan' %}">Upload scans</a></li>
                   <li><a href="{% url 'exam:extra-sheets-select-exam' %}">Generate extra sheets</a></li>
                   <li><a href="{% url 'exam:print-submissions-translation' %}">Submission progress (table)</a></li>
-                  {% endif %}
-                  {% if perms.ipho_core.is_organizer %}
                   <li class="divider"></li>
+                  {% endif %}
+                  {% if perms.ipho_core.is_organizer_admin %}
                   <li class="dropdown-header">Documents API</li>
                   <li><a href="{% url 'exam:api-keys' %}">Get API keys</a></li>
                   <li><a href="{% url 'api-exam:schema' %}">API schema</a></li>
-                  {% endif %}
-                  {% if perms.ipho_core.is_organizer or perms.ipho_core.is_marker %}
                   <li class="divider"></li>
+                  {% endif %}
+                  {% if perms.ipho_core.is_organizer_admin or perms.ipho_core.is_marker %}
                   <li class="dropdown-header">Marking</li>
-                  {% if perms.ipho_core.is_organizer %}
+                  {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'marking:import-exam' %}">Import exam into marking system</a></li>
                   {% endif %}
                   <li><a href="{% url 'marking:official-marking-index' %}">Official marking</a></li>
                   <li><a href="{% url 'marking:summary' %}">(Advanced marking editing)</a></li>
                   <li><a href="{% url 'marking:progress' %}">Marking progress</a></li>
-                  {% if perms.ipho_core.is_organizer %}
+                  {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'marking:marking-submissions' %}">Delegation marking subm. progress</a></li>
                   {% endif %}
                   <li><a href="{% url 'marking:moderation-index' %}">Moderation</a></li>
-                  {% if perms.ipho_core.is_organizer %}
+                  {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'marking:export' %}">Export markings</a></li>
                   <li><a href="{% url 'marking:export-total' %}">Export markings (with totals)</a></li>
                   {% endif %}
+                  <li class="divider"></li>
                   {% endif %}
                 </ul>
               </li>
@@ -202,7 +205,9 @@
                 <strong>
                 {% if user.is_superuser %}
                 admin
-                {% elif perms.ipho_core.is_organizer %}
+                {% elif perms.ipho_core.is_organizer_admin %}
+                staff admin
+                {% elif perms.ipho_core.is_printstaff or perms.ipho_core.can_edit_exam %}
                 staff
                 {% elif perms.ipho_core.is_delegation %}
                 delegation

@@ -50,6 +50,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import (
     login_required,
     permission_required,
+    user_passes_test,
 )
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -898,7 +899,7 @@ def exam_view(
 
 
 @permission_required("ipho_core.can_see_boardmeeting")
-def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
+def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too-many-statements, too-many-nested-blocks
     request, exam_id, question_id, qml_id="", orig_id=OFFICIAL_LANGUAGE_PK
 ):
     delegation = Delegation.objects.filter(members=request.user).first()
@@ -914,8 +915,9 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         question = get_object_or_404(Question, id=question_id, exam=exam)
     ctxt = {}
 
-    if not request.user.has_perm(  # pylint: disable=too-many-nested-blocks
-        "ipho_core.is_organizer"
+    if not (
+        request.user.has_perm("ipho_core.is_organizer_admin")
+        or request.user.has_perm("ipho_core.can_edit_exam")
     ) and request.user.has_perm("ipho_core.is_delegation"):
         form = FeedbackForm(request.POST or None)
         orig_lang = get_object_or_404(Language, id=orig_id)
@@ -1056,7 +1058,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
     ctxt["feedbacks"] = feedbacks
     ctxt["status_choices"] = Feedback.STATUS_CHOICES
     ctxt["is_delegation"] = delegation is not None or request.user.has_perm(
-        "ipho_core.is_organizer"
+        "ipho_core.is_organizer_admin"
     )
 
     return render(request, "ipho_exam/partials/feedbacks_partial_tbody.html", ctxt)
@@ -1273,7 +1275,7 @@ def feedbacks_list(
                 "feedbacks": feedbacks,
                 "status_choices": Feedback.STATUS_CHOICES,
                 "is_delegation": delegation is not None
-                or request.user.has_perm("ipho_core.is_organizer"),
+                or request.user.has_perm("ipho_core.is_organizer_admin"),
             },
         )
 
@@ -1299,14 +1301,14 @@ def feedbacks_list(
             "question": question_f,
             "questions": questions_f,
             "is_delegation": delegation is not None
-            or request.user.has_perm("ipho_core.is_organizer"),
+            or request.user.has_perm("ipho_core.is_organizer_admin"),
             "this_url_builder": url_builder,
             "form": form_html,
         },
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def feedbacks_add_comment(request, feedback_id=None):
     if not request.is_ajax:
         raise Exception(
@@ -1377,7 +1379,7 @@ def feedback_like(request, status, feedback_id):
     return redirect("exam:feedbacks-list")
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def feedback_set_status(request, feedback_id, status):
     fback = get_object_or_404(Feedback, id=feedback_id)
     fback.status = status
@@ -1385,7 +1387,7 @@ def feedback_set_status(request, feedback_id, status):
     return JsonResponse({"success": True})
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def feedbacks_export(request):
     questions = Question.objects.for_user(request.user).order_by(
         "exam", "position", "type"
@@ -1399,7 +1401,7 @@ def feedbacks_export(request):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def feedbacks_export_csv(request, exam_id, question_id):
     tmp_feedbacks = (
         Feedback.objects.filter(
@@ -1481,7 +1483,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
     return response
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 @ensure_csrf_cookie
 def figure_list(request):
     fig_list = Figure.objects.all()
@@ -1498,7 +1500,7 @@ def figure_list(request):
 figparam_placeholder = re.compile(r"%([\w-]+)%")
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def figure_add(request):
     if not request.is_ajax:
         raise Exception(
@@ -1558,7 +1560,7 @@ def figure_add(request):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def figure_edit(request, fig_id):
     if not request.is_ajax:
         raise Exception(
@@ -1620,7 +1622,7 @@ def figure_edit(request, fig_id):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def figure_delete(request, fig_id):
     if not request.is_ajax:
         raise Exception(
@@ -1643,7 +1645,7 @@ def figure_export(request, fig_id, lang_id=None):
     return HttpResponse(figure_content, content_type=f"image/{content_type}")
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_add_question(request, exam_id):
     if not request.is_ajax:
         raise Exception(
@@ -1682,7 +1684,7 @@ def admin_add_question(request, exam_id):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_delete_question(request, exam_id, question_id):
     if not request.is_ajax:
         raise Exception(
@@ -1732,7 +1734,7 @@ def admin_delete_question(request, exam_id, question_id):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_edit_question(request, exam_id, question_id):
     if not request.is_ajax:
         raise Exception(
@@ -1772,7 +1774,7 @@ def admin_edit_question(request, exam_id, question_id):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 @ensure_csrf_cookie
 def admin_list(request):
     if request.is_ajax and "exam_id" in request.GET:
@@ -1797,7 +1799,7 @@ def admin_list(request):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_new_version(request, exam_id, question_id):
     if not request.is_ajax:
         raise Exception(
@@ -1835,7 +1837,7 @@ def admin_new_version(request, exam_id, question_id):
     return JsonResponse({"success": True})
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_import_version(request, question_id):
     """ Translation import for admin """
     language = get_object_or_404(Language, id=OFFICIAL_LANGUAGE_PK)
@@ -1892,7 +1894,7 @@ def admin_import_version(request, question_id):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_delete_version(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
 
@@ -1955,7 +1957,7 @@ def admin_delete_version(request, exam_id, question_id, version_num):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_accept_version(
     request, exam_id, question_id, version_num, compare_version=None
 ):
@@ -2062,7 +2064,7 @@ def admin_accept_version(
     return render(request, "ipho_exam/admin_accept_version.html", ctx)
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_publish_version(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
 
@@ -2134,7 +2136,7 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_settag_version(request, exam_id, question_id, version_num):
     if not request.is_ajax:
         raise Exception(
@@ -2177,7 +2179,7 @@ def admin_settag_version(request, exam_id, question_id, version_num):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 @ensure_csrf_cookie
 def admin_editor(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
@@ -2220,7 +2222,7 @@ def admin_editor(request, exam_id, question_id, version_num):
     return render(request, "ipho_exam/admin_editor.html", context)
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     if not request.is_ajax:
         raise Exception(
@@ -2291,7 +2293,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_editor_delete_block(request, exam_id, question_id, version_num, block_id):
     if not request.is_ajax:
         raise Exception(
@@ -2327,7 +2329,7 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_editor_add_block(  # pylint: disable=too-many-arguments
     request, exam_id, question_id, version_num, block_id, tag_name, after_id=None
 ):
@@ -2388,7 +2390,7 @@ def admin_editor_add_block(  # pylint: disable=too-many-arguments
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.can_edit_exam")
 def admin_editor_move_block(  # pylint: disable=too-many-arguments
     request, exam_id, question_id, version_num, parent_id, block_id, direction
 ):
@@ -2513,7 +2515,7 @@ def _get_submission_languages(exam, delegation, count_answersheets=True):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def admin_submissions_translation(request):
     exams = {}
     for exam in Exam.objects.for_user(request.user):
@@ -3141,7 +3143,7 @@ def submission_exam_submitted(
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def admin_submission_list(request, exam_id):
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
@@ -3159,7 +3161,7 @@ def admin_submission_list(request, exam_id):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def admin_submission_assign(request, exam_id):
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
@@ -3182,7 +3184,7 @@ def admin_submission_assign(request, exam_id):
     return HttpResponse(render_crispy_form(form, context=ctx))
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def admin_submission_delete(request, submission_id):  # pylint: disable=unused-argument
     pass
 
@@ -3469,7 +3471,11 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
         )
-    if version_num is not None and request.user.has_perm("ipho_core.is_organizer"):
+    if (
+        version_num is not None
+        and request.user.has_perm("ipho_core.is_organizer_admin")
+        or request.user.has_perm("ipho_core.can_edit_exam")
+    ):
         trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
     else:
         trans = qquery.latest_version(question_id, lang_id, user=request.user)
@@ -3555,7 +3561,7 @@ def auto_translate(request):
     return HttpResponseForbidden("Nothing to see here!")
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def auto_translate_count(request):
     def to_money(count):
         return count / 10 ** 6 * 20
@@ -3594,7 +3600,10 @@ def auto_translate_count(request):
     return render(request, "ipho_exam/auto_translate_cost_control.html", ctxt)
 
 
-@permission_required("ipho_core.is_organizer")
+@user_passes_test(
+    lambda u: u.has_perm("ipho_core.is_organizer_admin")
+    or u.has_perm("ipho_core.can_edit_exam")
+)
 def compiled_question_diff(  # pylint: disable=too-many-locals
     request, question_id, lang_id, old_version_num=None, new_version_num=None
 ):
@@ -3695,7 +3704,10 @@ def compiled_question_odt(request, question_id, lang_id, version_num=None):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
         )
-    if version_num is not None and request.user.has_perm("ipho_core.is_organizer"):
+    if version_num is not None and (
+        request.user.has_perm("ipho_core.is_organizer_admin")
+        or request.user.has_perm("ipho_core.can_edit_exam")
+    ):
         trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
     else:
         trans = qquery.latest_version(question_id, lang_id, user=request.user)
@@ -3724,7 +3736,10 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
         )
-    if version_num is not None and request.user.has_perm("ipho_core.is_organizer"):
+    if version_num is not None and (
+        request.user.has_perm("ipho_core.is_organizer_admin")
+        or request.user.has_perm("ipho_core.can_edit_exam")
+    ):
         trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
     else:
         trans = qquery.latest_version(question_id, lang_id, user=request.user)
@@ -4305,7 +4320,7 @@ def extra_sheets(request, exam_id=None):
     )
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def api_keys(request):
     return render(
         request,

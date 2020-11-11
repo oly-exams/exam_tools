@@ -63,7 +63,10 @@ def any_permission_required(*args):
 
 
 def autologin(request, token):
-    if not DEMO_MODE and not request.user.has_perm("ipho_core.is_organizer"):
+    if not DEMO_MODE and not (
+        request.user.has_perm("ipho_core.can_impersonate")
+        and request.user.has_perm("ipho_core.is_organizer_admin")
+    ):
         return HttpResponseForbidden("Only the staff can use autologin.")
     user = authenticate(token=token)
     redirect_to = reverse("home")
@@ -75,7 +78,10 @@ def autologin(request, token):
 
 
 def account_request(request):
-    if not DEMO_SIGN_UP and not request.user.has_perm("ipho_core.is_organizer"):
+    if not DEMO_SIGN_UP and not (
+        request.user.has_perm("ipho_core.can_impersonate")
+        and request.user.has_perm("ipho_core.is_organizer_admin")
+    ):
         return HttpResponseForbidden("Only the staff can use account-request.")
     form = AccountRequestForm(request.POST or None)
     if form.is_valid():
@@ -183,7 +189,7 @@ def delete_push_submission(request):
     return HttpResponseForbidden("Nothing to see here")
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def send_push(request):
     if not settings.ENABLE_PUSH:
         return HttpResponseForbidden("Push not enabled")
@@ -227,7 +233,7 @@ def send_push(request):
     return render(request, "ipho_core/send_push.html", {"form": form})
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 def random_draw(request):  # pylint: disable=too-many-branches
     if not request.user.is_superuser:
         return HttpResponse("It is not easter yet.")
@@ -286,7 +292,7 @@ def random_draw(request):  # pylint: disable=too-many-branches
     return render(request, "ipho_core/random_draw.html", {"form": form})
 
 
-@permission_required("ipho_core.is_organizer")
+@permission_required("ipho_core.is_organizer_admin")
 @permission_required("ipho_core.can_impersonate")
 def list_impersonate(request):
     users = (

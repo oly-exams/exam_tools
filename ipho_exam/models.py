@@ -293,12 +293,16 @@ class ExamManager(models.Manager):
         queryset = self.get_queryset()
         if user.is_superuser:
             return queryset.filter(visibility__gte=Exam.VISIBLE_2ND_LVL_SUPPORT_ONLY)
-        if user.has_perm("ipho_core.is_organizer"):
+        if user.has_perm("ipho_core.is_organizer_admin") or user.has_perm(
+            "ipho_core.can_edit_exam"
+        ):
             return queryset.filter(
                 visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
             )
-        if user.has_perm("ipho_core.can_see_boardmeeting") or user.has_perm(
-            "ipho_core.is_marker"
+        if (
+            user.has_perm("ipho_core.can_see_boardmeeting")
+            or user.has_perm("ipho_core.is_marker")
+            or user.has_perm("ipho_core.is_printstaff")
         ):
             return queryset.filter(
                 visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
@@ -576,9 +580,15 @@ class Exam(models.Model):
     def get_visibility(cls, user):
         if user.is_superuser:
             return cls.VISIBLE_2ND_LVL_SUPPORT_ONLY
-        if user.has_perm("ipho_core.is_organizer"):
+        if user.has_perm("ipho_core.is_organizer_admin") or user.has_perm(
+            "ipho_core.can_edit_exam"
+        ):
             return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
-        if user.has_perm("ipho_core.can_see_boardmeeting"):
+        if (
+            user.has_perm("ipho_core.can_see_boardmeeting")
+            or user.has_perm("ipho_core.is_marker")
+            or user.has_perm("ipho_core.is_printstaff")
+        ):
             return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
         max_choice = max(
             [choice[0] for choice in cls._meta.get_field("visibility").choices]
@@ -587,7 +597,11 @@ class Exam(models.Model):
 
     @classmethod
     def get_translatability(cls, user):
-        if user.is_superuser or user.has_perm("ipho_core.is_organizer"):
+        if (
+            user.is_superuser
+            or user.has_perm("ipho_core.is_organizer_admin")
+            or user.has_perm("ipho_core.can_edit_exam")
+        ):
             return Exam.CAN_TRANSLATE_ORGANIZER
         if user.has_perm("ipho_core.can_see_boardmeeting"):
             return Exam.CAN_TRANSLATE_BOARDMEETING
@@ -1270,7 +1284,7 @@ def exam_scans_orig_filename(obj, fname):  # pylint: disable=unused-argument
 class DocumentManager(models.Manager):
     def for_user(self, user):
         queryset = self.get_queryset()
-        if user.is_superuser or user.has_perm("ipho_core.is_organizer"):
+        if user.is_superuser or user.has_perm("ipho_core.is_organizer_admin"):
             return queryset.filter(exam__in=Exam.objects.for_user(user))
         if user.has_perm("ipho_core.is_delegation"):
             delegs = Delegation.objects.filter(members=user)
