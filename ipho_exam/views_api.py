@@ -18,25 +18,11 @@
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import views, viewsets, mixins, renderers, schemas
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
+from rest_framework import viewsets, mixins
 
 from ipho_exam.models import Document
 from ipho_exam.serializers import DocumentSerializer
 from ipho_exam.permissions import HasValidApiKeyOrAdmin
-
-
-class SwaggerSchemaView(views.APIView):
-    exclude_from_schema = True
-    permission_classes = [IsAuthenticated]
-    renderer_classes = [renderers.CoreJSONRenderer, OpenAPIRenderer, SwaggerUIRenderer]
-
-    def get(self, request):
-        generator = schemas.SchemaGenerator(title="Exam Tools - Exam Documents API")
-        schema = generator.get_schema()
-        return Response(schema)
 
 
 class DocumentViewSet(

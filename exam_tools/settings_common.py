@@ -583,7 +583,7 @@ INSTALLED_APPS = (
     "django_ace",
     "django_celery_results",
     "rest_framework",
-    "rest_framework_swagger",
+    "drf_spectacular",
     "polymorphic",
     "ipho_core",
     "ipho_control",
@@ -604,6 +604,7 @@ REST_FRAMEWORK = {
     ],
     "PAGE_SIZE": 10,
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SWAGGER_SETTINGS = {
