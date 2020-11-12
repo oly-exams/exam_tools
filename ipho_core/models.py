@@ -39,6 +39,8 @@ class IphoPerm(models.Model):
             ("is_delegation_print", "Is in the print team of a delegation"),
             ("is_marker", "Is a marker"),
             ("can_edit_exam", "Can edit the exam"),
+            ("can_manage_feedback", "Can manage feedbacks"),
+            ("can_manage_poll", "Can manage polls"),
             ("can_vote", "Can vote"),
             (
                 "can_see_boardmeeting",

@@ -915,10 +915,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         question = get_object_or_404(Question, id=question_id, exam=exam)
     ctxt = {}
 
-    if not (
-        request.user.has_perm("ipho_core.is_organizer_admin")
-        or request.user.has_perm("ipho_core.can_edit_exam")
-    ) and request.user.has_perm("ipho_core.is_delegation"):
+    if request.user.has_perm("ipho_core.is_delegation"):
         form = FeedbackForm(request.POST or None)
         orig_lang = get_object_or_404(Language, id=orig_id)
         node = VersionNode.objects.filter(
@@ -1308,7 +1305,7 @@ def feedbacks_list(
     )
 
 
-@permission_required("ipho_core.is_organizer_admin")
+@permission_required("ipho_core.can_manage_feedback")
 def feedbacks_add_comment(request, feedback_id=None):
     if not request.is_ajax:
         raise Exception(
@@ -1379,7 +1376,7 @@ def feedback_like(request, status, feedback_id):
     return redirect("exam:feedbacks-list")
 
 
-@permission_required("ipho_core.is_organizer_admin")
+@permission_required("ipho_core.can_manage_feedback")
 def feedback_set_status(request, feedback_id, status):
     fback = get_object_or_404(Feedback, id=feedback_id)
     fback.status = status
@@ -1387,7 +1384,7 @@ def feedback_set_status(request, feedback_id, status):
     return JsonResponse({"success": True})
 
 
-@permission_required("ipho_core.is_organizer_admin")
+@permission_required("ipho_core.can_manage_feedback")
 def feedbacks_export(request):
     questions = Question.objects.for_user(request.user).order_by(
         "exam", "position", "type"
@@ -1401,7 +1398,7 @@ def feedbacks_export(request):
     )
 
 
-@permission_required("ipho_core.is_organizer_admin")
+@permission_required("ipho_core.can_manage_feedback")
 def feedbacks_export_csv(request, exam_id, question_id):
     tmp_feedbacks = (
         Feedback.objects.filter(

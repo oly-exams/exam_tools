@@ -121,7 +121,7 @@
               <li><a href="{% url 'print:main' %}">Print</a></li>
               {% endif %}
 
-              {% if perms.ipho_core.is_organizer_admin or perms.ipho_core.is_marker or perms.ipho_core.is_printstaff or perms.ipho_core.can_edit_exam %}
+              {% if perms.ipho_core.is_organizer_admin or perms.ipho_core.is_marker or perms.ipho_core.is_printstaff or perms.ipho_core.can_edit_exam or perms.ipho_core.can_manage_feedback or perms.ipho_core.can_manage_poll %}
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin tools <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
@@ -138,9 +138,12 @@
                   {% endif %}
                   <li class="divider"></li>
                   {% endif %}
-                  {% if perms.ipho_core.can_access_control or user.is_superuser %}
+                  {% if perms.ipho_core.is_organizer_admin %}
                     <li class="dropdown-header">Event Management</li>
+                  {% if perms.can_access_control%}
                     <li><a href="{% url 'control:cockpit' %}">Cockpit</a></li>
+                  {% endif %}
+                    <li><a href="{% url 'send_push' %}">Send push notifications</a></li>
                     <li class="divider"></li>
                   {% endif %}
 
@@ -148,14 +151,18 @@
                   <li class="dropdown-header">Exam</li>
                   <li><a href="{% url 'exam:admin' %}">Exam management</a></li>
                   <li><a href="{% url 'exam:figures' %}">Figure management</a></li>
+                  {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'exam:admin-submissions-translation' %}">Submission progress</a></li>
+                  {% endif %}
                   <li class="divider"></li>
                   {% endif %}
-                  {% if perms.ipho_core.is_organizer_admin %}
+                  {% if perms.ipho_core.can_manage_feedback %}
                   <li class="dropdown-header">Feedbacks</li>
+                  <li><a href="{% url 'exam:feedbacks-list' %}">Manage feedbacks</a></li>
                   <li><a href="{% url 'exam:admin-feedbacks-export-main' %}">Export feedbacks</a></li>
-                  <li><a href="{% url 'send_push' %}">Send push notifications</a></li>
                   <li class="divider"></li>
+                  {% endif %}
+                  {% if perms.ipho_core.can_manage_poll %}
                   <li class="dropdown-header">Voting</li>
                   <li><a href="{% url 'poll:staff-index' %}">Voting management</a></li>
                   <li class="divider"></li>

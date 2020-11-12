@@ -60,6 +60,16 @@
         "iphoperm"
       ],
       [
+        "can_manage_feedback",
+        "ipho_core",
+        "iphoperm"
+      ],
+      [
+        "can_manage_poll",
+        "ipho_core",
+        "iphoperm"
+      ],
+      [
         "is_organizer_admin",
         "ipho_core",
         "iphoperm"
@@ -460,6 +470,11 @@
       ],
       [
         "can_see_boardmeeting",
+        "ipho_core",
+        "iphoperm"
+      ],
+      [
+        "can_manage_feedback",
         "ipho_core",
         "iphoperm"
       ]
