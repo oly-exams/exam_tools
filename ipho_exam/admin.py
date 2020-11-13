@@ -95,7 +95,7 @@ class ExamAdmin(admin.ModelAdmin):
         "can_translate",
         "feedback",
         "submission_printing",
-        "answer_sheet_scanning",
+        "answer_sheet_scan_upload",
         "delegation_scan_access",
         "marking_organizer_can_see_delegation_marks",
         "marking_organizer_can_enter",

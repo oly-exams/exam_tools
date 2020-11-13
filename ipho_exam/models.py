@@ -381,19 +381,19 @@ class Exam(models.Model):
         verbose_name="Submission Printing",
     )
 
-    ANSWER_SHEET_SCANNING_NOT_POSSIBLE = -1
-    ANSWER_SHEET_SCANNING_STUDENT_ANSWER = 0
+    ANSWER_SHEET_SCAN_UPLOAD_NOT_POSSIBLE = -1
+    ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER = 0
 
-    ANSWER_SHEET_SCANNING_CHOICES = (
-        (ANSWER_SHEET_SCANNING_NOT_POSSIBLE, "Not possible"),
-        (ANSWER_SHEET_SCANNING_STUDENT_ANSWER, "Student answer"),
+    ANSWER_SHEET_SCAN_UPLOAD_CHOICES = (
+        (ANSWER_SHEET_SCAN_UPLOAD_NOT_POSSIBLE, "Not possible"),
+        (ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER, "Student answer"),
     )
 
-    answer_sheet_scanning = models.IntegerField(
+    answer_sheet_scan_upload = models.IntegerField(
         default=-1,
-        choices=ANSWER_SHEET_SCANNING_CHOICES,
-        help_text="Sets the ability for scans being uploaded.",
-        verbose_name="Answer Sheet Scanning",
+        choices=ANSWER_SHEET_SCAN_UPLOAD_CHOICES,
+        help_text="Sets the ability for scans being uploaded via the web interface.",
+        verbose_name="Answer Sheet Manual Scan Upload",
     )
 
     DELEGATION_SCAN_ACCESS_NO = -1
@@ -514,7 +514,7 @@ class Exam(models.Model):
         "can_translate",
         "feedback",
         "submission_printing",
-        "answer_sheet_scanning",
+        "answer_sheet_scan_upload",
         "delegation_scan_access",
         "marking_organizer_can_see_delegation_marks",
         "marking_organizer_can_enter",

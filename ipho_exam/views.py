@@ -2696,7 +2696,7 @@ def upload_scan_delegation(request, exam_id, position, student_id):
     doc = get_object_or_404(Document, exam=exam, position=position, student=student)
 
     submission_open = (
-        exam.answer_sheet_scanning >= Exam.ANSWER_SHEET_SCANNING_STUDENT_ANSWER
+        exam.answer_sheet_scan_upload >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
     )
 
     form = DelegationScanForm(
@@ -4148,8 +4148,8 @@ def bulk_print(
             exm.submission_printing >= Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
         )
         doc[
-            "exam__answer_sheet_scanning_display"
-        ] = exm.get_answer_sheet_scanning_display()
+            "exam__answer_sheet_scan_upload_display"
+        ] = exm.get_answer_sheet_scan_upload_display()
 
     paginator = Paginator(all_docs, 50)
     if not page:
