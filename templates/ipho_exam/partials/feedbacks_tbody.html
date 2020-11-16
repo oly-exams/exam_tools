@@ -45,11 +45,13 @@
           </span> <!-- btn-toolbar -->
         </div>
     </td>
-    {% if perms.ipho_core.is_organizer %}
+    {% if perms.ipho_core.is_organizer and fb.exam_feedback_editable %}
     <td>
+      {% if fb.commentable %}
       <button type="button" class="btn btn-sm btn-default add-comment-button" id="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
         Add comment
       </button>
+      {% endif %}
     </td>
     {% endif %}
 </tr>

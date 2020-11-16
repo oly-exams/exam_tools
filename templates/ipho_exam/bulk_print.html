@@ -25,6 +25,9 @@ View and print individual documents, or select and print in bulk.
 <p class="alert alert-info">
 <i class="fa fa-info-circle"></i>
 This list shows only documents that have been submitted by the delegations.
+{% for alert in alert_info %}
+<br><i class="fa fa-info-circle"></i> {{ alert }}
+{% endfor %}
 </p>
 
 <p> Number of entries: {{ entries }} </p>
@@ -202,6 +205,7 @@ This list shows only documents that have been submitted by the delegations.
             <td align="center">
               <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
               <br />
+              {% if d.exam__submission_printing %}
               <input class="printouts-single" type="checkbox" name="printouts[]" value="{{ d.pk }}" />
               <div class="btn-group">
                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
@@ -214,6 +218,9 @@ This list shows only documents that have been submitted by the delegations.
                   {% endfor %}
                 </ul>
               </div>
+              {% else %}
+              Printing is not activated for exam: {{ d.exam__name }}
+              {% endif %}
               <br />
               Print time:
               {% if d.last_print_p %}
@@ -253,7 +260,6 @@ This list shows only documents that have been submitted by the delegations.
                 --:--
                 {% endif %}
                 <br />
-
               {% endif %}
             </td>
             <td>

@@ -91,19 +91,23 @@ class QuestionInline(admin.StackedInline):
 class ExamAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        "active",
-        "hide_feedback",
-        "show_delegation_submissions",
-        "show_scans",
-        "marking_active",
-        "moderation_active",
-        "hidden",
+        "visibility",
+        "can_translate",
+        "feedback",
+        "submission_printing",
+        "answer_sheet_scan_upload",
+        "delegation_scan_access",
+        "marking_organizer_can_see_delegation_marks",
+        "marking_organizer_can_enter",
+        "marking_delegation_can_see_organizer_marks",
+        "marking_delegation_action",
+        "moderation",
     )
     inlines = [QuestionInline]
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ("name", "exam", "feedback_active", "position")
+    list_display = ("name", "exam", "feedback_status", "position")
     list_filter = ("exam",)
 
 

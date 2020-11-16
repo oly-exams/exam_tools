@@ -42,7 +42,7 @@ from pywebpush import WebPushException
 
 
 from ipho_core.models import User
-from ipho_exam.models import Feedback
+from ipho_exam.models import Feedback, Exam
 
 from .models import Question, Choice, VotingRight, Vote
 from .forms import QuestionForm, ChoiceForm, VoteForm, EndDateForm
@@ -159,7 +159,10 @@ def question_large(request, question_pk):
         status = "closed"
 
     feedbacks = (
-        que.feedbacks.all()
+        que.feedbacks.filter(
+            question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+        )
+        .all()
         .annotate(
             num_likes=Sum(
                 Case(
@@ -529,7 +532,10 @@ def voter_index(request, err_id=None):
         )
 
         que.feedbacks_list = (
-            que.feedbacks.all()
+            que.feedbacks.filter(
+                question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+            )
+            .all()
             .annotate(
                 num_likes=Sum(
                     Case(

@@ -88,9 +88,6 @@ ONLY_OFFICIAL_ANSWER_SHEETS = False
 # (Answer sheets and Working sheets)
 CODE_WITHOUT_QR = False
 
-# Defines whether official marks are shown before submission for moderation
-SHOW_OFFICIAL_MARKS_IMMEDIATELY = False
-
 # Defines whether delegations can accept official marks without moderation
 ACCEPT_MARKS_BEFORE_MODERATION = False
 

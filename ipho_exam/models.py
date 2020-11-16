@@ -289,45 +289,258 @@ class ExamManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
 
+    def for_user(self, user):
+        queryset = self.get_queryset()
+        if user.is_superuser:
+            return queryset.filter(visibility__gte=Exam.VISIBLE_2ND_LVL_SUPPORT_ONLY)
+        if user.has_perm("ipho_core.is_organizer"):
+            return queryset.filter(
+                visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
+            )
+        if user.has_perm("ipho_core.can_see_boardmeeting") or user.has_perm(
+            "ipho_core.is_marker"
+        ):
+            return queryset.filter(
+                visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+            )
+        return self.none()
+
 
 class Exam(models.Model):
     objects = ExamManager()
 
     code = models.CharField(max_length=8)
     name = models.CharField(max_length=100, unique=True)
-    active = models.BooleanField(
-        default=True, help_text="Exam is editable and viewable by delegations."
+    # pylint: disable=invalid-name
+
+    # Note that IntegerFields enable us to filter using order relations.
+    # We mostly use >=/__gte to filter the hierarchical flags
+    # e.g. visibility__gte=Orga+2nd_level shows the exam when the visibility
+    # is set to orgas+2nd_level or orgas+2nd_level+boardmeeting
+    #
+    # Note also, that the colors in the cockpit depend on the number:
+    # <0: Grey, ==0: Blue, >0: Yellow
+
+    VISIBLE_2ND_LVL_SUPPORT_ONLY = -1
+    VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT = 0
+    VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING = 1
+
+    VISIBILITY_CHOICES = (
+        (VISIBLE_2ND_LVL_SUPPORT_ONLY, "2nd level support only"),
+        (VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT, "Organizer + 2nd level support"),
+        (
+            VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
+            "Boardmeeting + Organizer + 2nd level support",
+        ),
     )
-    hidden = models.BooleanField(
-        default=False, help_text="Exam is hidden from everyone except superusers."
+
+    # See comments on IntegerFields above
+    visibility = models.IntegerField(
+        default=0,
+        choices=VISIBILITY_CHOICES,
+        help_text="Sets the visibility of the exam for organizers and delegations.",
+        verbose_name="Exam Visibility",
     )
-    marking_active = models.BooleanField(
-        default=False,
-        help_text="Allow marking submission from delegations. Activate only after official marks are entered.",
+
+    CAN_TRANSLATE_NOBODY = -1
+    CAN_TRANSLATE_ORGANIZER = 0
+    CAN_TRANSLATE_BOARDMEETING = 1
+
+    CAN_TRANSLATE_CHOICES = (
+        (CAN_TRANSLATE_NOBODY, "Nobody"),
+        (CAN_TRANSLATE_ORGANIZER, "Organizer only"),
+        (CAN_TRANSLATE_BOARDMEETING, "Boardmeeting members and organizers"),
     )
-    moderation_active = models.BooleanField(
-        default=False, help_text="Allow access to moderation interface."
+
+    # See comments on IntegerFields above
+    can_translate = models.IntegerField(
+        default=-1,
+        choices=CAN_TRANSLATE_CHOICES,
+        help_text="Sets the ability to translate for organizers and delegations.",
+        verbose_name="Can Translate",
     )
-    show_scans = models.BooleanField(
-        default=False, help_text="Show successful scans to delegation."
+
+    FEEDBACK_READONLY = 0
+    FEEDBACK_CAN_BE_OPENED = 1
+    FEEDBACK_INVISIBLE = -1
+
+    FEEDBACK_CHOICES = (
+        (FEEDBACK_READONLY, "Read only"),
+        (FEEDBACK_CAN_BE_OPENED, "Can be opened"),
+        (FEEDBACK_INVISIBLE, "Invisible"),
     )
-    hide_feedback = models.BooleanField(
-        default=False, help_text="Hide feedback from delegations"
+
+    # See comments on IntegerFields above
+    feedback = models.IntegerField(
+        default=0,
+        choices=FEEDBACK_CHOICES,
+        help_text="Sets the status of the feedbacks for all questions.",
+        verbose_name="Feedback",
     )
-    show_delegation_submissions = models.BooleanField(
-        default=False, help_text="Show submissions of the delegation"
+
+    SUBMISSION_PRINTING_NOT_VISIBLE = -1
+    SUBMISSION_PRINTING_WHEN_SUBMITTED = 0
+
+    SUBMISSION_PRINTING_CHOICES = (
+        (SUBMISSION_PRINTING_NOT_VISIBLE, "No, not visible"),
+        (SUBMISSION_PRINTING_WHEN_SUBMITTED, "When submitted"),
+    )
+
+    # See comments on IntegerFields above
+    submission_printing = models.IntegerField(
+        default=-1,
+        choices=SUBMISSION_PRINTING_CHOICES,
+        help_text="Sets the ability to print the exam.",
+        verbose_name="Submission Printing",
+    )
+
+    ANSWER_SHEET_SCAN_UPLOAD_NOT_POSSIBLE = -1
+    ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER = 0
+
+    ANSWER_SHEET_SCAN_UPLOAD_CHOICES = (
+        (ANSWER_SHEET_SCAN_UPLOAD_NOT_POSSIBLE, "Not possible"),
+        (ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER, "Student answer"),
+    )
+
+    # See comments on IntegerFields above
+    answer_sheet_scan_upload = models.IntegerField(
+        default=-1,
+        choices=ANSWER_SHEET_SCAN_UPLOAD_CHOICES,
+        help_text="Sets the ability for scans being uploaded via the web interface.",
+        verbose_name="Answer Sheet Manual Scan Upload",
+    )
+
+    DELEGATION_SCAN_ACCESS_NO = -1
+    DELEGATION_SCAN_ACCESS_STUDENT_ANSWER = 0
+
+    DELEGATION_SCAN_ACCESS_CHOICES = (
+        (DELEGATION_SCAN_ACCESS_NO, "No"),
+        (DELEGATION_SCAN_ACCESS_STUDENT_ANSWER, "Student answer"),
+    )
+
+    # See comments on IntegerFields above
+    delegation_scan_access = models.IntegerField(
+        default=-1,
+        choices=DELEGATION_SCAN_ACCESS_CHOICES,
+        help_text="Sets the access to the scanned exams for delegations.",
+        verbose_name="Delegation Scan Access",
+    )
+
+    MARKING_ORGANIZER_VIEW_MODERATION_FINAL = -1
+    MARKING_ORGANIZER_VIEW_WHEN_SUBMITTED = 0
+
+    MARKING_ORGANIZER_VIEW_CHOICES = (
+        (
+            MARKING_ORGANIZER_VIEW_MODERATION_FINAL,
+            "In moderation and when marks are finalized",
+        ),
+        (
+            MARKING_ORGANIZER_VIEW_WHEN_SUBMITTED,
+            "When the delegation has submitted their marks",
+        ),
+    )
+
+    # See comments on IntegerFields above
+    marking_organizer_can_see_delegation_marks = models.IntegerField(
+        default=-1,
+        choices=MARKING_ORGANIZER_VIEW_CHOICES,
+        help_text="Sets the access of organizers to the delegation marks",
+        verbose_name="Organizer can see delegation marks",
+    )
+
+    MARKING_DELEGATION_VIEW_NO = -1
+    MARKING_DELEGATION_VIEW_WHEN_SUBMITTED = 0
+    MARKING_DELEGATION_VIEW_YES = 1
+
+    MARKING_DELEGATION_VIEW_CHOICES = (
+        (MARKING_DELEGATION_VIEW_NO, "No"),
+        (
+            MARKING_DELEGATION_VIEW_WHEN_SUBMITTED,
+            "When the delegation has submitted their marks",
+        ),
+        (MARKING_DELEGATION_VIEW_YES, "Yes"),
+    )
+
+    # See comments on IntegerFields above
+    marking_delegation_can_see_organizer_marks = models.IntegerField(
+        default=-1,
+        choices=MARKING_DELEGATION_VIEW_CHOICES,
+        help_text="Sets the access of delegations to the organizer marks",
+        verbose_name="Delegations can see organizer marks",
+    )
+
+    MARKING_ORGANIZER_CAN_ENTER_NOTHING = -1
+    MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED = 0
+    MARKING_ORGANIZER_CAN_ENTER_IF_NOT_FINAL = 1
+
+    MARKING_ORGANIZER_CAN_ENTER_CHOICES = (
+        (MARKING_ORGANIZER_CAN_ENTER_NOTHING, "No"),
+        (
+            MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED,
+            "If delegation has not submitted marks",
+        ),
+        (MARKING_ORGANIZER_CAN_ENTER_IF_NOT_FINAL, "If marks are not finalized"),
+    )
+
+    # See comments on IntegerFields above
+    marking_organizer_can_enter = models.IntegerField(
+        default=-1,
+        choices=MARKING_ORGANIZER_CAN_ENTER_CHOICES,
+        help_text="Sets the ability of markers to edit marks.",
+        verbose_name="Organizers can edit marks",
+    )
+
+    MARKING_DELEGATION_ACTION_NOTHING = -1
+    MARKING_DELEGATION_ACTION_ENTER_SUBMIT = 0
+    MARKING_DELEGATION_ACTION_ENTER_SUBMIT_FINALIZE = 1
+
+    MARKING_DELEGATION_ACTION_CHOICES = (
+        (MARKING_DELEGATION_ACTION_NOTHING, "Nothing"),
+        (MARKING_DELEGATION_ACTION_ENTER_SUBMIT, "Can enter and submit marks"),
+        (
+            MARKING_DELEGATION_ACTION_ENTER_SUBMIT_FINALIZE,
+            "Can enter, submit and finalize marks",
+        ),
+    )
+
+    # See comments on IntegerFields above
+    marking_delegation_action = models.IntegerField(
+        default=-1,
+        choices=MARKING_DELEGATION_ACTION_CHOICES,
+        help_text="Sets the ability of delegations to enter, submit and finalize their marks.",
+        verbose_name="Delegation marking actions",
+    )
+
+    MODERATION_CLOSED = -1
+    MODERATION_OPEN = 0
+
+    MODERATION_CHOICES = (
+        (MODERATION_CLOSED, "Not open"),
+        (MODERATION_OPEN, "Can be moderated"),
+    )
+
+    # See comments on IntegerFields above
+    moderation = models.IntegerField(
+        default=-1,
+        choices=MODERATION_CHOICES,
+        help_text="Allow access to moderation interface.",
+        verbose_name="Moderation",
     )
 
     # Fields controllable by the control app
     # NOTE: only fields having a default value are respected.
     _controllable_fields = [
-        "active",
-        "hidden",
-        "marking_active",
-        "moderation_active",
-        "show_scans",
-        "hide_feedback",
-        "show_delegation_submissions",
+        "visibility",
+        "can_translate",
+        "feedback",
+        "submission_printing",
+        "answer_sheet_scan_upload",
+        "delegation_scan_access",
+        "marking_organizer_can_see_delegation_marks",
+        "marking_organizer_can_enter",
+        "marking_delegation_can_see_organizer_marks",
+        "marking_delegation_action",
+        "moderation",
     ]
 
     def __str__(self):
@@ -348,7 +561,8 @@ class Exam(models.Model):
             and hasattr(field, "default")
             and field.default is not models.fields.NOT_PROVIDED
         ]
-        available_fields.sort(key=lambda o: o.name)
+        # use the ordering defined in controllable fields
+        available_fields.sort(key=lambda o: cls._controllable_fields.index(o.name))
         return available_fields
 
     @classmethod
@@ -358,10 +572,75 @@ class Exam(models.Model):
         default_settings = {f.name: f.default for f in available_fields}
         return default_settings
 
+    @classmethod
+    def get_visibility(cls, user):
+        if user.is_superuser:
+            return cls.VISIBLE_2ND_LVL_SUPPORT_ONLY
+        if user.has_perm("ipho_core.is_organizer"):
+            return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
+        if user.has_perm("ipho_core.can_see_boardmeeting"):
+            return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+        max_choice = max(
+            [choice[0] for choice in cls._meta.get_field("visibility").choices]
+        )
+        return max_choice + 1
+
+    @classmethod
+    def get_translatability(cls, user):
+        if user.is_superuser or user.has_perm("ipho_core.is_organizer"):
+            return Exam.CAN_TRANSLATE_ORGANIZER
+        if user.has_perm("ipho_core.can_see_boardmeeting"):
+            return Exam.CAN_TRANSLATE_BOARDMEETING
+        max_choice = max(
+            [choice[0] for choice in cls._meta.get_field("can_translate").choices]
+        )
+        return max_choice + 1
+
+    def check_visibility(self, user):
+        return self.visibility >= Exam.get_visibility(user)
+
+    def check_translatability(self, user):
+        if not self.check_visibility(user):
+            return False
+        return self.can_translate >= Exam.get_translatability(user)
+
+    def check_feedback_visible(self):
+        return self.feedback >= Exam.FEEDBACK_READONLY
+
+    def check_feedback_editable(self):
+        return self.feedback >= Exam.FEEDBACK_CAN_BE_OPENED
+
+    def delegation_can_submit_marking(self):
+        return (
+            self.marking_delegation_action
+            >= Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT
+        )
+
+    def delegation_can_finalize_marking(self):
+        return (
+            self.marking_delegation_action
+            >= Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT_FINALIZE
+        )
+
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+        if self.pk:
+            previous_feedback = Exam.objects.get(pk=self.pk).feedback
+        else:
+            previous_feedback = None
+        super().save(*args, **kwargs)
+
+        if self.feedback != previous_feedback:
+            for question in self.question_set.all():
+                question.feedback_status = Question.FEEDBACK_CLOSED
+                question.save()
+
 
 class QuestionManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):
         return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam_name))
+
+    def for_user(self, user):
+        return self.get_queryset().filter(exam__in=Exam.objects.for_user(user))
 
 
 class Question(models.Model):
@@ -384,16 +663,31 @@ class Question(models.Model):
         help_text="Sorting index inside one exam"
     )
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, default=QUESTION)
-    feedback_active = models.BooleanField(
-        default=False, help_text="Are feedbacks allowed?"
+
+    FEEDBACK_CLOSED = -1
+    FEEDBACK_ORGANIZER_COMMENT = 0
+    FEEDBACK_OPEN = 1
+
+    FEEDBACK_CHOICES = (
+        (FEEDBACK_CLOSED, "Closed"),
+        (FEEDBACK_OPEN, "Open"),
+        (FEEDBACK_ORGANIZER_COMMENT, "Closed, Organizer can still comment."),
     )
+
+    feedback_status = models.IntegerField(
+        default=-1,
+        choices=FEEDBACK_CHOICES,
+        help_text="Sets the status of the feedbacks for this questions.",
+        verbose_name="Feedback",
+    )
+
     working_pages = models.PositiveSmallIntegerField(
         default=0, help_text="How many pages for working sheets"
     )
 
     # Fields controllable by the control app
     _controllable_fields = [
-        "feedback_active",
+        "feedback_status",
     ]
 
     ## TODO: add template field
@@ -421,13 +715,36 @@ class Question(models.Model):
     def has_published_version(self):
         return self.versionnode_set.filter(status="C").exists()
 
-    def check_permission(self, user):
-        if user.has_perm("ipho_core.is_organizer"):
+    def check_visibility(self, user):
+        exam_visible = self.exam.check_visibility(user)
+        if exam_visible:
             return True
+        if user.has_perm("ipho_core.is_delegation_print"):
+            return (
+                self.exam.submission_printing == Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
+                and self.exam.visibility
+                >= Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+            )
+        return False
 
-        if not user.has_perm("ipho_core.can_see_boardmeeting"):
-            return self.exam.show_delegation_submissions and self.exam.active
-        return self.exam.active
+    def check_feedback_visible(self):
+        return self.exam.check_feedback_visible()
+
+    def check_feedback_editable(self):
+        editable = self.feedback_status == Question.FEEDBACK_OPEN
+        return (
+            self.check_feedback_visible()
+            and self.exam.check_feedback_editable()
+            and editable
+        )
+
+    def check_feedback_commentable(self):
+        commentable = self.feedback_status >= Question.FEEDBACK_ORGANIZER_COMMENT
+        return (
+            self.check_feedback_visible()
+            and self.exam.check_feedback_editable()
+            and commentable
+        )
 
     @classmethod
     def get_controllable_fields(cls):
@@ -875,7 +1192,7 @@ class ExamAction(models.Model):
     natural_key.dependencies = ["ipho_exam.exam", "ipho_core.delegation"]
 
     @staticmethod
-    def is_in_progress(action, exam, delegation):
+    def action_in_progress(action, exam, delegation):
         translation_submitted = ExamAction.objects.filter(
             exam=exam, delegation=delegation, action=action, status=ExamAction.SUBMITTED
         ).exists()
@@ -883,7 +1200,7 @@ class ExamAction(models.Model):
 
     @staticmethod
     def require_in_progress(action, exam, delegation):
-        if not ExamAction.is_in_progress(action, exam, delegation):
+        if not ExamAction.action_in_progress(action, exam, delegation):
             return IphoExamForbidden(
                 "You cannot perfom this action: this exam is submitted. Contact the staff if you have good reasons to request a reset."
             )
@@ -950,7 +1267,26 @@ def exam_scans_orig_filename(obj, fname):  # pylint: disable=unused-argument
     return f"scans-evaluated/{obj.barcode_base}__{timestamp}.pdf"
 
 
+class DocumentManager(models.Manager):
+    def for_user(self, user):
+        queryset = self.get_queryset()
+        if user.is_superuser or user.has_perm("ipho_core.is_organizer"):
+            return queryset.filter(exam__in=Exam.objects.for_user(user))
+        if user.has_perm("ipho_core.is_delegation"):
+            delegs = Delegation.objects.filter(members=user)
+            return (
+                queryset.filter(exam__in=Exam.objects.for_user(user))
+                .filter(student__delegation__in=delegs)
+                .filter(
+                    exam__delegation_scan_access__gte=Exam.DELEGATION_SCAN_ACCESS_STUDENT_ANSWER
+                )
+            )
+        return queryset.none()
+
+
 class Document(models.Model):
+    objects = DocumentManager()
+
     SCAN_STATUS_CHOICES = (
         ("S", "Success"),
         ("W", "Warning"),

@@ -24,6 +24,11 @@ urlpatterns = [
     ## Delegation views
     path("", views.delegation_summary, name="delegation-summary"),
     path(
+        "export/all",
+        views.delegation_export,
+        name="delegation-export-all",
+    ),
+    path(
         "export/exam/<int:exam_id>",
         views.delegation_export,
         name="delegation-export",

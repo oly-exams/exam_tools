@@ -11,15 +11,9 @@
     {% endif %}>
     {% for name, setting in settings.items %}
     <tr data-toggle="tooltip" title="{{ help_texts|get:name }}">
-      <td>{{ name }}</td>
+      <td>{{ names|get:name }}</td>
       <td>
-        {% if setting is True %}
-        <span class="label label-setting-active">YES</span>
-        {% elif setting is False %}
-        <span class="label label-setting-inactive">NO</span>
-        {% else %}
-        <span class="label">{{ setting }}</span>
-        {% endif %}
+        {% include "ipho_control/phase_setting_label.html" with name=name setting=setting choices=choices only %}
       </td>
     </tr>
     {% endfor %}

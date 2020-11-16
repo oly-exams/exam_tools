@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import inspect
+from collections import OrderedDict
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -207,6 +208,10 @@ class ExamPhase(models.Model):
             if s.name in self.available_question_settings
         ]
 
+    def get_ordered_settings(self):
+        av_set = self.get_available_exam_field_names()
+        return OrderedDict((s, self.exam_settings.get(s)) for s in av_set)
+
     @classmethod
     def get_current_phase(cls, exam):
         """Returns the current phase of exam, None if it doesn't exist."""
@@ -238,6 +243,26 @@ class ExamPhase(models.Model):
                 res[f.name] = f.help_text
             else:
                 res[f.name] = None
+        return res
+
+    @classmethod
+    def get_exam_field_verbose_choices(cls):
+        """"Returns a dictionary {field_name:choices}"""
+        res = {}
+        for f in cls.get_available_exam_fields():
+            if hasattr(f, "choices"):
+                res[f.name] = dict(f.choices)
+        return res
+
+    @classmethod
+    def get_exam_field_verbose_names(cls):
+        """"Returns a dictionary {field_name:verbose_name}"""
+        res = {}
+        for f in cls.get_available_exam_fields():
+            if hasattr(f, "verbose_name"):
+                res[f.name] = f.verbose_name
+            else:
+                res[f.name] = f.name
         return res
 
     @classmethod
@@ -312,6 +337,10 @@ class ExamPhaseHistory(models.Model):
                 }
                 res[s] = changed
         return res
+
+    def get_ordered_to_settings(self):
+        av_set = ExamPhase.get_available_exam_field_names()
+        return OrderedDict((s, self.to_settings[s]) for s in av_set)
 
     @classmethod
     def get_latest(cls, exam):

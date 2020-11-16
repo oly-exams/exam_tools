@@ -128,8 +128,10 @@
           <th>Comment</th>
           <th>Timestamp</th>
           <th style="width:170px">Actions</th>
-          {% if perms.ipho_core.is_organizer %}
-          <th>Commments</th>
+          {% if perms.ipho_core.is_organizer and exam.check_feedback_editable %}
+          {% if question and question.check_feedback_commentable or not question %}
+          <th>Comments</th>
+          {% endif %}
           {% endif %}
       </tr>
     </thead>
@@ -203,7 +205,7 @@ $(function() {
             contentType: false,
             success: function(data) {
                 if (!data['success']) {
-                    $('#translation-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    $('#feedback-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
                     return;
                 }
                 update_feedbacks({{ exam.pk }});
