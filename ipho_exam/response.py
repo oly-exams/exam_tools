@@ -67,15 +67,23 @@ def render_odt_response(context, filename, ext_resources):
             r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</span>'
         )
 
-        def tex_to_mathml(txt):
+        def escape_unconverted_tex(texstr):
+            unconverted_pattern = re.compile(r"(?<!\\)~|(?<!\\)\\text")
+            return unconverted_pattern.sub(r" ", texstr)
+
+        def tex_to_mathml(texstr):
+            nttex = escape_unconverted_tex(texstr)
+            return latex2mathml.converter.convert(nttex)
+
+        def xhtml_tex_to_mathml(txt):
             return mathtex_pattern.sub(
-                lambda m: latex2mathml.converter.convert(escape(m.group(1))),
+                lambda m: tex_to_mathml(escape(m.group(1))),
                 txt.replace(r"\begin{equation}", '<span class="math-tex">\\(').replace(
                     r"\end{equation}", "\\)</span>"
                 ),
             )
 
-        text = tex_to_mathml(contextdict["document"])
+        text = xhtml_tex_to_mathml(contextdict["document"])
         pypandoc.convert_text(
             text,
             format="html",
