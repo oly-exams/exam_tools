@@ -55,17 +55,32 @@
         "iphoperm"
       ],
       [
-        "is_organizer",
+        "can_edit_exam",
         "ipho_core",
         "iphoperm"
       ],
       [
-        "print_irchel",
+        "can_manage_feedback",
         "ipho_core",
         "iphoperm"
       ],
       [
-        "print_technopark",
+        "can_manage_poll",
+        "ipho_core",
+        "iphoperm"
+      ],
+      [
+        "is_organizer_admin",
+        "ipho_core",
+        "iphoperm"
+      ],
+      [
+        "print_exam_site",
+        "ipho_core",
+        "iphoperm"
+      ],
+      [
+        "print_boardmeeting_site",
         "ipho_core",
         "iphoperm"
       ],
@@ -449,12 +464,17 @@
     "name": "Author",
     "permissions": [
       [
-        "is_organizer",
+        "can_edit_exam",
         "ipho_core",
         "iphoperm"
       ],
       [
         "can_see_boardmeeting",
+        "ipho_core",
+        "iphoperm"
+      ],
+      [
+        "can_manage_feedback",
         "ipho_core",
         "iphoperm"
       ]
@@ -472,12 +492,12 @@
         "iphoperm"
       ],
       [
-        "print_irchel",
+        "print_exam_site",
         "ipho_core",
         "iphoperm"
       ],
       [
-        "print_technopark",
+        "print_boardmeeting_site",
         "ipho_core",
         "iphoperm"
       ],
