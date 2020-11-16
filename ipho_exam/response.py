@@ -92,7 +92,7 @@ def render_odt_response(context, filename, ext_resources):
         result = open(output, "rb").read()
 
     finally:
-        if output and os.path.exists(tmp):
+        if result and os.path.exists(tmp):
             shutil.rmtree(tmp)
 
     res = HttpResponse(
