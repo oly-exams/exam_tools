@@ -312,6 +312,15 @@ class Exam(models.Model):
     code = models.CharField(max_length=8)
     name = models.CharField(max_length=100, unique=True)
     # pylint: disable=invalid-name
+
+    # Note that IntegerFields enable us to filter using order relations.
+    # We mostly use >=/__gte to filter the hierarchical flags
+    # e.g. visibility__gte=Orga+2nd_level shows the exam when the visibility
+    # is set to orgas+2nd_level or orgas+2nd_level+boardmeeting
+    #
+    # Note also, that the colors in the cockpit depend on the number:
+    # <0: Grey, ==0: Blue, >0: Yellow
+
     VISIBLE_2ND_LVL_SUPPORT_ONLY = -1
     VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT = 0
     VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING = 1
@@ -325,6 +334,7 @@ class Exam(models.Model):
         ),
     )
 
+    # See comments on IntegerFields above
     visibility = models.IntegerField(
         default=0,
         choices=VISIBILITY_CHOICES,
@@ -342,6 +352,7 @@ class Exam(models.Model):
         (CAN_TRANSLATE_BOARDMEETING, "Boardmeeting members and organizers"),
     )
 
+    # See comments on IntegerFields above
     can_translate = models.IntegerField(
         default=-1,
         choices=CAN_TRANSLATE_CHOICES,
@@ -359,6 +370,7 @@ class Exam(models.Model):
         (FEEDBACK_INVISIBLE, "Invisible"),
     )
 
+    # See comments on IntegerFields above
     feedback = models.IntegerField(
         default=0,
         choices=FEEDBACK_CHOICES,
@@ -374,6 +386,7 @@ class Exam(models.Model):
         (SUBMISSION_PRINTING_WHEN_SUBMITTED, "When submitted"),
     )
 
+    # See comments on IntegerFields above
     submission_printing = models.IntegerField(
         default=-1,
         choices=SUBMISSION_PRINTING_CHOICES,
@@ -389,6 +402,7 @@ class Exam(models.Model):
         (ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER, "Student answer"),
     )
 
+    # See comments on IntegerFields above
     answer_sheet_scan_upload = models.IntegerField(
         default=-1,
         choices=ANSWER_SHEET_SCAN_UPLOAD_CHOICES,
@@ -404,6 +418,7 @@ class Exam(models.Model):
         (DELEGATION_SCAN_ACCESS_STUDENT_ANSWER, "Student answer"),
     )
 
+    # See comments on IntegerFields above
     delegation_scan_access = models.IntegerField(
         default=-1,
         choices=DELEGATION_SCAN_ACCESS_CHOICES,
@@ -425,6 +440,7 @@ class Exam(models.Model):
         ),
     )
 
+    # See comments on IntegerFields above
     marking_organizer_can_see_delegation_marks = models.IntegerField(
         default=-1,
         choices=MARKING_ORGANIZER_VIEW_CHOICES,
@@ -445,6 +461,7 @@ class Exam(models.Model):
         (MARKING_DELEGATION_VIEW_YES, "Yes"),
     )
 
+    # See comments on IntegerFields above
     marking_delegation_can_see_organizer_marks = models.IntegerField(
         default=-1,
         choices=MARKING_DELEGATION_VIEW_CHOICES,
@@ -465,6 +482,7 @@ class Exam(models.Model):
         (MARKING_ORGANIZER_CAN_ENTER_IF_NOT_FINAL, "If marks are not finalized"),
     )
 
+    # See comments on IntegerFields above
     marking_organizer_can_enter = models.IntegerField(
         default=-1,
         choices=MARKING_ORGANIZER_CAN_ENTER_CHOICES,
@@ -485,6 +503,7 @@ class Exam(models.Model):
         ),
     )
 
+    # See comments on IntegerFields above
     marking_delegation_action = models.IntegerField(
         default=-1,
         choices=MARKING_DELEGATION_ACTION_CHOICES,
@@ -500,6 +519,7 @@ class Exam(models.Model):
         (MODERATION_OPEN, "Can be moderated"),
     )
 
+    # See comments on IntegerFields above
     moderation = models.IntegerField(
         default=-1,
         choices=MODERATION_CHOICES,
