@@ -1896,9 +1896,7 @@ def admin_import_version(request, question_id):
 def admin_delete_version(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(
-        Exam.objects.for_user(request.user), id=exam_id
-    )  # mskoenz: remove?
+    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
@@ -2068,9 +2066,7 @@ def admin_accept_version(
 def admin_publish_version(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(
-        Exam.objects.for_user(request.user), id=exam_id
-    )  # mskoenz: remove?
+    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
@@ -2147,9 +2143,7 @@ def admin_settag_version(request, exam_id, question_id, version_num):
 
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(
-        Exam.objects.for_user(request.user), id=exam_id
-    )  # mskoenz: remove?
+    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
@@ -2234,9 +2228,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
         )
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(
-        Exam.objects.for_user(request.user), id=exam_id
-    )  # mskoenz: remove?
+    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
@@ -2307,9 +2299,7 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
         )
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(
-        Exam.objects.for_user(request.user), id=exam_id
-    )  # mskoenz: remove?
+    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
@@ -2408,9 +2398,7 @@ def admin_editor_move_block(  # pylint: disable=too-many-arguments
         )
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(
-        Exam.objects.for_user(request.user), id=exam_id
-    )  # mskoenz: remove?
+    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
