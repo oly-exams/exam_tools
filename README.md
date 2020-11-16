@@ -14,6 +14,7 @@ To compile exams
 * CairoSVG (figure convert)
 * pyPDF2 (manipulation of PDF)
 * Barcode (generate barcodes)
+* pandoc (to generate odt exports)
 
 ### Example Ubuntu packages
 On Ubuntu 14.04, install these packages using ```apt-get```:
@@ -34,6 +35,7 @@ texlive-lang-greek
 fonts-roboto
 ttf-mscorefonts-installer # this requires the multiverse packages in Ubuntu!!
 fonts-liberation
+pandoc
 ```
 
 Then using ```pip```:
