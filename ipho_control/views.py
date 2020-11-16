@@ -67,7 +67,7 @@ def add_edit_phase(request, phase_id=None, exam_id=None):
 
 def exam_phase_context(user, exam_id=None):
     """Helper function to create context for cockpit_base.html."""
-    exams = Exam.objects.for_user(user).order_by("name")
+    exams = Exam.objects.for_user(user).order_by("pk")
     if exam_id is None:
         if exams.exists():
             exam_id = exams.first().pk
