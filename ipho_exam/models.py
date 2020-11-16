@@ -580,7 +580,10 @@ class Exam(models.Model):
             return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
         if user.has_perm("ipho_core.can_see_boardmeeting"):
             return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
-        return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING + 1
+        max_choice = max(
+            [choice[0] for choice in cls._meta.get_field("visibility").choices]
+        )
+        return max_choice + 1
 
     @classmethod
     def get_translatability(cls, user):
