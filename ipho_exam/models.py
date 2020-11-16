@@ -1012,8 +1012,10 @@ class CompiledFigure(Figure):
     def to_inline(self, query, lang=None):
         return self._to_svg(query=query, lang=lang), "svg+xml"
 
-    def to_file(self, fig_name, query, lang=None):
+    def to_file(self, fig_name, query, lang=None, svg_to_png=False):
         fig_svg = self._to_svg(query=query, lang=lang)
+        if svg_to_png:
+            return self._to_png(fig_svg, fig_name)
         return self._to_pdf(fig_svg, fig_name)
 
     @staticmethod
@@ -1035,23 +1037,25 @@ class CompiledFigure(Figure):
             print("Got error", error)
             raise RuntimeError(f"Error in Inkscape. Errorcode {error}.")
 
-    # @staticmethod
-    # def _to_png(fig_svg, fig_name):
-    #     with open('%s.svg' % (fig_name), 'w') as fp:
-    #         fp.write(fig_svg)
-    #     error = subprocess.Popen(
-    #         [INKSCAPE_BIN,
-    #          '--without-gui',
-    #          '%s.svg' % (fig_name),
-    #          '--export-png=%s' % (fig_name),
-    #          '--export-dpi=180'],
-    #         stdin=open(os.devnull, "r"),
-    #         stderr=open(os.devnull, "wb"),
-    #         stdout=open(os.devnull, "wb")
-    #     ).wait()
-    #     if error:
-    #         print('Got error', error)
-    #         raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
+    @staticmethod
+    def _to_png(fig_svg, fig_name):
+        with codecs.open("%s.svg" % (fig_name), "w", encoding="utf-8") as f:
+            f.write(fig_svg)
+        error = subprocess.Popen(
+            [
+                INKSCAPE_BIN,
+                "--without-gui",
+                "%s.svg" % (fig_name),
+                "--export-png=%s.png" % (fig_name),
+                "--export-dpi=180",
+            ],
+            stdin=open(os.devnull),
+            stderr=open(os.devnull, "wb"),
+            stdout=open(os.devnull, "wb"),
+        ).wait()
+        if error:
+            print("Got error", error)
+            raise RuntimeError(f"Error in Inkscape. Errorcode {error}.")
 
 
 class RawFigure(Figure):
@@ -1066,8 +1070,14 @@ class RawFigure(Figure):
         return self.content, self.filetype
 
     def to_file(
-        self, fig_name, query, lang=None, format_default="auto", force_default=False
-    ):  # pylint: disable=unused-argument
+        self,
+        fig_name,
+        query,
+        lang=None,
+        format_default="auto",
+        force_default=False,
+        svg_to_png=False,
+    ):  # pylint: disable=unused-argument, too-many-arguments
         with open(f"{fig_name}.{self.filetype}", "wb") as f:
             f.write(self.content)
 
