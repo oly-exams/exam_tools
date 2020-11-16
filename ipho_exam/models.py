@@ -591,7 +591,10 @@ class Exam(models.Model):
             return Exam.CAN_TRANSLATE_ORGANIZER
         if user.has_perm("ipho_core.can_see_boardmeeting"):
             return Exam.CAN_TRANSLATE_BOARDMEETING
-        return Exam.CAN_TRANSLATE_BOARDMEETING + 1
+        max_choice = max(
+            [choice[0] for choice in cls._meta.get_field("can_translate").choices]
+        )
+        return max_choice + 1
 
     def check_visibility(self, user):
         return self.visibility >= Exam.get_visibility(user)
