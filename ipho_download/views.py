@@ -42,7 +42,8 @@ def file_hash(fname):
 
 @login_required
 @permission_required("ipho_core.can_see_boardmeeting")
-def main(request, type_, url):  # pylint: disable=too-many-locals
+def main(request, type, url):  # pylint: disable=too-many-locals,redefined-builtin
+    type_ = type
     url = os.path.normpath(url)
 
     basedir = os.path.join(MEDIA_ROOT, "downloads")
