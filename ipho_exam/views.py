@@ -3974,7 +3974,7 @@ def bulk_print(
     exams = Exam.objects.for_user(request.user)
 
     scan_mode_info = [
-        f" Exam {exm.name} is in scanning mode: {exm.get_scanning_display()}"
+        f" Exam {exm.name} is in scanning mode: {exm.get_answer_sheet_scan_upload_display()}"
         for exm in exams
     ]
 
