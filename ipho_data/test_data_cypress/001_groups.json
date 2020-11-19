@@ -50,6 +50,11 @@
         "delegation"
       ],
       [
+        "can_access_control",
+        "ipho_core",
+        "iphoperm"
+      ],
+      [
         "is_printstaff",
         "ipho_core",
         "iphoperm"

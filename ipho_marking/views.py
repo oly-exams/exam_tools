@@ -26,6 +26,7 @@ from collections import OrderedDict
 from django.conf import settings
 from django.db.models import Sum, F, Q
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, render
 from django.http import (
@@ -38,10 +39,8 @@ from django.contrib.auth.decorators import permission_required
 
 from ipho_core.models import Delegation, Student
 from ipho_exam.models import Exam, Question, Document
-from ipho_exam import qquery as qwquery
-from ipho_exam import qml
 
-from .models import MarkingMeta, Marking, MarkingAction
+from .models import MarkingMeta, Marking, MarkingAction, generate_markings_from_exam
 from .forms import ImportForm, PointsForm
 
 OFFICIAL_LANGUAGE_PK = 1
@@ -55,39 +54,12 @@ def import_exam(request):
     form = ImportForm(request.POST or None)
     if form.is_valid():
         exam = form.cleaned_data["exam"]
-        num_tot = 0
-        num_created = 0
-        num_marking_tot = 0
-        num_marking_created = 0
-        for question in exam.question_set.filter(type=Question.ANSWER):
-            for delegation in Delegation.objects.exclude(
-                name=OFFICIAL_DELEGATION
-            ).all():
-                MarkingAction.objects.get_or_create(
-                    question=question, delegation=delegation
-                )
-            qwy = qwquery.latest_version(
-                question_id=question.pk,
-                lang_id=OFFICIAL_LANGUAGE_PK,
-                user=request.user,
-            )
-            question_points = qml.question_points(qwy.qml)
-            for i, (name, points) in enumerate(question_points):
-                mmeta, created = MarkingMeta.objects.update_or_create(
-                    question=question,
-                    name=name,
-                    defaults={"max_points": points, "position": i},
-                )
-                num_created += created
-                num_tot += 1
-
-                for student in Student.objects.all():
-                    for version_id, _ in list(Marking.MARKING_VERSIONS.items()):
-                        _, created = Marking.objects.get_or_create(
-                            marking_meta=mmeta, student=student, version=version_id
-                        )
-                        num_marking_created += created
-                        num_marking_tot += 1
+        (
+            num_tot,
+            num_created,
+            num_marking_tot,
+            num_marking_created,
+        ) = generate_markings_from_exam(exam, user=request.user)
 
         ctx["alerts"].append(
             '<div class="alert alert-success"><p><strong>Success.</strong></p><p>{} marking subquestion were imported.<p><ul><li>{} created</li><li>{} updated</li></ul><p>{} student marking created.</p><ul><li>{} student marking already found</li></ul></div>'.format(
@@ -194,6 +166,12 @@ def staff_stud_detail(request, version, stud_id, question_id):
         Question.objects.for_user(request.user), id=question_id
     )
     student = get_object_or_404(Student, id=stud_id)
+
+    marking_action = get_object_or_404(
+        MarkingAction, delegation=student.delegation, question=question
+    )
+    if marking_action.status == MarkingAction.FINAL:
+        raise Http404("These markings are final, you cannot modify them!")
 
     metas = MarkingMeta.objects.filter(question=question)
     marking_query = Marking.objects.editable(request.user).filter(
@@ -642,15 +620,23 @@ def delegation_stud_edit(
         question=question, delegation=delegation
     )
     if not marking_action.in_progress():
-        ctx["msg"].append(
-            (
-                ("alert-info"),
-                "<strong>Note:</strong> The points have been submitted, you can no longer edit them.",
+        raise Http404(
+            mark_safe(
+                "<strong>Note:</strong> The points have been submitted, you can no longer edit them."
             )
         )
-        return render(request, "ipho_marking/delegation_detail.html", ctx)
 
     metas = MarkingMeta.objects.filter(question=question)
+
+    marking_query = (
+        Marking.objects.editable(request.user)
+        .filter(marking_meta__in=metas, student=student, version=version)
+        .order_by("marking_meta__position")
+    )
+
+    if not marking_query.exists():
+        raise Http404("You cannot modify these markings!")
+
     FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
@@ -661,9 +647,7 @@ def delegation_stud_edit(
     )
     form = FormSet(
         request.POST or None,
-        queryset=Marking.objects.editable(request.user)
-        .filter(marking_meta__in=metas, student=student, version=version)
-        .order_by("marking_meta__position"),
+        queryset=marking_query,
     )
     if (
         question.exam.marking_delegation_can_see_organizer_marks
@@ -744,15 +728,23 @@ def delegation_edit_all(request, question_id):
         question=question, delegation=delegation
     )
     if not marking_action.in_progress():
-        ctx["msg"].append(
-            (
-                ("alert-info"),
-                "<strong>Note:</strong> The points have been submitted, you can no longer edit them.",
+        raise Http404(
+            mark_safe(
+                "<strong>Note:</strong> The points have been submitted, you can no longer edit them."
             )
         )
-        return render(request, "ipho_marking/delegation_detail.html", ctx)
 
     metas = MarkingMeta.objects.filter(question=question).order_by("position")
+
+    marking_query = (
+        Marking.objects.editable(request.user)
+        .filter(marking_meta__in=metas, student__in=students, version=version)
+        .order_by("marking_meta__position", "student__code")
+    )
+
+    if not marking_query.exists():
+        raise Http404("You cannot modify these markings!")
+
     FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
@@ -761,12 +753,7 @@ def delegation_edit_all(request, question_id):
         can_delete=False,
         can_order=False,
     )
-    formset = FormSet(
-        request.POST or None,
-        queryset=Marking.objects.editable(request.user)
-        .filter(marking_meta__in=metas, student__in=students, version=version)
-        .order_by("marking_meta__position", "student__code"),
-    )
+    formset = FormSet(request.POST or None, queryset=marking_query)
 
     # if the editable set changes between GETting and POSTing the form,
     # is_valid() will raise a RelatedObjectDoesNotExist error
@@ -1089,7 +1076,7 @@ def delegation_confirm(
 
     error_messages = []
     if request.POST:  # pylint: disable=too-many-nested-blocks
-        if "agree-submit" in request.POST:
+        if "agree-submit" in request.POST and not "reject-final" in request.POST:
             if final_confirmation:
                 if not "checksum" in request.POST:
                     msg = "Something went wrong (checksum missing), please contact support!"
@@ -1396,14 +1383,17 @@ def official_marking_detail(request, question_id, delegation_id):
     marking_action = get_object_or_404(
         MarkingAction, delegation=delegation, question=question
     )
-    if (
-        marking_action.status == MarkingAction.LOCKED_BY_MODERATION
-        or marking_action.status == MarkingAction.FINAL
-    ):
-        raise Http404("These markings are locked, you cannot modify them!")
+    if marking_action.status == MarkingAction.FINAL:
+        raise Http404("These markings are final, you cannot modify them!")
 
     metas = MarkingMeta.objects.filter(question=question)
     students = delegation.student_set.all()
+
+    marking_query = Marking.objects.editable(request.user).filter(
+        marking_meta__in=metas, student__in=students, version="O"
+    )
+    if not marking_query.exists():
+        raise Http404("You cannot modify these markings!")
 
     student_forms = []
     all_valid = True
@@ -1420,9 +1410,7 @@ def official_marking_detail(request, question_id, delegation_id):
         form = FormSet(
             request.POST or None,
             prefix=f"Stud-{student.pk}",
-            queryset=Marking.objects.editable(request.user).filter(
-                marking_meta__in=metas, student=student, version="O"
-            ),
+            queryset=marking_query.filter(student=student),
         )
         for j, f in enumerate(form):
             f.fields["points"].widget.attrs["tabindex"] = i * len(metas) + j + 1

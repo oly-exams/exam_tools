@@ -353,7 +353,7 @@ class Exam(models.Model):
     CAN_TRANSLATE_CHOICES = (
         (CAN_TRANSLATE_NOBODY, "Nobody"),
         (CAN_TRANSLATE_ORGANIZER, "Organizer only"),
-        (CAN_TRANSLATE_BOARDMEETING, "Boardmeeting members and organizers"),
+        (CAN_TRANSLATE_BOARDMEETING, "Boardmeeting members + organizers"),
     )
 
     # See comments on IntegerFields above

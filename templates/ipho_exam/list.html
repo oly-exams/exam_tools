@@ -118,6 +118,8 @@ del {
       <tbody id="exam-tbody-{{ ex.pk }}"></tbody>
     </table>
     <hr />
+    {% empty %}
+    <p>No exams available for translation.</p>
     {% endfor %}
 
 {% endblock %}

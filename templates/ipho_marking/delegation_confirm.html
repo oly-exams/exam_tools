@@ -26,26 +26,34 @@
         <h3 class="panel-title">{{ question.name }}</h2>
       </div>
 
-      <table class="table table-strided">
-        <tr>
-          <th>Students:</th>
+      <table class="table table-strided" id="confirm-table">
+        <thead>
+          <tr>
+            <th>Students:</th>
+            {% for student in students %}
+              <th>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% regroup markings|lookup:question.pk by marking_meta as markings_list %}
+          {% for marking in markings_list %}
+          <tr>
+            <td>{{ marking.grouper.name }}</td>
+            {% for item in marking.list %}
+              <td>{{ item.points|floatformat:2|default_if_none:"-" }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td><b>Total:</b></td>
           {% for student in students %}
-            <th>{{ student.first_name }} {{ student.last_name }}  ({{ student.code }})</th>
+            <td><b>{{ totals_questions|lookup:question.pk|lookup:student.pk|floatformat:2|default_if_none:"-" }}</b></td>
           {% endfor %}
-        </tr>
-        {% regroup markings|lookup:question.pk by marking_meta as markings_list %}
-        {% for marking in markings_list %}
-        <tr>
-          <td>{{ marking.grouper.name }}</td>
-          {% for item in marking.list %}
-            <td>{{ item.points|floatformat:2|default_if_none:"-" }}</td>
-          {% endfor %}
-        </tr>
-        {% endfor %}
-          <td><b>Total:</b></td>
-        {% for student in students %}
-          <td><b>{{ totals_questions|lookup:question.pk|lookup:student.pk|floatformat:2|default_if_none:"-" }}</b></td>
-        {% endfor %}
+          </tr>
+        </tfoot>
       </table>
     </div>
   {% endfor %}
@@ -54,7 +62,7 @@
 
   <form method="post">
     {% csrf_token %}
-    <div class="alert {% if form_error %}alert-danger{% else %}{{ confirmation_alert_class|default:'alert-info' }}{% endif %}">
+    <div id="confirm-alert" class="alert {% if form_error %}alert-danger{% else %}{{ confirmation_alert_class|default:'alert-info' }}{% endif %}">
         <div class="checkbox">
             {% if form_error %}
                 <div class="help-block">{{ form_error|safe }}</div>
@@ -71,9 +79,9 @@
     <div class="pull-right">
       {% if reject_button_label %}
 
-      <button type="submit" name="reject-final" class="btn btn-warning" style="margin-right: 5px;"><i class="fa fa-times" aria-hidden="true"></i> {{ reject_button_label }}</button>
+      <button type="submit" id="reject-button" name="reject-final" class="btn btn-warning" style="margin-right: 5px;"><i class="fa fa-times" aria-hidden="true"></i> {{ reject_button_label }}</button>
       {% endif %}
-      <button type="submit" class="btn btn-primary"><i class="fa fa-check" aria-hidden="true"></i> {{ confirm_button_label }}</button>
+      <button type="submit" id="confirm-button" class="btn btn-primary"><i class="fa fa-check" aria-hidden="true"></i> {{ confirm_button_label }}</button>
 
     </div>
 

@@ -187,14 +187,34 @@ python manage.py test
 ```
 
 ### Cypress
+The Cypress tests will automatically run in the CI. If you need to run tests locally, set it up as follows.
+1. Use `settings_testing.py`, i.e.
+```bash
+cp exam_tools/settings_testing.py exam_tools/settings.py
+```
+2. Adjust any settings, if needed. Make sure not to change the db-settings, however. Cypress will copy the db to (re)initialize, thus the location of the SQLite db needs to be the one set in `settings_testing.py`.
 
-1. Install Cypress (https://docs.cypress.io/guides/getting-started/installing-cypress.html)
-2. Start the server on localhost:8000 (e.g. with docker-compose)
-3. Open the Cypress Test Runner with:
+3. Start the dev servers
 ```bash
-npx cypress open
+./docker/dev_compose.sh up
 ```
-4. Or run the tests with:
+
+4. Run
 ```bash
-npx cypress run
+python ipho_data/cypress_initial_data.py
 ```
+inside the django server container to create the initial dataset. This needs to be done before each test, as cypress will override this. Alternatively, you can comment out the `before()` hook in `e2e/cypress/support/index.js` and manually create `database-initial` once:
+```bash
+cp db_data/database.s3db db_data/database-initial.s3db
+```
+(where `database.s3db` is created by `cypress_initial_data.py`)
+5. Start the cypress container with
+```bash
+./docker/cypress_xforward_bash.sh
+```
+This will open bash inside the cypress container.
+Then you can:
+* Run the tests using `cypress run`. If you only want to run one file you can use `cypress run --spec path/to/file`.
+* Start the cypress test runner with `cypress open`. This will need X-forwarding to your OS, so you might to install some client (i.e. XMing on Windows).
+
+You can find more about writing tests in the [Cypress readme](e2e/README.md)

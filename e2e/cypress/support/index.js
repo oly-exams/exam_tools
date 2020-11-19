@@ -20,7 +20,8 @@ import './commands'
 // require('./commands')
 
 before(() => {
-    // runs once before all tests in the block
+	// runs once before all tests in the block
+	// comment out this line for local testing, make sure to manually create database-initial in this case.
     cy.exec('mv ../db_data/database.s3db ../db_data/database-initial.s3db')
 })
 
@@ -29,3 +30,12 @@ beforeEach(() => {
     // across all files no matter what
     cy.exec('cp ../db_data/database-initial.s3db ../db_data/database.s3db')
 })
+
+afterEach(() => {
+	cy.window().then(win => {
+		if (typeof win.gc === 'function') {
+			// calling this more often seems to trigger major GC event more reliably
+			win.gc(); win.gc(); win.gc(); win.gc(); win.gc();
+		}
+	});
+});

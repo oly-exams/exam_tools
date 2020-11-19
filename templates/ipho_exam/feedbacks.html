@@ -135,7 +135,7 @@
           {% endif %}
       </tr>
     </thead>
-      <tbody id="exam-tbody-{{ exam.pk }}"></tbody>
+      <tbody id="feedback-tbody-{{ exam.pk }}"></tbody>
     </table>
   {% else %}
   <div class="dropdown ">
@@ -219,7 +219,7 @@ $(function() {
 
     $('#feedback-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
-        var fid = button.attr('id');
+        var fid = button.data('feedback-pk');
         var modal = $(this);
         var url =  "{% url 'exam:feedback-add-comment' %}/"+fid;
 
@@ -253,7 +253,7 @@ $(function() {
             autoWidth: false,
             });
             table.destroy();
-            $("#exam-tbody-"+tid).html(data);
+            $("#feedback-tbody-"+tid).html(data);
             $("time[data-format]").each(function () {
                 var el = $(this);
                 var dt = moment(el.attr("datetime"));

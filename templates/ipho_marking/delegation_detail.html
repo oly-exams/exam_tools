@@ -78,7 +78,11 @@
               <th>{{ form_item.points.label_tag }}</th>
               <td>{{ form_item.official.points}}</td>
               <td><button type="button" class="btn btn-default btn-xs" title="Copy from official" onclick="copy_one('{{form_item.points.id_for_label}}', '{{form_item.official.points}}')"><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i><i class="fa fa-arrow-right" aria-hidden="true"></i><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i></button></td>
-              <td>{{form_item.points.errors}}{{form_item.points}}{% for hidden in form_item.hidden_fields %}{{ hidden }}{% endfor %}</td>
+              <td>
+                <div {{ form_item.points.errors|yesno:'class="has-error error",,'|safe }}>
+                  {{ form_item.points.errors }} {{ form_item.points }}{% for hidden in form_item.hidden_fields %}{{ hidden }}{% endfor %}
+                </div>
+              </td>
           </tr>
         {% endfor %}
         {% else %}
@@ -90,20 +94,24 @@
     {% endif %}
 
     {% if markings %}
-    <table class="table table-striped">
-      <tr>
-        <th>Subquestion</th>
-        <th>Official</th>
-        <th>Delegation</th>
-        <th>Final</th>
-      </tr>
+    <table class="table table-striped" id="points-table">
+      <thead>
+        <tr>
+          <th>Subquestion</th>
+          <th>Official</th>
+          <th>Delegation</th>
+          <th>Final</th>
+        </tr>
+      </thead>
       {% for m, points in markings %}
-      <tr>
-        <td><strong>{{ m.name }} ({{ m.max_points }})</strong></td>
-        <td>{{ points.O|default_if_none:'-' }}</td>
-        <td>{{ points.D|default_if_none:'-' }}</td>
-        <td>{{ points.F|default_if_none:'-' }}</td>
-      </tr>
+      <tbody>
+        <tr>
+          <td><strong>{{ m.name }} ({{ m.max_points }})</strong></td>
+          <td>{{ points.O|default_if_none:'-' }}</td>
+          <td>{{ points.D|default_if_none:'-' }}</td>
+          <td>{{ points.F|default_if_none:'-' }}</td>
+        </tr>
+      </tbody>
       {% endfor %}
     </table>
     {% endif %}

@@ -1041,6 +1041,9 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
     choices = dict(Feedback._meta.get_field("status").flatchoices)
     for fback in feedbacks:
         fback["status_display"] = choices[fback["status"]]
+        fback["commentable"] = Question.objects.get(
+            pk=fback["question__pk"]
+        ).check_feedback_commentable()
         fback["enable_likes"] = (
             (fback["delegation_likes"] == 0)
             and fback["question__feedback_status"] == Question.FEEDBACK_OPEN
@@ -1379,6 +1382,13 @@ def feedback_like(request, status, feedback_id):
 @permission_required("ipho_core.can_manage_feedback")
 def feedback_set_status(request, feedback_id, status):
     fback = get_object_or_404(Feedback, id=feedback_id)
+    question = fback.question
+    if (
+        not question.exam.check_visibility(request.user)
+        or question.feedback_status <= Question.FEEDBACK_CLOSED
+        or question.exam.feedback <= Exam.FEEDBACK_READONLY
+    ):
+        return JsonResponse({"success": False})
     fback.status = status
     fback.save()
     return JsonResponse({"success": True})

@@ -212,7 +212,7 @@ urlpatterns = [
         name="feedback-partial",
     ),
     re_path(
-        r"^feedbacks/partial/(?P<exam_id>\d+)/(?P<question_id>\d+)/(?P<qml_id>[0-9a-z\-]+)$",
+        r"^feedbacks/partial/(?P<exam_id>\d+)/(?P<question_id>\d+)/(?P<qml_id>[0-9a-z\-\_]+)$",
         views.feedback_partial,
         name="feedback-partial",
     ),
