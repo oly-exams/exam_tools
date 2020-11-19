@@ -53,7 +53,7 @@ test:testing_pdf_compilation:
     extends: .test:pull_and_run
     variables:
         ALL_SERVICE_NAME: django_server postgres rabbitmq celery_worker testing_cypress
-        OVERWRITE_COMPOSE: docker/overwrite/testing_cypress_test_batch_2.yml
+        OVERWRITE_COMPOSE: docker/overwrite/dev.yml docker/overwrite/testing_pdf_compilation.yml
     after_script:
         # copying makes the folderstructure look nicer on gitlab
         - mkdir $CI_PROJECT_DIR/videos
