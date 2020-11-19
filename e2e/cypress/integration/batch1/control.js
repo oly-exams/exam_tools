@@ -151,7 +151,8 @@ describe('Control', function() {
         cy.logout()
         cy.login("admin", "1234")
         //Switch to Preparation (Editing) where visibility=ORGAS_ONLY
-        cy.switchExamPhase(1, 2)
+        cy.getExamPhaseByName('Theory', "Preparation (Editing)").then(cy.switchExamPhase)
+
         cy.visit("/")
         cy.get('#exam-summary-container #phase-summary-parent > :nth-child(1)').should('contain', 'Theory').and('contain', 'Preparation (Editing)')
 

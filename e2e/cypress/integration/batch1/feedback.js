@@ -57,7 +57,7 @@ describe('Feedback', function() {
     it('Test Visibility', function(){
         cy.login("admin", "1234")
         // Preparation Phase (neither exam nor feedbacks are visible to delegations)
-        cy.switchExamPhase(1, 2)
+        cy.getExamPhaseByName('Theory', "Preparation (Editing)").then(cy.switchExamPhase)
         //admin
         cy.request({ url:"exam/feedbacks/list/1", failOnStatusCode: false}).its("status").should('eq', 404)
         cy.visit("exam/view/1/question/2")
@@ -72,7 +72,7 @@ describe('Feedback', function() {
 
         cy.login("admin", "1234")
         // Discussion (exam.feedback = Exam.FEEDBACK_CAN_BE_OPENED)
-        cy.switchExamPhase(1, 4)
+        cy.getExamPhaseByName('Theory', "Discussion").then(cy.switchExamPhase)
         //admin
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -102,8 +102,8 @@ describe('Feedback', function() {
         cy.logout()
 
         cy.login("admin", "1234")
-        // Translation (exam.feedback = Exam.FEEDBACK_READONLY)
-        cy.switchExamPhase(1, 6)
+        // Translation (where exam.feedback = Exam.FEEDBACK_READONLY)
+        cy.getExamPhaseByName('Theory', "Translation").then(cy.switchExamPhase)
         //admin
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -134,7 +134,7 @@ describe('Feedback', function() {
 
         cy.login("admin", "1234")
         // Printing (feedback invisible, exam visible)
-        cy.switchExamPhase(1, 7)
+        cy.getExamPhaseByName('Theory', "Printing").then(cy.switchExamPhase)
         //admin
         cy.request({ url:"exam/feedbacks/list/1", failOnStatusCode: false}).its("status").should('eq', 404)
         cy.visit("exam/view/1/question/2")
@@ -237,7 +237,7 @@ describe('Feedback', function() {
         // Translation (exam.feedback = Exam.FEEDBACK_READONLY)
         cy.logout()
         cy.login('admin','1234')
-        cy.switchExamPhase(1, 6)
+        cy.getExamPhaseByName('Theory', "Translation").then(cy.switchExamPhase)
         cy.visit("exam/view/1/question/2")
         cy.get("#q0_pa1").click()
         cy.wait("@getFeedbackPartial")
@@ -375,7 +375,7 @@ describe('Feedback', function() {
         // Translation (exam.feedback = Exam.FEEDBACK_READONLY)
         cy.logout()
         cy.login('admin','1234')
-        cy.switchExamPhase(1, 6)
+        cy.getExamPhaseByName('Theory', "Translation").then(cy.switchExamPhase)
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
 
@@ -552,7 +552,7 @@ describe('Feedback', function() {
         // Translation (exam.feedback = Exam.FEEDBACK_READONLY)
         cy.logout()
         cy.login('admin','1234')
-        cy.switchExamPhase(1, 6)
+        cy.getExamPhaseByName('Theory', "Translation").then(cy.switchExamPhase)
 
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -714,7 +714,7 @@ describe('Feedback', function() {
         // Translation (exam.feedback = Exam.FEEDBACK_READONLY)
         cy.logout()
         cy.login('admin','1234')
-        cy.switchExamPhase(1, 6)
+        cy.getExamPhaseByName('Theory', "Translation").then(cy.switchExamPhase)
 
         // organizers should never be able to edit likes
         cy.visit("exam/feedbacks/list/1")
