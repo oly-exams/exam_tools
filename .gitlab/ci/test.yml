@@ -49,6 +49,27 @@ test:testing_cypress_batch_2:
         reports:
             junit: e2e/cypress/reports/*.xml
 
+test:testing_pdf_compilation:
+    extends: .test:pull_and_run
+    variables:
+        ALL_SERVICE_NAME: django_server postgres rabbitmq celery_worker testing_cypress
+        OVERWRITE_COMPOSE: docker/overwrite/testing_cypress_test_batch_2.yml
+    after_script:
+        # copying makes the folderstructure look nicer on gitlab
+        - mkdir $CI_PROJECT_DIR/videos
+        - mkdir $CI_PROJECT_DIR/screenshots
+        - mkdir $CI_PROJECT_DIR/pdfs
+        - cp e2e/cypress/videos/* $CI_PROJECT_DIR/videos
+        - cp e2e/cypress/screenshots/* $CI_PROJECT_DIR/screenshots
+        - cp e2e/cypress/pdfs/* $CI_PROJECT_DIR/pdfs
+    artifacts:
+        paths:
+            - $CI_PROJECT_DIR/videos
+            - $CI_PROJECT_DIR/screenshots
+            - $CI_PROJECT_DIR/pdfs
+        reports:
+            junit: e2e/cypress/reports/*.xml
+
 test:docker_dev_setup:
     extends: .test:pull_and_run
     variables:
