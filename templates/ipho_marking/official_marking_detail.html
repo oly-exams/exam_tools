@@ -80,7 +80,9 @@ th {
           <td>{{ meta.name }} ({{ meta.max_points }})</td>
           {% for form in forms %}
             <td class="thdnone"></td>
-            <td>{{ form.id }}<div class="{{ form.errors|yesno:"has-error," }}">{{ form.points }}</div></td>
+            <td><div class="{{ form.errors|yesno:"has-error," }}">
+              {{ form.id }}{{ form.points.errors }}{{ form.points }}
+            </div></td>
           {% endfor %}
         </tr>
       {% endfor %}

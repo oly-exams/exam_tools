@@ -304,7 +304,7 @@ body { margin-bottom: 70px; }
         <div class="row">
             <div class="col-xs-5">
                 <h4>Original:
-                <span class="dropdown">
+                <span class="dropdown" id="dropdown-select-source">
                   <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                     {{ orig_lang.name }}
                     {% if orig_lang.versioned %}<span class="badge">v{{ orig_lang.version }}</span><span class="label label-default">{{ orig_lang.tag|default:'' }}</span>{% endif %}
@@ -331,7 +331,7 @@ body { margin-bottom: 70px; }
                 {% if orig_lang.versioned %}
                     <small>
                     Compare to:
-                    <span class="dropdown">
+                    <span class="dropdown" id="dropdown-compare-source">
                       <button class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown">
                         {% if orig_diff %}v{{ orig_diff }} {{ orig_diff_tag }}{% endif %}
                         <span class="caret"></span>
@@ -360,7 +360,7 @@ body { margin-bottom: 70px; }
 
             <div class="col-xs-5">
                 <h4>Translate to:
-                <span class="dropdown">
+                <span class="dropdown" id="dropdown-select-target">
                   <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                     {% if trans_lang %}
                         {{ trans_lang.name }}
@@ -376,9 +376,9 @@ body { margin-bottom: 70px; }
                   </ul>
                 </span>
                 {% if trans_lang %}
-                <button class="btn btn-default" title="Language settings" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-edit' lang_id=trans_lang.pk %}"><i class="fa fa-cog"></i></button>
+                <button class="btn btn-default" id="language-settings" title="Language settings" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-edit' lang_id=trans_lang.pk %}"><i class="fa fa-cog"></i></button>
                 {% endif %}
-                <button type="button" class="btn btn-sm btn-default translate-copy-all-button" title="Copy all blocks from the original version" data-toggle="modal" data-target="#copy-modal">
+                <button type="button" id="copy-all" class="btn btn-sm btn-default translate-copy-all-button" title="Copy all blocks from the original version" data-toggle="modal" data-target="#copy-modal">
                   <i class="fa fa-clipboard" aria-hidden="true"></i>
                   <span class="glyphicon glyphicon-arrow-right"></span>
                   <i class="fa fa-clipboard" aria-hidden="true"></i>
@@ -423,7 +423,7 @@ body { margin-bottom: 70px; }
             <div class="navbar-right">
                 <a id="pdf-button" class="btn btn-success navbar-btn"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
                 <a id="pdf-button-hidden" style="display: none;" class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
-                <button type="submit" class="btn btn-primary navbar-btn btn-shallow-disabled" data-toggle="tooltip" data-placement="top" title="ctrl + S"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+                <button type="submit" id="navbar-safe-button" class="btn btn-primary navbar-btn btn-shallow-disabled" data-toggle="tooltip" data-placement="top" title="ctrl + S"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
             </div>
           </div>
         </div>

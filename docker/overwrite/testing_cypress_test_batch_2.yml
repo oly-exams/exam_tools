@@ -8,3 +8,8 @@ services:
     testing_cypress:
         depends_on:
             - django_server
+        environment:
+            - ELECTRON_EXTRA_LAUNCH_ARGS=--js-flags=--expose_gc
+        command: ./cypress_batch.sh batch2
+        ipc: host
+        shm_size: '4gb'

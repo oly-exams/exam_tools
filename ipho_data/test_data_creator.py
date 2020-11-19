@@ -4,6 +4,12 @@ from contextlib import contextmanager, suppress
 
 from django.conf import settings
 from django.db import connections
+from django.utils import lorem_ipsum
+
+from ipho_core.models import Delegation
+from ipho_exam.models import Question
+from ipho_marking.models import MarkingAction
+
 
 from ipho_data.ipho2016_qml_data import IPHO2016_DATA
 from ipho_data.data_creator import DataCreator
@@ -54,12 +60,44 @@ class TestDataCreator(DataCreator):
         )
         self.close_poll_que_with_result(que3, r=1, b=2, g=3)
 
+    def create_feedback_for_question(self, question, comment=None):
+        for deleg in Delegation.objects.all():
+            if comment is None:
+                tmp_comment = f"{deleg.country} " + lorem_ipsum.paragraphs(1, True)[0]
+            else:
+                tmp_comment = comment
+            self.create_feedback(
+                question=question,
+                delegation=deleg,
+                comment=tmp_comment,
+                part="A.1",
+                qml_id="q0_ti1",
+            )
+
     def create_ipho2016_theory_exam(self):
         exam = self.create_exam(name="Theory", code="T")
         gen_inst = self.create_question(
             exam, name="General Instructions", code="G", position=0, type=self.QUESTION
         )
-        self.create_official_version_node(gen_inst, text=IPHO2016_DATA["T-G0-final"])
+        phases = self.create_exam_phases_for_exam(exam)
+        self.set_exam_to_phase(phases[4])
+        self.create_official_version_node(gen_inst, text=IPHO2016_DATA["T-G0-v1"])
+        self.create_official_version_node(
+            gen_inst, text=IPHO2016_DATA["T-G0-final"], version=2
+        )
+        lang1 = self.create_language_from_code(code="AUS", name="TestLanguage1")
+        self.create_translation_node(
+            gen_inst, lang1, text=IPHO2016_DATA["T-G0-transl1"]
+        )
+        lang2 = self.create_language_from_code(code="AUS", name="TestLanguage2")
+        self.create_translation_node(
+            gen_inst, lang2, text=IPHO2016_DATA["T-G0-transl2"]
+        )
+        lang3 = self.create_language_from_code(code="AUT", name="TestLanguage3")
+        self.create_translation_node(
+            gen_inst, lang3, text=IPHO2016_DATA["T-G0-transl3"]
+        )
+
         que1 = self.create_question(
             exam,
             name="Two Problems in Mechanics",
@@ -68,6 +106,8 @@ class TestDataCreator(DataCreator):
             type=self.QUESTION,
         )
         self.create_official_version_node(que1, text=IPHO2016_DATA["T-Q1-final"])
+        self.create_feedback_for_question(que1)
+
         ans1 = self.create_question(
             exam,
             name="Two Problems in Mechanics - Answer Sheet",
@@ -94,3 +134,46 @@ class TestDataCreator(DataCreator):
             working_pages=6,
         )
         self.create_official_version_node(ans2, text=IPHO2016_DATA["T-A2-final"])
+
+        return exam
+
+    def create_ipho2016_marking(self):
+        answer1 = Question.objects.get(name="Two Problems in Mechanics - Answer Sheet")
+        answer2 = Question.objects.get(
+            name="Nonlinear Dynamics in Electric Circuits - Answer Sheet"
+        )
+
+        self.set_zero_points(delegation_code="CHE", question=answer1, version="O")
+        self.set_max_points(delegation_code="CHE", question=answer1, version="D")
+        self.set_zero_points(delegation_code="ARM", question=answer1, version="O")
+        self.set_max_points(delegation_code="ARM", question=answer1, version="D")
+        self.set_zero_points(delegation_code="AUS", question=answer1, version="O")
+        self.set_max_points(delegation_code="AUS", question=answer1, version="D")
+        self.set_max_points(delegation_code="AUS", question=answer1, version="F")
+
+        self.set_zero_points(delegation_code="AUT", question=answer1, version="O")
+        self.set_max_points(delegation_code="AUT", question=answer1, version="D")
+        self.set_max_points(delegation_code="AUT", question=answer1, version="F")
+        self.set_zero_points(delegation_code="AUT", question=answer2, version="O")
+        self.set_max_points(delegation_code="AUT", question=answer2, version="D")
+        self.set_max_points(delegation_code="AUT", question=answer2, version="F")
+
+        self.set_marking_status(
+            delegation_code="CHE", question=answer1, status=MarkingAction.OPEN
+        )
+        self.set_marking_status(
+            delegation_code="ARM",
+            question=answer1,
+            status=MarkingAction.SUBMITTED_FOR_MODERATION,
+        )
+        self.set_marking_status(
+            delegation_code="AUS",
+            question=answer1,
+            status=MarkingAction.LOCKED_BY_MODERATION,
+        )
+        self.set_marking_status(
+            delegation_code="AUT", question=answer1, status=MarkingAction.FINAL
+        )
+        self.set_marking_status(
+            delegation_code="AUT", question=answer2, status=MarkingAction.FINAL
+        )

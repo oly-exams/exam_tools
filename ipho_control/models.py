@@ -104,6 +104,15 @@ class ExamPhase(models.Model):
                 f"Exam settings don't match available keys. Settings: {self.exam_settings}, Available: {self.get_available_exam_field_names()}",
                 code="invalid",
             )
+
+        setting_choices = self.get_available_exam_field_choices()
+        for name, value in self.exam_settings.items():
+            if name in setting_choices and not value in setting_choices[name]:
+                raise ValidationError(
+                    f"Value {value} for exam setting {name} is not available. Available choices are: {setting_choices}",
+                    code="invalid",
+                )
+
         controllable_q_fields = [f.name for f in Question.get_controllable_fields()]
         if not set(self.available_question_settings).issubset(
             set(controllable_q_fields)
@@ -235,6 +244,18 @@ class ExamPhase(models.Model):
         return [f.name for f in cls.get_available_exam_fields()]
 
     @classmethod
+    def get_available_exam_field_choices(cls):  # pylint: disable=invalid-name
+        """Returns the names of the exam fields which are available in in exam_settings."""
+        choices = {}
+        for f in cls.get_available_exam_fields():
+            if hasattr(f, "choices"):
+                choices[f.name] = [c[0] for c in f.choices]
+            elif f.get_internal_type() == "BooleanField":
+                choices[f.name] = [True, False]
+
+        return choices
+
+    @classmethod
     def get_exam_field_help_texts(cls):
         """Returns a dictionary {field_name:help_text}."""
         res = {}
@@ -322,7 +343,7 @@ class ExamPhaseHistory(models.Model):
             .first()
         )
 
-    def changes_to_previous(self):
+    def changed_to_previous(self):
         """Returns the exam phase changes to the previous phase."""
         res = {}
         previous = self.get_previous()
@@ -336,6 +357,18 @@ class ExamPhaseHistory(models.Model):
                     "old": previous_settings.get(s),
                 }
                 res[s] = changed
+        return res
+
+    def unchanged_to_previous(self):
+        """Returns the unchanged exam settings relative to the previous phase."""
+        res = {}
+        previous = self.get_previous()
+        if previous is None:
+            return self.to_settings
+        previous_settings = previous.to_settings
+        for s in ExamPhase.get_available_exam_field_names():
+            if self.to_settings.get(s) == previous_settings.get(s):
+                res[s] = self.to_settings.get(s)
         return res
 
     def get_ordered_to_settings(self):

@@ -27,6 +27,7 @@
 
 Cypress.Commands.add('login', (username, password) => {
     // This command is used to log into the page.
+    cy.clearCookies()
     return cy.request({
       url: 'accounts/login/',
       method: 'GET'
@@ -58,7 +59,9 @@ Cypress.Commands.add('login', (username, password) => {
 
   Cypress.Commands.add('logout', () => {
     // This command is used to logout.
-    return cy.clearCookies()
+    cy.clearCookies()
+    cy.wait(1000)
+    return
   })
 
   Cypress.Commands.add(
@@ -69,3 +72,40 @@ Cypress.Commands.add('login', (username, password) => {
         return subject;
     },
 );
+
+Cypress.Commands.add("typeCKeditor", (element, content) => {
+  cy.window()
+    .then(win => {
+      win.CKEDITOR.instances[element].setData(content);
+    });
+});
+
+Cypress.Commands.add("readCKeditor", (element) => {
+  cy.window()
+    .then(win => {
+      return win.CKEDITOR.instances[element].getData();
+    });
+});
+
+
+Cypress.Commands.add('switchExamPhase', (exam_id, phase_id) => {
+  // This command is used to switch the exam phase
+  return cy.request({
+    url: 'control/cockpit/switch-phase/' + exam_id + '/' + phase_id,
+    method: 'GET'
+  }).then(() => {
+    cy.getCookie('csrftoken').its('value').then((token) => {
+      var oldToken = token;
+      cy.request({
+        url: 'control/cockpit/switch-phase/' + exam_id + '/' + phase_id,
+        method: 'POST',
+        form: true,
+        followRedirect: false,
+        body: {
+          csrfmiddlewaretoken: token
+        }
+      })
+    })
+  })
+
+})

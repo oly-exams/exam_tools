@@ -59,6 +59,232 @@ IPHO2016_DATA[
 """
 
 IPHO2016_DATA[
+    "T-G0-v1"
+] = r"""
+<question id="q0" points="30">
+    <title id="q0_ti1">General instructions: Version 1</title>
+    <paragraph id="q0_pa1">&lt;p&gt;July 14, 2016&lt;/p&gt;
+        &lt;p&gt;The theoretical examination lasts for 5 hours and is worth a total of 30 points.&lt;/p&gt;
+    </paragraph>
+    <section id="q0_sc2">Before the exam</section>
+    <list id="q0_ls2">
+        <item id="q0_ls2_li1">You must not open the envelopes containing the problems before the sound signal indicating the beginning of the examination.</item>
+        <item id="q0_ls2_li2">The beginning and end of the examination will be indicated by a sound signal. There will be announcements every hour indicating the elapsed time, as well as fifteen minutes before the end of the examination (before the final sound signal).</item>
+    </list>
+
+    <section id="q0_sc3">During the exam</section>
+    <list id="q0_ls3">
+        <item id="q0_ls3_li1">Dedicated answer sheets are provided for writing your answers. Enter the final answers into the appropriate boxes in the corresponding answer sheet (marked A). For every problem, there are extra blank work sheets for carrying out detailed work (marked W). Always use the work sheets that belong to the problem you are currently working on (check the problem number in the header). If you have written something on any sheet which you do not want to be graded, cross it out. Only use the front side of every page.</item>
+        <item id="q0_ls3_li2">In your answers, try to be as concise as possible: use equations, logical operators and sketches to illustrate your thoughts whenever possible. Avoid the use of long sentences.</item>
+        <item id="q0_ls3_li3">&lt;p&gt;Please give an appropriate number of significant digits when stating numbers.&lt;/p&gt;</item><item id="q0_ls3_li4">You may often be able to solve later parts of a problem without having solved the previous ones.</item>
+        <item id="q0_ls3_li5">A list of physical constants is given on the next page.</item>
+        <item id="q0_ls3_li6">You are not allowed to leave your working place without permission. If you need any assistance (need to refill your drinking water bottle, broken calculator, need to visit a restroom, etc), please draw the attention of a team guide by putting one of the three flags into the holder attached to your cubicle ("Refill my water bottle, please", "I need to go to the toilet, please", or "I need help, please" in all other cases).</item>
+    </list>
+    <section id="q0_sc4">At the end of the exam</section>
+    <list id="q0_ls4">
+        <item id="q0_ls4_li1">At the end of the examination you must stop writing immediately.</item>
+        <item id="q0_ls4_li2">For every problem, sort the corresponding sheets in the following order: cover sheet (C), questions (Q), answer sheets (A), work sheets (W).</item>
+        <item id="q0_ls4_li3">Put all the sheets belonging to one problem into the same envelope. Also put the general instructions (G) into the remaining separate envelope. Make sure your student code is visible in the viewing window of each envelope. Also hand in empty sheets. You are not allowed to take any sheets of paper out of the examination area.</item>
+        <item id="q0_ls4_li4">Leave the blue calculator provided by the organizers on the table.</item>
+        <item id="q0_ls4_li5">Take the writing equipment (2 ball point pens, 1 felt tip pen, 1 pencil, 1 pair of scissors, 1 ruler, 2 pairs of earplugs) as well your personal calculator (if applicable) with you. Also take your water bottle with you.</item>
+        <item id="q0_ls4_li6">Wait at your table until your envelopes are collected. Once all envelopes are collected your guide will escort you out of the examination area.</item>
+    </list>
+    <texfield content="~\\ \clearpage" id="q0_tx1" />
+    <section id="q0_sc5">General Data Sheet</section>
+    <table columns="|p{0.425\textwidth}p{0.03\textwidth}p{0.02\textwidth}p{0.425\textwidth}|" grid_lines="0" id="q0_tb1" left_line="1" right_line="1" top_line="1">
+        <row bottom_line="0" id="q0_tb1_rw1"><cell id="q0_tb1_rw1_ce1">Speed of light in vacuum</cell><cell id="q0_tb1_rw1_ce2">&lt;span class="math-tex"&gt;\(c\)&lt;/span&gt;</cell><cell id="q0_tb1_rw1_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw1_ce4">&lt;span class="math-tex"&gt;\(299~792~458 ~\text{m}\cdot \text{s}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw2"><cell id="q0_tb1_rw2_ce1">Vacuum permeability (magnetic constant)</cell><cell id="q0_tb1_rw2_ce2">&lt;span class="math-tex"&gt;\(\mu_0\)&lt;/span&gt;</cell><cell id="q0_tb1_rw2_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw2_ce4">&lt;span class="math-tex"&gt;\(4 \pi \times 10^{-7} ~\text{kg} \cdot \text{m} \cdot \text{A}^{-2} \cdot \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw3"><cell id="q0_tb1_rw3_ce1">Vacuum permittivity (electrical constant)</cell><cell id="q0_tb1_rw3_ce2">&lt;span class="math-tex"&gt;\(\varepsilon_0\)&lt;/span&gt;</cell><cell id="q0_tb1_rw3_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw3_ce4">&lt;span class="math-tex"&gt;\(8.854~187~817 \times 10^{-12}~\text{A}^2\cdot \text{s}^4\cdot \text{kg}^{-1}\cdot \text{m}^{-3}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw4"><cell id="q0_tb1_rw4_ce1">Elementary charge</cell><cell id="q0_tb1_rw4_ce2">&lt;span class="math-tex"&gt;\(e\)&lt;/span&gt;</cell><cell id="q0_tb1_rw4_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw4_ce4">&lt;span class="math-tex"&gt;\(1.602~176~620~8(98) \times 10^{-19}~\text{A} \cdot \text{s}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw5"><cell id="q0_tb1_rw5_ce1">Mass of the electron</cell><cell id="q0_tb1_rw5_ce2">&lt;span class="math-tex"&gt;\(m_\text{e}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw5_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw5_ce4">&lt;span class="math-tex"&gt;\(9.109~383~56(11) \times 10^{-31}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw18"><cell id="q0_tb1_rw18_ce1" /><cell id="q0_tb1_rw18_ce2" /><cell id="q0_tb1_rw18_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw18_ce4">&lt;span class="math-tex"&gt;\(0.510~998~946~1(31) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw6"><cell id="q0_tb1_rw6_ce1">Mass of the proton</cell><cell id="q0_tb1_rw6_ce2">&lt;span class="math-tex"&gt;\(m_\text{p}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw6_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw6_ce4">&lt;span class="math-tex"&gt;\(1.672~621~898(21) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw021"><cell id="q0_tb1_rw021_ce1" /><cell id="q0_tb1_rw021_ce2" /><cell id="q0_tb1_rw021_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw021_ce4">&lt;span class="math-tex"&gt;\(938.272~081~3(58) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw7"><cell id="q0_tb1_rw7_ce1">Mass of the neutron</cell><cell id="q0_tb1_rw7_ce2">&lt;span class="math-tex"&gt;\(m_\text{n}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw7_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw7_ce4">&lt;span class="math-tex"&gt;\(1.674~927~471(21) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw20"><cell id="q0_tb1_rw20_ce1" /><cell id="q0_tb1_rw20_ce2" /><cell id="q0_tb1_rw20_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw20_ce4">&lt;span class="math-tex"&gt;\(939.565~413~3(58) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw8"><cell id="q0_tb1_rw8_ce1">Unified atomic mass unit</cell><cell id="q0_tb1_rw8_ce2">&lt;span class="math-tex"&gt;\(u\)&lt;/span&gt;</cell><cell id="q0_tb1_rw8_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw8_ce4">&lt;span class="math-tex"&gt;\(1.660~539~040(20) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw9"><cell id="q0_tb1_rw9_ce1">Rydberg constant</cell><cell id="q0_tb1_rw9_ce2">&lt;span class="math-tex"&gt;\(R_\infty\)&lt;/span&gt;</cell><cell id="q0_tb1_rw9_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw9_ce4">&lt;span class="math-tex"&gt;\(10~973~731.568~508(65)~\text{m}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw10"><cell id="q0_tb1_rw10_ce1">Universal constant of gravitation</cell><cell id="q0_tb1_rw10_ce2">&lt;span class="math-tex"&gt;\(G\)&lt;/span&gt;</cell><cell id="q0_tb1_rw10_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw10_ce4">&lt;span class="math-tex"&gt;\(6.674~08(31) \times 10^{-11}~\text{m}^3 \cdot \text{kg}^{-1} \cdot  \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw11"><cell id="q0_tb1_rw11_ce1">Acceleration due to gravity (in Zurich)</cell><cell id="q0_tb1_rw11_ce2">&lt;span class="math-tex"&gt;\(g\)&lt;/span&gt;</cell><cell id="q0_tb1_rw11_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw11_ce4">&lt;span class="math-tex"&gt;\(9.81~\text{m} \cdot \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw12"><cell id="q0_tb1_rw12_ce1">Planck&#8217;s constant</cell><cell id="q0_tb1_rw12_ce2">&lt;span class="math-tex"&gt;\(h\)&lt;/span&gt;</cell><cell id="q0_tb1_rw12_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw12_ce4">&lt;span class="math-tex"&gt;\(6.626~070~040~(81) \times 10^{-34}~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw13"><cell id="q0_tb1_rw13_ce1">Avogadro number</cell><cell id="q0_tb1_rw13_ce2">&lt;span class="math-tex"&gt;\(N_\text{A}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw13_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw13_ce4">&lt;span class="math-tex"&gt;\(6.022~140~857~(74) \times 10^{23}~\text{mol}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw14"><cell id="q0_tb1_rw14_ce1">Molar gas constant</cell><cell id="q0_tb1_rw14_ce2">&lt;span class="math-tex"&gt;\(R\)&lt;/span&gt;</cell><cell id="q0_tb1_rw14_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw14_ce4">&lt;span class="math-tex"&gt;\(8.314~4598(48)~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-2} \cdot \text{mol}^{-1} \cdot \text{K}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw15"><cell id="q0_tb1_rw15_ce1">Molar mass constant</cell><cell id="q0_tb1_rw15_ce2">&lt;span class="math-tex"&gt;\(M_\mathrm{u}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw15_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw15_ce4">&lt;span class="math-tex"&gt;\(1 \times 10^{-3}~\text{kg} \cdot \text{mol}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw16"><cell id="q0_tb1_rw16_ce1">Boltzmann constant</cell><cell id="q0_tb1_rw16_ce2">&lt;span class="math-tex"&gt;\(k_\text{B}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw16_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw16_ce4">&lt;span class="math-tex"&gt;\(1.380~648~52(79) \times 10^{-23}~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-2} \cdot \text{K}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="1" id="q0_tb1_rw17"><cell id="q0_tb1_rw17_ce1">Stefan-Boltzmann constant</cell><cell id="q0_tb1_rw17_ce2">&lt;span class="math-tex"&gt;\(\sigma\)&lt;/span&gt;</cell><cell id="q0_tb1_rw17_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw17_ce4">&lt;span class="math-tex"&gt;\(5.670~367~(13) \times 10^{-8}~\text{kg} \cdot \text{s}^{-3} \cdot \text{K}^{-4}\)&lt;/span&gt;</cell></row>
+    </table>
+</question>
+"""
+
+IPHO2016_DATA[
+    "T-G0-transl1"
+] = r"""
+<question id="q0" points="30">
+    <title id="q0_ti1">Translation AUS</title>
+    <paragraph id="q0_pa1"></paragraph>
+    <section id="q0_sc2"></section>
+    <list id="q0_ls2">
+        <item id="q0_ls2_li1"></item>
+        <item id="q0_ls2_li2"></item>
+    </list>
+
+    <section id="q0_sc3"></section>
+    <list id="q0_ls3">
+        <item id="q0_ls3_li1"></item>
+        <item id="q0_ls3_li2"></item>
+        <item id="q0_ls3_li3"></item>
+        <item id="q0_ls3_li5"></item>
+        <item id="q0_ls3_li6"></item>
+    </list>
+    <section id="q0_sc4"></section>
+    <list id="q0_ls4">
+        <item id="q0_ls4_li1"></item>
+        <item id="q0_ls4_li2"></item>
+        <item id="q0_ls4_li3"></item>
+        <item id="q0_ls4_li4"></item>
+        <item id="q0_ls4_li5"></item>
+        <item id="q0_ls4_li6"></item>
+    </list>
+    <texfield content="~\\ \clearpage" id="q0_tx1" />
+    <section id="q0_sc5">General Data Sheet</section>
+    <table columns="|p{0.425\textwidth}p{0.03\textwidth}p{0.02\textwidth}p{0.425\textwidth}|" grid_lines="0" id="q0_tb1" left_line="1" right_line="1" top_line="1">
+        <row bottom_line="0" id="q0_tb1_rw1"><cell id="q0_tb1_rw1_ce1">Speed of light in vacuum</cell><cell id="q0_tb1_rw1_ce2">&lt;span class="math-tex"&gt;\(c\)&lt;/span&gt;</cell><cell id="q0_tb1_rw1_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw1_ce4">&lt;span class="math-tex"&gt;\(299~792~458 ~\text{m}\cdot \text{s}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw2"><cell id="q0_tb1_rw2_ce1">Vacuum permeability (magnetic constant)</cell><cell id="q0_tb1_rw2_ce2">&lt;span class="math-tex"&gt;\(\mu_0\)&lt;/span&gt;</cell><cell id="q0_tb1_rw2_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw2_ce4">&lt;span class="math-tex"&gt;\(4 \pi \times 10^{-7} ~\text{kg} \cdot \text{m} \cdot \text{A}^{-2} \cdot \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw3"><cell id="q0_tb1_rw3_ce1">Vacuum permittivity (electrical constant)</cell><cell id="q0_tb1_rw3_ce2">&lt;span class="math-tex"&gt;\(\varepsilon_0\)&lt;/span&gt;</cell><cell id="q0_tb1_rw3_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw3_ce4">&lt;span class="math-tex"&gt;\(8.854~187~817 \times 10^{-12}~\text{A}^2\cdot \text{s}^4\cdot \text{kg}^{-1}\cdot \text{m}^{-3}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw4"><cell id="q0_tb1_rw4_ce1">Elementary charge</cell><cell id="q0_tb1_rw4_ce2">&lt;span class="math-tex"&gt;\(e\)&lt;/span&gt;</cell><cell id="q0_tb1_rw4_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw4_ce4">&lt;span class="math-tex"&gt;\(1.602~176~620~8(98) \times 10^{-19}~\text{A} \cdot \text{s}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw5"><cell id="q0_tb1_rw5_ce1">Mass of the electron</cell><cell id="q0_tb1_rw5_ce2">&lt;span class="math-tex"&gt;\(m_\text{e}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw5_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw5_ce4">&lt;span class="math-tex"&gt;\(9.109~383~56(11) \times 10^{-31}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw18"><cell id="q0_tb1_rw18_ce1" /><cell id="q0_tb1_rw18_ce2" /><cell id="q0_tb1_rw18_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw18_ce4">&lt;span class="math-tex"&gt;\(0.510~998~946~1(31) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw6"><cell id="q0_tb1_rw6_ce1">Mass of the proton</cell><cell id="q0_tb1_rw6_ce2">&lt;span class="math-tex"&gt;\(m_\text{p}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw6_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw6_ce4">&lt;span class="math-tex"&gt;\(1.672~621~898(21) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw021"><cell id="q0_tb1_rw021_ce1" /><cell id="q0_tb1_rw021_ce2" /><cell id="q0_tb1_rw021_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw021_ce4">&lt;span class="math-tex"&gt;\(938.272~081~3(58) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw7"><cell id="q0_tb1_rw7_ce1">Mass of the neutron</cell><cell id="q0_tb1_rw7_ce2">&lt;span class="math-tex"&gt;\(m_\text{n}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw7_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw7_ce4">&lt;span class="math-tex"&gt;\(1.674~927~471(21) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw20"><cell id="q0_tb1_rw20_ce1" /><cell id="q0_tb1_rw20_ce2" /><cell id="q0_tb1_rw20_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw20_ce4">&lt;span class="math-tex"&gt;\(939.565~413~3(58) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw8"><cell id="q0_tb1_rw8_ce1">Unified atomic mass unit</cell><cell id="q0_tb1_rw8_ce2">&lt;span class="math-tex"&gt;\(u\)&lt;/span&gt;</cell><cell id="q0_tb1_rw8_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw8_ce4">&lt;span class="math-tex"&gt;\(1.660~539~040(20) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw9"><cell id="q0_tb1_rw9_ce1">Rydberg constant</cell><cell id="q0_tb1_rw9_ce2">&lt;span class="math-tex"&gt;\(R_\infty\)&lt;/span&gt;</cell><cell id="q0_tb1_rw9_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw9_ce4">&lt;span class="math-tex"&gt;\(10~973~731.568~508(65)~\text{m}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw10"><cell id="q0_tb1_rw10_ce1">Universal constant of gravitation</cell><cell id="q0_tb1_rw10_ce2">&lt;span class="math-tex"&gt;\(G\)&lt;/span&gt;</cell><cell id="q0_tb1_rw10_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw10_ce4">&lt;span class="math-tex"&gt;\(6.674~08(31) \times 10^{-11}~\text{m}^3 \cdot \text{kg}^{-1} \cdot  \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw11"><cell id="q0_tb1_rw11_ce1">Acceleration due to gravity (in Zurich)</cell><cell id="q0_tb1_rw11_ce2">&lt;span class="math-tex"&gt;\(g\)&lt;/span&gt;</cell><cell id="q0_tb1_rw11_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw11_ce4">&lt;span class="math-tex"&gt;\(9.81~\text{m} \cdot \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw12"><cell id="q0_tb1_rw12_ce1">Planck&#8217;s constant</cell><cell id="q0_tb1_rw12_ce2">&lt;span class="math-tex"&gt;\(h\)&lt;/span&gt;</cell><cell id="q0_tb1_rw12_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw12_ce4">&lt;span class="math-tex"&gt;\(6.626~070~040~(81) \times 10^{-34}~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw13"><cell id="q0_tb1_rw13_ce1">Avogadro number</cell><cell id="q0_tb1_rw13_ce2">&lt;span class="math-tex"&gt;\(N_\text{A}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw13_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw13_ce4">&lt;span class="math-tex"&gt;\(6.022~140~857~(74) \times 10^{23}~\text{mol}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw14"><cell id="q0_tb1_rw14_ce1">Molar gas constant</cell><cell id="q0_tb1_rw14_ce2">&lt;span class="math-tex"&gt;\(R\)&lt;/span&gt;</cell><cell id="q0_tb1_rw14_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw14_ce4">&lt;span class="math-tex"&gt;\(8.314~4598(48)~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-2} \cdot \text{mol}^{-1} \cdot \text{K}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw15"><cell id="q0_tb1_rw15_ce1">Molar mass constant</cell><cell id="q0_tb1_rw15_ce2">&lt;span class="math-tex"&gt;\(M_\mathrm{u}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw15_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw15_ce4">&lt;span class="math-tex"&gt;\(1 \times 10^{-3}~\text{kg} \cdot \text{mol}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw16"><cell id="q0_tb1_rw16_ce1">Boltzmann constant</cell><cell id="q0_tb1_rw16_ce2">&lt;span class="math-tex"&gt;\(k_\text{B}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw16_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw16_ce4">&lt;span class="math-tex"&gt;\(1.380~648~52(79) \times 10^{-23}~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-2} \cdot \text{K}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="1" id="q0_tb1_rw17"><cell id="q0_tb1_rw17_ce1">Stefan-Boltzmann constant</cell><cell id="q0_tb1_rw17_ce2">&lt;span class="math-tex"&gt;\(\sigma\)&lt;/span&gt;</cell><cell id="q0_tb1_rw17_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw17_ce4">&lt;span class="math-tex"&gt;\(5.670~367~(13) \times 10^{-8}~\text{kg} \cdot \text{s}^{-3} \cdot \text{K}^{-4}\)&lt;/span&gt;</cell></row>
+    </table>
+</question>
+"""
+
+IPHO2016_DATA[
+    "T-G0-transl2"
+] = r"""
+<question id="q0" points="30">
+    <title id="q0_ti1">Translation AUS 2</title>
+    <paragraph id="q0_pa1"></paragraph>
+    <section id="q0_sc2"></section>
+    <list id="q0_ls2">
+        <item id="q0_ls2_li1"></item>
+        <item id="q0_ls2_li2"></item>
+    </list>
+
+    <section id="q0_sc3"></section>
+    <list id="q0_ls3">
+        <item id="q0_ls3_li1"></item>
+        <item id="q0_ls3_li2"></item>
+        <item id="q0_ls3_li3"></item>
+        <item id="q0_ls3_li5"></item>
+        <item id="q0_ls3_li6"></item>
+    </list>
+    <section id="q0_sc4"></section>
+    <list id="q0_ls4">
+        <item id="q0_ls4_li1"></item>
+        <item id="q0_ls4_li2"></item>
+        <item id="q0_ls4_li3"></item>
+        <item id="q0_ls4_li4"></item>
+        <item id="q0_ls4_li5"></item>
+        <item id="q0_ls4_li6"></item>
+    </list>
+    <texfield content="~\\ \clearpage" id="q0_tx1" />
+    <section id="q0_sc5">General Data Sheet</section>
+    <table columns="|p{0.425\textwidth}p{0.03\textwidth}p{0.02\textwidth}p{0.425\textwidth}|" grid_lines="0" id="q0_tb1" left_line="1" right_line="1" top_line="1">
+        <row bottom_line="0" id="q0_tb1_rw1"><cell id="q0_tb1_rw1_ce1">Speed of light in vacuum</cell><cell id="q0_tb1_rw1_ce2">&lt;span class="math-tex"&gt;\(c\)&lt;/span&gt;</cell><cell id="q0_tb1_rw1_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw1_ce4">&lt;span class="math-tex"&gt;\(299~792~458 ~\text{m}\cdot \text{s}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw2"><cell id="q0_tb1_rw2_ce1">Vacuum permeability (magnetic constant)</cell><cell id="q0_tb1_rw2_ce2">&lt;span class="math-tex"&gt;\(\mu_0\)&lt;/span&gt;</cell><cell id="q0_tb1_rw2_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw2_ce4">&lt;span class="math-tex"&gt;\(4 \pi \times 10^{-7} ~\text{kg} \cdot \text{m} \cdot \text{A}^{-2} \cdot \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw3"><cell id="q0_tb1_rw3_ce1">Vacuum permittivity (electrical constant)</cell><cell id="q0_tb1_rw3_ce2">&lt;span class="math-tex"&gt;\(\varepsilon_0\)&lt;/span&gt;</cell><cell id="q0_tb1_rw3_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw3_ce4">&lt;span class="math-tex"&gt;\(8.854~187~817 \times 10^{-12}~\text{A}^2\cdot \text{s}^4\cdot \text{kg}^{-1}\cdot \text{m}^{-3}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw4"><cell id="q0_tb1_rw4_ce1">Elementary charge</cell><cell id="q0_tb1_rw4_ce2">&lt;span class="math-tex"&gt;\(e\)&lt;/span&gt;</cell><cell id="q0_tb1_rw4_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw4_ce4">&lt;span class="math-tex"&gt;\(1.602~176~620~8(98) \times 10^{-19}~\text{A} \cdot \text{s}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw5"><cell id="q0_tb1_rw5_ce1">Mass of the electron</cell><cell id="q0_tb1_rw5_ce2">&lt;span class="math-tex"&gt;\(m_\text{e}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw5_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw5_ce4">&lt;span class="math-tex"&gt;\(9.109~383~56(11) \times 10^{-31}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw18"><cell id="q0_tb1_rw18_ce1" /><cell id="q0_tb1_rw18_ce2" /><cell id="q0_tb1_rw18_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw18_ce4">&lt;span class="math-tex"&gt;\(0.510~998~946~1(31) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw6"><cell id="q0_tb1_rw6_ce1">Mass of the proton</cell><cell id="q0_tb1_rw6_ce2">&lt;span class="math-tex"&gt;\(m_\text{p}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw6_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw6_ce4">&lt;span class="math-tex"&gt;\(1.672~621~898(21) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw021"><cell id="q0_tb1_rw021_ce1" /><cell id="q0_tb1_rw021_ce2" /><cell id="q0_tb1_rw021_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw021_ce4">&lt;span class="math-tex"&gt;\(938.272~081~3(58) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw7"><cell id="q0_tb1_rw7_ce1">Mass of the neutron</cell><cell id="q0_tb1_rw7_ce2">&lt;span class="math-tex"&gt;\(m_\text{n}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw7_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw7_ce4">&lt;span class="math-tex"&gt;\(1.674~927~471(21) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw20"><cell id="q0_tb1_rw20_ce1" /><cell id="q0_tb1_rw20_ce2" /><cell id="q0_tb1_rw20_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw20_ce4">&lt;span class="math-tex"&gt;\(939.565~413~3(58) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw8"><cell id="q0_tb1_rw8_ce1">Unified atomic mass unit</cell><cell id="q0_tb1_rw8_ce2">&lt;span class="math-tex"&gt;\(u\)&lt;/span&gt;</cell><cell id="q0_tb1_rw8_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw8_ce4">&lt;span class="math-tex"&gt;\(1.660~539~040(20) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw9"><cell id="q0_tb1_rw9_ce1">Rydberg constant</cell><cell id="q0_tb1_rw9_ce2">&lt;span class="math-tex"&gt;\(R_\infty\)&lt;/span&gt;</cell><cell id="q0_tb1_rw9_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw9_ce4">&lt;span class="math-tex"&gt;\(10~973~731.568~508(65)~\text{m}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw10"><cell id="q0_tb1_rw10_ce1">Universal constant of gravitation</cell><cell id="q0_tb1_rw10_ce2">&lt;span class="math-tex"&gt;\(G\)&lt;/span&gt;</cell><cell id="q0_tb1_rw10_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw10_ce4">&lt;span class="math-tex"&gt;\(6.674~08(31) \times 10^{-11}~\text{m}^3 \cdot \text{kg}^{-1} \cdot  \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw11"><cell id="q0_tb1_rw11_ce1">Acceleration due to gravity (in Zurich)</cell><cell id="q0_tb1_rw11_ce2">&lt;span class="math-tex"&gt;\(g\)&lt;/span&gt;</cell><cell id="q0_tb1_rw11_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw11_ce4">&lt;span class="math-tex"&gt;\(9.81~\text{m} \cdot \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw12"><cell id="q0_tb1_rw12_ce1">Planck&#8217;s constant</cell><cell id="q0_tb1_rw12_ce2">&lt;span class="math-tex"&gt;\(h\)&lt;/span&gt;</cell><cell id="q0_tb1_rw12_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw12_ce4">&lt;span class="math-tex"&gt;\(6.626~070~040~(81) \times 10^{-34}~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw13"><cell id="q0_tb1_rw13_ce1">Avogadro number</cell><cell id="q0_tb1_rw13_ce2">&lt;span class="math-tex"&gt;\(N_\text{A}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw13_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw13_ce4">&lt;span class="math-tex"&gt;\(6.022~140~857~(74) \times 10^{23}~\text{mol}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw14"><cell id="q0_tb1_rw14_ce1">Molar gas constant</cell><cell id="q0_tb1_rw14_ce2">&lt;span class="math-tex"&gt;\(R\)&lt;/span&gt;</cell><cell id="q0_tb1_rw14_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw14_ce4">&lt;span class="math-tex"&gt;\(8.314~4598(48)~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-2} \cdot \text{mol}^{-1} \cdot \text{K}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw15"><cell id="q0_tb1_rw15_ce1">Molar mass constant</cell><cell id="q0_tb1_rw15_ce2">&lt;span class="math-tex"&gt;\(M_\mathrm{u}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw15_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw15_ce4">&lt;span class="math-tex"&gt;\(1 \times 10^{-3}~\text{kg} \cdot \text{mol}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw16"><cell id="q0_tb1_rw16_ce1">Boltzmann constant</cell><cell id="q0_tb1_rw16_ce2">&lt;span class="math-tex"&gt;\(k_\text{B}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw16_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw16_ce4">&lt;span class="math-tex"&gt;\(1.380~648~52(79) \times 10^{-23}~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-2} \cdot \text{K}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="1" id="q0_tb1_rw17"><cell id="q0_tb1_rw17_ce1">Stefan-Boltzmann constant</cell><cell id="q0_tb1_rw17_ce2">&lt;span class="math-tex"&gt;\(\sigma\)&lt;/span&gt;</cell><cell id="q0_tb1_rw17_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw17_ce4">&lt;span class="math-tex"&gt;\(5.670~367~(13) \times 10^{-8}~\text{kg} \cdot \text{s}^{-3} \cdot \text{K}^{-4}\)&lt;/span&gt;</cell></row>
+    </table>
+</question>
+"""
+
+IPHO2016_DATA[
+    "T-G0-transl3"
+] = r"""
+<question id="q0" points="30">
+    <title id="q0_ti1">Translation AUT</title>
+    <paragraph id="q0_pa1"></paragraph>
+    <section id="q0_sc2"></section>
+    <list id="q0_ls2">
+        <item id="q0_ls2_li1"></item>
+        <item id="q0_ls2_li2"></item>
+    </list>
+
+    <section id="q0_sc3"></section>
+    <list id="q0_ls3">
+        <item id="q0_ls3_li1"></item>
+        <item id="q0_ls3_li2"></item>
+        <item id="q0_ls3_li3"></item>
+        <item id="q0_ls3_li5"></item>
+        <item id="q0_ls3_li6"></item>
+    </list>
+    <section id="q0_sc4"></section>
+    <list id="q0_ls4">
+        <item id="q0_ls4_li1"></item>
+        <item id="q0_ls4_li2"></item>
+        <item id="q0_ls4_li3"></item>
+        <item id="q0_ls4_li4"></item>
+        <item id="q0_ls4_li5"></item>
+        <item id="q0_ls4_li6"></item>
+    </list>
+    <texfield content="~\\ \clearpage" id="q0_tx1" />
+    <section id="q0_sc5">General Data Sheet</section>
+    <table columns="|p{0.425\textwidth}p{0.03\textwidth}p{0.02\textwidth}p{0.425\textwidth}|" grid_lines="0" id="q0_tb1" left_line="1" right_line="1" top_line="1">
+        <row bottom_line="0" id="q0_tb1_rw1"><cell id="q0_tb1_rw1_ce1">Speed of light in vacuum</cell><cell id="q0_tb1_rw1_ce2">&lt;span class="math-tex"&gt;\(c\)&lt;/span&gt;</cell><cell id="q0_tb1_rw1_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw1_ce4">&lt;span class="math-tex"&gt;\(299~792~458 ~\text{m}\cdot \text{s}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw2"><cell id="q0_tb1_rw2_ce1">Vacuum permeability (magnetic constant)</cell><cell id="q0_tb1_rw2_ce2">&lt;span class="math-tex"&gt;\(\mu_0\)&lt;/span&gt;</cell><cell id="q0_tb1_rw2_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw2_ce4">&lt;span class="math-tex"&gt;\(4 \pi \times 10^{-7} ~\text{kg} \cdot \text{m} \cdot \text{A}^{-2} \cdot \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw3"><cell id="q0_tb1_rw3_ce1">Vacuum permittivity (electrical constant)</cell><cell id="q0_tb1_rw3_ce2">&lt;span class="math-tex"&gt;\(\varepsilon_0\)&lt;/span&gt;</cell><cell id="q0_tb1_rw3_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw3_ce4">&lt;span class="math-tex"&gt;\(8.854~187~817 \times 10^{-12}~\text{A}^2\cdot \text{s}^4\cdot \text{kg}^{-1}\cdot \text{m}^{-3}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw4"><cell id="q0_tb1_rw4_ce1">Elementary charge</cell><cell id="q0_tb1_rw4_ce2">&lt;span class="math-tex"&gt;\(e\)&lt;/span&gt;</cell><cell id="q0_tb1_rw4_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw4_ce4">&lt;span class="math-tex"&gt;\(1.602~176~620~8(98) \times 10^{-19}~\text{A} \cdot \text{s}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw5"><cell id="q0_tb1_rw5_ce1">Mass of the electron</cell><cell id="q0_tb1_rw5_ce2">&lt;span class="math-tex"&gt;\(m_\text{e}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw5_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw5_ce4">&lt;span class="math-tex"&gt;\(9.109~383~56(11) \times 10^{-31}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw18"><cell id="q0_tb1_rw18_ce1" /><cell id="q0_tb1_rw18_ce2" /><cell id="q0_tb1_rw18_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw18_ce4">&lt;span class="math-tex"&gt;\(0.510~998~946~1(31) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw6"><cell id="q0_tb1_rw6_ce1">Mass of the proton</cell><cell id="q0_tb1_rw6_ce2">&lt;span class="math-tex"&gt;\(m_\text{p}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw6_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw6_ce4">&lt;span class="math-tex"&gt;\(1.672~621~898(21) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw021"><cell id="q0_tb1_rw021_ce1" /><cell id="q0_tb1_rw021_ce2" /><cell id="q0_tb1_rw021_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw021_ce4">&lt;span class="math-tex"&gt;\(938.272~081~3(58) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw7"><cell id="q0_tb1_rw7_ce1">Mass of the neutron</cell><cell id="q0_tb1_rw7_ce2">&lt;span class="math-tex"&gt;\(m_\text{n}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw7_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw7_ce4">&lt;span class="math-tex"&gt;\(1.674~927~471(21) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw20"><cell id="q0_tb1_rw20_ce1" /><cell id="q0_tb1_rw20_ce2" /><cell id="q0_tb1_rw20_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw20_ce4">&lt;span class="math-tex"&gt;\(939.565~413~3(58) ~\frac{\text{MeV}}{\text{c}^2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw8"><cell id="q0_tb1_rw8_ce1">Unified atomic mass unit</cell><cell id="q0_tb1_rw8_ce2">&lt;span class="math-tex"&gt;\(u\)&lt;/span&gt;</cell><cell id="q0_tb1_rw8_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw8_ce4">&lt;span class="math-tex"&gt;\(1.660~539~040(20) \times 10^{-27}~\text{kg}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw9"><cell id="q0_tb1_rw9_ce1">Rydberg constant</cell><cell id="q0_tb1_rw9_ce2">&lt;span class="math-tex"&gt;\(R_\infty\)&lt;/span&gt;</cell><cell id="q0_tb1_rw9_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw9_ce4">&lt;span class="math-tex"&gt;\(10~973~731.568~508(65)~\text{m}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw10"><cell id="q0_tb1_rw10_ce1">Universal constant of gravitation</cell><cell id="q0_tb1_rw10_ce2">&lt;span class="math-tex"&gt;\(G\)&lt;/span&gt;</cell><cell id="q0_tb1_rw10_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw10_ce4">&lt;span class="math-tex"&gt;\(6.674~08(31) \times 10^{-11}~\text{m}^3 \cdot \text{kg}^{-1} \cdot  \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw11"><cell id="q0_tb1_rw11_ce1">Acceleration due to gravity (in Zurich)</cell><cell id="q0_tb1_rw11_ce2">&lt;span class="math-tex"&gt;\(g\)&lt;/span&gt;</cell><cell id="q0_tb1_rw11_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw11_ce4">&lt;span class="math-tex"&gt;\(9.81~\text{m} \cdot \text{s}^{-2}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw12"><cell id="q0_tb1_rw12_ce1">Planck&#8217;s constant</cell><cell id="q0_tb1_rw12_ce2">&lt;span class="math-tex"&gt;\(h\)&lt;/span&gt;</cell><cell id="q0_tb1_rw12_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw12_ce4">&lt;span class="math-tex"&gt;\(6.626~070~040~(81) \times 10^{-34}~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw13"><cell id="q0_tb1_rw13_ce1">Avogadro number</cell><cell id="q0_tb1_rw13_ce2">&lt;span class="math-tex"&gt;\(N_\text{A}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw13_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw13_ce4">&lt;span class="math-tex"&gt;\(6.022~140~857~(74) \times 10^{23}~\text{mol}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw14"><cell id="q0_tb1_rw14_ce1">Molar gas constant</cell><cell id="q0_tb1_rw14_ce2">&lt;span class="math-tex"&gt;\(R\)&lt;/span&gt;</cell><cell id="q0_tb1_rw14_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw14_ce4">&lt;span class="math-tex"&gt;\(8.314~4598(48)~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-2} \cdot \text{mol}^{-1} \cdot \text{K}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw15"><cell id="q0_tb1_rw15_ce1">Molar mass constant</cell><cell id="q0_tb1_rw15_ce2">&lt;span class="math-tex"&gt;\(M_\mathrm{u}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw15_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw15_ce4">&lt;span class="math-tex"&gt;\(1 \times 10^{-3}~\text{kg} \cdot \text{mol}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="0" id="q0_tb1_rw16"><cell id="q0_tb1_rw16_ce1">Boltzmann constant</cell><cell id="q0_tb1_rw16_ce2">&lt;span class="math-tex"&gt;\(k_\text{B}\)&lt;/span&gt;</cell><cell id="q0_tb1_rw16_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw16_ce4">&lt;span class="math-tex"&gt;\(1.380~648~52(79) \times 10^{-23}~\text{kg} \cdot \text{m}^2 \cdot \text{s}^{-2} \cdot \text{K}^{-1}\)&lt;/span&gt;</cell></row>
+        <row bottom_line="1" id="q0_tb1_rw17"><cell id="q0_tb1_rw17_ce1">Stefan-Boltzmann constant</cell><cell id="q0_tb1_rw17_ce2">&lt;span class="math-tex"&gt;\(\sigma\)&lt;/span&gt;</cell><cell id="q0_tb1_rw17_ce3">&lt;span class="math-tex"&gt;\(=\)&lt;/span&gt;</cell><cell id="q0_tb1_rw17_ce4">&lt;span class="math-tex"&gt;\(5.670~367~(13) \times 10^{-8}~\text{kg} \cdot \text{s}^{-3} \cdot \text{K}^{-4}\)&lt;/span&gt;</cell></row>
+    </table>
+</question>
+"""
+
+IPHO2016_DATA[
     "T-Q1-final"
 ] = r"""
 <question id="q0" points="10"><title id="q0_ti1">Two Problems in Mechanics (10 points)</title>

@@ -1,6 +1,6 @@
 # pylint: disable=redefined-builtin
 
-from ipho_exam.models import Exam, Question, Language, VersionNode
+from ipho_exam.models import Exam, Question, Language, VersionNode, TranslationNode
 
 from .base_data import BaseDataCreator
 
@@ -30,11 +30,26 @@ class ExamAndQuestionDataCreator(BaseDataCreator):
 
         return que
 
-    def create_official_version_node(self, que, *, text, version=1):
+    def create_official_version_node(self, que, *, text, version=1, status="C"):
         ofcl_lang = Language.get_official()
         vsnode = VersionNode.objects.create(
-            question=que, language=ofcl_lang, text=text, version=version
+            question=que,
+            language=ofcl_lang,
+            text=text,
+            version=version,
+            status=status,
         )
         vsnode.save()
         self.log(vsnode, "..", "created")
         return vsnode
+
+    def create_translation_node(self, que, lang, *, text, status="O"):
+        tnode = TranslationNode.objects.create(
+            question=que,
+            language=lang,
+            text=text,
+            status=status,
+        )
+        tnode.save()
+        self.log(tnode, "..", "created")
+        return tnode

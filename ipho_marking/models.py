@@ -21,6 +21,7 @@ from functools import reduce
 
 from django.db import models
 from django.db.models import Q
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.dispatch import receiver
@@ -28,6 +29,46 @@ from django.db.models.signals import post_save
 
 from ipho_core.models import Student, Delegation
 from ipho_exam.models import Question, Exam
+from ipho_exam import qquery as qwquery
+from ipho_exam import qml
+
+OFFICIAL_LANGUAGE_PK = 1
+OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
+
+
+def generate_markings_from_exam(exam, user=None):
+    num_tot = 0
+    num_created = 0
+    num_marking_tot = 0
+    num_marking_created = 0
+    for question in exam.question_set.filter(type=Question.ANSWER):
+        for delegation in Delegation.objects.exclude(name=OFFICIAL_DELEGATION).all():
+            MarkingAction.objects.get_or_create(
+                question=question, delegation=delegation
+            )
+        qwy = qwquery.latest_version(
+            question_id=question.pk,
+            lang_id=OFFICIAL_LANGUAGE_PK,
+            user=user,
+        )
+        question_points = qml.question_points(qwy.qml)
+        for i, (name, points) in enumerate(question_points):
+            mmeta, created = MarkingMeta.objects.update_or_create(
+                question=question,
+                name=name,
+                defaults={"max_points": points, "position": i},
+            )
+            num_created += created
+            num_tot += 1
+
+            for student in Student.objects.all():
+                for version_id, _ in list(Marking.MARKING_VERSIONS.items()):
+                    _, created = Marking.objects.get_or_create(
+                        marking_meta=mmeta, student=student, version=version_id
+                    )
+                    num_marking_created += created
+                    num_marking_tot += 1
+    return num_tot, num_created, num_marking_tot, num_marking_created
 
 
 class MarkingActionManager(models.Manager):
@@ -314,10 +355,18 @@ class Marking(models.Model):
     def clean(self):
         try:
             if self.points > self.marking_meta.max_points:
-                raise ValidationError("The number of points cannot exceed the maximum.")
+                raise ValidationError(
+                    {
+                        "points": ValidationError(
+                            "The number of points cannot exceed the maximum."
+                        )
+                    }
+                )
         except TypeError:
             # pylint: disable=raise-missing-from
-            raise ValidationError("The number of points must be a number.")
+            raise ValidationError(
+                {"points": ValidationError("The number of points must be a number.")}
+            )
 
     def exam_question(self):
         return self.marking_meta.question

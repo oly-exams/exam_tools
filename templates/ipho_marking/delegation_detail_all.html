@@ -50,55 +50,61 @@
     {% endif %}
 
     {% if markings %}
-    <table class="table table-striped">
-      <tr>
-        <th/>
-        {% for stud in students %}
-          <th colspan="3">{{ stud.code }}
-            <br/>
-            {% for doc in documents %}
-              {% if doc.student.pk == stud.pk and doc.scan_file and doc.scan_status == 'S' %}
-                <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=doc.student.pk position=question.position %}">
-                  <i class="fa fa-file-pdf-o"></i>
-                  View scan
-                </a>
-              {% endif %}
-              {% if doc.student.pk == stud.pk and doc.scan_file_orig %}
-                <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=doc.student.pk position=question.position %}">
-                  <i class="fa fa-file-pdf-o"></i>
-                  View full scan
-                </a>
-              {% endif %}
-            {% endfor %}
-          </th>
+    <table class="table table-striped" id="points-table">
+      <thead>
+        <tr>
+          <th/>
+          {% for stud in students %}
+            <th colspan="3" style="text-align: center;">{{ stud.code }}
+              <br/>
+              {% for doc in documents %}
+                {% if doc.student.pk == stud.pk and doc.scan_file and doc.scan_status == 'S' %}
+                  <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=doc.student.pk position=question.position %}">
+                    <i class="fa fa-file-pdf-o"></i>
+                    View scan
+                  </a>
+                {% endif %}
+                {% if doc.student.pk == stud.pk and doc.scan_file_orig %}
+                  <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=doc.student.pk position=question.position %}">
+                    <i class="fa fa-file-pdf-o"></i>
+                    View full scan
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </th>
+          {% endfor %}
+        </tr>
+        <tr>
+          <th>Subquestion</th>
+          {% for stud in students %}
+            <th>Off.</th>
+            <th>Del.</th>
+            <th>Final</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for meta, student_points in markings %}
+        <tr>
+          <td><strong>{{ meta.name }} ({{ meta.max_points }})</strong></td>
+          {% for student, points in student_points %}
+          <td>{{ points.O|default_if_none:'-' }}</td>
+          <td>{{ points.D|default_if_none:'-' }}</td>
+          <td>{{ points.F|default_if_none:'-' }}</td>
+          {% endfor %}
+        </tr>
         {% endfor %}
-      </tr>
-      <tr>
-        <th>Subquestion</th>
-        {% for stud in students %}
-          <th>Off.</th>
-          <th>Del.</th>
-          <th>Final</th>
-        {% endfor %}
-      </tr>
-      {% for meta, student_points in markings %}
-      <tr>
-        <td><strong>{{ meta.name }} ({{ meta.max_points }})</strong></td>
-        {% for student, points in student_points %}
-        <td>{{ points.O|default_if_none:'-' }}</td>
-        <td>{{ points.D|default_if_none:'-' }}</td>
-        <td>{{ points.F|default_if_none:'-' }}</td>
-        {% endfor %}
-      </tr>
-      {% endfor %}
-      <tr>
-        <td><strong>Total</strong></td>
-        {% for mark in sums %}
-          <td>{{ mark.O }}</td>
-          <td>{{ mark.D }}</td>
-          <td><strong>{{ mark.F }}</strong></td>
-        {% endfor %}
-      </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td><strong>Total</strong></td>
+          {% for mark in sums %}
+            <td>{{ mark.O }}</td>
+            <td>{{ mark.D }}</td>
+            <td><strong>{{ mark.F }}</strong></td>
+          {% endfor %}
+        </tr>
+      </tfoot>
     </table>
     {% endif %}
 
