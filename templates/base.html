@@ -133,16 +133,15 @@
                   {% if perms.ipho_core.can_impersonate %}
                   <li><a href="{% url 'impersonate' %}">Impersonate delegation</a></li>
                   {% endif %}
-                  {% if perms.ipho_core.is_superuser %}
-                  <li><a href="{% url 'exam:auto-translate-count' %}">Auto translate costs</a></li>
-                  {% endif %}
                   <li class="divider"></li>
                   {% endif %}
+
                   {% if perms.ipho_core.is_organizer_admin %}
                     <li class="dropdown-header">Event Management</li>
                   {% if perms.can_access_control%}
                     <li><a href="{% url 'control:cockpit' %}">Cockpit</a></li>
                   {% endif %}
+                    <li><a href="{% url 'exam:auto-translate-count' %}">Auto translate costs</a></li>
                     <li><a href="{% url 'send_push' %}">Send push notifications</a></li>
                     <li class="divider"></li>
                   {% endif %}
@@ -176,8 +175,6 @@
                   {% endif %}
                   {% if user.is_superuser %}
                   <li class="divider"></li>
-                  {% endif %}
-                  {% if perms.ipho_core.is_organizer_admin %}
                   <li class="dropdown-header">Documents API</li>
                   <li><a href="{% url 'exam:api-keys' %}">Get API keys</a></li>
                   <li><a href="{% url 'api-exam:schema' %}">API schema</a></li>
