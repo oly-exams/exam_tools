@@ -387,7 +387,7 @@ describe('Marking', function () {
     it("Test General Visibility (Organizer Marking phase)", function () {
         cy.login('admin', '1234')
         // orga Marking
-        cy.switchExamPhase(1, 9)
+        cy.getExamPhaseByName('Theory', "Organizer Marking").then(cy.switchExamPhase)
 
         //checking only one delegation for time reasons
         cy.logout()
@@ -416,7 +416,7 @@ describe('Marking', function () {
     it("Test General Visibility (Delegation Marking phase)", function () {
         cy.login('admin', '1234')
         // deleg marking
-        cy.switchExamPhase(1, 10)
+        cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('CHE', '1234')
@@ -468,7 +468,7 @@ describe('Marking', function () {
     it("Test General Visibility (Delegation Marking (Submit only) phase)", function () {
         cy.login('admin', '1234')
         // deleg marking (submit only)
-        cy.switchExamPhase(1, 11)
+        cy.getExamPhaseByName('Theory', "Delegation Marking (Submit only)").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('CHE', '1234')
@@ -546,7 +546,7 @@ describe('Marking', function () {
     it("Test Marks Visibility  (Organizer Marking phase)", function () {
         cy.login('admin', '1234')
         // orga Marking
-        cy.switchExamPhase(1, 9)
+        cy.getExamPhaseByName('Theory', "Organizer Marking").then(cy.switchExamPhase)
 
         // Test only one delegation for time reasons
         cy.logout()
@@ -562,7 +562,7 @@ describe('Marking', function () {
     it("Test Marks Visibility  (Delegation Marking phase)", function () {
         cy.login('admin', '1234')
         // deleg Marking
-        cy.switchExamPhase(1, 10)
+        cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('CHE', '1234')
@@ -581,7 +581,7 @@ describe('Marking', function () {
     it("Test Marks Visibility  (Delegation Marking (Submit only) phase)", function () {
         cy.login('admin', '1234')
         // deleg Marking (submit only)
-        cy.switchExamPhase(1, 11)
+        cy.getExamPhaseByName('Theory', "Delegation Marking (Submit only)").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('CHE', '1234')
@@ -602,7 +602,7 @@ describe('Marking', function () {
     it("Test Official Marking", function () {
         cy.login('admin', '1234')
         // orga marking
-        cy.switchExamPhase(1, 9)
+        cy.getExamPhaseByName('Theory', "Organizer Marking").then(cy.switchExamPhase)
 
         // Test index
         cy.logout()
@@ -723,7 +723,7 @@ describe('Marking', function () {
     it("Test Admin Marking Summary", function () {
         cy.login('admin', '1234')
         // orga marking
-        cy.switchExamPhase(1, 9)
+        cy.getExamPhaseByName('Theory', "Organizer Marking").then(cy.switchExamPhase)
 
         // Test index
         cy.logout()
@@ -802,7 +802,7 @@ describe('Marking', function () {
     it("Test Delegation Edit", function () {
         cy.login('admin', '1234')
         // deleg marking
-        cy.switchExamPhase(1, 10)
+        cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('CHE', '1234')
@@ -867,7 +867,7 @@ describe('Marking', function () {
     it("Test Delegation Edit All", function () {
         cy.login('admin', '1234')
         // deleg marking
-        cy.switchExamPhase(1, 10)
+        cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('CHE', '1234')
@@ -956,7 +956,7 @@ describe('Marking', function () {
     it("Test Delegation Actions",function(){
         cy.login('admin', '1234')
         // deleg Marking
-        cy.switchExamPhase(1, 10)
+        cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('CHE', '1234')
@@ -1081,7 +1081,7 @@ describe('Marking', function () {
     it("Test Delegation Actions (Submit Only)",function(){
         cy.login('admin', '1234')
         // deleg Marking (submit only)
-        cy.switchExamPhase(1, 11)
+        cy.getExamPhaseByName('Theory', "Delegation Marking (Submit only)").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('CHE', '1234')
@@ -1131,7 +1131,7 @@ describe('Marking', function () {
     it("Test Reopen Moderation",function(){
         cy.login('admin', '1234')
         // Moderation
-        cy.switchExamPhase(1, 12)
+        cy.getExamPhaseByName('Theory', "Moderation").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('marker', '1234')
@@ -1186,7 +1186,7 @@ describe('Marking', function () {
     it("Test Moderation Visibility",function(){
         cy.login('admin', '1234')
         // deleg marking
-        cy.switchExamPhase(1, 10)
+        cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         var moderation_pages=[
             '/marking/moderate/question/3/delegation/1',
@@ -1208,7 +1208,7 @@ describe('Marking', function () {
         cy.logout()
         cy.login('admin', '1234')
         // moderation
-        cy.switchExamPhase(1, 12)
+        cy.getExamPhaseByName('Theory', "Moderation").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('CHE', '1234')
@@ -1238,7 +1238,7 @@ describe('Marking', function () {
         cy.logout()
         cy.login('admin', '1234')
         // moderation
-        cy.switchExamPhase(1, 12)
+        cy.getExamPhaseByName('Theory', "Moderation").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('marker', '1234')

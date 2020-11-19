@@ -88,8 +88,10 @@ Cypress.Commands.add("readCKeditor", (element) => {
 });
 
 
-Cypress.Commands.add('switchExamPhase', (exam_id, phase_id) => {
+Cypress.Commands.add('switchExamPhase', (id_arr) => {
   // This command is used to switch the exam phase
+  var exam_id = id_arr[0];
+  var phase_id = id_arr[1];
   return cy.request({
     url: 'control/cockpit/switch-phase/' + exam_id + '/' + phase_id,
     method: 'GET'
@@ -109,3 +111,35 @@ Cypress.Commands.add('switchExamPhase', (exam_id, phase_id) => {
   })
 
 })
+
+Cypress.Commands.add('getExamPhaseByName', (exam_name, phase_name) => {
+  // This command returns the pks of Exam and ExamPhase with given names
+  if (exam_name == "Theory") {
+    var base_pk = 0
+    var exam_pk = 1
+  } else {
+    throw "Exam name " + exam_name + " not found in lookup. You might need to add it to getExamPhaseByName."
+  }
+
+  var phase_pk_lookup = {
+    "Hidden": 1,
+    "Preparation (Editing)": 2,
+    "Preparation (Translating)": 3,
+    "Discussion": 4,
+    "Discussion (Translation)": 5,
+    "Translation": 6,
+    "Printing": 7,
+    "Scanning": 8,
+    "Organizer Marking": 9,
+    "Delegation Marking": 10,
+    "Delegation Marking (Submit only)": 11,
+    "Moderation": 12,
+    "Final": 13,
+  }
+
+  if (!phase_pk_lookup.hasOwnProperty(phase_name)) {
+    throw "Phase name " + phase_name + " not found in lookup. You might need to add it to getExamPhaseByName."
+  }
+  var id_arr = [exam_pk, (phase_pk_lookup[phase_name] + base_pk)];
+  return id_arr
+});

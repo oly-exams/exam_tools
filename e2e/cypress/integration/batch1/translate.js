@@ -230,7 +230,7 @@ describe('Translation', function() {
         // Preparation (exam.can_translate = Exam.CAN_TRANSLATE_NOBODY)
         cy.logout()
         cy.login('admin','1234')
-        cy.switchExamPhase(1, 2)
+        cy.getExamPhaseByName('Theory', "Preparation (Editing)").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('AUS', '1234')
@@ -247,10 +247,10 @@ describe('Translation', function() {
         }).its("status").should('eq', 404)
 
         // Switch phase
-        // Preparation (exam.can_translate = Exam.CAN_TRANSLATE_ORGANIZER)
+        // Preparation (Translating) (exam.can_translate = Exam.CAN_TRANSLATE_ORGANIZER)
         cy.logout()
         cy.login('admin','1234')
-        cy.switchExamPhase(1, 3)
+        cy.getExamPhaseByName('Theory', "Preparation (Translating)").then(cy.switchExamPhase)
 
         cy.logout()
         cy.login('AUS', '1234')

@@ -81,7 +81,12 @@ There are some custom commands defined in `support/commands.js`. Noteworthy are:
 
 * `typeCKeditor(element, text)` and `readCKeditor(element)` are used to type and read CKeditor fields. `element` is the name of the specific editor, as assigned by CKeditor. See `transate.js` for examples.
 
-* `switchExamPhase(exam_id, phase_id)` similar to the login, using this command is much faster than using the UI. `exam_id` and `phase_id` are the pk's of the respective models. Note that you need to be logged in as admin for this command to work.
+* `switchExamPhase(exam_id, phase_id)` similar to the login, using this command is much faster than using the UI. `exam_id` and `phase_id` are the pk's of the respective models. Note that you need to be logged in as admin for this command to work. This is best used as a callback of `getExamPhaseByName` e.g.:
+```js
+cy.getExamPhaseByName('Theory', "Preparation (Editing)").then(cy.switchExamPhase)
+```
+
+* `getExamPhaseByName(exam_name, phase_name)` is a helper function returning the exam and phase pk's for the given names. Note that this function may need to be updated manually when the test data changes.
 
 ## Timeouts
 Most Cypress commands have built in timeouts. Sometimes they are not sufficient, however. As the wait times mostly depend on the speed of the machine, timeouts can occur only in the CI jobs or only locally and they might not occur consistently.
