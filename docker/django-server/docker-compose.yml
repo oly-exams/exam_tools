@@ -10,7 +10,6 @@ services:
                 - django-server
         image: django-server
         container_name: django-server
-        user: $U_ID:$G_ID
         volumes:
             - ../:/home/container/workdir:rw
             - ./wait-for-it.sh:/tmp/wait-for-it.sh:ro

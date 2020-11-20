@@ -1,0 +1,5 @@
+version: "3.2"
+
+services:
+    django-server:
+        user: $U_ID:$G_ID

@@ -16,4 +16,5 @@ docker-compose -p "exam_tools" \
                -f "$SCRIPTPATH/rabbitmq/docker-compose.yml" \
                -f "$SCRIPTPATH/postgres/docker-compose.yml" \
                -f "$SCRIPTPATH/overwrite/dev.yml" \
+               -f "$SCRIPTPATH/overwrite/local_dev_user.yml" \
                $@
