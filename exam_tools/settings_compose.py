@@ -48,9 +48,9 @@ DATABASES = {
 
 CELERY_BROKER_URL = f'amqp://{os.environ["RABBITMQ_USER"]}:{os.environ["RABBITMQ_PASSWORD"]}@{os.environ["RABBITMQ_HOST"]}:5672/'
 
-SITE_URL = "http://django_server:8000"
+SITE_URL = "http://django-server:8000"
 ALLOWED_HOSTS += (
-    "django_server",
+    "django-server",
     "localhost",
 )
 

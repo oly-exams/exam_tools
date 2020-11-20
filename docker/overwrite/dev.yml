@@ -1,7 +1,7 @@
 version: "3.2"
 
 services:
-    django_server:
+    django-server:
         command: /bin/sh -c "docker/wait-for-it.sh -t 90 $$POSTGRES_HOST:5432 && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
         env_file:
             - env/dev.env
