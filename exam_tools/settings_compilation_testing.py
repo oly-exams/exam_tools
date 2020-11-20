@@ -29,7 +29,7 @@ print("Project root:", PROJECT_PATH, file=sys.stderr)
 print("Templates:", TEMPLATE_PATH, file=sys.stderr)
 print("Staticfiles Dirs:", STATICFILES_DIRS, file=sys.stderr)
 
-DEBUG = False
+DEBUG = True
 # TEMPLATE_DEBUG = DEBUG
 
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
