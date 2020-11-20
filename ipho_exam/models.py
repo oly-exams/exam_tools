@@ -1305,12 +1305,8 @@ class DocumentManager(models.Manager):
             return queryset.filter(exam__in=Exam.objects.for_user(user))
         if user.has_perm("ipho_core.is_delegation"):
             delegs = Delegation.objects.filter(members=user)
-            return (
-                queryset.filter(exam__in=Exam.objects.for_user(user))
-                .filter(student__delegation__in=delegs)
-                .filter(
-                    exam__delegation_scan_access__gte=Exam.DELEGATION_SCAN_ACCESS_STUDENT_ANSWER
-                )
+            return queryset.filter(exam__in=Exam.objects.for_user(user)).filter(
+                student__delegation__in=delegs
             )
         return queryset.none()
 
