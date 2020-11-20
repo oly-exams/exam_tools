@@ -59,9 +59,9 @@ test:testing_pdf_compilation:
         - mkdir $CI_PROJECT_DIR/videos
         - mkdir $CI_PROJECT_DIR/screenshots
         - mkdir $CI_PROJECT_DIR/pdfs
+        - cp -r e2e/cypress/pdfs/* $CI_PROJECT_DIR/pdfs
         - cp -r e2e/cypress/videos/* $CI_PROJECT_DIR/videos
         - cp -r e2e/cypress/screenshots/* $CI_PROJECT_DIR/screenshots
-        - cp -r e2e/cypress/pdfs/* $CI_PROJECT_DIR/pdfs
     artifacts:
         paths:
             - $CI_PROJECT_DIR/videos
