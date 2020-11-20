@@ -4,10 +4,9 @@
 const check_pdf = true
 //
 //
-
-function test_final_pdf(stud_id, doc_pos) {
+function test_final_pdf(stud_id, doc_pos, id_prefix="preview") {
     // Wait for pdf to compile
-    cy.get('#preview-'+String(stud_id)+'-'+String(doc_pos)+' i.fa',  { timeout: 60000 }).should('not.have.class', 'fa-spinner').then(($i)=>{
+    cy.get('#'+id_prefix+'-'+String(stud_id)+'-'+String(doc_pos)+' i.fa',  { timeout: 60000 }).should('not.have.class', 'fa-spinner').then(($i)=>{
         // Check icon again
         cy.wrap($i).should('have.class', 'fa-file-pdf-o')
         // Get Href
@@ -20,9 +19,12 @@ function test_final_pdf(stud_id, doc_pos) {
             })
             .then((response) => {
                 // Write file to disk and compare
-                cy.writeFile('cypress/pdfs/preview-'+String(stud_id)+'-'+String(doc_pos)+'.pdf', response.body, 'binary')
+                var filename_end = '__student-'+String(stud_id)+'__position-'+String(doc_pos)+'.pdf';
+                var filename = 'final_submission_' + id_prefix + filename_end;
+                var filename_fixture = "final_submission_preview" + filename_end;
+                cy.writeFile('cypress/pdfs/'+filename, response.body, 'binary');
                 if(check_pdf){
-                    cy.exec('comparepdf --compare=appearance cypress/pdfs/preview-'+String(stud_id)+'-'+String(doc_pos)+'.pdf cypress/fixtures/pdfs/preview-'+String(stud_id)+'-'+String(doc_pos)+'.pdf')
+                    cy.exec('comparepdf --compare=appearance cypress/pdfs/' + filename + ' cypress/fixtures/pdfs/' + filename_fixture);
                 }
             })
         })
@@ -56,9 +58,9 @@ describe('General', function() {
                 encoding: 'binary',
             })
             .then((response) => {
-              cy.writeFile('cypress/pdfs/general_instr_v1.pdf', response.body, 'binary')
+              cy.writeFile('cypress/pdfs/general_instruction_v1.pdf', response.body, 'binary')
               if(check_pdf){
-                cy.exec("comparepdf --compare=appearance cypress/pdfs/general_instr_v1.pdf cypress/fixtures/pdfs/general_instr_v1.pdf")
+                cy.exec("comparepdf --compare=appearance cypress/pdfs/general_instruction_v1.pdf cypress/fixtures/pdfs/general_instruction_v1.pdf")
               }
             })
         })
@@ -88,5 +90,32 @@ describe('General', function() {
         test_final_pdf(7, 0)
         test_final_pdf(7, 1)
         test_final_pdf(7, 2)
+
+        // Checkbox alert should now be visible
+        cy.get("form div.alert-warning").should('contain', "I understand that this is the final submission")
+        cy.get('form div.alert-warning input[type="checkbox"]')
+        // Try to submit without checking
+        cy.get('button[type="submit"]').should('contain', "Submit").click()
+        // alert should now be alert-danger
+        cy.get("form div.alert-danger").should('contain', "You have to agree on the final submission before continuing.")
+        cy.get('form div.alert-danger input[type="checkbox"]').check()
+        cy.get('button[type="submit"]').should('contain', "Submit").click()
+
+        cy.url().should('contain', '/exam/submission/1/submitted')
+
+        // Check bulk-print scan
+        cy.logout()
+        cy.login("admin", "1234")
+
+        cy.visit("/exam/admin/bulk-print")
+
+        // Compare files in bulk-print
+        var id_prefix = "exam-doc"
+        test_final_pdf(6, 0, id_prefix)
+        test_final_pdf(6, 1, id_prefix)
+        test_final_pdf(6, 2, id_prefix)
+        test_final_pdf(7, 0, id_prefix)
+        test_final_pdf(7, 1, id_prefix)
+        test_final_pdf(7, 2, id_prefix)
     })
 })
