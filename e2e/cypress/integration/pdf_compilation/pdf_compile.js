@@ -83,6 +83,10 @@ describe('General', function() {
 
         // We can only test the final submission for now, as there are missing images in the test data.
         test_final_pdf(6, 0)
+        test_final_pdf(6, 1)
+        test_final_pdf(6, 2)
         test_final_pdf(7, 0)
+        test_final_pdf(7, 1)
+        test_final_pdf(7, 2)
     })
 })

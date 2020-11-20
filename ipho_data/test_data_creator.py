@@ -141,6 +141,22 @@ class TestDataCreator(DataCreator):
         self.create_official_version_node(ans2, text=IPHO2016_DATA["T-A2-final"])
         self.create_translation_node(ans2, lang1, text=IPHO2016_DATA["T-A2-final"])
 
+        fig_ids = [
+            "25",
+            "26",
+            "27",
+            "57",
+            "28",
+            "53",
+            "58",
+            "19",
+            "23",
+            "24",
+            "18",
+            "52",
+        ]
+        self.create_figures_with_ids(fig_ids=fig_ids, filename="logo_square.png")
+
         return exam
 
     def create_ipho2016_marking(self):
