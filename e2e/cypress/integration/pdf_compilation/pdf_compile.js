@@ -64,7 +64,7 @@ describe('General', function() {
         })
     })
 
-    it.only("Test Final submission", function() {
+    it("Test Final submission", function() {
         cy.login("AUS", 1234)
 
         cy.visit("/exam/submission/1/assign")
