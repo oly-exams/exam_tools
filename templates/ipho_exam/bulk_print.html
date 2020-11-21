@@ -231,7 +231,7 @@ This list shows only documents that have been submitted by the delegations.
             </td>
             <td align="center">
               {% if d.scan_file %}
-                <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <a class="btn btn-default btn-xs" id="processed_scan-{{ d.student__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
                 <br />
                 <input type="checkbox" name="scans[]" value="{{ d.pk }}" />
                 <div class="btn-group">

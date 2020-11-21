@@ -5,6 +5,9 @@ FROM cypress/included:5.5.0
 RUN apt-get update && apt-get install -y \
   comparepdf \
   --no-install-recommends && apt-get clean && rm -rf /var/lib/apt/lists/*
+# install cypress-upload-file
+RUN npm install --save-dev cypress-file-upload
+
 # create non-root-user
 RUN addgroup --gid 5000 container
 RUN useradd --create-home --uid 5000 --gid 5000 --shell /bin/bash container

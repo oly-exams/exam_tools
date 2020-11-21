@@ -24,6 +24,7 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
+import 'cypress-file-upload';
 
 Cypress.Commands.add('login', (username, password) => {
     // This command is used to log into the page.

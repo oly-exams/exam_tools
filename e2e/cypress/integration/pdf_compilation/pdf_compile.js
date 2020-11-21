@@ -4,7 +4,7 @@
 const check_pdf = true
 //
 //
-function test_final_pdf(stud_id, doc_pos, id_prefix="preview") {
+function download_test_pdf(stud_id, doc_pos, id_prefix="preview", file_prefix="final_submission_") {
     // Wait for pdf to compile
     cy.get('#'+id_prefix+'-'+String(stud_id)+'-'+String(doc_pos)+' i.fa',  { timeout: 60000 }).should('not.have.class', 'fa-spinner').then(($i)=>{
         // Check icon again
@@ -20,8 +20,8 @@ function test_final_pdf(stud_id, doc_pos, id_prefix="preview") {
             .then((response) => {
                 // Write file to disk and compare
                 var filename_end = '__student-'+String(stud_id)+'__position-'+String(doc_pos)+'.pdf';
-                var filename = 'final_submission_' + id_prefix + filename_end;
-                var filename_fixture = "final_submission_preview" + filename_end;
+                var filename = file_prefix + id_prefix + filename_end;
+                var filename_fixture = "final_submission" + filename_end;
                 cy.writeFile('cypress/pdfs/'+filename, response.body, 'binary');
                 if(check_pdf){
                     cy.exec('comparepdf --compare=appearance cypress/pdfs/' + filename + ' cypress/fixtures/pdfs/' + filename_fixture);
@@ -51,7 +51,7 @@ describe('General', function() {
             // Switch page and Wait for  30 seconds to ensure compilation
             // We need to wait manually because otherwise firefox would open the pdf reader, triggering a cross site request
             cy.visit("")
-            cy.wait(30000)
+            cy.wait(45000)
             // visit page again and confirm contenttype
             cy.request({
                 url: url,
@@ -83,13 +83,12 @@ describe('General', function() {
 
         cy.url().should('contain', "/exam/submission/1/confirm")
 
-        // We can only test the final submission for now, as there are missing images in the test data.
-        test_final_pdf(6, 0)
-        test_final_pdf(6, 1)
-        test_final_pdf(6, 2)
-        test_final_pdf(7, 0)
-        test_final_pdf(7, 1)
-        test_final_pdf(7, 2)
+        download_test_pdf(6, 0)
+        download_test_pdf(6, 1)
+        download_test_pdf(6, 2)
+        download_test_pdf(7, 0)
+        download_test_pdf(7, 1)
+        download_test_pdf(7, 2)
 
         // Checkbox alert should now be visible
         cy.get("form div.alert-warning").should('contain', "I understand that this is the final submission")
@@ -111,11 +110,43 @@ describe('General', function() {
 
         // Compare files in bulk-print
         var id_prefix = "exam-doc"
-        test_final_pdf(6, 0, id_prefix)
-        test_final_pdf(6, 1, id_prefix)
-        test_final_pdf(6, 2, id_prefix)
-        test_final_pdf(7, 0, id_prefix)
-        test_final_pdf(7, 1, id_prefix)
-        test_final_pdf(7, 2, id_prefix)
+        var file_prefix = ""
+        download_test_pdf(6, 0, id_prefix, file_prefix)
+        download_test_pdf(6, 1, id_prefix, file_prefix)
+        download_test_pdf(6, 2, id_prefix, file_prefix)
+        download_test_pdf(7, 0, id_prefix, file_prefix)
+        download_test_pdf(7, 1, id_prefix, file_prefix)
+        download_test_pdf(7, 2, id_prefix, file_prefix)
     })
+
+    // Note that this test depends on the state of the previous one
+    // (namely on the documents being created)
+    it("Test Manual File Upload", function(){
+        cy.login('admin', '1234')
+        cy.visit('/exam/admin/scan/upload')
+
+        cy.get('#id_question').select("Two Problems in Mechanics - Answer Sheet [#1 in Theory]")
+        cy.get('#id_student').select("AUS-S-1")
+
+        // Attaching the corresponding fixture to scan. This enables us to use download_test_pdf again
+        const filepath = 'pdfs/final_submission__student-6__position-1.pdf';
+        cy.get('#id_file').attachFile({ filePath:filepath, mimeType: 'application/pdf' , encoding:"binary"})
+        cy.get('#submit-id-submit').click()
+
+        // Check file in bulk-print
+        cy.visit("/exam/admin/bulk-print")
+        var id_prefix = "processed_scan"
+        download_test_pdf(6, 1, id_prefix, "")
+        // Set status
+        cy.get('a[href="/exam/admin/scan-status/2/S"]').click()
+        cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
+
+        // Check delegation scan view
+        cy.logout()
+        cy.login('AUS', '1234')
+        cy.visit('/marking/')
+        var id_prefix = "processed_scan"
+        download_test_pdf(6, 1, id_prefix, "delegation_view_")
+    })
+
 })
