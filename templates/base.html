@@ -117,11 +117,11 @@
               {% if perms.ipho_core.can_see_boardmeeting %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
               {% endif %}
-              {% if perms.ipho_core.print_boardmeeting_site or perms.ipho_core.print_exam_site %}
+              {% if perms.ipho_core.can_print_boardmeeting_site or perms.ipho_core.can_print_exam_site %}
               <li><a href="{% url 'print:main' %}">Print</a></li>
               {% endif %}
 
-              {% if perms.ipho_core.is_organizer_admin or perms.ipho_core.is_marker or perms.ipho_core.is_printstaff or perms.ipho_core.can_edit_exam or perms.ipho_core.can_manage_feedback or perms.ipho_core.can_manage_poll %}
+              {% if perms.ipho_core.is_organizer_admin or perms.ipho_core.is_marker or perms.ipho_core.is_printstaff or perms.ipho_core.can_edit_exam or perms.ipho_core.can_manage_feedback or perms.ipho_core.can_edit_poll %}
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin tools <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
@@ -161,7 +161,7 @@
                   <li><a href="{% url 'exam:admin-feedbacks-export-main' %}">Export feedbacks</a></li>
                   <li class="divider"></li>
                   {% endif %}
-                  {% if perms.ipho_core.can_manage_poll %}
+                  {% if perms.ipho_core.can_edit_poll %}
                   <li class="dropdown-header">Voting</li>
                   <li><a href="{% url 'poll:staff-index' %}">Voting management</a></li>
                   <li class="divider"></li>

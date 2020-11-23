@@ -70,7 +70,7 @@
         "iphoperm"
       ],
       [
-        "can_manage_poll",
+        "can_edit_poll",
         "ipho_core",
         "iphoperm"
       ],
@@ -80,12 +80,12 @@
         "iphoperm"
       ],
       [
-        "print_exam_site",
+        "can_print_exam_site",
         "ipho_core",
         "iphoperm"
       ],
       [
-        "print_boardmeeting_site",
+        "can_print_boardmeeting_site",
         "ipho_core",
         "iphoperm"
       ],
@@ -497,12 +497,12 @@
         "iphoperm"
       ],
       [
-        "print_exam_site",
+        "can_print_exam_site",
         "ipho_core",
         "iphoperm"
       ],
       [
-        "print_boardmeeting_site",
+        "can_print_boardmeeting_site",
         "ipho_core",
         "iphoperm"
       ],
