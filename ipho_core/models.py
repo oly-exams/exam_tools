@@ -39,8 +39,9 @@ class IphoPerm(models.Model):
             ("is_delegation_print", "Is in the print team of a delegation"),
             ("is_marker", "Is a marker"),
             ("can_edit_exam", "Can edit the exam"),
+            # "can_manage" is used here (instead of "can_edit") because it only applies to the admin functionalities (i.e. comments/status)
             ("can_manage_feedback", "Can manage feedbacks"),
-            ("can_manage_poll", "Can manage polls"),
+            ("can_edit_poll", "Can edit polls"),
             ("can_vote", "Can vote"),
             (
                 "can_see_boardmeeting",
@@ -49,8 +50,8 @@ class IphoPerm(models.Model):
             ("is_organizer_admin", "Is an organizer admin"),
             ("can_impersonate", "Can impersonate delegations"),
             ("can_access_control", "Can access the control app"),
-            ("print_boardmeeting_site", "Can print at the boardmeeting site"),
-            ("print_exam_site", "Can print at the exam site"),
+            ("can_print_boardmeeting_site", "Can print at the boardmeeting site"),
+            ("can_print_exam_site", "Can print at the exam site"),
             ("is_printstaff", "Is a print staff"),
         )
 

@@ -400,7 +400,7 @@ PRINTER_QUEUES = {
     #   'queue': 'printer-1',
     #   'auth_token': '',
     #   'opts': {'Duplex': 'None', 'ColourModel': 'Greyscale', 'Staple': '1PLU'},
-    #   'required_perm': 'ipho_core.print_boardmeeting_site',
+    #   'required_perm': 'ipho_core.can_print_boardmeeting_site',
     # },
     # 'technopark.printer-2': {
     #   'name': 'Technopark 2',
@@ -408,7 +408,7 @@ PRINTER_QUEUES = {
     #   'queue': 'printer-2',
     #   'auth_token': '',
     #   'opts': {'Duplex': 'None', 'ColourModel': 'Greyscale', 'Staple': '1PLU'},
-    #   'required_perm': 'ipho_core.print_boardmeeting_site',
+    #   'required_perm': 'ipho_core.can_print_boardmeeting_site',
     # },
     # 'irchel.printer-1': {
     #   'name': 'Irchel 1',
@@ -416,7 +416,7 @@ PRINTER_QUEUES = {
     #   'queue': 'printer-1',
     #   'auth_token': '',
     #   'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
-    #   'required_perm': 'ipho_core.print_exam_site',
+    #   'required_perm': 'ipho_core.can_print_exam_site',
     # },
     # 'irchel.printer-2': {
     #   'name': 'Irchel 2',
@@ -424,7 +424,7 @@ PRINTER_QUEUES = {
     #   'queue': 'printer-2',
     #   'auth_token': '',
     #   'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
-    #   'required_perm': 'ipho_core.print_exam_site',
+    #   'required_perm': 'ipho_core.can_print_exam_site',
     # },
     # 'irchel.printer-3': {
     #   'name': 'Irchel 3',
@@ -432,7 +432,7 @@ PRINTER_QUEUES = {
     #   'queue': 'printer-3',
     #   'auth_token': '',
     #   'opts': {'Duplex': 'None', 'ColourModel': 'Colour', 'Staple': '1PLU'},
-    #   'required_perm': 'ipho_core.print_exam_site',
+    #   'required_perm': 'ipho_core.can_print_exam_site',
     # },
     "generic.printer-1": {
         "name": "Generic printer",
@@ -440,7 +440,7 @@ PRINTER_QUEUES = {
         "queue": "printer-1",
         "auth_token": "",
         "opts": {"Duplex": "None", "ColourModel": "Colour", "Staple": "1PLU"},
-        "required_perm": "ipho_core.print_exam_site",
+        "required_perm": "ipho_core.can_print_exam_site",
     },
 }
 
