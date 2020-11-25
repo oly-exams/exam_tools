@@ -1,9 +1,9 @@
-merge:pre_commit:
+merge:pre-commit:
     extends: .test:pull_and_run
     rules:
         - if: '$CI_PIPELINE_SOURCE == "web"'
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     variables:
-        ALL_SERVICE_NAME: pre_commit
-        OVERWRITE_COMPOSE: docker/overwrite/pre_commit_all.yml
+        ALL_SERVICE_NAME: pre-commit
+        OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/pre-commit-all.yml

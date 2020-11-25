@@ -21,7 +21,7 @@
 import sys
 
 # Django settings for exam_tools project.
-from .settings_compose import *
+from .settings_a_dev import *
 
 # Printing paths for sanity's sake
 print("Settings directory:", SETTINGS_DIR, file=sys.stderr)
@@ -31,6 +31,7 @@ print("Staticfiles Dirs:", STATICFILES_DIRS, file=sys.stderr)
 
 DEBUG = True
 # TEMPLATE_DEBUG = DEBUG
+EVENT_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, "events", "apho2019")
 
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
 TEST_OUTPUT_DIR = "unittest_reports"
@@ -43,3 +44,9 @@ SIGN_OFF_FINAL_MARKS = True
 
 ADMINS = ()
 MANAGERS = ADMINS
+
+SITE_URL = "http://django-server:8000"
+ALLOWED_HOSTS += (
+    "django-server",
+    "localhost",
+)

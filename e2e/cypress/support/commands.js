@@ -152,12 +152,12 @@ Cypress.Commands.add('beforeAllDBInit', () => {
 
   // comment out this line for local testing, make sure to manually create database-initial in this case.
   // We are using mv --no-clobber as we only want to mv the db once (before any test). Otherwise we would overwrite db-inital with the modified db.
-  cy.exec('mv --no-clobber ../db_data/database.s3db ../db_data/database-initial.s3db')
+  cy.exec('mv --no-clobber ../database.s3db ../database-initial.s3db')
   return
 })
 
 Cypress.Commands.add('beforeEachDBInit', () => {
   // This command is used to initialize the actual database before every test
-  cy.exec('cp ../db_data/database-initial.s3db ../db_data/database.s3db')
+  cy.exec('cp ../database-initial.s3db ../database.s3db')
   return
 })

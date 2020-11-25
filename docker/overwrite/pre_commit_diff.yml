@@ -1,4 +1,0 @@
-version: "3.2"
-services:
-    pre_commit:
-        command: pre-commit run --from-ref HEAD~1 --to-ref HEAD

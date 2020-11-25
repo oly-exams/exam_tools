@@ -1,9 +1,0 @@
-# this is an overwrite for docker-compose.yml
-version: "3.2"
-# --project-directory=docker, see compose.sh
-# therefore we specify relative to the docker folder, not this subfolder
-services:
-    django-server:
-        environment:
-            - DJANGO_SETTINGS_MODULE=exam_tools.settings_testing
-        command: python manage.py test
