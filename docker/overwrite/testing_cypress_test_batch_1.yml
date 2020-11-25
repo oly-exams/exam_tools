@@ -1,13 +1,13 @@
 version: "3.2"
 services:
-    django_server:
+    django-server:
         environment:
             - DJANGO_SETTINGS_MODULE=exam_tools.settings_testing
         command: ./e2e/server_with_testdata.sh
 
     testing_cypress:
         depends_on:
-            - django_server
+            - django-server
         environment:
             - ELECTRON_EXTRA_LAUNCH_ARGS=--js-flags=--expose_gc
         command: ./cypress_batch.sh batch1

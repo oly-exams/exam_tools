@@ -4,11 +4,11 @@ test:pre_commit:
         ALL_SERVICE_NAME: pre_commit
         OVERWRITE_COMPOSE: docker/overwrite/pre_commit_diff.yml
 
-test:django_server:
+test:django-server:
     extends: .test:pull_and_run
     variables:
-        ALL_SERVICE_NAME: django_server
-        OVERWRITE_COMPOSE: docker/overwrite/django_server_test.yml
+        ALL_SERVICE_NAME: django-server
+        OVERWRITE_COMPOSE: docker/overwrite/django-server_test.yml
     artifacts:
         reports:
             junit: unittest_reports/*.xml
@@ -16,14 +16,14 @@ test:django_server:
 test:testing_cypress_batch_1:
     extends: .test:pull_and_run
     variables:
-        ALL_SERVICE_NAME: django_server testing_cypress
+        ALL_SERVICE_NAME: django-server testing_cypress
         OVERWRITE_COMPOSE: docker/overwrite/testing_cypress_test_batch_1.yml
     after_script:
         # copying makes the folderstructure look nicer on gitlab
         - mkdir $CI_PROJECT_DIR/videos
         - mkdir $CI_PROJECT_DIR/screenshots
-        - cp e2e/cypress/videos/* $CI_PROJECT_DIR/videos
-        - cp e2e/cypress/screenshots/* $CI_PROJECT_DIR/screenshots
+        - cp -r e2e/cypress/videos/* $CI_PROJECT_DIR/videos
+        - cp -r e2e/cypress/screenshots/* $CI_PROJECT_DIR/screenshots
     artifacts:
         paths:
             - $CI_PROJECT_DIR/videos
@@ -34,14 +34,14 @@ test:testing_cypress_batch_1:
 test:testing_cypress_batch_2:
     extends: .test:pull_and_run
     variables:
-        ALL_SERVICE_NAME: django_server testing_cypress
+        ALL_SERVICE_NAME: django-server testing_cypress
         OVERWRITE_COMPOSE: docker/overwrite/testing_cypress_test_batch_2.yml
     after_script:
         # copying makes the folderstructure look nicer on gitlab
         - mkdir $CI_PROJECT_DIR/videos
         - mkdir $CI_PROJECT_DIR/screenshots
-        - cp e2e/cypress/videos/* $CI_PROJECT_DIR/videos
-        - cp e2e/cypress/screenshots/* $CI_PROJECT_DIR/screenshots
+        - cp -r e2e/cypress/videos/* $CI_PROJECT_DIR/videos
+        - cp -r e2e/cypress/screenshots/* $CI_PROJECT_DIR/screenshots
     artifacts:
         paths:
             - $CI_PROJECT_DIR/videos
@@ -49,8 +49,29 @@ test:testing_cypress_batch_2:
         reports:
             junit: e2e/cypress/reports/*.xml
 
+test:testing_pdf_compilation:
+    extends: .test:pull_and_run
+    variables:
+        ALL_SERVICE_NAME: django-server postgres rabbitmq celery_worker testing_cypress
+        OVERWRITE_COMPOSE: docker/overwrite/dev.yml docker/overwrite/testing_pdf_compilation.yml
+    after_script:
+        # copying makes the folderstructure look nicer on gitlab
+        - mkdir $CI_PROJECT_DIR/videos
+        - mkdir $CI_PROJECT_DIR/screenshots
+        - mkdir $CI_PROJECT_DIR/pdfs
+        - cp -r e2e/cypress/pdfs/* $CI_PROJECT_DIR/pdfs
+        - cp -r e2e/cypress/videos/* $CI_PROJECT_DIR/videos
+        - cp -r e2e/cypress/screenshots/* $CI_PROJECT_DIR/screenshots
+    artifacts:
+        paths:
+            - $CI_PROJECT_DIR/videos
+            - $CI_PROJECT_DIR/screenshots
+            - $CI_PROJECT_DIR/pdfs
+        reports:
+            junit: e2e/cypress/reports/*.xml
+
 test:docker_dev_setup:
     extends: .test:pull_and_run
     variables:
-        ALL_SERVICE_NAME: django_server postgres rabbitmq celery_worker
+        ALL_SERVICE_NAME: django-server postgres rabbitmq celery_worker
         OVERWRITE_COMPOSE: docker/overwrite/dev.yml docker/overwrite/dev_test.yml

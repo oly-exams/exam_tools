@@ -24,6 +24,7 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
+import 'cypress-file-upload';
 
 Cypress.Commands.add('login', (username, password) => {
     // This command is used to log into the page.
@@ -143,3 +144,20 @@ Cypress.Commands.add('getExamPhaseByName', (exam_name, phase_name) => {
   var id_arr = [exam_pk, (phase_pk_lookup[phase_name] + base_pk)];
   return id_arr
 });
+
+
+Cypress.Commands.add('beforeAllDBInit', () => {
+  // This command is used to initialize the inital database
+  // From this db the actual db is reinitialized before every test
+
+  // comment out this line for local testing, make sure to manually create database-initial in this case.
+  // We are using mv --no-clobber as we only want to mv the db once (before any test). Otherwise we would overwrite db-inital with the modified db.
+  cy.exec('mv --no-clobber ../db_data/database.s3db ../db_data/database-initial.s3db')
+  return
+})
+
+Cypress.Commands.add('beforeEachDBInit', () => {
+  // This command is used to initialize the actual database before every test
+  cy.exec('cp ../db_data/database-initial.s3db ../db_data/database.s3db')
+  return
+})

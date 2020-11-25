@@ -2,14 +2,14 @@ version: "3.2"
 # --project-directory=docker, see compose.sh
 # therefore we specify relative to the docker folder, not this subfolder
 services:
-    django_server:
+    django-server:
         build:
             context: ../
-            dockerfile: docker/django_server/Dockerfile
+            dockerfile: docker/django-server/Dockerfile
             cache_from:
-                - django_server
-        image: django_server
-        container_name: django_server
+                - django-server
+        image: django-server
+        container_name: django-server
         volumes:
             - ../:/home/container/workdir:rw
             - ./wait-for-it.sh:/tmp/wait-for-it.sh:ro

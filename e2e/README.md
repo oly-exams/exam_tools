@@ -62,7 +62,13 @@ The actual test code are then just Cypress commands. For example:
 Check the Cypress docs [here](https://docs.cypress.io/guides/getting-started/writing-your-first-test.html) and [here](https://docs.cypress.io/guides/references/best-practices.html) for an overview and best practices.
 
 ## Hooks
-To prepare the initial dataset, Cypress uses the `before` and `beforeEach` hooks defined in `support/index.js`. The `before` hook runs once before all tests (watch out when using the test runner, see [here](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests.html#Hooks)). The `beforeEach` hook runs once before each test (each `it()`).
+To prepare the initial dataset, Cypress uses the `before` and `beforeEach` hooks defined in each `describe(...)`. The `before` hook runs once before all tests in this block (watch out when using the test runner, see [here](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests.html#Hooks)). The `beforeEach` hook runs once before each test (each `it()`).
+
+### Initializing states
+The following functions defined in `support/commands.js` are used in the hooks to initialize the database:
+* `cy.beforeAllDBInit()` creates `database-initial.s3db` by moving the preinitialized database. Note that this uses `mv -n`, moving the db only once. Locally you might want to comment out the `cy.exec(..)` in this function. Otherwise the inital db is overwritten each time you start a test.
+* `cy.beforeEachDBInit()` initializes `database.s3db` by copying `database-initial-s3db`. It runs before each test.
+
 
 ## Specific challenges and solutions, custom commands
 ### Selecting elements

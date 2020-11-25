@@ -2,6 +2,16 @@
 
 describe('Polls', function() {
 
+    before(() => {
+        // runs once before all tests in the block
+        cy.beforeAllDBInit()
+    })
+
+    beforeEach(() => {
+        // this runs prior to every test
+        cy.beforeEachDBInit()
+    })
+
     beforeEach(() => {
         cy.server()
         cy.route("GET", "/poll/staff/partials/drafted").as("getStaffPartialsDrafted");

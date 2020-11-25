@@ -106,6 +106,7 @@ class TestDataCreator(DataCreator):
             type=self.QUESTION,
         )
         self.create_official_version_node(que1, text=IPHO2016_DATA["T-Q1-final"])
+        self.create_translation_node(que1, lang1, text=IPHO2016_DATA["T-Q1-final"])
         self.create_feedback_for_question(que1)
 
         ans1 = self.create_question(
@@ -117,6 +118,8 @@ class TestDataCreator(DataCreator):
             working_pages=6,
         )
         self.create_official_version_node(ans1, text=IPHO2016_DATA["T-A1-final"])
+        self.create_translation_node(ans1, lang1, text=IPHO2016_DATA["T-A1-final"])
+
         que2 = self.create_question(
             exam,
             name="Two Problems in Mechanics",
@@ -125,6 +128,8 @@ class TestDataCreator(DataCreator):
             type=self.QUESTION,
         )
         self.create_official_version_node(que2, text=IPHO2016_DATA["T-Q2-final"])
+        self.create_translation_node(que2, lang1, text=IPHO2016_DATA["T-Q2-final"])
+
         ans2 = self.create_question(
             exam,
             name="Nonlinear Dynamics in Electric Circuits - Answer Sheet",
@@ -134,6 +139,11 @@ class TestDataCreator(DataCreator):
             working_pages=6,
         )
         self.create_official_version_node(ans2, text=IPHO2016_DATA["T-A2-final"])
+        self.create_translation_node(ans2, lang1, text=IPHO2016_DATA["T-A2-final"])
+
+        self.create_figures_with_ids(
+            fig_ids=IPHO2016_DATA["FIGURE_IDS"], filename="logo_square.png"
+        )
 
         return exam
 
