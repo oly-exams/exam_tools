@@ -19,6 +19,17 @@ function check_changelog(settings, selector){
 
 describe('Control', function() {
 
+
+    before(() => {
+        // runs once before all tests in the block
+        cy.beforeAllDBInit()
+    })
+
+    beforeEach(() => {
+        // this runs prior to every test
+        cy.beforeEachDBInit()
+    })
+
     it('Test Switch state', function() {
         cy.login('admin','1234')
         cy.visit('control/cockpit')

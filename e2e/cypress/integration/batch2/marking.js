@@ -350,6 +350,16 @@ var staff_summary_deleg_entries_subm_fin = [
 
 describe('Marking', function () {
 
+    before(() => {
+        // runs once before all tests in the block
+        cy.beforeAllDBInit()
+    })
+
+    beforeEach(() => {
+        // this runs prior to every test
+        cy.beforeEachDBInit()
+    })
+
     it("Test General Visibility (Translation phase)", function () {
 
         cy.login('CHE', '1234')

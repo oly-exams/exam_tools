@@ -1,6 +1,17 @@
 
 
 describe('Basic Functionalities', function() {
+
+    before(() => {
+        // runs once before all tests in the block
+        cy.beforeAllDBInit()
+    })
+
+    beforeEach(() => {
+        // this runs prior to every test
+        cy.beforeEachDBInit()
+    })
+
     it('Test Index', function() {
         cy.visit('/')
         cy.url().should('contain', 'accounts/login')

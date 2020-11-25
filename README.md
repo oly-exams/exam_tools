@@ -203,7 +203,7 @@ cp exam_tools/settings_testing.py exam_tools/settings.py
 ```bash
 python ipho_data/cypress_initial_data.py
 ```
-inside the django server container to create the initial dataset. This needs to be done before each test, as cypress will override this. Alternatively, you can comment out the `before()` hook in `e2e/cypress/support/index.js` and manually create `database-initial` once:
+inside the django server container to create the initial dataset. This needs to be done before each test, as cypress will override this. Alternatively, you can comment out `cy.exec()` in `e2e/support/commands beforeAllDBInit` and manually create `database-initial` once:
 ```bash
 cp db_data/database.s3db db_data/database-initial.s3db
 ```
