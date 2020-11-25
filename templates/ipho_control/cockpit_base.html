@@ -32,7 +32,7 @@
 {% block page-content %}
 {# modal for switching the phase #}
 <div class="modal fade" id="switch-phase-modal" tabindex="-1" aria-labelledby="modalLabel">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
@@ -52,7 +52,7 @@
 
 {# modal showing the exam history #}
 <div class="modal fade" id="history-modal" tabindex="-1" aria-labelledby="modalLabel">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
@@ -107,9 +107,9 @@
     </ul>
     {% if active_exam %}
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-6" id="current-phase-column">
         <h3>Current phase:</h3>
-        <div class="panel panel-primary">
+        <div class="panel panel-primary" id="current-phase-panel">
           <div style="font-size: 16px;" class="panel-heading">
             <div style="font-size: 20px;">
               {{ active_exam.phase.name }}
@@ -117,7 +117,7 @@
   
             
           </div>
-          {% include "ipho_control/phase_labels.html" with settings=active_exam.phase.exam_settings help_texts=help_texts_settings only %}
+          {% include "ipho_control/phase_labels.html" with settings=active_exam.phase.get_ordered_settings help_texts=help_texts_settings choices=choices_settings names=verbose_names_settings only %}
           <div class="panel-body">
             
             <p>
@@ -138,7 +138,7 @@
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New Phase
           </a>
         {% endif %}
-        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#history-modal" data-modal-url="{% url 'control:exam-history' active_exam.exam.pk %}" >
+        <button type="button" id="show-history-button" class="btn btn-default" data-toggle="modal" data-target="#history-modal" data-modal-url="{% url 'control:exam-history' active_exam.exam.pk %}" >
           Show History
           <span class="glyphicon glyphicon-time" aria-hidden="true"></span> 
         </button>
@@ -146,7 +146,7 @@
         <div style="overflow-y:auto; max-height: 55vh;">
           {% for phase in phases %}
           {% with checks=checks_list|lookup:phase.pk %}
-          <div class="panel panel-info phase-panel {% if phase.is_current_phase %}current-phase{% endif %}">
+          <div id="phase-panel-{{ phase.pk }}" class="panel panel-info phase-panel {% if phase.is_current_phase %}current-phase{% endif %}">
             <div class="panel-heading" style="display: flex; justify-content: space-between;">
               <div>
                 <div style="font-size: 20px;">
@@ -164,7 +164,7 @@
                 </div>
               {% endif %}
             </div>
-            {% include "ipho_control/phase_labels.html" with settings=phase.exam_settings help_texts=help_texts_settings collapse_id=phase.name only %}
+            {% include "ipho_control/phase_labels.html" with settings=phase.get_ordered_settings help_texts=help_texts_settings choices=choices_settings names=verbose_names_settings collapse_id=phase.pk only %}
               
             <div class="panel-body">
               <p>
@@ -190,7 +190,7 @@
                 </ul>  
                 {% if phase.is_applicable and not phase.is_current_phase %}
                   <span>
-                    <button type="button" class="btn btn-warning btn-lg pull-right" data-toggle="modal" data-target="#switch-phase-modal" data-modal-url="{% url 'control:switch-phase' active_exam.exam.pk phase.pk %}">Switch phase</button>
+                    <button type="button" id="switch-phase-{{ phase.pk }}"class="btn btn-warning btn-lg pull-right" data-toggle="modal" data-target="#switch-phase-modal" data-modal-url="{% url 'control:switch-phase' active_exam.exam.pk phase.pk %}">Switch phase</button>
                   </span>
                   {% elif phase.is_current_phase %}
                   <span data-toggle="tooltip" title="Cannot switch to current phase." >

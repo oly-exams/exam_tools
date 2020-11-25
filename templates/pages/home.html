@@ -73,7 +73,7 @@
           {% endif %}
           {% if control_show_phases %}
           <hr />
-            <div style="display:flex; justify-content: space-between; align-items: center;">
+            <div id="exam-summary-header" style="display:flex; justify-content: space-between; align-items: center;">
                 <div style="width: 85%;">
                     <h2>Exam Phases</h2>
                     <p>Below you can see the phases the different Exams are in.</p>
@@ -188,7 +188,7 @@
                         </a>
                     </li>
                 </ul>
-                {% if perms.ipho_core.print_technopark or perms.ipho_core.print_irchel %}
+                {% if perms.ipho_core.can_print_boardmeeting_site or perms.ipho_core.can_print_exam_site %}
                 <h3>Print</h3>
                 <ul>
                     <li>

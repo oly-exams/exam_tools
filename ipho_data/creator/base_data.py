@@ -1,5 +1,6 @@
 import sys
 import csv
+import json
 from collections import namedtuple
 
 from django.core.management import call_command
@@ -34,7 +35,16 @@ class CreatorCsvUtil:
                 )
 
 
-class BaseDataCreator(CreatorCsvUtil):
+class CreatorJsonUtil:
+    def full_path(self, filename):
+        raise NotImplementedError()
+
+    def read_json(self, json_filename):
+        with self.full_path(json_filename).open("r") as f:
+            return json.load(f)
+
+
+class BaseDataCreator(CreatorCsvUtil, CreatorJsonUtil):
     def __init__(self, data_path):
         self.data_path = data_path
 

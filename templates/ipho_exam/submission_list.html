@@ -12,7 +12,7 @@
         <div class="col-sm-5">
             <div class="panel panel-default">
                 <div class="panel-heading"><h3 class="panel-title">Open submissions</h3></div>
-                  <div id="language-list" class="list-group">
+                  <div id="language-list-open" class="list-group">
                   {% for ex in exams_open %}
                       <a class="list-group-item" href="{% url 'exam:submission-exam-assign' exam_id=ex.pk %}">{{ ex.name }} <span class="pull-right"><i class="fa fa-angle-double-right"></i></span></a>
                   {% empty %}
@@ -27,7 +27,7 @@
         <div class="col-sm-5">
             <div class="panel panel-default">
                 <div class="panel-heading"><h3 class="panel-title">Closed submissions</h3></div>
-                  <div id="language-list" class="list-group">
+                  <div id="language-list-closed" class="list-group">
                       {% for ex in exams_closed %}
                       <a class="list-group-item" href="{% url 'exam:submission-exam-submitted' exam_id=ex.pk %}">{{ ex.name }} <span class="pull-right"><i class="fa fa-angle-double-right"></i></span></a>
                   {% empty %}

@@ -3,7 +3,7 @@
 <tr>
     <td>{{ fb.pk }}</td>
     <td>
-      {% if perms.ipho_core.is_organizer %}
+      {% if perms.ipho_core.is_organizer_admin and fb.commentable %}
         <div class="btn-group">
           <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
             {{ fb.status_display }}
@@ -27,7 +27,7 @@
     <td>
       <div class="btn-toolbar">
         <div style="display:inline-block" data-toggle="tooltip" data-title="{{fb.like_delegations.0|safe}}">
-          <span href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="btn btn-info {{ fb.enable_likes|yesno:',disabled' }} feedback-like">
+          <span href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="btn btn-info {{ fb.enable_likes|yesno:',disabled' }} feedback-like feedback-like-trigger">
             <i class="fa fa-thumbs-o-up feedback-like" aria-hidden="true"></i>
             {% if fb.num_likes %}
             <span class="badge feedback-like">{{ fb.num_likes }}</span>
@@ -36,7 +36,7 @@
           </span>
         </div>
         <div style="display:inline-block" data-toggle="tooltip" title="{{fb.unlike_delegations.0|safe}}">
-          <span href="{% url 'exam:feedback-like' status='U' feedback_id=fb.pk %}" class="btn btn-warning {{ fb.enable_likes|yesno:',disabled' }} feedback-like">
+          <span href="{% url 'exam:feedback-like' status='U' feedback_id=fb.pk %}" class="btn btn-warning {{ fb.enable_likes|yesno:',disabled' }} feedback-like feedback-unlike-trigger">
             <i class="fa fa-thumbs-o-down feedback-like" aria-hidden="true"></i>
             {% if fb.num_unlikes %}
             <span class="badge feedback-like">{{ fb.num_unlikes }}</span>
@@ -45,11 +45,13 @@
           </span> <!-- btn-toolbar -->
         </div>
     </td>
-    {% if perms.ipho_core.is_organizer %}
+    {% if perms.ipho_core.is_organizer_admin and fb.exam_feedback_editable %}
     <td>
-      <button type="button" class="btn btn-sm btn-default add-comment-button" id="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
+      {% if fb.commentable %}
+      <button type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
         Add comment
       </button>
+      {% endif %}
     </td>
     {% endif %}
 </tr>

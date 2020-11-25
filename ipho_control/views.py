@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections import OrderedDict
 from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
 
@@ -45,7 +46,7 @@ def add_edit_phase(request, phase_id=None, exam_id=None):
     ctx["h1"] = "Add Exam Phase"
     ctx["lead"] = "Add another Exam Phase to the cockpit"
     if exam_id is not None:
-        exam = get_object_or_404(Exam, pk=exam_id)
+        exam = get_object_or_404(Exam.objects.for_user(request.user), pk=exam_id)
         phase = ExamPhase(exam=exam)
         ctx["h1"] = f"Add Exam Phase for { exam.name }"
     if phase_id is not None:
@@ -64,11 +65,9 @@ def add_edit_phase(request, phase_id=None, exam_id=None):
     return render(request, "ipho_control/add_phase.html", ctx)
 
 
-def exam_phase_context(is_superuser=False, exam_id=None):
+def exam_phase_context(user, exam_id=None):
     """Helper function to create context for cockpit_base.html."""
-    exams = Exam.objects.order_by("name")
-    if not is_superuser:
-        exams = exams.filter(hidden=False)
+    exams = Exam.objects.for_user(user).order_by("pk")
     if exam_id is None:
         if exams.exists():
             exam_id = exams.first().pk
@@ -81,7 +80,7 @@ def exam_phase_context(is_superuser=False, exam_id=None):
         ctx = {"exam": exam}
         phase = ExamPhase.get_current_phase(exam)
         if (
-            not is_superuser
+            not user.is_superuser
             and phase is not None
             and not phase.is_applicable_organizers()
         ):
@@ -89,16 +88,16 @@ def exam_phase_context(is_superuser=False, exam_id=None):
         if phase is None:
             # Create a dummy phase
             av_set = ExamPhase.get_available_exam_field_names()
-            exam_settings = {s: getattr(exam, s) for s in av_set}
+            exam_settings = OrderedDict((s, getattr(exam, s)) for s in av_set)
 
             class UndefPhase:
                 name = "Unnamed phase"
                 undef = True
                 description = "This is not a predefined phase. No additional information available."
-                exam_settings = None
+                get_ordered_settings = None
 
             undef_phase = UndefPhase()
-            undef_phase.exam_settings = exam_settings
+            undef_phase.get_ordered_settings = exam_settings
 
             ctx["undef_phase"] = undef_phase
         ctx["phase"] = phase
@@ -124,7 +123,7 @@ def cockpit(request, exam_id=None, changed_phase=False, deleted_phase=False):
     ctx = {}
     ctx["alerts"] = []
     ctx["h1"] = "Cockpit"
-    exam_list, active_exam = exam_phase_context(request.user.is_superuser, exam_id)
+    exam_list, active_exam = exam_phase_context(request.user, exam_id)
     if active_exam is None:
         return render(
             request, "ipho_control/cockpit_base.html", context={"h1": "Cockpit"}
@@ -179,6 +178,8 @@ def cockpit(request, exam_id=None, changed_phase=False, deleted_phase=False):
     if not request.user.is_superuser:
         phases = phases.filter(available_to_organizers=True)
     ctx["help_texts_settings"] = ExamPhase.get_exam_field_help_texts()
+    ctx["choices_settings"] = ExamPhase.get_exam_field_verbose_choices()
+    ctx["verbose_names_settings"] = ExamPhase.get_exam_field_verbose_names()
     ctx["checks_list"] = {}
     for phase in phases:
         ctx["checks_list"][phase.pk] = phase.run_checks(return_all=True)
@@ -193,7 +194,7 @@ def cockpit(request, exam_id=None, changed_phase=False, deleted_phase=False):
 @permission_required("ipho_core.can_access_control")
 def switch_phase(request, exam_id, phase_id):
     """View for the switch phase modal."""
-    exam = Exam.objects.filter(pk=exam_id).first()
+    exam = Exam.objects.for_user(request.user).filter(pk=exam_id).first()
     phase = ExamPhase.objects.filter(pk=phase_id).first()
 
     # check whether we can switch to this phase
@@ -231,7 +232,7 @@ def switch_phase(request, exam_id, phase_id):
     current_exam_settings = {s: getattr(exam, s) for s in available_setttings}
 
     # create changelog to display changes
-    changelog = {"changed": {}, "unchanged": {}}
+    changelog = {"changed": OrderedDict(), "unchanged": OrderedDict()}
     for s in available_setttings:
         if current_exam_settings[s] == phase.exam_settings.get(s):
             changelog["unchanged"][s] = phase.exam_settings.get(s)
@@ -244,6 +245,8 @@ def switch_phase(request, exam_id, phase_id):
     ctx = {}
     ctx["phase"] = phase
     ctx["help_texts_settings"] = phase.get_exam_field_help_texts()
+    ctx["choices_settings"] = ExamPhase.get_exam_field_verbose_choices()
+    ctx["verbose_names_settings"] = ExamPhase.get_exam_field_verbose_names()
     ctx["changelog"] = changelog
     ctx["warnings"] = warning_list
     ctx.update(csrf(request))
@@ -272,10 +275,12 @@ def delete_phase(request, phase_id):
 @permission_required("ipho_core.can_access_control")
 def exam_history(request, exam_id):
     """View for the exam history modal."""
-    exam = get_object_or_404(Exam, pk=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), pk=exam_id)
     history = ExamPhaseHistory.objects.filter(exam=exam).order_by("-timestamp")
     ctx = {}
     ctx["help_texts_settings"] = ExamPhase.get_exam_field_help_texts()
+    ctx["choices_settings"] = ExamPhase.get_exam_field_verbose_choices()
+    ctx["verbose_names_settings"] = ExamPhase.get_exam_field_verbose_names()
     ctx["history"] = history
     res = {}
     res["body"] = render_to_string("ipho_control/exam_history.html", ctx)
@@ -287,12 +292,7 @@ def exam_history(request, exam_id):
 @login_required
 def exam_phase_summary(request):
     """View for the exam summary on home."""
-    exams = Exam.objects.filter(hidden=False)
-    if not request.user.has_perm("ipho_core.is_staff"):
-        exams = exams.filter(active=True)
-    if request.user.is_superuser:
-        exams = Exam.objects
-
+    exams = Exam.objects.for_user(request.user)
     phases = []
     for exm in exams.all():
         last_change = ExamPhaseHistory.get_latest(exam=exm)

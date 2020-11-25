@@ -22,7 +22,7 @@
       {% for marking in markings %}
       <tr>
         <td>{{ marking.student__first_name }} {{ marking.student__last_name }} ({{ marking.student__code }})</td>
-        <td>{{ marking.total }}</td>
+        <td>{{ marking.total|floatformat:"2" }}</td>
       </tr>
       {% endfor %}
   </table>

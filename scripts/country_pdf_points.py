@@ -81,7 +81,9 @@ def compile_all():
             points_per_student.append((student, stud_exam_points_list, total))
 
         exams = (
-            MarkingMeta.objects.filter(question__exam__hidden=False)
+            MarkingMeta.objects.filter(
+                question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
+            )
             .values("question__exam")
             .annotate(exam_points=Sum("max_points"))
             .values(

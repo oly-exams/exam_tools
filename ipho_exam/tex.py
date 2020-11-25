@@ -170,10 +170,13 @@ class FigureExport:
         self.query = query
         self.lang = lang
 
-    def save(self, dirname):
+    def save(self, dirname, svg_to_png=False):
         fig = Figure.objects.get(fig_id=self.figid)
         fig.to_file(
-            fig_name=f"{dirname}/{self.figname}", query=self.query, lang=self.lang
+            fig_name=f"{dirname}/{self.figname}",
+            query=self.query,
+            lang=self.lang,
+            svg_to_png=svg_to_png,
         )
 
 

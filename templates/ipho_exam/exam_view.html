@@ -164,8 +164,8 @@ body { margin-bottom: 70px; }
               <div class="modal-body feedback"></div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                {% if not perms.ipho_core.is_organizer %}
-                  {% if question.feedback_active%}
+                {% if not perms.ipho_core.is_organizer_admin %}
+                  {% if question.check_feedback_editable %}
                     <button id="modal-form-submit" type="submit" class="btn btn-primary">Send feedback</button>
                   {% endif %}
                 {% endif %}
@@ -218,7 +218,7 @@ body { margin-bottom: 70px; }
             </div>
 
             <div class="col-sm-3 text-center" style="display: table-cell; vertical-align: middle;">
-              {% if not exam.hide_feedback%}
+              {% if exam.check_feedback_visible %}
                 <button type="button" class="btn btn-sm btn-default translate-copy-button" id="global" aria-label="View feedback" title="View feedback" data-toggle="modal" data-target="#feedback-modal">
                   View general feedback for this question
                 </button>
@@ -254,7 +254,6 @@ body { margin-bottom: 70px; }
 
 {% block extra-script %}
 
-    <script>document.getElementById('question-form').reset()</script>
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({
             showMathMenu: false,

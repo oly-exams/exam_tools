@@ -2,13 +2,31 @@
     stage: build
     # build will not be spawned every time, dont interrupt
     interruptible: false
+    variables:
+        COMPOSE_FILE: compose.sh
+        BUILD_DEPENDENCY: ""
     script:
+        - cd $ROOT
+        # repository name must be lowercase
+        - IMG_NAME=$(echo "$IMG_NAME" | awk '{print tolower($0)}')
         # I cannot build this variable in gitlab, since they dont allow nested $
         - IMG="$PROJ_REG/$IMG_NAME:$SERVICE_NAME"
         # this is the recommended way to reuse layers
         # (https://docs.gitlab.com/ee/user/packages/container_registry/index.html#using-a-docker-in-docker-image-from-your-container-registry)
-        - (docker pull -q $IMG && docker tag $IMG $SERVICE_NAME) || true
-        - $CI_PROJECT_DIR/compose.sh build --pull $SERVICE_NAME
+        - echo "$SERVICE_NAME"
+        - |
+            for SNAME in $BUILD_DEPENDENCY
+            do
+                DEP_IMG="$PROJ_REG/$IMG_NAME:$SNAME"
+                docker pull -q $DEP_IMG
+                docker tag $DEP_IMG $SNAME
+            done
+        - |
+            if [ $DOCKER_LAYER_CACHE = "yes" ]
+            then
+                (docker pull -q $IMG && docker tag $IMG $SERVICE_NAME) || true
+            fi
+        - $DOCKER_DIR/$COMPOSE_FILE --file $DOCKER_DIR/overwrite/gitlab-ci.yml build $SERVICE_NAME
         - docker tag $SERVICE_NAME $IMG
         - docker push $IMG
 
@@ -17,23 +35,22 @@
     #if we push faster than CI runs, kill old pipeline jobs
     interruptible: true
     variables:
-        ENV_FILE: {}
-        # SERVICE_NAME is expected
+        COMPOSE_FILE: compose.sh
+        OVERWRITE_COMPOSE: {}
+        # ALL_SERVICE_NAME is expected
     script:
-        - IMG="$PROJ_REG/$IMG_NAME:$SERVICE_NAME"
-        - docker pull -q $IMG && docker tag $IMG $SERVICE_NAME
-        - $CI_PROJECT_DIR/compose.sh --env-file="$ENV_FILE" up --abort-on-container-exit $SERVICE_NAME
-
-.test:pull_and_run_2:
-    stage: test
-    interruptible: true
-    variables:
-        ENV_FILE: {}
-        # SERVICE_NAME_1 is expected
-        # SERVICE_NAME_2 is expected
-    script:
-        - IMG_1="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_1"
-        - docker pull -q $IMG_1 && docker tag $IMG_1 $SERVICE_NAME_1
-        - IMG_2="$PROJ_REG/$IMG_NAME:$SERVICE_NAME_2"
-        - docker pull -q $IMG_2 && docker tag $IMG_2 $SERVICE_NAME_2
-        - ./compose.sh --env-file="$ENV_FILE" up --abort-on-container-exit $SERVICE_NAME_1 $SERVICE_NAME_2
+        - cd $ROOT
+        - echo "$OVERWRITE_COMPOSE"
+        - echo "$ALL_SERVICE_NAME"
+        - IMG_NAME=$(echo "$IMG_NAME" | awk '{print tolower($0)}')
+        - |
+            for SNAME in $ALL_SERVICE_NAME
+            do
+                if [ -f "$DOCKER_DIR/base/$SNAME/Dockerfile" ]; then
+                    IMG="$PROJ_REG/$IMG_NAME:$SNAME"
+                    docker pull -q $IMG
+                    docker tag $IMG $SNAME
+                fi
+            done
+        - ALL_OVERWRITE_WITH_F=$(echo $OVERWRITE_COMPOSE | sed 's/ / --file /g')
+        - $DOCKER_DIR/$COMPOSE_FILE --file $ALL_OVERWRITE_WITH_F --file $DOCKER_DIR/overwrite/gitlab-ci.yml up --abort-on-container-exit $ALL_SERVICE_NAME

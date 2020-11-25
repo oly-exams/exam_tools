@@ -14,7 +14,7 @@
     <div class="col-md-6">
       
       {% if questions %}
-      <div class="dropdown">
+      <div class="dropdown" id="question-dropdown">
         <a class="btn {{ question|yesno:"btn-default,btn-primary" }} btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
           {% if question %}
           {{ question.exam.code }}-{{ question.position }} {{ question.exam.name }} - {{ question.name }}
@@ -37,7 +37,7 @@
     <div class="col-md-6">
 
       {% if question %}
-      <div class="dropdown">
+      <div class="dropdown" id="delegation-dropdown">
         <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
           Select delegation
           <span class="caret"></span>

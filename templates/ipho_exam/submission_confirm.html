@@ -44,7 +44,7 @@ The final documents are being prepared. You have to wait until all documents are
           <td>
               {{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})
               {% for doc in stud_documents|lookup:ss.pk %}
-              <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-pos-student'  exam_id=exam.pk student_id=ss.pk position=doc.position %}" data-doc-status="loading"><i class="fa fa-spinner fa-spin"></i> #{{ doc.position }}</a>
+              <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" id="preview-{{ ss.pk }}-{{ doc.position }}" href="{% url 'exam:pdf-exam-pos-student'  exam_id=exam.pk student_id=ss.pk position=doc.position %}" data-doc-status="loading"><i class="fa fa-spinner fa-spin"></i> #{{ doc.position }}</a>
               {% endfor %}
           </td>
           {% for lang,checked in stud_langs.items %}

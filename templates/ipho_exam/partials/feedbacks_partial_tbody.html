@@ -16,12 +16,12 @@
       <th style="width:170px">Actions</th>
   </tr>
   </thead>
-  <tbody id="exam-tbody-{{ ex.pk }}">
+  <tbody id="feedback-tbody-{{ ex.pk|default:'None' }}">
     {% for fb in feedbacks %}
     <tr>
         <td>{{ fb.pk }}</td>
         <td>
-          {% if perms.ipho_core.is_organizer %}
+          {% if perms.ipho_core.is_organizer_admin and fb.commentable %}
             <div class="btn-group">
               <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                 {{ fb.status_display }}
@@ -43,7 +43,7 @@
         <td>
           <div class="btn-toolbar">
             <div style="display:inline-block" data-toggle="tooltip" title="{{fb.like_delegations.0|safe}}">
-              <span href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="feedback-like feedback-like-top btn btn-info {{ fb.enable_likes|yesno:',disabled' }}">
+              <span href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="feedback-like feedback-like-trigger feedback-like-top btn btn-info {{ fb.enable_likes|yesno:',disabled' }}">
                 <span class="fa fa-thumbs-o-up feedback-like" aria-hidden="true"></span>
                 {% if fb.num_likes %}
                 <span class="badge feedback-like">{{ fb.num_likes }}</span>
@@ -52,7 +52,7 @@
               </span>
             </div>
             <div style="display:inline-block" data-toggle="tooltip" title="{{fb.unlike_delegations.0|safe}}">
-              <span href="{% url 'exam:feedback-like' status='U' feedback_id=fb.pk %}" class="feedback-like btn feedback-like-top btn-warning {{ fb.enable_likes|yesno:',disabled' }}">
+              <span href="{% url 'exam:feedback-like' status='U' feedback_id=fb.pk %}" class="feedback-like feedback-unlike-trigger btn feedback-like-top btn-warning {{ fb.enable_likes|yesno:',disabled' }}">
                 <i class="fa fa-thumbs-o-down feedback-like" aria-hidden="true"></i>
                 {% if fb.num_unlikes %}
                 <span class="badge feedback-like">{{ fb.num_unlikes }}</span>

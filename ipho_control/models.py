@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import inspect
+from collections import OrderedDict
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -103,6 +104,15 @@ class ExamPhase(models.Model):
                 f"Exam settings don't match available keys. Settings: {self.exam_settings}, Available: {self.get_available_exam_field_names()}",
                 code="invalid",
             )
+
+        setting_choices = self.get_available_exam_field_choices()
+        for name, value in self.exam_settings.items():
+            if name in setting_choices and not value in setting_choices[name]:
+                raise ValidationError(
+                    f"Value {value} for exam setting {name} is not available. Available choices are: {setting_choices}",
+                    code="invalid",
+                )
+
         controllable_q_fields = [f.name for f in Question.get_controllable_fields()]
         if not set(self.available_question_settings).issubset(
             set(controllable_q_fields)
@@ -207,6 +217,10 @@ class ExamPhase(models.Model):
             if s.name in self.available_question_settings
         ]
 
+    def get_ordered_settings(self):
+        av_set = self.get_available_exam_field_names()
+        return OrderedDict((s, self.exam_settings.get(s)) for s in av_set)
+
     @classmethod
     def get_current_phase(cls, exam):
         """Returns the current phase of exam, None if it doesn't exist."""
@@ -230,6 +244,18 @@ class ExamPhase(models.Model):
         return [f.name for f in cls.get_available_exam_fields()]
 
     @classmethod
+    def get_available_exam_field_choices(cls):  # pylint: disable=invalid-name
+        """Returns the names of the exam fields which are available in in exam_settings."""
+        choices = {}
+        for f in cls.get_available_exam_fields():
+            if hasattr(f, "choices"):
+                choices[f.name] = [c[0] for c in f.choices]
+            elif f.get_internal_type() == "BooleanField":
+                choices[f.name] = [True, False]
+
+        return choices
+
+    @classmethod
     def get_exam_field_help_texts(cls):
         """Returns a dictionary {field_name:help_text}."""
         res = {}
@@ -238,6 +264,26 @@ class ExamPhase(models.Model):
                 res[f.name] = f.help_text
             else:
                 res[f.name] = None
+        return res
+
+    @classmethod
+    def get_exam_field_verbose_choices(cls):
+        """"Returns a dictionary {field_name:choices}"""
+        res = {}
+        for f in cls.get_available_exam_fields():
+            if hasattr(f, "choices"):
+                res[f.name] = dict(f.choices)
+        return res
+
+    @classmethod
+    def get_exam_field_verbose_names(cls):
+        """"Returns a dictionary {field_name:verbose_name}"""
+        res = {}
+        for f in cls.get_available_exam_fields():
+            if hasattr(f, "verbose_name"):
+                res[f.name] = f.verbose_name
+            else:
+                res[f.name] = f.name
         return res
 
     @classmethod
@@ -297,7 +343,7 @@ class ExamPhaseHistory(models.Model):
             .first()
         )
 
-    def changes_to_previous(self):
+    def changed_to_previous(self):
         """Returns the exam phase changes to the previous phase."""
         res = {}
         previous = self.get_previous()
@@ -312,6 +358,22 @@ class ExamPhaseHistory(models.Model):
                 }
                 res[s] = changed
         return res
+
+    def unchanged_to_previous(self):
+        """Returns the unchanged exam settings relative to the previous phase."""
+        res = {}
+        previous = self.get_previous()
+        if previous is None:
+            return self.to_settings
+        previous_settings = previous.to_settings
+        for s in ExamPhase.get_available_exam_field_names():
+            if self.to_settings.get(s) == previous_settings.get(s):
+                res[s] = self.to_settings.get(s)
+        return res
+
+    def get_ordered_to_settings(self):
+        av_set = ExamPhase.get_available_exam_field_names()
+        return OrderedDict((s, self.to_settings[s]) for s in av_set)
 
     @classmethod
     def get_latest(cls, exam):

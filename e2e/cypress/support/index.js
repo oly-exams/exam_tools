@@ -19,13 +19,11 @@ import './commands'
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-before(() => {
-    // runs once before all tests in the block
-    cy.exec('mv ../ipho.db ../ipho-initial.db')
-})
-
-beforeEach(() => {
-    // this runs prior to every test
-    // across all files no matter what
-    cy.exec('cp ../ipho-initial.db ../ipho.db')
-})
+afterEach(() => {
+	cy.window().then(win => {
+		if (typeof win.gc === 'function') {
+			// calling this more often seems to trigger major GC event more reliably
+			win.gc(); win.gc(); win.gc(); win.gc(); win.gc();
+		}
+	});
+});

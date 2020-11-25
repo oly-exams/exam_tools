@@ -3,7 +3,7 @@ Django >= 3.1, < 4
 django-crispy-forms >=1.9, <2
 django-ace >=1, <1.1
 djangorestframework >=3.12, < 4
-django-rest-swagger >=2, <3
+drf-spectacular >=0.11, <1
 django-polymorphic >=3, < 4
 django-dbbackup >=3, <4
 tornado >= 5, < 6
@@ -14,10 +14,9 @@ python-barcode >=0.13, <1
 PyPDF2 >=1.26, <2
 mkdocs < 1.1
 Celery >=5.0, <6
-git+https://github.com/celery/django-celery-results.git@ed94080cea3d68a38f9ff048657a37b08e74fc35#egg=django-celery-results
+django-celery-results >=2, <3
 flower >=0.9, <1
 requests >=2.24, <3
-appypod # The odt download is somehow broken, and this package is unmaintaned. Maybe switch to relatorio?
 Pillow >=8, <9
 iso3166 >=1, <2
 lxml >=4, <5
@@ -29,3 +28,6 @@ python-dateutil >=2.8, <3
 cssutils >=1, <2
 google-cloud-translate ==2.0.1
 unittest-xml-reporting >=3, <4
+psycopg2
+pypandoc >=1.5, <1.6
+latex2mathml >=2.16.1, <3
