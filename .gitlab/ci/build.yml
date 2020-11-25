@@ -1,12 +1,23 @@
-build:pre_commit:
+pre-build:base-python:
     extends: .build:build_cached_push
+    stage: pre-build
     variables:
-        SERVICE_NAME: pre_commit
+        SERVICE_NAME: base-python
     rules:
-        - if: '$DOCKER_CACHE == "0"'
+        - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
-            - docker/pre_commit/*
+            - requirements.txt
+
+build:pre-commit:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: pre-commit
+        BUILD_DEPENDENCY: base-python
+    rules:
+        - if: '$DOCKER_CACHE == "no"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
             - .pre-commit-config.yaml
             - requirements.txt
             - requirements_dev.txt
@@ -15,31 +26,30 @@ build:django-server:
     extends: .build:build_cached_push
     variables:
         SERVICE_NAME: django-server
+        BUILD_DEPENDENCY: base-python
     rules:
-        - if: '$DOCKER_CACHE == "0"'
+        - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
-            - docker/django-server/*
             - requirements.txt
             - bower/*
 
-build:celery_worker:
+
+build:celery-worker:
     extends: .build:build_cached_push
     variables:
-        SERVICE_NAME: celery_worker
+        SERVICE_NAME: celery-worker
+        BUILD_DEPENDENCY: base-python
     rules:
-        - if: '$DOCKER_CACHE == "0"'
+        - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
-            - docker/celery_worker/*
             - requirements.txt
 
-build:testing_cypress:
+build:testing-cypress:
     extends: .build:build_cached_push
     variables:
-        SERVICE_NAME: testing_cypress
+        SERVICE_NAME: testing-cypress
     rules:
-        - if: '$DOCKER_CACHE == "0"'
+        - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
-        - changes:
-            - docker/testing_cypress/*
