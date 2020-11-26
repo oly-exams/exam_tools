@@ -14,6 +14,7 @@ variables:
     DOCKER_DIR: docker_deploy/docker
     DEPLOY_REPO_GROUP: oly-exams
     DEPLOY_REPO_NAME: docker_deploy
+    DEPLOY_REPO_BRANCH: master
 
     # docker related variables
     DOCKER_CACHE: "yes"
@@ -48,8 +49,9 @@ before_script:
     - ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts
     # Add gitlab to known_hosts
     - cd $ROOT
-    - git clone --depth=1 -b master git@gitlab.com:$DEPLOY_REPO_GROUP/$DEPLOY_REPO_NAME.git
+    - git clone --depth=1 -b ${DEPLOY_REPO_BRANCH:-master} git@gitlab.com:$DEPLOY_REPO_GROUP/$DEPLOY_REPO_NAME.git
     - git -C $DEPLOY_REPO_NAME rev-parse HEAD
+    - "echo Deploy Repo Branch: $DEPLOY_REPO_BRANCH"
     - "echo Root Dir: $ROOT"
     - "echo Pipeline source: $CI_PIPELINE_SOURCE"
     - "echo Image Name: $IMG_NAME"
