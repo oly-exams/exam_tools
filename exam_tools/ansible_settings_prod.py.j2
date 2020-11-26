@@ -1,0 +1,8 @@
+# pylint: disable=unused-wildcard-import
+from .settings_a_dev import *
+
+ALLOWED_HOSTS.append("{{ inventory_hostname }}")
+# for API calls from within
+ALLOWED_HOSTS.append("{{ hostvars[groups.get('django-server')[0]][internal_net_id]['ipv4']['address'] }}")
+DEBUG = False
+SECRET_KEY = "{{ django_secret_key }}"
