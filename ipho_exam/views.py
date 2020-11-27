@@ -292,8 +292,7 @@ def translations_list(request):
                 "exam": exam,
                 "node_list": node_list,
                 "official_nodes": official_nodes,
-                "exam_active": exam.visibility
-                >= Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+                "exam_active": exam.visibility >= Exam.get_visibility(request.user)
                 and in_progress,
             },
         )
