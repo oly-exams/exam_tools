@@ -52,7 +52,7 @@
   </head>
 
   <body>
-
+      {% block banner %}
       {% if DEBUG %}
       <div class="fixed-banner debug-warning" style="position: relative; margin-top: -20px;">This instance is in <strong>Debug Mode!</strong></div>
       <div class="fixed-banner debug-warning">This instance is in <strong>Debug Mode!</strong></div>
@@ -61,6 +61,7 @@
         <div class="fixed-banner unsupported-warning" style="position: relative; margin-top: -20px;"><strong>Open Source Exam Tools!</strong> created by OlyExams, but run without OlyExams event support!</div>
         <div class="fixed-banner unsupported-warning"><strong>Open Source Exam Tools!</strong> created by OlyExams, but run without OlyExams event support!</div>
       {% endif %}
+      {% endblock %}
       {% if DEMO_MODE %}
       <div class="alert alert-info" role="alert"><div class="container"><strong>DEMO VERSION.</strong> This is a demo version of the Exam Tools. (v{{ VERSION }} - {{ VERSION_DATE }})</div></div>
       {% endif %}
