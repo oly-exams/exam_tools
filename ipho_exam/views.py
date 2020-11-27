@@ -3477,9 +3477,8 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
         )
-    if (
-        version_num is not None
-        and request.user.has_perm("ipho_core.is_organizer_admin")
+    if version_num is not None and (
+        request.user.has_perm("ipho_core.is_organizer_admin")
         or request.user.has_perm("ipho_core.can_edit_exam")
     ):
         trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
