@@ -48,9 +48,13 @@ def latest_version(question_id, lang_id, user=None):
         return qwp
 
     if qwp.lang.versioned:
-        qwp.node = VersionNode.objects.filter(
-            question=qwp.question, language=qwp.lang, status="C"
-        ).order_by("-version")[0]
+        qwp.node = (
+            VersionNode.objects.filter(
+                question=qwp.question, language=qwp.lang, status="C"
+            )
+            .order_by("-version")
+            .first()
+        )
     else:
         qwp.node = get_object_or_404(
             TranslationNode, question=qwp.question, language=qwp.lang
