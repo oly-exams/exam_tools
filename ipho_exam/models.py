@@ -294,8 +294,17 @@ class ExamManager(models.Manager):
         queryset = self.get_queryset()
         if user.is_superuser:
             return queryset.filter(visibility__gte=Exam.VISIBLE_2ND_LVL_SUPPORT_ONLY)
-        if user.has_perm("ipho_core.is_organizer_admin") or user.has_perm(
-            "ipho_core.can_edit_exam"
+
+        is_official_delegation_member = Delegation.objects.filter(
+            members=user, name=OFFICIAL_DELEGATION
+        ).exists()
+        if (
+            user.has_perm("ipho_core.is_organizer_admin")
+            or user.has_perm("ipho_core.can_edit_exam")
+            or (
+                user.has_perm("ipho_core.is_delegation")
+                and is_official_delegation_member
+            )
         ):
             return queryset.filter(
                 visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
