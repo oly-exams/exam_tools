@@ -814,7 +814,12 @@ def exam_view(
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
     elif exam is not None and exam.question_set.count() > 0:
-        question = exam.question_set.first()
+        questions = exam.question_set.all()
+        question = None
+        for tmp_question in questions:
+            if tmp_question.versionnode_set.filter(status="C").exists():
+                question = tmp_question
+                break
 
     context["exam_list"] = exam_list
 
