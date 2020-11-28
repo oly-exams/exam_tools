@@ -9,13 +9,15 @@ from .base_data import BaseDataCreator
 class StudentDataCreator(BaseDataCreator):
     def _create_student(self, *, first_name, last_name, delegation_code, student_code):
         deleg = Delegation.objects.get(name=delegation_code)
-        stud = Student.objects.create(
+        stud, created = Student.objects.get_or_create(
             first_name=first_name,
             last_name=last_name,
             delegation=deleg,
             code=student_code,
         )
-        self.log(stud, "..", "created")
+        if created:
+            stud.save()
+            self.log(stud, "..", "created")
         return stud
 
     def create_students(self, file="021_students.csv", fieldnames=None):

@@ -35,6 +35,8 @@ class TestDataCreator(DataCreator):
         shutil.copy(copy_from.db_filepath, self.db_filepath)
 
     def delete_database(self):
+        if not "sqlite3" in settings.DATABASES["default"]["ENGINE"]:
+            raise RuntimeError("delete_database is only allowed for sqlite3 backend")
         with suppress(FileNotFoundError):
             self.db_filepath.unlink()
 

@@ -35,5 +35,10 @@ del TMP_ENV
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = "^t-a=sbo_05wq!*(x4mpv7kw&u_n=5js$lwadn_yx(bzx*fzjw"
-ALLOWED_HOSTS = []
 DEBUG = True
+
+SITE_URL = "http://django-server:8000"
+ALLOWED_HOSTS += (
+    "django-server",
+    "localhost",
+)

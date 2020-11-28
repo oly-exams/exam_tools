@@ -18,10 +18,12 @@ class FigureDataCreator(BaseDataCreator):
         extension = os.path.splitext(filename)[1]
         with self.full_path(filename).open("rb") as fig_file:
             if extension in VALID_COMPILED_FIGURE_EXTENSIONS:
-                fig = CompiledFigure(name=name, fig_id=fig_id, params=params)
+                fig, created = CompiledFigure.objects.get_or_create(
+                    name=name, fig_id=fig_id, params=params
+                )
                 fig.content = str(fig_file.read(), "utf-8")
             elif extension in VALID_RAW_FIGURE_EXTENSIONS:
-                fig = RawFigure(
+                fig, created = RawFigure.objects.get_or_create(
                     content=fig_file.read(),
                     name=name,
                     fig_id=fig_id,
@@ -29,8 +31,10 @@ class FigureDataCreator(BaseDataCreator):
                 )
             else:
                 raise ValueError(f"Extension {extension} not valid.")
+
+        if created:
             fig.save()
-        self.log(fig, "..", "created")
+            self.log(fig, "..", "created")
         return fig
 
     def create_figures_with_ids(self, *, fig_ids, filename, params=""):

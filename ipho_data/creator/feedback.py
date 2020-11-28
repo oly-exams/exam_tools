@@ -15,7 +15,7 @@ class FeedbackDataCreator(BaseDataCreator):
         qml_id=None,
         status="S"
     ):
-        feedback = Feedback.objects.create(
+        feedback, created = Feedback.objects.get_or_create(
             delegation=delegation,
             question=question,
             comment=comment,
@@ -24,7 +24,8 @@ class FeedbackDataCreator(BaseDataCreator):
             qml_id=qml_id,
             status=status,
         )
-        feedback.save()
-        self.log(feedback, "..", "created")
+        if created:
+            feedback.save()
+            self.log(feedback, "..", "created")
 
         return feedback

@@ -1,5 +1,5 @@
 import string
-import iso3166
+import iso3166  # pylint: disable=import-error
 
 from django.contrib.auth.models import Permission
 
@@ -35,6 +35,63 @@ class UserDataCreator(BaseDataCreator):
         fieldnames = ["username", "first_name", "last_name", "group", "voting_power"]
         self._create_users("011_organizer_user.csv", fieldnames, pw_strategy)
 
+    def create_delegation_user(self, pw_strategy="create", enforce_iso3166=True):
+        filename_csv = "020_delegations.csv"
+        fieldnames = ["country_name", "country_code", "voting_power"]
+        with self._pw_creator.create_pw_gen(filename_csv, pw_strategy) as pw_gen:
+            for deleg_data in self.read_csv(filename_csv, fieldnames):
+                if enforce_iso3166:
+                    self._enforce_iso3166(
+                        deleg_data.country_code, deleg_data.country_name
+                    )
+
+                country_name, country_code, voting_power = deleg_data
+                username = country_code
+                password = pw_gen(username)
+
+                delegation = self._create_delegation(country_name, country_code)
+                user = self._create_user(
+                    self._create_delegation_voting,
+                    username=username,
+                    password=password,
+                    voting_power=voting_power,
+                    group="Delegation",
+                )
+
+                if not hasattr(user, "autologin"):
+                    autologin = AutoLogin(user=user)
+                    autologin.save()
+                    self.log("Autologin created")
+
+                delegation.members.add(user)
+                delegation.save()
+
+    def create_examsite_user(self, pw_strategy="create", enforce_iso3166=True):
+        filename_csv = "021_examsite_user.csv"
+        fieldnames = ["country_code"]
+        with self._pw_creator.create_pw_gen(filename_csv, pw_strategy) as pw_gen:
+            for deleg_data in self.read_csv(filename_csv, fieldnames):
+                if enforce_iso3166:
+                    self._enforce_iso3166(deleg_data.country_code)
+
+                country_code = deleg_data.country_code
+                username = country_code + "-Examsite"
+                password = pw_gen(username)
+                user = self._create_user(
+                    self._create_delegation_voting,
+                    username=username,
+                    password=password,
+                    group="Delegation Examsite Team",
+                )
+                if not hasattr(user, "autologin"):
+                    autologin = AutoLogin(user=user)
+                    autologin.save()
+                    self.log("Autologin created")
+
+                delegation = Delegation.objects.get(name=country_code)
+                delegation.members.add(user)
+                delegation.save()
+
     def _create_users(self, filename_csv, fieldnames, pw_strategy, **kwgs):
         with self._pw_creator.create_pw_gen(filename_csv, pw_strategy) as pw_gen:
             for user_data in self.read_csv(filename_csv, fieldnames):
@@ -60,6 +117,8 @@ class UserDataCreator(BaseDataCreator):
         user, created = User.objects.get_or_create(
             **user_data, is_superuser=is_superuser, is_staff=is_staff
         )
+        if not created:
+            return user
         if group:
             user.groups.add(Group.objects.get(name=group))
 
@@ -94,35 +153,6 @@ class UserDataCreator(BaseDataCreator):
         if created:
             self.log(voting_right, "..", "created")
 
-    def create_delegation_user(self, pw_strategy="create", enforce_iso3166=True):
-        filename_csv = "020_delegations.csv"
-        fieldnames = ["country_name", "country_code", "voting_power"]
-        with self._pw_creator.create_pw_gen(filename_csv, pw_strategy) as pw_gen:
-            for deleg_data in self.read_csv(filename_csv, fieldnames):
-                if enforce_iso3166:
-                    self._enforce_iso3166(deleg_data)
-
-                country_name, country_code, voting_power = deleg_data
-                username = country_code
-                password = pw_gen(username)
-
-                delegation = self._create_delegation(country_name, country_code)
-                user = self._create_user(
-                    self._create_delegation_voting,
-                    username=username,
-                    password=password,
-                    voting_power=voting_power,
-                    group="Delegation",
-                )
-
-                if not hasattr(user, "autologin"):
-                    autologin = AutoLogin(user=user)
-                    autologin.save()
-                    self.log("Autologin created")
-
-                delegation.members.add(user)
-                delegation.save()
-
     def _create_delegation(self, country_name, country_code):
         delegation, created = Delegation.objects.get_or_create(
             name=country_code, country=country_name
@@ -133,25 +163,27 @@ class UserDataCreator(BaseDataCreator):
         return delegation
 
     @staticmethod
-    def _enforce_iso3166(deleg_data):
-        if deleg_data.country_code not in iso3166.countries_by_alpha3:
+    def _enforce_iso3166(country_code, country_name=None):
+        if country_code not in iso3166.countries_by_alpha3:
             raise ValueError(
-                f"{deleg_data.country_code} is not a valid iso3166 3-letter shortcut, valid options are {list(iso3166.countries_by_alpha3)}"
+                f"{country_code} is not a valid iso3166 3-letter shortcut, valid options are {list(iso3166.countries_by_alpha3)}"
             )
+        if country_name is None:
+            return
 
         # allow United States and United Kingdom, since official names are longer
         if not any(
-            x.startswith(deleg_data.country_name.upper())
+            x.startswith(country_name.upper())
             for x in iso3166.countries_by_name  # is all caps
         ):
             # suggest only countries that start with the same letter
             suggestions = list(
                 x
                 for x in filter(
-                    lambda x: x.startswith(deleg_data.country_name[0]),
+                    lambda x: x.startswith(country_name[0]),
                     iso3166.countries_by_name,
                 )
             )
             raise ValueError(
-                f"{deleg_data.country_name} is not a valid iso3166 country name, did you mean one of {suggestions}"
+                f"{country_name} is not a valid iso3166 country name, did you mean one of {suggestions}"
             )
