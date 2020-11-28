@@ -9,12 +9,19 @@ from .base_data import BaseDataCreator
 class OfficialDelegDataCreator(BaseDataCreator):
     def create_official_delegation(self):
         official = settings.OFFICIAL_DELEGATION
-        deleg = Delegation.objects.create(name=official, country=official)
-        deleg.save()
-        self.log(deleg, "..", "created")
+        deleg, created = Delegation.objects.get_or_create(
+            name=official, country=official
+        )
+        if created:
+            deleg.save()
+            self.log(deleg, "..", "created")
 
-        lang = Language.objects.create(name="English", delegation=deleg, versioned=True)
-        self.log(lang, "..", "created")
+        lang, created = Language.objects.get_or_create(
+            name="English", delegation=deleg, versioned=True
+        )
+        if created:
+            lang.save()
+            self.log(lang, "..", "created")
 
         if lang.id != 1:
             raise RuntimeError(
@@ -22,6 +29,5 @@ class OfficialDelegDataCreator(BaseDataCreator):
             )
 
         assert lang.is_official()
-        lang.save()
 
         return deleg

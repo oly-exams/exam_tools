@@ -19,11 +19,12 @@ class ExamPhaseDataCreator(BaseDataCreator):
             "exam_settings": exam_settings,
         }
         default_kwargs.update(kwargs)
-        phase = ExamPhase(**default_kwargs)
+        phase, created = ExamPhase.objects.get_or_create(**default_kwargs)
         # Validate phase (validates e.g. exam setting choices)
-        phase.full_clean()
-        phase.save()
-        self.log(phase, "..", "created")
+        if created:
+            phase.full_clean()
+            phase.save()
+            self.log(phase, "..", "created")
         return phase
 
     def create_exam_phases_for_exam(self, exam, filename_json="041_exam_phases.json"):
