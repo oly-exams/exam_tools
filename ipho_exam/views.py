@@ -2637,15 +2637,9 @@ def print_submissions_translation(request):
 def submission_delegation_list_submitted(request):
     delegation = Delegation.objects.filter(members=request.user)
 
-    exams = (
-        Exam.objects.for_user(request.user)
-        .filter(submission_printing=Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED)
-        .filter(
-            delegation_status__delegation__in=delegation,
-            delegation_status__action=ExamAction.TRANSLATION,
-            delegation_status__status=ExamAction.SUBMITTED,
-        )
-        .distinct()
+    # The delegation is already filtered in for_user
+    exams = Exam.objects.for_user(request.user).filter(
+        submission_printing=Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
     )
 
     all_docs = Document.objects.filter(
