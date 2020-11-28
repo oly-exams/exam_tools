@@ -2638,9 +2638,7 @@ def submission_delegation_list_submitted(request):
     delegation = Delegation.objects.filter(members=request.user)
 
     # The delegation is already filtered in for_user
-    exams = Exam.objects.for_user(request.user).filter(
-        submission_printing=Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
-    )
+    exams = Exam.objects.for_user(request.user)
 
     all_docs = Document.objects.filter(
         student__delegation__in=delegation,
