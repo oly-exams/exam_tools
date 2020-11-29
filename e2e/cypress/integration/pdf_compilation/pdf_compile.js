@@ -38,6 +38,7 @@ describe('General', function() {
         cy.server()
         cy.route("GET", /exam\/pdf-task\/[^\/]*/).as("getPDFPendingPage");
         cy.route("GET", "/exam/submission/submitted/scan/exam/**").as("getUploadModal");
+        cy.route("POST", "/exam/submission/submitted/scan/exam/**").as("postUploadModal");
     })
 
     // Note that the usual beforeEach hook does not reset the postgres database.
@@ -105,7 +106,7 @@ describe('General', function() {
 
         // Check bulk-print scan
         cy.logout()
-        cy.login("admin", "1234")
+        cy.login("print", "1234")
 
         cy.visit("/exam/admin/bulk-print")
 
@@ -123,7 +124,7 @@ describe('General', function() {
     // Note that this test depends on the state of the previous one
     // (namely on the documents being created)
     it("Test Admin Manual File Upload", function(){
-        cy.login('admin', '1234')
+        cy.login('print', '1234')
         cy.visit('/exam/admin/scan/upload')
 
         cy.get('#id_question').select("Two Problems in Mechanics - Answer Sheet [#1 in Theory]")
@@ -140,6 +141,9 @@ describe('General', function() {
         download_test_pdf(6, 1, id_prefix, "")
         // Set status
         cy.get('a[href="/exam/admin/scan-status/2/S"]').click()
+
+        cy.logout()
+        cy.login('admin', '1234')
         cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         // Check delegation scan view
@@ -153,6 +157,7 @@ describe('General', function() {
     // Note that this test depends on the state of the previous one
     // (namely on the documents being created)
     it("Test Examsite User", function(){
+        cy.logout()
         cy.login('admin', '1234')
         cy.getExamPhaseByName('Theory', "Translation").then(cy.switchExamPhase)
 
@@ -186,7 +191,7 @@ describe('General', function() {
         cy.login('AUS-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should now have 3 entries
-        cy.get('#submission-table tbody').children().should('have.length', 3)
+        cy.get('#submission-table tbody').children().should('have.length', 6)
 
         var id_prefix = "submission-1"
         download_test_pdf(6, 0, id_prefix, "")
@@ -206,7 +211,7 @@ describe('General', function() {
         cy.login('AUS-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should now have 3 entries
-        cy.get('#submission-table tbody').children().should('have.length', 3)
+        cy.get('#submission-table tbody').children().should('have.length', 6)
 
         var id_prefix = "submission-1"
         download_test_pdf(6, 0, id_prefix, "")
@@ -223,14 +228,15 @@ describe('General', function() {
         const filepath = 'pdfs/final_submission__student-6__position-2.pdf';
         cy.get('#id_file').attachFile({ filePath:filepath, mimeType: 'application/pdf' , encoding:"binary"})
         cy.get('#upload-modal button[type="submit"]').click()
+        cy.wait('@postUploadModal')
 
+        cy.visit('/exam/submission/submitted')
         // Check uploaded scan
         download_test_pdf(6, 2, scan_prefix, "")
 
         // change exam phase
         cy.logout()
         cy.login('admin', '1234')
-        cy.get('a[href="/exam/admin/scan-status/2/S"]').click()
         cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         // Check delegation scan view
