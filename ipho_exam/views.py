@@ -3778,7 +3778,11 @@ def pdf_exam_for_student(request, exam_id, student_id):
     user = request.user
     if not user.has_perm("ipho_core.can_see_boardmeeting"):
         exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-        if not exam.submission_printing == Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED:
+        if not (
+            exam.submission_printing >= Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
+            or exam.answer_sheet_scan_upload
+            >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
+        ):
             return HttpResponseForbidden(
                 "You do not have permission to view this document."
             )
@@ -3818,7 +3822,11 @@ def pdf_exam_pos_student(
             )
         if not user.has_perm("ipho_core.can_see_boardmeeting"):
             exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-            if not exam.submission_printing == Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED:
+            if not (
+                exam.submission_printing >= Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
+                or exam.answer_sheet_scan_upload
+                >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
+            ):
                 return HttpResponseForbidden(
                     "You do not have permission to view this document."
                 )
