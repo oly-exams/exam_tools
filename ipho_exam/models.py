@@ -1326,6 +1326,9 @@ class DocumentManager(models.Manager):
         queryset = self.get_queryset()
         if user.is_superuser or user.has_perm("ipho_core.is_organizer_admin"):
             return queryset.filter(exam__in=Exam.objects.for_user(user))
+        if user.has_perm("ipho_core.is_printstaff"):
+            # Does show documents even if printing is not activated as there is no scanning flag for organizers at the moment.
+            return queryset.filter(exam__in=Exam.objects.for_user(user))
         if user.has_perm("ipho_core.is_delegation"):
             delegs = Delegation.objects.filter(members=user)
             return queryset.filter(exam__in=Exam.objects.for_user(user)).filter(
