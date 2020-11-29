@@ -45,7 +45,7 @@
         This table lists all the submissions made by your delegation team.
     </p>
 
-    <table class="table table-striped feedback-table" id="feedback-table-{{exam.pk}}">
+    <table class="table table-striped feedback-table" id="submission-table">
       <thead>
         <tr>
             <th class="col-sm-01">#</th>
@@ -66,14 +66,14 @@
           <td>{{ d.student__code }}</td>
           <td>{{ d.barcode_base }}</td>
           <td >
-            <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> exam</a>
+            <a class="btn btn-default btn-xs" id="submission-{{ d.exam__id }}-{{ d.student__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> exam</a>
           </td>
           <td>
             {% if d.scan_file %}
-              <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>
+              <a class="btn btn-default btn-xs" id="scan-{{ d.exam__id }}-{{ d.student__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>
               <br />
             {% endif %}
-            <a class="btn btn-default btn-xs" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="{% url 'exam:submission-delegation-submitted-scan-upload' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-upload"></i> upload</a>
+            <a class="btn btn-default btn-xs" id="upload-{{ d.exam__id }}-{{ d.student__id }}-{{ d.position }}" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="{% url 'exam:submission-delegation-submitted-scan-upload' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-upload"></i> upload</a>
           </td>
         </tr>
       {% endfor %}
