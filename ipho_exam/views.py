@@ -292,8 +292,7 @@ def translations_list(request):
                 "exam": exam,
                 "node_list": node_list,
                 "official_nodes": official_nodes,
-                "exam_active": exam.visibility
-                >= Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+                "exam_active": exam.visibility >= Exam.get_visibility(request.user)
                 and in_progress,
             },
         )
@@ -815,7 +814,12 @@ def exam_view(
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
     elif exam is not None and exam.question_set.count() > 0:
-        question = exam.question_set.first()
+        questions = exam.question_set.all()
+        question = None
+        for tmp_question in questions:
+            if tmp_question.versionnode_set.filter(status="C").exists():
+                question = tmp_question
+                break
 
     context["exam_list"] = exam_list
 
@@ -2633,16 +2637,8 @@ def print_submissions_translation(request):
 def submission_delegation_list_submitted(request):
     delegation = Delegation.objects.filter(members=request.user)
 
-    exams = (
-        Exam.objects.for_user(request.user)
-        .filter(submission_printing=Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED)
-        .filter(
-            delegation_status__delegation__in=delegation,
-            delegation_status__action=ExamAction.TRANSLATION,
-            delegation_status__status=ExamAction.SUBMITTED,
-        )
-        .distinct()
-    )
+    # The delegation is already filtered in for_user
+    exams = Exam.objects.for_user(request.user)
 
     all_docs = Document.objects.filter(
         student__delegation__in=delegation,
@@ -3478,9 +3474,8 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
         )
-    if (
-        version_num is not None
-        and request.user.has_perm("ipho_core.is_organizer_admin")
+    if version_num is not None and (
+        request.user.has_perm("ipho_core.is_organizer_admin")
         or request.user.has_perm("ipho_core.can_edit_exam")
     ):
         trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
@@ -3783,7 +3778,11 @@ def pdf_exam_for_student(request, exam_id, student_id):
     user = request.user
     if not user.has_perm("ipho_core.can_see_boardmeeting"):
         exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-        if not exam.submission_printing == Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED:
+        if not (
+            exam.submission_printing >= Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
+            or exam.answer_sheet_scan_upload
+            >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
+        ):
             return HttpResponseForbidden(
                 "You do not have permission to view this document."
             )
@@ -3823,7 +3822,11 @@ def pdf_exam_pos_student(
             )
         if not user.has_perm("ipho_core.can_see_boardmeeting"):
             exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-            if not exam.submission_printing == Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED:
+            if not (
+                exam.submission_printing >= Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
+                or exam.answer_sheet_scan_upload
+                >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
+            ):
                 return HttpResponseForbidden(
                     "You do not have permission to view this document."
                 )

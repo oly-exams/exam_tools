@@ -16,6 +16,7 @@ def set_up_basic_test_database():
     # tdc.create_olyexams_superuser(pw_strategy="create")
     tdc.create_organizer_user(pw_strategy="trivial")
     tdc.create_delegation_user(pw_strategy="trivial")
+    tdc.create_examsite_user(pw_strategy="trivial")
     tdc.create_students()
     tdc.create_three_poll_questions()
     tdc.create_official_delegation()

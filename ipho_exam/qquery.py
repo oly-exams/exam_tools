@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 from ipho_exam.models import (
     Question,
@@ -48,9 +49,15 @@ def latest_version(question_id, lang_id, user=None):
         return qwp
 
     if qwp.lang.versioned:
-        qwp.node = VersionNode.objects.filter(
-            question=qwp.question, language=qwp.lang, status="C"
-        ).order_by("-version")[0]
+        qwp.node = (
+            VersionNode.objects.filter(
+                question=qwp.question, language=qwp.lang, status="C"
+            )
+            .order_by("-version")
+            .first()
+        )
+        if qwp.node is None:
+            raise Http404("No VersionNode found.")
     else:
         qwp.node = get_object_or_404(
             TranslationNode, question=qwp.question, language=qwp.lang

@@ -562,7 +562,7 @@ class DelegationScanForm(forms.Form):
                 """
                 <div class="alert alert-warning">
                     <strong>Warning!</strong>
-                    Uploading a new file with overwrite the previous scan file.
+                    Uploading a new file will overwrite the previous scan file.
                 </div>
             """
             )
@@ -571,7 +571,7 @@ class DelegationScanForm(forms.Form):
                 """
                 <div class="alert alert-danger">
                     <strong>Error!</strong>
-                    The organizers have closed the scan upload, uploads are not possible.
+                    The organizers have not yet opened or already closed the scan upload, uploads are not possible.
                 </div>
             """
             )

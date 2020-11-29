@@ -211,7 +211,7 @@
         "public_description": "The organizers are correcting the exam. Scans of the exams are already available.",
         "before_switching": "Scans will be shown to the delegations, make sure they are ready.",
         "available_to_organizers": true,
-        "available_question_settings": ["feedback_status"],
+        "available_question_settings": [],
         "checks_warning": [],
         "checks_error": []
     },

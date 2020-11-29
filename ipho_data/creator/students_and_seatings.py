@@ -20,7 +20,7 @@ class StudentDataCreator(BaseDataCreator):
             self.log(stud, "..", "created")
         return stud
 
-    def create_students(self, file="021_students.csv", fieldnames=None):
+    def create_students(self, file="022_students.csv", fieldnames=None):
         if fieldnames is None:
             fieldnames = ["first_name", "last_name", "delegation", "code"]
 

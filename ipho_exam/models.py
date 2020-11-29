@@ -27,6 +27,7 @@ import codecs
 
 
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
@@ -294,8 +295,17 @@ class ExamManager(models.Manager):
         queryset = self.get_queryset()
         if user.is_superuser:
             return queryset.filter(visibility__gte=Exam.VISIBLE_2ND_LVL_SUPPORT_ONLY)
-        if user.has_perm("ipho_core.is_organizer_admin") or user.has_perm(
-            "ipho_core.can_edit_exam"
+
+        is_official_delegation_member = Delegation.objects.filter(
+            members=user, name=OFFICIAL_DELEGATION
+        ).exists()
+        if (
+            user.has_perm("ipho_core.is_organizer_admin")
+            or user.has_perm("ipho_core.can_edit_exam")
+            or (
+                user.has_perm("ipho_core.is_delegation")
+                and is_official_delegation_member
+            )
         ):
             return queryset.filter(
                 visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
@@ -307,6 +317,28 @@ class ExamManager(models.Manager):
         ):
             return queryset.filter(
                 visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+            )
+        if user.has_perm("ipho_core.is_delegation_print"):
+            delegation = Delegation.objects.filter(members=user)
+            actions = ExamAction.objects.filter(
+                delegation__in=delegation,
+                action=ExamAction.TRANSLATION,
+                status=ExamAction.SUBMITTED,
+            )
+            return (
+                queryset.filter(
+                    visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
+                    delegation_status__in=actions,
+                )
+                .filter(
+                    Q(
+                        answer_sheet_scan_upload__gte=Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
+                    )
+                    | Q(
+                        submission_printing__gte=Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
+                    ),
+                )
+                .distinct()
             )
         return self.none()
 
@@ -731,16 +763,7 @@ class Question(models.Model):
         return self.versionnode_set.filter(status="C").exists()
 
     def check_visibility(self, user):
-        exam_visible = self.exam.check_visibility(user)
-        if exam_visible:
-            return True
-        if user.has_perm("ipho_core.is_delegation_print"):
-            return (
-                self.exam.submission_printing == Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
-                and self.exam.visibility
-                >= Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
-            )
-        return False
+        return self.exam.check_visibility(user)
 
     def check_feedback_visible(self):
         return self.exam.check_feedback_visible()
@@ -1302,6 +1325,9 @@ class DocumentManager(models.Manager):
     def for_user(self, user):
         queryset = self.get_queryset()
         if user.is_superuser or user.has_perm("ipho_core.is_organizer_admin"):
+            return queryset.filter(exam__in=Exam.objects.for_user(user))
+        if user.has_perm("ipho_core.is_printstaff"):
+            # Does show documents even if printing is not activated as there is no scanning flag for organizers at the moment.
             return queryset.filter(exam__in=Exam.objects.for_user(user))
         if user.has_perm("ipho_core.is_delegation"):
             delegs = Delegation.objects.filter(members=user)
