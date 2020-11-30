@@ -53,3 +53,8 @@ build:testing-cypress:
     rules:
         - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
+        # this dep is not real, but here to trigger the build in a new branch.
+        # Theoretically, testing-cypress is branch independent, but to use
+        # the same mechanisms we still build it in every branch.
+        - changes:
+            - requirements.txt

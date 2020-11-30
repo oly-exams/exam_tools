@@ -139,7 +139,7 @@
 
                   {% if perms.ipho_core.is_organizer_admin %}
                     <li class="dropdown-header">Event Management</li>
-                  {% if perms.can_access_control%}
+                  {% if perms.ipho_core.can_access_control%}
                     <li><a href="{% url 'control:cockpit' %}">Cockpit</a></li>
                   {% endif %}
                     <li><a href="{% url 'exam:auto-translate-count' %}">Auto translate costs</a></li>

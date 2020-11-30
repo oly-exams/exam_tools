@@ -88,8 +88,8 @@
         <tr>
           <td><strong>{{ meta.name }} ({{ meta.max_points }})</strong></td>
           {% for student, points in student_points %}
-          <td>{{ points.O|default_if_none:'-' }}</td>
-          <td>{{ points.D|default_if_none:'-' }}</td>
+          <td class="{{ points.diff_color.O }}">{{ points.O|default_if_none:'-' }}</td>
+          <td class="{{ points.diff_color.D }}">{{ points.D|default_if_none:'-' }}</td>
           <td>{{ points.F|default_if_none:'-' }}</td>
           {% endfor %}
         </tr>

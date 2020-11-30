@@ -21,7 +21,7 @@ import csv
 import decimal
 import itertools
 from hashlib import md5
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 from django.conf import settings
 from django.db.models import Sum, F, Q
@@ -45,6 +45,20 @@ from .forms import ImportForm, PointsForm
 
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
+
+
+DiffColorPair = namedtuple("DiffColorPair", ["O", "D"])
+
+
+def get_diff_color_pair(official, delegation):
+    if official is None or delegation is None:
+        return DiffColorPair("", "")
+
+    if official == delegation:
+        return DiffColorPair("", "")
+    if official > delegation:
+        return DiffColorPair("info", "warning")
+    return DiffColorPair("warning", "info")
 
 
 @permission_required("ipho_core.is_organizer_admin")
@@ -856,6 +870,9 @@ def delegation_stud_view(request, stud_id, question_id):
             else:
                 points = None
             version_dict[version] = points
+        version_dict["diff_color"] = get_diff_color_pair(
+            version_dict.get("O", None), version_dict.get("D", None)
+        )
         grouped_markings.append((meta, version_dict))
 
     documents = Document.objects.for_user(request.user).filter(
@@ -934,6 +951,9 @@ def delegation_view_all(request, question_id):  # pylint: disable=too-many-local
                 else:
                     points = None
                 version_dict[version] = points
+            version_dict["diff_color"] = get_diff_color_pair(
+                version_dict.get("O", None), version_dict.get("D", None)
+            )
             student_list.append((student, version_dict))
         grouped_markings.append((meta, student_list))
 
@@ -1264,6 +1284,10 @@ def moderation_detail(
             "marking_meta__position"
         )
 
+        diff_color = []
+        for off, dele in zip(markings_official, markings_delegation):
+            diff_color.append(get_diff_color_pair(off.points, dele.points))
+
         FormSet = modelformset_factory(  # pylint: disable=invalid-name
             Marking,
             form=PointsForm,
@@ -1302,7 +1326,10 @@ def moderation_detail(
                 ),
             )
         )
-        marking_forms.append(zip(markings_official, markings_delegation, form))
+
+        marking_forms.append(
+            zip(markings_official, markings_delegation, diff_color, form)
+        )
 
     if all_valid:
         for _, form, _, _, _ in student_forms:
