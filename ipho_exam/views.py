@@ -3815,7 +3815,9 @@ def pdf_exam_pos_student(
 ):  # pylint: disable= # pylint: disable=redefined-builtin, too-many-return-statements, too-many-branches
     student = get_object_or_404(Student, id=student_id)
     user = request.user
-    if not user.has_perm("ipho_core.is_printstaff"):
+    if not (
+        user.has_perm("ipho_core.is_printstaff") or user.has_perm("ipho_core.is_marker")
+    ):
         if not student.delegation.members.filter(pk=user.pk).exists():
             return HttpResponseForbidden(
                 "You do not have permission to view this document."

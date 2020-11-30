@@ -60,7 +60,6 @@ th {
 {% block page-content %}
 
   <h2>Points for {{ question.exam.name }} - {{ question.name }}</h2>
-
   <form method="POST">
   {% csrf_token %}
   <table class="table table-sm table-bordered">
@@ -70,7 +69,14 @@ th {
         {% for student, forms in student_forms %}
           {{ forms.management_form }}
           <td class="thdnone"></td>
-          <th><h4>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</h4></th>
+          <th><h4>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</h4>
+            {% if student.pk in scan_files_ready %}
+            <a class="btn btn-default btn-xs" id="scan-{{ student.pk }}-{{ question.position }}" href="{% url 'exam:scan-exam-pos-student' exam_id=question.exam.pk student_id=student.pk position=question.position %}">
+              <i class="fa fa-file-pdf-o"></i>
+              View scan
+            </a>
+            {% endif %}
+          </th>
         {% endfor %}
       </tr>
     </thead>

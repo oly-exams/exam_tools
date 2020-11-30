@@ -149,7 +149,7 @@ class TestDataCreator(DataCreator):
 
         return exam
 
-    def create_ipho2016_marking(self):
+    def create_ipho2016_marking(self, all_actions_open=False):
         answer1 = Question.objects.get(name="Two Problems in Mechanics - Answer Sheet")
         answer2 = Question.objects.get(
             name="Nonlinear Dynamics in Electric Circuits - Answer Sheet"
@@ -170,22 +170,25 @@ class TestDataCreator(DataCreator):
         self.set_max_points(delegation_code="AUT", question=answer2, version="D")
         self.set_max_points(delegation_code="AUT", question=answer2, version="F")
 
-        self.set_marking_status(
-            delegation_code="CHE", question=answer1, status=MarkingAction.OPEN
-        )
-        self.set_marking_status(
-            delegation_code="ARM",
-            question=answer1,
-            status=MarkingAction.SUBMITTED_FOR_MODERATION,
-        )
-        self.set_marking_status(
-            delegation_code="AUS",
-            question=answer1,
-            status=MarkingAction.LOCKED_BY_MODERATION,
-        )
-        self.set_marking_status(
-            delegation_code="AUT", question=answer1, status=MarkingAction.FINAL
-        )
-        self.set_marking_status(
-            delegation_code="AUT", question=answer2, status=MarkingAction.FINAL
-        )
+        if all_actions_open:
+            pass  # MarkingActions are open per default
+        else:
+            self.set_marking_status(
+                delegation_code="CHE", question=answer1, status=MarkingAction.OPEN
+            )
+            self.set_marking_status(
+                delegation_code="ARM",
+                question=answer1,
+                status=MarkingAction.SUBMITTED_FOR_MODERATION,
+            )
+            self.set_marking_status(
+                delegation_code="AUS",
+                question=answer1,
+                status=MarkingAction.LOCKED_BY_MODERATION,
+            )
+            self.set_marking_status(
+                delegation_code="AUT", question=answer1, status=MarkingAction.FINAL
+            )
+            self.set_marking_status(
+                delegation_code="AUT", question=answer2, status=MarkingAction.FINAL
+            )
