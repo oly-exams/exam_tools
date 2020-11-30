@@ -1319,6 +1319,14 @@ def moderation_detail(
                 kwargs={"question_id": question.pk, "delegation_id": delegation.pk},
             )
         )
+
+    scan_files_ready = (
+        Document.objects.scans_ready(request.user)
+        .filter(exam=question.exam, position=question.position)
+        .filter(student__delegation=delegation)
+        .values_list("student__pk", flat=True)
+    )
+
     # TODO: display errors
     ctx = {
         "question": question,
@@ -1327,6 +1335,7 @@ def moderation_detail(
         "marking_forms": list(zip(metas, zip(*marking_forms))),
         "request": request,
         "max_points_sum": sum(m.max_points for m in metas),
+        "scan_files_ready": scan_files_ready,
     }
     return render(request, "ipho_marking/moderation_detail.html", ctx)
 
@@ -1373,7 +1382,9 @@ def official_marking_index(request, question_id=None):
 
 
 @permission_required("ipho_core.is_marker")
-def official_marking_detail(request, question_id, delegation_id):
+def official_marking_detail(
+    request, question_id, delegation_id
+):  # pylint: disable=too-many-locals
     question = get_object_or_404(
         Question.objects.for_user(request.user),
         id=question_id,
@@ -1431,6 +1442,13 @@ def official_marking_detail(request, question_id, delegation_id):
                 kwargs={"question_id": question.pk, "delegation_id": delegation.pk},
             )
         )
+
+    scan_files_ready = (
+        Document.objects.scans_ready(request.user)
+        .filter(exam=question.exam, position=question.position)
+        .filter(student__delegation=delegation)
+        .values_list("student__pk", flat=True)
+    )
     # TODO: display errors
     ctx = {
         "question": question,
@@ -1439,6 +1457,7 @@ def official_marking_detail(request, question_id, delegation_id):
         "marking_forms": list(zip(metas, zip(*(f[1] for f in student_forms)))),
         "request": request,
         "max_points_sum": sum(m.max_points for m in metas),
+        "scan_files_ready": scan_files_ready,
     }
     return render(request, "ipho_marking/official_marking_detail.html", ctx)
 

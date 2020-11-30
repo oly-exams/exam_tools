@@ -1324,7 +1324,11 @@ def exam_scans_orig_filename(obj, fname):  # pylint: disable=unused-argument
 class DocumentManager(models.Manager):
     def for_user(self, user):
         queryset = self.get_queryset()
-        if user.is_superuser or user.has_perm("ipho_core.is_organizer_admin"):
+        if (
+            user.is_superuser
+            or user.has_perm("ipho_core.is_organizer_admin")
+            or user.has_perm("ipho_core.is_marker")
+        ):
             return queryset.filter(exam__in=Exam.objects.for_user(user))
         if user.has_perm("ipho_core.is_printstaff"):
             # Does show documents even if printing is not activated as there is no scanning flag for organizers at the moment.
@@ -1335,6 +1339,16 @@ class DocumentManager(models.Manager):
                 student__delegation__in=delegs
             )
         return queryset.none()
+
+    def scans_ready(self, user):
+        queryset = self.for_user(user)
+        return (
+            queryset.filter(scan_status="S")
+            .exclude(
+                scan_file__isnull=True,
+            )
+            .exclude(scan_file="")
+        )
 
 
 class Document(models.Model):

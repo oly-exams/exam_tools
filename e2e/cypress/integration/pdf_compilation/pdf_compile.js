@@ -246,4 +246,28 @@ describe('General', function() {
         var id_prefix = "processed_scan"
         download_test_pdf(6, 2, id_prefix, "delegation_view_")
     })
+
+    it("Test Marker Scan View", function(){
+        cy.logout()
+        cy.login('admin', '1234')
+        cy.getExamPhaseByName('Theory', "Organizer Marking").then(cy.switchExamPhase)
+
+        // Test one marking view and try to download the scan
+        cy.logout()
+        cy.login('marker', '1234')
+        cy.visit('/marking/official/question/3/delegation/2')
+        var id_prefix = "scan"
+        download_test_pdf(6, 1, id_prefix, "marking_")
+
+        cy.logout()
+        cy.login('admin', '1234')
+        cy.getExamPhaseByName('Theory', "Moderation").then(cy.switchExamPhase)
+
+        // Test one moderation view and try to download the scan
+        cy.logout()
+        cy.login('marker', '1234')
+        cy.visit('/marking/moderate/question/3/delegation/2')
+        var id_prefix = "scan"
+        download_test_pdf(6, 1, id_prefix, "moderation_")
+    })
 })

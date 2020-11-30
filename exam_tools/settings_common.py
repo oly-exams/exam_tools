@@ -451,7 +451,7 @@ EXAM_TOOLS_API_KEYS = {
 }
 
 # Random draw
-RANDOM_DRAW_ON_SUBMISSION = True
+RANDOM_DRAW_ON_SUBMISSION = False
 
 # Push Notifications
 ENABLE_PUSH = False
