@@ -21,7 +21,7 @@ test_*.pdf
 docs/*.html
 out/*.pdf
 unittest_reports
-db_data
+database.s3db
 
 # Created by https://www.gitignore.io/api/vim,macos,emacs,django,python,pycharm,virtualenv,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=vim,macos,emacs,django,python,pycharm,virtualenv,visualstudiocode
