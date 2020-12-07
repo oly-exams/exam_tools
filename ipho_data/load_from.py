@@ -3,7 +3,8 @@
 
 import sys
 from pathlib import Path
-# pylint: disable=unused-import, import-error
+
+# pylint: disable=unused-import, import-error, useless-suppression
 import non_install_helper
 
 import ipho_data.django_setup
@@ -23,7 +24,7 @@ def load_from_data_path(data_path, pw_strat, seed):
     tdc.create_official_delegation()
 
     exam = tdc.create_exam(name="Theory", code="T")
-    phases = tdc.create_exam_phases_for_exam(exam)
+    phases = tdc.create_exam_phases_for_exam(exam)  # pylint: disable=unused-variable
     exam = tdc.create_exam(name="Experiment", code="E")
     phases = tdc.create_exam_phases_for_exam(exam)
 
