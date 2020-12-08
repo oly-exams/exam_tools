@@ -48,7 +48,7 @@ RECORD_USER_LOGIN_LOGOUT_IPS = True
 
 LOGGING["handlers"]["logfile"] = {
     "class": "logging.handlers.WatchedFileHandler",
-    "filename": "exam_tools-django.log",
+    "filename": "/home/container/exam_tools-django.log",
 }
 
 LOGGING["loggers"].update(
