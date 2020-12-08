@@ -67,6 +67,12 @@ DEMO_SIGN_UP = False
 # Sets unoffical banner
 OFFICIALLY_SUPPORTED = False
 
+# record users logging in and out
+# (will produce these entries, via exam-tools logger info)
+# CHE User 172.20.0.1 successfully logged in at 12/08/2020 08:44:41
+# CHE User 172.20.0.1 successfully logged out at 12/08/2020 08:44:47
+RECORD_USER_LOGIN_LOGOUT_IPS = False
+
 # Show a summary of the exam control phases on the home page
 CONTROL_SHOW_PHASES_ON_HOME = False
 

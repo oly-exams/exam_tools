@@ -42,3 +42,21 @@ ALLOWED_HOSTS += (
     "django-server",
     "localhost",
 )
+
+ADD_DELEGATION_WATERMARK = True
+RECORD_USER_LOGIN_LOGOUT_IPS = True
+
+LOGGING["handlers"]["logfile"] = {
+    "class": "logging.handlers.WatchedFileHandler",
+    "filename": "exam_tools-django.log",
+}
+
+LOGGING["loggers"].update(
+    {
+        "exam_tools": {
+            "handlers": ["logfile"],
+            "level": "INFO",
+            "propagate": False,
+        }
+    }
+)
