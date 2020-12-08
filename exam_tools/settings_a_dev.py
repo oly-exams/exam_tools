@@ -46,17 +46,18 @@ ALLOWED_HOSTS += (
 ADD_DELEGATION_WATERMARK = True
 RECORD_USER_LOGIN_LOGOUT_IPS = True
 
-LOGGING["handlers"]["logfile"] = {
-    "class": "logging.handlers.WatchedFileHandler",
-    "filename": "/home/container/exam_tools-django.log",
-}
-
-LOGGING["loggers"].update(
-    {
-        "exam_tools": {
-            "handlers": ["logfile"],
-            "level": "INFO",
-            "propagate": False,
-        }
-    }
-)
+# enable this to see ip logging locally
+# LOGGING["handlers"]["logfile"] = {
+#     "class": "logging.handlers.WatchedFileHandler",
+#     "filename": "/home/container/workdir/exam_tools-django.log",
+# }
+#
+# LOGGING["loggers"].update(
+#     {
+#         "exam_tools": {
+#             "handlers": ["logfile"],
+#             "level": "INFO",
+#             "propagate": False,
+#         }
+#     }
+# )
