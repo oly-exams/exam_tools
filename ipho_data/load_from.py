@@ -24,9 +24,9 @@ def load_from_data_path(data_path, pw_strat, seed):
     tdc.create_official_delegation()
 
     exam = tdc.create_exam(name="Theory", code="T")
-    phases = tdc.create_exam_phases_for_exam(exam)  # pylint: disable=unused-variable
+    tdc.create_exam_phases_for_exam(exam)
     exam = tdc.create_exam(name="Experiment", code="E")
-    phases = tdc.create_exam_phases_for_exam(exam)
+    tdc.create_exam_phases_for_exam(exam)
 
 
 def main():
