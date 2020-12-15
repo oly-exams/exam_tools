@@ -7,7 +7,12 @@
 
 <div class="container">
     <div class="page-header">
-        <h1>Votings</h1>
+        <h1>Votings
+        {% if rooms|length > 1 %}
+        <small>Room:</small>
+        {% include "ipho_poll/partials/choose-room-dropdown.html" with active_room=active_room rooms=rooms view_name="poll:voter-index_room" only %}
+        {% endif %}
+        </h1>
         <div class="alert alert-warning">
             <strong>Votes can not be changed once submitted. The two Leaders are advised to vote together from the same laptop.</strong>
         </div>

@@ -23,8 +23,9 @@ app_name = "poll"
 urlpatterns = [
     # staff urls
     path("staff/", views.staff_index, name="staff-index"),
+    path("staff/room/<int:room_id>", views.staff_index, name="staff-index_room"),
     re_path(
-        r"^staff/partials/(?P<qtype>\w+)$",
+        r"^staff/room/(?P<room_id>\d*)/partials/(?P<qtype>\w+)$",
         views.staff_index_partial,
         name="staff-index-partials",
     ),
@@ -44,7 +45,9 @@ urlpatterns = [
         views.question_large,
         name="question_large",
     ),
-    path("question/add/", views.add_question, name="add-question"),
+    re_path(
+        r"^question/add/room/(?P<room_id>\d*)$", views.add_question, name="add-question"
+    ),
     path(
         "question/<int:question_pk>/delete/",
         views.delete_question,
@@ -66,8 +69,16 @@ urlpatterns = [
         views.close_question,
         name="close-question",
     ),
+    path("room/edit/<int:room_id>", views.edit_room, name="edit-room"),
     # delegation urls
     path("", views.voter_index, name="voter-index"),
+    path("room/<int:room_id>", views.voter_index, name="voter-index_room"),
     path("err/<int:err_id>", views.voter_index, name="voter-index_err"),
+    path(
+        "room/<int:room_id>/err/<int:err_id>",
+        views.voter_index,
+        name="voter-index_room_err",
+    ),
+    path("voted/room/<int:room_id>", views.voted, name="voted_room"),
     path("voted/", views.voted, name="voted"),
 ]

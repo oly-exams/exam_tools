@@ -11,7 +11,7 @@
                 <strong>There are no drafted votings at the moment!</strong> Create one by clicking on "Create New".
             </div>
         {% endif %}
-        <button class="btn btn-primary" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:add-question' %}"><i class="fa fa-plus fa-fw"></i> Create new</button>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:add-question' room_id=active_room.pk|default:'' %}"><i class="fa fa-plus fa-fw"></i> Create new</button>
     </div>
     <table id="drafted-questions-table" class="table table-striped">
         <tr>

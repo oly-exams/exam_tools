@@ -6,6 +6,19 @@
 {% block extra-head %}
     <link href="{% static "bootstrap/css/bootstrap-datetimepicker.min.css" %}" rel="stylesheet"/>
     <link href="{% static "mathquill/mathquill.css" %}" rel="stylesheet">
+    <style>
+      .label-setting-active {
+        color:black;
+        background-color: #ffbf00;
+      }
+      .label-setting-inactive {
+        color:black;
+        background-color: rgb(127, 158, 251);
+      }
+      .label{
+        cursor: default;
+      }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -46,18 +59,63 @@
   </div>
 </div>
 
+{# modal for editing voting rooms. #}
+<div class="modal fade" id="voting-room-modal" tabindex="-1" aria-labelledby="modalLabel">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title" id="room-modalLabel"></h4>
+      </div>
+      <form role="form" method="post" action="" id="voting-room-form">
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 
 <div class="container">
     <div class="page-header">
-      <h1>Votings</h1>
+      <h1>Votings
+        {% if rooms %}
+          <small>Room:</small>
+          {% if rooms|length > 1 %}
+          {% include "ipho_poll/partials/choose-room-dropdown.html" with active_room=active_room rooms=rooms view_name=view_name only %}
+          {% else %}
+          <small>
+            {{ active_room.name}}
+          </small>
+          {% endif %}
+          <small>
+            <button class="btn btn-default" data-toggle="modal" data-target="#voting-room-modal" data-remote="false" href="{% url 'poll:edit-room' room_id=active_room.pk %}"><i class="fa fa-pencil fa-fw"></i>Edit Room</button>
+          </small>
+        {% endif %}
+      </h1>
+      {% if rooms %}
+      <h3>
+        Visibility:
+        {% if active_room.visibility > 0 %}
+        <span class="label label-setting-active">{{ active_room.get_visibility_display }}</span>
+        {% elif active_room.visibility == 0 %}
+        <span class="label label-setting-inactive">{{ active_room.get_visibility_display }}</span>
+        {% else %}
+        <span class="label label-default">{{ active_room.get_visibility_display }}</span>
+        {% endif %}
+      </h3>
+      {% endif %}
     </div>
 
     <div id="alerts-container"></div>
 
     <div class="row">
-       <div class="col-md-12 vote-question-container" id="drafted-container" data-href="{% url 'poll:staff-index-partials' qtype='drafted' %}"></div>
-       <div class="col-md-12 vote-question-container" id="open-container" data-href="{% url 'poll:staff-index-partials' qtype='open' %}"></div>
-       <div class="col-md-12 vote-question-container" id="closed-container" data-href="{% url 'poll:staff-index-partials' qtype='closed' %}"></div>
+       <div class="col-md-12 vote-question-container" id="drafted-container" data-href="{% url 'poll:staff-index-partials' qtype='drafted' room_id=active_room.pk|default:'' %}"></div>
+       <div class="col-md-12 vote-question-container" id="open-container" data-href="{% url 'poll:staff-index-partials' qtype='open' room_id=active_room.pk|default:'' %}"></div>
+       <div class="col-md-12 vote-question-container" id="closed-container" data-href="{% url 'poll:staff-index-partials' qtype='closed' room_id=active_room.pk|default:'' %}"></div>
     </div>
 </div> <!-- container -->
 {% endblock %}
@@ -212,29 +270,6 @@ $('document').ready(function(){
                     return;
                 }
                 else {
-                    // // creates the row content of the question to be added or replaced
-                    // var row_content = '';
-                    // row_content += '<td>'+data['new_question_pk']+'</td>'+
-                    //     '<td id="question-'+data['new_question_pk']+'-question-text">'+data['new_title']+'</td>'+
-                    //     '<td>'+
-                    //         '<div class="list-group">' +
-                    //             '<li class="list-group-item">' + data.choice_text_list[0] + '</li>' +
-                    //             '<li class="list-group-item">' + data.choice_text_list[1] + '</li>' +
-                    //             'only shows first two choices' +
-                    //         '</div>'+
-                    //     '</td>';
-                    // row_content += '<td><div class="btn-toolbar">'+
-                    //     '<a class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:add-question' %}"><i class="fa fa-pencil fa-fw"></i></a>' +
-                    //     '<a class="btn btn-sm btn-danger" href=""  data-toggle="modal" data-target="#question-modal" data-remote="false"><i class="fa fa-trash-o fa-fw"></i></a' +
-                    //     '</div></td>';
-                    //
-                    // // adds or replaces the newly created row
-                    // if (data['type'] == 'add') {
-                    //     var row = '<tr id="question-'+data['new_question_pk']+'">'+row_content+'</tr>';
-                    //     $('#drafted-questions-table').append(row);
-                    // } else {
-                    //     $('#question-'+data['new_question_pk']).html(row_content);
-                    // }
 
                     $('#question-modal').modal('hide');
 
@@ -292,6 +327,57 @@ $('document').ready(function(){
             //     modal.find('.modal-body').text('error');
             // }
         })
+    });
+
+
+    //Fill VotingRoom modal with Form when modal is shown
+    $('#voting-room-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
+
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('form').attr('action', href);
+                modal.find('.modal-body').html(data['form']);
+            },
+        });
+    });
+
+    //Submit of the VotingRoom modal
+    $(document).on('submit', '#voting-room-modal #voting-room-form', function(event) {
+        event.preventDefault();
+        var form = event.target;
+        $form = $("#voting-room-form");
+        $form.find(':submit').attr("disabled", true);
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: $form.serialize(),
+            success: function(data) {
+                $form.find(':submit').attr("disabled", false);
+                if (!data['success']) {
+                    $('#voting-room-modal .modal-body').html(data['form']);
+                    return;
+                }
+                else {
+                    $('#voting-room-modal').modal('hide');
+                    // reload page
+                    location.reload()
+                }
+            },
+            error: function (jqXHR, exception) {
+              console.log(jqXHR);
+              console.log(exception);
+              $form.find(':submit').attr("disabled", false);
+            },
+        });
     });
 
     function reload_tables() {

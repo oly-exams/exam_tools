@@ -53,12 +53,12 @@ class TestDataCreator(DataCreator):
                 self.delete_database()
 
     def create_three_poll_questions(self):
-        self.create_poll_que("Q1", "How is it going", y="good", m="meh", n="bad")
+        self.create_poll_que("Q1", "How is it going", None, y="good", m="meh", n="bad")
 
-        self.create_poll_que("Q2", "Current day", d="weekday", e="weekend")
+        self.create_poll_que("Q2", "Current day", None, d="weekday", e="weekend")
 
         que3 = self.create_poll_que(
-            "Q3", "Favorite color", r="red", b="blue", g="green"
+            "Q3", "Favorite color", None, r="red", b="blue", g="green"
         )
         self.close_poll_que_with_result(que3, r=1, b=2, g=3)
 

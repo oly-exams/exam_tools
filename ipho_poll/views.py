@@ -30,7 +30,7 @@ from django.urls import reverse
 from django.template.context_processors import csrf
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, modelform_factory
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from django.utils import timezone
@@ -44,7 +44,7 @@ from pywebpush import WebPushException
 from ipho_core.models import User
 from ipho_exam.models import Feedback, Exam
 
-from .models import Question, Choice, VotingRight, Vote
+from .models import Question, Choice, VotingRight, Vote, VotingRoom
 from .forms import QuestionForm, ChoiceForm, VoteForm, EndDateForm
 from .forms import ChoiceFormHelper, VoteFormHelper
 
@@ -54,20 +54,48 @@ from .forms import ChoiceFormHelper, VoteFormHelper
 @login_required
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
-def staff_index(request):
-    return render(request, "ipho_poll/staff-index.html")
+def staff_index(request, room_id=None):
+    voting_rooms = VotingRoom.objects.for_user(request.user)
+    if voting_rooms.exists():
+        if room_id is None:
+            if voting_rooms.count() == 1:
+                return staff_index(request, room_id=voting_rooms.first().pk)
+            return render(
+                request,
+                "ipho_poll/choose-rooms.html",
+                {"rooms": voting_rooms.all(), "view_name": "poll:staff-index_room"},
+            )
+        room = get_object_or_404(voting_rooms, id=room_id)
+    else:
+        room = None
+
+    return render(
+        request,
+        "ipho_poll/staff-index.html",
+        {
+            "rooms": voting_rooms.all(),
+            "active_room": room,
+            "view_name": "poll:staff-index_room",
+        },
+    )
 
 
 @login_required
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
-def staff_index_partial(request, qtype):
+def staff_index_partial(request, qtype, room_id=""):
+    if room_id == "":
+        room = None
+    else:
+        room = get_object_or_404(VotingRoom.objects.for_user(request.user), pk=room_id)
+
+    questions = Question.objects.filter(voting_room=room)
     if qtype == "drafted":
-        questions_list = Question.objects.is_draft().order_by("pk")
+        questions_list = questions.is_draft().order_by("pk")
     elif qtype == "open":
-        questions_list = Question.objects.is_open().order_by("pk")
+        questions_list = questions.is_open().order_by("pk")
     elif qtype == "closed":
-        questions_list = Question.objects.is_closed().order_by("pk")
+        questions_list = questions.is_closed().order_by("pk")
     else:
         raise RuntimeError("No valid qtype")
     choices_list = Choice.objects.all()
@@ -82,6 +110,7 @@ def staff_index_partial(request, qtype):
             "VOTE_REJECTED": Question.VoteResultMeta.REJECTED,
             "VOTE_IMPLEMENTED": Question.ImplementationMeta.IMPL,
             "VOTE_NOT_IMPLEMENTED": Question.ImplementationMeta.NOT_IMPL,
+            "active_room": room,
         },
     )
 
@@ -247,11 +276,16 @@ def question_large(request, question_pk):
 @login_required
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
-def add_question(request):
+def add_question(request, room_id=""):
     if not request.is_ajax:
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
+    if room_id == "":
+        room = None
+    else:
+        room = get_object_or_404(VotingRoom.objects.for_user(request.user), pk=room_id)
+
     ChoiceFormset = inlineformset_factory(  # pylint: disable=invalid-name
         Question,
         Choice,
@@ -277,6 +311,8 @@ def add_question(request):
         )
     if question_form.is_valid() and choice_formset.is_valid():
         new_question = question_form.save()
+        new_question.voting_room = room
+        new_question.save()
         for fback in Feedback.objects.filter(vote=new_question):
             fback.status = "V"  # scheduled for voting
             fback.save()
@@ -404,8 +440,10 @@ def set_end_date(request, question_pk):
 
         if settings.ENABLE_PUSH:
             # send push messages
+            if que.voting_room is not None:
+                room_txt = f"in room {que.voting_room.name}"
             data = {
-                "body": "A voting has just opened, click here to go to the voting page",
+                "body": f"A voting has just opened {room_txt}, click here to go to the voting page",
                 "url": reverse("poll:voter-index"),
                 "reload_client": True,
             }
@@ -483,16 +521,63 @@ def close_question(request, question_pk):
     return HttpResponseRedirect(reverse("poll:staff-index"))
 
 
+@login_required
+@permission_required("ipho_core.can_edit_poll")
+@ensure_csrf_cookie
+def edit_room(request, room_id):
+    # pylint: disable=invalid-name
+    room = get_object_or_404(VotingRoom.objects.for_user(request.user), pk=room_id)
+    VotingRoomForm = modelform_factory(VotingRoom, fields=["name", "visibility"])
+    form = VotingRoomForm(request.POST or None, instance=room)
+    if form.is_valid():
+        form.save()
+        return JsonResponse(
+            {
+                "success": True,
+                "message": "<strong> Saved</strong>",
+            }
+        )
+
+    context = {}
+    context.update(csrf(request))
+    form_html = render_crispy_form(form, context=context)
+    return JsonResponse(
+        {
+            "success": False,
+            "title": "Edit Room",
+            "form": form_html,
+        }
+    )
+
+
 # delegation views
 
 
 @login_required
 @ensure_csrf_cookie
-def voter_index(request, err_id=None):
+def voter_index(
+    request, err_id=None, room_id=None
+):  # pylint: disable=too-many-branches
+    voting_rooms = VotingRoom.objects.for_user(request.user)
+    if voting_rooms.exists():
+        if room_id is None:
+            if voting_rooms.count() == 1:
+                return voter_index(request, err_id, room_id=voting_rooms.first().pk)
+            return render(
+                request,
+                "ipho_poll/choose-rooms.html",
+                {"rooms": voting_rooms.all(), "view_name": "poll:voter-index_room"},
+            )
+        room = get_object_or_404(voting_rooms, id=room_id)
+    else:
+        room = None
+
     user = request.user
     if len(user.votingright_set.all()) <= 0:
         raise PermissionDenied
-    unvoted_questions_list = Question.objects.not_voted_upon_by(user)
+    unvoted_questions_list = Question.objects.not_voted_upon_by(user).filter(
+        voting_room=room
+    )
     formset_html_dict = {}
     just_voted = ()
     for que in unvoted_questions_list:
@@ -519,6 +604,10 @@ def voter_index(request, err_id=None):
             if timezone.now() < que.end_date:
                 VoteFormset.save()
             just_voted += (que.pk,)
+            if room:
+                return HttpResponseRedirect(
+                    reverse("poll:voted_room", kwargs={"room_id": room.pk})
+                )
             return HttpResponseRedirect(reverse("poll:voted"))
 
         if request.method == "POST":
@@ -579,9 +668,11 @@ def voter_index(request, err_id=None):
             "unvoted_questions_list": unvoted_questions_list,
             "formset_list": formset_html_dict,
             "err": err_msg,
+            "rooms": voting_rooms.all(),
+            "active_room": room,
         },
     )
 
 
-def voted(request):
-    return render(request, "ipho_poll/voted.html")
+def voted(request, room_id=None):
+    return render(request, "ipho_poll/voted.html", {"room_id": room_id})

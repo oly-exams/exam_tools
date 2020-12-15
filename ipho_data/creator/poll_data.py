@@ -1,13 +1,16 @@
 from datetime import timedelta
 from django.utils import timezone
-from ipho_poll.models import VotingRight, Question, Choice, Vote
+from ipho_poll.models import VotingRight, Question, Choice, Vote, VotingRoom
 
 from .base_data import BaseDataCreator
 
 
 class PollDataCreator(BaseDataCreator):
-    def create_poll_que(self, title, content, **choices):
-        que = Question.objects.create(title=title, content=content)
+    def create_poll_que(self, title, content, room_id, **choices):
+        room = None
+        if room_id is not None:
+            room = VotingRoom.objects.get(id=room_id)
+        que = Question.objects.create(title=title, content=content, voting_room=room)
         que.save()
         for key, val in choices.items():
             choice = Choice(question=que, label=key, choice_text=val)
