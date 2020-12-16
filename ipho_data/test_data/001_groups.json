@@ -360,19 +360,19 @@
         "markingmeta"
       ],
       [
-        "add_choice",
+        "add_votingchoice",
         "ipho_poll",
-        "choice"
+        "votingchoice"
       ],
       [
-        "change_choice",
+        "change_votingchoice",
         "ipho_poll",
-        "choice"
+        "votingchoice"
       ],
       [
-        "delete_choice",
+        "delete_votingchoice",
         "ipho_poll",
-        "choice"
+        "votingchoice"
       ],
       [
         "add_voting",

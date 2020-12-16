@@ -21,7 +21,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, HTML
 
 
-from ipho_poll.models import Voting, Choice, Vote
+from ipho_poll.models import Voting, VotingChoice, Vote
 
 
 class VotingForm(ModelForm):
@@ -71,9 +71,9 @@ class EndDateForm(ModelForm):
         widgets = {"end_date": HiddenInput()}
 
 
-class ChoiceForm(ModelForm):
+class VotingChoiceForm(ModelForm):
     class Meta:
-        model = Choice
+        model = VotingChoice
         fields = ["label", "choice_text"]
         widgets = {
             "label": forms.TextInput(attrs={"size": 3, "maxlength": 3}),
@@ -94,7 +94,7 @@ class ChoiceForm(ModelForm):
             self.fields["choice_text"].widget.attrs["readonly"] = True
 
 
-class ChoiceFormHelper(FormHelper):
+class VotingChoiceFormHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         can_delete = kwargs.pop("can_delete", True)
         super().__init__(*args, **kwargs)
@@ -123,7 +123,7 @@ class VoteForm(ModelForm):
             self.fields["choice"].label = self.instance.voting_right
         elif not self.is_bound:
             self.fields["choice"].label = self.initial["voting_right"]
-        ## Note: in the case of a bound form the label will still be "Choice". Unfortunately I didn't find a workaround
+        ## Note: in the case of a bound form the label will still be "VotingChoice". Unfortunately I didn't find a workaround
 
     class Meta:
         model = Vote

@@ -1,6 +1,6 @@
 from datetime import timedelta
 from django.utils import timezone
-from ipho_poll.models import VotingRight, Voting, Choice, Vote, VotingRoom
+from ipho_poll.models import VotingRight, Voting, VotingChoice, Vote, VotingRoom
 
 from .base_data import BaseDataCreator
 
@@ -13,9 +13,9 @@ class PollDataCreator(BaseDataCreator):
         voting = Voting.objects.create(title=title, content=content, voting_room=room)
         voting.save()
         for key, val in choices.items():
-            choice = Choice(voting=voting, label=key, choice_text=val)
+            choice = VotingChoice(voting=voting, label=key, choice_text=val)
             choice.save()
-            voting.choice_set.add(choice)
+            voting.votingchoice_set.add(choice)
         self.log(voting, "..", "created")
         return voting
 
@@ -35,7 +35,7 @@ class PollDataCreator(BaseDataCreator):
         voting.end_date = timezone.now()
         iterat = iter(VotingRight.objects.all())
         for key, val in result.items():
-            choice = voting.choice_set.get(label=key)
+            choice = voting.votingchoice_set.get(label=key)
             for _ in range(val):
                 voting_right = next(iterat)
                 Vote.objects.create(

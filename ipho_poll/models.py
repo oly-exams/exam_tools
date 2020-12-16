@@ -152,14 +152,14 @@ class Voting(models.Model):
         return False
 
     def choice_dict(self):
-        choice_set = self.choice_set.all()
+        votingchoice_set = self.votingchoice_set.all()
         choice_dict = {}
-        for i, choice in enumerate(choice_set):
+        for i, choice in enumerate(votingchoice_set):
             choice_dict[choice] = chr(ord("A") + i)
         return choice_dict
 
 
-class Choice(models.Model):
+class VotingChoice(models.Model):
     voting = models.ForeignKey(Voting, on_delete=models.CASCADE)
     label = models.CharField(max_length=3, blank=True, null=True)
     choice_text = models.CharField(max_length=200)
@@ -188,7 +188,7 @@ class VotingRight(models.Model):
 
 class Vote(models.Model):
     voting = models.ForeignKey(Voting, on_delete=models.CASCADE)
-    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    choice = models.ForeignKey(VotingChoice, on_delete=models.CASCADE)
     voting_right = models.ForeignKey(VotingRight, on_delete=models.CASCADE)
 
     def __str__(self):

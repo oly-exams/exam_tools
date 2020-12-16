@@ -27,7 +27,7 @@ from django.utils import timezone
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Voting, Choice
+from .models import Voting, VotingChoice
 
 # aid_functions
 # -------------
@@ -48,7 +48,7 @@ def create_choice(choice_text, voting_id):
     Create a choice with the given 'choice_text' with a ForeignKey to the voting with
     the given 'voting_id'.
     """
-    return Choice.objects.create(choice_text=choice_text, voting_id=voting_id)
+    return VotingChoice.objects.create(choice_text=choice_text, voting_id=voting_id)
 
 
 # testclasses

@@ -17,11 +17,11 @@
 
 from django.contrib import admin
 
-from .models import Voting, Choice, Vote, VotingRight, VotingRoom
+from .models import Voting, VotingChoice, Vote, VotingRight, VotingRoom
 
 
-class ChoiceInline(admin.TabularInline):
-    model = Choice
+class VotingChoiceInline(admin.TabularInline):
+    model = VotingChoice
     extra = 2
 
 
@@ -41,7 +41,7 @@ class VotingAdmin(admin.ModelAdmin):
             },
         ),
     ]
-    inlines = [ChoiceInline]
+    inlines = [VotingChoiceInline]
     list_display = (
         "title",
         "voting_room",

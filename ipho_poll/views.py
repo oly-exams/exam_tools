@@ -48,9 +48,9 @@ from pywebpush import WebPushException
 from ipho_core.models import User
 from ipho_exam.models import Feedback, Exam
 
-from .models import Voting, Choice, VotingRight, Vote, VotingRoom
-from .forms import VotingForm, ChoiceForm, VoteForm, EndDateForm
-from .forms import ChoiceFormHelper, VoteFormHelper
+from .models import Voting, VotingChoice, VotingRight, Vote, VotingRoom
+from .forms import VotingForm, VotingChoiceForm, VoteForm, EndDateForm
+from .forms import VotingChoiceFormHelper, VoteFormHelper
 
 # staff views
 
@@ -102,7 +102,7 @@ def staff_index_partial(request, qtype, room_id=""):
         votings_list = votings.is_closed().order_by("pk")
     else:
         raise RuntimeError("No valid qtype")
-    choices_list = Choice.objects.all()
+    choices_list = VotingChoice.objects.all()
 
     return render(
         request,
@@ -124,7 +124,7 @@ def staff_index_partial(request, qtype, room_id=""):
 @ensure_csrf_cookie
 def voting_details(request, voting_pk):
     voting = get_object_or_404(Voting, pk=voting_pk)
-    choices = voting.choice_set.all()
+    choices = voting.votingchoice_set.all()
     voting_rights = VotingRight.objects.all()
     users = (
         User.objects.filter(votingright__in=voting_rights)
@@ -183,7 +183,7 @@ def staff_set_impl(request, voting_pk, impl):
 @ensure_csrf_cookie
 def voting_large(request, voting_pk):
     voting = get_object_or_404(Voting, pk=voting_pk)
-    choices = voting.choice_set.all()
+    choices = voting.votingchoice_set.all()
     if voting.is_draft():
         status = "draft"
     elif voting.is_open():
@@ -193,7 +193,7 @@ def voting_large(request, voting_pk):
 
     feedbacks = (
         voting.feedbacks.filter(
-            voting__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+            question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
         )
         .all()
         .annotate(
@@ -216,7 +216,7 @@ def voting_large(request, voting_pk):
             "num_likes",
             "num_unlikes",
             "pk",
-            "voting__name",
+            "question__name",
             "delegation__name",
             "delegation__country",
             "status",
@@ -290,10 +290,10 @@ def add_voting(request, room_id=""):
     else:
         room = get_object_or_404(VotingRoom.objects.for_user(request.user), pk=room_id)
 
-    ChoiceFormset = inlineformset_factory(  # pylint: disable=invalid-name
+    VotingChoiceFormset = inlineformset_factory(  # pylint: disable=invalid-name
         Voting,
-        Choice,
-        form=ChoiceForm,
+        VotingChoice,
+        form=VotingChoiceForm,
         extra=1,
         can_delete=False,
         min_num=2,
@@ -301,10 +301,10 @@ def add_voting(request, room_id=""):
     )
     if request.method == "POST":
         voting_form = VotingForm(request.POST, prefix="voting")
-        choice_formset = ChoiceFormset(request.POST, prefix="choices")
+        choice_formset = VotingChoiceFormset(request.POST, prefix="choices")
     else:
         voting_form = VotingForm(None, prefix="voting")
-        choice_formset = ChoiceFormset(
+        choice_formset = VotingChoiceFormset(
             None,
             prefix="choices",
             initial=[
@@ -341,7 +341,7 @@ def add_voting(request, room_id=""):
     context = {}
     context.update(csrf(request))
     form_html = render_crispy_form(voting_form, context=context) + render_crispy_form(
-        choice_formset, helper=ChoiceFormHelper(can_delete=False), context=context
+        choice_formset, helper=VotingChoiceFormHelper(can_delete=False), context=context
     )
     return JsonResponse(
         {
@@ -356,16 +356,18 @@ def add_voting(request, room_id=""):
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
 def edit_voting(request, voting_pk):
-    ChoiceFormset = inlineformset_factory(  # pylint: disable=invalid-name
-        Voting, Choice, form=ChoiceForm, extra=2, can_delete=True
+    VotingChoiceFormset = inlineformset_factory(  # pylint: disable=invalid-name
+        Voting, VotingChoice, form=VotingChoiceForm, extra=2, can_delete=True
     )
     voting = get_object_or_404(Voting, pk=voting_pk)
     if request.method == "POST":
         voting_form = VotingForm(request.POST, instance=voting, prefix="voting")
-        choice_formset = ChoiceFormset(request.POST, instance=voting, prefix="choices")
+        choice_formset = VotingChoiceFormset(
+            request.POST, instance=voting, prefix="choices"
+        )
     else:
         voting_form = VotingForm(instance=voting, prefix="voting")
-        choice_formset = ChoiceFormset(instance=voting, prefix="choices")
+        choice_formset = VotingChoiceFormset(instance=voting, prefix="choices")
     if voting_form.is_valid() and choice_formset.is_valid():
         voting = voting_form.save()
         choices = choice_formset.save()
@@ -386,7 +388,7 @@ def edit_voting(request, voting_pk):
     context = {}
     context.update(csrf(request))
     form_html = render_crispy_form(voting_form, context=context) + render_crispy_form(
-        choice_formset, helper=ChoiceFormHelper(can_delete=True), context=context
+        choice_formset, helper=VotingChoiceFormHelper(can_delete=True), context=context
     )
     return JsonResponse(
         {
@@ -402,7 +404,7 @@ def edit_voting(request, voting_pk):
 @ensure_csrf_cookie
 def delete_voting(request, voting_pk):
     voting = get_object_or_404(Voting, pk=voting_pk)
-    choice_list = Choice.objects.filter(voting=voting)
+    choice_list = VotingChoice.objects.filter(voting=voting)
     # try:
     voting.delete()
     for choice in choice_list:
@@ -439,7 +441,7 @@ def set_end_date(request, voting_pk):
         voting.end_date = timezone.localtime(end_date)
         voting.save()
         choice_text_list = []
-        for choice in Choice.objects.filter(voting=voting):
+        for choice in VotingChoice.objects.filter(voting=voting):
             choice_text_list.append(choice.choice_text)
 
         if settings.ENABLE_PUSH:
@@ -602,7 +604,7 @@ def voter_index(
             initial=[{"voting_right": vt} for vt in voting_rights],
         )
         for vote_form in VoteFormset:
-            vote_form.fields["choice"].queryset = voting.choice_set.all()
+            vote_form.fields["choice"].queryset = voting.votingchoice_set.all()
         if VoteFormset.is_valid():
             if timezone.now() < voting.end_date:
                 VoteFormset.save()
@@ -625,7 +627,7 @@ def voter_index(
 
         voting.feedbacks_list = (
             voting.feedbacks.filter(
-                voting__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+                question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
             )
             .all()
             .annotate(
@@ -648,7 +650,7 @@ def voter_index(
                 "num_likes",
                 "num_unlikes",
                 "pk",
-                "voting__name",
+                "question__name",
                 "delegation__name",
                 "delegation__country",
                 "status",
