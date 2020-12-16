@@ -91,12 +91,14 @@
             {{ active_room.name}}
           </small>
           {% endif %}
+          {% if user.is_superuser %}
           <small>
             <button class="btn btn-default" data-toggle="modal" data-target="#voting-room-modal" data-remote="false" href="{% url 'poll:edit-room' room_id=active_room.pk %}"><i class="fa fa-pencil fa-fw"></i>Edit Room</button>
           </small>
+          {% endif %}
         {% endif %}
       </h1>
-      {% if rooms %}
+      {% if rooms and user.is_superuser %}
       <h3>
         Visibility:
         {% if active_room.visibility > 0 %}

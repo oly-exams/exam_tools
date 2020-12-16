@@ -63,7 +63,7 @@ class VotingRoom(models.Model):
     )
 
     visibility = models.IntegerField(
-        default=0,
+        default=1,
         choices=VISIBILITY_CHOICES,
         help_text="Sets the visibility of the voting room for organizers and delegations.",
         verbose_name="Voting Room Visibility",

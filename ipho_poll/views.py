@@ -28,7 +28,11 @@ from django.http import (
 )
 from django.urls import reverse
 from django.template.context_processors import csrf
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import (
+    login_required,
+    permission_required,
+    user_passes_test,
+)
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.forms import inlineformset_factory, modelform_factory
 from django.core.exceptions import PermissionDenied
@@ -521,8 +525,7 @@ def close_question(request, question_pk):
     return HttpResponseRedirect(reverse("poll:staff-index"))
 
 
-@login_required
-@permission_required("ipho_core.can_edit_poll")
+@user_passes_test(lambda u: u.is_superuser)
 @ensure_csrf_cookie
 def edit_room(request, room_id):
     # pylint: disable=invalid-name
