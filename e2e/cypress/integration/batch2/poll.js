@@ -88,9 +88,9 @@ describe('Polls', function() {
 
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
         //check # questions
-        cy.get('#drafted-container #drafted-questions-table > tbody').children().should('have.length',3)
-        cy.get('#open-container #open-questions-table > tbody').children().should('have.length',1)
-        cy.get('#closed-container #closed-questions-table > tbody').children().should('have.length',2)
+        cy.get('#drafted-container #drafted-questions-table > tbody').children().should('have.length',2)
+        cy.get('#open-container #open-questions-table > tbody').children().should('have.length',0)
+        cy.get('#closed-container #closed-questions-table > tbody').children().should('have.length',1)
 
         // Open vote
         cy.get('#drafted-container #question-1 .btn-toolbar > :nth-child(3) > .btn').click()

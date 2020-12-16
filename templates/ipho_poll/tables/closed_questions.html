@@ -23,8 +23,8 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        {% if questions_list %}
         <tbody>
+        {% if questions_list %}
             {% for question in questions_list %}
                 <tr id="question-{{ question.pk }}">
                     <td class="col-md-1">{{ question.pk }}</td>
@@ -61,7 +61,7 @@
                     </td>
                 </tr>
             {% endfor %}
-        </tbody>
         {% endif %}
+        </tbody>
     </table>
 </div>
