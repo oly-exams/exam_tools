@@ -380,19 +380,19 @@
         "choice"
       ],
       [
-        "add_question",
+        "add_voting",
         "ipho_poll",
-        "question"
+        "voting"
       ],
       [
-        "change_question",
+        "change_voting",
         "ipho_poll",
-        "question"
+        "voting"
       ],
       [
-        "delete_question",
+        "delete_voting",
         "ipho_poll",
-        "question"
+        "voting"
       ],
       [
         "add_vote",
