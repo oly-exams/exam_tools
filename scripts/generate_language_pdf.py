@@ -83,7 +83,7 @@ def compile_question(question, language):
         "code": f"{question.code}{question.position}",
         "title": f"{question.exam.name} - {question.name}",
         "is_answer": question.is_answer_sheet(),
-        "document": trans_content.encode("utf-8"),
+        "document": trans_content,
     }
     body = render_to_string(
         os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_question.tex"),

@@ -174,9 +174,9 @@ def export_all(logo_file, names=("Theory", "Experiment")):
     exams = Exam.objects.filter(name__in=names)
     # The position filter is only really needed if there are spare problems
     questions = Question.objects.filter(
-        exam=exams, position__in=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+        exam__in=exams, position__in=[1, 2, 3, 4, 5, 6, 7, 8, 9]
     )
-    languages = Language.objects.filter(studentsubmission__exam=exams).distinct()
+    languages = Language.objects.filter(studentsubmission__exam__in=exams).distinct()
     print("Going to export in {} languages.".format(len(languages)))
     for q in questions:
         for lang in languages:
@@ -186,6 +186,6 @@ def export_all(logo_file, names=("Theory", "Experiment")):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        export_all(logo_file="icho2020_logo.png", names=sys.argv[1:])
+        export_all(logo_file="idpho2020_logo.png", names=sys.argv[1:])
     else:
-        export_all(logo_file="icho2020_logo.png")
+        export_all(logo_file="idpho2020_logo.png")

@@ -29,6 +29,7 @@ from django.contrib.auth.decorators import (
     user_passes_test,
 )
 from django.contrib.auth import authenticate, login
+
 from django.urls import reverse
 from pywebpush import WebPushException
 

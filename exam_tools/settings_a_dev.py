@@ -42,3 +42,22 @@ ALLOWED_HOSTS += (
     "django-server",
     "localhost",
 )
+
+ADD_DELEGATION_WATERMARK = True
+RECORD_USER_LOGIN_LOGOUT_IPS = True
+
+# enable this to see ip logging locally
+LOGGING["handlers"]["logfile"] = {
+    "class": "logging.handlers.WatchedFileHandler",
+    "filename": "/home/container/logs/exam_tools-django.log",
+}
+
+LOGGING["loggers"].update(
+    {
+        "exam_tools": {
+            "handlers": ["logfile"],
+            "level": "INFO",
+            "propagate": False,
+        }
+    }
+)
