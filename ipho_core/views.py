@@ -16,9 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
-import time
 import random
-import logging
 import concurrent.futures
 from past.utils import old_div
 
@@ -31,8 +29,8 @@ from django.contrib.auth.decorators import (
     user_passes_test,
 )
 from django.contrib.auth import authenticate, login
+
 from django.urls import reverse
-from ipware import get_client_ip
 from pywebpush import WebPushException
 
 
@@ -335,35 +333,3 @@ def chocobunny(request):
         else:
             message = "Wait.. you didn't actually win! This incident will be reported!!"
     return render(request, "ipho_core/bunny.html", {"name": name, "message": message})
-
-
-# this is not the right place for this, but for now I put it here
-def enable_record_user_login_logout_ips():
-    logger = logging.getLogger("exam_tools")
-
-    def log_logged_in(
-        sender, user, request, **kwargs
-    ):  # pylint: disable=unused-argument
-        logger.info(
-            "%s User %s successfully logged in at %s",
-            user,
-            get_client_ip(request)[0],
-            time.strftime("%m/%d/%Y %H:%M:%S"),
-        )
-
-    def log_logged_out(
-        sender, user, request, **kwargs
-    ):  # pylint: disable=unused-argument
-        logger.info(
-            "%s User %s successfully logged out at %s",
-            user,
-            get_client_ip(request)[0],
-            time.strftime("%m/%d/%Y %H:%M:%S"),
-        )
-
-    user_logged_in.connect(log_logged_in)
-    user_logged_out.connect(log_logged_out)
-
-
-if getattr(settings, "RECORD_USER_LOGIN_LOGOUT_IPS"):
-    enable_record_user_login_logout_ips()
