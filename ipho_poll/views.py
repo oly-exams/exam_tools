@@ -236,7 +236,7 @@ def voting_large(request, voting_pk):
             .annotate(
                 q_count=Sum(
                     Case(
-                        When(votingright__vote__voting=voting, then=1),
+                        When(votingright__castedvote__voting=voting, then=1),
                         output_field=IntegerField(),
                         default=0,
                     )
@@ -587,9 +587,9 @@ def voter_index(
     just_voted = ()
     for voting in unvoted_votings_list:
         # gather voting_rights that could still be used
-        voting_rights = user.votingright_set.exclude(vote__voting=voting).order_by(
-            "name"
-        )
+        voting_rights = user.votingright_set.exclude(
+            castedvote__voting=voting
+        ).order_by("name")
         CastedVoteFormsetFactory = (  # pylint: disable=invalid-name
             inlineformset_factory(
                 Voting,

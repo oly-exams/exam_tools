@@ -22,10 +22,10 @@
       <div class="col-sm-2">
         <h4>Status: {{ status }}</h4>
       </div>
-      <div class="col-sm-2">
+      <div class="col-sm-2" id="feedback-div">
         <h4>Feedbacks:</h4>
           {% for fb in voting.feedbacks.all %}
-          <span class="label label-default">#{{ fb.pk }} ({{ fb.voting.exam.code }} {{ fb.voting.code }}-{{ fb.voting.position }})</span>
+          <span class="label label-default">#{{ fb.pk }} ({{ fb.question.exam.code }} {{ fb.question.code }}-{{ fb.question.position }})</span>
           {% empty %}
           <span class="label label-default">none</span>
           {% endfor %}

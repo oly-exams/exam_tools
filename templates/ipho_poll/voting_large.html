@@ -132,36 +132,41 @@
         {% if feedbacks %}
         <div class="panel panel-default">
             <div class="panel-heading"><h2>Feedbacks</h2></div>
-            <table class="table table-striped feedbacks">
-                <tr>
+            <table class="table table-striped feedbacks" id="feedback-table">
+                <thead>
+                  <tr>
                     <th>#</th>
                     <th>Delegation</th>
                     <th>Question</th>
                     <th>Feedback</th>
                     <th>Likes</th>
-                </tr>
-
-                {% for fb in feedbacks %}
-                <tr>
-                    <td>{{ fb.pk }}</td>
-                    <td>{{ fb.delegation__name }}</td>
-                    <td>
-                      {{ fb.question__name }}<br />
-                      {{ fb.part }}
-                    </td>
-                    <td>{{ fb.comment }}</td>
-                    <td style="font-size:24px;">
-                      <span class="label label-info">
-                        <i class="fa fa-thumbs-o-up"></i>
-                        <span class="badge">{{ fb.num_likes }}</span>
-                      </span>
-                      <span class="label label-warning">
-                        <i class="fa fa-thumbs-o-down"></i>
-                        <span class="badge">{{ fb.num_unlikes }}</span>
-                      </span>
-                    </td>
-                </tr>
-                {% endfor %}
+                  </tr>
+                </thead>
+                
+                <tbody>
+                  {% for fb in feedbacks %}
+                  <tr id="feedback-{{ fb.pk }}">
+                      <td>{{ fb.pk }}</td>
+                      <td>{{ fb.delegation__name }}</td>
+                      <td>
+                        {{ fb.question__name }}<br />
+                        {{ fb.part }}
+                      </td>
+                      <td>{{ fb.comment }}</td>
+                      <td style="font-size:24px;">
+                        <span class="label label-info">
+                          <i class="fa fa-thumbs-o-up"></i>
+                          <span class="badge">{{ fb.num_likes }}</span>
+                        </span>
+                        <span class="label label-warning">
+                          <i class="fa fa-thumbs-o-down"></i>
+                          <span class="badge">{{ fb.num_unlikes }}</span>
+                        </span>
+                      </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+                
 
               </table>
         </div>

@@ -390,19 +390,19 @@
         "voting"
       ],
       [
-        "add_vote",
+        "add_castedvote",
         "ipho_poll",
-        "vote"
+        "castedvote"
       ],
       [
-        "change_vote",
+        "change_castedvote",
         "ipho_poll",
-        "vote"
+        "castedvote"
       ],
       [
-        "delete_vote",
+        "delete_castedvote",
         "ipho_poll",
-        "vote"
+        "castedvote"
       ],
       [
         "add_votingright",

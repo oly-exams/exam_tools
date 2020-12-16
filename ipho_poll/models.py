@@ -90,13 +90,13 @@ class VotingQuerySet(models.QuerySet):
         user_tot_votes = user.votingright_set.all().count()
         not_full = (
             self.is_open()
-            .filter(vote__voting_right__user=user)
-            .annotate(user_votes=Count("vote"))
+            .filter(castedvote__voting_right__user=user)
+            .annotate(user_votes=Count("castedvote"))
             .filter(user_votes__lt=user_tot_votes)
             .values_list("pk", flat=True)
         )
         Q_not_full = Q(pk__in=not_full)
-        Q_no_votes = ~Q(vote__voting_right__user=user)
+        Q_no_votes = ~Q(castedvote__voting_right__user=user)
         not_voted = self.is_open().filter(Q_not_full | Q_no_votes)
         return not_voted
 

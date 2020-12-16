@@ -34,7 +34,7 @@
       <div class="containter">
         {% for voting in unvoted_votings_list %}
             <div class="col-md-12">
-              <div class="panel panel-default">
+              <div class="panel panel-default" id="voting-panel-{{ voting.pk }}">
                 <div class="panel-heading">
                     <h3 class="panel-title"> {{ voting }}
                     <!-- Countdown removed since it relies on the local time of the computers
@@ -55,17 +55,19 @@
 
                 </div>
                 {% if voting.feedbacks_list %}
-                <table class="table table-striped feedbacks">
+                <table class="table table-striped feedbacks" id="feedback-table-{{ voting.pk }}">
+                  <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Delegation</th>
-                        <th>Question</th>
-                        <th>Comment</th>
-                        <th></th>
+                      <th>#</th>
+                      <th>Delegation</th>
+                      <th>Question</th>
+                      <th>Comment</th>
+                      <th></th>
                     </tr>
-
+                  </thead>
+                  <tbody>
                     {% for fb in voting.feedbacks_list %}
-                    <tr>
+                    <tr id="feedback-{{ fb.pk }}-voting-{{ voting.pk }}">
                         <td>{{ fb.pk }}</td>
                         <td>{{ fb.delegation__name }}</td>
                         <td>
@@ -85,8 +87,9 @@
                         </td>
                     </tr>
                     {% endfor %}
-                  </table>
-                  {% endif %}
+                  </tbody>
+                </table>
+                {% endif %}
 
               </div>
             </div>

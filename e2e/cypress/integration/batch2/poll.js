@@ -17,7 +17,8 @@ describe('Polls', function() {
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/drafted/).as("getStaffPartialsDrafted");
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/open/).as("getStaffPartialsOpen");
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/closed/).as("getStaffPartialsClosed");
-        cy.route("GET", "/poll/voting/**").as("getStaffVoting");
+        cy.route("GET", "/poll/voting/add/room/**").as("getCreateVoting");
+        cy.route("GET", "/poll/voting/*/").as("getStaffVoting");
     })
 
     it('Test Voting', function() {
@@ -146,11 +147,76 @@ describe('Polls', function() {
         cy.get('#choice-3 > .numvotes').shouldHaveTrimmedText('0')
     })
 
+    it.only('Test Feedback in Votes', function() {
+        cy.login('admin','1234')
+        cy.visit('poll/staff/')
+
+        // Add a voting with feedbacks
+        cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
+        cy.get('#drafted-container').contains('Create new').click()
+
+        cy.wait("@getCreateVoting")
+        cy.get("#voting-modal").should('be.visible').within(()=>{
+            cy.get("#id_voting-title").type('Q4')
+            cy.typeCKeditor("id_voting-content", "Q4 content")
+            cy.get("#id_voting-feedbacks").select(['1', '2'])
+            cy.get("#id_choices-0-label").type("A")
+            cy.get("#id_choices-0-choice_text").type("a")
+            cy.get("#id_choices-1-label").type("B")
+            cy.get("#id_choices-1-choice_text").type("b")
+            cy.get('button[type="submit"]').click()
+        })
+
+        cy.wait("@getStaffPartialsDrafted")
+        // Check feedbacks in drafted votings
+        cy.get("#voting-4 :nth-child(2)").should('contain', "#1").and('contain', "#2")
+
+        cy.visit("/poll/voting/detail/4/")
+        cy.get("#feedback-div").should('contain', "#1 (T Q-1)").and('contain', "#2 (T Q-1)")
+
+        cy.visit("/poll/voting/large/4/")
+        cy.get("#feedback-table tbody").children().should('have.length', 2)
+        cy.get("#feedback-table tbody").within(()=>{
+            cy.get('#feedback-1 :nth-child(1)').should('contain', 1)
+            cy.get('#feedback-1 :nth-child(2)').should('contain', "ARM")
+            cy.get('#feedback-2 :nth-child(1)').should('contain', 2)
+            cy.get('#feedback-2 :nth-child(2)').should('contain', "AUS")
+        })
+
+        // Open Voting
+        cy.visit('poll/staff/')
+        cy.get('#drafted-container #voting-4 .btn-toolbar > :nth-child(3) > .btn').click()
+        cy.wait("@getStaffVoting")
+        cy.get('#voting-modal').should('be.visible')
+        cy.get('[data-min="1"] > .btn').click()
+        cy.get('#voting-modal .modal-footer > .btn-primary').click()
+        cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
+
+        // Check feedbacks on delegation page
+        cy.logout()
+        cy.login('ARM','1234')
+        cy.visit('/poll/')
+        cy.get('#voting-panel-4').within(()=>{
+            cy.contains("Q4")
+            cy.get("#feedback-table-4 tbody").children().should('have.length', 2)
+            cy.get("#feedback-table-4 tbody").within(()=>{
+                cy.get('#feedback-1-voting-4 :nth-child(1)').should('contain', 1)
+                cy.get('#feedback-1-voting-4 :nth-child(2)').should('contain', "ARM")
+                cy.get('#feedback-2-voting-4 :nth-child(1)').should('contain', 2)
+                cy.get('#feedback-2-voting-4 :nth-child(2)').should('contain', "AUS")
+            })
+        })
+    })
+
     it("Test Permissions", function(){
         cy.login('AUS','1234')
         // Check whether a delegation can access the staff voting pane
         cy.visit('/poll/staff/')
         cy.url().should('contain', 'accounts/login/?next=/poll/staff/')
+        cy.visit('/poll/voting/large/1')
+        cy.url().should('contain', 'accounts/login/?next=/poll/voting/large/1')
+        cy.visit('/poll/voting/detail/1')
+        cy.url().should('contain', 'accounts/login/?next=/poll/voting/detail/1')
 
         cy.logout()
         cy.login('admin','1234')
