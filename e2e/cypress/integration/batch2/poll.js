@@ -147,7 +147,7 @@ describe('Polls', function() {
         cy.get('#choice-3 > .numvotes').shouldHaveTrimmedText('0')
     })
 
-    it.only('Test Feedback in Votes', function() {
+    it('Test Feedback in Votes', function() {
         cy.login('admin','1234')
         cy.visit('poll/staff/')
 
