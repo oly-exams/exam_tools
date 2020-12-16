@@ -25,26 +25,26 @@
 
     <div id="alerts-container"></div>
 
-    {% if not unvoted_questions_list%}
+    {% if not unvoted_votings_list%}
         <div class="alert alert-danger">
             <strong>Sorry but there are no votings at the moment.</strong>
         </div>
 
     {% else %}
       <div class="containter">
-        {% for question in unvoted_questions_list %}
+        {% for voting in unvoted_votings_list %}
             <div class="col-md-12">
               <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"> {{ question }}
+                    <h3 class="panel-title"> {{ voting }}
                     <!-- Countdown removed since it relies on the local time of the computers
-                    <span class="countdown pull-right" data-end-date="{{ question.end_date.isoformat }}"></span>
+                    <span class="countdown pull-right" data-end-date="{{ voting.end_date.isoformat }}"></span>
                     </h3> -->
                 </div>
                 <div class="panel-body">
-                {% if question.content %}<div>{{ question.content|safe }}</div><hr />{% endif %}
+                {% if voting.content %}<div>{{ voting.content|safe }}</div><hr />{% endif %}
                 {% for key, formset in formset_list.items %}
-                    {% if key == question.pk %}
+                    {% if key == voting.pk %}
                       <form action="" method="post">{% csrf_token %}
                             {{ formset.management_form }}
                             {{ formset }}
@@ -54,22 +54,22 @@
                 {% endfor %}
 
                 </div>
-                {% if question.feedbacks_list %}
+                {% if voting.feedbacks_list %}
                 <table class="table table-striped feedbacks">
                     <tr>
                         <th>#</th>
                         <th>Delegation</th>
-                        <th>Question</th>
+                        <th>Voting</th>
                         <th>Comment</th>
                         <th></th>
                     </tr>
 
-                    {% for fb in question.feedbacks_list %}
+                    {% for fb in voting.feedbacks_list %}
                     <tr>
                         <td>{{ fb.pk }}</td>
                         <td>{{ fb.delegation__name }}</td>
                         <td>
-                          {{ fb.question__name }}<br />
+                          {{ fb.voting__name }}<br />
                           {{ fb.part }}
                         </td>
                         <td>{{ fb.comment }}</td>

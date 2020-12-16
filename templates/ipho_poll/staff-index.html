@@ -22,8 +22,8 @@
 {% endblock %}
 
 {% block content %}
-{# modal for creating a new question and editing questions. #}
-<div class="modal fade" id="question-modal" tabindex="-1" aria-labelledby="modalLabel">
+{# modal for creating a new voting and editing votings. #}
+<div class="modal fade" id="voting-modal" tabindex="-1" aria-labelledby="modalLabel">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -41,7 +41,7 @@
   </div>
 </div>
 
-{# modal for deleting questions #}
+{# modal for deleting votings #}
 <div class="modal fade" id="delete-modal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -115,9 +115,9 @@
     <div id="alerts-container"></div>
 
     <div class="row">
-       <div class="col-md-12 vote-question-container" id="drafted-container" data-href="{% url 'poll:staff-index-partials' qtype='drafted' room_id=active_room.pk|default:'' %}"></div>
-       <div class="col-md-12 vote-question-container" id="open-container" data-href="{% url 'poll:staff-index-partials' qtype='open' room_id=active_room.pk|default:'' %}"></div>
-       <div class="col-md-12 vote-question-container" id="closed-container" data-href="{% url 'poll:staff-index-partials' qtype='closed' room_id=active_room.pk|default:'' %}"></div>
+       <div class="col-md-12 vote-voting-container" id="drafted-container" data-href="{% url 'poll:staff-index-partials' qtype='drafted' room_id=active_room.pk|default:'' %}"></div>
+       <div class="col-md-12 vote-voting-container" id="open-container" data-href="{% url 'poll:staff-index-partials' qtype='open' room_id=active_room.pk|default:'' %}"></div>
+       <div class="col-md-12 vote-voting-container" id="closed-container" data-href="{% url 'poll:staff-index-partials' qtype='closed' room_id=active_room.pk|default:'' %}"></div>
     </div>
 </div> <!-- container -->
 {% endblock %}
@@ -200,8 +200,8 @@ $('document').ready(function(){
     });
 
 
-    //Fill Question modal with Form when modal is shown
-    $('#question-modal').on('show.bs.modal', function (event) {
+    //Fill Voting modal with Form when modal is shown
+    $('#voting-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var href = button.attr('href');
         var modal = $(this);
@@ -243,7 +243,7 @@ $('document').ready(function(){
 
 
     //Defines what happens when submit is pressed in the form modal
-    $(document).on('submit', '#question-modal form', function(event) {
+    $(document).on('submit', '#voting-modal form', function(event) {
         event.preventDefault();
         var form = event.target;
         var $form = $(form);
@@ -259,8 +259,8 @@ $('document').ready(function(){
             success: function(data) {
                 $form.find(':submit').attr("disabled", false);
                 if (!data['success']) {
-                    $('#question-modal .modal-body').html(data['form']);
-                    $('#question-modal .modal-body textarea').ckeditor();
+                    $('#voting-modal .modal-body').html(data['form']);
+                    $('#voting-modal .modal-body textarea').ckeditor();
                     $('#modal-utc_offset').val(moment().utcOffset());
                     $('#modal-datetimepicker').datetimepicker({
                         format: "MM/DD/YYYY HH:mm:ss",
@@ -273,7 +273,7 @@ $('document').ready(function(){
                 }
                 else {
 
-                    $('#question-modal').modal('hide');
+                    $('#voting-modal').modal('hide');
 
                     // just reload tables
                     reload_tables();
@@ -293,15 +293,15 @@ $('document').ready(function(){
     $('#delete-modal').on('show.bs.modal', function (event) {
         var modal = $(this);
         var button = $(event.relatedTarget); // Button that triggered the modal
-        modal.data('question-pk', button.data('question-pk'));
+        modal.data('voting-pk', button.data('voting-pk'));
         modal.data('delete-href', button.attr('href'));
         modal.find('.modal-body').text(
-                                    'The voting #' + button.data('question-pk') +
+                                    'The voting #' + button.data('voting-pk') +
                                     ' will be deleted permanently.'
                                     )
     });
 
-    // Delete a question when delete button is clicked in the modal
+    // Delete a voting when delete button is clicked in the modal
     $(document).on('click', '#delete-modal button[data-confirm="delete"]', function(event){
         event.preventDefault();
         var modal = $('#delete-modal');
@@ -313,8 +313,8 @@ $('document').ready(function(){
             contentType: false,
             success: function(data) {
                 if (data['success']) {
-                    $('#question-'+modal.data('question-pk')).remove();
-                    modal.data('question-pk', null);
+                    $('#voting-'+modal.data('voting-pk')).remove();
+                    modal.data('voting-pk', null);
                     modal.data('delete-href', null);
                     modal.modal('hide');
                     $('#alerts-container').prepend('<div class="alert alert-warning alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
@@ -383,7 +383,7 @@ $('document').ready(function(){
     });
 
     function reload_tables() {
-      $('.vote-question-container').each(function () {
+      $('.vote-voting-container').each(function () {
         var container = $(this);
         var href = container.data('href');
         $.ajax({

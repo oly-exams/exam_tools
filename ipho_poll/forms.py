@@ -21,21 +21,21 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, HTML
 
 
-from ipho_poll.models import Question, Choice, Vote
+from ipho_poll.models import Voting, Choice, Vote
 
 
-class QuestionForm(ModelForm):
+class VotingForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        # self.helper.layout = Layout(Field('title', placeholder='Enter question text'), Field('question'))
+        # self.helper.layout = Layout(Field('title', placeholder='Enter voting text'), Field('voting'))
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.helper.form_tag = False
         self.helper.disable_csrf = True
 
     class Meta:
-        model = Question
+        model = Voting
         fields = ["title", "content", "feedbacks"]
 
 
@@ -66,7 +66,7 @@ class EndDateForm(ModelForm):
         self.helper.include_media = True
 
     class Meta:
-        model = Question
+        model = Voting
         fields = ["end_date"]
         widgets = {"end_date": HiddenInput()}
 
@@ -127,14 +127,14 @@ class VoteForm(ModelForm):
 
     class Meta:
         model = Vote
-        fields = ["choice", "question", "voting_right"]
+        fields = ["choice", "voting", "voting_right"]
         widgets = {"choice": RadioSelect(), "voting_right": HiddenInput()}
 
 
 class VoteFormHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.layout = Layout(Div(Field("choice")), Div(Field("question")))
+        self.layout = Layout(Div(Field("choice")), Div(Field("voting")))
         self.form_show_labels = True
         self.html5_required = False
         self.form_tag = False

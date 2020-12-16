@@ -17,7 +17,7 @@ describe('Polls', function() {
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/drafted/).as("getStaffPartialsDrafted");
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/open/).as("getStaffPartialsOpen");
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/closed/).as("getStaffPartialsClosed");
-        cy.route("GET", "/poll/question/**").as("getStaffQuestion");
+        cy.route("GET", "/poll/voting/**").as("getStaffVoting");
     })
 
     it('Test Voting', function() {
@@ -26,19 +26,19 @@ describe('Polls', function() {
 
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
 
-        cy.get('#drafted-container #question-2 .btn-toolbar > :nth-child(3) > .btn').click()
-        cy.wait("@getStaffQuestion")
+        cy.get('#drafted-container #voting-2 .btn-toolbar > :nth-child(3) > .btn').click()
+        cy.wait("@getStaffVoting")
         cy.get('[data-min="1"] > .btn').click()
-        cy.get('#question-modal .modal-footer > .btn-primary').click()
+        cy.get('#voting-modal .modal-footer > .btn-primary').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
-        cy.get('#open-container #question-2')
-        cy.get('#drafted-container #question-2').should('not.exist')
+        cy.get('#open-container #voting-2')
+        cy.get('#drafted-container #voting-2').should('not.exist')
 
         cy.logout()
 
         cy.login('ARM','1234')
         cy.visit('/poll/')
-        // Check available questions
+        // Check available votings
         cy.contains('Q2')
         cy.contains('Q1').should('not.exist')
         cy.contains('Q3').should('not.exist')
@@ -62,7 +62,7 @@ describe('Polls', function() {
         cy.logout()
 
         cy.login('admin','1234')
-        cy.visit('poll/question/detail/2/')
+        cy.visit('poll/voting/detail/2/')
         // Check results
         cy.get('#choice-4 > .numvotes').shouldHaveTrimmedText('2')
         cy.get('#choice-5 > .numvotes').shouldHaveTrimmedText('0')
@@ -71,7 +71,7 @@ describe('Polls', function() {
 
     it('Test Results', function() {
         cy.login('admin','1234')
-        cy.visit('poll/question/detail/3/')
+        cy.visit('poll/voting/detail/3/')
         // Check labels
         cy.get('#choice-6-choice-text').shouldHaveTrimmedText('red')
         cy.get('#choice-7-choice-text').shouldHaveTrimmedText('blue')
@@ -87,45 +87,45 @@ describe('Polls', function() {
         cy.visit('poll/staff/')
 
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
-        //check # questions
-        cy.get('#drafted-container #drafted-questions-table > tbody').children().should('have.length',2)
-        cy.get('#open-container #open-questions-table > tbody').children().should('have.length',0)
-        cy.get('#closed-container #closed-questions-table > tbody').children().should('have.length',1)
+        //check # votings
+        cy.get('#drafted-container #drafted-votings-table > tbody').children().should('have.length',2)
+        cy.get('#open-container #open-votings-table > tbody').children().should('have.length',0)
+        cy.get('#closed-container #closed-votings-table > tbody').children().should('have.length',1)
 
         // Open vote
-        cy.get('#drafted-container #question-1 .btn-toolbar > :nth-child(3) > .btn').click()
-        cy.wait("@getStaffQuestion")
-        cy.get('#question-modal').should('be.visible')
+        cy.get('#drafted-container #voting-1 .btn-toolbar > :nth-child(3) > .btn').click()
+        cy.wait("@getStaffVoting")
+        cy.get('#voting-modal').should('be.visible')
         cy.get('[data-min="1"] > .btn').click()
-        cy.get('#question-modal .modal-footer > .btn-primary').click()
+        cy.get('#voting-modal .modal-footer > .btn-primary').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
 
-        cy.get('#drafted-container #question-1').should('not.exist')
+        cy.get('#drafted-container #voting-1').should('not.exist')
         // redraft
-        cy.get('#open-container #question-1 .btn-toolbar > :nth-child(2) > .btn').click()
+        cy.get('#open-container #voting-1 .btn-toolbar > :nth-child(2) > .btn').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
-        cy.get('#open-container #question-1').should('not.exist')
+        cy.get('#open-container #voting-1').should('not.exist')
 
         //open q1 again
-        cy.get('#drafted-container #question-1 .btn-toolbar > :nth-child(3) > .btn').click()
-        cy.wait("@getStaffQuestion")
+        cy.get('#drafted-container #voting-1 .btn-toolbar > :nth-child(3) > .btn').click()
+        cy.wait("@getStaffVoting")
         cy.get('[data-min="1"] > .btn').click()
-        cy.get('#question-modal .modal-footer > .btn-primary').click()
+        cy.get('#voting-modal .modal-footer > .btn-primary').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
 
         //open q2
-        cy.get('#drafted-container #question-2 .btn-toolbar > :nth-child(3) > .btn').click()
-        cy.wait("@getStaffQuestion")
+        cy.get('#drafted-container #voting-2 .btn-toolbar > :nth-child(3) > .btn').click()
+        cy.wait("@getStaffVoting")
         cy.get('[data-min="1"] > .btn').click()
-        cy.get('#question-modal .modal-footer > .btn-primary').click()
+        cy.get('#voting-modal .modal-footer > .btn-primary').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
-        cy.get('#drafted-container #question-2').should('not.exist')
+        cy.get('#drafted-container #voting-2').should('not.exist')
         // close
-        cy.get('#open-container #question-2 .btn-toolbar > :nth-child(3) > .btn').click()
+        cy.get('#open-container #voting-2 .btn-toolbar > :nth-child(3) > .btn').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
-        cy.get('#drafted-container #question-2').should('not.exist')
-        cy.get('#open-container #question-2').should('not.exist')
-        cy.get('#closed-container #question-2')
+        cy.get('#drafted-container #voting-2').should('not.exist')
+        cy.get('#open-container #voting-2').should('not.exist')
+        cy.get('#closed-container #voting-2')
 
 
         cy.login('ARM','1234')
@@ -139,7 +139,7 @@ describe('Polls', function() {
         cy.get('.btn').contains('Vote').click()
         cy.logout()
         cy.login('admin','1234')
-        cy.visit('poll/question/detail/1/')
+        cy.visit('poll/voting/detail/1/')
         // Check results
         cy.get('#choice-1 > .numvotes').shouldHaveTrimmedText('0')
         cy.get('#choice-2 > .numvotes').shouldHaveTrimmedText('0')

@@ -75,7 +75,7 @@ class VotingRoom(models.Model):
         return self.name
 
 
-class QuestionQuerySet(models.QuerySet):
+class VotingQuerySet(models.QuerySet):
     def is_draft(self):
         return self.filter(end_date__isnull=True)
 
@@ -101,7 +101,7 @@ class QuestionQuerySet(models.QuerySet):
         return not_voted
 
 
-class Question(models.Model):
+class Voting(models.Model):
     class VoteResultMeta:
         OPEN = 0
         REJECTED = 1
@@ -134,7 +134,7 @@ class Question(models.Model):
         choices=ImplementationMeta.choices, default=ImplementationMeta.NOT_IMPL
     )
     feedbacks = models.ManyToManyField(Feedback, blank=True, related_name="vote")
-    objects = QuestionQuerySet.as_manager()
+    objects = VotingQuerySet.as_manager()
 
     def __str__(self):
         return self.title
@@ -160,7 +160,7 @@ class Question(models.Model):
 
 
 class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    voting = models.ForeignKey(Voting, on_delete=models.CASCADE)
     label = models.CharField(max_length=3, blank=True, null=True)
     choice_text = models.CharField(max_length=200)
 
@@ -187,7 +187,7 @@ class VotingRight(models.Model):
 
 
 class Vote(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    voting = models.ForeignKey(Voting, on_delete=models.CASCADE)
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
     voting_right = models.ForeignKey(VotingRight, on_delete=models.CASCADE)
 
@@ -195,4 +195,4 @@ class Vote(models.Model):
         return self.choice.__str__()
 
     class Meta:
-        unique_together = ("question", "voting_right")
+        unique_together = ("voting", "voting_right")

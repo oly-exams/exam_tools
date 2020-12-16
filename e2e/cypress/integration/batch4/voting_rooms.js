@@ -17,7 +17,7 @@ describe('Voting Rooms', function() {
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/drafted/).as("getStaffPartialsDrafted");
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/open/).as("getStaffPartialsOpen");
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/closed/).as("getStaffPartialsClosed");
-        cy.route("GET", "/poll/question/**").as("getStaffQuestion");
+        cy.route("GET", "/poll/voting/**").as("getStaffVoting");
     })
 
     it('Test Voting', function() {
@@ -33,13 +33,13 @@ describe('Voting Rooms', function() {
 
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
 
-        cy.get('#drafted-container #question-2 .btn-toolbar > :nth-child(3) > .btn').click()
-        cy.wait("@getStaffQuestion")
+        cy.get('#drafted-container #voting-2 .btn-toolbar > :nth-child(3) > .btn').click()
+        cy.wait("@getStaffVoting")
         cy.get('[data-min="1"] > .btn').click()
-        cy.get('#question-modal .modal-footer > .btn-primary').click()
+        cy.get('#voting-modal .modal-footer > .btn-primary').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
-        cy.get('#open-container #question-2')
-        cy.get('#drafted-container #question-2').should('not.exist')
+        cy.get('#open-container #voting-2')
+        cy.get('#drafted-container #voting-2').should('not.exist')
 
         cy.logout()
 
@@ -58,7 +58,7 @@ describe('Voting Rooms', function() {
         // Switch to room 1
         cy.visit("/poll/room/1")
 
-        // Check available questions
+        // Check available votings
         cy.contains('Q2')
         cy.contains('Q1').should('not.exist')
         cy.contains('Q3').should('not.exist')
@@ -83,7 +83,7 @@ describe('Voting Rooms', function() {
         cy.logout()
 
         cy.login('admin','1234')
-        cy.visit('poll/question/detail/2/')
+        cy.visit('poll/voting/detail/2/')
         // Check results
         cy.get('#choice-4 > .numvotes').shouldHaveTrimmedText('2')
         cy.get('#choice-5 > .numvotes').shouldHaveTrimmedText('0')
@@ -92,13 +92,13 @@ describe('Voting Rooms', function() {
     it('Test Admin Rooms', function() {
         cy.login('admin','1234')
 
-        // Visit first room and check all questions
+        // Visit first room and check all votings
         cy.visit('poll/staff/room/1')
 
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
-        cy.get('#drafted-container #question-1').should('contain', 'Q1')
-        cy.get('#drafted-container #question-2').should('contain', 'Q2')
-        cy.get('#closed-container #question-3').should('contain', 'Q3')
+        cy.get('#drafted-container #voting-1').should('contain', 'Q1')
+        cy.get('#drafted-container #voting-2').should('contain', 'Q2')
+        cy.get('#closed-container #voting-3').should('contain', 'Q3')
         cy.get('#drafted-container tbody').children().should('have.length', 2)
         cy.get('#open-container tbody').children().should('have.length', 0)
         cy.get('#closed-container tbody').children().should('have.length', 1)
@@ -106,9 +106,9 @@ describe('Voting Rooms', function() {
         cy.visit('poll/staff/room/2')
 
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
-        cy.get('#drafted-container #question-4').should('contain', 'Q1')
-        cy.get('#drafted-container #question-5').should('contain', 'Q2')
-        cy.get('#closed-container #question-6').should('contain', 'Q3')
+        cy.get('#drafted-container #voting-4').should('contain', 'Q1')
+        cy.get('#drafted-container #voting-5').should('contain', 'Q2')
+        cy.get('#closed-container #voting-6').should('contain', 'Q3')
         cy.get('#drafted-container tbody').children().should('have.length', 2)
         cy.get('#open-container tbody').children().should('have.length', 0)
         cy.get('#closed-container tbody').children().should('have.length', 1)

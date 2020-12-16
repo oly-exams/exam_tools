@@ -17,7 +17,7 @@
 
 from django.contrib import admin
 
-from .models import Question, Choice, Vote, VotingRight, VotingRoom
+from .models import Voting, Choice, Vote, VotingRight, VotingRoom
 
 
 class ChoiceInline(admin.TabularInline):
@@ -25,9 +25,9 @@ class ChoiceInline(admin.TabularInline):
     extra = 2
 
 
-class QuestionAdmin(admin.ModelAdmin):
+class VotingAdmin(admin.ModelAdmin):
     fieldsets = [
-        ("Question information", {"fields": ["title", "content", "voting_room"]}),
+        ("Voting information", {"fields": ["title", "content", "voting_room"]}),
         (
             "Date information",
             {"fields": ["pub_date", "end_date"], "classes": ["collapse"]},
@@ -62,9 +62,9 @@ class QuestionAdmin(admin.ModelAdmin):
 
 class VoteAdmin(admin.ModelAdmin):
     fieldsets = [
-        ("Vote Information", {"fields": ["question", "choice", "voting_right"]}),
+        ("Vote Information", {"fields": ["voting", "choice", "voting_right"]}),
     ]
-    list_display = ("question", "choice", "voting_right")
+    list_display = ("voting", "choice", "voting_right")
 
 
 class VotingRightAdmin(admin.ModelAdmin):
@@ -72,7 +72,7 @@ class VotingRightAdmin(admin.ModelAdmin):
     list_display = ("user", "name")
 
 
-admin.site.register(Question, QuestionAdmin)
+admin.site.register(Voting, VotingAdmin)
 admin.site.register(Vote, VoteAdmin)
 admin.site.register(VotingRight, VotingRightAdmin)
 admin.site.register(VotingRoom)

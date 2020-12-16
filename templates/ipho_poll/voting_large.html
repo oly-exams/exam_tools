@@ -1,5 +1,5 @@
 
-{% extends "ipho_poll/question_large_base.html" %}
+{% extends "ipho_poll/voting_large_base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
@@ -47,14 +47,14 @@
   <div class="col-md-6 pre-scrollable">
 
         <div class="jumbotron">
-            <h1>{{ question }}</h1>
+            <h1>{{ voting }}</h1>
             {% if status == 'open' %}
                 <p>
-                  Remaining Time: <strong><span class="countdown" data-end-date="{{ question.end_date | date:'r' }}"></span></strong>
+                  Remaining Time: <strong><span class="countdown" data-end-date="{{ voting.end_date | date:'r' }}"></span></strong>
                 </p>
             {% endif %}
             <div class="jumbotron">
-                <p>{{ question.content|safe }}</p>
+                <p>{{ voting.content|safe }}</p>
             </div>
             {% if display_remaining_users %}
             {% if remaining_users_to_vote %}
@@ -136,7 +136,7 @@
                 <tr>
                     <th>#</th>
                     <th>Delegation</th>
-                    <th>Question</th>
+                    <th>Voting</th>
                     <th>Feedback</th>
                     <th>Likes</th>
                 </tr>
@@ -146,7 +146,7 @@
                     <td>{{ fb.pk }}</td>
                     <td>{{ fb.delegation__name }}</td>
                     <td>
-                      {{ fb.question__name }}<br />
+                      {{ fb.voting__name }}<br />
                       {{ fb.part }}
                     </td>
                     <td>{{ fb.comment }}</td>

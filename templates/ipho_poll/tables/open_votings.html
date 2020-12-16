@@ -1,46 +1,46 @@
 {% load crispy_forms_tags %}
 
 
-{# table of open questions #}
+{# table of open votings #}
 <div class='panel panel-default'>
     <div class="panel-heading"><h2>Open Votings</h2></div>
     <div class="panel-body">
-        {% if not questions_list%}
+        {% if not votings_list%}
             <div class="alert alert-info alert-dismissible">
                 <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
                 <strong>There are no open votings at the moment!</strong> Click the green "open vote" button on a drafted voting to open a vote.
             </div>
         {% endif %}
     </div>
-    <table id="open-questions-table" class="table table-striped">
+    <table id="open-votings-table" class="table table-striped">
         <thead>
             <tr>
                 <th>#</th>
                 <th>Feedbacks</th>
                 <th>Remaining Time</th>
-                <th>Question Title</th>
+                <th>Voting Title</th>
                 <th>Choices</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-        {% if questions_list %}
-        {% for question in questions_list %}
-            <tr id="question-{{ question.pk }}">
-                <td class="col-md-1">{{ question.pk }}</td>
+        {% if votings_list %}
+        {% for voting in votings_list %}
+            <tr id="voting-{{ voting.pk }}">
+                <td class="col-md-1">{{ voting.pk }}</td>
                 <td class="col-md-1">
-                    {% for fb in question.feedbacks.all %}
+                    {% for fb in voting.feedbacks.all %}
                     <span class="label label-default">#{{ fb.pk }}</span>
                     {% endfor %}
                 </td>
-                <td class="col-md-1 countdown" data-end-date="{{ question.end_date | date:'r' }}"></td>
-                <td class="col-md-3" id="question-{{ question.pk }}-question-text">
-                    {{ question.title }}
+                <td class="col-md-1 countdown" data-end-date="{{ voting.end_date | date:'r' }}"></td>
+                <td class="col-md-3" id="voting-{{ voting.pk }}-voting-text">
+                    {{ voting.title }}
                 </td>
                 <td class="col-md-3">
                     <div class='list-group'>
                         {% for choice in choices_list %}
-                            {% if choice.question == question %}
+                            {% if choice.voting == voting %}
                                 <li class="list-group-item">{{ choice }}</li>
                             {% endif %}
                         {% endfor %}
@@ -49,16 +49,16 @@
                 <td class="col-md-3">
                     <div class="btn-toolbar">
                         <span class="parent">
-                        <a class="btn btn-default" href="{% url 'poll:question' question_pk=question.pk %}" title="details"><i class="fa fa-info fa-fw"></i></a >
+                        <a class="btn btn-default" href="{% url 'poll:voting' voting_pk=voting.pk %}" title="details"><i class="fa fa-info fa-fw"></i></a >
                         </span>
                         <span class="parent">
-                        <a class="btn btn-warning" href="{% url 'poll:remove-end-date' question_pk=question.pk %}" title="draft vote"><i class="fa fa-level-down fa-fw"></i></a>
+                        <a class="btn btn-warning" href="{% url 'poll:remove-end-date' voting_pk=voting.pk %}" title="draft vote"><i class="fa fa-level-down fa-fw"></i></a>
                         </span>
                         <span class="parent">
-                        <a class="btn btn-success" href="{% url 'poll:close-question' question_pk=question.pk %}" title="close vote"><i class="fa fa-check-square fa-fw"></i></a>
+                        <a class="btn btn-success" href="{% url 'poll:close-voting' voting_pk=voting.pk %}" title="close vote"><i class="fa fa-check-square fa-fw"></i></a>
                         </span>
                         <span class="parent">
-                            <a class="btn btn-default" target="_blank" href="{% url 'poll:question_large' question_pk=question.pk %}" title="fullscreen"><i class="fa fa-expand fa-fw" aria-hidden="true"></i></a >
+                            <a class="btn btn-default" target="_blank" href="{% url 'poll:voting_large' voting_pk=voting.pk %}" title="fullscreen"><i class="fa fa-expand fa-fw" aria-hidden="true"></i></a >
                         </span>
 
 

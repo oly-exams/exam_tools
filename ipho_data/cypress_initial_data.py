@@ -26,9 +26,9 @@ def set_up_basic_test_database(voting_room=None):
             tdc.create_voting_room(voting_room_1)
             # create a second voting room, to enable switching between rooms.
             tdc.create_voting_room(voting_room_2)
-            # Create questions for the second room
-            tdc.create_three_poll_questions(room_name=voting_room_1)
-        tdc.create_three_poll_questions(room_name=voting_room)
+            # Create votings for the second room
+            tdc.create_three_poll_votings(room_name=voting_room_1)
+        tdc.create_three_poll_votings(room_name=voting_room)
         tdc.create_official_delegation()
         exam = tdc.create_ipho2016_theory_exam()
         tdc.create_language_from_code(code="ARM", name="TestLanguage")

@@ -52,17 +52,19 @@ class TestDataCreator(DataCreator):
             if delete_after:
                 self.delete_database()
 
-    def create_three_poll_questions(self, room_name=None):
-        self.create_poll_que(
+    def create_three_poll_votings(self, room_name=None):
+        self.create_poll_voting(
             "Q1", "How is it going", room_name, y="good", m="meh", n="bad"
         )
 
-        self.create_poll_que("Q2", "Current day", room_name, d="weekday", e="weekend")
+        self.create_poll_voting(
+            "Q2", "Current day", room_name, d="weekday", e="weekend"
+        )
 
-        que3 = self.create_poll_que(
+        voting3 = self.create_poll_voting(
             "Q3", "Favorite color", room_name, r="red", b="blue", g="green"
         )
-        self.close_poll_que_with_result(que3, r=1, b=2, g=3)
+        self.close_poll_voting_with_result(voting3, r=1, b=2, g=3)
 
     def create_feedback_for_question(self, question, comment=None):
         for deleg in Delegation.objects.all():
