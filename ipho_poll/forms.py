@@ -21,7 +21,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, HTML
 
 
-from ipho_poll.models import Voting, VotingChoice, Vote
+from ipho_poll.models import Voting, VotingChoice, CastedVote
 
 
 class VotingForm(ModelForm):
@@ -115,7 +115,7 @@ class VotingChoiceFormHelper(FormHelper):
         self.disable_csrf = True
 
 
-class VoteForm(ModelForm):
+class CastedVoteForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["choice"].empty_label = None
@@ -126,12 +126,12 @@ class VoteForm(ModelForm):
         ## Note: in the case of a bound form the label will still be "VotingChoice". Unfortunately I didn't find a workaround
 
     class Meta:
-        model = Vote
+        model = CastedVote
         fields = ["choice", "voting", "voting_right"]
         widgets = {"choice": RadioSelect(), "voting_right": HiddenInput()}
 
 
-class VoteFormHelper(FormHelper):
+class CastedVoteFormHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.layout = Layout(Div(Field("choice")), Div(Field("voting")))

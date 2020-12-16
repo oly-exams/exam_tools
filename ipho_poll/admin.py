@@ -17,7 +17,7 @@
 
 from django.contrib import admin
 
-from .models import Voting, VotingChoice, Vote, VotingRight, VotingRoom
+from .models import Voting, VotingChoice, CastedVote, VotingRight, VotingRoom
 
 
 class VotingChoiceInline(admin.TabularInline):
@@ -60,9 +60,9 @@ class VotingAdmin(admin.ModelAdmin):
     search_fields = ["title", "content"]
 
 
-class VoteAdmin(admin.ModelAdmin):
+class CastedVoteAdmin(admin.ModelAdmin):
     fieldsets = [
-        ("Vote Information", {"fields": ["voting", "choice", "voting_right"]}),
+        ("CastedVote Information", {"fields": ["voting", "choice", "voting_right"]}),
     ]
     list_display = ("voting", "choice", "voting_right")
 
@@ -73,6 +73,6 @@ class VotingRightAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Voting, VotingAdmin)
-admin.site.register(Vote, VoteAdmin)
+admin.site.register(CastedVote, CastedVoteAdmin)
 admin.site.register(VotingRight, VotingRightAdmin)
 admin.site.register(VotingRoom)

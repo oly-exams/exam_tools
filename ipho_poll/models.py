@@ -170,7 +170,7 @@ class VotingChoice(models.Model):
         return f"{self.label}. {self.choice_text}"
 
     def calculate_votes(self):
-        return Vote.objects.filter(choice=self).count()
+        return CastedVote.objects.filter(choice=self).count()
 
     votes = property(calculate_votes)
 
@@ -186,7 +186,7 @@ class VotingRight(models.Model):
         return f"{self.name} ({self.user})"
 
 
-class Vote(models.Model):
+class CastedVote(models.Model):
     voting = models.ForeignKey(Voting, on_delete=models.CASCADE)
     choice = models.ForeignKey(VotingChoice, on_delete=models.CASCADE)
     voting_right = models.ForeignKey(VotingRight, on_delete=models.CASCADE)

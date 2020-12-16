@@ -48,9 +48,9 @@ from pywebpush import WebPushException
 from ipho_core.models import User
 from ipho_exam.models import Feedback, Exam
 
-from .models import Voting, VotingChoice, VotingRight, Vote, VotingRoom
-from .forms import VotingForm, VotingChoiceForm, VoteForm, EndDateForm
-from .forms import VotingChoiceFormHelper, VoteFormHelper
+from .models import Voting, VotingChoice, VotingRight, CastedVote, VotingRoom
+from .forms import VotingForm, VotingChoiceForm, CastedVoteForm, EndDateForm
+from .forms import VotingChoiceFormHelper, CastedVoteFormHelper
 
 # staff views
 
@@ -131,7 +131,7 @@ def voting_details(request, voting_pk):
         .distinct()
         .order_by("username")
     )
-    votes = Vote.objects.filter(choice__voting=voting)
+    votes = CastedVote.objects.filter(choice__voting=voting)
     if voting.is_draft():
         status = "draft"
     elif voting.is_open():
@@ -590,24 +590,30 @@ def voter_index(
         voting_rights = user.votingright_set.exclude(vote__voting=voting).order_by(
             "name"
         )
-        VoteFormsetFactory = inlineformset_factory(  # pylint: disable=invalid-name
-            Voting, Vote, form=VoteForm, extra=len(voting_rights), can_delete=False
+        CastedVoteFormsetFactory = (  # pylint: disable=invalid-name
+            inlineformset_factory(
+                Voting,
+                CastedVote,
+                form=CastedVoteForm,
+                extra=len(voting_rights),
+                can_delete=False,
+            )
         )
         post_request = None
         if request.POST is not None and f"q{voting.pk}-TOTAL_FORMS" in request.POST:
             post_request = request.POST
-        VoteFormset = VoteFormsetFactory(  # pylint: disable=invalid-name
+        CastedVoteFormset = CastedVoteFormsetFactory(  # pylint: disable=invalid-name
             post_request,
             prefix=f"q{voting.pk}",
             instance=voting,
-            queryset=Vote.objects.none(),  # .filter(voting_right__user=user),
+            queryset=CastedVote.objects.none(),  # .filter(voting_right__user=user),
             initial=[{"voting_right": vt} for vt in voting_rights],
         )
-        for vote_form in VoteFormset:
+        for vote_form in CastedVoteFormset:
             vote_form.fields["choice"].queryset = voting.votingchoice_set.all()
-        if VoteFormset.is_valid():
+        if CastedVoteFormset.is_valid():
             if timezone.now() < voting.end_date:
-                VoteFormset.save()
+                CastedVoteFormset.save()
             just_voted += (voting.pk,)
             if room:
                 return HttpResponseRedirect(
@@ -622,7 +628,7 @@ def voter_index(
             return response
 
         formset_html_dict[voting.pk] = render_crispy_form(
-            VoteFormset, helper=VoteFormHelper
+            CastedVoteFormset, helper=CastedVoteFormHelper
         )
 
         voting.feedbacks_list = (
