@@ -2,13 +2,14 @@
 # Author:  Mario S. Könz <mskoenz@gmx.net>
 
 # pylint: disable=unused-import, import-error, useless-suppression
+import argparse
 import non_install_helper
 
 import ipho_data.django_setup
 from ipho_data.test_data_creator import TestDataCreator
 
 
-def set_up_basic_test_database():
+def set_up_basic_test_database(voting_room=None):
     tdc = TestDataCreator(data_path="test_data_cypress")
 
     with tdc.clean(delete_after=False):
@@ -18,7 +19,16 @@ def set_up_basic_test_database():
         tdc.create_organizer_user(pw_strategy="trivial")
         tdc.create_delegation_user(pw_strategy="trivial")
         tdc.create_students()
-        tdc.create_three_poll_questions()
+        if voting_room is not None:
+            voting_room_2 = voting_room + "2"
+            voting_room_1 = voting_room + "1"
+            voting_room = voting_room_2
+            tdc.create_voting_room(voting_room_1)
+            # create a second voting room, to enable switching between rooms.
+            tdc.create_voting_room(voting_room_2)
+            # Create questions for the second room
+            tdc.create_three_poll_questions(room_name=voting_room_1)
+        tdc.create_three_poll_questions(room_name=voting_room)
         tdc.create_official_delegation()
         exam = tdc.create_ipho2016_theory_exam()
         tdc.create_language_from_code(code="ARM", name="TestLanguage")
@@ -27,9 +37,14 @@ def set_up_basic_test_database():
         tdc.create_ipho2016_marking()
 
 
-def main():
-    set_up_basic_test_database()
+def main(votingroom=None):
+    set_up_basic_test_database(voting_room=votingroom)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description="Create a test database for cypress tests"
+    )
+    parser.add_argument("--votingroom")
+    args = parser.parse_args()
+    main(**vars(args))

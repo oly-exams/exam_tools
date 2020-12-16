@@ -6,10 +6,10 @@ from .base_data import BaseDataCreator
 
 
 class PollDataCreator(BaseDataCreator):
-    def create_poll_que(self, title, content, room_id, **choices):
+    def create_poll_que(self, title, content, room_name, **choices):
         room = None
-        if room_id is not None:
-            room = VotingRoom.objects.get(id=room_id)
+        if room_name is not None:
+            room = VotingRoom.objects.get(name=room_name)
         que = Question.objects.create(title=title, content=content, voting_room=room)
         que.save()
         for key, val in choices.items():
@@ -18,6 +18,12 @@ class PollDataCreator(BaseDataCreator):
             que.choice_set.add(choice)
         self.log(que, "..", "created")
         return que
+
+    def create_voting_room(self, name, visibility=1):
+        room, cre = VotingRoom.objects.get_or_create(name=name, visibility=visibility)
+        if cre:
+            self.log(room, "..", "created")
+        return room
 
     @staticmethod
     def open_poll_que_for_sec(que, sec):

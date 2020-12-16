@@ -60,6 +60,15 @@ test:testing-cypress-batch-3:
     artifacts:
         <<: *batch_artifacts
 
+test:testing-cypress-batch-4:
+    extends: .test:pull_and_run
+    variables:
+        ALL_SERVICE_NAME: django-server testing-cypress
+        OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/testing-cypress.yml $DOCKER_DIR/overwrite/testing-cypress-batch-4.yml
+    after_script: *batch_after
+    artifacts:
+        <<: *batch_artifacts
+
 test:testing-pdf-compilation:
     extends: .test:pull_and_run
     variables:

@@ -14,14 +14,17 @@
         {% endif %}
     </div>
     <table id="closed-questions-table" class="table table-striped">
-        <tr>
-            <th>#</th>
-            <th>status</th>
-            <th>Question Title</th>
-            <th>Feedbacks</th>
-            <th>Actions</th>
-        </tr>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>status</th>
+                <th>Question Title</th>
+                <th>Feedbacks</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
         {% if questions_list %}
+        <tbody>
             {% for question in questions_list %}
                 <tr id="question-{{ question.pk }}">
                     <td class="col-md-1">{{ question.pk }}</td>
@@ -58,6 +61,7 @@
                     </td>
                 </tr>
             {% endfor %}
+        </tbody>
         {% endif %}
     </table>
 </div>

@@ -14,14 +14,17 @@
         <button class="btn btn-primary" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'poll:add-question' room_id=active_room.pk|default:'' %}"><i class="fa fa-plus fa-fw"></i> Create new</button>
     </div>
     <table id="drafted-questions-table" class="table table-striped">
-        <tr>
-            <th>#</th>
-            <th>Feedbacks</th>
-            <th>Question Title</th>
-            <th>Choices</th>
-            <th>Actions</th>
-        </tr>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Feedbacks</th>
+                <th>Question Title</th>
+                <th>Choices</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
         {% if questions_list %}
+        <tbody>
             {% for question in questions_list %}
                 <tr id="question-{{ question.pk }}">
                     <td class="col-md-1">{{ question.pk }}</td>
@@ -61,6 +64,7 @@
                     </td>
                 </tr>
             {% endfor %}
+        </tbody>
         {% endif %}
     </table>
 </div>

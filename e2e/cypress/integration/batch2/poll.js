@@ -14,9 +14,9 @@ describe('Polls', function() {
 
     beforeEach(() => {
         cy.server()
-        cy.route("GET", "/poll/staff/partials/drafted").as("getStaffPartialsDrafted");
-        cy.route("GET", "/poll/staff/partials/open").as("getStaffPartialsOpen");
-        cy.route("GET", "/poll/staff/partials/closed").as("getStaffPartialsClosed");
+        cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/drafted/).as("getStaffPartialsDrafted");
+        cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/open/).as("getStaffPartialsOpen");
+        cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/closed/).as("getStaffPartialsClosed");
         cy.route("GET", "/poll/question/**").as("getStaffQuestion");
     })
 
@@ -29,7 +29,7 @@ describe('Polls', function() {
         cy.get('#drafted-container #question-2 .btn-toolbar > :nth-child(3) > .btn').click()
         cy.wait("@getStaffQuestion")
         cy.get('[data-min="1"] > .btn').click()
-        cy.get('.modal-footer > .btn-primary').click()
+        cy.get('#question-modal .modal-footer > .btn-primary').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
         cy.get('#open-container #question-2')
         cy.get('#drafted-container #question-2').should('not.exist')
@@ -97,7 +97,7 @@ describe('Polls', function() {
         cy.wait("@getStaffQuestion")
         cy.get('#question-modal').should('be.visible')
         cy.get('[data-min="1"] > .btn').click()
-        cy.get('.modal-footer > .btn-primary').click()
+        cy.get('#question-modal .modal-footer > .btn-primary').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
 
         cy.get('#drafted-container #question-1').should('not.exist')
@@ -110,14 +110,14 @@ describe('Polls', function() {
         cy.get('#drafted-container #question-1 .btn-toolbar > :nth-child(3) > .btn').click()
         cy.wait("@getStaffQuestion")
         cy.get('[data-min="1"] > .btn').click()
-        cy.get('.modal-footer > .btn-primary').click()
+        cy.get('#question-modal .modal-footer > .btn-primary').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
 
         //open q2
         cy.get('#drafted-container #question-2 .btn-toolbar > :nth-child(3) > .btn').click()
         cy.wait("@getStaffQuestion")
         cy.get('[data-min="1"] > .btn').click()
-        cy.get('.modal-footer > .btn-primary').click()
+        cy.get('#question-modal .modal-footer > .btn-primary').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
         cy.get('#drafted-container #question-2').should('not.exist')
         // close
