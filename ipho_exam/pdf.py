@@ -210,7 +210,6 @@ def check_add_watermark(request, doc):
             or user.has_perm("ipho_core.can_edit_exam")
             or user.has_perm("ipho_core.is_printstaff")
             or user.has_perm("ipho_core.is_marker")
-            # or user.has_perm("ipho_core.is_delegation_print"), shouldnt this be here too?
         ):
             return add_watermark(doc)
     return doc

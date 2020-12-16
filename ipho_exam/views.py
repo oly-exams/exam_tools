@@ -3851,16 +3851,7 @@ def pdf_exam_pos_student(
                 )
             return render(request, "ipho_exam/pdf_task.html", {"task": task})
         if doc.file:
-            exam = Exam.objects.get(pk=exam_id)
-            delegation = student.delegation
-            exam_action = ExamAction.objects.get(
-                exam=exam, delegation=delegation, action=ExamAction.TRANSLATION
-            )
-            if exam_action.status == ExamAction.SUBMITTED:
-                output_pdf = doc.file.read()
-            else:
-                output_pdf = pdf.check_add_watermark(request, doc.file.read())
-
+            output_pdf = pdf.check_add_watermark(request, doc.file.read())
             response = HttpResponse(output_pdf, content_type="application/pdf")
             response["Content-Disposition"] = "attachment; filename=%s" % doc.file.name
             return response
