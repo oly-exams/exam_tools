@@ -11,7 +11,6 @@ from django.contrib.auth.signals import (
 # this is not the right place for this, but for now I put it here
 if getattr(settings, "RECORD_USER_LOGIN_LOGOUT_IPS"):
     LOGGER = logging.getLogger("exam_tools")
-    LOGGER.info("ip recording enabled")
 
     def log_logged_in(
         sender, user, request, **kwargs

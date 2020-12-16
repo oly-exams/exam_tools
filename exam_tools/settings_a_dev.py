@@ -49,7 +49,7 @@ RECORD_USER_LOGIN_LOGOUT_IPS = True
 # enable this to see ip logging locally
 LOGGING["handlers"]["logfile"] = {
     "class": "logging.handlers.WatchedFileHandler",
-    "filename": "/home/container/workdir/exam_tools-django.log",
+    "filename": "/home/container/logs/exam_tools-django.log",
 }
 
 LOGGING["loggers"].update(
