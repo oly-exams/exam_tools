@@ -44,7 +44,7 @@
                     </td>
                     <td class="col-md-4">
                       {% for fb in voting.feedbacks.all %}
-                      <span class="label label-default">#{{ fb.pk }} ({{ fb.voting.exam.code }} {{ fb.voting.code }}-{{ fb.voting.position }})</span>
+                      <span class="label label-default">#{{ fb.pk }} ({{ fb.question.exam.code }} {{ fb.question.code }}-{{ fb.question.position }})</span>
                       {% endfor %}
                     </td>
                     <td class="col-md-2">

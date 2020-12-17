@@ -561,7 +561,7 @@ def edit_room(request, room_id):
 @ensure_csrf_cookie
 def voter_index(
     request, err_id=None, room_id=None
-):  # pylint: disable=too-many-branches
+):  # pylint: disable=too-many-branches, too-many-locals
     voting_rooms = VotingRoom.objects.for_user(request.user)
     if voting_rooms.exists():
         if room_id is None:
@@ -582,6 +582,7 @@ def voter_index(
     votings = Voting.objects.filter(voting_room=room)
     unvoted_votings_list = votings.not_voted_upon_by(user)
     formset_html_dict = {}
+    feedback_dict = {}
     just_voted = []
     errors = []
     err_msg = None
@@ -626,7 +627,7 @@ def voter_index(
             CastedVoteFormset, helper=CastedVoteFormHelper
         )
 
-        voting.feedbacks_list = (
+        feedbacks_list = (
             voting.feedbacks.filter(
                 question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
             )
@@ -661,6 +662,7 @@ def voter_index(
             )
         )
 
+        feedback_dict[voting.pk] = feedbacks_list
     if just_voted and not errors:
         if room:
             return HttpResponseRedirect(
@@ -686,6 +688,7 @@ def voter_index(
         {
             "unvoted_votings_list": unvoted_open_votings_list,
             "formset_list": formset_html_dict,
+            "feedback_dict": feedback_dict,
             "err": err_msg,
             "rooms": voting_rooms.all(),
             "active_room": room,

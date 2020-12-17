@@ -54,7 +54,7 @@
                 {% endfor %}
 
                 </div>
-                {% if voting.feedbacks_list %}
+                {% if feedback_dict|get:voting.pk %}
                 <table class="table table-striped feedbacks" id="feedback-table-{{ voting.pk }}">
                   <thead>
                     <tr>
@@ -66,7 +66,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for fb in voting.feedbacks_list %}
+                    {% for fb in feedback_dict|get:voting.pk %}
                     <tr id="feedback-{{ fb.pk }}-voting-{{ voting.pk }}">
                         <td>{{ fb.pk }}</td>
                         <td>{{ fb.delegation__name }}</td>
