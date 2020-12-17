@@ -16,7 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import forms
-from django.forms import ModelForm, HiddenInput, RadioSelect
+from django.core.exceptions import ValidationError
+from django.forms import ModelForm, HiddenInput, RadioSelect, BaseInlineFormSet
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, HTML
 
@@ -123,12 +124,32 @@ class CastedVoteForm(ModelForm):
             self.fields["choice"].label = self.instance.voting_right
         elif not self.is_bound:
             self.fields["choice"].label = self.initial["voting_right"]
-        ## Note: in the case of a bound form the label will still be "VotingChoice". Unfortunately I didn't find a workaround
+        ## Note: in the case of a bound form the label will still be "Choice". Unfortunately I didn't find a workaround
 
     class Meta:
         model = CastedVote
         fields = ["choice", "voting", "voting_right"]
         widgets = {"choice": RadioSelect(), "voting_right": HiddenInput()}
+
+
+class CastedVoteBaseFormset(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        all_none = True
+        for form in self.forms:
+            if form.cleaned_data.get("choice") is not None:
+                all_none = False
+        if all_none:
+            raise ValidationError("Please submit at least one vote.")
+        for errordict in self.errors:
+            if errordict.get(
+                "__all__"
+            ) and "Casted vote with this Voting and Voting right already exists." in errordict.get(
+                "__all__"
+            ):
+                for error in errordict.get("__all__").as_data():
+                    if error.code == "unique_together":
+                        error.message = "This vote has already been cast (maybe on another device). Please reload the page."
 
 
 class CastedVoteFormHelper(FormHelper):

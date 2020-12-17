@@ -22,6 +22,7 @@ User = get_user_model()
 from django.utils import timezone
 from django.db import models
 from django.db.models import Count, Q
+from django.core.exceptions import ValidationError
 from ipho_exam.models import Feedback
 
 
@@ -89,15 +90,14 @@ class VotingQuerySet(models.QuerySet):
         # pylint: disable=invalid-name
         user_tot_votes = user.votingright_set.all().count()
         not_full = (
-            self.is_open()
-            .filter(castedvote__voting_right__user=user)
+            self.filter(castedvote__voting_right__user=user)
             .annotate(user_votes=Count("castedvote"))
             .filter(user_votes__lt=user_tot_votes)
             .values_list("pk", flat=True)
         )
         Q_not_full = Q(pk__in=not_full)
         Q_no_votes = ~Q(castedvote__voting_right__user=user)
-        not_voted = self.is_open().filter(Q_not_full | Q_no_votes)
+        not_voted = self.filter(Q_not_full | Q_no_votes)
         return not_voted
 
 
@@ -193,6 +193,13 @@ class CastedVote(models.Model):
 
     def __str__(self):
         return self.choice.__str__()
+
+    def clean(self):
+        super().clean()
+        if timezone.now() > self.voting.end_date:
+            raise ValidationError(
+                "Voting is already closed, cannot save this vote. Please reload the page."
+            )
 
     class Meta:
         unique_together = ("voting", "voting_right")

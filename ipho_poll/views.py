@@ -24,7 +24,6 @@ from django.http import (
     HttpResponseRedirect,
     JsonResponse,
     Http404,
-    HttpResponse,
 )
 from django.urls import reverse
 from django.template.context_processors import csrf
@@ -50,7 +49,7 @@ from ipho_exam.models import Feedback, Exam
 
 from .models import Voting, VotingChoice, VotingRight, CastedVote, VotingRoom
 from .forms import VotingForm, VotingChoiceForm, CastedVoteForm, EndDateForm
-from .forms import VotingChoiceFormHelper, CastedVoteFormHelper
+from .forms import VotingChoiceFormHelper, CastedVoteFormHelper, CastedVoteBaseFormset
 
 # staff views
 
@@ -580,11 +579,12 @@ def voter_index(
     user = request.user
     if len(user.votingright_set.all()) <= 0:
         raise PermissionDenied
-    unvoted_votings_list = Voting.objects.not_voted_upon_by(user).filter(
-        voting_room=room
-    )
+    votings = Voting.objects.filter(voting_room=room)
+    unvoted_votings_list = votings.not_voted_upon_by(user)
     formset_html_dict = {}
-    just_voted = ()
+    just_voted = []
+    errors = []
+    err_msg = None
     for voting in unvoted_votings_list:
         # gather voting_rights that could still be used
         voting_rights = user.votingright_set.exclude(
@@ -595,15 +595,19 @@ def voter_index(
                 Voting,
                 CastedVote,
                 form=CastedVoteForm,
+                formset=CastedVoteBaseFormset,
                 extra=len(voting_rights),
                 can_delete=False,
             )
         )
-        post_request = None
+        post_for_this_voting = None
+        this_voting_submitted = False
         if request.POST is not None and f"q{voting.pk}-TOTAL_FORMS" in request.POST:
-            post_request = request.POST
+            post_for_this_voting = request.POST
+            this_voting_submitted = True
+
         CastedVoteFormset = CastedVoteFormsetFactory(  # pylint: disable=invalid-name
-            post_request,
+            post_for_this_voting,
             prefix=f"q{voting.pk}",
             instance=voting,
             queryset=CastedVote.objects.none(),  # .filter(voting_right__user=user),
@@ -611,22 +615,13 @@ def voter_index(
         )
         for vote_form in CastedVoteFormset:
             vote_form.fields["choice"].queryset = voting.votingchoice_set.all()
-        if CastedVoteFormset.is_valid():
-            if timezone.now() < voting.end_date:
+
+        if this_voting_submitted:
+            if CastedVoteFormset.is_valid():
                 CastedVoteFormset.save()
-            just_voted += (voting.pk,)
-            if room:
-                return HttpResponseRedirect(
-                    reverse("poll:voted_room", kwargs={"room_id": room.pk})
-                )
-            return HttpResponseRedirect(reverse("poll:voted"))
-
-        if request.method == "POST":
-            response = HttpResponse(content="", status=303)
-            err_id = 42
-            response["Location"] = reverse("poll:voter-index_err", args=(42,))
-            return response
-
+                just_voted.append(voting.pk)
+            else:
+                errors.append(voting.pk)
         formset_html_dict[voting.pk] = render_crispy_form(
             CastedVoteFormset, helper=CastedVoteFormHelper
         )
@@ -665,16 +660,31 @@ def voter_index(
                 "comment",
             )
         )
-    unvoted_votings_list = [q for q in unvoted_votings_list if q.pk not in just_voted]
-    if err_id == "42":
-        err_msg = "Vote could not be saved (did you try to override a vote ?), please try again."
-    else:
-        err_msg = None
+
+    if just_voted and not errors:
+        if room:
+            return HttpResponseRedirect(
+                reverse("poll:voted_room", kwargs={"room_id": room.pk})
+            )
+        return HttpResponseRedirect(reverse("poll:voted"))
+
+    # If there is a request.POST but no valid question, show an error message
+    if (not just_voted) and (not errors) and request.POST:
+        err_msg = "No vote saved. The corresponding voting is already closed or all votes of your delegation have been cast."
+
+    unvoted_open_votings_list = votings.is_open().not_voted_upon_by(user)
+
+    # If an error occured but the voting is not accessible anymore (i.e. closed), show an error message
+    if err_msg is None and unvoted_open_votings_list.filter(
+        pk__in=errors
+    ).count() < len(errors):
+        err_msg = "No vote saved. The corresponding voting is already closed or all votes of your delegation have been cast."
+
     return render(
         request,
         "ipho_poll/voter-index.html",
         {
-            "unvoted_votings_list": unvoted_votings_list,
+            "unvoted_votings_list": unvoted_open_votings_list,
             "formset_list": formset_html_dict,
             "err": err_msg,
             "rooms": voting_rooms.all(),
