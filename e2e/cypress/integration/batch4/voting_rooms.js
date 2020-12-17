@@ -55,7 +55,27 @@ describe('Voting Rooms', function() {
         cy.contains('Q1').should('not.exist')
         cy.contains('Q2').should('not.exist')
         cy.contains('Q3').should('not.exist')
-        // Switch to room 1
+
+        cy.logout()
+        cy.login('admin', '1234')
+
+        // open another question in the second room
+        cy.visit('/poll/staff/room/2')
+        cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
+
+        cy.get('#drafted-container #voting-4 .btn-toolbar > :nth-child(3) > .btn').click()
+        cy.wait("@getStaffVoting")
+        cy.get('[data-min="1"] > .btn').click()
+        cy.get('#voting-modal .modal-footer > .btn-primary').click()
+        cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
+        cy.get('#open-container #voting-4')
+        cy.get('#drafted-container #voting-4').should('not.exist')
+
+        cy.logout()
+
+        cy.login('ARM','1234')
+
+        // Visit room 1 first
         cy.visit("/poll/room/1")
 
         // Check available votings
@@ -80,13 +100,46 @@ describe('Voting Rooms', function() {
         cy.url().should('contain', 'poll/voted/room/1')
         cy.get('.btn').contains('Continue Voting').click()
         cy.contains('no votings')
+
+        // Check second room
+        cy.visit('/poll/room/2')
+
+        // Check available votings
+        cy.contains('Q1')
+        cy.contains('Q2').should('not.exist')
+        cy.contains('Q3').should('not.exist')
+        // Check voting rights
+        cy.contains('Leader A')
+        cy.contains('Leader B')
+        // Vote with one leader
+        cy.get('#id_q4-0-choice_1').click()
+        cy.get('.btn').contains('Vote').click()
+        cy.url().should('contain', 'poll/voted/room/2')
+        cy.get('.btn').contains('Continue Voting').click()
+        cy.url().should('contain', 'poll/room/2')
+        // Check voting rights
+        cy.contains('Leader A').should('not.exist')
+        cy.contains('Leader B')
+        // Vote with the second leader
+        cy.get('#id_q4-0-choice_1').click()
+        cy.get('.btn').contains('Vote').click()
+        cy.url().should('contain', 'poll/voted/room/2')
+        cy.get('.btn').contains('Continue Voting').click()
+        cy.contains('no votings')
+
         cy.logout()
 
         cy.login('admin','1234')
-        cy.visit('poll/voting/detail/2/')
         // Check results
+        cy.visit('poll/voting/detail/2/')
         cy.get('#choice-4 > .numvotes').shouldHaveTrimmedText('2')
         cy.get('#choice-5 > .numvotes').shouldHaveTrimmedText('0')
+
+        cy.visit('poll/voting/detail/4/')
+        cy.get('#choice-9 > .numvotes').shouldHaveTrimmedText('0')
+        cy.get('#choice-10 > .numvotes').shouldHaveTrimmedText('2')
+        cy.get('#choice-11 > .numvotes').shouldHaveTrimmedText('0')
+
     })
 
     it('Test Admin Rooms', function() {
