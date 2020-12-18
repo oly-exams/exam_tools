@@ -27,13 +27,22 @@ describe('Polls', function() {
 
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
 
+        // Open two votings
         cy.get('#drafted-container #voting-2 .btn-toolbar > :nth-child(3) > .btn').click()
         cy.wait("@getStaffVoting")
-        cy.get('[data-min="1"] > .btn').click()
+        cy.get('[data-min="2"] > .btn').click()
         cy.get('#voting-modal .modal-footer > .btn-primary').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
         cy.get('#open-container #voting-2')
         cy.get('#drafted-container #voting-2').should('not.exist')
+
+        cy.get('#drafted-container #voting-1 .btn-toolbar > :nth-child(3) > .btn').click()
+        cy.wait("@getStaffVoting")
+        cy.get('[data-min="2"] > .btn').click()
+        cy.get('#voting-modal .modal-footer > .btn-primary').click()
+        cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
+        cy.get('#open-container #voting-1')
+        cy.get('#drafted-container #voting-1').should('not.exist')
 
         cy.logout()
 
@@ -41,24 +50,38 @@ describe('Polls', function() {
         cy.visit('/poll/')
         // Check available votings
         cy.contains('Q2')
-        cy.contains('Q1').should('not.exist')
+        cy.contains('Q1')
         cy.contains('Q3').should('not.exist')
         // Check voting rights
-        cy.contains('Leader A')
-        cy.contains('Leader B')
+        cy.get('#voting-panel-1').contains('Leader A')
+        cy.get('#voting-panel-2').contains('Leader A')
+        cy.get('#voting-panel-1').contains('Leader B')
+        cy.get('#voting-panel-2').contains('Leader B')
         // Vote with one leader
         cy.get('#id_q2-0-choice_1').click()
-        cy.get('.btn').contains('Vote').click()
+        cy.get('#voting-panel-2 .btn').contains('Vote').click()
         cy.url().should('contain', 'poll/voted/')
         cy.get('.btn').contains('Continue Voting').click()
         // Check voting rights
-        cy.contains('Leader A').should('not.exist')
-        cy.contains('Leader B')
+        cy.get('#voting-panel-1').contains('Leader A')
+        cy.get('#voting-panel-2').contains('Leader A').should('not.exist')
+        cy.get('#voting-panel-1').contains('Leader B')
+        cy.get('#voting-panel-2').contains('Leader B')
         // Vote with the second leader
         cy.get('#id_q2-0-choice_1').click()
-        cy.get('.btn').contains('Vote').click()
+        cy.get('#voting-panel-2 .btn').contains('Vote').click()
         cy.url().should('contain', 'poll/voted/')
         cy.get('.btn').contains('Continue Voting').click()
+
+        cy.contains('Q1')
+        cy.contains('Q2').should('not.exist')
+        // Vote on the second voting
+        cy.get('#id_q1-0-choice_1').click()
+        cy.get('#id_q1-1-choice_1').click()
+        cy.get('#voting-panel-1 .btn').contains('Vote').click()
+        cy.url().should('contain', 'poll/voted/')
+        cy.get('.btn').contains('Continue Voting').click()
+
         cy.contains('no votings')
         cy.logout()
 
