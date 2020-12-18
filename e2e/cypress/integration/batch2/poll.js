@@ -180,7 +180,9 @@ describe('Polls', function() {
 
         cy.wait("@getCreateVoting")
         cy.get("#voting-modal").should('be.visible').within(()=>{
-            cy.get("#id_voting-title").type('Q4')
+            cy.wait(1500)
+            cy.get("#id_voting-title").clear().type('Q4')
+            cy.wait(1500)
             cy.typeCKeditor("id_voting-content", "Q4 content")
             cy.get("#id_voting-feedbacks").select(['1', '2'])
             cy.get("#id_choices-0-label").type("A")
