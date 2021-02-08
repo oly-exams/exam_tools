@@ -33,7 +33,7 @@ EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
 
 def compile_stud_exam_question(
-    questions, student_languages, cover=None, commit=False
+    questions, participant_languages, cover=None, commit=False
 ):  # pylint: disable=too-many-branches,too-many-locals
     all_tasks = []
 
@@ -45,7 +45,7 @@ def compile_stud_exam_question(
         )
         compile_task = tasks.compile_tex.s(body, [])
         question = questions[0]
-        stud = student_languages[0].student
+        stud = participant_languages[0].participant
         bgenerator = iphocode.QuestionBarcodeGen(
             question.exam, question, stud, qcode="C", suppress_code=True
         )
@@ -53,7 +53,7 @@ def compile_stud_exam_question(
         all_tasks.append(celery.chain(compile_task, barcode_task))
 
     for question in questions:
-        for stud_l in student_languages:
+        for stud_l in participant_languages:
             if question.is_answer_sheet() and not stud_l.with_answer:
                 continue
             if question.is_question_sheet() and not stud_l.with_question:
@@ -97,13 +97,13 @@ def compile_stud_exam_question(
                 compile_task = tasks.serve_pdfnode.s(trans.node.pdf.read())
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.student
+                    question.exam, question, stud_l.participant
                 )
                 barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
             else:
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.student, suppress_code=True
+                    question.exam, question, stud_l.participant, suppress_code=True
                 )
                 barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
@@ -137,7 +137,7 @@ def compile_stud_exam_question(
                     ],
                 )
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.student, qcode="W"
+                    question.exam, question, stud_l.participant, qcode="W"
                 )
                 barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
@@ -145,7 +145,7 @@ def compile_stud_exam_question(
         exam_id = question.exam.pk
         position = question.position
 
-    filename = f"{stud_l.student.code}_EXAM-{exam_id}-{position}.pdf"  # pylint: disable=undefined-loop-variable
+    filename = f"{stud_l.participant.code}_EXAM-{exam_id}-{position}.pdf"  # pylint: disable=undefined-loop-variable
     chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename))
     if commit:
         final_task = celery.chain(
@@ -158,7 +158,7 @@ def compile_stud_exam_question(
 
 
 def generate_extra_sheets(
-    student, question, startnum, npages, template_name="exam_blank.tex"
+    participant, question, startnum, npages, template_name="exam_blank.tex"
 ):
     context = {
         "polyglossia": "english",
@@ -183,7 +183,7 @@ def generate_extra_sheets(
         ],
     )
     bgenerator = iphocode.QuestionBarcodeGen(
-        question.exam, question, student, qcode="Z", startnum=startnum
+        question.exam, question, participant, qcode="Z", startnum=startnum
     )
     doc_pdf = pdf.add_barcode(question_pdf, bgenerator)
     return doc_pdf

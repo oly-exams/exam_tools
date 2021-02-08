@@ -22,7 +22,7 @@
       </div>
       <div class="modal-body">
         <p class="alert alert-warning" id="copy-modal-alert-text">
-          Copying all official marks will overwrite your delegation marks for {{ student.code }}.<br />
+          Copying all official marks will overwrite your delegation marks for {{ participant.code }}.<br />
           <strong>Are you sure?</strong>
         </p>
       </div>
@@ -40,18 +40,18 @@
     {% endfor %}
   </div>
 
-    <h2>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</h2>
+    <h2>{{ participant.first_name }} {{ participant.last_name }} ({{ participant.code }})</h2>
 
     <h3> {{ exam.name }} - {{ question.name }}
       {% for doc in documents %}
         {% if doc.scan_file and doc.scan_status == 'S' %}
-        <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=question.position %}">
+        <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-participant' exam_id=exam.pk participant_id=participant.pk position=question.position %}">
           <i class="fa fa-file-pdf-o"></i>
           View scan
         </a>
         {% endif %}
         {% if doc.scan_file_orig %}
-        <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=student.pk position=question.position %}">
+        <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=exam.pk participant_id=participant.pk position=question.position %}">
           <i class="fa fa-file-pdf-o"></i>
           View full scan
         </a>

@@ -28,7 +28,7 @@ from ipho_exam.models import *
 
 
 def get_id(doc):
-    stud = doc.student.code
+    stud = doc.participant.code
     exam = doc.exam.code
     question = doc.position
     return f"{stud}_{exam}_{question}"

@@ -24,7 +24,7 @@ import django
 
 django.setup()
 
-from ipho_core.models import Student
+from ipho_core.models import Participant
 from ipho_exam.models import Place, Exam
 
 import random
@@ -43,13 +43,13 @@ def main():
     exam = exams[ix - 1]
     Place.objects.filter(exam=exam).delete()
 
-    for student in Student.objects.all():
+    for participant in Participant.objects.all():
         seat = "{}-{}{}".format(
             random.choice(["M", "N"]),
             random.choice(["A", "B", "C", "D", "E", "F"]),
             random.randint(100, 400),
         )
-        Place.objects.get_or_create(student=student, exam=exam, name=seat)
+        Place.objects.get_or_create(participant=participant, exam=exam, name=seat)
 
 
 if __name__ == "__main__":

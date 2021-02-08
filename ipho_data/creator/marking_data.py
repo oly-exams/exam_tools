@@ -29,45 +29,49 @@ class MarkingDataCreator(BaseDataCreator):
         }
 
     def _change_marking(
-        self, *, student, meta, version, points
+        self, *, participant, meta, version, points
     ):  # pylint: disable=no-self-use
         marking = Marking.objects.get(
-            student=student, marking_meta=meta, version=version
+            participant=participant, marking_meta=meta, version=version
         )
         marking.points = points
         marking.save()
 
     def _set_max_points_marking(
-        self, *, student, meta, version
+        self, *, participant, meta, version
     ):  # pylint: disable=no-self-use
         marking = Marking.objects.get(
-            student=student, marking_meta=meta, version=version
+            participant=participant, marking_meta=meta, version=version
         )
         marking.points = meta.max_points
         marking.save()
 
-    def _set_max_points_question(self, *, student, question, version):
+    def _set_max_points_question(self, *, participant, question, version):
         metas = MarkingMeta.objects.filter(question=question)
         for meta in metas:
-            self._set_max_points_marking(student=student, meta=meta, version=version)
+            self._set_max_points_marking(
+                participant=participant, meta=meta, version=version
+            )
 
     def set_max_points(self, *, delegation_code, question, version):
         deleg = Delegation.objects.get(name=delegation_code)
-        for stud in deleg.student_set.all():
+        for stud in deleg.participant_set.all():
             self._set_max_points_question(
-                student=stud, question=question, version=version
+                participant=stud, question=question, version=version
             )
 
-    def _set_zero_points_question(self, *, student, question, version):
+    def _set_zero_points_question(self, *, participant, question, version):
         metas = MarkingMeta.objects.filter(question=question)
         for meta in metas:
-            self._change_marking(student=student, meta=meta, version=version, points=0)
+            self._change_marking(
+                participant=participant, meta=meta, version=version, points=0
+            )
 
     def set_zero_points(self, *, delegation_code, question, version):
         deleg = Delegation.objects.get(name=delegation_code)
-        for stud in deleg.student_set.all():
+        for stud in deleg.participant_set.all():
             self._set_zero_points_question(
-                student=stud, question=question, version=version
+                participant=stud, question=question, version=version
             )
 
     @staticmethod

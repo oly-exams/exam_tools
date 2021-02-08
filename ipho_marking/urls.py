@@ -104,7 +104,7 @@ urlpatterns = [
     re_path(r"^staff/import/?$", views.import_exam, name="import-exam"),
     re_path(r"^staff/?$", views.summary, name="summary"),
     re_path(
-        r"^staff/v(?P<version>\w)/student/(?P<stud_id>\d+)/question/(?P<question_id>\d+)/edit$",
+        r"^staff/v(?P<version>\w)/participant/(?P<stud_id>\d+)/question/(?P<question_id>\d+)/edit$",
         views.staff_stud_detail,
         name="staff-stud-detail",
     ),

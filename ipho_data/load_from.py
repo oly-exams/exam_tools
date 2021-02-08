@@ -20,7 +20,7 @@ def load_from_data_path(data_path, pw_strat, seed):
     tdc.create_olyexams_superuser(pw_strategy=pw_strat)
     tdc.create_organizer_user(pw_strategy=pw_strat)
     tdc.create_delegation_user(pw_strategy=pw_strat, enforce_iso3166=False)
-    # tdc.create_students()
+    # tdc.create_participants()
     tdc.create_official_delegation()
 
     exam = tdc.create_exam(name="Theory", code="T")

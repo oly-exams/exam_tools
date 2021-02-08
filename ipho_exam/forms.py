@@ -33,12 +33,12 @@ from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
 from ipho_exam.models import (
     Language,
     Question,
-    Student,
+    Participant,
     Figure,
     VersionNode,
     PDFNode,
     Feedback,
-    StudentSubmission,
+    ParticipantSubmission,
     TranslationImportTmp,
 )
 from ipho_exam.models import VALID_FIGURE_EXTENSIONS
@@ -317,7 +317,7 @@ class SubmissionAssignForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields[
-            "student"
+            "participant"
         ].label_from_instance = lambda obj: f"{obj.first_name} {obj.last_name}"
 
         self.helper = FormHelper()
@@ -329,8 +329,8 @@ class SubmissionAssignForm(ModelForm):
         # self.form_tag = False
 
     class Meta:
-        model = StudentSubmission
-        fields = ["student", "language", "with_question", "with_answer"]
+        model = ParticipantSubmission
+        fields = ["participant", "language", "with_question", "with_answer"]
 
 
 class AssignTranslationForm(forms.Form):
@@ -531,7 +531,7 @@ class PrintDocsForm(forms.Form):
 
 class ScanForm(forms.Form):
     question = forms.ModelChoiceField(queryset=Question.objects.all())
-    student = forms.ModelChoiceField(queryset=Student.objects.all())
+    participant = forms.ModelChoiceField(queryset=Participant.objects.all())
     file = forms.FileField(validators=[build_extension_validator([".pdf"])])
 
     def __init__(self, *args, **kwargs):
@@ -540,7 +540,7 @@ class ScanForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("question"),
-            Field("student"),
+            Field("participant"),
             Field("file"),
             FormActions(Submit("submit", "Upload")),
         )
@@ -552,7 +552,14 @@ class DelegationScanForm(forms.Form):
     file = forms.FileField(validators=[build_extension_validator([".pdf"])])
 
     def __init__(
-        self, exam, position, student, *, submission_open, do_replace=False, **kwargs
+        self,
+        exam,
+        position,
+        participant,
+        *,
+        submission_open,
+        do_replace=False,
+        **kwargs,
     ):
         super().__init__(**kwargs)
 
@@ -586,11 +593,11 @@ class DelegationScanForm(forms.Form):
               <dd class="col-sm-9">{exam}</dd>
               <dt class="col-sm-3">Question</dt>
               <dd class="col-sm-9">Q #{position}</dd>
-              <dt class="col-sm-3">Student</dt>
-              <dd class="col-sm-9">{student}</dd>
+              <dt class="col-sm-3">Participant</dt>
+              <dd class="col-sm-9">{participant}</dd>
             </dl>
             """.format(
-                    exam=exam.name, position=position, student=student.code
+                    exam=exam.name, position=position, participant=participant.code
                 )
             ),
             warning_message,
@@ -603,7 +610,7 @@ class DelegationScanForm(forms.Form):
 
 
 class ExtraSheetForm(forms.Form):
-    student = forms.ModelChoiceField(queryset=Student.objects.all())
+    participant = forms.ModelChoiceField(queryset=Participant.objects.all())
     quantity = forms.IntegerField()
     template = forms.ChoiceField(
         widget=forms.RadioSelect,
@@ -621,7 +628,7 @@ class ExtraSheetForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("question"),
-            Field("student"),
+            Field("participant"),
             Field("quantity"),
             Field("template"),
             FormActions(Submit("submit", "Generate")),

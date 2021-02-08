@@ -32,7 +32,7 @@ class QuestionBarcodeGen:
         self,
         exam,
         question,
-        student,
+        participant,
         qcode=None,
         startnum=0,
         format_="qr",
@@ -43,7 +43,7 @@ class QuestionBarcodeGen:
         self.suppress_code = suppress_code
         self.suppress_code |= settings.CODE_WITHOUT_QR
 
-        self.base = f"{student.code} {exam.code}-{question.position}"
+        self.base = f"{participant.code} {exam.code}-{question.position}"
         self.text = self.base + f" {qcode}" + "-{pag}"
         self.format = format_
         self.startnum = startnum

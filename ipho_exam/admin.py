@@ -33,7 +33,7 @@ from ipho_exam.models import (
     RawFigure,
     Feedback,
     Like,
-    StudentSubmission,
+    ParticipantSubmission,
     ExamAction,
     TranslationImportTmp,
     CachedAutoTranslation,
@@ -169,14 +169,14 @@ class DelegationFilter(admin.SimpleListFilter):
         value = self.value()
 
         if value is None:
-            return queryset.order_by("student")
-        return queryset.filter(language__delegation__name=value).order_by("student")
+            return queryset.order_by("participant")
+        return queryset.filter(language__delegation__name=value).order_by("participant")
 
 
-class StudentSubmissionAdmin(admin.ModelAdmin):
+class ParticipantSubmissionAdmin(admin.ModelAdmin):
     list_display = (
         "exam",
-        "student",
+        "participant",
         "delegation",
         "language",
         "with_question",
@@ -189,8 +189,8 @@ class StudentSubmissionAdmin(admin.ModelAdmin):
 
 
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = ("name", "exam", "student")
-    list_filter = ("exam", "student__delegation")
+    list_display = ("name", "exam", "participant")
+    list_filter = ("exam", "participant__delegation")
 
 
 class ExamActionAdmin(admin.ModelAdmin):
@@ -202,14 +202,14 @@ class DocumentAdmin(admin.ModelAdmin):
     list_display = (
         "exam",
         "position",
-        "student",
+        "participant",
         "num_pages",
         "barcode_num_pages",
         "extra_num_pages",
         "barcode_base",
         "scan_status",
     )
-    list_filter = ("exam", "position", "student__delegation", "scan_status")
+    list_filter = ("exam", "position", "participant__delegation", "scan_status")
 
 
 admin.site.register(Language, LanguageAdmin)
@@ -227,7 +227,7 @@ admin.site.register(Figure, FigureAdmin)
 admin.site.register(RawFigure)
 
 admin.site.register(ExamAction, ExamActionAdmin)
-admin.site.register(StudentSubmission, StudentSubmissionAdmin)
+admin.site.register(ParticipantSubmission, ParticipantSubmissionAdmin)
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(DocumentTask)

@@ -36,7 +36,7 @@ from django.utils import timezone
 from polymorphic.models import PolymorphicModel
 from polymorphic.managers import PolymorphicManager
 
-from ipho_core.models import Delegation, Student
+from ipho_core.models import Delegation, Participant
 from ipho_exam import fonts
 from .exceptions import IphoExamForbidden
 from .utils import natural_id
@@ -436,7 +436,7 @@ class Exam(models.Model):
 
     ANSWER_SHEET_SCAN_UPLOAD_CHOICES = (
         (ANSWER_SHEET_SCAN_UPLOAD_NOT_POSSIBLE, "Not possible"),
-        (ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER, "Student answer"),
+        (ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER, "Participant answer"),
     )
 
     # See comments on IntegerFields above
@@ -452,7 +452,7 @@ class Exam(models.Model):
 
     DELEGATION_SCAN_ACCESS_CHOICES = (
         (DELEGATION_SCAN_ACCESS_NO, "No"),
-        (DELEGATION_SCAN_ACCESS_STUDENT_ANSWER, "Student answer"),
+        (DELEGATION_SCAN_ACCESS_STUDENT_ANSWER, "Participant answer"),
     )
 
     # See comments on IntegerFields above
@@ -1114,18 +1114,18 @@ class PlaceManager(models.Manager):
 class Place(models.Model):
     objects = PlaceManager()
 
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
 
     def __str__(self):
-        return f"{self.name} [{self.exam.name} {self.student.code}]"
+        return f"{self.name} [{self.exam.name} {self.participant.code}]"
 
     def natural_key(self):
         return (self.name, self.exam.name)
 
     class Meta:
-        unique_together = index_together = ("student", "exam")
+        unique_together = index_together = ("participant", "exam")
 
 
 class Feedback(models.Model):
@@ -1285,8 +1285,8 @@ def create_actions_on_delegation_creation(
             )
 
 
-class StudentSubmission(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+class ParticipantSubmission(models.Model):
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
     with_question = models.BooleanField(
@@ -1299,17 +1299,21 @@ class StudentSubmission(models.Model):
     ## TODO: do we need a status? (in progress, submitted, printed)
 
     class Meta:
-        unique_together = index_together = (("student", "exam", "language"),)
+        unique_together = index_together = (("participant", "exam", "language"),)
 
 
 def exam_prints_filename(obj, fname):  # pylint: disable=unused-argument
-    path = f"exams-docs/{obj.student.code}/print/exam-{obj.exam.id}-{obj.position}.pdf"
+    path = (
+        f"exams-docs/{obj.participant.code}/print/exam-{obj.exam.id}-{obj.position}.pdf"
+    )
     fullpath = os.path.join(DOCUMENT_PATH, path)
     return fullpath
 
 
 def exam_scans_filename(obj, fname):  # pylint: disable=unused-argument
-    path = f"exams-docs/{obj.student.code}/scan/exam-{obj.exam.id}-{obj.position}.pdf"
+    path = (
+        f"exams-docs/{obj.participant.code}/scan/exam-{obj.exam.id}-{obj.position}.pdf"
+    )
     fullpath = os.path.join(DOCUMENT_PATH, path)
     return fullpath
 
@@ -1336,7 +1340,7 @@ class DocumentManager(models.Manager):
         if user.has_perm("ipho_core.is_delegation"):
             delegs = Delegation.objects.filter(members=user)
             return queryset.filter(exam__in=Exam.objects.for_user(user)).filter(
-                student__delegation__in=delegs
+                participant__delegation__in=delegs
             )
         return queryset.none()
 
@@ -1361,7 +1365,9 @@ class Document(models.Model):
     )
 
     exam = models.ForeignKey(Exam, help_text="Exam", on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, help_text="Student", on_delete=models.CASCADE)
+    participant = models.ForeignKey(
+        Participant, help_text="Participant", on_delete=models.CASCADE
+    )
     timestamp = models.DateTimeField(auto_now=True, null=True)
     position = models.IntegerField(
         help_text="Question grouping position, e.g. 0 for cover sheet / instructions, 1 for the first question, etc"
@@ -1404,13 +1410,13 @@ class Document(models.Model):
     )
 
     class Meta:
-        unique_together = index_together = (("exam", "student", "position"),)
+        unique_together = index_together = (("exam", "participant", "position"),)
 
     # def question_name(self):
     # return self.question.name
 
     def __str__(self):
-        return f"Document: {self.exam.name} #{self.position} [{self.student.code}]"
+        return f"Document: {self.exam.name} #{self.position} [{self.participant.code}]"
 
 
 class DocumentTask(models.Model):

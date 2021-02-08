@@ -41,7 +41,7 @@ IPHO2016_DATA[
     <list id="q0_ls4">
         <item id="q0_ls4_li1">At the end of the examination you must stop writing immediately.</item>
         <item id="q0_ls4_li2">For every problem, sort the corresponding sheets in the following order: cover sheet (C), questions (Q), answer sheets (A), work sheets (W).</item>
-        <item id="q0_ls4_li3">Put all the sheets belonging to one problem into the same envelope. Also put the general instructions (G) into the remaining separate envelope. Make sure your student code is visible in the viewing window of each envelope. Also hand in empty sheets. You are not allowed to take any sheets of paper out of the examination area.</item>
+        <item id="q0_ls4_li3">Put all the sheets belonging to one problem into the same envelope. Also put the general instructions (G) into the remaining separate envelope. Make sure your participant code is visible in the viewing window of each envelope. Also hand in empty sheets. You are not allowed to take any sheets of paper out of the examination area.</item>
         <item id="q0_ls4_li4">Leave the blue calculator provided by the organizers on the table.</item>
         <item id="q0_ls4_li5">Take the writing equipment (2 ball point pens, 1 felt tip pen, 1 pencil, 1 pair of scissors, 1 ruler, 2 pairs of earplugs) as well your personal calculator (if applicable) with you. Also take your water bottle with you.</item>
         <item id="q0_ls4_li6">Wait at your table until your envelopes are collected. Once all envelopes are collected your guide will escort you out of the examination area.</item>
@@ -99,7 +99,7 @@ IPHO2016_DATA[
     <list id="q0_ls4">
         <item id="q0_ls4_li1">At the end of the examination you must stop writing immediately.</item>
         <item id="q0_ls4_li2">For every problem, sort the corresponding sheets in the following order: cover sheet (C), questions (Q), answer sheets (A), work sheets (W).</item>
-        <item id="q0_ls4_li3">Put all the sheets belonging to one problem into the same envelope. Also put the general instructions (G) into the remaining separate envelope. Make sure your student code is visible in the viewing window of each envelope. Also hand in empty sheets. You are not allowed to take any sheets of paper out of the examination area.</item>
+        <item id="q0_ls4_li3">Put all the sheets belonging to one problem into the same envelope. Also put the general instructions (G) into the remaining separate envelope. Make sure your participant code is visible in the viewing window of each envelope. Also hand in empty sheets. You are not allowed to take any sheets of paper out of the examination area.</item>
         <item id="q0_ls4_li4">Leave the blue calculator provided by the organizers on the table.</item>
         <item id="q0_ls4_li5">Take the writing equipment (2 ball point pens, 1 felt tip pen, 1 pencil, 1 pair of scissors, 1 ruler, 2 pairs of earplugs) as well your personal calculator (if applicable) with you. Also take your water bottle with you.</item>
         <item id="q0_ls4_li6">Wait at your table until your envelopes are collected. Once all envelopes are collected your guide will escort you out of the examination area.</item>

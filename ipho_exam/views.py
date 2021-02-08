@@ -76,7 +76,7 @@ from pywebpush import WebPushException
 
 from celery.result import AsyncResult
 
-from ipho_core.models import Delegation, Student, RandomDrawLog
+from ipho_core.models import Delegation, Participant, RandomDrawLog
 
 import ipho_exam
 from ipho_exam import tasks
@@ -92,7 +92,7 @@ from ipho_exam.models import (
     RawFigure,
     Feedback,
     Like,
-    StudentSubmission,
+    ParticipantSubmission,
     ExamAction,
     TranslationImportTmp,
     Document,
@@ -2641,10 +2641,10 @@ def submission_delegation_list_submitted(request):
     exams = Exam.objects.for_user(request.user)
 
     all_docs = Document.objects.filter(
-        student__delegation__in=delegation,
+        participant__delegation__in=delegation,
         exam__in=exams,
         exam__delegation_status__action=ExamAction.TRANSLATION,
-        exam__delegation_status__delegation=F("student__delegation"),
+        exam__delegation_status__delegation=F("participant__delegation"),
         exam__delegation_status__status=ExamAction.SUBMITTED,
     )
     all_docs = all_docs.values(
@@ -2652,16 +2652,16 @@ def submission_delegation_list_submitted(request):
         "exam__name",
         "exam__id",
         "position",
-        "student__delegation__name",
-        "student__code",
-        "student__id",
+        "participant__delegation__name",
+        "participant__code",
+        "participant__id",
         "num_pages",
         "barcode_base",
         "barcode_num_pages",
         "extra_num_pages",
         "scan_file",
         "timestamp",
-    ).order_by("exam_id", "student_id", "position")
+    ).order_by("exam_id", "participant_id", "position")
 
     return render(
         request,
@@ -2673,20 +2673,22 @@ def submission_delegation_list_submitted(request):
 
 
 @permission_required("ipho_core.is_delegation_print")
-def upload_scan_delegation(request, exam_id, position, student_id):
+def upload_scan_delegation(request, exam_id, position, participant_id):
     if not request.is_ajax:
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
     user = request.user
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    student = get_object_or_404(Student, id=student_id)
-    if not student.delegation.members.filter(pk=user.pk).exists():
+    participant = get_object_or_404(Participant, id=participant_id)
+    if not participant.delegation.members.filter(pk=user.pk).exists():
         return HttpResponseForbidden(
-            "You do not have permission to upload a scan for this student."
+            "You do not have permission to upload a scan for this participant."
         )
 
-    doc = get_object_or_404(Document, exam=exam, position=position, student=student)
+    doc = get_object_or_404(
+        Document, exam=exam, position=position, participant=participant
+    )
 
     submission_open = (
         exam.answer_sheet_scan_upload >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
@@ -2695,7 +2697,7 @@ def upload_scan_delegation(request, exam_id, position, student_id):
     form = DelegationScanForm(
         exam,
         position,
-        student,
+        participant,
         submission_open=submission_open,
         do_replace=bool(doc.scan_file),
         data=request.POST or None,
@@ -2709,11 +2711,11 @@ def upload_scan_delegation(request, exam_id, position, student_id):
         return JsonResponse(
             {
                 "download_link": reverse(
-                    "exam:scan-exam-pos-student",
+                    "exam:scan-exam-pos-participant",
                     kwargs={
                         "exam_id": exam.pk,
                         "position": position,
-                        "student_id": student.pk,
+                        "participant_id": participant.pk,
                     },
                 ),
                 "upload_link": reverse(
@@ -2721,7 +2723,7 @@ def upload_scan_delegation(request, exam_id, position, student_id):
                     kwargs={
                         "exam_id": exam.pk,
                         "position": position,
-                        "student_id": student.pk,
+                        "participant_id": participant.pk,
                     },
                 ),
                 "success": True,
@@ -2732,7 +2734,7 @@ def upload_scan_delegation(request, exam_id, position, student_id):
     form_html = render_crispy_form(form)
     json_kwargs = {
         "title": "Upload scan file",
-        "student": student.code,
+        "participant": participant.code,
         "exam": exam.name,
         "position": position,
         "form": form_html,
@@ -2781,18 +2783,18 @@ def submission_exam_assign(
     else:
         answer_sheet_language = None
 
-    # set forms for all students
-    for stud in delegation.student_set.all():
-        stud_langs = StudentSubmission.objects.filter(
-            student=stud, exam=exam
+    # set forms for all participants
+    for stud in delegation.participant_set.all():
+        stud_langs = ParticipantSubmission.objects.filter(
+            participant=stud, exam=exam
         ).values_list("language", flat=True)
         stud_question_langs = stud_langs.filter(with_question=True)
         try:
-            stud_answer_lang_obj = StudentSubmission.objects.get(
-                student=stud, exam=exam, with_answer=True
+            stud_answer_lang_obj = ParticipantSubmission.objects.get(
+                participant=stud, exam=exam, with_answer=True
             )
             stud_answer_lang = stud_answer_lang_obj.language
-        except StudentSubmission.DoesNotExist:
+        except ParticipantSubmission.DoesNotExist:
             stud_answer_lang = None
         form = AssignTranslationForm(
             request.POST or None,
@@ -2812,7 +2814,9 @@ def submission_exam_assign(
         for stud, form in submission_forms:
             current_langs = []
             ## Modify the with_answer status and delete unused submissions
-            for ssub in StudentSubmission.objects.filter(student=stud, exam=exam):
+            for ssub in ParticipantSubmission.objects.filter(
+                participant=stud, exam=exam
+            ):
                 if (ssub.language in form.cleaned_data["languages"]) or (
                     ssub.language == form.cleaned_data["answer_language"]
                 ):
@@ -2841,8 +2845,8 @@ def submission_exam_assign(
                 else:
                     with_answer = form.cleaned_data["answer_language"] == lang
                 with_question = lang in form.cleaned_data["languages"]
-                ssub = StudentSubmission(
-                    student=stud,
+                ssub = ParticipantSubmission(
+                    participant=stud,
                     exam=exam,
                     language=lang,
                     with_answer=with_answer,
@@ -2851,14 +2855,16 @@ def submission_exam_assign(
                 ssub.save()
 
         ## Generate PDF compilation
-        for student in delegation.student_set.all():
-            student_languages = StudentSubmission.objects.filter(
-                exam=exam, student=student
+        for participant in delegation.participant_set.all():
+            participant_languages = ParticipantSubmission.objects.filter(
+                exam=exam, participant=participant
             )
             try:
-                student_seat = Place.objects.get(exam=exam, student=student).name
+                participant_seat = Place.objects.get(
+                    exam=exam, participant=participant
+                ).name
             except Place.DoesNotExist:
-                student_seat = ""
+                participant_seat = ""
             questions = exam.question_set.all()
             grouped_questions = {
                 k: list(g)
@@ -2866,18 +2872,18 @@ def submission_exam_assign(
             }
             for position, qgroup in list(grouped_questions.items()):
                 doc, _ = Document.objects.get_or_create(
-                    exam=exam, student=student, position=position
+                    exam=exam, participant=participant, position=position
                 )
                 cover_ctx = {
-                    "student": student,
+                    "participant": participant,
                     "exam": exam,
                     "question": qgroup[0],
-                    "place": student_seat,
+                    "place": participant_seat,
                 }
-                question_task = tasks.student_exam_document.s(
-                    qgroup, student_languages, cover=cover_ctx, commit=True
+                question_task = tasks.participant_exam_document.s(
+                    qgroup, participant_languages, cover=cover_ctx, commit=True
                 )
-                # question_task = question_utils.compile_stud_exam_question(qgroup, student_languages, cover=cover_ctx, commit=True)
+                # question_task = question_utils.compile_stud_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
                 _, _ = DocumentTask.objects.update_or_create(
                     document=doc, defaults={"task_id": question_task.id}
@@ -2961,8 +2967,8 @@ def submission_exam_confirm(
 
     documents = (
         Document.objects.for_user(request.user)
-        .filter(exam=exam, student__delegation=delegation)
-        .order_by("student", "position")
+        .filter(exam=exam, participant__delegation=delegation)
+        .order_by("participant", "position")
     )
     all_finished = all([not hasattr(doc, "documenttask") for doc in documents])
 
@@ -3029,28 +3035,29 @@ def submission_exam_confirm(
         form_error = "<strong>Error:</strong> You have to agree on the final submission before continuing."
 
     stud_documents = {
-        k: list(g) for k, g in itertools.groupby(documents, key=lambda d: d.student.pk)
+        k: list(g)
+        for k, g in itertools.groupby(documents, key=lambda d: d.participant.pk)
     }
 
-    assigned_student_language = OrderedDict()
-    for student in delegation.student_set.all():
+    assigned_participant_language = OrderedDict()
+    for participant in delegation.participant_set.all():
         stud_langs = OrderedDict()
         for lang in languages:
             stud_langs[lang] = False
-        assigned_student_language[student] = stud_langs
+        assigned_participant_language[participant] = stud_langs
 
-    student_languages = StudentSubmission.objects.filter(
-        exam=exam, student__delegation=delegation
+    participant_languages = ParticipantSubmission.objects.filter(
+        exam=exam, participant__delegation=delegation
     )
-    for stud_l in student_languages:
+    for stud_l in participant_languages:
         if stud_l.with_answer and stud_l.with_question:
-            assigned_student_language[stud_l.student][stud_l.language] = "QA"
+            assigned_participant_language[stud_l.participant][stud_l.language] = "QA"
         elif stud_l.with_question:
-            assigned_student_language[stud_l.student][stud_l.language] = "Q"
+            assigned_participant_language[stud_l.participant][stud_l.language] = "Q"
         elif stud_l.with_answer:
-            assigned_student_language[stud_l.student][stud_l.language] = "A"
+            assigned_participant_language[stud_l.participant][stud_l.language] = "A"
         else:
-            assigned_student_language[stud_l.student][stud_l.language] = ""
+            assigned_participant_language[stud_l.participant][stud_l.language] = ""
 
     return render(
         request,
@@ -3062,7 +3069,7 @@ def submission_exam_confirm(
             "stud_documents": stud_documents,
             "all_finished": all_finished,
             "submission_status": ex_submission.status,
-            "students_languages": assigned_student_language,
+            "participants_languages": assigned_participant_language,
             "form_error": form_error,
             "no_answer": no_answer,
             "fixed_answer_language": en_answer,
@@ -3084,33 +3091,34 @@ def submission_exam_submitted(
         exam=exam, delegation=delegation, action=ExamAction.TRANSLATION
     )
 
-    assigned_student_language = OrderedDict()
-    for student in delegation.student_set.all():
+    assigned_participant_language = OrderedDict()
+    for participant in delegation.participant_set.all():
         stud_langs = OrderedDict()
         for lang in languages:
             stud_langs[lang] = False
-        assigned_student_language[student] = stud_langs
+        assigned_participant_language[participant] = stud_langs
 
-    student_languages = StudentSubmission.objects.filter(
-        exam=exam, student__delegation=delegation
+    participant_languages = ParticipantSubmission.objects.filter(
+        exam=exam, participant__delegation=delegation
     )
-    for stud_l in student_languages:
+    for stud_l in participant_languages:
         if stud_l.with_answer and stud_l.with_question:
-            assigned_student_language[stud_l.student][stud_l.language] = "QA"
+            assigned_participant_language[stud_l.participant][stud_l.language] = "QA"
         elif stud_l.with_question:
-            assigned_student_language[stud_l.student][stud_l.language] = "Q"
+            assigned_participant_language[stud_l.participant][stud_l.language] = "Q"
         elif stud_l.with_answer:
-            assigned_student_language[stud_l.student][stud_l.language] = "A"
+            assigned_participant_language[stud_l.participant][stud_l.language] = "A"
         else:
-            assigned_student_language[stud_l.student][stud_l.language] = ""
+            assigned_participant_language[stud_l.participant][stud_l.language] = ""
 
     documents = (
         Document.objects.for_user(request.user)
-        .filter(exam=exam, student__delegation=delegation)
-        .order_by("student", "position")
+        .filter(exam=exam, participant__delegation=delegation)
+        .order_by("participant", "position")
     )
     stud_documents = {
-        k: list(g) for k, g in itertools.groupby(documents, key=lambda d: d.student.pk)
+        k: list(g)
+        for k, g in itertools.groupby(documents, key=lambda d: d.participant.pk)
     }
 
     msg = None
@@ -3138,7 +3146,7 @@ def submission_exam_submitted(
             "languages": languages,
             "stud_documents": stud_documents,
             "submission_status": ex_submission.status,
-            "students_languages": assigned_student_language,
+            "participants_languages": assigned_participant_language,
             "msg": msg,
             "no_answer": no_answer,
             "fixed_answer_language": en_answer,
@@ -3150,8 +3158,8 @@ def submission_exam_submitted(
 def admin_submission_list(request, exam_id):
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    submissions = StudentSubmission.objects.filter(
-        exam=exam, student__delegation=delegation
+    submissions = ParticipantSubmission.objects.filter(
+        exam=exam, participant__delegation=delegation
     )
 
     return render(
@@ -3179,7 +3187,9 @@ def admin_submission_assign(request, exam_id):
         )
 
     form = SubmissionAssignForm()
-    form.fields["student"].queryset = Student.objects.filter(delegation=delegation)
+    form.fields["participant"].queryset = Participant.objects.filter(
+        delegation=delegation
+    )
     form.fields["language"].queryset = Language.objects.all()
 
     ctx = {}
@@ -3772,8 +3782,8 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
 
 
 @login_required
-def pdf_exam_for_student(request, exam_id, student_id):
-    student = get_object_or_404(Student, id=student_id)
+def pdf_exam_for_participant(request, exam_id, participant_id):
+    participant = get_object_or_404(Participant, id=participant_id)
 
     user = request.user
     if not user.has_perm("ipho_core.can_see_boardmeeting"):
@@ -3790,7 +3800,9 @@ def pdf_exam_for_student(request, exam_id, student_id):
     ## TODO: implement caching
     all_tasks = []
 
-    student_languages = StudentSubmission.objects.filter(exam=exam, student=student)
+    participant_languages = ParticipantSubmission.objects.filter(
+        exam=exam, participant=participant
+    )
     questions = exam.question_set.all()
     grouped_questions = {
         k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)
@@ -3798,27 +3810,27 @@ def pdf_exam_for_student(request, exam_id, student_id):
     grouped_questions = OrderedDict(sorted(grouped_questions.items()))
     for position, qgroup in list(grouped_questions.items()):
         question_task = question_utils.compile_stud_exam_question(
-            qgroup, student_languages
+            qgroup, participant_languages
         )
         result = question_task.delay()
         all_tasks.append(result)
         print("Group", position, "done.")
-    filename = "exam-{}-{}.pdf".format(slugify(exam.name), student.code)
+    filename = "exam-{}-{}.pdf".format(slugify(exam.name), participant.code)
     chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
     # chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
     return HttpResponseRedirect(reverse("exam:pdf-task", args=[chord_task.id]))
 
 
 @login_required
-def pdf_exam_pos_student(
-    request, exam_id, position, student_id, type="P"
+def pdf_exam_pos_participant(
+    request, exam_id, position, participant_id, type="P"
 ):  # pylint: disable= # pylint: disable=redefined-builtin, too-many-return-statements, too-many-branches
-    student = get_object_or_404(Student, id=student_id)
+    participant = get_object_or_404(Participant, id=participant_id)
     user = request.user
     if not (
         user.has_perm("ipho_core.is_printstaff") or user.has_perm("ipho_core.is_marker")
     ):
-        if not student.delegation.members.filter(pk=user.pk).exists():
+        if not participant.delegation.members.filter(pk=user.pk).exists():
             return HttpResponseForbidden(
                 "You do not have permission to view this document."
             )
@@ -3834,7 +3846,7 @@ def pdf_exam_pos_student(
                 )
 
     doc = get_object_or_404(
-        Document, exam=exam_id, position=position, student=student_id
+        Document, exam=exam_id, position=position, participant=participant_id
     )
     if type == "P":  ## for for printouts
         if hasattr(doc, "documenttask"):
@@ -3879,12 +3891,12 @@ def pdf_exam_pos_student(
 
 
 @login_required
-def pdf_exam_pos_student_status(request, exam_id, position, student_id):
+def pdf_exam_pos_participant_status(request, exam_id, position, participant_id):
     get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    get_object_or_404(Student, id=student_id)
+    get_object_or_404(Participant, id=participant_id)
 
     doc = get_object_or_404(
-        Document, exam=exam_id, position=position, student=student_id
+        Document, exam=exam_id, position=position, participant=participant_id
     )
     if not hasattr(doc, "documenttask"):
         return JsonResponse({"status": "COMPLETED", "ready": True, "failed": False})
@@ -4095,10 +4107,10 @@ def bulk_print(
     print(messages)
 
     all_docs = Document.objects.for_user(request.user).filter(
-        student__delegation__in=filter_dg,
+        participant__delegation__in=filter_dg,
         exam__in=filter_ex,
         exam__delegation_status__action=ExamAction.TRANSLATION,
-        exam__delegation_status__delegation=F("student__delegation"),
+        exam__delegation_status__delegation=F("participant__delegation"),
         exam__delegation_status__status=ExamAction.SUBMITTED,
         position__in=filter_pos,
     )
@@ -4139,9 +4151,9 @@ def bulk_print(
         "exam__name",
         "exam__id",
         "position",
-        "student__delegation__name",
-        "student__code",
-        "student__id",
+        "participant__delegation__name",
+        "participant__code",
+        "participant__id",
         "num_pages",
         "barcode_base",
         "barcode_num_pages",
@@ -4154,7 +4166,7 @@ def bulk_print(
         "last_print_s",
         "timestamp",
         "exam__delegation_status__timestamp",
-    ).order_by("exam__delegation_status__timestamp", "student_id", "position")
+    ).order_by("exam__delegation_status__timestamp", "participant_id", "position")
 
     for doc in all_docs:
         exm = Exam.objects.get(pk=doc["exam__id"])
@@ -4228,14 +4240,14 @@ def bulk_print(
 
 @permission_required("ipho_core.is_printstaff")
 def print_doc(
-    request, type, exam_id, position, student_id, queue
+    request, type, exam_id, position, participant_id, queue
 ):  # pylint: disable=redefined-builtin
     queue_list = printer.allowed_choices(request.user)
     if not queue in (q[0] for q in queue_list):
         # pylint: disable=raising-non-exception
         raise HttpResponseForbidden("Print queue not allowed.")
     doc = get_object_or_404(
-        Document, exam=exam_id, position=position, student=student_id
+        Document, exam=exam_id, position=position, participant=participant_id
     )
 
     if type == "P":
@@ -4283,7 +4295,7 @@ def upload_scan(request):
             Document,
             exam=form.cleaned_data["question"].exam,
             position=form.cleaned_data["question"].position,
-            student=form.cleaned_data["student"],
+            participant=form.cleaned_data["participant"],
         )
         doc.scan_file = form.cleaned_data["file"]
         doc.save()
@@ -4305,16 +4317,18 @@ def extra_sheets(request, exam_id=None):
         exam_id, request.POST or None, initial={"template": "exam_blank.tex"}
     )
     if form.is_valid():
-        student = form.cleaned_data["student"]
+        participant = form.cleaned_data["participant"]
         question = form.cleaned_data["question"]
         exam = question.exam
         position = question.position
         quantity = form.cleaned_data["quantity"]
         template_name = form.cleaned_data["template"]
-        doc = get_object_or_404(Document, exam=exam, position=position, student=student)
+        doc = get_object_or_404(
+            Document, exam=exam, position=position, participant=participant
+        )
 
         doc_pdf = question_utils.generate_extra_sheets(
-            student, question, doc.extra_num_pages, quantity, template_name
+            participant, question, doc.extra_num_pages, quantity, template_name
         )
 
         doc.extra_num_pages += quantity
@@ -4322,7 +4336,7 @@ def extra_sheets(request, exam_id=None):
 
         res = HttpResponse(doc_pdf, content_type="application/pdf")
         res["content-disposition"] = 'attachment; filename="{}.pdf"'.format(
-            f"{student.code}_{exam.code}_Z"
+            f"{participant.code}_{exam.code}_Z"
         )
         return res
 

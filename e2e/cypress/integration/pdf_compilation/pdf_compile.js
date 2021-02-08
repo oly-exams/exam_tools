@@ -19,7 +19,7 @@ function download_test_pdf(stud_id, doc_pos, id_prefix="preview", file_prefix="f
             })
             .then((response) => {
                 // Write file to disk and compare
-                var filename_end = '__student-'+String(stud_id)+'__position-'+String(doc_pos)+'.pdf';
+                var filename_end = '__participant-'+String(stud_id)+'__position-'+String(doc_pos)+'.pdf';
                 var filename = file_prefix + id_prefix + filename_end;
                 var filename_fixture = "final_submission" + filename_end;
                 cy.writeFile('cypress/pdfs/'+filename, response.body, 'binary');
@@ -128,10 +128,10 @@ describe('General', function() {
         cy.visit('/exam/admin/scan/upload')
 
         cy.get('#id_question').select("Two Problems in Mechanics - Answer Sheet [#1 in Theory]")
-        cy.get('#id_student').select("AUS-S-1")
+        cy.get('#id_participant').select("AUS-S-1")
 
         // Attaching the corresponding fixture to scan. This enables us to use download_test_pdf again
-        const filepath = 'pdfs/final_submission__student-6__position-1.pdf';
+        const filepath = 'pdfs/final_submission__participant-6__position-1.pdf';
         cy.get('#id_file').attachFile({ filePath:filepath, mimeType: 'application/pdf' , encoding:"binary"})
         cy.get('#submit-id-submit').click()
 
@@ -225,7 +225,7 @@ describe('General', function() {
         cy.get('#upload-1-6-2').click()
         cy.wait('@getUploadModal')
 
-        const filepath = 'pdfs/final_submission__student-6__position-2.pdf';
+        const filepath = 'pdfs/final_submission__participant-6__position-2.pdf';
         cy.get('#id_file').attachFile({ filePath:filepath, mimeType: 'application/pdf' , encoding:"binary"})
         cy.get('#upload-modal button[type="submit"]').click()
         cy.wait('@postUploadModal')

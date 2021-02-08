@@ -37,7 +37,7 @@ from django.template.loader import render_to_string
 from django.db.models import Sum
 
 from django.conf import settings
-from ipho_core.models import Delegation, Student
+from ipho_core.models import Delegation, Participant
 from ipho_exam.models import (
     Exam,
     Question,
@@ -47,7 +47,7 @@ from ipho_exam.models import (
     Language,
     Figure,
     Feedback,
-    StudentSubmission,
+    ParticipantSubmission,
     ExamAction,
 )
 from ipho_marking.models import Marking, MarkingMeta
@@ -58,14 +58,14 @@ OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 
 def compile_all():
     for delegation in Delegation.objects.exclude(name=settings.OFFICIAL_DELEGATION):
-        students = Student.objects.filter(delegation=delegation).values(
+        participants = Participant.objects.filter(delegation=delegation).values(
             "id", "pk", "code", "first_name", "last_name"
         )
         vid = "F"
-        points_per_student = []
-        for student in students:
+        points_per_participant = []
+        for participant in participants:
             stud_exam_points_list = (
-                Marking.objects.filter(version=vid, student=student["id"])
+                Marking.objects.filter(version=vid, participant=participant["id"])
                 .values("marking_meta__question")
                 .annotate(exam_points=Sum("points"))
                 .values("exam_points")
@@ -78,7 +78,7 @@ def compile_all():
                     if st_points["exam_points"] is not None
                 ]
             )
-            points_per_student.append((student, stud_exam_points_list, total))
+            points_per_participant.append((participant, stud_exam_points_list, total))
 
         exams = (
             MarkingMeta.objects.filter(
@@ -109,8 +109,8 @@ def compile_all():
                 ex["question__exam__code"], ex["question__position"]
             )
         results += " & \\textbf{Total} \\\\\n"
-        for (student, stud_exam_points_list, total) in points_per_student:
-            results += "{} & ".format(student["code"])
+        for (participant, stud_exam_points_list, total) in points_per_participant:
+            results += "{} & ".format(participant["code"])
             for p in stud_exam_points_list:
                 results += "{} & ".format(p["exam_points"])
             results += f"{total} \\\\\n"

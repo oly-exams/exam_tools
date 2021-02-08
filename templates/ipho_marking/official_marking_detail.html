@@ -66,12 +66,12 @@ th {
     <thead>
       <tr>
         <th class="thexpart">Problem part</th>
-        {% for student, forms in student_forms %}
+        {% for participant, forms in participant_forms %}
           {{ forms.management_form }}
           <td class="thdnone"></td>
-          <th><h4>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</h4>
-            {% if student.pk in scan_files_ready %}
-            <a class="btn btn-default btn-xs" id="scan-{{ student.pk }}-{{ question.position }}" href="{% url 'exam:scan-exam-pos-student' exam_id=question.exam.pk student_id=student.pk position=question.position %}">
+          <th><h4>{{ participant.first_name }} {{ participant.last_name }} ({{ participant.code }})</h4>
+            {% if participant.pk in scan_files_ready %}
+            <a class="btn btn-default btn-xs" id="scan-{{ participant.pk }}-{{ question.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=question.exam.pk participant_id=participant.pk position=question.position %}">
               <i class="fa fa-file-pdf-o"></i>
               View scan
             </a>
@@ -94,7 +94,7 @@ th {
       {% endfor %}
       <tr>
         <td class="tdtotal"><strong>Total ({{ max_points_sum }})</strong></td>
-        {% for it in student_forms %}
+        {% for it in participant_forms %}
           <td class="thdnone"></td>
           <td class="tdtotal" id="cell_total_{{ forloop.counter0 }}"></td>
         {% endfor %}
@@ -113,17 +113,17 @@ th {
 {% block extra-script %}
 
 <script>
-student_pks = new Array();
-{% for student, forms in student_forms %}
-student_pks[{{ forloop.counter0 }}] = {{ student.pk }};
+participant_pks = new Array();
+{% for participant, forms in participant_forms %}
+participant_pks[{{ forloop.counter0 }}] = {{ participant.pk }};
 {% endfor %}
 
 function update_totals () {
-  for (i = 0; i < {{ student_forms|length }}; i++) {
+  for (i = 0; i < {{ participant_forms|length }}; i++) {
     var t = 0.0;
     var failed = false;
     for (j = 0; j < {{ marking_forms|length }}; j++) {
-      var x = parseFloat($('#id_Stud-' + student_pks[i] + '-' + j + '-points').val());
+      var x = parseFloat($('#id_Stud-' + participant_pks[i] + '-' + j + '-points').val());
       if (isNaN(x)) {
         failed = true;
         break;

@@ -25,7 +25,7 @@ import django
 django.setup()
 
 import csv
-from ipho_core.models import Delegation, Student
+from ipho_core.models import Delegation, Participant
 
 
 def main(input):
@@ -37,7 +37,7 @@ def main(input):
             ## Delegation
             delegation = Delegation.objects.get(name=row["delegation"])
 
-            student, created = Student.objects.get_or_create(
+            participant, created = Participant.objects.get_or_create(
                 code=row["code"],
                 defaults={
                     "first_name": row["first_name"],
@@ -46,7 +46,7 @@ def main(input):
                 },
             )
             if created:
-                print(student, "..", "created")
+                print(participant, "..", "created")
 
         except Delegation.DoesNotExist:
             print("Skip", row["code"], "because delegation does not exist.")

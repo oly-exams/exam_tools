@@ -53,7 +53,7 @@ describe('Marking', function () {
         // cypress doesn't let you type(""), so we need to do it by hand
         cy.get("#id_Stud-1-5-points").clear()
 
-        // add more values for other students
+        // add more values for other participants
         marking_helpers.edit_point_form(2,10, 1)
         marking_helpers.edit_point_form(3,10, 1)
         marking_helpers.edit_point_form(4,10, 1)
@@ -159,7 +159,7 @@ describe('Marking', function () {
 
         })
 
-        cy.url().should('contain', "/marking/staff/vO/student/10/question/3/edit")
+        cy.url().should('contain', "/marking/staff/vO/participant/10/question/3/edit")
 
         // check/edit some points
         marking_helpers.edit_point_form(-1, 0, "0.00")
@@ -200,7 +200,7 @@ describe('Marking', function () {
         cy.get(".alert-success").should('contain', "Points have been saved.")
 
         // hard reload to check values
-        cy.visit("/marking/staff/vO/student/10/question/3/edit")
+        cy.visit("/marking/staff/vO/participant/10/question/3/edit")
 
         // check values
         marking_helpers.check_point_form(-1,1,"0.50")
@@ -303,7 +303,7 @@ describe('Marking', function () {
         // cypress doesn't let you type(""), so we need to do it by hand
         cy.get("#id_form-25-points").clear()
 
-        // add more values for other students
+        // add more values for other participants
         marking_helpers.edit_point_form(-1,1, 0.17)
         marking_helpers.edit_point_form(-1,2, 0.17)
         marking_helpers.edit_point_form(-1,3, 0.17)
@@ -559,7 +559,7 @@ describe('Marking', function () {
         ]
         cy.login('AUS', '1234')
 
-        //check a student of another delegation
+        //check a participant of another delegation
         cy.request({
             failOnStatusCode: false,
             url: '/marking/detail/10/question/3',

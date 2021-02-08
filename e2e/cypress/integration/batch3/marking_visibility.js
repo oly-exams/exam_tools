@@ -180,7 +180,7 @@ describe('Marking', function () {
 
 
     it("Test Marks Visibility  (Translation phase)", function () {
-        // Testing only the first student in each array, otherwise the test takes ~10min
+        // Testing only the first participant in each array, otherwise the test takes ~10min
         cy.login('CHE', '1234')
         marking_helpers.test_delegation_marks_view_all(marking_helpers.CHE_stud_ids.slice(0, 1), [0, 2], "-")
 

@@ -103,13 +103,13 @@ class Delegation(models.Model):
         return f"{self.country} ({self.name})"
 
 
-class StudentManager(models.Manager):
+class ParticipantManager(models.Manager):
     def get_by_natural_key(self, code):
         return self.get(code=code)
 
 
-class Student(models.Model):
-    objects = StudentManager()
+class Participant(models.Model):
+    objects = ParticipantManager()
 
     code = models.CharField(max_length=10, unique=True)
     first_name = models.CharField(max_length=200)

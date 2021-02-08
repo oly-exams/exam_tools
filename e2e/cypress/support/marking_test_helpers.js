@@ -8,13 +8,13 @@ export function check_permission_denied_redirect(paths) {
 }
 
 // Tests the visibility of the marking tab in the delegation marking summary
-export function test_marking_summary_visibility(should_exist, students = []) {
+export function test_marking_summary_visibility(should_exist, participants = []) {
     cy.visit("/marking/")
     cy.get('a[href="#marking"]').click()
     cy.get("#marking").should('be.visible')
     if (should_exist) {
         cy.get('#marking .table-responsive').within(($table) => {
-            students.forEach(function (elem, row) {
+            participants.forEach(function (elem, row) {
                 cy.get("tbody >:nth-child(" + String(row + 2) + ")").within(($row) => {
                     cy.get(">:nth-child(1)").shouldHaveTrimmedText(elem[0])
                     elem.slice(1).forEach(function (btns, column) {
@@ -70,11 +70,11 @@ export function test_summary_action_content_none(action_pos) {
 }
 
 // Tests the visibility of the final points in the delegation marking summary
-export function test_final_points_visibility(student_points) {
+export function test_final_points_visibility(participant_points) {
     cy.visit("/marking/")
     cy.get('a[href="#final-points"]').click()
     cy.get("#final-points").should('be.visible')
-    student_points.forEach(function (elem, row) {
+    participant_points.forEach(function (elem, row) {
         elem.forEach(function (val, column) {
             cy.get("#final-points tbody >:nth-child(" + String(row + 2) + ") >:nth-child(" + String(column + 1) + ")").shouldHaveTrimmedText(val)
         });
@@ -84,7 +84,7 @@ export function test_final_points_visibility(student_points) {
 }
 
 // Tests a selection of marking view/edit views for the delegations
-export function test_delegation_view_edit_status_question(question_id, student_ids = [], edit_status = 200, view_status = 200) {
+export function test_delegation_view_edit_status_question(question_id, participant_ids = [], edit_status = 200, view_status = 200) {
     // editall
     cy.request({
         failOnStatusCode: false,
@@ -96,7 +96,7 @@ export function test_delegation_view_edit_status_question(question_id, student_i
         url: '/marking/detail_all/question/' + question_id,
     }).its("status").should('eq', view_status)
 
-    student_ids.forEach(function (id, idx) {
+    participant_ids.forEach(function (id, idx) {
         // edit
         cy.request({
             failOnStatusCode: false,
@@ -111,37 +111,37 @@ export function test_delegation_view_edit_status_question(question_id, student_i
 
 }
 // dito with a fixed question
-export function test_delegation_view_edit_status(student_ids = [], edit_status = 200, view_status = 200) {
+export function test_delegation_view_edit_status(participant_ids = [], edit_status = 200, view_status = 200) {
     // Check only one question
     var question_ids = [3,]
     question_ids.forEach(function (qid, idx) {
-        test_delegation_view_edit_status_question(qid, student_ids, edit_status, view_status)
+        test_delegation_view_edit_status_question(qid, participant_ids, edit_status, view_status)
     });
 }
 
 // Tests a selection of marking edit views for the markers
-export function test_staff_edit_status(question_id, delegation_id, student_ids = [], status = 404) {
+export function test_staff_edit_status(question_id, delegation_id, participant_ids = [], status = 404) {
     // editall
     cy.request({
         failOnStatusCode: false,
         url: '/marking/official/question/' + question_id + '/delegation/' + delegation_id,
     }).its("status").should('eq', status)
 
-    student_ids.forEach(function (id, idx) {
+    participant_ids.forEach(function (id, idx) {
         // official
         cy.request({
             failOnStatusCode: false,
-            url: '/marking/staff/vO/student/' + id + '/question/' + question_id + '/edit',
+            url: '/marking/staff/vO/participant/' + id + '/question/' + question_id + '/edit',
         }).its("status").should('eq', status)
         // delegation
         cy.request({
             failOnStatusCode: false,
-            url: '/marking/staff/vD/student/' + id + '/question/' + question_id + '/edit',
+            url: '/marking/staff/vD/participant/' + id + '/question/' + question_id + '/edit',
         }).its("status").should('eq', 404)
         // final
         cy.request({
             failOnStatusCode: false,
-            url: '/marking/staff/vF/student/' + id + '/question/' + question_id + '/edit',
+            url: '/marking/staff/vF/participant/' + id + '/question/' + question_id + '/edit',
         }).its("status").should('eq', 404)
     });
 
@@ -205,21 +205,21 @@ export function check_delegation_points_view_value(column, value="-"){
     })
 }
 
-// Tests all columns for students for value in the delegation view and viewall views
-// (Note that stud_ids needs to contain all students of a delegation)
+// Tests all columns for participants for value in the delegation view and viewall views
+// (Note that stud_ids needs to contain all participants of a delegation)
 export function test_delegation_marks_view_all(stud_ids, columns, value){
     cy.visit("/marking/detail_all/question/3")
     cy.wait(10)
     cy.wrap(stud_ids).each((id, idx)=>{
         // columns contains all subcolumns (off.=0, del.=1, fin.=2) to be tested
-        // there are 3 columns per student, and the first one is number 1
+        // there are 3 columns per participant, and the first one is number 1
         cy.wrap(columns).each((cnum)=>{
             check_delegation_points_view_value(1 + idx*3 + cnum, value)
         })
     })
     cy.wait(10)
     cy.wrap(stud_ids).each(stud_id => {
-        // Doing the same thing for each student detail view
+        // Doing the same thing for each participant detail view
         cy.visit("/marking/detail/"+String(stud_id)+"/question/3")
         cy.wait(10)
         cy.wrap(columns).each(cnum => {

@@ -19,7 +19,7 @@
     {% endfor %}
   </div>
 
-    <h2>All Students</h2>
+    <h2>All Participants</h2>
 
     <h3> {{ exam.name }} - {{ question.name }}</h3>
 
@@ -29,12 +29,12 @@
       <table class="table table-striped">
         <tr>
           <th>Subquestion</th>
-          {% for stud in students %}
+          {% for stud in participants %}
             <th>{{ stud.code }}</th>
           {% endfor %}
         {{ formset.management_form }}
         {% for form in formset %}
-          {% if form.instance.student == students.first %}
+          {% if form.instance.participant == participants.first %}
             </tr><tr><td>{{ form.points.label }}</td>
           {% endif %}
             <td >
@@ -54,18 +54,18 @@
       <thead>
         <tr>
           <th/>
-          {% for stud in students %}
+          {% for stud in participants %}
             <th colspan="3" style="text-align: center;">{{ stud.code }}
               <br/>
               {% for doc in documents %}
-                {% if doc.student.pk == stud.pk and doc.scan_file and doc.scan_status == 'S' %}
-                  <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=doc.student.pk position=question.position %}">
+                {% if doc.participant.pk == stud.pk and doc.scan_file and doc.scan_status == 'S' %}
+                  <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-participant' exam_id=exam.pk participant_id=doc.participant.pk position=question.position %}">
                     <i class="fa fa-file-pdf-o"></i>
                     View scan
                   </a>
                 {% endif %}
-                {% if doc.student.pk == stud.pk and doc.scan_file_orig %}
-                  <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=doc.student.pk position=question.position %}">
+                {% if doc.participant.pk == stud.pk and doc.scan_file_orig %}
+                  <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=exam.pk participant_id=doc.participant.pk position=question.position %}">
                     <i class="fa fa-file-pdf-o"></i>
                     View full scan
                   </a>
@@ -76,7 +76,7 @@
         </tr>
         <tr>
           <th>Subquestion</th>
-          {% for stud in students %}
+          {% for stud in participants %}
             <th>Off.</th>
             <th>Del.</th>
             <th>Final</th>
@@ -84,10 +84,10 @@
         </tr>
       </thead>
       <tbody>
-        {% for meta, student_points in markings %}
+        {% for meta, participant_points in markings %}
         <tr>
           <td><strong>{{ meta.name }} ({{ meta.max_points }})</strong></td>
-          {% for student, points in student_points %}
+          {% for participant, points in participant_points %}
           <td class="{{ points.diff_color.O }}">{{ points.O|default_if_none:'-' }}</td>
           <td class="{{ points.diff_color.D }}">{{ points.D|default_if_none:'-' }}</td>
           <td>{{ points.F|default_if_none:'-' }}</td>

@@ -27,7 +27,7 @@ from django.core.validators import MinValueValidator
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-from ipho_core.models import Student, Delegation
+from ipho_core.models import Participant, Delegation
 from ipho_exam.models import Question, Exam
 from ipho_exam import qquery as qwquery
 from ipho_exam import qml
@@ -61,10 +61,10 @@ def generate_markings_from_exam(exam, user=None):
             num_created += created
             num_tot += 1
 
-            for student in Student.objects.all():
+            for participant in Participant.objects.all():
                 for version_id, _ in list(Marking.MARKING_VERSIONS.items()):
                     _, created = Marking.objects.get_or_create(
-                        marking_meta=mmeta, student=student, version=version_id
+                        marking_meta=mmeta, participant=participant, version=version_id
                     )
                     num_marking_created += created
                     num_marking_tot += 1
@@ -190,11 +190,11 @@ class MarkingManager(models.Manager):
             status__gte=MarkingAction.SUBMITTED_FOR_MODERATION
         )
         locked_action_q_list = [
-            Q(student__delegation=a.delegation, marking_meta__question=a.question)
+            Q(participant__delegation=a.delegation, marking_meta__question=a.question)
             for a in locked_actions
         ]
         subm_action_q_list = [
-            Q(student__delegation=a.delegation, marking_meta__question=a.question)
+            Q(participant__delegation=a.delegation, marking_meta__question=a.question)
             for a in subm_actions
         ]
         # Q(pk__in=[]) is an empty Q object which we use as initializer (and default) object in reduce
@@ -236,7 +236,7 @@ class MarkingManager(models.Manager):
         if user.has_perm("ipho_core.is_delegation"):
             # A delegation can only view their own markings
             delegs = Delegation.objects.filter(members=user)
-            queryset = queryset.filter(student__delegation__in=delegs)
+            queryset = queryset.filter(participant__delegation__in=delegs)
             # This filters out all >=submitted Official Markings for exams with Delegation can view after submission.
             exams_deleg_view_after_subm = exams.filter(
                 marking_delegation_can_see_organizer_marks__gte=Exam.MARKING_DELEGATION_VIEW_WHEN_SUBMITTED
@@ -277,11 +277,11 @@ class MarkingManager(models.Manager):
             status__lt=MarkingAction.SUBMITTED_FOR_MODERATION
         )
         un_final_action_q_list = [
-            Q(student__delegation=a.delegation, marking_meta__question=a.question)
+            Q(participant__delegation=a.delegation, marking_meta__question=a.question)
             for a in un_final_actions
         ]
         un_subm_action_q_list = [
-            Q(student__delegation=a.delegation, marking_meta__question=a.question)
+            Q(participant__delegation=a.delegation, marking_meta__question=a.question)
             for a in un_subm_actions
         ]
         # Q(pk__in=[]) is an empty Q object which we use as initializer (and default) object in reduce
@@ -334,7 +334,7 @@ class Marking(models.Model):
     objects = MarkingManager()
 
     marking_meta = models.ForeignKey(MarkingMeta, on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     points = models.DecimalField(
         null=True,
         blank=True,
@@ -378,4 +378,4 @@ class Marking(models.Model):
 
     class Meta:
         # should probably have an ordering?
-        unique_together = (("marking_meta", "student", "version"),)
+        unique_together = (("marking_meta", "participant", "version"),)

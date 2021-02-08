@@ -26,7 +26,7 @@ User = get_user_model()
 
 from ipho_core.models import (
     Delegation,
-    Student,
+    Participant,
     AutoLogin,
     AccountRequest,
     PushSubscription,
@@ -51,7 +51,7 @@ class DelegationAdmin(admin.ModelAdmin):
     filter_horizontal = ("members",)
 
 
-class StudentAdmin(admin.ModelAdmin):
+class ParticipantAdmin(admin.ModelAdmin):
     fields = (
         "code",
         ("first_name", "last_name"),
@@ -81,7 +81,7 @@ class PushSubscriptionAdmin(admin.ModelAdmin):
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Delegation, DelegationAdmin)
-admin.site.register(Student, StudentAdmin)
+admin.site.register(Participant, ParticipantAdmin)
 admin.site.register(AccountRequest, AccountRequestAdmin)
 admin.site.register(PushSubscription, PushSubscriptionAdmin)
 admin.site.register(RandomDrawLog)

@@ -29,9 +29,9 @@
       <table class="table table-strided" id="confirm-table">
         <thead>
           <tr>
-            <th>Students:</th>
-            {% for student in students %}
-              <th>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</th>
+            <th>Participants:</th>
+            {% for participant in participants %}
+              <th>{{ participant.first_name }} {{ participant.last_name }} ({{ participant.code }})</th>
             {% endfor %}
           </tr>
         </thead>
@@ -49,8 +49,8 @@
         <tfoot>
           <tr>
             <td><b>Total:</b></td>
-          {% for student in students %}
-            <td><b>{{ totals_questions|lookup:question.pk|lookup:student.pk|floatformat:2|default_if_none:"-" }}</b></td>
+          {% for participant in participants %}
+            <td><b>{{ totals_questions|lookup:question.pk|lookup:participant.pk|floatformat:2|default_if_none:"-" }}</b></td>
           {% endfor %}
           </tr>
         </tfoot>

@@ -19,11 +19,11 @@ from ipho_exam.models import Document
 def get_extra_sheets_count(exam_name, output_file):
     docs = Document.objects.filter(
         ~Q(position=0), ~Q(extra_num_pages=0), exam__name=exam_name
-    ).order_by("student", "position")
-    res = [(d.student, d.position, d.extra_num_pages) for d in docs]
+    ).order_by("participant", "position")
+    res = [(d.participant, d.position, d.extra_num_pages) for d in docs]
     with open(output_file, "w") as f:
         writer = csv.writer(f)
-        writer.writerow(["student_code", "quesiton_number", "extra_num_pages"])
+        writer.writerow(["participant_code", "quesiton_number", "extra_num_pages"])
         writer.writerows(res)
 
 

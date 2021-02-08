@@ -169,10 +169,12 @@ def identity_args(self, prev_task):  # pylint: disable=unused-argument
 
 
 @shared_task(bind=True)
-def student_exam_document(self, questions, student_languages, cover=None, commit=False):
+def participant_exam_document(
+    self, questions, participant_languages, cover=None, commit=False
+):
     job_task = self.request.id if commit else None
-    return compile_utils.student_exam_document(
-        questions, student_languages, cover, job_task=job_task
+    return compile_utils.participant_exam_document(
+        questions, participant_languages, cover, job_task=job_task
     )
 
 

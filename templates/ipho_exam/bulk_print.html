@@ -179,7 +179,7 @@ This list shows only documents that have been submitted by the delegations.
           <th></th>
           <th>Exam</th>
           <th>#</th>
-          <th>Student</th>
+          <th>Participant</th>
           <th>Num pages</th>
           <th>Barcode</th>
           <th>Printouts <button type="button" class="printouts-all">invert selection</button>
@@ -199,11 +199,11 @@ This list shows only documents that have been submitted by the delegations.
               {% endif %}
             </td>
             <td>{{ d.position }}</td>
-            <td>{{ d.student__code }}</td>
+            <td>{{ d.participant__code }}</td>
             <td>{{ d.num_pages }} / {{ d.barcode_num_pages }} / {{ d.extra_num_pages }}</td>
             <td>{{ d.barcode_base }}</td>
             <td align="center">
-              <a class="btn btn-default btn-xs" id="exam-doc-{{ d.student__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+              <a class="btn btn-default btn-xs" id="exam-doc-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
               <br />
               {% if d.exam__submission_printing %}
               <input class="printouts-single" type="checkbox" name="printouts[]" value="{{ d.pk }}" />
@@ -214,7 +214,7 @@ This list shows only documents that have been submitted by the delegations.
                 </button>
                 <ul class="dropdown-menu">
                   {% for p in queue_list %}
-                  <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position student_id=d.student__id queue=p.0 type='P' %}">{{ p.1 }}</a></li>
+                  <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position participant_id=d.participant__id queue=p.0 type='P' %}">{{ p.1 }}</a></li>
                   {% endfor %}
                 </ul>
               </div>
@@ -231,7 +231,7 @@ This list shows only documents that have been submitted by the delegations.
             </td>
             <td align="center">
               {% if d.scan_file %}
-                <a class="btn btn-default btn-xs" id="processed_scan-{{ d.student__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <a class="btn btn-default btn-xs" id="processed_scan-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=d.exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
                 <br />
                 <input type="checkbox" name="scans[]" value="{{ d.pk }}" />
                 <div class="btn-group">
@@ -241,7 +241,7 @@ This list shows only documents that have been submitted by the delegations.
                   </button>
                   <ul class="dropdown-menu">
                     {% for p in queue_list %}
-                    <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position student_id=d.student__id queue=p.0 type='S' %}">{{ p.1 }}</a></li>
+                    <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position participant_id=d.participant__id queue=p.0 type='S' %}">{{ p.1 }}</a></li>
                     {% endfor %}
                   </ul>
                 </div>
@@ -277,7 +277,7 @@ This list shows only documents that have been submitted by the delegations.
             </td>
             <td>
               {% if d.scan_file_orig %}
-                <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=d.exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
                 <br />
                 <div class="btn-group">
                   <a class="btn btn-default btn-xs" href="{% url 'exam:set-scan-full'  doc_id=d.pk %}" title="replace scan by full scan" data-toggle="tooltip"><i class="fa fa-fw fa-angle-double-left"></i></a>

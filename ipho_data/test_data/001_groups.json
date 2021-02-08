@@ -90,19 +90,19 @@
         "iphoperm"
       ],
       [
-        "add_student",
+        "add_participant",
         "ipho_core",
-        "student"
+        "participant"
       ],
       [
-        "change_student",
+        "change_participant",
         "ipho_core",
-        "student"
+        "participant"
       ],
       [
-        "delete_student",
+        "delete_participant",
         "ipho_core",
-        "student"
+        "participant"
       ],
       [
         "add_document",
@@ -270,19 +270,19 @@
         "question"
       ],
       [
-        "add_studentsubmission",
+        "add_participantsubmission",
         "ipho_exam",
-        "studentsubmission"
+        "participantsubmission"
       ],
       [
-        "change_studentsubmission",
+        "change_participantsubmission",
         "ipho_exam",
-        "studentsubmission"
+        "participantsubmission"
       ],
       [
-        "delete_studentsubmission",
+        "delete_participantsubmission",
         "ipho_exam",
-        "studentsubmission"
+        "participantsubmission"
       ],
       [
         "add_translationimporttmp",

@@ -18,7 +18,7 @@ def set_up_basic_test_database(voting_room=None):
     tdc.create_organizer_user(pw_strategy="trivial")
     tdc.create_delegation_user(pw_strategy="trivial")
     tdc.create_examsite_user(pw_strategy="trivial")
-    tdc.create_students()
+    tdc.create_participants()
     if voting_room is not None:
         voting_room_2 = voting_room + "2"
         voting_room_1 = voting_room + "1"

@@ -39,7 +39,7 @@ from django.template.defaultfilters import slugify
 
 
 from django.conf import settings
-from ipho_core.models import Delegation, Student
+from ipho_core.models import Delegation, Participant
 from ipho_exam.models import (
     Exam,
     Question,
@@ -49,7 +49,7 @@ from ipho_exam.models import (
     Language,
     Figure,
     Feedback,
-    StudentSubmission,
+    ParticipantSubmission,
     ExamAction,
 )
 from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
@@ -176,7 +176,9 @@ def export_all(logo_file, names=("Theory", "Experiment")):
     questions = Question.objects.filter(
         exam__in=exams, position__in=[1, 2, 3, 4, 5, 6, 7, 8, 9]
     )
-    languages = Language.objects.filter(studentsubmission__exam__in=exams).distinct()
+    languages = Language.objects.filter(
+        participantsubmission__exam__in=exams
+    ).distinct()
     print("Going to export in {} languages.".format(len(languages)))
     for q in questions:
         for lang in languages:

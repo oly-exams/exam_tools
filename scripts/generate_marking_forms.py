@@ -35,7 +35,7 @@ from django.http import HttpRequest
 from django.urls import reverse
 from django.template.loader import render_to_string
 
-from ipho_core.models import Delegation, Student
+from ipho_core.models import Delegation, Participant
 from ipho_exam.models import Exam, Question
 
 from django.db.models import Sum, F
@@ -54,18 +54,18 @@ def moderation_detail(question_id, delegation_id, request=HttpRequest()):
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)
     metas = MarkingMeta.objects.filter(question=question)
-    students = delegation.student_set.all()
+    participants = delegation.participant_set.all()
 
-    student_forms = []
+    participant_forms = []
     marking_forms = []
     all_valid = True
     with_errors = False
-    for i, student in enumerate(students):
+    for i, participant in enumerate(participants):
         markings_official = Marking.objects.filter(
-            student=student, marking_meta__in=metas, version="O"
+            participant=participant, marking_meta__in=metas, version="O"
         ).order_by("marking_meta__position")
         markings_delegation = Marking.objects.filter(
-            student=student, marking_meta__in=metas, version="D"
+            participant=participant, marking_meta__in=metas, version="D"
         ).order_by("marking_meta__position")
 
         FormSet = modelformset_factory(
@@ -78,9 +78,9 @@ def moderation_detail(question_id, delegation_id, request=HttpRequest()):
         )
         form = FormSet(
             request.POST or None,
-            prefix=f"Stud-{student.pk}",
+            prefix=f"Stud-{participant.pk}",
             queryset=Marking.objects.filter(
-                marking_meta__in=metas, student=student, version="F"
+                marking_meta__in=metas, participant=participant, version="F"
             ),
         )
         for j, f in enumerate(form):
@@ -91,9 +91,9 @@ def moderation_detail(question_id, delegation_id, request=HttpRequest()):
         all_valid = all_valid and form.is_valid()
         with_errors = with_errors or form.errors
 
-        student_forms.append(
+        participant_forms.append(
             (
-                student,
+                participant,
                 form,
                 markings_official,
                 sum(
@@ -109,7 +109,7 @@ def moderation_detail(question_id, delegation_id, request=HttpRequest()):
         marking_forms.append(zip(markings_official, markings_delegation, form))
 
     if all_valid:
-        for _, form, _, _, _ in student_forms:
+        for _, form, _, _, _ in participant_forms:
             form.save()
         return HttpResponseRedirect(
             reverse(
@@ -121,7 +121,7 @@ def moderation_detail(question_id, delegation_id, request=HttpRequest()):
     ctx = {
         "question": question,
         "delegation": delegation,
-        "student_forms": student_forms,
+        "participant_forms": participant_forms,
         "marking_forms": list(zip(metas, zip(*marking_forms))),
         "request": request,
         "max_points_sum": sum(m.max_points for m in metas),

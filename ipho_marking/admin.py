@@ -25,9 +25,9 @@ class MarkingMetaAdmin(admin.ModelAdmin):
 
 
 class MarkingAdmin(admin.ModelAdmin):
-    search_fields = ("student",)
-    list_filter = ("version", "marking_meta__question", "student__delegation")
-    list_display = ("marking_meta", "student", "version", "points")
+    search_fields = ("participant",)
+    list_filter = ("version", "marking_meta__question", "participant__delegation")
+    list_display = ("marking_meta", "participant", "version", "points")
 
 
 class MarkingActionAdmin(admin.ModelAdmin):

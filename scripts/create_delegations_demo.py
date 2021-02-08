@@ -25,7 +25,7 @@ import django
 django.setup()
 
 import csv
-from ipho_core.models import Delegation, Student
+from ipho_core.models import Delegation, Participant
 
 
 def main(input):
@@ -44,13 +44,13 @@ def main(input):
 
         for j in range(5):
             code = "{}-S-{}".format(delegation.name, j + 1)
-            student = Student(
+            participant = Participant(
                 code=code,
-                first_name="Student",
+                first_name="Participant",
                 last_name=str(j + 1),
                 delegation=delegation,
             )
-            student.save()
+            participant.save()
 
         print(row["Country code"], "...", "imported.")
 
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Import CSV to Delegation model and create demo students"
+        description="Import CSV to Delegation model and create demo participants"
     )
     parser.add_argument("file", type=argparse.FileType("rU"), help="Input CSV file")
     args = parser.parse_args()

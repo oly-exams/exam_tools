@@ -13,7 +13,7 @@
 
   <!-- Nav tabs -->
   <ul class="nav nav-pills">
-    <li class="active"><a href="#scans" data-toggle="tab">Student scans</a></li>
+    <li class="active"><a href="#scans" data-toggle="tab">Participant scans</a></li>
     <li><a href="#marking" data-toggle="tab">Delegation marking</a></li>
     <li><a href="#final-points" data-toggle="tab">Final points</a></li>
   </ul>
@@ -26,35 +26,35 @@
       <p class="alert alert-info"><i class="fa fa-info-circle fa-lg"></i> Pending documents still have to be processed
         by the organizers.</p>
 
-      {% for exam,questions,scans_of_students in scans_table_per_exam %}
+      {% for exam,questions,scans_of_participants in scans_table_per_exam %}
       <div class="panel panel-default">
         <div class="panel-heading">
           <h2 class="panel-title">{{ exam.name }}</h2>
         </div>
         <table class="table table-strided">
           <tr>
-            <th>Student</th>
+            <th>Participant</th>
             {% for question in questions %}
             <th style="max-width: 10em;">{{ question.name }}</th>
             {% endfor %}
           </tr>
-          {% for student,scans_list in scans_of_students %}
+          {% for participant,scans_list in scans_of_participants %}
           <tr>
-            <td>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})
+            <td>{{ participant.first_name }} {{ participant.last_name }} ({{ participant.code }})
             </td>
             {% for doc in scans_list %}
             <td>
               {% if doc.scan_file and doc.scan_status == 'S' %}
               <a class="btn btn-success btn-xs"
-                id="processed_scan-{{ student.pk }}-{{ doc.position }}"
-                href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i
+                id="processed_scan-{{ participant.pk }}-{{ doc.position }}"
+                href="{% url 'exam:scan-exam-pos-participant' exam_id=exam.pk participant_id=participant.pk position=doc.position %}"><i
                   class="fa fa-file-pdf-o"></i> View scan</a>
               {% else %}
               <span class="label label-default">pending</span>
               {% endif %}
               {% if doc.scan_file_orig %}
               <a class="btn btn-default btn-xs"
-                href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i
+                href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=exam.pk participant_id=participant.pk position=doc.position %}"><i
                   class="fa fa-fw fa-file-pdf-o"></i> View full scan</a>
               {% endif %}
             </td>
@@ -85,26 +85,26 @@
         <div class="table-responsive">
           <table class="table">
             <tr>
-              <th style="font-size:16px;">Student</th>
+              <th style="font-size:16px;">Participant</th>
               {% for question_ctxt in exam_ctxt.questions %}
-              <th style="font-size:16px;">{{ question_ctxt.name }} {{ question_ctxt.students }}</th>
+              <th style="font-size:16px;">{{ question_ctxt.name }} {{ question_ctxt.participants }}</th>
               {% endfor %}
             </tr>
-            {% for student_ctxt in exam_ctxt.students %}
+            {% for participant_ctxt in exam_ctxt.participants %}
             <tr>
-              <td>{{ student_ctxt.first_name }} {{ student_ctxt.last_name }} ({{ student_ctxt.code }})</td>
-              {% for question_ctxt in student_ctxt.questions %}
+              <td>{{ participant_ctxt.first_name }} {{ participant_ctxt.last_name }} ({{ participant_ctxt.code }})</td>
+              {% for question_ctxt in participant_ctxt.questions %}
               <td>
                 <span class="tooltip-span" data-toggle="tooltip" title="{{ question_ctxt.view_tooltip }}">
                   <a {% if not question_ctxt.view %}disabled{% endif %} style="max-width: 9em;"
                     class="btn btn-default btn-xs btn-block"
-                    href="{% url 'marking:delegation-stud-detail' stud_id=student_ctxt.pk question_id=question_ctxt.pk %}"><i
+                    href="{% url 'marking:delegation-stud-detail' stud_id=participant_ctxt.pk question_id=question_ctxt.pk %}"><i
                       class="fa fa-eye"></i> View marks</a>
                 </span>
                 <span class="tooltip-span" data-toggle="tooltip" title="{{ question_ctxt.edit_tooltip }}">
                   <a {% if not question_ctxt.edit %}disabled{% endif %} style="max-width: 9em;"
                     class="btn btn-warning btn-xs btn-block"
-                    href="{% url 'marking:delegation-stud-detail-edit' stud_id=student_ctxt.pk question_id=question_ctxt.pk %}"><i
+                    href="{% url 'marking:delegation-stud-detail-edit' stud_id=participant_ctxt.pk question_id=question_ctxt.pk %}"><i
                       class="fa fa-pencil"></i> Edit marks</a>
                 </span>
               </td>
@@ -172,16 +172,16 @@
       <div class="panel panel-default">
         <table class="table table-striped">
           <tr>
-            <th>Student</th>
+            <th>Participant</th>
             {% for e in final_points_exams %}
             <th>{{ e.question__exam__name }}<br />({{ e.exam_points }})</th>
             {% endfor %}
             <th>Total</th>
           </tr>
 
-          {% for student, exam_points, total in points_per_student %}
+          {% for participant, exam_points, total in points_per_participant %}
           <tr>
-            <td>{{ student.first_name }} {{ student.last_name }} ({{ student.code }})</td>
+            <td>{{ participant.first_name }} {{ participant.last_name }} ({{ participant.code }})</td>
             {% for ep in exam_points %}
             <td>
               {{ ep|default_if_none:'-' }}

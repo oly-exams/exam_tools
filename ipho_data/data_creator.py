@@ -6,7 +6,7 @@ from .creator.figure import FigureDataCreator
 from .creator.language import LanguageDataCreator
 from .creator.feedback import FeedbackDataCreator
 from .creator.control import ExamPhaseDataCreator
-from .creator.students_and_seatings import StudentDataCreator
+from .creator.participants_and_seatings import ParticipantDataCreator
 from .creator.marking_data import MarkingDataCreator
 
 
@@ -19,7 +19,7 @@ class DataCreator(
     ExamPhaseDataCreator,
     LanguageDataCreator,
     FeedbackDataCreator,
-    StudentDataCreator,
+    ParticipantDataCreator,
     MarkingDataCreator,
 ):
     pass

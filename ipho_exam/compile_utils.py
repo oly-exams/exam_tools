@@ -29,7 +29,7 @@ from django.template.loader import render_to_string
 
 from django.conf import settings
 
-# from ipho_core.models import Delegation, Student
+# from ipho_core.models import Delegation, Participant
 from ipho_exam.models import (
     DocumentTask,
 )
@@ -44,8 +44,8 @@ def all_same(items):
     return all(x == items[0] for x in items)
 
 
-def student_exam_document(
-    questions, student_languages, cover=None, job_task=None
+def participant_exam_document(
+    questions, participant_languages, cover=None, job_task=None
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     meta = {}
     meta["num_pages"] = 0
@@ -64,7 +64,7 @@ def student_exam_document(
         )
         question_pdf = pdf.compile_tex(body, [])
         que = questions[0]
-        stud = student_languages[0].student
+        stud = participant_languages[0].participant
         bgenerator = iphocode.QuestionBarcodeGen(
             que.exam, que, stud, qcode="C", suppress_code=suppress_cover_code
         )
@@ -77,7 +77,7 @@ def student_exam_document(
         all_docs.append(page)
 
     for question in questions:
-        for stud_l in student_languages:
+        for stud_l in participant_languages:
             if question.is_answer_sheet() and not stud_l.with_answer:
                 continue
             if question.is_question_sheet() and not stud_l.with_question:
@@ -125,7 +125,7 @@ def student_exam_document(
             meta["num_pages"] += doc_pages
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.student
+                    question.exam, question, stud_l.participant
                 )
                 page = pdf.add_barcode(question_pdf, bgenerator)
                 meta["barcode_num_pages"] += doc_pages
@@ -133,7 +133,7 @@ def student_exam_document(
                 all_docs.append(page)
             else:
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.student, suppress_code=True
+                    question.exam, question, stud_l.participant, suppress_code=True
                 )
                 page = pdf.add_barcode(question_pdf, bgenerator)
                 all_docs.append(page)
@@ -167,7 +167,7 @@ def student_exam_document(
                     ],
                 )
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.student, qcode="W"
+                    question.exam, question, stud_l.participant, qcode="W"
                 )
                 page = pdf.add_barcode(question_pdf, bgenerator)
 
@@ -186,7 +186,7 @@ def student_exam_document(
     else:
         meta["barcode_base"] = ",".join(all_barcodes)
 
-    filename = f"{stud_l.student.code}_EXAM-{exam_id}-{position}.pdf"  # pylint: disable=undefined-loop-variable
+    filename = f"{stud_l.participant.code}_EXAM-{exam_id}-{position}.pdf"  # pylint: disable=undefined-loop-variable
     final_doc = pdf.concatenate_documents(all_docs)
     meta["filename"] = filename
     meta["etag"] = md5(final_doc).hexdigest()
@@ -211,7 +211,7 @@ def student_exam_document(
             req.raise_for_status()  # or, if r.status_code == requests.codes.ok:
             doc_task.delete()
             print(
-                f"Doc committed: {stud_l.student.code} {exam_code}{position}"  # pylint: disable=undefined-loop-variable
+                f"Doc committed: {stud_l.participant.code} {exam_code}{position}"  # pylint: disable=undefined-loop-variable
             )
         except DocumentTask.DoesNotExist:
             pass
