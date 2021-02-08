@@ -205,9 +205,9 @@ $(function () {
   $('button[data-action="copy"]').click(function (evt) {
     evt.preventDefault();
     window.dirty_form = true;
-    var stud_id = $(this).data('participant');
-    for (k in results_official[stud_id]) {
-      $('#id_Stud-'+stud_id+'-'+k+'-points').val(results_official[stud_id][k]);
+    var ppnt_id = $(this).data('participant');
+    for (k in results_official[ppnt_id]) {
+      $('#id_Stud-'+ppnt_id+'-'+k+'-points').val(results_official[ppnt_id][k]);
     }
     update_totals();
   });

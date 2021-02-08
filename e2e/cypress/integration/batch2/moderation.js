@@ -37,7 +37,7 @@ describe('Marking', function () {
         cy.get("div.container h2").should('contain', "Sign off final points")
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries
-            marking_helpers.AUS_stud_names.forEach((elem, idx)=>{
+            marking_helpers.AUS_ppnt_names.forEach((elem, idx)=>{
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
             cy.get('tbody tr').eq(0).find('td').eq(0).shouldHaveTrimmedText("A.1")
@@ -141,7 +141,7 @@ describe('Marking', function () {
             marking_helpers.check_point_form(10,index,"0")
         }
 
-        marking_helpers.ARM_stud_names.forEach((elem, idx)=>{
+        marking_helpers.ARM_ppnt_names.forEach((elem, idx)=>{
             cy.get('thead tr th h4').eq(idx).shouldHaveTrimmedText(elem)
         })
         marking_helpers.check_point_form(10,0,'0')
@@ -194,7 +194,7 @@ describe('Marking', function () {
 
         cy.url().should('contain', '/marking/moderate/question/3/delegation/1/confirmed')
         // Check total in overview
-        cy.get('tbody tr').eq(1).find('td').eq(0).shouldHaveTrimmedText(marking_helpers.ARM_stud_names[0])
+        cy.get('tbody tr').eq(1).find('td').eq(0).shouldHaveTrimmedText(marking_helpers.ARM_ppnt_names[0])
         cy.get('tbody tr').eq(1).find('td').eq(1).shouldHaveTrimmedText("3.14")
 
         //Marking should not be accessible anymore

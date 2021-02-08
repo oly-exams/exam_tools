@@ -11,16 +11,16 @@ class ParticipantDataCreator(BaseDataCreator):
         self, *, first_name, last_name, delegation_code, participant_code
     ):
         deleg = Delegation.objects.get(name=delegation_code)
-        stud, created = Participant.objects.get_or_create(
+        ppnt, created = Participant.objects.get_or_create(
             first_name=first_name,
             last_name=last_name,
             delegation=deleg,
             code=participant_code,
         )
         if created:
-            stud.save()
-            self.log(stud, "..", "created")
-        return stud
+            ppnt.save()
+            self.log(ppnt, "..", "created")
+        return ppnt
 
     def create_participants(self, file="022_participants.csv", fieldnames=None):
         if fieldnames is None:
@@ -41,10 +41,10 @@ class ParticipantDataCreator(BaseDataCreator):
             )
 
     def _create_seating(self, *, participant_id, exam_name, place_name):
-        stud = Participant.objects.get(code=participant_id)
+        ppnt = Participant.objects.get(code=participant_id)
         exam = Exam.objects.get(name=exam_name)
         place, cre = Place.objects.update_or_create(
-            participant=stud,
+            participant=ppnt,
             exam=exam,
             name=place_name,
         )

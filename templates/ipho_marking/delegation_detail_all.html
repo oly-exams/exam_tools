@@ -29,8 +29,8 @@
       <table class="table table-striped">
         <tr>
           <th>Subquestion</th>
-          {% for stud in participants %}
-            <th>{{ stud.code }}</th>
+          {% for ppnt in participants %}
+            <th>{{ ppnt.code }}</th>
           {% endfor %}
         {{ formset.management_form }}
         {% for form in formset %}
@@ -54,17 +54,17 @@
       <thead>
         <tr>
           <th/>
-          {% for stud in participants %}
-            <th colspan="3" style="text-align: center;">{{ stud.code }}
+          {% for ppnt in participants %}
+            <th colspan="3" style="text-align: center;">{{ ppnt.code }}
               <br/>
               {% for doc in documents %}
-                {% if doc.participant.pk == stud.pk and doc.scan_file and doc.scan_status == 'S' %}
+                {% if doc.participant.pk == ppnt.pk and doc.scan_file and doc.scan_status == 'S' %}
                   <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-participant' exam_id=exam.pk participant_id=doc.participant.pk position=question.position %}">
                     <i class="fa fa-file-pdf-o"></i>
                     View scan
                   </a>
                 {% endif %}
-                {% if doc.participant.pk == stud.pk and doc.scan_file_orig %}
+                {% if doc.participant.pk == ppnt.pk and doc.scan_file_orig %}
                   <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=exam.pk participant_id=doc.participant.pk position=question.position %}">
                     <i class="fa fa-file-pdf-o"></i>
                     View full scan
@@ -76,7 +76,7 @@
         </tr>
         <tr>
           <th>Subquestion</th>
-          {% for stud in participants %}
+          {% for ppnt in participants %}
             <th>Off.</th>
             <th>Del.</th>
             <th>Final</th>

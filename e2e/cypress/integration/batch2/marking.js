@@ -32,7 +32,7 @@ describe('Marking', function () {
 
         cy.url().should('contain', '/marking/official/question/3/delegation/4')
         cy.get('form table thead').within(($thead)=>{
-            marking_helpers.CHE_stud_names.forEach(function(name, idx){
+            marking_helpers.CHE_ppnt_names.forEach(function(name, idx){
                 cy.get('th').eq(idx+1).find('h4').shouldHaveTrimmedText(name)
             });
         })
@@ -105,16 +105,16 @@ describe('Marking', function () {
 
         cy.url().should('contain', '/marking/official/question/3/delegation/4/confirmed')
 
-        var CHE_stud_points = [
-            [marking_helpers.CHE_stud_names[0], '3.14'],
-            [marking_helpers.CHE_stud_names[1], '1.00'],
-            [marking_helpers.CHE_stud_names[2], '1.00'],
-            [marking_helpers.CHE_stud_names[3], '1.00'],
-            [marking_helpers.CHE_stud_names[4], '1.00'],
+        var CHE_ppnt_points = [
+            [marking_helpers.CHE_ppnt_names[0], '3.14'],
+            [marking_helpers.CHE_ppnt_names[1], '1.00'],
+            [marking_helpers.CHE_ppnt_names[2], '1.00'],
+            [marking_helpers.CHE_ppnt_names[3], '1.00'],
+            [marking_helpers.CHE_ppnt_names[4], '1.00'],
         ]
 
         cy.get('tbody').within(($tbody)=>{
-            CHE_stud_points.forEach(function(elem, idx){
+            CHE_ppnt_points.forEach(function(elem, idx){
                 cy.get('tr').eq(idx+1).find('td').eq(0).shouldHaveTrimmedText(elem[0])
                 cy.get('tr').eq(idx+1).find('td').eq(1).shouldHaveTrimmedText(elem[1])
             });
@@ -382,7 +382,7 @@ describe('Marking', function () {
         cy.url().should('contain', '/marking/confirm/3')
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries
-            marking_helpers.CHE_stud_names.forEach((elem, idx)=>{
+            marking_helpers.CHE_ppnt_names.forEach((elem, idx)=>{
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 
@@ -418,7 +418,7 @@ describe('Marking', function () {
         cy.get("div.container h2").should('contain', "Sign off final points")
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries
-            marking_helpers.CHE_stud_names.forEach((elem, idx)=>{
+            marking_helpers.CHE_ppnt_names.forEach((elem, idx)=>{
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 
@@ -447,7 +447,7 @@ describe('Marking', function () {
         cy.get("#marking").should('be.visible')
         marking_helpers.test_summary_action_content([marking_helpers.finalized_action,])
 
-        marking_helpers.test_delegation_marks_view_all(marking_helpers.CHE_stud_ids.slice(0,1), [0,], "0.00")
+        marking_helpers.test_delegation_marks_view_all(marking_helpers.CHE_ppnt_ids.slice(0,1), [0,], "0.00")
 
         cy.logout()
         cy.login('AUS', '1234')
@@ -460,7 +460,7 @@ describe('Marking', function () {
         cy.get("div.container h2").should('contain', "Sign off final points")
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries
-            marking_helpers.AUS_stud_names.forEach((elem, idx)=>{
+            marking_helpers.AUS_ppnt_names.forEach((elem, idx)=>{
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 
@@ -507,7 +507,7 @@ describe('Marking', function () {
         cy.url().should('contain', '/marking/confirm/3')
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries
-            marking_helpers.CHE_stud_names.forEach((elem, idx)=>{
+            marking_helpers.CHE_ppnt_names.forEach((elem, idx)=>{
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 

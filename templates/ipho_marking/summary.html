@@ -47,7 +47,7 @@
               {{ points|floatformat:"2"|default:'-' }}
               {% if vid == "O" %}
                 {% if editable_pk %}
-                <a class="btn btn-default btn-xs" href="{% url 'marking:staff-stud-detail' question_id=editable_pk version=vid stud_id=participant.id %}">
+                <a class="btn btn-default btn-xs" href="{% url 'marking:staff-ppnt-detail' question_id=editable_pk version=vid ppnt_id=participant.id %}">
                   <i class="fa fa-pencil" aria-hidden="true"></i>
                 </a>
                 {% else %}

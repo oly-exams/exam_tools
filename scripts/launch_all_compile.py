@@ -43,7 +43,7 @@ def main():
                 question_task = tasks.participant_exam_document.s(
                     qgroup, participant_languages, cover=cover_ctx, commit=True
                 )
-                # question_task = question_utils.compile_stud_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
+                # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
                 doc_task, _ = DocumentTask.objects.update_or_create(
                     document=doc, defaults={"task_id": question_task.id}

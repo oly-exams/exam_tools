@@ -121,41 +121,41 @@ def summary(request):
     points_per_participant = []
     participants = Participant.objects.all().values("id", "code", "delegation")
     for participant in participants:
-        stud_question_points_list = []
-        stud_question_editable_list = []
+        ppnt_question_points_list = []
+        ppnt_question_editable_list = []
         for question in questions:
-            stud_markings_question = markings.filter(
+            ppnt_markings_question = markings.filter(
                 marking_meta__question=question["question__pk"],
                 participant=participant["id"],
             )
-            points_question = stud_markings_question.aggregate(Sum("points"))[
+            points_question = ppnt_markings_question.aggregate(Sum("points"))[
                 "points__sum"
             ]
-            stud_question_points_list.append(points_question)
+            ppnt_question_points_list.append(points_question)
 
             editable = editable_markings.filter(
                 marking_meta__question=question["question__pk"],
                 participant=participant["id"],
             ).exists()
             if editable:
-                stud_question_editable_list.append(question["question__pk"])
+                ppnt_question_editable_list.append(question["question__pk"])
             else:
-                stud_question_editable_list.append(False)
+                ppnt_question_editable_list.append(False)
 
-        stud_exam_points_list = []
+        ppnt_exam_points_list = []
         for exam in exams:
-            stud_markings_exam = markings.filter(
+            ppnt_markings_exam = markings.filter(
                 marking_meta__question__exam=exam["question__exam__pk"],
                 participant=participant["id"],
             )
-            points_exam = stud_markings_exam.aggregate(Sum("points"))["points__sum"]
-            stud_exam_points_list.append(points_exam)
+            points_exam = ppnt_markings_exam.aggregate(Sum("points"))["points__sum"]
+            ppnt_exam_points_list.append(points_exam)
 
         points_per_participant.append(
             (
                 participant,
-                list(zip(stud_question_points_list, stud_question_editable_list)),
-                stud_exam_points_list,
+                list(zip(ppnt_question_points_list, ppnt_question_editable_list)),
+                ppnt_exam_points_list,
             )
         )
 
@@ -171,7 +171,7 @@ def summary(request):
 
 
 @permission_required("ipho_core.is_marker")
-def staff_stud_detail(request, version, stud_id, question_id):
+def staff_ppnt_detail(request, version, ppnt_id, question_id):
     ctx = {}
     ctx["msg"] = []
 
@@ -181,7 +181,7 @@ def staff_stud_detail(request, version, stud_id, question_id):
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
-    participant = get_object_or_404(Participant, id=stud_id)
+    participant = get_object_or_404(Participant, id=ppnt_id)
 
     marking_action = get_object_or_404(
         MarkingAction, delegation=participant.delegation, question=question
@@ -262,10 +262,10 @@ def export(
     csv_rows.append(title_row)
 
     for participant in Participant.objects.all():
-        stud_markings = Marking.objects.filter(
+        ppnt_markings = Marking.objects.filter(
             participant=participant, marking_meta__in=mmeta
         )
-        visible_stud_markings = Marking.objects.for_user(request.user).filter(
+        visible_ppnt_markings = Marking.objects.for_user(request.user).filter(
             participant=participant, marking_meta__in=mmeta
         )
         for version in versions:
@@ -277,7 +277,7 @@ def export(
                 version,
             ]
 
-            version_markings = stud_markings.filter(version=version).order_by(
+            version_markings = ppnt_markings.filter(version=version).order_by(
                 "marking_meta__question__exam",
                 "marking_meta__question__position",
                 "marking_meta__position",
@@ -287,7 +287,7 @@ def export(
             points = []
             all_visible = True
             for marking in version_markings:
-                if marking in visible_stud_markings:
+                if marking in visible_ppnt_markings:
                     points.append(marking.points)
                 else:
                     all_visible = False
@@ -301,7 +301,7 @@ def export(
                         marking_meta__question=question
                     )
                     # If some marks are not visible
-                    if q_markings.exclude(pk__in=visible_stud_markings).exists():
+                    if q_markings.exclude(pk__in=visible_ppnt_markings).exists():
                         row.append(None)
                     else:
                         row.append(_get_total(q_markings))
@@ -312,7 +312,7 @@ def export(
                         marking_meta__question__exam=exam
                     )
                     # If some marks are not visible
-                    if e_markings.exclude(pk__in=visible_stud_markings).exists():
+                    if e_markings.exclude(pk__in=visible_ppnt_markings).exists():
                         row.append(None)
                     else:
                         row.append(_get_total(e_markings))
@@ -540,7 +540,7 @@ def delegation_summary(
     markings = Marking.objects.for_user(request.user).filter(version=vid)
     for participant in participants:
         # Exam points
-        stud_exam_points_list = []
+        ppnt_exam_points_list = []
         for exam in exams:
             # if there are no open/submitted marking actions:
             if not MarkingAction.objects.filter(
@@ -548,21 +548,21 @@ def delegation_summary(
                 delegation=delegation,
                 status__lte=MarkingAction.SUBMITTED_FOR_MODERATION,
             ).exists():
-                stud_markings_exam = markings.filter(
+                ppnt_markings_exam = markings.filter(
                     marking_meta__question__exam=exam, participant=participant
                 )
-                points_exam = stud_markings_exam.aggregate(Sum("points"))["points__sum"]
-                stud_exam_points_list.append(points_exam)
+                points_exam = ppnt_markings_exam.aggregate(Sum("points"))["points__sum"]
+                ppnt_exam_points_list.append(points_exam)
             else:
-                stud_exam_points_list.append(None)
+                ppnt_exam_points_list.append(None)
 
-        not_none_pts = [p for p in stud_exam_points_list if p is not None]
+        not_none_pts = [p for p in ppnt_exam_points_list if p is not None]
         # As sum([]) = 0 would give a total =0 for None points, we need to set it to None by hand
-        if not_none_pts and not_none_pts == stud_exam_points_list:
-            total = sum([p for p in stud_exam_points_list if p is not None])
+        if not_none_pts and not_none_pts == ppnt_exam_points_list:
+            total = sum([p for p in ppnt_exam_points_list if p is not None])
         else:
             total = None
-        points_per_participant.append((participant, stud_exam_points_list, total))
+        points_per_participant.append((participant, ppnt_exam_points_list, total))
 
     # We need a list of exams and total number of points for the header of the table
     exams_with_totals = (
@@ -589,14 +589,14 @@ def delegation_summary(
             # Scans with status other than 'S' are skipped in the HTML
             # template. That is easier, because it allows correctly
             # continuing the table.
-            stud_exam_scans_list = (
+            ppnt_exam_scans_list = (
                 Document.objects.for_user(request.user)
                 .filter(participant=participant, exam=exam)
                 .exclude(position=0)  # remove general instructions
                 .order_by("position")
             )
 
-            scans_of_participants.append((participant, stud_exam_scans_list))
+            scans_of_participants.append((participant, ppnt_exam_scans_list))
 
         scans_table_per_exam.append((exam, questions, scans_of_participants))
 
@@ -612,11 +612,11 @@ def delegation_summary(
 
 
 @permission_required("ipho_core.is_delegation")
-def delegation_stud_edit(
-    request, stud_id, question_id
+def delegation_ppnt_edit(
+    request, ppnt_id, question_id
 ):  # pylint: disable=too-many-locals
     delegation = Delegation.objects.get(members=request.user)
-    participant = get_object_or_404(Participant, id=stud_id)
+    participant = get_object_or_404(Participant, id=ppnt_id)
     if participant.delegation != delegation:
         return HttpResponseForbidden(
             "You do not have permission to access this participant."
@@ -691,15 +691,15 @@ def delegation_stud_edit(
     if is_valid:
         form.save()
         participants = delegation.participant_set.all()
-        stud_id_list = [str(s.id) for s in participants]
-        next_stud_index = stud_id_list.index(str(stud_id)) + 1
-        next_stud_button = ""
-        if next_stud_index < len(stud_id_list):
-            next_stud_id = stud_id_list[next_stud_index]
-            next_stud_button = ' <a href="{}" class="btn btn-default btn-xs">next participant</a> '.format(
+        ppnt_id_list = [str(s.id) for s in participants]
+        next_ppnt_index = ppnt_id_list.index(str(ppnt_id)) + 1
+        next_ppnt_button = ""
+        if next_ppnt_index < len(ppnt_id_list):
+            next_ppnt_id = ppnt_id_list[next_ppnt_index]
+            next_ppnt_button = ' <a href="{}" class="btn btn-default btn-xs">next participant</a> '.format(
                 reverse(
-                    "marking:delegation-stud-detail-edit",
-                    kwargs={"stud_id": next_stud_id, "question_id": question_id},
+                    "marking:delegation-ppnt-detail-edit",
+                    kwargs={"ppnt_id": next_ppnt_id, "question_id": question_id},
                 )
             )
 
@@ -707,7 +707,7 @@ def delegation_stud_edit(
             (
                 "alert-success",
                 "<strong>Success.</strong> Points have been saved."
-                + next_stud_button
+                + next_ppnt_button
                 + ' <a href="{}#details" class="btn btn-default btn-xs">back to summary</a> '.format(
                     reverse("marking:delegation-summary")
                 ),
@@ -809,9 +809,9 @@ def delegation_edit_all(request, question_id):
 
 
 @permission_required("ipho_core.is_delegation")
-def delegation_stud_view(request, stud_id, question_id):
+def delegation_ppnt_view(request, ppnt_id, question_id):
     delegation = Delegation.objects.get(members=request.user)
-    participant = get_object_or_404(Participant, id=stud_id)
+    participant = get_object_or_404(Participant, id=ppnt_id)
     if participant.delegation != delegation:
         return HttpResponseForbidden(
             "You do not have permission to access this participant."

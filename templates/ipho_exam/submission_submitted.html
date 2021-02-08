@@ -47,15 +47,15 @@ The exams will be printed shortly. Below you can see the final version that has 
           {% endfor %}
         </tr>
         <tbody>
-      {% for ss,stud_langs in participants_languages.items %}
+      {% for ss,ppnt_langs in participants_languages.items %}
       <tr>
           <td>
               {{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})
-              {% for doc in stud_documents|lookup:ss.pk %}
+              {% for doc in ppnt_documents|lookup:ss.pk %}
               <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=exam.pk participant_id=ss.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> #{{ doc.position }}</a>
               {% endfor %}
           </td>
-          {% for lang,checked in stud_langs.items %}
+          {% for lang,checked in ppnt_langs.items %}
               <td class="text-center">
                   {% if checked == 'Q' %}
                     <i class="fa fa-check"></i>

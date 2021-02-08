@@ -32,7 +32,7 @@ OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
 
-def compile_stud_exam_question(
+def compile_ppnt_exam_question(
     questions, participant_languages, cover=None, commit=False
 ):  # pylint: disable=too-many-branches,too-many-locals
     all_tasks = []
@@ -45,29 +45,29 @@ def compile_stud_exam_question(
         )
         compile_task = tasks.compile_tex.s(body, [])
         question = questions[0]
-        stud = participant_languages[0].participant
+        ppnt = participant_languages[0].participant
         bgenerator = iphocode.QuestionBarcodeGen(
-            question.exam, question, stud, qcode="C", suppress_code=True
+            question.exam, question, ppnt, qcode="C", suppress_code=True
         )
         barcode_task = tasks.add_barcode.s(bgenerator)
         all_tasks.append(celery.chain(compile_task, barcode_task))
 
     for question in questions:
-        for stud_l in participant_languages:
-            if question.is_answer_sheet() and not stud_l.with_answer:
+        for ppnt_l in participant_languages:
+            if question.is_answer_sheet() and not ppnt_l.with_answer:
                 continue
-            if question.is_question_sheet() and not stud_l.with_question:
+            if question.is_question_sheet() and not ppnt_l.with_question:
                 continue
 
-            print("Prepare", question, "in", stud_l.language)
+            print("Prepare", question, "in", ppnt_l.language)
             trans = qquery.latest_version(
-                question.pk, stud_l.language.pk
+                question.pk, ppnt_l.language.pk
             )  ## TODO: simplify latest_version, because question and language are already in memory
             if not trans.lang.is_pdf:
                 trans_content, ext_resources = trans.qml.make_tex()
                 for reso in ext_resources:
                     if isinstance(reso, tex.FigureExport):
-                        reso.lang = stud_l.language
+                        reso.lang = ppnt_l.language
                 ext_resources.append(
                     tex.TemplateExport(
                         os.path.join(
@@ -76,11 +76,11 @@ def compile_stud_exam_question(
                     )
                 )
                 context = {
-                    "polyglossia": stud_l.language.polyglossia,
-                    "polyglossia_options": stud_l.language.polyglossia_options,
-                    "font": fonts.ipho[stud_l.language.font],
-                    "extraheader": stud_l.language.extraheader,
-                    "lang_name": f"{stud_l.language.name} ({stud_l.language.delegation.country})",
+                    "polyglossia": ppnt_l.language.polyglossia,
+                    "polyglossia_options": ppnt_l.language.polyglossia_options,
+                    "font": fonts.ipho[ppnt_l.language.font],
+                    "extraheader": ppnt_l.language.extraheader,
+                    "lang_name": f"{ppnt_l.language.name} ({ppnt_l.language.delegation.country})",
                     "exam_name": f"{question.exam.name}",
                     "code": f"{question.code}{question.position}",
                     "title": f"{question.exam.name} - {question.name}",
@@ -97,13 +97,13 @@ def compile_stud_exam_question(
                 compile_task = tasks.serve_pdfnode.s(trans.node.pdf.read())
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.participant
+                    question.exam, question, ppnt_l.participant
                 )
                 barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
             else:
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.participant, suppress_code=True
+                    question.exam, question, ppnt_l.participant, suppress_code=True
                 )
                 barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
@@ -137,7 +137,7 @@ def compile_stud_exam_question(
                     ],
                 )
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.participant, qcode="W"
+                    question.exam, question, ppnt_l.participant, qcode="W"
                 )
                 barcode_task = tasks.add_barcode.s(bgenerator)
                 all_tasks.append(celery.chain(compile_task, barcode_task))
@@ -145,7 +145,7 @@ def compile_stud_exam_question(
         exam_id = question.exam.pk
         position = question.position
 
-    filename = f"{stud_l.participant.code}_EXAM-{exam_id}-{position}.pdf"  # pylint: disable=undefined-loop-variable
+    filename = f"{ppnt_l.participant.code}_EXAM-{exam_id}-{position}.pdf"  # pylint: disable=undefined-loop-variable
     chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename))
     if commit:
         final_task = celery.chain(

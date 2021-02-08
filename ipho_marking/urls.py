@@ -34,9 +34,9 @@ urlpatterns = [
         name="delegation-export",
     ),
     path(
-        "detail/<int:stud_id>/question/<int:question_id>",
-        views.delegation_stud_view,
-        name="delegation-stud-detail",
+        "detail/<int:ppnt_id>/question/<int:question_id>",
+        views.delegation_ppnt_view,
+        name="delegation-ppnt-detail",
     ),
     path(
         "detail_all/question/<int:question_id>",
@@ -44,9 +44,9 @@ urlpatterns = [
         name="delegation-all-detail",
     ),
     path(
-        "detail/<int:stud_id>/question/<int:question_id>/edit",
-        views.delegation_stud_edit,
-        name="delegation-stud-detail-edit",
+        "detail/<int:ppnt_id>/question/<int:question_id>/edit",
+        views.delegation_ppnt_edit,
+        name="delegation-ppnt-detail-edit",
     ),
     path(
         "detail_all/question/<int:question_id>/edit",
@@ -104,9 +104,9 @@ urlpatterns = [
     re_path(r"^staff/import/?$", views.import_exam, name="import-exam"),
     re_path(r"^staff/?$", views.summary, name="summary"),
     re_path(
-        r"^staff/v(?P<version>\w)/participant/(?P<stud_id>\d+)/question/(?P<question_id>\d+)/edit$",
-        views.staff_stud_detail,
-        name="staff-stud-detail",
+        r"^staff/v(?P<version>\w)/participant/(?P<ppnt_id>\d+)/question/(?P<question_id>\d+)/edit$",
+        views.staff_ppnt_detail,
+        name="staff-ppnt-detail",
     ),
     path(
         "export-countries-to-moderate.csv",

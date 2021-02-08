@@ -4,9 +4,9 @@
 const check_pdf = true
 //
 //
-function download_test_pdf(stud_id, doc_pos, id_prefix="preview", file_prefix="final_submission_") {
+function download_test_pdf(ppnt_id, doc_pos, id_prefix="preview", file_prefix="final_submission_") {
     // Wait for pdf to compile
-    cy.get('#'+id_prefix+'-'+String(stud_id)+'-'+String(doc_pos)+' i.fa',  { timeout: 60000 }).should('not.have.class', 'fa-spinner').then(($i)=>{
+    cy.get('#'+id_prefix+'-'+String(ppnt_id)+'-'+String(doc_pos)+' i.fa',  { timeout: 60000 }).should('not.have.class', 'fa-spinner').then(($i)=>{
         // Check icon again
         cy.wrap($i).should('have.class', 'fa-file-pdf-o')
         // Get Href
@@ -19,7 +19,7 @@ function download_test_pdf(stud_id, doc_pos, id_prefix="preview", file_prefix="f
             })
             .then((response) => {
                 // Write file to disk and compare
-                var filename_end = '__participant-'+String(stud_id)+'__position-'+String(doc_pos)+'.pdf';
+                var filename_end = '__participant-'+String(ppnt_id)+'__position-'+String(doc_pos)+'.pdf';
                 var filename = file_prefix + id_prefix + filename_end;
                 var filename_fixture = "final_submission" + filename_end;
                 cy.writeFile('cypress/pdfs/'+filename, response.body, 'binary');
@@ -74,12 +74,12 @@ describe('General', function() {
         cy.visit("/exam/submission/1/assign")
 
         //choose languages
-        cy.get("#stud-6-languages-val-1").check()
-        cy.get("#stud-6-languages-val-2").check()
-        cy.get("#stud-6-answer_language-val-2").check()
+        cy.get("#ppnt-6-languages-val-1").check()
+        cy.get("#ppnt-6-languages-val-2").check()
+        cy.get("#ppnt-6-answer_language-val-2").check()
 
-        cy.get("#stud-7-languages-val-1").check()
-        cy.get("#stud-7-answer_language-val-1").check()
+        cy.get("#ppnt-7-languages-val-1").check()
+        cy.get("#ppnt-7-answer_language-val-1").check()
 
         cy.get('button[type="submit"]').should('contain', "Next").click()
 

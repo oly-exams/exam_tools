@@ -2784,38 +2784,38 @@ def submission_exam_assign(
         answer_sheet_language = None
 
     # set forms for all participants
-    for stud in delegation.participant_set.all():
-        stud_langs = ParticipantSubmission.objects.filter(
-            participant=stud, exam=exam
+    for ppnt in delegation.participant_set.all():
+        ppnt_langs = ParticipantSubmission.objects.filter(
+            participant=ppnt, exam=exam
         ).values_list("language", flat=True)
-        stud_question_langs = stud_langs.filter(with_question=True)
+        ppnt_question_langs = ppnt_langs.filter(with_question=True)
         try:
-            stud_answer_lang_obj = ParticipantSubmission.objects.get(
-                participant=stud, exam=exam, with_answer=True
+            ppnt_answer_lang_obj = ParticipantSubmission.objects.get(
+                participant=ppnt, exam=exam, with_answer=True
             )
-            stud_answer_lang = stud_answer_lang_obj.language
+            ppnt_answer_lang = ppnt_answer_lang_obj.language
         except ParticipantSubmission.DoesNotExist:
-            stud_answer_lang = None
+            ppnt_answer_lang = None
         form = AssignTranslationForm(
             request.POST or None,
-            prefix=f"stud-{stud.pk}",
+            prefix=f"ppnt-{ppnt.pk}",
             languages_queryset=languages,
             answer_language=answer_sheet_language,
             initial=dict(
-                languages=stud_question_langs, answer_language=stud_answer_lang
+                languages=ppnt_question_langs, answer_language=ppnt_answer_lang
             ),
         )
         all_valid = all_valid and form.is_valid()
         with_errors = with_errors or form.errors
-        submission_forms.append((stud, form))
+        submission_forms.append((ppnt, form))
 
     if all_valid:
         ## Save form
-        for stud, form in submission_forms:
+        for ppnt, form in submission_forms:
             current_langs = []
             ## Modify the with_answer status and delete unused submissions
             for ssub in ParticipantSubmission.objects.filter(
-                participant=stud, exam=exam
+                participant=ppnt, exam=exam
             ):
                 if (ssub.language in form.cleaned_data["languages"]) or (
                     ssub.language == form.cleaned_data["answer_language"]
@@ -2846,7 +2846,7 @@ def submission_exam_assign(
                     with_answer = form.cleaned_data["answer_language"] == lang
                 with_question = lang in form.cleaned_data["languages"]
                 ssub = ParticipantSubmission(
-                    participant=stud,
+                    participant=ppnt,
                     exam=exam,
                     language=lang,
                     with_answer=with_answer,
@@ -2883,7 +2883,7 @@ def submission_exam_assign(
                 question_task = tasks.participant_exam_document.s(
                     qgroup, participant_languages, cover=cover_ctx, commit=True
                 )
-                # question_task = question_utils.compile_stud_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
+                # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
                 _, _ = DocumentTask.objects.update_or_create(
                     document=doc, defaults={"task_id": question_task.id}
@@ -3034,30 +3034,30 @@ def submission_exam_confirm(
 
         form_error = "<strong>Error:</strong> You have to agree on the final submission before continuing."
 
-    stud_documents = {
+    ppnt_documents = {
         k: list(g)
         for k, g in itertools.groupby(documents, key=lambda d: d.participant.pk)
     }
 
     assigned_participant_language = OrderedDict()
     for participant in delegation.participant_set.all():
-        stud_langs = OrderedDict()
+        ppnt_langs = OrderedDict()
         for lang in languages:
-            stud_langs[lang] = False
-        assigned_participant_language[participant] = stud_langs
+            ppnt_langs[lang] = False
+        assigned_participant_language[participant] = ppnt_langs
 
     participant_languages = ParticipantSubmission.objects.filter(
         exam=exam, participant__delegation=delegation
     )
-    for stud_l in participant_languages:
-        if stud_l.with_answer and stud_l.with_question:
-            assigned_participant_language[stud_l.participant][stud_l.language] = "QA"
-        elif stud_l.with_question:
-            assigned_participant_language[stud_l.participant][stud_l.language] = "Q"
-        elif stud_l.with_answer:
-            assigned_participant_language[stud_l.participant][stud_l.language] = "A"
+    for ppnt_l in participant_languages:
+        if ppnt_l.with_answer and ppnt_l.with_question:
+            assigned_participant_language[ppnt_l.participant][ppnt_l.language] = "QA"
+        elif ppnt_l.with_question:
+            assigned_participant_language[ppnt_l.participant][ppnt_l.language] = "Q"
+        elif ppnt_l.with_answer:
+            assigned_participant_language[ppnt_l.participant][ppnt_l.language] = "A"
         else:
-            assigned_participant_language[stud_l.participant][stud_l.language] = ""
+            assigned_participant_language[ppnt_l.participant][ppnt_l.language] = ""
 
     return render(
         request,
@@ -3066,7 +3066,7 @@ def submission_exam_confirm(
             "exam": exam,
             "delegation": delegation,
             "languages": languages,
-            "stud_documents": stud_documents,
+            "ppnt_documents": ppnt_documents,
             "all_finished": all_finished,
             "submission_status": ex_submission.status,
             "participants_languages": assigned_participant_language,
@@ -3093,30 +3093,30 @@ def submission_exam_submitted(
 
     assigned_participant_language = OrderedDict()
     for participant in delegation.participant_set.all():
-        stud_langs = OrderedDict()
+        ppnt_langs = OrderedDict()
         for lang in languages:
-            stud_langs[lang] = False
-        assigned_participant_language[participant] = stud_langs
+            ppnt_langs[lang] = False
+        assigned_participant_language[participant] = ppnt_langs
 
     participant_languages = ParticipantSubmission.objects.filter(
         exam=exam, participant__delegation=delegation
     )
-    for stud_l in participant_languages:
-        if stud_l.with_answer and stud_l.with_question:
-            assigned_participant_language[stud_l.participant][stud_l.language] = "QA"
-        elif stud_l.with_question:
-            assigned_participant_language[stud_l.participant][stud_l.language] = "Q"
-        elif stud_l.with_answer:
-            assigned_participant_language[stud_l.participant][stud_l.language] = "A"
+    for ppnt_l in participant_languages:
+        if ppnt_l.with_answer and ppnt_l.with_question:
+            assigned_participant_language[ppnt_l.participant][ppnt_l.language] = "QA"
+        elif ppnt_l.with_question:
+            assigned_participant_language[ppnt_l.participant][ppnt_l.language] = "Q"
+        elif ppnt_l.with_answer:
+            assigned_participant_language[ppnt_l.participant][ppnt_l.language] = "A"
         else:
-            assigned_participant_language[stud_l.participant][stud_l.language] = ""
+            assigned_participant_language[ppnt_l.participant][ppnt_l.language] = ""
 
     documents = (
         Document.objects.for_user(request.user)
         .filter(exam=exam, participant__delegation=delegation)
         .order_by("participant", "position")
     )
-    stud_documents = {
+    ppnt_documents = {
         k: list(g)
         for k, g in itertools.groupby(documents, key=lambda d: d.participant.pk)
     }
@@ -3144,7 +3144,7 @@ def submission_exam_submitted(
             "exam": exam,
             "delegation": delegation,
             "languages": languages,
-            "stud_documents": stud_documents,
+            "ppnt_documents": ppnt_documents,
             "submission_status": ex_submission.status,
             "participants_languages": assigned_participant_language,
             "msg": msg,
@@ -3506,12 +3506,12 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
             class MockStud:
                 pass
 
-            mockstud = MockStud()
-            mockstud.code = (  # pylint: disable=attribute-defined-outside-init
+            mockppnt = MockStud()
+            mockppnt.code = (  # pylint: disable=attribute-defined-outside-init
                 trans.lang.delegation.name + "-S-0"
             )
             bcgen = iphocode.QuestionBarcodeGen(
-                trans.question.exam, trans.question, mockstud
+                trans.question.exam, trans.question, mockppnt
             )
             # mskoenz: was broken (check_add_barcode does not exist), check if add_barcode is fine too!"
             output_pdf = pdf.add_barcode(tmp_pdf, bcgen)
@@ -3809,7 +3809,7 @@ def pdf_exam_for_participant(request, exam_id, participant_id):
     }
     grouped_questions = OrderedDict(sorted(grouped_questions.items()))
     for position, qgroup in list(grouped_questions.items()):
-        question_task = question_utils.compile_stud_exam_question(
+        question_task = question_utils.compile_ppnt_exam_question(
             qgroup, participant_languages
         )
         result = question_task.delay()

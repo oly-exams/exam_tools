@@ -64,7 +64,7 @@ def compile_all():
         vid = "F"
         points_per_participant = []
         for participant in participants:
-            stud_exam_points_list = (
+            ppnt_exam_points_list = (
                 Marking.objects.filter(version=vid, participant=participant["id"])
                 .values("marking_meta__question")
                 .annotate(exam_points=Sum("points"))
@@ -74,11 +74,11 @@ def compile_all():
             total = sum(
                 [
                     st_points["exam_points"]
-                    for st_points in stud_exam_points_list
+                    for st_points in ppnt_exam_points_list
                     if st_points["exam_points"] is not None
                 ]
             )
-            points_per_participant.append((participant, stud_exam_points_list, total))
+            points_per_participant.append((participant, ppnt_exam_points_list, total))
 
         exams = (
             MarkingMeta.objects.filter(
@@ -109,9 +109,9 @@ def compile_all():
                 ex["question__exam__code"], ex["question__position"]
             )
         results += " & \\textbf{Total} \\\\\n"
-        for (participant, stud_exam_points_list, total) in points_per_participant:
+        for (participant, ppnt_exam_points_list, total) in points_per_participant:
             results += "{} & ".format(participant["code"])
-            for p in stud_exam_points_list:
+            for p in ppnt_exam_points_list:
                 results += "{} & ".format(p["exam_points"])
             results += f"{total} \\\\\n"
         results += "\\end{tabular}\n"

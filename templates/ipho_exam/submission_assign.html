@@ -106,7 +106,7 @@
 {{ block.super }}
 <script>
 $(function() {
-    $(':checkbox[name^="stud"]').change(function() {
+    $(':checkbox[name^="ppnt"]').change(function() {
         $checkbox = $(this);
         $radio = $('#'+$checkbox.attr('id').replace('languages','answer_language'));
         if ($checkbox.is(':checked')) {

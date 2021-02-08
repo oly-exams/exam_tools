@@ -64,9 +64,9 @@ def participant_exam_document(
         )
         question_pdf = pdf.compile_tex(body, [])
         que = questions[0]
-        stud = participant_languages[0].participant
+        ppnt = participant_languages[0].participant
         bgenerator = iphocode.QuestionBarcodeGen(
-            que.exam, que, stud, qcode="C", suppress_code=suppress_cover_code
+            que.exam, que, ppnt, qcode="C", suppress_code=suppress_cover_code
         )
         page = pdf.add_barcode(question_pdf, bgenerator)
         doc_pages = pdf.get_num_pages(page)
@@ -77,21 +77,21 @@ def participant_exam_document(
         all_docs.append(page)
 
     for question in questions:
-        for stud_l in participant_languages:
-            if question.is_answer_sheet() and not stud_l.with_answer:
+        for ppnt_l in participant_languages:
+            if question.is_answer_sheet() and not ppnt_l.with_answer:
                 continue
-            if question.is_question_sheet() and not stud_l.with_question:
+            if question.is_question_sheet() and not ppnt_l.with_question:
                 continue
 
-            print(f"Prepare {question} in {stud_l.language}.")
+            print(f"Prepare {question} in {ppnt_l.language}.")
             trans = qquery.latest_version(
-                question.pk, stud_l.language.pk
+                question.pk, ppnt_l.language.pk
             )  ## TODO: simplify latest_version, because question and language are already in memory
             if not trans.lang.is_pdf:
                 trans_content, ext_resources = trans.qml.make_tex()
                 for reso in ext_resources:
                     if isinstance(reso, tex.FigureExport):
-                        reso.lang = stud_l.language
+                        reso.lang = ppnt_l.language
                 ext_resources.append(
                     tex.TemplateExport(
                         os.path.join(
@@ -100,11 +100,11 @@ def participant_exam_document(
                     )
                 )
                 context = {
-                    "polyglossia": stud_l.language.polyglossia,
-                    "polyglossia_options": stud_l.language.polyglossia_options,
-                    "font": fonts.ipho[stud_l.language.font],
-                    "extraheader": stud_l.language.extraheader,
-                    "lang_name": f"{stud_l.language.name} ({stud_l.language.delegation.country})",
+                    "polyglossia": ppnt_l.language.polyglossia,
+                    "polyglossia_options": ppnt_l.language.polyglossia_options,
+                    "font": fonts.ipho[ppnt_l.language.font],
+                    "extraheader": ppnt_l.language.extraheader,
+                    "lang_name": f"{ppnt_l.language.name} ({ppnt_l.language.delegation.country})",
                     "exam_name": f"{question.exam.name}",
                     "code": f"{question.code}{question.position}",
                     "title": f"{question.exam.name} - {question.name}",
@@ -116,7 +116,7 @@ def participant_exam_document(
                     request=HttpRequest(),
                     context=context,
                 )
-                print(f"Compile {question} {stud_l.language}.")
+                print(f"Compile {question} {ppnt_l.language}.")
                 question_pdf = pdf.compile_tex(body, ext_resources)
             else:
                 question_pdf = trans.node.pdf.read()
@@ -125,7 +125,7 @@ def participant_exam_document(
             meta["num_pages"] += doc_pages
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.participant
+                    question.exam, question, ppnt_l.participant
                 )
                 page = pdf.add_barcode(question_pdf, bgenerator)
                 meta["barcode_num_pages"] += doc_pages
@@ -133,7 +133,7 @@ def participant_exam_document(
                 all_docs.append(page)
             else:
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.participant, suppress_code=True
+                    question.exam, question, ppnt_l.participant, suppress_code=True
                 )
                 page = pdf.add_barcode(question_pdf, bgenerator)
                 all_docs.append(page)
@@ -144,7 +144,7 @@ def participant_exam_document(
                     "polyglossia_options": "",
                     "font": fonts.ipho["notosans"],
                     "extraheader": "",
-                    # 'lang_name'   : u'{} ({})'.format(stud_l.language.name, stud_l.language.delegation.country),
+                    # 'lang_name'   : u'{} ({})'.format(ppnt_l.language.name, ppnt_l.language.delegation.country),
                     "exam_name": f"{question.exam.name}",
                     "code": "{}{}".format("W", question.position),
                     "title": f"{question.exam.name} - {question.name}",
@@ -167,7 +167,7 @@ def participant_exam_document(
                     ],
                 )
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, stud_l.participant, qcode="W"
+                    question.exam, question, ppnt_l.participant, qcode="W"
                 )
                 page = pdf.add_barcode(question_pdf, bgenerator)
 
@@ -186,7 +186,7 @@ def participant_exam_document(
     else:
         meta["barcode_base"] = ",".join(all_barcodes)
 
-    filename = f"{stud_l.participant.code}_EXAM-{exam_id}-{position}.pdf"  # pylint: disable=undefined-loop-variable
+    filename = f"{ppnt_l.participant.code}_EXAM-{exam_id}-{position}.pdf"  # pylint: disable=undefined-loop-variable
     final_doc = pdf.concatenate_documents(all_docs)
     meta["filename"] = filename
     meta["etag"] = md5(final_doc).hexdigest()
@@ -211,7 +211,7 @@ def participant_exam_document(
             req.raise_for_status()  # or, if r.status_code == requests.codes.ok:
             doc_task.delete()
             print(
-                f"Doc committed: {stud_l.participant.code} {exam_code}{position}"  # pylint: disable=undefined-loop-variable
+                f"Doc committed: {ppnt_l.participant.code} {exam_code}{position}"  # pylint: disable=undefined-loop-variable
             )
         except DocumentTask.DoesNotExist:
             pass

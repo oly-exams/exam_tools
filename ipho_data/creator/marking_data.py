@@ -55,9 +55,9 @@ class MarkingDataCreator(BaseDataCreator):
 
     def set_max_points(self, *, delegation_code, question, version):
         deleg = Delegation.objects.get(name=delegation_code)
-        for stud in deleg.participant_set.all():
+        for ppnt in deleg.participant_set.all():
             self._set_max_points_question(
-                participant=stud, question=question, version=version
+                participant=ppnt, question=question, version=version
             )
 
     def _set_zero_points_question(self, *, participant, question, version):
@@ -69,9 +69,9 @@ class MarkingDataCreator(BaseDataCreator):
 
     def set_zero_points(self, *, delegation_code, question, version):
         deleg = Delegation.objects.get(name=delegation_code)
-        for stud in deleg.participant_set.all():
+        for ppnt in deleg.participant_set.all():
             self._set_zero_points_question(
-                participant=stud, question=question, version=version
+                participant=ppnt, question=question, version=version
             )
 
     @staticmethod

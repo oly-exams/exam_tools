@@ -28,10 +28,10 @@ from ipho_exam.models import *
 
 
 def get_id(doc):
-    stud = doc.participant.code
+    ppnt = doc.participant.code
     exam = doc.exam.code
     question = doc.position
-    return f"{stud}_{exam}_{question}"
+    return f"{ppnt}_{exam}_{question}"
 
 
 def move_doc(doc, dest_folder):

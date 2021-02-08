@@ -112,7 +112,7 @@ def compile_question(question, language):
         print(e)
 
 
-def compile_stud_exam_question(
+def compile_ppnt_exam_question(
     questions, participant_languages, cover=None, commit=False
 ):
     all_tasks = []
@@ -289,7 +289,7 @@ def missing_submissions():
                     "question": qgroup[0],
                     "place": participant_seat.name,
                 }
-                compile_stud_exam_question(
+                compile_ppnt_exam_question(
                     questions, participant_languages, cover=cover_ctx, commit=False
                 )
 

@@ -98,13 +98,13 @@
                 <span class="tooltip-span" data-toggle="tooltip" title="{{ question_ctxt.view_tooltip }}">
                   <a {% if not question_ctxt.view %}disabled{% endif %} style="max-width: 9em;"
                     class="btn btn-default btn-xs btn-block"
-                    href="{% url 'marking:delegation-stud-detail' stud_id=participant_ctxt.pk question_id=question_ctxt.pk %}"><i
+                    href="{% url 'marking:delegation-ppnt-detail' ppnt_id=participant_ctxt.pk question_id=question_ctxt.pk %}"><i
                       class="fa fa-eye"></i> View marks</a>
                 </span>
                 <span class="tooltip-span" data-toggle="tooltip" title="{{ question_ctxt.edit_tooltip }}">
                   <a {% if not question_ctxt.edit %}disabled{% endif %} style="max-width: 9em;"
                     class="btn btn-warning btn-xs btn-block"
-                    href="{% url 'marking:delegation-stud-detail-edit' stud_id=participant_ctxt.pk question_id=question_ctxt.pk %}"><i
+                    href="{% url 'marking:delegation-ppnt-detail-edit' ppnt_id=participant_ctxt.pk question_id=question_ctxt.pk %}"><i
                       class="fa fa-pencil"></i> Edit marks</a>
                 </span>
               </td>

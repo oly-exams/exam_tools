@@ -149,29 +149,29 @@ export function test_staff_edit_status(question_id, delegation_id, participant_i
 
 
 // Sets the value of a points form field
-export function edit_point_form(stud_id, field_id, points){
-    if(stud_id >= 0){
-        cy.get("#id_Stud-"+stud_id+"-"+field_id+"-points").clear().type(points)
+export function edit_point_form(ppnt_id, field_id, points){
+    if(ppnt_id >= 0){
+        cy.get("#id_Stud-"+ppnt_id+"-"+field_id+"-points").clear().type(points)
     }else{
         cy.get("#id_form-"+field_id+"-points").clear().type(points)
     }
 }
 // Checks the value of a points form field
-export function check_point_form(stud_id, field_id, points){
-    if(stud_id >= 0){
-        cy.get("#id_Stud-"+stud_id+"-"+field_id+"-points").should('have.value', points)
+export function check_point_form(ppnt_id, field_id, points){
+    if(ppnt_id >= 0){
+        cy.get("#id_Stud-"+ppnt_id+"-"+field_id+"-points").should('have.value', points)
     }else{
         cy.get("#id_form-"+field_id+"-points").should('have.value', points)
     }
 }
 // Checks error messages of a points form field
-export function check_point_form_error(stud_id, field_id, should_have_err=true, err_msg="", check_error_class=true){
+export function check_point_form_error(ppnt_id, field_id, should_have_err=true, err_msg="", check_error_class=true){
     if(should_have_err){
-        if(stud_id >= 0){
+        if(ppnt_id >= 0){
             if(check_error_class){
-                cy.get("#id_Stud-"+stud_id+"-"+field_id+"-points").parent().should('have.class', 'has-error')
+                cy.get("#id_Stud-"+ppnt_id+"-"+field_id+"-points").parent().should('have.class', 'has-error')
             }
-            cy.get("#id_Stud-"+stud_id+"-"+field_id+"-points").parent().find('li').should("contain", err_msg)
+            cy.get("#id_Stud-"+ppnt_id+"-"+field_id+"-points").parent().find('li').should("contain", err_msg)
         }else{
             if(check_error_class){
                 cy.get("#id_form-"+field_id+"-points").parent().should('have.class', 'has-error')
@@ -179,8 +179,8 @@ export function check_point_form_error(stud_id, field_id, should_have_err=true, 
             cy.get("#id_form-"+field_id+"-points").parent().find('li').should("contain", err_msg)
         }
     }else{
-        if(stud_id >= 0){
-            cy.get("#id_Stud-"+stud_id+"-"+field_id+"-points").parent().should('not.have.class', 'has-error')
+        if(ppnt_id >= 0){
+            cy.get("#id_Stud-"+ppnt_id+"-"+field_id+"-points").parent().should('not.have.class', 'has-error')
         }else{
             cy.get("#id_form-"+field_id+"-points").parent().should('not.have.class', 'has-error')
         }
@@ -206,11 +206,11 @@ export function check_delegation_points_view_value(column, value="-"){
 }
 
 // Tests all columns for participants for value in the delegation view and viewall views
-// (Note that stud_ids needs to contain all participants of a delegation)
-export function test_delegation_marks_view_all(stud_ids, columns, value){
+// (Note that ppnt_ids needs to contain all participants of a delegation)
+export function test_delegation_marks_view_all(ppnt_ids, columns, value){
     cy.visit("/marking/detail_all/question/3")
     cy.wait(10)
-    cy.wrap(stud_ids).each((id, idx)=>{
+    cy.wrap(ppnt_ids).each((id, idx)=>{
         // columns contains all subcolumns (off.=0, del.=1, fin.=2) to be tested
         // there are 3 columns per participant, and the first one is number 1
         cy.wrap(columns).each((cnum)=>{
@@ -218,9 +218,9 @@ export function test_delegation_marks_view_all(stud_ids, columns, value){
         })
     })
     cy.wait(10)
-    cy.wrap(stud_ids).each(stud_id => {
+    cy.wrap(ppnt_ids).each(ppnt_id => {
         // Doing the same thing for each participant detail view
-        cy.visit("/marking/detail/"+String(stud_id)+"/question/3")
+        cy.visit("/marking/detail/"+String(ppnt_id)+"/question/3")
         cy.wait(10)
         cy.wrap(columns).each(cnum => {
             check_delegation_points_view_value(1 + cnum, value)
@@ -261,8 +261,8 @@ export const edit_view = [view_enabled, edit_enabled]
 export const viewall_only = [viewall_enabled, editall_disabled]
 export const editall_viewall = [viewall_enabled, editall_enabled]
 
-export const CHE_stud_ids = [1, 2, 3, 4, 5]
-export const CHE_stud_names = [
+export const CHE_ppnt_ids = [1, 2, 3, 4, 5]
+export const CHE_ppnt_names = [
     "Eugen Pfister (CHE-S-1)",
     "Franz Wrigley Stalder (CHE-S-2)",
     "Bäschteli von Almen (CHE-S-3)",
@@ -270,53 +270,53 @@ export const CHE_stud_names = [
     "Fritzli Bühler (CHE-S-5)",
 ]
 
-export const CHE_studs_final = [
-    [CHE_stud_names[0], "-", "-"],
-    [CHE_stud_names[1], "-", "-"],
-    [CHE_stud_names[2], "-", "-"],
-    [CHE_stud_names[3], "-", "-"],
-    [CHE_stud_names[4], "-", "-"],
+export const CHE_ppnts_final = [
+    [CHE_ppnt_names[0], "-", "-"],
+    [CHE_ppnt_names[1], "-", "-"],
+    [CHE_ppnt_names[2], "-", "-"],
+    [CHE_ppnt_names[3], "-", "-"],
+    [CHE_ppnt_names[4], "-", "-"],
 ]
-export const CHE_studs_editable = [
-    [CHE_stud_names[0], edit_view, edit_view],
-    [CHE_stud_names[1], edit_view, edit_view],
-    [CHE_stud_names[2], edit_view, edit_view],
-    [CHE_stud_names[3], edit_view, edit_view],
-    [CHE_stud_names[4], edit_view, edit_view],
+export const CHE_ppnts_editable = [
+    [CHE_ppnt_names[0], edit_view, edit_view],
+    [CHE_ppnt_names[1], edit_view, edit_view],
+    [CHE_ppnt_names[2], edit_view, edit_view],
+    [CHE_ppnt_names[3], edit_view, edit_view],
+    [CHE_ppnt_names[4], edit_view, edit_view],
     ["", editall_viewall, editall_viewall]
 ]
 
-export const ARM_stud_ids = [10,]
-export const ARM_stud_names = ["Deep Thought (ARM-S-42)",]
-export const ARM_studs_final = [
-    [ARM_stud_names[0], "-", "-"],
+export const ARM_ppnt_ids = [10,]
+export const ARM_ppnt_names = ["Deep Thought (ARM-S-42)",]
+export const ARM_ppnts_final = [
+    [ARM_ppnt_names[0], "-", "-"],
 ]
-export const ARM_studs_viewable = [
-    [ARM_stud_names[0], view_only, edit_view],
+export const ARM_ppnts_viewable = [
+    [ARM_ppnt_names[0], view_only, edit_view],
     ["", viewall_only, editall_viewall]
 ]
 
-export const AUS_stud_ids = [6, 7]
-export const AUS_stud_names = [
+export const AUS_ppnt_ids = [6, 7]
+export const AUS_ppnt_names = [
     "Arthur Dent (AUS-S-1)",
     "Zaphod Beeblebrox (AUS-S-2)",
 ]
-export const AUS_studs_final = [
-    [AUS_stud_names[0], "-", "-"],
-    [AUS_stud_names[1], "-", "-"],
+export const AUS_ppnts_final = [
+    [AUS_ppnt_names[0], "-", "-"],
+    [AUS_ppnt_names[1], "-", "-"],
 ]
-export const AUS_studs_viewable = [
-    [AUS_stud_names[0], view_only, edit_view],
-    [AUS_stud_names[1], view_only, edit_view],
+export const AUS_ppnts_viewable = [
+    [AUS_ppnt_names[0], view_only, edit_view],
+    [AUS_ppnt_names[1], view_only, edit_view],
     ["", viewall_only, editall_viewall]
 ]
 
-export const AUT_stud_ids = [8, 9]
-export const AUT_studs_final = [
+export const AUT_ppnt_ids = [8, 9]
+export const AUT_ppnts_final = [
     ["Ford Prefect (AUT-S-1)", "20", "20"],
     ["Slartibartfast  (AUT-S-2)", "20", "20"],
 ]
-export const AUT_studs_viewable = [
+export const AUT_ppnts_viewable = [
     ["Ford Prefect (AUT-S-1)", view_only, view_only],
     ["Slartibartfast  (AUT-S-2)", view_only, view_only],
     ["", viewall_only, viewall_only]
