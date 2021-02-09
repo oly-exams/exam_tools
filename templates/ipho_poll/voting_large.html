@@ -47,7 +47,11 @@
   <div class="col-md-6 pre-scrollable">
 
         <div class="jumbotron">
-            <h1>{{ voting }}</h1>
+            <h1>{{ voting }}
+            {% if voting.voting_room %}
+            <span class="small"> In Room: {{ voting.voting_room }}</span>
+            {% endif %}
+            </h1>
             {% if status == 'open' %}
                 <p>
                   Remaining Time: <strong><span class="countdown" data-end-date="{{ voting.end_date | date:'r' }}"></span></strong>

@@ -235,6 +235,9 @@ $('document').ready(function(){
                   $this.append('<button class="btn btn-default btn-sm">In '+minutes+' minutes</button> ').on('click', function (evt){
                     evt.preventDefault();
                     $('#modal-datetimepicker').data("DateTimePicker").date(moment().add(minutes, 'minutes'));
+                    trg = $(evt.target);
+                    modal.find('.quick-end-time > button').removeClass('active');
+                    trg.addClass('active');
                   });
                 });
             },
