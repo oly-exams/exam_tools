@@ -510,6 +510,10 @@ def remove_end_date(request, voting_pk):
 
     voting.end_date = None
     voting.save()
+    if voting.voting_room is not None:
+        return HttpResponseRedirect(
+            reverse("poll:staff-index_room", kwargs={"room_id": voting.voting_room.id})
+        )
     return HttpResponseRedirect(reverse("poll:staff-index"))
 
 
@@ -523,6 +527,10 @@ def close_voting(request, voting_pk):
 
     voting.end_date = timezone.now()
     voting.save()
+    if voting.voting_room is not None:
+        return HttpResponseRedirect(
+            reverse("poll:staff-index_room", kwargs={"room_id": voting.voting_room.id})
+        )
     return HttpResponseRedirect(reverse("poll:staff-index"))
 
 
