@@ -1,5 +1,5 @@
 import string
-import iso3166  # pylint: disable=import-error
+import iso3166
 
 from django.contrib.auth.models import Permission
 

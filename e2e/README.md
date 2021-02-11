@@ -94,6 +94,9 @@ cy.getExamPhaseByName('Theory', "Preparation (Editing)").then(cy.switchExamPhase
 
 * `getExamPhaseByName(exam_name, phase_name)` is a helper function returning the exam and phase pk's for the given names. Note that this function may need to be updated manually when the test data changes.
 
+### Files
+There is one batch specifically used to test file related things (e.g. compilation, scan upload, etc.) [here](cypress/integration/pdf_compilation). Check the [readme](cypress/integration/pdf_compilation/README.md) there for more information. The pdf used to compare against are found [here](cypress/fixtures/pdfs/). In some cases you might need to recreate the files (e.g. when a "Files have changes, not identical error" happens). Follow the instructions [here](cypress/fixtures/pdfs/README.md) to do so.
+
 ## Timeouts
 Most Cypress commands have built in timeouts. Sometimes they are not sufficient, however. As the wait times mostly depend on the speed of the machine, timeouts can occur only in the CI jobs or only locally and they might not occur consistently.
 

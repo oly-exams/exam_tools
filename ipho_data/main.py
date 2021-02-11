@@ -2,7 +2,7 @@
 # Author:  Mario S. Könz <mskoenz@gmx.net>
 
 
-# pylint: disable=unused-import, import-error
+# pylint: disable=unused-import, import-error, useless-suppression
 import non_install_helper
 
 import ipho_data.django_setup
