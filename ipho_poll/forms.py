@@ -16,26 +16,27 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import forms
-from django.forms import ModelForm, HiddenInput, RadioSelect
+from django.core.exceptions import ValidationError
+from django.forms import ModelForm, HiddenInput, RadioSelect, BaseInlineFormSet
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, HTML
 
 
-from ipho_poll.models import Question, Choice, Vote
+from ipho_poll.models import Voting, VotingChoice, CastedVote
 
 
-class QuestionForm(ModelForm):
+class VotingForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        # self.helper.layout = Layout(Field('title', placeholder='Enter question text'), Field('question'))
+        # self.helper.layout = Layout(Field('title', placeholder='Enter voting text'), Field('voting'))
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.helper.form_tag = False
         self.helper.disable_csrf = True
 
     class Meta:
-        model = Question
+        model = Voting
         fields = ["title", "content", "feedbacks"]
 
 
@@ -66,14 +67,14 @@ class EndDateForm(ModelForm):
         self.helper.include_media = True
 
     class Meta:
-        model = Question
+        model = Voting
         fields = ["end_date"]
         widgets = {"end_date": HiddenInput()}
 
 
-class ChoiceForm(ModelForm):
+class VotingChoiceForm(ModelForm):
     class Meta:
-        model = Choice
+        model = VotingChoice
         fields = ["label", "choice_text"]
         widgets = {
             "label": forms.TextInput(attrs={"size": 3, "maxlength": 3}),
@@ -94,7 +95,7 @@ class ChoiceForm(ModelForm):
             self.fields["choice_text"].widget.attrs["readonly"] = True
 
 
-class ChoiceFormHelper(FormHelper):
+class VotingChoiceFormHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         can_delete = kwargs.pop("can_delete", True)
         super().__init__(*args, **kwargs)
@@ -115,7 +116,7 @@ class ChoiceFormHelper(FormHelper):
         self.disable_csrf = True
 
 
-class VoteForm(ModelForm):
+class CastedVoteForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["choice"].empty_label = None
@@ -126,15 +127,35 @@ class VoteForm(ModelForm):
         ## Note: in the case of a bound form the label will still be "Choice". Unfortunately I didn't find a workaround
 
     class Meta:
-        model = Vote
-        fields = ["choice", "question", "voting_right"]
+        model = CastedVote
+        fields = ["choice", "voting", "voting_right"]
         widgets = {"choice": RadioSelect(), "voting_right": HiddenInput()}
 
 
-class VoteFormHelper(FormHelper):
+class CastedVoteBaseFormset(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        all_none = True
+        for form in self.forms:
+            if form.cleaned_data.get("choice") is not None:
+                all_none = False
+        if all_none:
+            raise ValidationError("Please submit at least one vote.")
+        for errordict in self.errors:
+            if errordict.get(
+                "__all__"
+            ) and "Casted vote with this Voting and Voting right already exists." in errordict.get(
+                "__all__"
+            ):
+                for error in errordict.get("__all__").as_data():
+                    if error.code == "unique_together":
+                        error.message = "This vote has already been cast (maybe on another device). Please reload the page."
+
+
+class CastedVoteFormHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.layout = Layout(Div(Field("choice")), Div(Field("question")))
+        self.layout = Layout(Div(Field("choice")), Div(Field("voting")))
         self.form_show_labels = True
         self.html5_required = False
         self.form_tag = False

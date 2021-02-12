@@ -17,17 +17,17 @@
 
 from django.contrib import admin
 
-from .models import Question, Choice, Vote, VotingRight
+from .models import Voting, VotingChoice, CastedVote, VotingRight, VotingRoom
 
 
-class ChoiceInline(admin.TabularInline):
-    model = Choice
+class VotingChoiceInline(admin.TabularInline):
+    model = VotingChoice
     extra = 2
 
 
-class QuestionAdmin(admin.ModelAdmin):
+class VotingAdmin(admin.ModelAdmin):
     fieldsets = [
-        ("Question information", {"fields": ["title", "content"]}),
+        ("Voting information", {"fields": ["title", "content", "voting_room"]}),
         (
             "Date information",
             {"fields": ["pub_date", "end_date"], "classes": ["collapse"]},
@@ -41,17 +41,30 @@ class QuestionAdmin(admin.ModelAdmin):
             },
         ),
     ]
-    inlines = [ChoiceInline]
-    list_display = ("title", "pub_date", "end_date", "vote_result", "implementation")
-    list_filter = ["pub_date", "end_date", "vote_result", "implementation"]
+    inlines = [VotingChoiceInline]
+    list_display = (
+        "title",
+        "voting_room",
+        "pub_date",
+        "end_date",
+        "vote_result",
+        "implementation",
+    )
+    list_filter = [
+        "voting_room",
+        "pub_date",
+        "end_date",
+        "vote_result",
+        "implementation",
+    ]
     search_fields = ["title", "content"]
 
 
-class VoteAdmin(admin.ModelAdmin):
+class CastedVoteAdmin(admin.ModelAdmin):
     fieldsets = [
-        ("Vote Information", {"fields": ["question", "choice", "voting_right"]}),
+        ("CastedVote Information", {"fields": ["voting", "choice", "voting_right"]}),
     ]
-    list_display = ("question", "choice", "voting_right")
+    list_display = ("voting", "choice", "voting_right")
 
 
 class VotingRightAdmin(admin.ModelAdmin):
@@ -59,6 +72,7 @@ class VotingRightAdmin(admin.ModelAdmin):
     list_display = ("user", "name")
 
 
-admin.site.register(Question, QuestionAdmin)
-admin.site.register(Vote, VoteAdmin)
+admin.site.register(Voting, VotingAdmin)
+admin.site.register(CastedVote, CastedVoteAdmin)
 admin.site.register(VotingRight, VotingRightAdmin)
+admin.site.register(VotingRoom)

@@ -1,0 +1,15 @@
+<span class="dropdown" id="room-dropdown">
+    <a class="btn {{ room|yesno:"btn-default,btn-primary" }} btn-md dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if active_room %}
+      {{ active_room.name }}
+      {% else %}
+      Select room
+      {% endif %}
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+  {% for r in rooms %}
+      <li {% if active_room == r %} class="active" {% endif %}><a href="{% url view_name room_id=r.pk %}">{{ r.name }}</a></li>
+  {% endfor %}
+    </ul>
+</span>

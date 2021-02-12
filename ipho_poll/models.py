@@ -15,44 +15,93 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from itertools import chain
-
 # User should not be imported directly (pylint-django:E5142)
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 from django.utils import timezone
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
+from django.core.exceptions import ValidationError
 from ipho_exam.models import Feedback
 
 
-class QuestionManager(models.Manager):
-    def is_draft(self):  # pylint: disable=no-self-use
-        queryset = Question.objects.filter(end_date__isnull=True)
-        return queryset
+class VotingRoomQuerySet(models.QuerySet):
+    def for_user(self, user):
+        if user.is_superuser:
+            return self.filter(visibility__gte=VotingRoom.VISIBLE_2ND_LVL_SUPPORT_ONLY)
 
-    def is_open(self):  # pylint: disable=no-self-use
-        queryset = Question.objects.filter(end_date__gt=timezone.now())
-        return queryset
+        if user.has_perm("ipho_core.can_edit_poll"):
+            return self.filter(
+                visibility__gte=VotingRoom.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
+            )
+        if user.votingright_set.exists():
+            return self.filter(
+                visibility__gte=VotingRoom.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+            )
+        return self.none()
 
-    def is_closed(self):  # pylint: disable=no-self-use
-        queryset = Question.objects.filter(end_date__lte=timezone.now())
-        return queryset
 
-    def not_voted_upon_by(self, user):  # pylint: disable=no-self-use
+class VotingRoom(models.Model):
+    # pylint: disable=invalid-name
+    name = models.CharField(max_length=100, unique=True)
+
+    # Note that IntegerFields enable us to filter using order relations.
+    # We mostly use >=/__gte to filter the hierarchical flags
+    # e.g. visibility__gte=Orga+2nd_level shows the exam when the visibility
+    # is set to orgas+2nd_level or orgas+2nd_level+boardmeeting
+
+    VISIBLE_2ND_LVL_SUPPORT_ONLY = -1
+    VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT = 0
+    VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING = 1
+    VISIBILITY_CHOICES = (
+        (VISIBLE_2ND_LVL_SUPPORT_ONLY, "2nd level support only"),
+        (VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT, "Organizer + 2nd level support"),
+        (
+            VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
+            "Boardmeeting + Organizer + 2nd level support",
+        ),
+    )
+
+    visibility = models.IntegerField(
+        default=1,
+        choices=VISIBILITY_CHOICES,
+        help_text="Sets the visibility of the voting room for organizers and delegations.",
+        verbose_name="Voting Room Visibility",
+    )
+
+    objects = VotingRoomQuerySet.as_manager()
+
+    def __str__(self):
+        return self.name
+
+
+class VotingQuerySet(models.QuerySet):
+    def is_draft(self):
+        return self.filter(end_date__isnull=True)
+
+    def is_open(self):
+        return self.filter(end_date__gt=timezone.now())
+
+    def is_closed(self):
+        return self.filter(end_date__lte=timezone.now())
+
+    def not_voted_upon_by(self, user):
+        # pylint: disable=invalid-name
         user_tot_votes = user.votingright_set.all().count()
-        q_not_full = (
-            Question.objects.is_open()
-            .filter(vote__voting_right__user=user)
-            .annotate(user_votes=Count("vote"))
+        not_full = (
+            self.filter(castedvote__voting_right__user=user)
+            .annotate(user_votes=Count("castedvote"))
             .filter(user_votes__lt=user_tot_votes)
+            .values_list("pk", flat=True)
         )
-        q_no_votes = Question.objects.is_open().exclude(vote__voting_right__user=user)
-        return list(chain(q_not_full, q_no_votes))
+        Q_not_full = Q(pk__in=not_full)
+        Q_no_votes = ~Q(castedvote__voting_right__user=user)
+        not_voted = self.filter(Q_not_full | Q_no_votes)
+        return not_voted
 
 
-class Question(models.Model):
+class Voting(models.Model):
     class VoteResultMeta:
         OPEN = 0
         REJECTED = 1
@@ -73,6 +122,9 @@ class Question(models.Model):
 
     title = models.CharField(max_length=200)
     content = models.TextField(blank=True, null=True)
+    voting_room = models.ForeignKey(
+        VotingRoom, null=True, blank=True, on_delete=models.SET_NULL
+    )
     pub_date = models.DateTimeField("date published", default=timezone.now)
     end_date = models.DateTimeField("end date", blank=True, null=True)
     vote_result = models.PositiveSmallIntegerField(
@@ -82,7 +134,7 @@ class Question(models.Model):
         choices=ImplementationMeta.choices, default=ImplementationMeta.NOT_IMPL
     )
     feedbacks = models.ManyToManyField(Feedback, blank=True, related_name="vote")
-    objects = QuestionManager()
+    objects = VotingQuerySet.as_manager()
 
     def __str__(self):
         return self.title
@@ -100,15 +152,15 @@ class Question(models.Model):
         return False
 
     def choice_dict(self):
-        choice_set = self.choice_set.all()
+        votingchoice_set = self.votingchoice_set.all()
         choice_dict = {}
-        for i, choice in enumerate(choice_set):
+        for i, choice in enumerate(votingchoice_set):
             choice_dict[choice] = chr(ord("A") + i)
         return choice_dict
 
 
-class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+class VotingChoice(models.Model):
+    voting = models.ForeignKey(Voting, on_delete=models.CASCADE)
     label = models.CharField(max_length=3, blank=True, null=True)
     choice_text = models.CharField(max_length=200)
 
@@ -118,7 +170,7 @@ class Choice(models.Model):
         return f"{self.label}. {self.choice_text}"
 
     def calculate_votes(self):
-        return Vote.objects.filter(choice=self).count()
+        return CastedVote.objects.filter(choice=self).count()
 
     votes = property(calculate_votes)
 
@@ -134,13 +186,20 @@ class VotingRight(models.Model):
         return f"{self.name} ({self.user})"
 
 
-class Vote(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+class CastedVote(models.Model):
+    voting = models.ForeignKey(Voting, on_delete=models.CASCADE)
+    choice = models.ForeignKey(VotingChoice, on_delete=models.CASCADE)
     voting_right = models.ForeignKey(VotingRight, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.choice.__str__()
 
+    def clean(self):
+        super().clean()
+        if timezone.now() > self.voting.end_date:
+            raise ValidationError(
+                "Voting is already closed, cannot save this vote. Please reload the page."
+            )
+
     class Meta:
-        unique_together = ("question", "voting_right")
+        unique_together = ("voting", "voting_right")

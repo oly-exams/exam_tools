@@ -365,49 +365,49 @@
         "markingmeta"
       ],
       [
-        "add_choice",
+        "add_votingchoice",
         "ipho_poll",
-        "choice"
+        "votingchoice"
       ],
       [
-        "change_choice",
+        "change_votingchoice",
         "ipho_poll",
-        "choice"
+        "votingchoice"
       ],
       [
-        "delete_choice",
+        "delete_votingchoice",
         "ipho_poll",
-        "choice"
+        "votingchoice"
       ],
       [
-        "add_question",
+        "add_voting",
         "ipho_poll",
-        "question"
+        "voting"
       ],
       [
-        "change_question",
+        "change_voting",
         "ipho_poll",
-        "question"
+        "voting"
       ],
       [
-        "delete_question",
+        "delete_voting",
         "ipho_poll",
-        "question"
+        "voting"
       ],
       [
-        "add_vote",
+        "add_castedvote",
         "ipho_poll",
-        "vote"
+        "castedvote"
       ],
       [
-        "change_vote",
+        "change_castedvote",
         "ipho_poll",
-        "vote"
+        "castedvote"
       ],
       [
-        "delete_vote",
+        "delete_castedvote",
         "ipho_poll",
-        "vote"
+        "castedvote"
       ],
       [
         "add_votingright",
