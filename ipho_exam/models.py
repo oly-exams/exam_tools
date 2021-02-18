@@ -36,7 +36,7 @@ from django.utils import timezone
 from polymorphic.models import PolymorphicModel
 from polymorphic.managers import PolymorphicManager
 
-from ipho_core.models import Delegation, Participant
+from ipho_core.models import Delegation  # , Student
 from ipho_exam import fonts
 from .exceptions import IphoExamForbidden
 from .utils import natural_id
@@ -680,6 +680,29 @@ class Exam(models.Model):
             for question in self.question_set.all():
                 question.feedback_status = Question.FEEDBACK_CLOSED
                 question.save()
+
+
+class ParticipantManager(models.Manager):
+    def get_by_natural_key(self, code):
+        return self.get(code=code)
+
+
+class Participant(models.Model):
+    objects = ParticipantManager()
+
+    code = models.CharField(max_length=10, unique=True)
+    first_name = models.CharField(max_length=200)
+    last_name = models.CharField(max_length=200)
+    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ["code"]
+
+    def natural_key(self):
+        return (self.code,)
+
+    def __str__(self):
+        return f"{self.code}"
 
 
 class QuestionManager(models.Manager):

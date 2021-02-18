@@ -25,7 +25,7 @@ import django
 django.setup()
 
 import csv
-from ipho_core.models import Delegation, Participant, User, Group, AutoLogin
+from ipho_core.models import Delegation, User, Group, AutoLogin
 from ipho_exam.models import Language, TranslationNode, Exam
 
 

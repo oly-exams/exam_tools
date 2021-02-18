@@ -35,8 +35,8 @@ from django.http import HttpRequest
 from django.urls import reverse
 from django.template.loader import render_to_string
 
-from ipho_core.models import Delegation, Participant
-from ipho_exam.models import Exam, Question
+from ipho_core.models import Delegation
+from ipho_exam.models import Participant, Exam, Question
 
 from django.db.models import Sum, F
 from ipho_marking.models import MarkingMeta, Marking

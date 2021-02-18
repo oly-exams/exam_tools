@@ -37,9 +37,10 @@ from django.template.loader import render_to_string
 from django.db.models import Sum
 
 from django.conf import settings
-from ipho_core.models import Delegation, Participant
+from ipho_core.models import Delegation
 from ipho_exam.models import (
     Exam,
+    Participant,
     Question,
     VersionNode,
     TranslationNode,

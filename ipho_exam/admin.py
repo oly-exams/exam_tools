@@ -25,6 +25,7 @@ from ipho_exam.models import (
     Delegation,
     Language,
     Exam,
+    Participant,
     Question,
     VersionNode,
     TranslationNode,
@@ -104,6 +105,23 @@ class ExamAdmin(admin.ModelAdmin):
         "moderation",
     )
     inlines = [QuestionInline]
+
+
+class ParticipantAdmin(admin.ModelAdmin):
+    fields = (
+        "code",
+        ("first_name", "last_name"),
+        "delegation",
+    )
+    list_display = (
+        "code",
+        "last_name",
+        "first_name",
+        "delegation",
+    )
+    search_fields = ("last_name", "first_name")
+    list_editable = ("first_name", "last_name", "delegation")
+    list_filter = ("delegation",)
 
 
 class QuestionAdmin(admin.ModelAdmin):
@@ -216,6 +234,7 @@ admin.site.register(Language, LanguageAdmin)
 admin.site.register(Feedback, FeedbackAdmin)
 admin.site.register(Like, LikeAdmin)
 admin.site.register(Exam, ExamAdmin)
+admin.site.register(Participant, ParticipantAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(VersionNode, VersionNodeAdmin)
 admin.site.register(TranslationNode, TranslationNodeAdmin)

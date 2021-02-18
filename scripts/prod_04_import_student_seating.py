@@ -25,8 +25,7 @@ import django
 django.setup()
 
 import csv
-from ipho_core.models import Participant
-from ipho_exam.models import Place, Exam
+from ipho_exam.models import Participant, Place, Exam
 
 
 def main(input):

@@ -76,12 +76,13 @@ from pywebpush import WebPushException
 
 from celery.result import AsyncResult
 
-from ipho_core.models import Delegation, Participant, RandomDrawLog
+from ipho_core.models import Delegation, RandomDrawLog
 
 import ipho_exam
 from ipho_exam import tasks
 from ipho_exam.models import (
     Exam,
+    Participant,
     Question,
     VersionNode,
     TranslationNode,

@@ -27,8 +27,8 @@ from django.core.validators import MinValueValidator
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-from ipho_core.models import Participant, Delegation
-from ipho_exam.models import Question, Exam
+from ipho_core.models import Delegation
+from ipho_exam.models import Participant, Question, Exam
 from ipho_exam import qquery as qwquery
 from ipho_exam import qml
 

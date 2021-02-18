@@ -106,20 +106,18 @@ class Delegation(models.Model):
         return self.participant_set.all()
 
 
-class ParticipantManager(models.Manager):
+class StudentManager(models.Manager):
     def get_by_natural_key(self, code):
         return self.get(code=code)
 
 
-class Participant(models.Model):
-    objects = ParticipantManager()
+class Student(models.Model):
+    objects = StudentManager()
 
     code = models.CharField(max_length=10, unique=True)
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
     delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
-
-    # exam_languages = models.ManyToManyField(Language)
 
     class Meta:
         ordering = ["code"]

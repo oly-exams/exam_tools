@@ -25,7 +25,7 @@ import django
 django.setup()
 
 import csv
-from ipho_core.models import Delegation, Participant
+from ipho_core.models import Delegation, Student
 
 
 def main(input):
@@ -37,7 +37,7 @@ def main(input):
             ## Delegation
             delegation = Delegation.objects.get(name=row["delegation"])
 
-            participant, created = Participant.objects.get_or_create(
+            participant, created = Student.objects.get_or_create(
                 code=row["code"],
                 defaults={
                     "first_name": row["first_name"],

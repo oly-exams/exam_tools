@@ -25,7 +25,7 @@ import django
 django.setup()
 
 import csv
-from ipho_core.models import Delegation, Participant
+from ipho_core.models import Delegation, Student
 
 
 def main(input):
@@ -36,7 +36,7 @@ def main(input):
         delegation = all_delegations[old_div(i, 5)]
 
         code = "{}-S-{}".format(delegation.name, i % 5 + 1)
-        participant = Participant(
+        participant = Student(
             code=code, first_name=row[2], last_name=row[3], delegation=delegation
         )
         participant.save()

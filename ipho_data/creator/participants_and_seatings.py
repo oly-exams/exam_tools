@@ -1,7 +1,7 @@
 from collections import defaultdict
 
-from ipho_core.models import Participant, Delegation
-from ipho_exam.models import Exam, Place
+from ipho_core.models import Delegation
+from ipho_exam.models import Participant, Exam, Place
 
 from .base_data import BaseDataCreator
 

@@ -37,8 +37,8 @@ from django.http import (
 )
 from django.contrib.auth.decorators import permission_required
 
-from ipho_core.models import Delegation, Participant
-from ipho_exam.models import Exam, Question, Document
+from ipho_core.models import Delegation
+from ipho_exam.models import Exam, Participant, Question, Document
 
 from .models import MarkingMeta, Marking, MarkingAction, generate_markings_from_exam
 from .forms import ImportForm, PointsForm
