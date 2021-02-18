@@ -17,7 +17,7 @@ from ipho_exam import tasks
 def main():
     exam = Exam.objects.get(name="Experiment - Marking")
     for delegation in Delegation.objects.exclude(name="Official"):
-        for participant in delegation.participant_set.all():
+        for participant in delegation.get_participants(exam):
             all_tasks = []
             participant_languages = ParticipantSubmission.objects.filter(
                 exam=exam, participant=participant

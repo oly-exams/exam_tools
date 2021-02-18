@@ -2784,7 +2784,7 @@ def submission_exam_assign(
         answer_sheet_language = None
 
     # set forms for all participants
-    for ppnt in delegation.participant_set.all():
+    for ppnt in delegation.get_participants(exam):
         ppnt_langs = ParticipantSubmission.objects.filter(
             participant=ppnt, exam=exam
         ).values_list("language", flat=True)
@@ -2855,7 +2855,7 @@ def submission_exam_assign(
                 ssub.save()
 
         ## Generate PDF compilation
-        for participant in delegation.participant_set.all():
+        for participant in delegation.get_participants(exam):
             participant_languages = ParticipantSubmission.objects.filter(
                 exam=exam, participant=participant
             )
@@ -3040,7 +3040,7 @@ def submission_exam_confirm(
     }
 
     assigned_participant_language = OrderedDict()
-    for participant in delegation.participant_set.all():
+    for participant in delegation.get_participants(exam):
         ppnt_langs = OrderedDict()
         for lang in languages:
             ppnt_langs[lang] = False
@@ -3092,7 +3092,7 @@ def submission_exam_submitted(
     )
 
     assigned_participant_language = OrderedDict()
-    for participant in delegation.participant_set.all():
+    for participant in delegation.get_participants(exam):
         ppnt_langs = OrderedDict()
         for lang in languages:
             ppnt_langs[lang] = False

@@ -102,6 +102,9 @@ class Delegation(models.Model):
     def __str__(self):
         return f"{self.country} ({self.name})"
 
+    def get_participants(self, exam):  # pylint: disable=unused-argument
+        return self.participant_set.all()
+
 
 class ParticipantManager(models.Manager):
     def get_by_natural_key(self, code):

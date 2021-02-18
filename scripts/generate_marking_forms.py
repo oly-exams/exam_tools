@@ -54,7 +54,7 @@ def moderation_detail(question_id, delegation_id, request=HttpRequest()):
     )
     delegation = get_object_or_404(Delegation, id=delegation_id)
     metas = MarkingMeta.objects.filter(question=question)
-    participants = delegation.participant_set.all()
+    participants = delegation.get_participants(question.exam)
 
     participant_forms = []
     marking_forms = []

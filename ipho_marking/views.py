@@ -690,7 +690,7 @@ def delegation_ppnt_edit(
         raise Http404("Cannot modify those markings.") from err
     if is_valid:
         form.save()
-        participants = delegation.participant_set.all()
+        participants = delegation.get_participants(question.exam)
         ppnt_id_list = [str(s.id) for s in participants]
         next_ppnt_index = ppnt_id_list.index(str(ppnt_id)) + 1
         next_ppnt_button = ""
@@ -1280,7 +1280,7 @@ def moderation_detail(
         raise Http404("These markings are locked, you cannot modify them!")
 
     metas = MarkingMeta.objects.filter(question=question)
-    participants = delegation.participant_set.all()
+    participants = delegation.get_participants(question.exam)
 
     participant_forms = []
     marking_forms = []
@@ -1438,7 +1438,7 @@ def official_marking_detail(
         raise Http404("These markings are final, you cannot modify them!")
 
     metas = MarkingMeta.objects.filter(question=question)
-    participants = delegation.participant_set.all()
+    participants = delegation.get_participants(question.exam)
 
     marking_query = Marking.objects.editable(request.user).filter(
         marking_meta__in=metas, participant__in=participants, version="O"
