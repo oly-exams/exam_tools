@@ -95,19 +95,19 @@
         "iphoperm"
       ],
       [
-        "add_participant",
+        "add_student",
         "ipho_core",
-        "participant"
+        "student"
       ],
       [
-        "change_participant",
+        "change_student",
         "ipho_core",
-        "participant"
+        "student"
       ],
       [
-        "delete_participant",
+        "delete_student",
         "ipho_core",
-        "participant"
+        "student"
       ],
       [
         "add_document",
@@ -153,6 +153,21 @@
         "delete_exam",
         "ipho_exam",
         "exam"
+      ],
+      [
+        "add_participant",
+        "ipho_exam",
+        "participant"
+      ],
+      [
+        "change_participant",
+        "ipho_exam",
+        "participant"
+      ],
+      [
+        "delete_participant",
+        "ipho_exam",
+        "participant"
       ],
       [
         "add_examaction",
