@@ -87,7 +87,7 @@ td {
         {% for participant, forms, markings_official, sum_official, sum_delegation in participant_forms %}
           <td class="thdnone"></td>
           <th colspan=3>
-            <h4>{{ participant.first_name }} {{ participant.last_name }} ({{ participant.code }})</h4>
+            <h4>{{ participant.full_name }} ({{ participant.code }})</h4>
             {% if participant.pk in scan_files_ready %}
             <a class="btn btn-default btn-xs" id="scan-{{ participant.pk }}-{{ question.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=question.exam.pk participant_id=participant.pk position=question.position %}">
               <i class="fa fa-file-pdf-o"></i>

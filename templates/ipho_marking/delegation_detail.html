@@ -40,7 +40,7 @@
     {% endfor %}
   </div>
 
-    <h2>{{ participant.first_name }} {{ participant.last_name }} ({{ participant.code }})</h2>
+    <h2>{{ participant.full_name }} ({{ participant.code }})</h2>
 
     <h3> {{ exam.name }} - {{ question.name }}
       {% for doc in documents %}

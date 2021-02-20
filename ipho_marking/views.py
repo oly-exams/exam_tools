@@ -426,8 +426,7 @@ def delegation_summary(
             participant_ctx = {
                 "pk": participant.pk,
                 "code": participant.code,
-                "first_name": participant.first_name,
-                "last_name": participant.last_name,
+                "full_name": participant.full_name,
             }
             question_list = []
             for question in answer_sheet_list:
@@ -1521,12 +1520,12 @@ def official_marking_confirmed(request, question_id, delegation_id):
         .annotate(total=Sum("points"))
         .order_by("participant")
         .values(
-            "participant__first_name",
-            "participant__last_name",
-            "participant__code",
+            "participant__pk",
             "total",
         )
     )
+    for ppnt in markings:
+        ppnt["participant"] = get_object_or_404(Participant, pk=ppnt["participant__pk"])
 
     ctx = {"question": question, "delegation": delegation, "markings": markings}
     return render(request, "ipho_marking/official_marking_confirmed.html", ctx)
@@ -1552,12 +1551,12 @@ def moderation_confirmed(request, question_id, delegation_id):
         .annotate(total=Sum("points"))
         .order_by("participant")
         .values(
-            "participant__first_name",
-            "participant__last_name",
-            "participant__code",
+            "participant__pk",
             "total",
         )
     )
+    for ppnt in markings:
+        ppnt["participant"] = get_object_or_404(Participant, pk=ppnt["participant__pk"])
 
     ctx = {"question": question, "delegation": delegation, "markings": markings}
     return render(request, "ipho_marking/moderation_confirmed.html", ctx)

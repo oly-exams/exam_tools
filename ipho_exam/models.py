@@ -36,7 +36,7 @@ from django.utils import timezone
 from polymorphic.models import PolymorphicModel
 from polymorphic.managers import PolymorphicManager
 
-from ipho_core.models import Delegation  # , Student
+from ipho_core.models import Delegation, Student
 from ipho_exam import fonts
 from .exceptions import IphoExamForbidden
 from .utils import natural_id
@@ -698,11 +698,23 @@ class Participant(models.Model):
     class Meta:
         ordering = ["code"]
 
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
     def natural_key(self):
         return (self.code,)
 
     def __str__(self):
         return f"{self.code}"
+
+
+@receiver(post_save, sender=Student, dispatch_uid="change_ppnt_name_on_stud_save")
+def change_ppnt_name_on_stud_save(
+    instance, created, raw, **kwargs
+):  # pylint: disable=unused-argument
+    if not created or raw:
+        return
 
 
 class QuestionManager(models.Manager):

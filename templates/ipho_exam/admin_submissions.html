@@ -43,7 +43,7 @@
     <a class="btn btn-default btn-sm" data-toggle="modal" data-target="#submission-modal" data-remote="false" href="{% url 'exam:admin-submission-assign' exam_id=exam.pk %}"><i class="fa fa-plus"></i> Assign language</a>
 
     {% for ss in submissions %}
-    <h4> {{ ss.participant.first_name }} {{ ss.participant.last_name }} ({{ ss.participant.code }})
+    <h4> {{ ss.participant.full_name }} ({{ ss.participant.code }})
         <span class="label label-default">{{ ss.language.name }}</span>
         {% if not ss.with_question %}<span class="label label-warning">No question sheets</span>{% endif %}
         {% if ss.with_answer %}<span class="label label-primary">with answer sheets</span>{% endif %}

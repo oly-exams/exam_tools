@@ -31,7 +31,7 @@
           <tr>
             <th>Participants:</th>
             {% for participant in participants %}
-              <th>{{ participant.first_name }} {{ participant.last_name }} ({{ participant.code }})</th>
+              <th>{{ participant.full_name }} ({{ participant.code }})</th>
             {% endfor %}
           </tr>
         </thead>

@@ -21,7 +21,7 @@
       </tr>
       {% for marking in markings %}
       <tr>
-        <td>{{ marking.participant__first_name }} {{ marking.participant__last_name }} ({{ marking.participant__code }})</td>
+        <td>{{ marking.participant.full_name }} ({{ marking.participant.code }})</td>
         <td>{{ marking.total|floatformat:"2" }}</td>
       </tr>
       {% endfor %}

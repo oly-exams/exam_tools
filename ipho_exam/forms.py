@@ -316,9 +316,7 @@ class FeedbackCommentForm(forms.Form):
 class SubmissionAssignForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields[
-            "participant"
-        ].label_from_instance = lambda obj: f"{obj.first_name} {obj.last_name}"
+        self.fields["participant"].label_from_instance = lambda obj: obj.full_name
 
         self.helper = FormHelper()
         self.helper.html5_required = True

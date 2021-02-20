@@ -40,7 +40,7 @@
           </tr>
           {% for participant,scans_list in scans_of_participants %}
           <tr>
-            <td>{{ participant.first_name }} {{ participant.last_name }} ({{ participant.code }})
+            <td>{{ participant.full_name }} ({{ participant.code }})
             </td>
             {% for doc in scans_list %}
             <td>
@@ -70,13 +70,13 @@
     </div>
 
     <div class="tab-pane" id="marking">
-      <p class="lead">Submit your marking and see the official marks. 
+      <p class="lead">Submit your marking and see the official marks.
         {% if exam_list %}
         <a class="btn btn-default btn-sm" href="{% url 'marking:delegation-export-all' %}"><i
         class="fa fa-file-excel-o"></i> Export All</i></a>
         {% endif %}
       </p>
-      
+
       {% for exam_ctxt in exam_list %}
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -92,7 +92,7 @@
             </tr>
             {% for participant_ctxt in exam_ctxt.participants %}
             <tr>
-              <td>{{ participant_ctxt.first_name }} {{ participant_ctxt.last_name }} ({{ participant_ctxt.code }})</td>
+              <td>{{ participant_ctxt.full_name }} ({{ participant_ctxt.code }})</td>
               {% for question_ctxt in participant_ctxt.questions %}
               <td>
                 <span class="tooltip-span" data-toggle="tooltip" title="{{ question_ctxt.view_tooltip }}">
@@ -181,7 +181,7 @@
 
           {% for participant, exam_points, total in points_per_participant %}
           <tr>
-            <td>{{ participant.first_name }} {{ participant.last_name }} ({{ participant.code }})</td>
+            <td>{{ participant.full_name }} ({{ participant.code }})</td>
             {% for ep in exam_points %}
             <td>
               {{ ep|default_if_none:'-' }}

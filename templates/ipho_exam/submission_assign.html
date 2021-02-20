@@ -55,7 +55,7 @@
         <tbody>
       {% for ss,form in submission_forms %}
       <tr class="{% if form.languages.errors or form.answer_language.errors %}danger{% endif %}">
-          <td>{{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})
+          <td>{{ ss.full_name }} ({{ ss.code }})
               <ul style="margin:0; padding:0;">
                 {% for error in form.languages.errors %}
                     <li class="help-block"><strong>Deliver:</strong> {{ error|escape }}</li>
