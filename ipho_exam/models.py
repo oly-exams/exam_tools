@@ -28,7 +28,7 @@ import codecs
 
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.conf import settings
 from django.utils import timezone
@@ -690,11 +690,15 @@ class ParticipantManager(models.Manager):
 class Participant(models.Model):
     objects = ParticipantManager()
 
-    code = models.CharField(max_length=10, unique=True)
+    is_group = models.BooleanField(default=False)
+    code = models.CharField(max_length=10)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=200 + 200)
     delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
+    students = models.ManyToManyField(Student)
 
     class Meta:
+        unique_together = index_together = (("code", "exam"),)
         ordering = ["code"]
 
     def natural_key(self):
@@ -708,16 +712,57 @@ class Participant(models.Model):
 def create_ppnt_on_stud_creation(
     instance, created, raw, **kwargs
 ):  # pylint: disable=unused-argument
+    if raw:
+        return
+    for exam in Exam.objects.all():
+        if created:
+            _create_ppnt_on_creation_helper(exam, instance)
+        else:
+            for ppnt in instance.participant_set.all():
+                if not ppnt.is_group:
+                    ppnt.code = instance.code
+                    ppnt.full_name = f"{instance.first_name} {instance.last_name}"
+                    ppnt.delegation = instance.delegation
+                    ppnt.save()
+
+
+@receiver(post_save, sender=Exam, dispatch_uid="create_ppnt_on_exam_creation")
+def create_ppnt_on_exam_creation(
+    instance, created, raw, **kwargs
+):  # pylint: disable=unused-argument
+    # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
+    for student in Student.objects.order_by("pk"):
+        _create_ppnt_on_creation_helper(instance, student)
 
-    # for exam in Exam.objects.all():
-    Participant.objects.get_or_create(
-        code=instance.code,
-        full_name=f"{instance.first_name} {instance.last_name}",
-        delegation=instance.delegation,
-        # exam=exam,
+
+def _create_ppnt_on_creation_helper(exam, student):
+    ppnt, _ = Participant.objects.get_or_create(
+        code=student.code,
+        exam=exam,
+        full_name=f"{student.first_name} {student.last_name}",
+        delegation=student.delegation,
+        is_group=False,
     )
+    ppnt.students.set((student,))
+
+
+# see: https://docs.djangoproject.com/en/3.1/ref/signals/
+@receiver(
+    m2m_changed,
+    sender=Participant.students.through,
+    dispatch_uid="change_ppnt_is_group_m2m_change",
+)
+def change_ppnt_is_group_m2m_change(
+    instance, action, **kwargs
+):  # pylint: disable=unused-argument
+    if action in ["post_remove", "post_add"]:
+        if len(instance.students.all()) > 1:
+            instance.is_group = True
+        else:
+            instance.is_group = False
+        instance.save()
 
 
 class QuestionManager(models.Manager):

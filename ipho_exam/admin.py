@@ -110,12 +110,16 @@ class ExamAdmin(admin.ModelAdmin):
 class ParticipantAdmin(admin.ModelAdmin):
     fields = (
         "code",
+        "exam",
         "full_name",
         "delegation",
+        "students",
     )
     list_display = (
         "code",
+        "exam",
         "full_name",
+        "is_group",
         "delegation",
     )
     search_fields = ("full_name",)
