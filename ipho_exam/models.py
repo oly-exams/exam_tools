@@ -691,16 +691,11 @@ class Participant(models.Model):
     objects = ParticipantManager()
 
     code = models.CharField(max_length=10, unique=True)
-    first_name = models.CharField(max_length=200)
-    last_name = models.CharField(max_length=200)
+    full_name = models.CharField(max_length=200 + 200)
     delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["code"]
-
-    @property
-    def full_name(self):
-        return f"{self.first_name} {self.last_name}"
 
     def natural_key(self):
         return (self.code,)
@@ -709,12 +704,20 @@ class Participant(models.Model):
         return f"{self.code}"
 
 
-@receiver(post_save, sender=Student, dispatch_uid="change_ppnt_name_on_stud_save")
-def change_ppnt_name_on_stud_save(
+@receiver(post_save, sender=Student, dispatch_uid="create_ppnt_on_stud_creation")
+def create_ppnt_on_stud_creation(
     instance, created, raw, **kwargs
 ):  # pylint: disable=unused-argument
     if not created or raw:
         return
+
+    # for exam in Exam.objects.all():
+    Participant.objects.get_or_create(
+        code=instance.code,
+        full_name=f"{instance.first_name} {instance.last_name}",
+        delegation=instance.delegation,
+        # exam=exam,
+    )
 
 
 class QuestionManager(models.Manager):

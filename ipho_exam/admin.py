@@ -110,17 +110,16 @@ class ExamAdmin(admin.ModelAdmin):
 class ParticipantAdmin(admin.ModelAdmin):
     fields = (
         "code",
-        ("first_name", "last_name"),
+        "full_name",
         "delegation",
     )
     list_display = (
         "code",
-        "last_name",
-        "first_name",
+        "full_name",
         "delegation",
     )
-    search_fields = ("last_name", "first_name")
-    list_editable = ("first_name", "last_name", "delegation")
+    search_fields = ("full_name",)
+    list_editable = tuple()
     list_filter = ("delegation",)
 
 

@@ -1,43 +1,41 @@
 from collections import defaultdict
 
-from ipho_core.models import Delegation
+from ipho_core.models import Student, Delegation
 from ipho_exam.models import Participant, Exam, Place
 
 from .base_data import BaseDataCreator
 
 
-class ParticipantDataCreator(BaseDataCreator):
-    def _create_participant(
-        self, *, first_name, last_name, delegation_code, participant_code
-    ):
+class StudentDataCreator(BaseDataCreator):
+    def _create_student(self, *, first_name, last_name, delegation_code, student_code):
         deleg = Delegation.objects.get(name=delegation_code)
-        ppnt, created = Participant.objects.get_or_create(
+        ppnt, created = Student.objects.get_or_create(
             first_name=first_name,
             last_name=last_name,
             delegation=deleg,
-            code=participant_code,
+            code=student_code,
         )
         if created:
             ppnt.save()
             self.log(ppnt, "..", "created")
         return ppnt
 
-    def create_participants(self, file="022_participants.csv", fieldnames=None):
+    def create_students(self, file="022_students.csv", fieldnames=None):
         if fieldnames is None:
             fieldnames = ["first_name", "last_name", "delegation", "code"]
 
         generate_code = "code" not in fieldnames
-        deleg_participant_count = defaultdict(int)
-        for participant_data in self.read_csv(file, fieldnames):
+        deleg_student_count = defaultdict(int)
+        for student_data in self.read_csv(file, fieldnames):
             if generate_code:
-                deleg_participant_count[participant_data.delegation] += 1
-                participant_data.code = f"{participant_data.delegation}-S-{deleg_participant_count[participant_data.delegation]}"
+                deleg_student_count[student_data.delegation] += 1
+                student_data.code = f"{student_data.delegation}-S-{deleg_student_count[student_data.delegation]}"
 
-            self._create_participant(
-                first_name=participant_data.first_name,
-                last_name=participant_data.last_name,
-                delegation_code=participant_data.delegation,
-                participant_code=participant_data.code,
+            self._create_student(
+                first_name=student_data.first_name,
+                last_name=student_data.last_name,
+                delegation_code=student_data.delegation,
+                student_code=student_data.code,
             )
 
     def _create_seating(self, *, participant_id, exam_name, place_name):
