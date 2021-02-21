@@ -191,9 +191,9 @@ This list shows only documents that have been submitted by the delegations.
         {% for d in docs_list %}
           <tr>
             <td>{{ d.pk }} </td>
-            <td>{{ d.exam__name }}<br>Submitted:
-              {% if d.exam__delegation_status__timestamp %}
-              <time datetime="{{ d.exam__delegation_status__timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+            <td>{{ d.participant__exam__name }}<br>Submitted:
+              {% if d.participant__exam__delegation_status__timestamp %}
+              <time datetime="{{ d.participant__exam__delegation_status__timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
               {% else %}
               --:--
               {% endif %}
@@ -203,9 +203,9 @@ This list shows only documents that have been submitted by the delegations.
             <td>{{ d.num_pages }} / {{ d.barcode_num_pages }} / {{ d.extra_num_pages }}</td>
             <td>{{ d.barcode_base }}</td>
             <td align="center">
-              <a class="btn btn-default btn-xs" id="exam-doc-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+              <a class="btn btn-default btn-xs" id="exam-doc-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
               <br />
-              {% if d.exam__submission_printing %}
+              {% if d.participant__exam__submission_printing %}
               <input class="printouts-single" type="checkbox" name="printouts[]" value="{{ d.pk }}" />
               <div class="btn-group">
                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
@@ -214,12 +214,12 @@ This list shows only documents that have been submitted by the delegations.
                 </button>
                 <ul class="dropdown-menu">
                   {% for p in queue_list %}
-                  <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position participant_id=d.participant__id queue=p.0 type='P' %}">{{ p.1 }}</a></li>
+                  <li><a href="{% url 'exam:print-doc' exam_id=d.participant__exam__id position=d.position participant_id=d.participant__id queue=p.0 type='P' %}">{{ p.1 }}</a></li>
                   {% endfor %}
                 </ul>
               </div>
               {% else %}
-              Printing is not activated for exam: {{ d.exam__name }}
+              Printing is not activated for exam: {{ d.participant__exam__name }}
               {% endif %}
               <br />
               Print time:
@@ -231,7 +231,7 @@ This list shows only documents that have been submitted by the delegations.
             </td>
             <td align="center">
               {% if d.scan_file %}
-                <a class="btn btn-default btn-xs" id="processed_scan-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=d.exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <a class="btn btn-default btn-xs" id="processed_scan-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
                 <br />
                 <input type="checkbox" name="scans[]" value="{{ d.pk }}" />
                 <div class="btn-group">
@@ -241,7 +241,7 @@ This list shows only documents that have been submitted by the delegations.
                   </button>
                   <ul class="dropdown-menu">
                     {% for p in queue_list %}
-                    <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position participant_id=d.participant__id queue=p.0 type='S' %}">{{ p.1 }}</a></li>
+                    <li><a href="{% url 'exam:print-doc' exam_id=d.participant__exam__id position=d.position participant_id=d.participant__id queue=p.0 type='S' %}">{{ p.1 }}</a></li>
                     {% endfor %}
                   </ul>
                 </div>
@@ -277,7 +277,7 @@ This list shows only documents that have been submitted by the delegations.
             </td>
             <td>
               {% if d.scan_file_orig %}
-                <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=d.exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
                 <br />
                 <div class="btn-group">
                   <a class="btn btn-default btn-xs" href="{% url 'exam:set-scan-full'  doc_id=d.pk %}" title="replace scan by full scan" data-toggle="tooltip"><i class="fa fa-fw fa-angle-double-left"></i></a>

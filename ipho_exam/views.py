@@ -2643,15 +2643,15 @@ def submission_delegation_list_submitted(request):
 
     all_docs = Document.objects.filter(
         participant__delegation__in=delegation,
-        exam__in=exams,
-        exam__delegation_status__action=ExamAction.TRANSLATION,
-        exam__delegation_status__delegation=F("participant__delegation"),
-        exam__delegation_status__status=ExamAction.SUBMITTED,
+        participant__exam__in=exams,
+        participant__exam__delegation_status__action=ExamAction.TRANSLATION,
+        participant__exam__delegation_status__delegation=F("participant__delegation"),
+        participant__exam__delegation_status__status=ExamAction.SUBMITTED,
     )
     all_docs = all_docs.values(
         "pk",
-        "exam__name",
-        "exam__id",
+        "participant__exam__name",
+        "participant__exam__id",
         "position",
         "participant__delegation__name",
         "participant__code",
@@ -2662,7 +2662,7 @@ def submission_delegation_list_submitted(request):
         "extra_num_pages",
         "scan_file",
         "timestamp",
-    ).order_by("exam_id", "participant_id", "position")
+    ).order_by("participant__exam_id", "participant_id", "position")
 
     return render(
         request,
@@ -2681,15 +2681,13 @@ def upload_scan_delegation(request, exam_id, position, participant_id):
         )
     user = request.user
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    participant = get_object_or_404(Participant, id=participant_id)
+    participant = get_object_or_404(Participant, id=participant_id, exam=exam)
     if not participant.delegation.members.filter(pk=user.pk).exists():
         return HttpResponseForbidden(
             "You do not have permission to upload a scan for this participant."
         )
 
-    doc = get_object_or_404(
-        Document, exam=exam, position=position, participant=participant
-    )
+    doc = get_object_or_404(Document, position=position, participant=participant)
 
     submission_open = (
         exam.answer_sheet_scan_upload >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
@@ -2868,7 +2866,7 @@ def submission_exam_assign(
             }
             for position, qgroup in list(grouped_questions.items()):
                 doc, _ = Document.objects.get_or_create(
-                    exam=exam, participant=participant, position=position
+                    participant=participant, position=position
                 )
                 cover_ctx = {
                     "participant": participant,
@@ -2963,7 +2961,7 @@ def submission_exam_confirm(
 
     documents = (
         Document.objects.for_user(request.user)
-        .filter(exam=exam, participant__delegation=delegation)
+        .filter(participant__exam=exam, participant__delegation=delegation)
         .order_by("participant", "position")
     )
     all_finished = all([not hasattr(doc, "documenttask") for doc in documents])
@@ -3109,7 +3107,7 @@ def submission_exam_submitted(
 
     documents = (
         Document.objects.for_user(request.user)
-        .filter(exam=exam, participant__delegation=delegation)
+        .filter(participant__exam=exam, participant__delegation=delegation)
         .order_by("participant", "position")
     )
     ppnt_documents = {
@@ -3821,7 +3819,7 @@ def pdf_exam_for_participant(request, exam_id, participant_id):
 def pdf_exam_pos_participant(
     request, exam_id, position, participant_id, type="P"
 ):  # pylint: disable= # pylint: disable=redefined-builtin, too-many-return-statements, too-many-branches
-    participant = get_object_or_404(Participant, id=participant_id)
+    participant = get_object_or_404(Participant, id=participant_id, exam=exam_id)
     user = request.user
     if not (
         user.has_perm("ipho_core.is_printstaff") or user.has_perm("ipho_core.is_marker")
@@ -3841,9 +3839,7 @@ def pdf_exam_pos_participant(
                     "You do not have permission to view this document."
                 )
 
-    doc = get_object_or_404(
-        Document, exam=exam_id, position=position, participant=participant_id
-    )
+    doc = get_object_or_404(Document, position=position, participant=participant_id)
     if type == "P":  ## for for printouts
         if hasattr(doc, "documenttask"):
             task = AsyncResult(doc.documenttask.task_id)
@@ -3889,11 +3885,9 @@ def pdf_exam_pos_participant(
 @login_required
 def pdf_exam_pos_participant_status(request, exam_id, position, participant_id):
     get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    get_object_or_404(Participant, id=participant_id)
+    participant = get_object_or_404(Participant, id=participant_id, exam=exam_id)
 
-    doc = get_object_or_404(
-        Document, exam=exam_id, position=position, participant=participant_id
-    )
+    doc = get_object_or_404(Document, position=position, participant=participant)
     if not hasattr(doc, "documenttask"):
         return JsonResponse({"status": "COMPLETED", "ready": True, "failed": False})
 
@@ -3920,7 +3914,7 @@ def task_log(request, token):
     task = AsyncResult(token)
     try:
         if task.ready():
-            _, _ = task.get()
+            _ = task.get()
             return HttpResponse("NO LOG", content_type="text/plain")
 
         return render(request, "ipho_exam/pdf_task.html", {"task": task})
@@ -4018,7 +4012,7 @@ def bulk_print(
         val["position"]
         for val in Document.objects.for_user(request.user)
         .filter(
-            exam__in=filter_ex,
+            participant__exam__in=filter_ex,
         )
         .values("position")
         .distinct()
@@ -4104,10 +4098,10 @@ def bulk_print(
 
     all_docs = Document.objects.for_user(request.user).filter(
         participant__delegation__in=filter_dg,
-        exam__in=filter_ex,
-        exam__delegation_status__action=ExamAction.TRANSLATION,
-        exam__delegation_status__delegation=F("participant__delegation"),
-        exam__delegation_status__status=ExamAction.SUBMITTED,
+        participant__exam__in=filter_ex,
+        participant__exam__delegation_status__action=ExamAction.TRANSLATION,
+        participant__exam__delegation_status__delegation=F("participant__delegation"),
+        participant__exam__delegation_status__status=ExamAction.SUBMITTED,
         position__in=filter_pos,
     )
 
@@ -4144,8 +4138,8 @@ def bulk_print(
 
     all_docs = all_docs.values(
         "pk",
-        "exam__name",
-        "exam__id",
+        "participant__exam__name",
+        "participant__exam__id",
         "position",
         "participant__delegation__name",
         "participant__code",
@@ -4161,16 +4155,18 @@ def bulk_print(
         "last_print_p",
         "last_print_s",
         "timestamp",
-        "exam__delegation_status__timestamp",
-    ).order_by("exam__delegation_status__timestamp", "participant_id", "position")
+        "participant__exam__delegation_status__timestamp",
+    ).order_by(
+        "participant__exam__delegation_status__timestamp", "participant_id", "position"
+    )
 
     for doc in all_docs:
-        exm = Exam.objects.get(pk=doc["exam__id"])
-        doc["exam__submission_printing"] = (
+        exm = Exam.objects.get(pk=doc["participant__exam__id"])
+        doc["participant__exam__submission_printing"] = (
             exm.submission_printing >= Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
         )
         doc[
-            "exam__answer_sheet_scan_upload_display"
+            "participant__exam__answer_sheet_scan_upload_display"
         ] = exm.get_answer_sheet_scan_upload_display()
 
     paginator = Paginator(all_docs, 50)
@@ -4242,9 +4238,9 @@ def print_doc(
     if not queue in (q[0] for q in queue_list):
         # pylint: disable=raising-non-exception
         raise HttpResponseForbidden("Print queue not allowed.")
-    doc = get_object_or_404(
-        Document, exam=exam_id, position=position, participant=participant_id
-    )
+
+    participant = get_object_or_404(Participant, id=participant_id, exam=exam_id)
+    doc = get_object_or_404(Document, position=position, participant=participant)
 
     if type == "P":
         printer.send2queue(
@@ -4287,11 +4283,15 @@ def upload_scan(request):
     messages = []
     form = ScanForm(request.POST or None, request.FILES or None)
     if form.is_valid():
+        participant = get_object_or_404(
+            Participant,
+            id=form.cleaned_data["participant"].id,
+            exam=form.cleaned_data["question"].exam,
+        )
         doc = get_object_or_404(
             Document,
-            exam=form.cleaned_data["question"].exam,
             position=form.cleaned_data["question"].position,
-            participant=form.cleaned_data["participant"],
+            participant=participant,
         )
         doc.scan_file = form.cleaned_data["file"]
         doc.save()
@@ -4313,15 +4313,14 @@ def extra_sheets(request, exam_id=None):
         exam_id, request.POST or None, initial={"template": "exam_blank.tex"}
     )
     if form.is_valid():
-        participant = form.cleaned_data["participant"]
+        participant = get_object_or_404(
+            Participant, id=form.cleaned_data["participant"], exam=question.exam
+        )
         question = form.cleaned_data["question"]
-        exam = question.exam
         position = question.position
         quantity = form.cleaned_data["quantity"]
         template_name = form.cleaned_data["template"]
-        doc = get_object_or_404(
-            Document, exam=exam, position=position, participant=participant
-        )
+        doc = get_object_or_404(Document, position=position, participant=participant)
 
         doc_pdf = question_utils.generate_extra_sheets(
             participant, question, doc.extra_num_pages, quantity, template_name
@@ -4332,7 +4331,7 @@ def extra_sheets(request, exam_id=None):
 
         res = HttpResponse(doc_pdf, content_type="application/pdf")
         res["content-disposition"] = 'attachment; filename="{}.pdf"'.format(
-            f"{participant.code}_{exam.code}_Z"
+            f"{participant.code}_{participant.exam.code}_Z"
         )
         return res
 

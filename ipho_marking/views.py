@@ -586,14 +586,14 @@ def delegation_summary(
     for exam in scan_show_exams:
         questions = exam.question_set.filter(type=Question.ANSWER)
         scans_of_participants = []
-        for participant in participants:
+        for participant in participants.filter(exam=exam):
             # Scans
             # Scans with status other than 'S' are skipped in the HTML
             # template. That is easier, because it allows correctly
             # continuing the table.
             ppnt_exam_scans_list = (
                 Document.objects.for_user(request.user)
-                .filter(participant=participant, exam=exam)
+                .filter(participant=participant)
                 .exclude(position=0)  # remove general instructions
                 .order_by("position")
             )
@@ -618,16 +618,16 @@ def delegation_ppnt_edit(
     request, ppnt_id, question_id
 ):  # pylint: disable=too-many-locals
     delegation = Delegation.objects.get(members=request.user)
-    participant = get_object_or_404(Participant, id=ppnt_id)
-    if participant.delegation != delegation:
-        return HttpResponseForbidden(
-            "You do not have permission to access this participant."
-        )
 
     question = get_object_or_404(
         Question.objects.for_user(request.user),
         id=question_id,
     )
+    participant = get_object_or_404(Participant, id=ppnt_id, exam=question.exam)
+    if participant.delegation != delegation:
+        return HttpResponseForbidden(
+            "You do not have permission to access this participant."
+        )
     version = "D"
 
     ctx = {}
@@ -717,7 +717,7 @@ def delegation_ppnt_edit(
         )
 
     documents = Document.objects.for_user(request.user).filter(
-        participant=participant, exam=question.exam, position=question.position
+        participant=participant, position=question.position
     )
 
     ctx["form"] = form
@@ -728,12 +728,14 @@ def delegation_ppnt_edit(
 @permission_required("ipho_core.is_delegation")
 def delegation_edit_all(request, question_id):
     delegation = Delegation.objects.get(members=request.user)
-    participants = Participant.objects.filter(delegation=delegation).order_by("code")
 
     question = get_object_or_404(
         Question.objects.for_user(request.user),
         id=question_id,
     )
+    participants = Participant.objects.filter(
+        delegation=delegation, exam=question.exam
+    ).order_by("code")
     version = "D"
 
     ctx = {}
@@ -799,9 +801,7 @@ def delegation_edit_all(request, question_id):
 
     documents = (
         Document.objects.for_user(request.user)
-        .filter(
-            exam=question.exam, position=question.position, participant__in=participants
-        )
+        .filter(position=question.position, participant__in=participants)
         .order_by("participant__code")
     )
 
@@ -813,15 +813,15 @@ def delegation_edit_all(request, question_id):
 @permission_required("ipho_core.is_delegation")
 def delegation_ppnt_view(request, ppnt_id, question_id):
     delegation = Delegation.objects.get(members=request.user)
-    participant = get_object_or_404(Participant, id=ppnt_id)
-    if participant.delegation != delegation:
-        return HttpResponseForbidden(
-            "You do not have permission to access this participant."
-        )
 
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
+    participant = get_object_or_404(Participant, id=ppnt_id, exam=question.exam)
+    if participant.delegation != delegation:
+        return HttpResponseForbidden(
+            "You do not have permission to access this participant."
+        )
     versions = ["O", "D", "F"]
     versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
 
@@ -882,7 +882,7 @@ def delegation_ppnt_view(request, ppnt_id, question_id):
         grouped_markings.append((meta, version_dict))
 
     documents = Document.objects.for_user(request.user).filter(
-        participant=participant, exam=question.exam, position=question.position
+        participant=participant, position=question.position
     )
 
     ctx["documents"] = documents
@@ -893,12 +893,11 @@ def delegation_ppnt_view(request, ppnt_id, question_id):
 @permission_required("ipho_core.is_delegation")
 def delegation_view_all(request, question_id):  # pylint: disable=too-many-locals
     delegation = Delegation.objects.get(members=request.user)
-    participants = Participant.objects.filter(delegation=delegation)
-
     question = get_object_or_404(
         Question.objects.for_user(request.user),
         id=question_id,
     )
+    participants = Participant.objects.filter(delegation=delegation, exam=question.exam)
     versions = ["O", "D", "F"]
     versions_display = [Marking.MARKING_VERSIONS[v] for v in versions]
 
@@ -966,7 +965,7 @@ def delegation_view_all(request, question_id):  # pylint: disable=too-many-local
         grouped_markings.append((meta, participant_list))
 
     documents = Document.objects.for_user(request.user).filter(
-        exam=question.exam, position=question.position, participant__in=participants
+        position=question.position, participant__in=participants
     )
 
     ctx["documents"] = documents
@@ -1364,7 +1363,7 @@ def moderation_detail(
 
     scan_files_ready = (
         Document.objects.scans_ready(request.user)
-        .filter(exam=question.exam, position=question.position)
+        .filter(participant__exam=question.exam, position=question.position)
         .filter(participant__delegation=delegation)
         .values_list("participant__pk", flat=True)
     )
@@ -1487,7 +1486,7 @@ def official_marking_detail(
 
     scan_files_ready = (
         Document.objects.scans_ready(request.user)
-        .filter(exam=question.exam, position=question.position)
+        .filter(participant__exam=question.exam, position=question.position)
         .filter(participant__delegation=delegation)
         .values_list("participant__pk", flat=True)
     )

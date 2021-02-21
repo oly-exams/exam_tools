@@ -48,7 +48,6 @@ class DocumentViewSet(
         "id",
         "position",
         "participant",
-        "exam",
         "barcode_base",
         "num_pages",
     )

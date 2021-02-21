@@ -545,6 +545,14 @@ class ScanForm(forms.Form):
         self.helper.html5_required = True
         self.helper.form_show_labels = True
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data["question"].exam != cleaned_data["participant"].exam:
+            raise ValidationError(
+                "The selected participant does not belong to the exam of the selected question!"
+            )
+        return cleaned_data
+
 
 class DelegationScanForm(forms.Form):
     file = forms.FileField(validators=[build_extension_validator([".pdf"])])

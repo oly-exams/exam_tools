@@ -128,7 +128,7 @@ describe('General', function() {
         cy.visit('/exam/admin/scan/upload')
 
         cy.get('#id_question').select("Two Problems in Mechanics - Answer Sheet [#1 in Theory]")
-        cy.get('#id_participant').select("AUS-S-1")
+        cy.get('#id_participant').select("AUS-S-1 (Theory)")
 
         // Attaching the corresponding fixture to scan. This enables us to use download_test_pdf again
         const filepath = 'pdfs/final_submission__participant-6__position-1.pdf';

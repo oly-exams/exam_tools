@@ -683,8 +683,8 @@ class Exam(models.Model):
 
 
 class ParticipantManager(models.Manager):
-    def get_by_natural_key(self, code):
-        return self.get(code=code)
+    def get_by_natural_key(self, code, exam_code):
+        return self.get(code=code, exam__code=exam_code)
 
 
 class Participant(models.Model):
@@ -698,13 +698,13 @@ class Participant(models.Model):
 
     class Meta:
         unique_together = index_together = (("code", "exam"),)
-        ordering = ["code"]
+        ordering = ["code", "exam"]
 
     def natural_key(self):
-        return (self.code,)
+        return (self.code, self.exam.code)
 
     def __str__(self):
-        return f"{self.code}"
+        return f"{self.code} ({self.exam.name})"
 
     @property
     def is_group(self):
@@ -1370,17 +1370,13 @@ class ParticipantSubmission(models.Model):
 
 
 def exam_prints_filename(obj, fname):  # pylint: disable=unused-argument
-    path = (
-        f"exams-docs/{obj.participant.code}/print/exam-{obj.exam.id}-{obj.position}.pdf"
-    )
+    path = f"exams-docs/{obj.participant.code}/print/exam-{obj.participant.exam.id}-{obj.position}.pdf"
     fullpath = os.path.join(DOCUMENT_PATH, path)
     return fullpath
 
 
 def exam_scans_filename(obj, fname):  # pylint: disable=unused-argument
-    path = (
-        f"exams-docs/{obj.participant.code}/scan/exam-{obj.exam.id}-{obj.position}.pdf"
-    )
+    path = f"exams-docs/{obj.participant.code}/scan/exam-{obj.participant.exam.id}-{obj.position}.pdf"
     fullpath = os.path.join(DOCUMENT_PATH, path)
     return fullpath
 
@@ -1400,15 +1396,15 @@ class DocumentManager(models.Manager):
             or user.has_perm("ipho_core.is_organizer_admin")
             or user.has_perm("ipho_core.is_marker")
         ):
-            return queryset.filter(exam__in=Exam.objects.for_user(user))
+            return queryset.filter(participant__exam__in=Exam.objects.for_user(user))
         if user.has_perm("ipho_core.is_printstaff"):
             # Does show documents even if printing is not activated as there is no scanning flag for organizers at the moment.
-            return queryset.filter(exam__in=Exam.objects.for_user(user))
+            return queryset.filter(participant__exam__in=Exam.objects.for_user(user))
         if user.has_perm("ipho_core.is_delegation"):
             delegs = Delegation.objects.filter(members=user)
-            return queryset.filter(exam__in=Exam.objects.for_user(user)).filter(
-                participant__delegation__in=delegs
-            )
+            return queryset.filter(
+                participant__exam__in=Exam.objects.for_user(user)
+            ).filter(participant__delegation__in=delegs)
         return queryset.none()
 
     def scans_ready(self, user):
@@ -1431,7 +1427,6 @@ class Document(models.Model):
         ("M", "Missing pages"),
     )
 
-    exam = models.ForeignKey(Exam, help_text="Exam", on_delete=models.CASCADE)
     participant = models.ForeignKey(
         Participant, help_text="Participant", on_delete=models.CASCADE
     )
@@ -1477,13 +1472,13 @@ class Document(models.Model):
     )
 
     class Meta:
-        unique_together = index_together = (("exam", "participant", "position"),)
+        unique_together = index_together = (("participant", "position"),)
 
     # def question_name(self):
     # return self.question.name
 
     def __str__(self):
-        return f"Document: {self.exam.name} #{self.position} [{self.participant.code}]"
+        return f"Document: {self.participant.exam.name} #{self.position} [{self.participant.code}]"
 
 
 class DocumentTask(models.Model):
@@ -1501,4 +1496,4 @@ class PrintLog(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.document.exam.code}-{self.document.position} ({self.type}) {self.timestamp}"
+        return f"{self.document.participant.exam.code}-{self.document.position} ({self.type}) {self.timestamp}"

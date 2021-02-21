@@ -233,7 +233,6 @@ class ExamActionAdmin(admin.ModelAdmin):
 
 class DocumentAdmin(admin.ModelAdmin):
     list_display = (
-        "exam",
         "position",
         "participant",
         "num_pages",
@@ -242,7 +241,7 @@ class DocumentAdmin(admin.ModelAdmin):
         "barcode_base",
         "scan_status",
     )
-    list_filter = ("exam", "position", "participant__delegation", "scan_status")
+    list_filter = ("position", "participant__delegation", "scan_status")
 
 
 admin.site.register(Language, LanguageAdmin)
