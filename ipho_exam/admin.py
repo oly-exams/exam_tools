@@ -209,14 +209,13 @@ class DelegationFilter(admin.SimpleListFilter):
 
 class ParticipantSubmissionAdmin(admin.ModelAdmin):
     list_display = (
-        "exam",
         "participant",
         "delegation",
         "language",
         "with_question",
         "with_answer",
     )
-    list_filter = ("exam", DelegationFilter, "language")
+    list_filter = ("participant__exam", DelegationFilter, "language")
 
     def delegation(self, obj):  # pylint: disable=no-self-use
         return obj.language.delegation

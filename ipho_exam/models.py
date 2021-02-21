@@ -1355,7 +1355,6 @@ def create_actions_on_delegation_creation(
 
 class ParticipantSubmission(models.Model):
     participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
     with_question = models.BooleanField(
         default=True, help_text="Deliver question sheets."
@@ -1367,7 +1366,7 @@ class ParticipantSubmission(models.Model):
     ## TODO: do we need a status? (in progress, submitted, printed)
 
     class Meta:
-        unique_together = index_together = (("participant", "exam", "language"),)
+        unique_together = index_together = (("participant", "language"),)
 
 
 def exam_prints_filename(obj, fname):  # pylint: disable=unused-argument

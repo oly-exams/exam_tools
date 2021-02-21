@@ -2786,13 +2786,13 @@ def submission_exam_assign(
 
     # set forms for all participants
     for ppnt in delegation.get_participants(exam):
-        ppnt_langs = ParticipantSubmission.objects.filter(
-            participant=ppnt, exam=exam
-        ).values_list("language", flat=True)
+        ppnt_langs = ParticipantSubmission.objects.filter(participant=ppnt).values_list(
+            "language", flat=True
+        )
         ppnt_question_langs = ppnt_langs.filter(with_question=True)
         try:
             ppnt_answer_lang_obj = ParticipantSubmission.objects.get(
-                participant=ppnt, exam=exam, with_answer=True
+                participant=ppnt, with_answer=True
             )
             ppnt_answer_lang = ppnt_answer_lang_obj.language
         except ParticipantSubmission.DoesNotExist:
@@ -2815,9 +2815,7 @@ def submission_exam_assign(
         for ppnt, form in submission_forms:
             current_langs = []
             ## Modify the with_answer status and delete unused submissions
-            for ssub in ParticipantSubmission.objects.filter(
-                participant=ppnt, exam=exam
-            ):
+            for ssub in ParticipantSubmission.objects.filter(participant=ppnt):
                 if (ssub.language in form.cleaned_data["languages"]) or (
                     ssub.language == form.cleaned_data["answer_language"]
                 ):
@@ -2848,7 +2846,6 @@ def submission_exam_assign(
                 with_question = lang in form.cleaned_data["languages"]
                 ssub = ParticipantSubmission(
                     participant=ppnt,
-                    exam=exam,
                     language=lang,
                     with_answer=with_answer,
                     with_question=with_question,
@@ -2858,7 +2855,7 @@ def submission_exam_assign(
         ## Generate PDF compilation
         for participant in delegation.get_participants(exam):
             participant_languages = ParticipantSubmission.objects.filter(
-                exam=exam, participant=participant
+                participant__exam=exam, participant=participant
             )
             try:
                 participant_seat = Place.objects.get(participant=participant).name
@@ -3046,7 +3043,7 @@ def submission_exam_confirm(
         assigned_participant_language[participant] = ppnt_langs
 
     participant_languages = ParticipantSubmission.objects.filter(
-        exam=exam, participant__delegation=delegation
+        participant__exam=exam, participant__delegation=delegation
     )
     for ppnt_l in participant_languages:
         if ppnt_l.with_answer and ppnt_l.with_question:
@@ -3098,7 +3095,7 @@ def submission_exam_submitted(
         assigned_participant_language[participant] = ppnt_langs
 
     participant_languages = ParticipantSubmission.objects.filter(
-        exam=exam, participant__delegation=delegation
+        participant__exam=exam, participant__delegation=delegation
     )
     for ppnt_l in participant_languages:
         if ppnt_l.with_answer and ppnt_l.with_question:
@@ -3158,7 +3155,7 @@ def admin_submission_list(request, exam_id):
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
     submissions = ParticipantSubmission.objects.filter(
-        exam=exam, participant__delegation=delegation
+        participant__exam=exam, participant__delegation=delegation
     )
 
     return render(
@@ -3800,7 +3797,7 @@ def pdf_exam_for_participant(request, exam_id, participant_id):
     all_tasks = []
 
     participant_languages = ParticipantSubmission.objects.filter(
-        exam=exam, participant=participant
+        participant=participant
     )
     questions = exam.question_set.all()
     grouped_questions = {
