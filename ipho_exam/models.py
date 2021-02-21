@@ -747,7 +747,6 @@ def _create_ppnt_on_creation_helper(exam, student):
         exam=exam,
         full_name=student.full_name,
         delegation=student.delegation,
-        is_group=False,
     )
     ppnt.students.set((student,))
 
@@ -1185,17 +1184,16 @@ class Place(models.Model):
     objects = PlaceManager()
 
     participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
 
     def __str__(self):
-        return f"{self.name} [{self.exam.name} {self.participant.code}]"
+        return f"{self.name} [{self.participant.exam.name} {self.participant.code}]"
 
     def natural_key(self):
-        return (self.name, self.exam.name)
+        return (self.name, self.participant.exam.name)
 
     class Meta:
-        unique_together = index_together = ("participant", "exam")
+        unique_together = index_together = ("participant",)
 
 
 class Feedback(models.Model):

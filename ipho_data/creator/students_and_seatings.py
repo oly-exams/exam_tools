@@ -39,11 +39,10 @@ class StudentDataCreator(BaseDataCreator):
             )
 
     def _create_seating(self, *, participant_id, exam_name, place_name):
-        ppnt = Participant.objects.get(code=participant_id)
         exam = Exam.objects.get(name=exam_name)
+        ppnt = Participant.objects.get(code=participant_id, exam=exam)
         place, cre = Place.objects.update_or_create(
             participant=ppnt,
-            exam=exam,
             name=place_name,
         )
         if cre:

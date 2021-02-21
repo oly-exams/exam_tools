@@ -2861,9 +2861,7 @@ def submission_exam_assign(
                 exam=exam, participant=participant
             )
             try:
-                participant_seat = Place.objects.get(
-                    exam=exam, participant=participant
-                ).name
+                participant_seat = Place.objects.get(participant=participant).name
             except Place.DoesNotExist:
                 participant_seat = ""
             questions = exam.question_set.all()

@@ -223,8 +223,8 @@ class ParticipantSubmissionAdmin(admin.ModelAdmin):
 
 
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = ("name", "exam", "participant")
-    list_filter = ("exam", "participant__delegation")
+    list_display = ("name", "participant")
+    list_filter = ("participant__exam", "participant__delegation")
 
 
 class ExamActionAdmin(admin.ModelAdmin):
