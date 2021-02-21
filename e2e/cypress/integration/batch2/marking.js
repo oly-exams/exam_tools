@@ -51,7 +51,7 @@ describe('Marking', function () {
         marking_helpers.edit_point_form(1,4,"abc")
         //empty
         // cypress doesn't let you type(""), so we need to do it by hand
-        cy.get("#id_Stud-1-5-points").clear()
+        cy.get("#id_ppnt-1-5-points").clear()
 
         // add more values for other participants
         marking_helpers.edit_point_form(2,10, 1)
@@ -61,7 +61,7 @@ describe('Marking', function () {
 
         // check totals
         // change focus to make sure the totals are calculated
-        cy.get("#id_Stud-1-5-points").focus()
+        cy.get("#id_ppnt-1-5-points").focus()
         cy.get("#cell_total_0").shouldHaveTrimmedText('-')
         cy.get("#cell_total_1").shouldHaveTrimmedText('1.00')
         cy.get("#cell_total_2").shouldHaveTrimmedText('1.00')
@@ -93,7 +93,7 @@ describe('Marking', function () {
         marking_helpers.edit_point_form(1,10,1)
 
         // check totals again
-        cy.get("#id_Stud-1-0-points").focus()
+        cy.get("#id_ppnt-1-0-points").focus()
         cy.get("#cell_total_0").shouldHaveTrimmedText('3.14')
         cy.get("#cell_total_1").shouldHaveTrimmedText('1.00')
         cy.get("#cell_total_2").shouldHaveTrimmedText('1.00')

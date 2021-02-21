@@ -123,7 +123,7 @@ function update_totals () {
     var t = 0.0;
     var failed = false;
     for (j = 0; j < {{ marking_forms|length }}; j++) {
-      var x = parseFloat($('#id_Stud-' + participant_pks[i] + '-' + j + '-points').val());
+      var x = parseFloat($('#id_ppnt-' + participant_pks[i] + '-' + j + '-points').val());
       if (isNaN(x)) {
         failed = true;
         break;
@@ -148,7 +148,7 @@ $(function () {
   window.dirty_form = false;
   {% endif %}
 
-  $('input[id^="id_Stud-"][id$="-points"]').change(function () {
+  $('input[id^="id_ppnt-"][id$="-points"]').change(function () {
     window.dirty_form = true;
     update_totals();
   });

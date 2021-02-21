@@ -1310,7 +1310,7 @@ def moderation_detail(
         )
         form = FormSet(
             request.POST or None,
-            prefix=f"Stud-{participant.pk}",
+            prefix=f"ppnt-{participant.pk}",
             queryset=Marking.objects.filter(
                 marking_meta__in=metas, participant=participant, version="F"
             ),
@@ -1459,7 +1459,7 @@ def official_marking_detail(
         )
         form = FormSet(
             request.POST or None,
-            prefix=f"Stud-{participant.pk}",
+            prefix=f"ppnt-{participant.pk}",
             queryset=marking_query.filter(participant=participant),
         )
         for j, f in enumerate(form):

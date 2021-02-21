@@ -151,7 +151,7 @@ export function test_staff_edit_status(question_id, delegation_id, participant_i
 // Sets the value of a points form field
 export function edit_point_form(ppnt_id, field_id, points){
     if(ppnt_id >= 0){
-        cy.get("#id_Stud-"+ppnt_id+"-"+field_id+"-points").clear().type(points)
+        cy.get("#id_ppnt-"+ppnt_id+"-"+field_id+"-points").clear().type(points)
     }else{
         cy.get("#id_form-"+field_id+"-points").clear().type(points)
     }
@@ -159,7 +159,7 @@ export function edit_point_form(ppnt_id, field_id, points){
 // Checks the value of a points form field
 export function check_point_form(ppnt_id, field_id, points){
     if(ppnt_id >= 0){
-        cy.get("#id_Stud-"+ppnt_id+"-"+field_id+"-points").should('have.value', points)
+        cy.get("#id_ppnt-"+ppnt_id+"-"+field_id+"-points").should('have.value', points)
     }else{
         cy.get("#id_form-"+field_id+"-points").should('have.value', points)
     }
@@ -169,9 +169,9 @@ export function check_point_form_error(ppnt_id, field_id, should_have_err=true, 
     if(should_have_err){
         if(ppnt_id >= 0){
             if(check_error_class){
-                cy.get("#id_Stud-"+ppnt_id+"-"+field_id+"-points").parent().should('have.class', 'has-error')
+                cy.get("#id_ppnt-"+ppnt_id+"-"+field_id+"-points").parent().should('have.class', 'has-error')
             }
-            cy.get("#id_Stud-"+ppnt_id+"-"+field_id+"-points").parent().find('li').should("contain", err_msg)
+            cy.get("#id_ppnt-"+ppnt_id+"-"+field_id+"-points").parent().find('li').should("contain", err_msg)
         }else{
             if(check_error_class){
                 cy.get("#id_form-"+field_id+"-points").parent().should('have.class', 'has-error')
@@ -180,7 +180,7 @@ export function check_point_form_error(ppnt_id, field_id, should_have_err=true, 
         }
     }else{
         if(ppnt_id >= 0){
-            cy.get("#id_Stud-"+ppnt_id+"-"+field_id+"-points").parent().should('not.have.class', 'has-error')
+            cy.get("#id_ppnt-"+ppnt_id+"-"+field_id+"-points").parent().should('not.have.class', 'has-error')
         }else{
             cy.get("#id_form-"+field_id+"-points").parent().should('not.have.class', 'has-error')
         }

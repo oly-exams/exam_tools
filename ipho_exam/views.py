@@ -3504,10 +3504,10 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         tmp_pdf = pdf.check_add_watermark(request, trans.node.pdf.read())
         if trans.question.is_answer_sheet():
 
-            class MockStud:
+            class MockParticipant:
                 pass
 
-            mockppnt = MockStud()
+            mockppnt = MockParticipant()
             mockppnt.code = (  # pylint: disable=attribute-defined-outside-init
                 trans.lang.delegation.name + "-S-0"
             )
