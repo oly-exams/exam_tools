@@ -28,7 +28,7 @@ import codecs
 
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.utils import timezone
@@ -690,8 +690,6 @@ class ParticipantManager(models.Manager):
 class Participant(models.Model):
     objects = ParticipantManager()
 
-    # is manipulated automatically by change_ppnt_is_group_m2m_change
-    is_group = models.BooleanField(default=False)
     code = models.CharField(max_length=10)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=200 + 200)
@@ -707,6 +705,10 @@ class Participant(models.Model):
 
     def __str__(self):
         return f"{self.code}"
+
+    @property
+    def is_group(self):
+        return len(self.students.all()) > 1
 
 
 @receiver(post_save, sender=Student, dispatch_uid="create_ppnt_on_stud_creation")
@@ -748,24 +750,6 @@ def _create_ppnt_on_creation_helper(exam, student):
         is_group=False,
     )
     ppnt.students.set((student,))
-
-
-# see: https://docs.djangoproject.com/en/3.1/ref/signals/
-@receiver(
-    m2m_changed,
-    sender=Participant.students.through,
-    dispatch_uid="change_ppnt_is_group_m2m_change",
-)
-def change_ppnt_is_group_m2m_change(
-    instance, action, **kwargs
-):  # pylint: disable=unused-argument
-    # the is_group value is set automatically dependent on the students field
-    if action in ["post_remove", "post_add"]:
-        if len(instance.students.all()) > 1:
-            instance.is_group = True
-        else:
-            instance.is_group = False
-        instance.save()
 
 
 class QuestionManager(models.Manager):

@@ -19,6 +19,7 @@ import json
 
 from django.contrib import admin
 from django import forms
+from django.core.exceptions import ValidationError
 from django_ace import AceWidget
 
 from ipho_exam.models import (
@@ -107,14 +108,26 @@ class ExamAdmin(admin.ModelAdmin):
     inlines = [QuestionInline]
 
 
+class ParticipantAdminForm(forms.ModelForm):
+    class Meta:
+        model = Participant
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        for student in cleaned_data["students"]:
+            for participant in student.participant_set.filter(
+                exam=cleaned_data["exam"]
+            ):
+                if participant.code != cleaned_data["code"]:
+                    raise ValidationError(
+                        f"Student '{student}' already in another Participant '{participant}' for '{cleaned_data['exam']}'. Cannot be in more than one."
+                    )
+        return cleaned_data
+
+
 class ParticipantAdmin(admin.ModelAdmin):
-    fields = (
-        "code",
-        "exam",
-        "full_name",
-        "delegation",
-        "students",
-    )
+    form = ParticipantAdminForm
     list_display = (
         "code",
         "exam",
