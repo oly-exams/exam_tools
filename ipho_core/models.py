@@ -103,7 +103,7 @@ class Delegation(models.Model):
         return f"{self.country} ({self.name})"
 
     def get_participants(self, exam):  # pylint: disable=unused-argument
-        return self.participant_set.all()
+        return self.participant_set.filter(exam=exam)
 
 
 class StudentManager(models.Manager):
@@ -127,6 +127,10 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.code}"
+
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 class PushSubscriptionManager(models.Manager):

@@ -37,7 +37,7 @@ from django.http import (
 )
 from django.contrib.auth.decorators import permission_required
 
-from ipho_core.models import Delegation
+from ipho_core.models import Student, Delegation
 from ipho_exam.models import Exam, Participant, Question, Document
 
 from .models import MarkingMeta, Marking, MarkingAction, generate_markings_from_exam
@@ -261,19 +261,20 @@ def export(
 
     csv_rows.append(title_row)
 
-    for participant in Participant.objects.all():
+    for student in Student.objects.all():
+        participants = student.participant_set.all()
         ppnt_markings = Marking.objects.filter(
-            participant=participant, marking_meta__in=mmeta
+            participant__in=participants, marking_meta__in=mmeta
         )
         visible_ppnt_markings = Marking.objects.for_user(request.user).filter(
-            participant=participant, marking_meta__in=mmeta
+            participant__in=participants, marking_meta__in=mmeta
         )
         for version in versions:
             row = [
-                participant.code,
-                participant.first_name,
-                participant.last_name,
-                participant.delegation.name,
+                student.code,
+                student.first_name,
+                student.last_name,
+                student.delegation.name,
                 version,
             ]
 
@@ -319,10 +320,10 @@ def export(
 
                 # Only append total if all markings are visible
                 if all_visible:
-                    participant_total = _get_total(version_markings)
+                    student_total = _get_total(version_markings)
                 else:
-                    participant_total = None
-                row.append(participant_total)
+                    student_total = None
+                row.append(student_total)
             row = ["-" if v is None else v for v in row]
             csv_rows.append(row)
 
@@ -405,6 +406,7 @@ def delegation_summary(
     delegation = Delegation.objects.get(members=request.user)
     exams = Exam.objects.for_user(request.user).order_by("pk")
     participants = Participant.objects.filter(delegation=delegation)
+    students = Student.objects.filter(delegation=delegation)
 
     exam_marking_list = []
     exam_filter = Q(
@@ -535,12 +537,13 @@ def delegation_summary(
 
     # Final points pane
     vid = "F"
-    points_per_participant = []
+    points_per_student = []
     markings = Marking.objects.for_user(request.user).filter(version=vid)
-    for participant in participants:
+    for student in students:
         # Exam points
         ppnt_exam_points_list = []
         for exam in exams:
+            participant = student.participant_set.filter(exam=exam).first()
             # if there are no open/submitted marking actions:
             if not MarkingAction.objects.filter(
                 question__exam=exam,
@@ -561,7 +564,7 @@ def delegation_summary(
             total = sum([p for p in ppnt_exam_points_list if p is not None])
         else:
             total = None
-        points_per_participant.append((participant, ppnt_exam_points_list, total))
+        points_per_student.append((student, ppnt_exam_points_list, total))
 
     # We need a list of exams and total number of points for the header of the table
     exams_with_totals = (
@@ -604,7 +607,7 @@ def delegation_summary(
         "participants": participants,
         "exam_list": exam_marking_list,
         "final_points_exams": exams_with_totals,
-        "points_per_participant": points_per_participant,
+        "points_per_student": points_per_student,
         "scans_table_per_exam": scans_table_per_exam,
     }
     return render(request, "ipho_marking/delegation_summary.html", ctx)

@@ -690,6 +690,7 @@ class ParticipantManager(models.Manager):
 class Participant(models.Model):
     objects = ParticipantManager()
 
+    # is manipulated automatically by change_ppnt_is_group_m2m_change
     is_group = models.BooleanField(default=False)
     code = models.CharField(max_length=10)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
@@ -721,7 +722,7 @@ def create_ppnt_on_stud_creation(
             for ppnt in instance.participant_set.all():
                 if not ppnt.is_group:
                     ppnt.code = instance.code
-                    ppnt.full_name = f"{instance.first_name} {instance.last_name}"
+                    ppnt.full_name = instance.full_name
                     ppnt.delegation = instance.delegation
                     ppnt.save()
 
@@ -733,6 +734,7 @@ def create_ppnt_on_exam_creation(
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
+    # the order is only important for for ci/cypress testing
     for student in Student.objects.order_by("pk"):
         _create_ppnt_on_creation_helper(instance, student)
 
@@ -741,7 +743,7 @@ def _create_ppnt_on_creation_helper(exam, student):
     ppnt, _ = Participant.objects.get_or_create(
         code=student.code,
         exam=exam,
-        full_name=f"{student.first_name} {student.last_name}",
+        full_name=student.full_name,
         delegation=student.delegation,
         is_group=False,
     )
@@ -757,6 +759,7 @@ def _create_ppnt_on_creation_helper(exam, student):
 def change_ppnt_is_group_m2m_change(
     instance, action, **kwargs
 ):  # pylint: disable=unused-argument
+    # the is_group value is set automatically dependent on the students field
     if action in ["post_remove", "post_add"]:
         if len(instance.students.all()) > 1:
             instance.is_group = True

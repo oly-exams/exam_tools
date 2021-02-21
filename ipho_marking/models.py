@@ -202,7 +202,9 @@ class MarkingManager(models.Manager):
         subm_action_q = reduce(operator.or_, subm_action_q_list, Q(pk__in=[]))
         if user.is_superuser:
             return queryset
-        if user.has_perm("ipho_core.is_marker"):
+        if user.has_perm("ipho_core.is_marker") or user.has_perm(
+            "ipho_core.is_organizer_admin"
+        ):
             # This filters out all >=locked Delegation Markings for exams with Org view after moderation.
             exams_org_view_after_mod = exams.filter(
                 marking_organizer_can_see_delegation_marks__gte=Exam.MARKING_ORGANIZER_VIEW_MODERATION_FINAL
