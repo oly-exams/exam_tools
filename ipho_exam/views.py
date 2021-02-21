@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -3182,7 +3182,8 @@ def admin_submission_assign(request, exam_id):
 
     form = SubmissionAssignForm()
     form.fields["participant"].queryset = Participant.objects.filter(
-        delegation=delegation
+        delegation=delegation,
+        exam=exam,
     )
     form.fields["language"].queryset = Language.objects.all()
 
@@ -3914,7 +3915,7 @@ def task_log(request, token):
     task = AsyncResult(token)
     try:
         if task.ready():
-            _ = task.get()
+            _, _ = task.get()
             return HttpResponse("NO LOG", content_type="text/plain")
 
         return render(request, "ipho_exam/pdf_task.html", {"task": task})

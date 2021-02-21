@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -405,7 +405,6 @@ def delegation_summary(
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     delegation = Delegation.objects.get(members=request.user)
     exams = Exam.objects.for_user(request.user).order_by("pk")
-    participants = Participant.objects.filter(delegation=delegation)
     students = Student.objects.filter(delegation=delegation)
 
     exam_marking_list = []
@@ -415,6 +414,7 @@ def delegation_summary(
         marking_delegation_can_see_organizer_marks__gte=Exam.MARKING_DELEGATION_VIEW_WHEN_SUBMITTED
     )
     for exam in exams.filter(exam_filter):
+        participants = Participant.objects.filter(delegation=delegation, exam=exam)
         answer_sheet_list = Question.objects.filter(
             exam=exam, type=Question.ANSWER
         ).order_by("exam__pk", "position")
@@ -584,6 +584,7 @@ def delegation_summary(
         delegation_scan_access__gte=Exam.DELEGATION_SCAN_ACCESS_STUDENT_ANSWER
     )
     for exam in scan_show_exams:
+        participants = Participant.objects.filter(delegation=delegation, exam=exam)
         questions = exam.question_set.filter(type=Question.ANSWER)
         scans_of_participants = []
         for participant in participants.filter(exam=exam):
@@ -604,7 +605,6 @@ def delegation_summary(
 
     ctx = {
         "delegation": delegation,
-        "participants": participants,
         "exam_list": exam_marking_list,
         "final_points_exams": exams_with_totals,
         "points_per_student": points_per_student,
@@ -1165,7 +1165,9 @@ def delegation_confirm(
         )
     }
     participants = (
-        Participant.objects.filter(delegation=delegation).order_by("pk").all()
+        Participant.objects.filter(delegation=delegation, exam=question.exam)
+        .order_by("pk")
+        .all()
     )
     # totals is of the form {question.pk:{participant.pk:total, ...}, ...}
     totals_questions = {

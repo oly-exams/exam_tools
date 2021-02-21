@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -115,14 +115,24 @@ class ParticipantAdminForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        for student in cleaned_data["students"]:
+
+        if "exam" not in cleaned_data:
+            raise ValidationError("exam cannot be empty!")
+
+        for student in cleaned_data.get("students", []):
+            if student.delegation != cleaned_data["delegation"]:
+                raise ValidationError(
+                    f"Student '{student}' must have the same Delegation as the Participant '{cleaned_data['code']} ({cleaned_data['exam']})'. Cross-delegation Participant-groups not supported!"
+                )
+
             for participant in student.participant_set.filter(
                 exam=cleaned_data["exam"]
             ):
                 if participant.code != cleaned_data["code"]:
                     raise ValidationError(
-                        f"Student '{student}' already in another Participant '{participant}' for '{cleaned_data['exam']}'. Cannot be in more than one."
+                        f"Student '{student}' already in another Participant '{participant}'. Cannot be in more than one."
                     )
+
         return cleaned_data
 
 

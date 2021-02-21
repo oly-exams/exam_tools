@@ -34,6 +34,8 @@ def set_up_basic_test_database():
     tdc.create_three_poll_votings(room_name=voting_room)
     tdc.create_official_delegation()
     tdc.create_ipho2016_theory_exam()
+    experiment = tdc.create_ipho2016_experiment_exam()
+    tdc.put_students_in_teams(experiment)
 
 
 def main():

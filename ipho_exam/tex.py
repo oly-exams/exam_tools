@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -38,15 +38,17 @@ def fix_tex_parens(s, add_warning_comment=False):  # pylint: disable=unused-argu
     count = 0
     out_s = ""
     fix_required = False  # pylint: disable=unused-variable
+    last = ""
     for char in s:
-        if char == "{":
+        if char == "{" and last != "\\":
             count += 1
-        elif char == "}":
+        elif char == "}" and last != "\\":
             count -= 1
         if count >= 0:
             out_s += char
         else:
             fix_required = True
+        last = char
     if count > 0:
         out_s += "}" * count
         fix_required = True

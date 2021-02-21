@@ -1,6 +1,6 @@
-IPHO2016_DATA = {}
+IPHO2016_THEORY_DATA = {}
 
-IPHO2016_DATA["FIGURE_IDS"] = [
+IPHO2016_THEORY_DATA["FIGURE_IDS"] = [
     "25",
     "26",
     "27",
@@ -13,9 +13,11 @@ IPHO2016_DATA["FIGURE_IDS"] = [
     "24",
     "18",
     "52",
+    "44",
+    "45",
 ]
 
-IPHO2016_DATA[
+IPHO2016_THEORY_DATA[
     "T-G0-final"
 ] = r"""
 <question id="q0" points="30">
@@ -73,7 +75,7 @@ IPHO2016_DATA[
 </question>
 """
 
-IPHO2016_DATA[
+IPHO2016_THEORY_DATA[
     "T-G0-v1"
 ] = r"""
 <question id="q0" points="30">
@@ -131,7 +133,7 @@ IPHO2016_DATA[
 </question>
 """
 
-IPHO2016_DATA[
+IPHO2016_THEORY_DATA[
     "T-G0-transl1"
 ] = r"""
 <question id="q0" points="30">
@@ -187,7 +189,7 @@ IPHO2016_DATA[
 </question>
 """
 
-IPHO2016_DATA[
+IPHO2016_THEORY_DATA[
     "T-G0-transl2"
 ] = r"""
 <question id="q0" points="30">
@@ -243,7 +245,7 @@ IPHO2016_DATA[
 </question>
 """
 
-IPHO2016_DATA[
+IPHO2016_THEORY_DATA[
     "T-G0-transl3"
 ] = r"""
 <question id="q0" points="30">
@@ -299,7 +301,7 @@ IPHO2016_DATA[
 </question>
 """
 
-IPHO2016_DATA[
+IPHO2016_THEORY_DATA[
     "T-Q1-final"
 ] = r"""
 <question id="q0" points="10"><title id="q0_ti1">Two Problems in Mechanics (10 points)</title>
@@ -342,7 +344,7 @@ in terms of &lt;span class="math-tex"&gt;\(b\)&lt;/span&gt;, &lt;span class="mat
 <paragraph id="q0_sq13_pa1">Alice pulls the mass a distance &lt;span class="math-tex"&gt;\(d\)&lt;/span&gt; downwards from the equilibrium point &lt;span class="math-tex"&gt;\(x=0\)&lt;/span&gt;, &lt;span class="math-tex"&gt;\(y=0\)&lt;/span&gt;, and then lets it go (see figure 5).</paragraph><list id="q0_sq13_ls1"><item id="q0_sq13_ls1_li1">Give an algebraic expression of &lt;span class="math-tex"&gt;\(x(t)\)&lt;/span&gt; and &lt;span class="math-tex"&gt;\(y(t)\)&lt;/span&gt;. You may assume that &lt;span class="math-tex"&gt;\(\omega_{ss}d\)&lt;/span&gt; is small, and neglect the Coriolis force for motion along the &lt;span class="math-tex"&gt;\(y\)&lt;/span&gt;-axis.</item><item id="q0_sq13_ls1_li2">Sketch the trajectory &lt;span class="math-tex"&gt;\((x(t),y(t))\)&lt;/span&gt;, marking all important features such as amplitude.</item></list></subquestion>
 <paragraph id="q0_pa22">Alice and Bob continue to argue.</paragraph></question>
 """
-IPHO2016_DATA[
+IPHO2016_THEORY_DATA[
     "T-A1-final"
 ] = r"""
 <question id="q0" points="10"><title id="q0_ti1">Two Problems in Mechanics (10 points)</title><part id="q0_pt1" points="3.5">Part A. The Hidden Disk (3.5 points)</part><subanswer id="q0_sa1" part_nr="A" points="0.8" question_nr="1">
@@ -506,7 +508,7 @@ IPHO2016_DATA[
 </paragraph><figure figid="53" id="q0_sa13_fi1" width="1." /></subanswer></question>
 """
 
-IPHO2016_DATA[
+IPHO2016_THEORY_DATA[
     "T-Q2-final"
 ] = r"""
 <question id="q0" points="10"><title id="q0_ti1">Nonlinear Dynamics in Electric Circuits (10 points)</title>
@@ -541,7 +543,7 @@ pulse propagation is called a &lt;em&gt;neuristor&lt;/em&gt; (from neuron and tr
 <paragraph id="q0_sq10_pa1">Find the expression and the numerical value of the critical time &lt;span class="math-tex"&gt;\(\tau_\text{crit}\)&lt;/span&gt; for which the scenario switches.</paragraph></subquestion><subquestion id="q0_sq11" part_nr="C" points="0.2" question_nr="3">
 <paragraph id="q0_sq11_pa1">Is the circuit with &lt;span class="math-tex"&gt;\(\tau= 1.00 \times 10^{-6} ~\text{s}\)&lt;/span&gt; a neuristor?</paragraph></subquestion></question>
 """
-IPHO2016_DATA[
+IPHO2016_THEORY_DATA[
     "T-A2-final"
 ] = r"""
 <question id="q0" points="10"><title id="q0_ti1">Nonlinear Dynamics in Electric Circuits (10 points)</title><part id="q0_pt1" points="3">Part A. Stationary states and instabilities (3 points)</part><subanswer id="q0_sa1" part_nr="A" points="0.4" question_nr="1">

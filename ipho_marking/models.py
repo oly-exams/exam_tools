@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -61,7 +61,7 @@ def generate_markings_from_exam(exam, user=None):
             num_created += created
             num_tot += 1
 
-            for participant in Participant.objects.all():
+            for participant in Participant.objects.filter(exam=exam):
                 for version_id, _ in list(Marking.MARKING_VERSIONS.items()):
                     _, created = Marking.objects.get_or_create(
                         marking_meta=mmeta, participant=participant, version=version_id
