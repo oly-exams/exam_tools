@@ -37,8 +37,8 @@ def set_up_basic_test_database(voting_room=None):
         tdc.import_markings_from_exam(theory)
         tdc.create_ipho2016_theory_marking()
 
-        experiemnt = tdc.create_ipho2016_experiment_exam()
-        tdc.put_students_in_teams(experiemnt)
+        experiment = tdc.create_ipho2016_experiment_exam()
+        tdc.put_students_in_teams(experiment)
 
 
 def main(votingroom=None):
