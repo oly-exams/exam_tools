@@ -237,7 +237,7 @@ def export(
     versions = request.GET.get("v", "O,D,F").split(",")
 
     csv_rows = []
-    title_row = ["Participant", "First_Name", "Last_Name", "Delegation", "Version"]
+    title_row = ["Student", "First_Name", "Last_Name", "Delegation", "Version"]
     mmeta = (
         MarkingMeta.objects.for_user(request.user)
         .all()
@@ -1680,10 +1680,9 @@ def progress(request):
     else:
         return HttpResponseForbidden("You do not have permission to access this page.")
 
-    participants = Participant.objects.all().values("id", "code")
-
     marking_statuses = []
     for exam in Exam.objects.for_user(request.user).all():
+        participants = Participant.objects.filter(exam=exam).values("id", "code")
         questions = Question.objects.for_user(request.user).filter(
             exam=exam, type=Question.ANSWER
         )
