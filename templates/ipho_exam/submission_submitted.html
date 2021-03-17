@@ -59,11 +59,11 @@ The exams will be printed shortly. Below you can see the final version that has 
               <div>
                   {% if ss.is_group %}
                   contains:
+                  <ul>
                   {% for s in ss.students.all %}
-                  <div>
-                      - {{ s.full_name }}
-                  </div>
+                  <li>{{ s.full_name }}</li>
                   {% endfor %}
+                  </ul>
                   {% endif %}
               </div>
           </td>

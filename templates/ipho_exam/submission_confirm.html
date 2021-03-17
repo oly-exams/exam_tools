@@ -51,11 +51,11 @@ The final documents are being prepared. You have to wait until all documents are
               <div>
                   {% if ss.is_group %}
                   contains:
+                  <ul>
                   {% for s in ss.students.all %}
-                  <div>
-                  -   {{ s.full_name }}
-                  </div>
+                  <li>{{ s.full_name }}</li>
                   {% endfor %}
+                  </ul>
                   {% endif %}
               </div>
           </td>

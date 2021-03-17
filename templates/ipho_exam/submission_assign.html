@@ -61,11 +61,11 @@
               <div>
                   {% if ss.is_group %}
                   contains:
+                  <ul>
                   {% for s in ss.students.all %}
-                  <div>
-                      - {{ s.full_name }}
-                  </div>
+                  <li>{{ s.full_name }}</li>
                   {% endfor %}
+                  </ul>
                   {% endif %}
               </div>
               <ul style="margin:0; padding:0;">
