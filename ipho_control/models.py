@@ -29,7 +29,7 @@ import ipho_control.phase_checks as phase_checks
 class ExamPhaseManager(models.Manager):
     def get_by_natural_key(self, name, exam):
         # when using loaddata, the exam parameter is a list containing one item: replace exam by this one item
-        if hasattr(exam, '__iter__') and len(exam) == 1:
+        if hasattr(exam, "__iter__") and len(exam) == 1:
             exam = exam[0]
         return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam))
 
