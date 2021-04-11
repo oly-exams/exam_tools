@@ -91,8 +91,10 @@ NO_ANSWER_SHEETS = False
 # Defines wheter translated answer sheets are possible
 ONLY_OFFICIAL_ANSWER_SHEETS = False
 
-# Defines whether a QR code should be printed on the student sheets
+# Defines whether the QR code should be *not* be printed on the student sheets
 # (Answer sheets and Working sheets)
+# ```CODE_WITHOUT_QR = True``` means: do not print QR codes on any sheets
+# ```CODE_WITHOUT_QR = False```means: print QR codes on Answer and Working sheets
 CODE_WITHOUT_QR = False
 
 # Defines whether delegations can accept official marks without moderation
