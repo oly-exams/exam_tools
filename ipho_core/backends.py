@@ -19,9 +19,7 @@ from ipho_core.models import User
 
 
 class TokenLoginBackend:
-    
     def authenticate(self, request, token=None):
-        print(token)
         if token is None:
             return None
         try:
@@ -29,7 +27,6 @@ class TokenLoginBackend:
             return user
         except User.DoesNotExist:
             return None
-
 
     def get_user(self, user_id):
         try:
