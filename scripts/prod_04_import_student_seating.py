@@ -57,7 +57,11 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Import CSV with users seating info")
-    parser.add_argument("file", type=argparse.FileType("rU"), help="Input CSV file")
+    parser.add_argument(
+        "file",
+        type=argparse.FileType("rU", encoding="utf-8-sig"),
+        help="Input CSV file",
+    )
     args = parser.parse_args()
 
     main(args.file)
