@@ -64,7 +64,7 @@ DEMO_MODE = False
 # Allow user sign-up for demo
 DEMO_SIGN_UP = False
 
-# Sets unoffical banner
+# Determines whether the unoffical banner on top of every web page displayed
 OFFICIALLY_SUPPORTED = False
 
 # record users logging in and out
@@ -653,12 +653,22 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "django.server",
         },
+        "exam_tools": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "default",
+        },
     },
     "loggers": {
         "django.server": {
             "handlers": ["django.server"],
             "level": "INFO",
             "propagate": False,
-        }
+        },
+        "exam_tools": {
+            "handlers": ["exam_tools"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
     },
 }
