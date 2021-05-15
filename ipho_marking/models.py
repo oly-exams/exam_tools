@@ -289,8 +289,8 @@ class MarkingManager(models.Manager):
         un_subm_action_q = reduce(operator.or_, un_subm_action_q_list, Q(pk__in=[]))
 
         if user.is_superuser:
-            # prevents superuser from accidentally editing something
-            return self.none()
+            # return self.none() # prevents superuser from accidentally editing something
+            return queryset  # allow superuser to edit marks, since after all, he or she is a superuser :-)
         if user.has_perm("ipho_core.is_marker"):
             # Organizers can only edit organizer Markings
             queryset = queryset.filter(version="O")
