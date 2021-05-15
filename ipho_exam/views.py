@@ -2274,11 +2274,16 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
         if "block_content" in form.cleaned_data:
             block.data = form.cleaned_data["block_content"]
             block.data_html = form.cleaned_data["block_content"]
+        current_id = block.attributes.get("id")
         block.attributes = {
             ff.cleaned_data["key"]: ff.cleaned_data["value"]
             for ff in attrs_form
-            if ff.cleaned_data
+            if ff.cleaned_data and not ff.cleaned_data["DELETE"]
         }
+        if (
+            "id" not in block.attributes
+        ):  # if "id" was deleted, restore it (since deletion of the "id" key is not allowed)
+            block.attributes["id"] = current_id
         node.text = qml.xml2string(qmln.make_xml())
         node.save()
 
