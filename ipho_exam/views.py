@@ -22,7 +22,6 @@ import os
 import re
 import csv
 import json
-import math
 import types
 import random
 import urllib
@@ -567,7 +566,7 @@ def add_pdf_node(request, question_id, lang_id):
 
 @permission_required("ipho_core.can_see_boardmeeting")
 def translation_export(request, question_id, lang_id, version_num=None):
-    """ Translation export, both for normal editor and admin editor """
+    """Translation export, both for normal editor and admin editor"""
     if version_num is None:
         trans = qquery.latest_version(question_id, lang_id, user=request.user)
     else:
@@ -585,7 +584,7 @@ def translation_export(request, question_id, lang_id, version_num=None):
 
 @permission_required("ipho_core.is_delegation")
 def translation_import(request, question_id, lang_id):
-    """ Translation import (only for delegations) """
+    """Translation import (only for delegations)"""
     delegation = Delegation.objects.get(members=request.user)
     language = get_object_or_404(Language, id=lang_id)
     question = get_object_or_404(
@@ -1852,7 +1851,7 @@ def admin_new_version(request, exam_id, question_id):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_import_version(request, question_id):
-    """ Translation import for admin """
+    """Translation import for admin"""
     language = get_object_or_404(Language, id=OFFICIAL_LANGUAGE_PK)
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
@@ -2966,7 +2965,7 @@ def submission_exam_confirm(
         .filter(exam=exam, student__delegation=delegation)
         .order_by("student", "position")
     )
-    all_finished = all([not hasattr(doc, "documenttask") for doc in documents])
+    all_finished = all(not hasattr(doc, "documenttask") for doc in documents)
 
     if request.POST and all_finished:  # pylint: disable=too-many-nested-blocks
         if "agree-submit" in request.POST:
@@ -2998,7 +2997,7 @@ def submission_exam_confirm(
                 total_countries = remaining_countries + submitted_countries
 
                 power = getattr(settings, "RANDOM_DRAW_SUB_POWER", 0.1)
-                threshold = math.pow(submitted_countries / total_countries, power)
+                threshold = (submitted_countries / float(total_countries)) ** power
                 draw_exists = RandomDrawLog.objects.filter(
                     delegation=delegation, tag=str(exam.pk)
                 ).exists()
