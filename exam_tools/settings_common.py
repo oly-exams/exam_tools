@@ -71,16 +71,17 @@ OFFICIALLY_SUPPORTED = False
 # (will produce these entries, via exam-tools logger info)
 # CHE User 172.20.0.1 successfully logged in at 12/08/2020 08:44:41
 # CHE User 172.20.0.1 successfully logged out at 12/08/2020 08:44:47
-RECORD_USER_LOGIN_LOGOUT_IPS = False
+RECORD_USER_LOGIN_LOGOUT_IPS = True
 
 # Show a summary of the exam control phases on the home page
-CONTROL_SHOW_PHASES_ON_HOME = False
+CONTROL_SHOW_PHASES_ON_HOME = True
 
 # Adds a watermark to PDFs shown to non-staff
-ADD_DELEGATION_WATERMARK = False
+ADD_DELEGATION_WATERMARK = True
 
-# Defines if there is a 'banner' page for the delegation prints
-ADD_DELEGATION_PRINT_BANNER = False
+# Defines if there is a 'banner' page showing the name of the delegation for the official prints
+# to facilitate sorting the printed pages
+ADD_DELEGATION_PRINT_BANNER = True
 
 # Defines whether a QR code should be printed on the cover sheets
 CODE_ON_COVER_SHEET = False
@@ -98,7 +99,7 @@ ONLY_OFFICIAL_ANSWER_SHEETS = False
 CODE_WITHOUT_QR = False
 
 # Defines whether delegations can accept official marks without moderation
-ACCEPT_MARKS_BEFORE_MODERATION = False
+ACCEPT_MARKS_BEFORE_MODERATION = True
 
 # Defines whether final marks need to be signed off by a delegation
 SIGN_OFF_FINAL_MARKS = False
@@ -107,7 +108,7 @@ SIGN_OFF_FINAL_MARKS = False
 VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
 
 # Activates autotranslate
-AUTO_TRANSLATE = True
+AUTO_TRANSLATE = False
 # The API-key for google translate
 GOOGLE_TRANSLATE_SERVICE_ACCOUNT_KEY = r"""{}"""
 # The API-key for deepl
