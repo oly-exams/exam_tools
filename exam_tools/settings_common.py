@@ -29,7 +29,7 @@ PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 
 TEMPLATE_PATH = os.path.join(PROJECT_PATH, "templates")
 STATIC_PATH = os.path.join(PROJECT_PATH, "static")
-DOCUMENT_PATH = os.path.join(PROJECT_PATH, "document-files")
+DOCUMENT_PATH = os.path.join(PROJECT_PATH, "media")
 
 EVENT_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, "events", "demo")
 
