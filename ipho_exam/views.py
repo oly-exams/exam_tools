@@ -150,7 +150,7 @@ OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
-INITIAL_QML = '<question id="q0"><title id="title0">Question title</title></question>'  # QML for newly created questions
+
 
 
 @login_required
@@ -1834,7 +1834,7 @@ def admin_new_version(request, exam_id, question_id):
             )
         else:
             node = VersionNode(
-                question=question, language=lang, version=0, text=INITIAL_QML
+                question=question, language=lang, version=0, text=qml.DEFAULT_QML_QUESTION_TEXT
             )
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
@@ -1878,7 +1878,7 @@ def admin_import_version(request, question_id):
                     question=question,
                     language=language,
                     version=0,
-                    text=INITIAL_QML,
+                    text=qml.DEFAULT_QML_QUESTION_TEXT,
                 )
         else:
             node = get_object_or_404(
