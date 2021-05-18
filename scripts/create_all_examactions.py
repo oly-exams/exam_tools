@@ -16,8 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
+sys.path.append(".")
 
 import django
 
