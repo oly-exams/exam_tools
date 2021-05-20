@@ -3,118 +3,133 @@
 {% load editor_extras %}
 
 {% block extra-head %}
-<link href="{% static "mathquill_alpha/mathquill.css" %}" rel="stylesheet">
-<link href="{% static "bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" %}" rel="stylesheet">
-<link href="{% static "noto/notosans.css" %}" rel="stylesheet">
+<link href="{% static " mathquill_alpha/mathquill.css" %}" rel="stylesheet">
+<link href="{% static " bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" %}" rel="stylesheet">
+<link href="{% static " noto/notosans.css" %}" rel="stylesheet">
 {% if orig_font %}
-<link href="{% static "noto/" %}{{ orig_font.css }}" rel="stylesheet">
+<link href="{% static " noto/" %}{{ orig_font.css }}" rel="stylesheet">
 {% endif %}
 {% if trans_font %}
-<link href="{% static "noto/" %}{{ trans_font.css }}" rel="stylesheet">
+<link href="{% static " noto/" %}{{ trans_font.css }}" rel="stylesheet">
 {% endif %}
 
 <style>
-span.dropdown {
+  span.dropdown {
     display: inline-block;
-}
-.title-dropdown .btn {
+  }
+
+  .title-dropdown .btn {
     padding: 0px 28px;
     padding: 0;
     font-size: 28px;
     line-height: normal;
     -webkit-border-radius: 8px;
-       -moz-border-radius: 8px;
-            border-radius: 8px;
-}
-.title-dropdown .dropdown-menu {
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+  }
+
+  .title-dropdown .dropdown-menu {
     font-size: 20px;
-}
+  }
 
-.translate-original {
+  .translate-original {
     font-family: "{{ orig_font.font }}";
-}
-.translate-foreign {
-    font-family: "{{ trans_font.font }}";
-}
+  }
 
-.translation-field-nested .row {
+  .translate-foreign {
+    font-family: "{{ trans_font.font }}";
+  }
+
+  .translation-field-nested .row {
     padding-left: 1em;
     padding-right: 1em;
-}
+  }
 
-.cke_textarea_inline {
-/*    border:1px #000 solid;*/
-}
+  .cke_textarea_inline {
+    /*    border:1px #000 solid;*/
+  }
 
-.mathquill-rendered-math .mathquill-editable {
-  min-width: 1cm;
-}
-.mathquill-editor {
-  width:6.5in;
-}
-.field-figure img {
+  .mathquill-rendered-math .mathquill-editable {
+    min-width: 1cm;
+  }
+
+  .mathquill-editor {
+    width: 6.5in;
+  }
+
+  .field-figure img {
     max-height: 80px;
-}
-#figure-modal .modal-body img {
+  }
+
+  #figure-modal .modal-body img {
     max-width: 100%;
-}
+  }
 
-.rtl {
+  .rtl {
     direction: rtl;
-}
+  }
 
-.math-tex {
+  .math-tex {
     position: relative;
-}
-.math-tex .btn {
+  }
+
+  .math-tex .btn {
     position: absolute;
     right: 1px;
     top: 0px;
     opacity: 0;
     z-index: 1000;
-}
-.math-tex:hover .btn {
-    opacity: 1;
-}
+  }
 
-.scrollable-menu {
+  .math-tex:hover .btn {
+    opacity: 1;
+  }
+
+  .scrollable-menu {
     height: auto;
     max-height: 300px;
     overflow-x: hidden;
-}
+  }
 
 
-ins {
+  ins {
     color: #00f;
     font-decoration: underline;
     -moz-text-decoration-style: wavy;
     -webkit-text-decoration-style: wavy;
     text-decoration-style: wavy;
-}
-del {
+  }
+
+  del {
     color: #f00;
     font-decoration: line-through;
-}
+  }
 
-body { margin-bottom: 70px; }
+  body {
+    margin-bottom: 70px;
+  }
 
-{# Styling that mimicks form-control (from bootstrap) for CKEditor divs replacing textareas. #}
-.cke_textarea_inline {
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-	padding: 6px 12px;
-}
-.cke_textarea_inline:focus {
-	border-color: #66afe9;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
-	outline: 0;
-}
+    {
+    # Styling that mimicks form-control (from bootstrap) for CKEditor divs replacing textareas. #
+  }
 
-.btn-shallow-disabled {
+  .cke_textarea_inline {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    padding: 6px 12px;
+  }
+
+  .cke_textarea_inline:focus {
+    border-color: #66afe9;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+    outline: 0;
+  }
+
+  .btn-shallow-disabled {
     opacity: .65;
     box-shadow: none;
-}
+  }
 </style>
 
 {% endblock %}
@@ -128,101 +143,104 @@ body { margin-bottom: 70px; }
 {% block pageheader %}
 <div class="dropdown pull-right">
   <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
-{% if exam %}
+    {% if exam %}
     {{ exam.name }}
-{% else %}
+    {% else %}
     Select exam
-{% endif %}
+    {% endif %}
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu">
-{% for ex in exam_list %}
-    <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:editor-exam' exam_id=ex.pk %}">{{ ex.name }}</a></li>
-{% endfor %}
+    {% for ex in exam_list %}
+    <li {% if exam==ex %} class="active" {% endif %}><a href="{% url 'exam:editor-exam' exam_id=ex.pk %}">{{ ex.name
+        }}</a></li>
+    {% endfor %}
   </ul>
 </div>
 <h1>Exam editor</h1>
 {% endblock %}
 
 {% block exam-content %}
-    <div class="modal fade" id="figure-modal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-          </div>
-              <div class="modal-body text-center"></div>
+<div class="modal fade" id="figure-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body text-center"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="language-modal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <form method="post" action="">
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
         </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="copy-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+          Copy all</h4>
+      </div>
+      <div class="modal-body">
+        <p class="alert alert-warning" id="copy-modal-alert-text">
+          By copying the original version you erase all your changes.<br />
+          This operation cannot be undone, <strong>are you sure?</strong>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-warning">Confirm</button>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="modal fade" id="language-modal" tabindex="-1">
-      <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            <h4 class="modal-title"></h4>
-          </div>
-          <form method="post" action="">
-              <div class="modal-body"></div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade" id="copy-modal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            <h4 class="modal-title"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
- Copy all</h4>
-          </div>
-              <div class="modal-body">
-                <p class="alert alert-warning" id="copy-modal-alert-text">
-                  By copying the original version you erase all your changes.<br />
-                  This operation cannot be undone, <strong>are you sure?</strong>
-                </p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-warning">Confirm</button>
-              </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="alerts-container">
-        {% if warning %}
-            <div class="alert alert-warning alert-dismissible" role="alert">
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <strong>Warning:</strong> {{ warning }}
-            </div>
-        {% endif %}
-    </div>
+<div id="alerts-container">
+  {% if warning %}
+  <div class="alert alert-warning alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+        aria-hidden="true">&times;</span></button>
+    <strong>Warning:</strong> {{ warning }}
+  </div>
+  {% endif %}
+</div>
 
 <div class="modal fade" id="ipho_exam-modal">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">Do you want to save changes before leaving?</h3>
       </div>
       <div class="modal-body">
         <p>Your changes will be lost if you don't save them.</p>
       </div>
       <div class="modal-footer">
-          <div class="pull-left">
-              <button type="button" class="btn btn-default" data-action="discard">Discard changes</button>
-          </div>
-          <div class="pull-right">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" data-action="save">Save changes</button>
-          </div>
+        <div class="pull-left">
+          <button type="button" class="btn btn-default" data-action="discard">Discard changes</button>
+        </div>
+        <div class="pull-right">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" data-action="save">Save changes</button>
+        </div>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -235,9 +253,13 @@ body { margin-bottom: 70px; }
         <h3 class="modal-title"> Lost sync with the server!</h3>
       </div>
       <div class="modal-body panel-body">
-        <p>The application lost the synchronization with the server. This is very likely because some other user edited the same translation.</p>
-        <p>In order to avoid working on the same translation, you are advised to define a second language, e.g. Swiss German (A) and Swiss German (B). Thanks to the copy buttons you will later be able to merge the two partial works.</p>
-        <p class="alert alert-danger"><i class="fa fa-exclamation-circle fa-2x pull-left"></i> Your changes could not be saved, please <strong>reload</strong> the page to continue editing this translation.</p>
+        <p>The application lost the synchronization with the server. This is very likely because some other user edited
+          the same translation.</p>
+        <p>In order to avoid working on the same translation, you are advised to define a second language, e.g. Swiss
+          German (A) and Swiss German (B). Thanks to the copy buttons you will later be able to merge the two partial
+          works.</p>
+        <p class="alert alert-danger"><i class="fa fa-exclamation-circle fa-2x pull-left"></i> Your changes could not be
+          saved, please <strong>reload</strong> the page to continue editing this translation.</p>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -250,13 +272,16 @@ body { margin-bottom: 70px; }
         <h3 class="modal-title"> Autosaving not working!</h3>
       </div>
       <div class="modal-body panel-body">
-        <p>The application's autosaving feature is activated but did not work for the last two minutes. An error probably occurred in the connection with the server.</p>
-        <p class="alert alert-danger"><i class="fa fa-exclamation-circle fa-2x pull-left"></i> Your changes could not be autosaved, you probably should <strong>save</strong> manually by pressing the 'Save' button or if unsuccessful reload the page to restore the connection with the server and continue editing this translation.</p>
+        <p>The application's autosaving feature is activated but did not work for the last two minutes. An error
+          probably occurred in the connection with the server.</p>
+        <p class="alert alert-danger"><i class="fa fa-exclamation-circle fa-2x pull-left"></i> Your changes could not be
+          autosaved, you probably should <strong>save</strong> manually by pressing the 'Save' button or if unsuccessful
+          reload the page to restore the connection with the server and continue editing this translation.</p>
       </div>
       <div class="modal-footer">
-          <div class="pull-right">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
+        <div class="pull-right">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -280,156 +305,173 @@ body { margin-bottom: 70px; }
 </div> -->
 
 <ul class="nav nav-tabs">
-    {% for q in exam.question_set.all %}
-        {% if q.has_published_version %}
-            <li {% if question == q %} class="active" {% endif %}>
-                {% if orig_lang and trans_lang %}
-                    <a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk lang_id=trans_lang.pk %}">{{ q.name }}</a>
-                {% elif orig_lang %}
-                    <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk %}">{{ q.name }}</a>
-                {% else %}
-                    <a href="{% url 'exam:editor-question' exam_id=exam.pk question_id=q.pk %}">{{ q.name }}</a>
-                {% endif %}
-            </li>
-        {% endif %}
-    {% endfor %}
+  {% for q in exam.question_set.all %}
+  {% if q.has_published_version %}
+  <li {% if question==q %} class="active" {% endif %}>
+    {% if orig_lang and trans_lang %}
+    <a
+      href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk lang_id=trans_lang.pk %}">{{
+      q.name }}</a>
+    {% elif orig_lang %}
+    <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk %}">{{ q.name }}</a>
+    {% else %}
+    <a href="{% url 'exam:editor-question' exam_id=exam.pk question_id=q.pk %}">{{ q.name }}</a>
+    {% endif %}
+  </li>
+  {% endif %}
+  {% endfor %}
 </ul>
 
 {% if question %}
-    <form method="post" action="{{ request.path }}" charset="utf8" id="question-form">
-        {% csrf_token %}
-        <input type="hidden" name="checksum" value="{{ checksum }}" />
-        <h3>{{ question.name }}</h3>
+<form method="post" action="{{ request.path }}" charset="utf8" id="question-form">
+  {% csrf_token %}
+  <input type="hidden" name="checksum" value="{{ checksum }}" />
+  <h3>{{ question.name }}</h3>
 
-        <div class="row">
-            <div class="col-xs-5">
-                <h4>Original:
-                <span class="dropdown" id="dropdown-select-source">
-                  <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    {{ orig_lang.name }}
-                    {% if orig_lang.versioned %}<span class="badge">v{{ orig_lang.version }}</span><span class="label label-default">{{ orig_lang.tag|default:'' }}</span>{% endif %}
-                    <span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu">
-                      {% for lang_group in question_langs|dictsort:"order" %}
-                          {% for l in lang_group.list %}
-                              <li {% if orig_lang == l %} class="active" {% endif %}>
-                                  {% if trans_lang %}
-                                  <a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=question.pk orig_id=l.pk lang_id=trans_lang.pk %}">
-                                  {% else %}
-                                  <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=question.pk orig_id=l.pk %}">
-                                  {% endif %}
-                                      {{ l.name }} {% if lang_group.name != 'own' %}({{ l.delegation.country }}){% endif %}
-                                      {% if l.versioned %}<span class="badge">v{{ l.version }}</span><span class="label label-default">{{ l.tag|default:'' }}</span>{% endif %}
-                                  </a></li>
-                          {% endfor %}
-                          {% if not forloop.last %}<li class="divider"></li>{% endif %}
-                     {% endfor %}
-                  </ul>
-                </span>
+  <div class="row">
+    <div class="col-xs-5">
+      <h4>Original:
+        <span class="dropdown" id="dropdown-select-source">
+          <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            {{ orig_lang.name }}
+            {% if orig_lang.versioned %}<span class="badge">v{{ orig_lang.version }}</span><span
+              class="label label-default">{{ orig_lang.tag|default:'' }}</span>{% endif %}
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            {% for lang_group in question_langs|dictsort:"order" %}
+            {% for l in lang_group.list %}
+            <li {% if orig_lang==l %} class="active" {% endif %}>
+              {% if trans_lang %}
+              <a
+                href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=question.pk orig_id=l.pk lang_id=trans_lang.pk %}">
+                {% else %}
+                <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=question.pk orig_id=l.pk %}">
+                  {% endif %}
+                  {{ l.name }} {% if lang_group.name != 'own' %}({{ l.delegation.country }}){% endif %}
+                  {% if l.versioned %}<span class="badge">v{{ l.version }}</span><span class="label label-default">{{
+                    l.tag|default:'' }}</span>{% endif %}
+                </a>
+            </li>
+            {% endfor %}
+            {% if not forloop.last %}<li class="divider"></li>{% endif %}
+            {% endfor %}
+          </ul>
+        </span>
 
-                {% if orig_lang.versioned %}
-                    <small>
-                    Compare to:
-                    <span class="dropdown" id="dropdown-compare-source">
-                      <button class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown">
-                        {% if orig_diff %}v{{ orig_diff }} {{ orig_diff_tag }}{% endif %}
-                        <span class="caret"></span>
-                      </button>
-                      <ul class="dropdown-menu">
-                          {% for v,t in question_versions %}
-                              <li {% if orig_diff == v %} class="active" {% endif %}>
-                                  {% if trans_lang %}
-                                  <a href="{% url 'exam:editor-origdiff-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v lang_id=trans_lang.pk %}">
-                                  {% else %}
-                                  <a href="{% url 'exam:editor-origdiff' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v %}">
-                                  {% endif %}
-                                    v{{ v }} {{ t|default:'' }}
-                                  </a>
-                              </li>
-                          {% endfor %}
-                      </ul>
-                    </span>
-                    </small>
-                {% endif %}
-                </h4>
-            </div>
-
-            <div class="col-sm-2 text-center">
-            </div>
-
-            <div class="col-xs-5">
-                <h4>Translate to:
-                <span class="dropdown" id="dropdown-select-target">
-                  <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    {% if trans_lang %}
-                        {{ trans_lang.name }}
-                    {% else %}
-                        Select language
-                    {% endif %}
-                    <span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu">
-                      {% for l in own_lang %}
-                          <li {% if trans_lang == l %} class="active" {% endif %}><a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk lang_id=l.pk %}">{{ l.name }}</a></li>
-                      {% endfor %}
-                  </ul>
-                </span>
+        {% if orig_lang.versioned %}
+        <small>
+          Compare to:
+          <span class="dropdown" id="dropdown-compare-source">
+            <button class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown">
+              {% if orig_diff %}v{{ orig_diff }} {{ orig_diff_tag }}{% endif %}
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              {% for v,t in question_versions %}
+              <li {% if orig_diff==v %} class="active" {% endif %}>
                 {% if trans_lang %}
-                <button class="btn btn-default" id="language-settings" title="Language settings" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-edit' lang_id=trans_lang.pk %}"><i class="fa fa-cog"></i></button>
-                {% endif %}
-                <button type="button" id="copy-all" class="btn btn-sm btn-default translate-copy-all-button" title="Copy all blocks from the original version" data-toggle="modal" data-target="#copy-modal">
-                  <i class="fa fa-clipboard" aria-hidden="true"></i>
-                  <span class="glyphicon glyphicon-arrow-right"></span>
-                  <i class="fa fa-clipboard" aria-hidden="true"></i>
-                </button>
-
-                </h4>
-            </div>
-        </div>
-
-
-        <div class="translation-field-container">
-            {% include 'ipho_exam/editor_field.html' with fields_set=content_set %}
-        </div>
-
-        {% if form %}
-        <div class="navbar navbar-default navbar-fixed-bottom">
-          <div class="container">
-            <div class="navbar-left">
-                <label class="navbar-text" style="font-weight:normal;">
-                    <input type="checkbox" id="auto-save-checkbox" checked="checked" data-size="mini">
-                    Auto-save.
-                </label>
-              <span class="navbar-text" id="save-status"></span>
-              {% if auto_translate %}
-                  <label class="navbar-text" style="font-weight:normal;">
-                      <input type="checkbox" id="auto-translate-checkbox" data-size="mini">
-                      Auto-translate
-                  </label>
-                  <span class="dropdown" id="auto-translate-dropdown">
-                    <button class="btn navbar-btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                      <span class="text">Auto-translate to: </span><span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu scrollable-menu">
-                      {% for lan in auto_translate_languages %}
-                      <li><a href='#' data-value="{{ lan.language }}">{{ lan.name }}</a></li>
-                      {% endfor %}
-                    </ul>
-                  </span>
-              {% endif %}
-            </div>
-
-            <div class="navbar-right">
-                <a id="pdf-button" class="btn btn-success navbar-btn"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
-                <a id="pdf-button-hidden" style="display: none;" class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
-                <button type="submit" id="navbar-safe-button" class="btn btn-primary navbar-btn btn-shallow-disabled" data-toggle="tooltip" data-placement="top" title="ctrl + S"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
-            </div>
-          </div>
-        </div>
-        <div style="height:3000px"/>
+                <a
+                  href="{% url 'exam:editor-origdiff-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v lang_id=trans_lang.pk %}">
+                  {% else %}
+                  <a
+                    href="{% url 'exam:editor-origdiff' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk orig_diff=v %}">
+                    {% endif %}
+                    v{{ v }} {{ t|default:'' }}
+                  </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </span>
+        </small>
         {% endif %}
-    </form>
+      </h4>
+    </div>
+
+    <div class="col-sm-2 text-center">
+    </div>
+
+    <div class="col-xs-5">
+      <h4>Translate to:
+        <span class="dropdown" id="dropdown-select-target">
+          <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            {% if trans_lang %}
+            {{ trans_lang.name }}
+            {% else %}
+            Select language
+            {% endif %}
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            {% for l in own_lang %}
+            <li {% if trans_lang==l %} class="active" {% endif %}><a
+                href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk lang_id=l.pk %}">{{
+                l.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </span>
+        {% if trans_lang %}
+        <button class="btn btn-default" id="language-settings" title="Language settings" data-toggle="modal"
+          data-target="#language-modal" data-remote="false"
+          href="{% url 'exam:language-edit' lang_id=trans_lang.pk %}"><i class="fa fa-cog"></i></button>
+        {% endif %}
+        <button type="button" id="copy-all" class="btn btn-sm btn-default translate-copy-all-button"
+          title="Copy all blocks from the original version" data-toggle="modal" data-target="#copy-modal">
+          <i class="fa fa-clipboard" aria-hidden="true"></i>
+          <span class="glyphicon glyphicon-arrow-right"></span>
+          <i class="fa fa-clipboard" aria-hidden="true"></i>
+        </button>
+
+      </h4>
+    </div>
+  </div>
+
+
+  <div class="translation-field-container">
+    {% include 'ipho_exam/editor_field.html' with fields_set=content_set %}
+  </div>
+
+  {% if form %}
+  <div class="navbar navbar-default navbar-fixed-bottom">
+    <div class="container">
+      <div class="navbar-left">
+        <label class="navbar-text" style="font-weight:normal;">
+          <input type="checkbox" id="auto-save-checkbox" checked="checked" data-size="mini">
+          Auto-save.
+        </label>
+        <span class="navbar-text" id="save-status"></span>
+        {% if auto_translate %}
+        <label class="navbar-text" style="font-weight:normal;">
+          <input type="checkbox" id="auto-translate-checkbox" data-size="mini">
+          Auto-translate
+        </label>
+        <span class="dropdown" id="auto-translate-dropdown">
+          <button class="btn navbar-btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            <span class="text">Auto-translate to: </span><span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu scrollable-menu">
+            {% for lan in auto_translate_languages %}
+            <li><a href='#' data-value="{{ lan.language }}">{{ lan.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </span>
+        {% endif %}
+      </div>
+
+      <div class="navbar-right">
+        <a id="pdf-button" class="btn btn-success navbar-btn"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
+        <a id="pdf-button-hidden" style="display: none;" class="btn btn-success navbar-btn" target="_blank"
+          href="{% url 'exam:pdf' question_id=question.pk lang_id=trans_lang.pk %}"><i
+            class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
+        <button type="submit" id="navbar-safe-button" class="btn btn-primary navbar-btn btn-shallow-disabled"
+          data-toggle="tooltip" data-placement="top" title="ctrl + S"><span
+            class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+      </div>
+    </div>
+  </div>
+  <div style="height:3000px" />
+  {% endif %}
+</form>
 {% endif %}
 
 {% endblock %}
@@ -438,577 +480,577 @@ body { margin-bottom: 70px; }
 
 {% block extra-script %}
 
-    <script>document.getElementById('question-form').reset()</script>
-    <script type="text/x-mathjax-config">
+<script>document.getElementById('question-form').reset()</script>
+<script type="text/x-mathjax-config">
         MathJax.Hub.Config({
             showMathMenu: false,
         });
     </script>
-    <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script src="{% static "ckeditor/ckeditor.js" %}"></script>
-    <script src="{% static "ckeditor/adapters/jquery.js" %}"></script>
-    <script src="{% static "mathquill_alpha/mathquill.min.js" %}"></script>
-    <script src="{% static "jquery-dirtyforms/jquery.dirtyforms.min.js" %}"></script>
-    <script src="{% static "jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
-    <script src="{% static "moment.min.js" %}"></script>
-    <script src="{% static "bootstrap-switch/js/bootstrap-switch.min.js" %}"></script>
-    <script src="{% static "clipboard.min.js" %}"></script>
-    {# On clicking the PDF button, first save if necessary, then request the PDF #}
-    <script>$('#pdf-button').click(function() {
-          $form = $('#question-form');
-          if ($form.dirtyForms('isDirty')) {
-              $form.submit();
-              // TODO: this should be done with a promise/callback
-              setTimeout(function() { document.getElementById('pdf-button-hidden').click(); }, 500);
-          } else {
-            document.getElementById('pdf-button-hidden').click();
+<script src="{% static " MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="{% static " ckeditor/ckeditor.js" %}"></script>
+<script src="{% static " ckeditor/adapters/jquery.js" %}"></script>
+<script src="{% static " mathquill_alpha/mathquill.min.js" %}"></script>
+<script src="{% static " jquery-dirtyforms/jquery.dirtyforms.min.js" %}"></script>
+<script src="{% static " jquery-dirtyforms/plugins/jquery.dirtyforms.dialogs.bootstrap.min.js" %}"></script>
+<script src="{% static " moment.min.js" %}"></script>
+<script src="{% static " bootstrap-switch/js/bootstrap-switch.min.js" %}"></script>
+<script src="{% static " clipboard.min.js" %}"></script>
+{# On clicking the PDF button, first save if necessary, then request the PDF #}
+<script>$('#pdf-button').click(function () {
+    $form = $('#question-form');
+    if ($form.dirtyForms('isDirty')) {
+      $form.submit();
+      // TODO: this should be done with a promise/callback
+      setTimeout(function () { document.getElementById('pdf-button-hidden').click(); }, 500);
+    } else {
+      document.getElementById('pdf-button-hidden').click();
+    }
+  });
+</script>
+<script>
+  CKEDITOR.plugins.addExternal('mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js');
+  CKEDITOR.plugins.addExternal('sourcedialog', '{% static "ckeditor_plugins/sourcedialog/" %}', 'plugin.js');
+
+  CKEDITOR.config.toolbar = [
+    ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat', '-', 'Mathjax-mathquill', 'Sourcedialog', '-', 'BulletedList', 'NumberedList', '-', 'BidiLtr', 'BidiRtl', 'Styles']
+  ];
+  CKEDITOR.config.forcePasteAsPlainText = true;
+  CKEDITOR.config.resize_enabled = false;
+  CKEDITOR.config.extraPlugins = 'autogrow,widget,bidi,stylescombo,mathjax-mathquill,sourcedialog';
+  CKEDITOR.config.removePlugins = 'mathjax,elementspath,contextmenu,tabletools,liststyle';
+  // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
+  CKEDITOR.config.width = '100%';
+  CKEDITOR.config.autoGrow_onStartup = true;
+  CKEDITOR.config.autoGrow_minHeight = 0;
+  CKEDITOR.config.autoGrow_bottomSpace = 10;
+  CKEDITOR.config.entities = false;
+  CKEDITOR.config.htmlEncodeOutput = false;
+  CKEDITOR.config.basicEntities = false;
+  CKEDITOR.config.entities_latin = false;
+  CKEDITOR.config.entities_greek = false;
+  CKEDITOR.config.disableNativeSpellChecker = false;
+  CKEDITOR.config.autoParagraph = false;
+  CKEDITOR.config.disableAutoInline = true;
+  CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
+  CKEDITOR.config.MathQuillLib = '{% static "mathquill_alpha/mathquill.min.js" %}';
+  CKEDITOR.config.MathQuillCss = '{% static "mathquill_alpha/mathquill.css" %}';
+  CKEDITOR.config.MathQuilljQuery = '{% static "jquery/js/jquery-1.11.2.min.js" %}';
+  {% if trans_lang.direction == 'rtl' %}
+  CKEDITOR.config.contentsLangDirection = 'rtl';
+  {% endif %}
+  CKEDITOR.config.contentsCss = [CKEDITOR.getUrl('contents.css'), '{% static "noto/notosans.css" %}', '{% static "noto/" %}{{ trans_font.css }}'];
+  CKEDITOR.addCss("body{font-family:{{ trans_font.font }}, Noto Sans;}");
+  CKEDITOR.stylesSet.add('my_styles', [
+    { name: 'Language: LTR', element: 'span', attributes: { 'class': 'lang-ltr' } },
+    { name: 'Language: RTL', element: 'span', attributes: { 'class': 'lang-rtl' } },
+  ]);
+  CKEDITOR.config.stylesSet = 'my_styles';
+
+  // manually set text of Sourcedialog button to empty to make it smaller
+  CKEDITOR.on('instanceReady', function () {
+    $(".cke_button__sourcedialog_label").text("");
+  });
+
+  all_editors = new Array();
+
+  function content2math() {
+    // convert equations for mathquill
+    // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
+    // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
+
+    // convert equations for mathjax
+    // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
+    var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
+    $(this).html(newtext);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, this]);
+  }
+
+  $(function () {
+    // Get csrftoken
+    function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = jQuery.trim(cookies[i]);
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) == (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
           }
-        });
-    </script>
-    <script>
-        CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
-        CKEDITOR.plugins.addExternal( 'sourcedialog', '{% static "ckeditor_plugins/sourcedialog/" %}', 'plugin.js' );
-
-        CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'RemoveFormat', '-', 'Mathjax-mathquill', 'Sourcedialog', '-', 'BulletedList', 'NumberedList', '-', 'BidiLtr', 'BidiRtl', 'Styles']
-            ];
-        CKEDITOR.config.forcePasteAsPlainText = true;
-        CKEDITOR.config.resize_enabled = false;
-        CKEDITOR.config.extraPlugins = 'autogrow,widget,bidi,stylescombo,mathjax-mathquill,sourcedialog';
-        CKEDITOR.config.removePlugins = 'mathjax,elementspath,contextmenu,tabletools,liststyle';
-        // CKEDITOR.config.extraAllowedContent = 'span(math-tex)';
-        CKEDITOR.config.width = '100%';
-        CKEDITOR.config.autoGrow_onStartup = true;
-        CKEDITOR.config.autoGrow_minHeight = 0;
-        CKEDITOR.config.autoGrow_bottomSpace = 10;
-        CKEDITOR.config.entities = false;
-        CKEDITOR.config.htmlEncodeOutput = false;
-        CKEDITOR.config.basicEntities = false;
-        CKEDITOR.config.entities_latin = false;
-        CKEDITOR.config.entities_greek = false;
-        CKEDITOR.config.disableNativeSpellChecker = false;
-        CKEDITOR.config.autoParagraph = false;
-        CKEDITOR.config.disableAutoInline = true;
-        CKEDITOR.config.mathJaxLib = '{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML';
-        CKEDITOR.config.MathQuillLib = '{% static "mathquill_alpha/mathquill.min.js" %}';
-        CKEDITOR.config.MathQuillCss = '{% static "mathquill_alpha/mathquill.css" %}';
-        CKEDITOR.config.MathQuilljQuery = '{% static "jquery/js/jquery-1.11.2.min.js" %}';
-        {% if trans_lang.direction == 'rtl' %}
-        CKEDITOR.config.contentsLangDirection = 'rtl';
-        {% endif %}
-        CKEDITOR.config.contentsCss = [ CKEDITOR.getUrl( 'contents.css' ), '{% static "noto/notosans.css" %}', '{% static "noto/" %}{{ trans_font.css }}' ];
-        CKEDITOR.addCss("body{font-family:{{ trans_font.font }}, Noto Sans;}");
-        CKEDITOR.stylesSet.add( 'my_styles', [
-            { name: 'Language: LTR', element: 'span', attributes: { 'class': 'lang-ltr' } },
-            { name: 'Language: RTL', element: 'span', attributes: { 'class': 'lang-rtl' } },
-        ] );
-        CKEDITOR.config.stylesSet = 'my_styles';
-
-        // manually set text of Sourcedialog button to empty to make it smaller
-        CKEDITOR.on('instanceReady', function() {
-            $(".cke_button__sourcedialog_label").text("");
-        });
-
-        all_editors = new Array();
-
-        function content2math() {
-            // convert equations for mathquill
-            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
-            // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
-
-            // convert equations for mathjax
-            // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
-            var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
-            $(this).html(newtext);
-            MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
         }
+      }
+      return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
 
-        $(function(){
-            // Get csrftoken
-            function getCookie(name) {
-                var cookieValue = null;
-                if (document.cookie && document.cookie != '') {
-                    var cookies = document.cookie.split(';');
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = jQuery.trim(cookies[i]);
-                        // Does this cookie string begin with the name we want?
-                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-            var csrftoken = getCookie('csrftoken');
+    function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+      beforeSend: function (xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+      }
+    });
 
-            function csrfSafeMethod(method) {
-                // these HTTP methods do not require CSRF protection
-                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-            }
-            $.ajaxSetup({
-                beforeSend: function(xhr, settings) {
-                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    }
-                }
-            });
-
-            $('[data-toggle="tooltip"]').each(function () {
-                if (navigator.platform.match("Mac")) {
-                    $(this).attr('title', $(this).attr('title').replace('ctrl', '⌘'));
-                }
-            }).tooltip();
+    $('[data-toggle="tooltip"]').each(function () {
+      if (navigator.platform.match("Mac")) {
+        $(this).attr('title', $(this).attr('title').replace('ctrl', '⌘'));
+      }
+    }).tooltip();
 
 
-            function fallbackMessage(action) {
-                var actionMsg = '';
-                var actionKey = (action === 'cut' ? 'X' : 'C');
-                if (/iPhone|iPad/i.test(navigator.userAgent)) {
-                    actionMsg = 'No support :(';
-                } else if (/Mac/i.test(navigator.userAgent)) {
-                    actionMsg = 'Press ⌘-' + actionKey + ' to ' + action;
-                } else {
-                    actionMsg = 'Press Ctrl-' + actionKey + ' to ' + action;
-                }
-                return actionMsg;
-            }
-            function setTooltip(btn, message) {
-              $(btn)
-                .attr('data-original-title', message)
-                .tooltip('show');
-            }
+    function fallbackMessage(action) {
+      var actionMsg = '';
+      var actionKey = (action === 'cut' ? 'X' : 'C');
+      if (/iPhone|iPad/i.test(navigator.userAgent)) {
+        actionMsg = 'No support :(';
+      } else if (/Mac/i.test(navigator.userAgent)) {
+        actionMsg = 'Press ⌘-' + actionKey + ' to ' + action;
+      } else {
+        actionMsg = 'Press Ctrl-' + actionKey + ' to ' + action;
+      }
+      return actionMsg;
+    }
+    function setTooltip(btn, message) {
+      $(btn)
+        .attr('data-original-title', message)
+        .tooltip('show');
+    }
 
-            function hideTooltip(btn) {
-              setTimeout(function() {
-                $(btn).tooltip('hide');
-              }, 1000);
-            }
-            function hideLongTooltip(btn) {
-              setTimeout(function() {
-                $(btn).tooltip('hide');
-              }, 2000);
-            }
+    function hideTooltip(btn) {
+      setTimeout(function () {
+        $(btn).tooltip('hide');
+      }, 1000);
+    }
+    function hideLongTooltip(btn) {
+      setTimeout(function () {
+        $(btn).tooltip('hide');
+      }, 2000);
+    }
 
-            $(document).ready(function () {
-              $('.translate-original .math-tex').each(function () {
-                  console.log('before button');
-                  var content = $(this).html();
-                  $(this).prepend('<button class="btn btn-xs btn-default small" data-clipboard-snippet><i class="fa fa-clipboard" aria-hidden="true"></i></button>').children('[data-clipboard-snippet]').attr('data-clipboard-text', '<span class="math-tex">'+content+'</span>').tooltip({
-                      trigger: 'click',
-                      placement: 'bottom'
-                  });
-              });
-            });
-
-            var clipboard = new Clipboard('.btn[data-clipboard-snippet]', {
-                text: function(trigger) {
-                    return trigger.getAttribute('data-clipboard-text');
-                }
-            });
-
-            clipboard.on('success', function(e) {
-              setTooltip(e.trigger, 'Copied!');
-              hideTooltip(e.trigger);
-            });
-            clipboard.on('error', function(e) {
-              setTooltip(e.trigger, fallbackMessage(e.action));
-              hideLongTooltip(e.trigger);
-            });
-
-
-            $(".translate-original").each(content2math);
-            $(".translate-foreign").each(content2math);
-
-            // $('body').on('click', ':not(.math-tex *)', function (evt) {
-            //   if (evt.target != this) return;
-            //   $('.math-selected').removeClass('math-selected');
-            // });
-            // $("body").on('click', '.math-tex', function (evt) {
-            //   $('.math-selected').removeClass('math-selected');
-            //   $(this).addClass('math-selected');
-            // });
-            {% if auto_translate %}
-            function auto_translate(text, to_lang, field_id){
-              $.ajax({
-                  url: "{% url 'exam:auto-translate' %}",
-                  type: 'POST',
-                  data: {'from_lang': '{{ orig_lang.pk }}', 'to_lang':to_lang ,'text': text},
-              }).done(function (data) {
-                if (field_id in all_editors)
-                    all_editors[field_id].setData(String(data['text']));
-                else
-                    $('#'+field_id+'-translate input[type="text"]').val(data['text']);
-              });
-            }
-            {% endif %}
-            $(".translate-copy-button").click(function( event ) {
-                {% if auto_translate %}
-                if($('#auto-translate-checkbox').bootstrapSwitch('state')){
-                {% else %}
-                if(false){
-                {% endif %}
-                  if( !$(this).prop('disabled') ){
-                    orig = '#' + $(this).attr('id').replace('-copy', '-original');
-                    text = $(orig).data('original-text');
-                    field_id = $(this).attr('id').replace('-copy', '');
-                    to_lang = $("#auto-translate-dropdown .btn:first-child .text").data('value');
-                    auto_translate(text, to_lang, field_id);
-                  }
-
-                }
-                else{
-                  field_id =  $(this).attr('id').replace('-copy', '');
-                  orig = '#' + $(this).attr('id').replace('-copy', '-original');
-                  if (field_id in all_editors)
-                      all_editors[field_id].setData(String($(orig).data('original-text')));
-                  else
-                      $('#'+field_id+'-translate input[type="text"]').val($(orig).data('original-text'));
-                }
-                event.preventDefault();
-            });
-
-            $('#copy-modal .btn-warning').on('click', function (evt){
-              evt.preventDefault();
-              $(".translate-copy-button").click();
-              $('#copy-modal').modal('hide');
-            });
-
-            $('.translate-foreign textarea').each(function() {
-                var myid = $(this).parent().attr('id').replace('-translate', '');
-                all_editors[myid] = CKEDITOR.inline(this);
-                var textarea = $(this);
-                all_editors[myid].on('change', function() { this.updateElement(); textarea.change(); });
-                all_editors[myid].on('paste', function( evt ) {
-                  var htmlData = $.parseHTML(evt.data.dataValue)[0].textContent;
-                  if (htmlData.startsWith('<span class="math-tex"')) {
-                    // Parse the HTML string to pseudo-DOM structure.
-                    var fragment = CKEDITOR.htmlParser.fragment.fromHtml( htmlData ),
-                      writer = new CKEDITOR.htmlParser.basicWriter();
-                    fragment.writeHtml( writer );
-                    evt.data.dataValue = writer.getHtml();
-                  }
-                } );
-            });
-
-            // Figure preview
-            $('#figure-modal').on('show.bs.modal', function (event) {
-                var modal = $(this);
-                var button = $(event.relatedTarget); // Button that triggered the modal
-
-                var href = button.attr('href');
-                if (typeof href !== typeof undefined && href !== false) {
-                  modal.find('.modal-body').html('<img src="'+href+'" />');
-                } else {
-                  var img_url = button.data('base-url');
-                  var figparams = button.data('figparams');
-                  if (Object.keys(figparams).length > 0) {
-                    fig_query = new Object;
-                    for (k in figparams) {
-                      fig_query[k] = $('#id_'+figparams[k]).val();
-                    }
-                    img_url += '?' + $.param(fig_query);
-                  }
-                  modal.find('.modal-body').html('<img src="'+img_url+'" />');
-                }
-            });
-
-            /// Language modal
-
-            var ipho_languages = null;
-            $.ajax({
-                url: '{% static 'languages.json' %}',
-                type: 'GET',
-            }).done(function (data) {
-                ipho_languages = data;
-            });
-            $(document).on('change', 'select[name="style"]', function(evt) {
-                if (ipho_languages !== null) {
-                    var style = $('select[name="style"]').val();
-                    if (style in ipho_languages) {
-                        var polyglossia = ipho_languages[style]['polyglossia'];
-                        if (polyglossia == null) polyglossia = 'custom';
-                        var polyglossia_options = ipho_languages[style]['polyglossia_options'];
-                        if (polyglossia_options == null) polyglossia_options = '';
-                        $('select[name="direction"]').val(ipho_languages[style]['direction']);
-                        $('select[name="polyglossia"]').val(polyglossia);
-                        $('input[name="polyglossia_options"]').val(polyglossia_options);
-                        $('select[name="font"]').val(ipho_languages[style]['fonts'][0]);
-                    }
-                }
-            });
-
-            // Language modal
-            $(document).on('submit', '#language-modal form', function(evt) {
-                var form = evt.target;
-                var $form = $(form);
-                evt.preventDefault();
-                $.ajax({
-                    url: form.action,
-                    type: form.method,
-                    data: $form.serialize(),
-                    success: function(data) {
-                        if (!data['success']) {
-                            $('#language-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
-                            return;
-                        }
-
-                        $('#language-modal').modal('hide');
-                        $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
-                    }
-                });
-            });
-
-            $('#language-modal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget); // Button that triggered the modal
-                var href = button.attr('href');
-                var modal = $(this);
-
-                modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
-                modal.find('.modal-body').html('');
-
-                $.ajax({
-                    url: href,
-                    dataType: 'json',
-                    success: function(data) {
-                        modal.find('.modal-title').text(data['title']);
-                        modal.find('form').attr('action', href);
-                        modal.find('.modal-body').html(data['form']);
-                        modal.find('button[type="submit"]').text(data['submit']);
-                        modal.find("[data-toggle=popover]").popover(); // activate popover
-                    },
-                });
-            })
-
-
-            /// Saving methods
-            var server_date;
-            var server_offset = 0;
-            var autoSaveInterval = 20000;
-            var updateDocumentStatusInterval = 30000;
-            var autoSaveFailedWarningInterval = 20000;
-            var autoSaveFailedWarningDelta = 120000;
-            $.get("{% url 'exam:time' %}", function(data){
-               server_date = data;
-               server_offset = moment(server_date).diff(moment());
-               console.log("Server time difference: "+server_offset);
-            });
-
-            var last_saved = new Date("{{ last_saved.isoformat }}");
-            var page_opened = new Date();
-            var documentStatus = 'SAVED'; // SAVED, SAVING, FAILED
-            function updateDocumentStatus() {
-                var status_text = '';
-                if (documentStatus == 'SAVED') {
-                    status_text = 'Last saved: <abbr data-toggle="tooltip" title="'+last_saved.toString()+'" >'+moment(last_saved).from(moment()+server_offset+1000)+'</abbr>.';
-                } else if (documentStatus == 'SAVING') {
-                    status_text = 'Saving...';
-                } else if (documentStatus == 'FAILED') {
-                    status_text = '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Failed to save';
-                }
-                $('#save-status')
-                    .html(status_text)
-                    .find('[data-toggle="tooltip"]').tooltip();
-            }
-            updateDocumentStatus();
-            setInterval(updateDocumentStatus, updateDocumentStatusInterval);
-
-
-            var checkHTML = function(html) {
-              var doc = document.createElement('div');
-              doc.innerHTML = html;
-              return ( doc.innerHTML === html );
-            }
-            function validate_blocks() {
-              for (k in all_editors) {
-                if (!checkHTML(all_editors[k].data()))
-                  alert('Problem with block '+k+'. The saving process has been stopped.');
-              }
-            }
-            $(document).on('submit', '#question-form', function(evt) {
-                var form = evt.target;
-                var $form = $(form);
-                var $button = $form.find('button[type="submit"]');
-                evt.preventDefault();
-
-                if (documentStatus == 'SAVING') {
-                    console.log(new Date() + ' Save still in progress. Skipping.');
-                    return;
-                }
-
-                documentStatus = 'SAVING';
-                $button.addClass('btn-shallow-disabled');
-                $button.tooltip('destroy');
-                updateDocumentStatus();
-
-                var data = new FormData($form.get(0));
-                console.log(new Date() + ' Saving...');
-                $.ajax({
-                    url: form.action,
-                    type: form.method,
-                    data: data,
-                    cache: false,
-                    processData: false,
-                    contentType: false,
-                    tryCount : 0,
-                    retryLimit : 3,
-                    timeout: Math.max(autoSaveInterval - 5000, 10000),
-                    success: function(data, textStatus, jqXHR) {
-                      console.log(new Date() + ' Ajax save request successful.');
-                      /// TODO: if checksum does't change, it could be that the
-                      /// save failed and we should communicate it!
-                      if (data['success']) {
-                          console.log(new Date() + ' Save successful.');
-                          last_saved = new Date(data['last_saved']);
-                          $('input[name="checksum"]').val(data['checksum']);
-                          $form.dirtyForms('setClean');
-                      } else {
-                        console.log(new Date() + ' Save failed.');
-                        if (data['checksum'] != $('input[name="checksum"]').val()) {
-                          clearInterval(autoSaveTimer);
-                          $('#checksum-modal').modal({backdrop: 'static', keyboard: false});
-                        }
-                      }
-
-                      documentStatus = 'SAVED';
-                      updateDocumentStatus();
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                      console.log(new Date() + ' Ajax save error: ' + textStatus + ' (' + errorThrown + ')');
-                      this.tryCount++;
-                      if (this.tryCount <= this.retryLimit) {
-                          console.log(new Date() + ' Retry saving ('+this.tryCount+')...');
-                          $.ajax(this);
-                          return;
-                      } else {
-                        console.log(new Date() + ' This is continous error, giving up!');
-                        documentStatus = 'FAILED';
-                        updateDocumentStatus();
-                        $form.find('button[type="submit"]').removeClass('btn-shallow-disabled').tooltip();
-                      }
-
-                    },
-                    // complete: function(jqXHR, textStatus) {
-                    //     console.log(new Date() + ' Ajax save request completed.');
-                    //     if (onComplete !== undefined) onComplete(jqXHR, textStatus);
-                    // }
-                });
-
-                if ($('#auto-save-checkbox').bootstrapSwitch('state')) {
-                    clearInterval(autoSaveTimer);
-                    autoSaveTimer = setInterval(autoSave, autoSaveInterval);
-                }
-            });
-            $(document).keypress(function(event) {
-                if (!(event.which == 115 && (navigator.platform.match("Mac") ? event.metaKey : event.ctrlKey)) && !(event.which == 19)) return true;
-                event.preventDefault();
-                $('#question-form').submit();
-                return false;
-            });
-
-            /// For custom dialog: https://github.com/NightOwl888/jquery.dirtyforms.dialogs.bootstrap.dist#example
-            // $.DirtyForms.dialog = {
-            //             dialogID: 'dirtyform-modal',
-            //             titleClass: 'custom-title',
-            //             messageClass: 'custom-message',
-            //             proceedButtonClass: 'custom-proceed',
-            //             stayButtonClass: 'custom-stay'
-            //         }
-            $.DirtyForms.title = "Do you want to save changes before leaving?"
-            $.DirtyForms.message = "Your changes will be lost if you don't save them."
-            $('#question-form').dirtyForms({ ignoreSelector: '#auto-save-checkbox' });
-            {% if auto_translate %}
-            $('#question-form').dirtyForms({ ignoreSelector: '#auto-translate-checkbox' });
-            {% endif %}
-
-            $('#question-form').on('dirty.dirtyforms', function(evt) {
-                var $form = $(evt.target);
-                $form.find('button[type="submit"]').removeClass('btn-shallow-disabled').tooltip();
-            });
-
-            {% if auto_translate %}
-            $('#auto-translate-dropdown').on('click', 'li a', function(evt){
-                evt.preventDefault();
-                $("#auto-translate-dropdown .btn:first-child .text").text($(this).text());
-                $("#auto-translate-dropdown .btn:first-child .text").val($(this).text());
-                $("#auto-translate-dropdown .btn:first-child .text").data('value', $(this).data('value'));
-            });
-            {% endif %}
-
-            function autoSave() {
-                $form = $('#question-form');
-                if ($form.dirtyForms('isDirty')) {
-                    $form.submit();
-                }
-                else if (documentStatus !== 'FAILED') {
-                    {# In normal operations, we want the Save button to follow isDirty, which may have been reset to false if the user undid changes (e.g. CTRL+Z). #}
-                    var $button = $form.find('button[type="submit"]');
-                    $button.addClass('btn-shallow-disabled');
-                    $button.tooltip('destroy');
-                }
-            }
-            function autoSaveFailedWarning() {
-                if (documentStatus === 'FAILED') {
-                    var d = new Date();
-                    var delta = Math.min(d - last_saved, d - page_opened) + server_offset;
-                    if (delta >= autoSaveFailedWarningDelta) {
-                        $("#question-form").find('button[type="submit"]').removeClass('btn-shallow-disabled').tooltip();
-                        $('#failedsaving-modal').modal({backdrop: 'static', keyboard: false});
-                    }
-                }
-            }
-
-            var autoSaveTimer = setInterval(autoSave, autoSaveInterval);
-            var autoSaveFailedTimer = setInterval(autoSaveFailedWarning, autoSaveFailedWarningInterval);
-            $('#auto-save-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function(event, state) {
-                var $checkbox = $(this);
-                if (state) {
-                    autoSaveTimer = setInterval(autoSave, autoSaveInterval);
-                    autoSaveFailedTimer = setInterval(autoSaveFailedWarning, autoSaveFailedWarningInterval);
-                } else {
-                    clearInterval(autoSaveTimer);
-                    clearInterval(autoSaveFailedTimer);
-                }
-            });
-            {% if auto_translate %}
-            $('#auto-translate-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function(event, state) {
-                var $checkbox = $(this);
-                if ($("#auto-translate-dropdown .btn:first-child .text").val() === ''){
-                  $("#auto-translate-dropdown .btn:first-child .text").html('<span class="glyphicon glyphicon-warning-sign"></span> Translate to:');
-                  $("#auto-translate-dropdown .btn:first-child").addClass('btn-warning');
-                  setTimeout(function() {
-                    $("#auto-translate-dropdown .btn:first-child .text").html('Translate to:');
-                    $("#auto-translate-dropdown .btn:first-child").removeClass('btn-warning');
-                  }, 2000);
-                  $checkbox.bootstrapSwitch('state', false);
-                }else{
-                  if(state){
-                    $('.translate-copy-button, .translate-copy-all-button').html('<i class="fa fa-clipboard" aria-hidden="true"></i> <i class="glyphicon glyphicon-random"></i>    <i class="fa fa-clipboard" aria-hidden="true"></i>');
-                    $('.translate-copy-button, .translate-copy-all-button').addClass('btn-primary');
-                    $('.translate-copy-button, .translate-copy-all-button').removeClass('btn-default');
-                    $('.translate-copy-button').attr('aria-label', 'Translate original version');
-                    $('.translate-copy-button').attr('title', 'Translate original version');
-                    $('.translate-copy-all-button').attr('title', 'Translate all blocks from the original version');
-
-                    $('.equation-copy').prop("disabled", true);
-                    $('#copy-modal-alert-text').html('By inserting the auto-translated version you erase all your changes.<br />This operation cannot be undone, <strong>are you sure?</strong>');
-                  }else{
-                    $('.translate-copy-button, .translate-copy-all-button').html('<i class="fa fa-clipboard" aria-hidden="true"></i><span class="glyphicon glyphicon-arrow-right"></span><i class="fa fa-clipboard" aria-hidden="true"></i>');
-                    $('.translate-copy-button, .translate-copy-all-button').addClass('btn-default');
-                    $('.translate-copy-button, .translate-copy-all-button').removeClass('btn-primary');
-                    $('.translate-copy-button').attr('aria-label', 'Copy original version');
-                    $('.translate-copy-button').attr('title', 'Copy original version');
-                    $('.translate-copy-all-button').attr('title', 'Copy all blocks from the original version');
-
-
-                    $('.equation-copy').prop("disabled", false);
-                    $('#copy-modal-alert-text').html('By copying the original version you erase all your changes.<br />This operation cannot be undone, <strong>are you sure?</strong>');
-                  }
-                }
-            });
-            {% endif %}
+    $(document).ready(function () {
+      $('.translate-original .math-tex').each(function () {
+        console.log('before button');
+        var content = $(this).html();
+        $(this).prepend('<button class="btn btn-xs btn-default small" data-clipboard-snippet><i class="fa fa-clipboard" aria-hidden="true"></i></button>').children('[data-clipboard-snippet]').attr('data-clipboard-text', '<span class="math-tex">' + content + '</span>').tooltip({
+          trigger: 'click',
+          placement: 'bottom'
         });
+      });
+    });
 
-    </script>
+    var clipboard = new Clipboard('.btn[data-clipboard-snippet]', {
+      text: function (trigger) {
+        return trigger.getAttribute('data-clipboard-text');
+      }
+    });
+
+    clipboard.on('success', function (e) {
+      setTooltip(e.trigger, 'Copied!');
+      hideTooltip(e.trigger);
+    });
+    clipboard.on('error', function (e) {
+      setTooltip(e.trigger, fallbackMessage(e.action));
+      hideLongTooltip(e.trigger);
+    });
+
+
+    $(".translate-original").each(content2math);
+    $(".translate-foreign").each(content2math);
+
+    // $('body').on('click', ':not(.math-tex *)', function (evt) {
+    //   if (evt.target != this) return;
+    //   $('.math-selected').removeClass('math-selected');
+    // });
+    // $("body").on('click', '.math-tex', function (evt) {
+    //   $('.math-selected').removeClass('math-selected');
+    //   $(this).addClass('math-selected');
+    // });
+    {% if auto_translate %}
+    function auto_translate(text, to_lang, field_id) {
+      $.ajax({
+        url: "{% url 'exam:auto-translate' %}",
+        type: 'POST',
+        data: { 'from_lang': '{{ orig_lang.pk }}', 'to_lang': to_lang, 'text': text },
+      }).done(function (data) {
+        if (field_id in all_editors)
+          all_editors[field_id].setData(String(data['text']));
+        else
+          $('#' + field_id + '-translate input[type="text"]').val(data['text']);
+      });
+    }
+    {% endif %}
+    $(".translate-copy-button").click(function (event) {
+      {% if auto_translate %}
+      if ($('#auto-translate-checkbox').bootstrapSwitch('state')) {
+        {% else %}
+        if (false) {
+          {% endif %}
+          if (!$(this).prop('disabled')) {
+            orig = '#' + $(this).attr('id').replace('-copy', '-original');
+            text = $(orig).data('original-text');
+            field_id = $(this).attr('id').replace('-copy', '');
+            to_lang = $("#auto-translate-dropdown .btn:first-child .text").data('value');
+            auto_translate(text, to_lang, field_id);
+          }
+
+        }
+        else {
+          field_id = $(this).attr('id').replace('-copy', '');
+          orig = '#' + $(this).attr('id').replace('-copy', '-original');
+          if (field_id in all_editors)
+            all_editors[field_id].setData(String($(orig).data('original-text')));
+          else
+            $('#' + field_id + '-translate input[type="text"]').val($(orig).data('original-text'));
+        }
+        event.preventDefault();
+      });
+
+    $('#copy-modal .btn-warning').on('click', function (evt) {
+      evt.preventDefault();
+      $(".translate-copy-button").click();
+      $('#copy-modal').modal('hide');
+    });
+
+    $('.translate-foreign textarea').each(function () {
+      var myid = $(this).parent().attr('id').replace('-translate', '');
+      all_editors[myid] = CKEDITOR.inline(this);
+      var textarea = $(this);
+      all_editors[myid].on('change', function () { this.updateElement(); textarea.change(); });
+      all_editors[myid].on('paste', function (evt) {
+        var htmlData = $.parseHTML(evt.data.dataValue)[0].textContent;
+        if (htmlData.startsWith('<span class="math-tex"')) {
+          // Parse the HTML string to pseudo-DOM structure.
+          var fragment = CKEDITOR.htmlParser.fragment.fromHtml(htmlData),
+            writer = new CKEDITOR.htmlParser.basicWriter();
+          fragment.writeHtml(writer);
+          evt.data.dataValue = writer.getHtml();
+        }
+      });
+    });
+
+    // Figure preview
+    $('#figure-modal').on('show.bs.modal', function (event) {
+      var modal = $(this);
+      var button = $(event.relatedTarget); // Button that triggered the modal
+
+      var href = button.attr('href');
+      if (typeof href !== typeof undefined && href !== false) {
+        modal.find('.modal-body').html('<img src="' + href + '" />');
+      } else {
+        var img_url = button.data('base-url');
+        var figparams = button.data('figparams');
+        if (Object.keys(figparams).length > 0) {
+          fig_query = new Object;
+          for (k in figparams) {
+            fig_query[k] = $('#id_' + figparams[k]).val();
+          }
+          img_url += '?' + $.param(fig_query);
+        }
+        modal.find('.modal-body').html('<img src="' + img_url + '" />');
+      }
+    });
+
+    /// Language modal
+
+    var ipho_languages = null;
+    $.ajax({
+      url: '{% static 'languages.json' %}',
+      type: 'GET',
+    }).done(function (data) {
+      ipho_languages = data;
+    });
+    $(document).on('change', 'select[name="style"]', function (evt) {
+      if (ipho_languages !== null) {
+        var style = $('select[name="style"]').val();
+        if (style in ipho_languages) {
+          var polyglossia = ipho_languages[style]['polyglossia'];
+          if (polyglossia == null) polyglossia = 'english';
+          var polyglossia_options = ipho_languages[style]['polyglossia_options'];
+          if (polyglossia_options == null) polyglossia_options = '';
+          $('select[name="direction"]').val(ipho_languages[style]['direction']);
+          $('select[name="polyglossia"]').val(polyglossia);
+          $('input[name="polyglossia_options"]').val(polyglossia_options);
+          $('select[name="font"]').val(ipho_languages[style]['fonts'][0]);
+        }
+      }
+    });
+
+    // Language modal
+    $(document).on('submit', '#language-modal form', function (evt) {
+      var form = evt.target;
+      var $form = $(form);
+      evt.preventDefault();
+      $.ajax({
+        url: form.action,
+        type: form.method,
+        data: $form.serialize(),
+        success: function (data) {
+          if (!data['success']) {
+            $('#language-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+            return;
+          }
+
+          $('#language-modal').modal('hide');
+          $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>' + data['message'] + '</div>');
+        }
+      });
+    });
+
+    $('#language-modal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget); // Button that triggered the modal
+      var href = button.attr('href');
+      var modal = $(this);
+
+      modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+      modal.find('.modal-body').html('');
+
+      $.ajax({
+        url: href,
+        dataType: 'json',
+        success: function (data) {
+          modal.find('.modal-title').text(data['title']);
+          modal.find('form').attr('action', href);
+          modal.find('.modal-body').html(data['form']);
+          modal.find('button[type="submit"]').text(data['submit']);
+          modal.find("[data-toggle=popover]").popover(); // activate popover
+        },
+      });
+    })
+
+
+    /// Saving methods
+    var server_date;
+    var server_offset = 0;
+    var autoSaveInterval = 20000;
+    var updateDocumentStatusInterval = 30000;
+    var autoSaveFailedWarningInterval = 20000;
+    var autoSaveFailedWarningDelta = 120000;
+    $.get("{% url 'exam:time' %}", function (data) {
+      server_date = data;
+      server_offset = moment(server_date).diff(moment());
+      console.log("Server time difference: " + server_offset);
+    });
+
+    var last_saved = new Date("{{ last_saved.isoformat }}");
+    var page_opened = new Date();
+    var documentStatus = 'SAVED'; // SAVED, SAVING, FAILED
+    function updateDocumentStatus() {
+      var status_text = '';
+      if (documentStatus == 'SAVED') {
+        status_text = 'Last saved: <abbr data-toggle="tooltip" title="' + last_saved.toString() + '" >' + moment(last_saved).from(moment() + server_offset + 1000) + '</abbr>.';
+      } else if (documentStatus == 'SAVING') {
+        status_text = 'Saving...';
+      } else if (documentStatus == 'FAILED') {
+        status_text = '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Failed to save';
+      }
+      $('#save-status')
+        .html(status_text)
+        .find('[data-toggle="tooltip"]').tooltip();
+    }
+    updateDocumentStatus();
+    setInterval(updateDocumentStatus, updateDocumentStatusInterval);
+
+
+    var checkHTML = function (html) {
+      var doc = document.createElement('div');
+      doc.innerHTML = html;
+      return (doc.innerHTML === html);
+    }
+    function validate_blocks() {
+      for (k in all_editors) {
+        if (!checkHTML(all_editors[k].data()))
+          alert('Problem with block ' + k + '. The saving process has been stopped.');
+      }
+    }
+    $(document).on('submit', '#question-form', function (evt) {
+      var form = evt.target;
+      var $form = $(form);
+      var $button = $form.find('button[type="submit"]');
+      evt.preventDefault();
+
+      if (documentStatus == 'SAVING') {
+        console.log(new Date() + ' Save still in progress. Skipping.');
+        return;
+      }
+
+      documentStatus = 'SAVING';
+      $button.addClass('btn-shallow-disabled');
+      $button.tooltip('destroy');
+      updateDocumentStatus();
+
+      var data = new FormData($form.get(0));
+      console.log(new Date() + ' Saving...');
+      $.ajax({
+        url: form.action,
+        type: form.method,
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        tryCount: 0,
+        retryLimit: 3,
+        timeout: Math.max(autoSaveInterval - 5000, 10000),
+        success: function (data, textStatus, jqXHR) {
+          console.log(new Date() + ' Ajax save request successful.');
+          /// TODO: if checksum does't change, it could be that the
+          /// save failed and we should communicate it!
+          if (data['success']) {
+            console.log(new Date() + ' Save successful.');
+            last_saved = new Date(data['last_saved']);
+            $('input[name="checksum"]').val(data['checksum']);
+            $form.dirtyForms('setClean');
+          } else {
+            console.log(new Date() + ' Save failed.');
+            if (data['checksum'] != $('input[name="checksum"]').val()) {
+              clearInterval(autoSaveTimer);
+              $('#checksum-modal').modal({ backdrop: 'static', keyboard: false });
+            }
+          }
+
+          documentStatus = 'SAVED';
+          updateDocumentStatus();
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log(new Date() + ' Ajax save error: ' + textStatus + ' (' + errorThrown + ')');
+          this.tryCount++;
+          if (this.tryCount <= this.retryLimit) {
+            console.log(new Date() + ' Retry saving (' + this.tryCount + ')...');
+            $.ajax(this);
+            return;
+          } else {
+            console.log(new Date() + ' This is continous error, giving up!');
+            documentStatus = 'FAILED';
+            updateDocumentStatus();
+            $form.find('button[type="submit"]').removeClass('btn-shallow-disabled').tooltip();
+          }
+
+        },
+        // complete: function(jqXHR, textStatus) {
+        //     console.log(new Date() + ' Ajax save request completed.');
+        //     if (onComplete !== undefined) onComplete(jqXHR, textStatus);
+        // }
+      });
+
+      if ($('#auto-save-checkbox').bootstrapSwitch('state')) {
+        clearInterval(autoSaveTimer);
+        autoSaveTimer = setInterval(autoSave, autoSaveInterval);
+      }
+    });
+    $(document).keypress(function (event) {
+      if (!(event.which == 115 && (navigator.platform.match("Mac") ? event.metaKey : event.ctrlKey)) && !(event.which == 19)) return true;
+      event.preventDefault();
+      $('#question-form').submit();
+      return false;
+    });
+
+    /// For custom dialog: https://github.com/NightOwl888/jquery.dirtyforms.dialogs.bootstrap.dist#example
+    // $.DirtyForms.dialog = {
+    //             dialogID: 'dirtyform-modal',
+    //             titleClass: 'custom-title',
+    //             messageClass: 'custom-message',
+    //             proceedButtonClass: 'custom-proceed',
+    //             stayButtonClass: 'custom-stay'
+    //         }
+    $.DirtyForms.title = "Do you want to save changes before leaving?"
+    $.DirtyForms.message = "Your changes will be lost if you don't save them."
+    $('#question-form').dirtyForms({ ignoreSelector: '#auto-save-checkbox' });
+    {% if auto_translate %}
+    $('#question-form').dirtyForms({ ignoreSelector: '#auto-translate-checkbox' });
+    {% endif %}
+
+    $('#question-form').on('dirty.dirtyforms', function (evt) {
+      var $form = $(evt.target);
+      $form.find('button[type="submit"]').removeClass('btn-shallow-disabled').tooltip();
+    });
+
+    {% if auto_translate %}
+    $('#auto-translate-dropdown').on('click', 'li a', function (evt) {
+      evt.preventDefault();
+      $("#auto-translate-dropdown .btn:first-child .text").text($(this).text());
+      $("#auto-translate-dropdown .btn:first-child .text").val($(this).text());
+      $("#auto-translate-dropdown .btn:first-child .text").data('value', $(this).data('value'));
+    });
+    {% endif %}
+
+    function autoSave() {
+      $form = $('#question-form');
+      if ($form.dirtyForms('isDirty')) {
+        $form.submit();
+      }
+      else if (documentStatus !== 'FAILED') {
+        {# In normal operations, we want the Save button to follow isDirty, which may have been reset to false if the user undid changes(e.g.CTRL + Z).# }
+        var $button = $form.find('button[type="submit"]');
+        $button.addClass('btn-shallow-disabled');
+        $button.tooltip('destroy');
+      }
+    }
+    function autoSaveFailedWarning() {
+      if (documentStatus === 'FAILED') {
+        var d = new Date();
+        var delta = Math.min(d - last_saved, d - page_opened) + server_offset;
+        if (delta >= autoSaveFailedWarningDelta) {
+          $("#question-form").find('button[type="submit"]').removeClass('btn-shallow-disabled').tooltip();
+          $('#failedsaving-modal').modal({ backdrop: 'static', keyboard: false });
+        }
+      }
+    }
+
+    var autoSaveTimer = setInterval(autoSave, autoSaveInterval);
+    var autoSaveFailedTimer = setInterval(autoSaveFailedWarning, autoSaveFailedWarningInterval);
+    $('#auto-save-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function (event, state) {
+      var $checkbox = $(this);
+      if (state) {
+        autoSaveTimer = setInterval(autoSave, autoSaveInterval);
+        autoSaveFailedTimer = setInterval(autoSaveFailedWarning, autoSaveFailedWarningInterval);
+      } else {
+        clearInterval(autoSaveTimer);
+        clearInterval(autoSaveFailedTimer);
+      }
+    });
+    {% if auto_translate %}
+    $('#auto-translate-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function (event, state) {
+      var $checkbox = $(this);
+      if ($("#auto-translate-dropdown .btn:first-child .text").val() === '') {
+        $("#auto-translate-dropdown .btn:first-child .text").html('<span class="glyphicon glyphicon-warning-sign"></span> Translate to:');
+        $("#auto-translate-dropdown .btn:first-child").addClass('btn-warning');
+        setTimeout(function () {
+          $("#auto-translate-dropdown .btn:first-child .text").html('Translate to:');
+          $("#auto-translate-dropdown .btn:first-child").removeClass('btn-warning');
+        }, 2000);
+        $checkbox.bootstrapSwitch('state', false);
+      } else {
+        if (state) {
+          $('.translate-copy-button, .translate-copy-all-button').html('<i class="fa fa-clipboard" aria-hidden="true"></i> <i class="glyphicon glyphicon-random"></i>    <i class="fa fa-clipboard" aria-hidden="true"></i>');
+          $('.translate-copy-button, .translate-copy-all-button').addClass('btn-primary');
+          $('.translate-copy-button, .translate-copy-all-button').removeClass('btn-default');
+          $('.translate-copy-button').attr('aria-label', 'Translate original version');
+          $('.translate-copy-button').attr('title', 'Translate original version');
+          $('.translate-copy-all-button').attr('title', 'Translate all blocks from the original version');
+
+          $('.equation-copy').prop("disabled", true);
+          $('#copy-modal-alert-text').html('By inserting the auto-translated version you erase all your changes.<br />This operation cannot be undone, <strong>are you sure?</strong>');
+        } else {
+          $('.translate-copy-button, .translate-copy-all-button').html('<i class="fa fa-clipboard" aria-hidden="true"></i><span class="glyphicon glyphicon-arrow-right"></span><i class="fa fa-clipboard" aria-hidden="true"></i>');
+          $('.translate-copy-button, .translate-copy-all-button').addClass('btn-default');
+          $('.translate-copy-button, .translate-copy-all-button').removeClass('btn-primary');
+          $('.translate-copy-button').attr('aria-label', 'Copy original version');
+          $('.translate-copy-button').attr('title', 'Copy original version');
+          $('.translate-copy-all-button').attr('title', 'Copy all blocks from the original version');
+
+
+          $('.equation-copy').prop("disabled", false);
+          $('#copy-modal-alert-text').html('By copying the original version you erase all your changes.<br />This operation cannot be undone, <strong>are you sure?</strong>');
+        }
+      }
+    });
+    {% endif %}
+  });
+
+</script>
 
 {% endblock %}
