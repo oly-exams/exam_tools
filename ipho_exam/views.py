@@ -151,8 +151,6 @@ OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
 
-
-
 @login_required
 def index(request):
     return render(request, "ipho_exam/index.html")
@@ -1834,7 +1832,10 @@ def admin_new_version(request, exam_id, question_id):
             )
         else:
             node = VersionNode(
-                question=question, language=lang, version=0, text=qml.DEFAULT_QML_QUESTION_TEXT
+                question=question,
+                language=lang,
+                version=0,
+                text=qml.DEFAULT_QML_QUESTION_TEXT,
             )
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
@@ -4063,7 +4064,7 @@ def bulk_print(
                     title=f"P: {doc.barcode_base}",
                 )
                 tot_printed += 1
-                log = PrintLog(document=doc, type="P")
+                log = PrintLog(document=doc, doctype="P")
                 log.save()
         for pk in request.POST.getlist("scans[]", []):  # pylint: disable=invalid-name
             doc = Document.objects.for_user(request.user).filter(pk=pk).first()
@@ -4076,7 +4077,7 @@ def bulk_print(
                     title=f"S: {doc.barcode_base}",
                 )
                 tot_printed += 1
-                log = PrintLog(document=doc, type="S")
+                log = PrintLog(document=doc, doctype="S")
                 log.save()
 
         page = request.GET.get("page") or 1
@@ -4120,8 +4121,12 @@ def bulk_print(
             all_docs = all_docs.filter(scan_status=scan_status)
 
     all_docs = all_docs.annotate(
-        last_print_p=Max(Case(When(printlog__type="P", then=F("printlog__timestamp")))),
-        last_print_s=Max(Case(When(printlog__type="S", then=F("printlog__timestamp")))),
+        last_print_p=Max(
+            Case(When(printlog__doctype="P", then=F("printlog__timestamp")))
+        ),
+        last_print_s=Max(
+            Case(When(printlog__doctype="S", then=F("printlog__timestamp")))
+        ),
     )
 
     exam_print_filter_options = ["not printed", "printed"]
@@ -4233,9 +4238,7 @@ def bulk_print(
 
 
 @permission_required("ipho_core.is_printstaff")
-def print_doc(
-    request, type, exam_id, position, student_id, queue
-):  # pylint: disable=redefined-builtin
+def print_doc(request, doctype, exam_id, position, student_id, queue):
     queue_list = printer.allowed_choices(request.user)
     if not queue in (q[0] for q in queue_list):
         # pylint: disable=raising-non-exception
@@ -4244,20 +4247,20 @@ def print_doc(
         Document, exam=exam_id, position=position, student=student_id
     )
 
-    if type == "P":
+    if doctype == "P":
         printer.send2queue(
             doc.file, queue, user=request.user, title=f"P: {doc.barcode_base}"
         )
-        log = PrintLog(document=doc, type="P")
+        log = PrintLog(document=doc, doctype="P")
         log.save()
     elif doc.scan_file:
         printer.send2queue(
             doc.scan_file, queue, user=request.user, title=f"S: {doc.barcode_base}"
         )
-        log = PrintLog(document=doc, type="S")
+        log = PrintLog(document=doc, doctype="S")
         log.save()
     else:
-        raise Http404(f"Document type `{type}` not found.")
+        raise Http404(f"Document type `{doctype}` not found.")
 
     res = request.META.get("HTTP_REFERER", reverse("exam:bulk-print"))
     return HttpResponseRedirect(res)

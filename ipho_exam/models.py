@@ -1429,8 +1429,8 @@ class DocumentTask(models.Model):
 class PrintLog(models.Model):
     TYPE_CHOICES = (("P", "Printout"), ("S", "Scan"))
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
-    type = models.CharField(max_length=1, choices=TYPE_CHOICES)
+    doctype = models.CharField(max_length=1, choices=TYPE_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.document.exam.code}-{self.document.position} ({self.type}) {self.timestamp}"
+        return f"{self.document.exam.code}-{self.document.position} ({self.doctype}) {self.timestamp}"

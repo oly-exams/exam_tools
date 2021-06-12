@@ -176,7 +176,7 @@ urlpatterns = [
         name="scan-orig-exam-pos-student",
     ),
     re_path(
-        r"^print/(?P<type>\w)/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)/queue/(?P<queue>.+)$",
+        r"^print/(?P<doctype>\w)/(?P<exam_id>\d+)/(?P<position>\d+)/student/(?P<student_id>\d+)/queue/(?P<queue>.+)$",
         views.print_doc,
         name="print-doc",
     ),
