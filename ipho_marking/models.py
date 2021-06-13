@@ -125,9 +125,7 @@ class MarkingAction(models.Model):
     sender=Question,
     dispatch_uid="create_marking_actions_on_question_creation",
 )
-def create_actions_on_exam_creation(
-    instance, created, raw, **kwargs
-):  # pylint: disable=unused-argument
+def create_actions_on_exam_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw or instance.type != Question.ANSWER:
         return
@@ -140,9 +138,7 @@ def create_actions_on_exam_creation(
     sender=Delegation,
     dispatch_uid="create_marking_actions_on_delegation_creation",
 )
-def create_actions_on_delegation_creation(
-    instance, created, raw, **kwargs
-):  # pylint: disable=unused-argument
+def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return

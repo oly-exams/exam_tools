@@ -674,7 +674,7 @@ class Exam(models.Model):
             >= Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT_FINALIZE
         )
 
-    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+    def save(self, *args, **kwargs):
         if self.pk:
             previous_feedback = Exam.objects.get(pk=self.pk).feedback
         else:
@@ -1014,7 +1014,9 @@ class CompiledFigure(Figure):
     params = models.TextField(blank=True)
 
     def params_as_list(self):
-        return list([si.trim() for si in self.params.split(",")])
+        return list(  # pylint: disable=consider-using-generator
+            [si.trim() for si in self.params.split(",")]
+        )
 
     def _to_svg(self, query, lang=None):
         placeholders = self.params.split(",")
@@ -1095,7 +1097,7 @@ class RawFigure(Figure):
     def params_as_list(self):  # pylint: disable=no-self-use
         return []
 
-    def to_inline(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def to_inline(self, *args, **kwargs):
         return self.content, self.filetype
 
     def to_file(
@@ -1261,9 +1263,7 @@ class ExamAction(models.Model):
 
 
 @receiver(post_save, sender=Exam, dispatch_uid="create_actions_on_exam_creation")
-def create_actions_on_exam_creation(
-    instance, created, raw, **kwargs
-):  # pylint: disable=unused-argument
+def create_actions_on_exam_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
@@ -1277,9 +1277,7 @@ def create_actions_on_exam_creation(
 @receiver(
     post_save, sender=Delegation, dispatch_uid="create_actions_on_delegation_creation"
 )
-def create_actions_on_delegation_creation(
-    instance, created, raw, **kwargs
-):  # pylint: disable=unused-argument
+def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
