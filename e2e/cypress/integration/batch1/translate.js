@@ -53,7 +53,7 @@ describe('Translation', function() {
 
         cy.get('#language-modal #id_style').select('Chinese (simplified)')
         cy.get('#id_direction').should('have.value', 'ltr')
-        cy.get('#id_polyglossia').should('have.value', 'custom')
+        cy.get('#id_polyglossia').should('have.value', 'english')
         cy.get('#id_polyglossia_options').should('have.value', '')
         cy.get('#id_font').should('have.value', 'notosanssc')
 
