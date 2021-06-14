@@ -57,8 +57,14 @@ describe('Polls', function() {
         cy.get('#voting-panel-2').contains('Leader A')
         cy.get('#voting-panel-1').contains('Leader B')
         cy.get('#voting-panel-2').contains('Leader B')
+
+        cy.screenshot()
+
         // Vote with one leader
         cy.get('#id_q2-0-choice_1').click()
+
+        cy.screenshot()
+
         cy.get('#voting-panel-2 .btn').contains('Vote').click()
         cy.url().should('contain', 'poll/voted/')
         cy.get('.btn').contains('Continue Voting').click()
@@ -67,17 +73,28 @@ describe('Polls', function() {
         cy.get('#voting-panel-2').contains('Leader A').should('not.exist')
         cy.get('#voting-panel-1').contains('Leader B')
         cy.get('#voting-panel-2').contains('Leader B')
+
+        cy.screenshot()
+
         // Vote with the second leader
         cy.get('#id_q2-0-choice_1').click()
+
+        cy.screenshot()
+
         cy.get('#voting-panel-2 .btn').contains('Vote').click()
         cy.url().should('contain', 'poll/voted/')
         cy.get('.btn').contains('Continue Voting').click()
+
+        cy.screenshot()
 
         cy.contains('Q1')
         cy.contains('Q2').should('not.exist')
         // Vote on the second voting
         cy.get('#id_q1-0-choice_1').click()
         cy.get('#id_q1-1-choice_1').click()
+
+        cy.screenshot()
+
         cy.get('#voting-panel-1 .btn').contains('Vote').click()
         cy.url().should('contain', 'poll/voted/')
         cy.get('.btn').contains('Continue Voting').click()
