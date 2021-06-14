@@ -86,7 +86,9 @@ describe('Voting Rooms', function() {
         cy.contains('Leader A')
         cy.contains('Leader B')
         // Vote with one leader
-        cy.get('#id_q2-0-choice_1').click()
+        cy.get('#voting-panel-2').get('#div_id_q2-0-choice').contains('weekday').click()
+        cy.screenshot('vote-1', {capture: 'runner'})
+
         cy.get('.btn').contains('Vote').click()
         cy.url().should('contain', 'poll/voted/room/1')
         cy.get('.btn').contains('Continue Voting').click()
@@ -95,7 +97,9 @@ describe('Voting Rooms', function() {
         cy.contains('Leader A').should('not.exist')
         cy.contains('Leader B')
         // Vote with the second leader
-        cy.get('#id_q2-0-choice_1').click()
+        cy.get('#voting-panel-2').get('#div_id_q2-0-choice').contains('weekday').click()
+        cy.screenshot('vote-2', {capture: 'runner'})
+
         cy.get('.btn').contains('Vote').click()
         cy.url().should('contain', 'poll/voted/room/1')
         cy.get('.btn').contains('Continue Voting').click()
@@ -132,6 +136,7 @@ describe('Voting Rooms', function() {
         cy.login('admin','1234')
         // Check results
         cy.visit('poll/voting/detail/2/')
+        cy.screenshot('results', {capture: 'runner'})
         cy.get('#choice-4 > .numvotes').shouldHaveTrimmedText('2')
         cy.get('#choice-5 > .numvotes').shouldHaveTrimmedText('0')
 
