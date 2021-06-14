@@ -59,7 +59,7 @@ describe('Translation', function() {
 
         cy.get('#language-modal #id_style').select('Persian')
         cy.get('#id_direction').should('have.value', 'ltr')
-        cy.get('#id_polyglossia').should('have.value', 'farsi')
+        cy.get('#id_polyglossia').should('have.value', 'persian')
         cy.get('#id_polyglossia_options').should('have.value', 'numerals=western')
         cy.get('#id_font').should('have.value', 'notokufiarabic')
 

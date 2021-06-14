@@ -37,7 +37,7 @@ test:testing-cypress-batch-1:
     artifacts: &batch_artifacts
         when: always
         paths:
-            #- $CI_PROJECT_DIR/videos
+            - $CI_PROJECT_DIR/videos
             - $CI_PROJECT_DIR/screenshots
         reports:
             junit: $CI_PROJECT_DIR/e2e/cypress/reports/*.xml
