@@ -37,7 +37,6 @@ ADMINS = (
     ("Michele Dolfi", "michele.dolfi@gmail.com"),
 )
 
-DOCUMENT_PATH = os.path.join(PROJECT_PATH, "media")
 
 MANAGERS = ADMINS
 

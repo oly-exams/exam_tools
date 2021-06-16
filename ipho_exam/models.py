@@ -44,7 +44,6 @@ from .utils import natural_id
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 SITE_URL = getattr(settings, "SITE_URL")
 INKSCAPE_BIN = getattr(settings, "INKSCAPE_BIN", "inkscape")
-DOCUMENT_PATH = getattr(settings, "DOCUMENT_PATH")
 
 
 class LanguageManager(models.Manager):
@@ -1307,21 +1306,18 @@ class StudentSubmission(models.Model):
 
 def exam_prints_filename(obj, fname):  # pylint: disable=unused-argument
     path = f"exams-docs/{obj.student.code}/print/exam-{obj.exam.id}-{obj.position}.pdf"
-    fullpath = os.path.join(DOCUMENT_PATH, path)
-    return fullpath
+    return path
 
 
 def exam_scans_filename(obj, fname):  # pylint: disable=unused-argument
     path = f"exams-docs/{obj.student.code}/scan/exam-{obj.exam.id}-{obj.position}.pdf"
-    fullpath = os.path.join(DOCUMENT_PATH, path)
-    return fullpath
+    return path
 
 
 def exam_scans_orig_filename(obj, fname):  # pylint: disable=unused-argument
     timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
     path = f"scans-evaluated/{obj.barcode_base}__{timestamp}.pdf"
-    fullpath = os.path.join(DOCUMENT_PATH, path)
-    return fullpath
+    return path
 
 
 class DocumentManager(models.Manager):
