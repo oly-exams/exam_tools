@@ -15,7 +15,7 @@ python-barcode >=0.13, <1
 PyPDF2 >=1.26, <2
 mkdocs < 1.1
 Celery >=5.0, <6
-django-celery-results >=2, <3
+django-celery-results >=2, <3, !=2.1.0
 flower >=0.9, <1
 requests >=2.24, <3
 Pillow >=8, <9
