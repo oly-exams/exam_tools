@@ -2711,7 +2711,7 @@ def upload_scan_delegation(request, exam_id, position, student_id):
 
     if form.is_valid() and submission_open:
         doc.scan_file = form.cleaned_data["file"]
-        doc.scan_status = "S"
+        doc.scan_status = "W"
         doc.save()
         return JsonResponse(
             {
@@ -4111,7 +4111,7 @@ def bulk_print(
     )
 
     scan_status = request.GET.get("st", None)
-    scan_status_options = ["S", "W", "M"]
+    scan_status_options = ["P", "S", "W", "M"]
     if scan_status is not None:
         if scan_status == "null":
             all_docs = all_docs.filter(scan_status__isnull=True)
@@ -4295,6 +4295,8 @@ def upload_scan(request):
             student=form.cleaned_data["student"],
         )
         doc.scan_file = form.cleaned_data["file"]
+        if doc.scan_status is None:
+            doc.scan_status = "S"
         doc.save()
         messages.append(("alert-success", '<i class="fa fa-check"></i> Scan uploaded.'))
     return render(

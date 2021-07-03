@@ -44,7 +44,7 @@
 
     <h3> {{ exam.name }} - {{ question.name }}
       {% for doc in documents %}
-        {% if doc.scan_file and doc.scan_status == 'S' %}
+        {% if doc.scan_file and doc.scan_status == 'S' or doc.scan_status == 'P' and doc.scan_file  %}
         <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=question.position %}">
           <i class="fa fa-file-pdf-o"></i>
           View scan

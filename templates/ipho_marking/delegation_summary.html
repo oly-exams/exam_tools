@@ -44,7 +44,7 @@
             </td>
             {% for doc in scans_list %}
             <td>
-              {% if doc.scan_file and doc.scan_status == 'S' %}
+              {% if doc.scan_file and doc.scan_status == 'S' or doc.scan_status == 'P' and doc.scan_file  %}
               <a class="btn btn-success btn-xs"
                 id="processed_scan-{{ student.pk }}-{{ doc.position }}"
                 href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=doc.position %}"><i
