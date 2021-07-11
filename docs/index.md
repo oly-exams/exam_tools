@@ -36,4 +36,4 @@ Jump directly to the documentation of the individual components:
 
 Please contact a Team Guide or IT Staff member if you need help with the exam tool or you notice something malfunctioning.
 
-Contact e-mail: [exam-tools-users@oly-exams.org](mailto:exam-tools-users@oly-exams.org)
+Contact e-mail: [oly-exams@ipho2021.lt](mailto:oly-exams@ipho2021.lt)
