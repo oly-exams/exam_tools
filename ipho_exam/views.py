@@ -4268,10 +4268,17 @@ def print_doc(request, doctype, exam_id, position, student_id, queue):
 
 @permission_required("ipho_core.is_printstaff")
 def set_scan_status(request, doc_id, status):
-    doc = get_object_or_404(Document, id=doc_id)
-    doc.scan_status = status
-    doc.save()
-    return HttpResponseRedirect(reverse("exam:bulk-print"))
+    if request.method == "POST" and request.is_ajax:
+        doc = get_object_or_404(Document, id=doc_id)
+        doc.scan_status = status
+        doc.save()
+        return JsonResponse(
+            {
+                "success": True,
+                "new_status": doc.scan_status,
+            }
+        )
+    return HttpResponseForbidden("Nothing to see here!")
 
 
 @permission_required("ipho_core.is_printstaff")

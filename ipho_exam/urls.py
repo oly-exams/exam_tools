@@ -399,8 +399,8 @@ urlpatterns = [
         views.extra_sheets,
         name="extra-sheets",
     ),
-    re_path(
-        r"^admin/scan-status/(?P<doc_id>\d+)/(?P<status>\w)$",
+    path(
+        "admin/scan-status/<int:doc_id>/<slug:status>",
         views.set_scan_status,
         name="set-scan-status",
     ),
