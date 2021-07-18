@@ -51,6 +51,7 @@
                             <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">advanced <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
+                                <li><a data-toggle="modal" data-target="#check-modal" data-remote="false" href="{% url 'exam:admin-check-points' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Check points"><i class="fa fa-check"></i> check points</a></li>                      
                                 <li><a target="_blank" href="{% url 'exam:tex-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as TeX"><i class="fa fa-fw fa-download"></i> export TeX</a></li>
                                 <li><a target="_blank" href="{% url 'exam:export-translation-version' question_id=node.question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as QML"><i class="fa fa-fw fa-download"></i> export QML</a></li>
                                 <li><a target="_blank" href="{% url 'exam:html-version' question_id=node.question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as HTML"><i class="fa fa-fw fa-download"></i> export HTML</a></li>

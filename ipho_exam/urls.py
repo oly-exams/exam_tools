@@ -304,6 +304,11 @@ urlpatterns = [
         name="admin-publish-version",
     ),
     path(
+        "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/check_points",
+        views.admin_check_points,
+        name="admin-check-points",
+    ),
+    path(
         "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/settag",
         views.admin_settag_version,
         name="admin-settag-version",

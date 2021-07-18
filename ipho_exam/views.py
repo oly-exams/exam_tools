@@ -2150,6 +2150,45 @@ def admin_publish_version(request, exam_id, question_id, version_num):
 
 
 @permission_required("ipho_core.can_edit_exam")
+def admin_check_points(request, exam_id, question_id, version_num):
+    lang_id = OFFICIAL_LANGUAGE_PK
+    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
+    lang = get_object_or_404(Language, id=lang_id)
+    assert lang.versioned
+    node = get_object_or_404(
+        VersionNode, question=question, language=lang, version=version_num
+    )
+    try:
+        check_points.check_version(node)
+    except check_points.PointValidationError as exc:
+        check_message = (
+            "<div >Point check identified the following issue:</div><div><strong>"
+            + escape(str(exc))
+            + "</strong></div>"
+        )
+        return JsonResponse(
+            {
+                "title": "Inconsistent Points",
+                "msg": check_message,
+                "class": "bg-danger",
+                "success": False,
+            }
+        )
+
+    return JsonResponse(
+        {
+            "title": "Check succeeded",
+            "msg": "<div>Points are consistent. No issues found!</div>",
+            "class": "",
+            "success": True,
+        }
+    )
+
+
+@permission_required("ipho_core.can_edit_exam")
 def admin_settag_version(request, exam_id, question_id, version_num):
     if not request.is_ajax:
         raise Exception(
