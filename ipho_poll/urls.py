@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.urls import path, re_path
+from django.urls import path
 
 from . import views
 
@@ -24,8 +24,13 @@ urlpatterns = [
     # staff urls
     path("staff/", views.staff_index, name="staff-index"),
     path("staff/room/<int:room_id>", views.staff_index, name="staff-index_room"),
-    re_path(
-        r"^staff/room/(?P<room_id>\d*)/partials/(?P<qtype>\w+)$",
+    path(
+        "staff/room/<int:room_id>/partials/<slug:qtype>",
+        views.staff_index_partial,
+        name="staff-index-partials-room",
+    ),
+    path(
+        "staff/room/partials/<slug:qtype>",
         views.staff_index_partial,
         name="staff-index-partials",
     ),
@@ -45,7 +50,8 @@ urlpatterns = [
         views.voting_large,
         name="voting_large",
     ),
-    re_path(r"^voting/add/room/(?P<room_id>\d*)$", views.add_voting, name="add-voting"),
+    path("voting/add/room/<int:room_id>", views.add_voting, name="add-voting-in-room"),
+    path("voting/add/main", views.add_voting, name="add-voting"),
     path(
         "voting/<int:voting_pk>/delete/",
         views.delete_voting,

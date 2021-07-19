@@ -17,7 +17,7 @@ describe('Polls', function() {
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/drafted/).as("getStaffPartialsDrafted");
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/open/).as("getStaffPartialsOpen");
         cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/closed/).as("getStaffPartialsClosed");
-        cy.route("GET", "/poll/voting/add/room/**").as("getCreateVoting");
+        cy.route("GET", /(\/poll\/voting\/add\/room\/.*)|(\/poll\/voting\/add\/main.*)/).as("getCreateVoting");
         cy.route("GET", "/poll/voting/*/").as("getStaffVoting");
     })
 
