@@ -3913,7 +3913,7 @@ def pdf_exam_pos_student(
             return response
     elif type == "S":  ## look for scans
         if doc.scan_file:
-            output_pdf = pdf.check_add_watermark(request, doc.scan_file.read())
+            output_pdf = doc.scan_file.read()
             response = HttpResponse(output_pdf, content_type="application/pdf")
             response["Content-Disposition"] = (
                 "attachment; filename=%s" % doc.scan_file.name
@@ -3923,7 +3923,7 @@ def pdf_exam_pos_student(
         raise Http404("Scan document not found")
     elif type == "O":  ## look for scans
         if doc.scan_file_orig:
-            output_pdf = pdf.check_add_watermark(request, doc.scan_file_orig.read())
+            output_pdf = doc.scan_file_orig.read()
             response = HttpResponse(output_pdf, content_type="application/pdf")
             response[
                 "Content-Disposition"
