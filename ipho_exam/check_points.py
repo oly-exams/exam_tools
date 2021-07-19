@@ -22,7 +22,7 @@ from decimal import Decimal
 from django.http.response import Http404
 
 from ipho_exam import qquery
-from ipho_exam.models import Question
+from ipho_exam.models import Question, VersionNode
 from ipho_exam.qml import QMLquestion, QMLpart, QMLsubquestion, QMLsubanswer, make_qml
 
 __all__ = [
@@ -41,14 +41,14 @@ class PointValidationError(ValueError):
     pass
 
 
-def check_version(version):
+def check_version(version, other_question_status=("C", "S")):
     """
     Check a given version node.
     """
     question = version.question
     code = question.code
     if code == "G":
-        return
+        return ("G", None)
     check_sum_consistency(version)
     other_code = ({"Q", "A"} - {code}).pop()
     q_type = {"Q": "question", "A": "answer"}
@@ -63,9 +63,23 @@ def check_version(version):
             )
         )
     try:
+        qquery.latest_version(
+            other_question.pk,
+            lang_id=OFFICIAL_LANGUAGE_PK,
+            status=dict(VersionNode.STATUS_CHOICES).keys(),
+        )  # Check whether there are any versions
+    except Http404:
+        raise PointValidationError(  # pylint: disable=raise-missing-from
+            "The {} sheet corresponding to this {} does not have any version.".format(
+                q_type[other_code], q_type[code]
+            )
+        )
+    try:
         other_version = qquery.latest_version(
-            other_question.pk, lang_id=OFFICIAL_LANGUAGE_PK, status=["C", "S"]
-        ).node  # select the lastet version which is either staged or published
+            other_question.pk,
+            lang_id=OFFICIAL_LANGUAGE_PK,
+            status=other_question_status,
+        ).node  # select the lastet version which is in other_question_status
     except Http404:
         raise PointValidationError(  # pylint: disable=raise-missing-from
             "The {} sheet corresponding to this {} does not have a published or staged version.".format(
@@ -73,6 +87,7 @@ def check_version(version):
             )
         )
     check_question_answer_consistency(version, other_version)
+    return (version, other_version)
 
 
 def check_exam(exam):
@@ -111,9 +126,11 @@ def check_question_answer_consistency(version_node_1, version_node_2):
     ]
     if len(flat_nodes_1) != len(flat_nodes_2):
         raise PointValidationError(
-            "'{}' and '{}' in '{}' do not have the same number of objects with a 'points' attribute ({}, {})".format(
+            "'{} v{}' and '{} v{}' in '{}' do not have the same number of objects with a 'points' attribute ({}, {})".format(
                 version_node_1.question.name,
+                version_node_1.version,
                 version_node_2.question.name,
+                version_node_2.version,
                 version_node_1.question.exam.name,
                 len(flat_nodes_1),
                 len(flat_nodes_2),
@@ -124,13 +141,17 @@ def check_question_answer_consistency(version_node_1, version_node_2):
         pts2 = _get_points(node2)
         if pts1 != pts2:
             raise PointValidationError(
-                "The number of points of {} '{}' ({}) and {} '{}' ({}) do not match".format(
+                "The number of points of {} '{}' ({}) and {} '{}' ({}) do not match (in '{} v{}' and '{} v{}')".format(
                     _get_type_name(node1),
                     node1.attributes["id"],
                     pts1,
                     _get_type_name(node2),
                     node2.attributes["id"],
                     pts2,
+                    version_node_1.question.name,
+                    version_node_1.version,
+                    version_node_2.question.name,
+                    version_node_2.version,
                 )
             )
 

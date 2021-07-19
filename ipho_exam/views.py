@@ -2162,8 +2162,10 @@ def admin_check_points(request, exam_id, question_id, version_num):
         VersionNode, question=question, language=lang, version=version_num
     )
     try:
-        check_points.check_version(node)
-    except check_points.PointValidationError as exc:
+        (version, other_version) = check_points.check_version(
+            node, other_question_status=dict(VersionNode.STATUS_CHOICES).keys()
+        )
+    except (check_points.PointValidationError, TypeError) as exc:
         check_message = (
             "<div >Point check identified the following issue:</div><div><strong>"
             + escape(str(exc))
@@ -2177,11 +2179,19 @@ def admin_check_points(request, exam_id, question_id, version_num):
                 "success": False,
             }
         )
-
+    if version == "G":
+        return JsonResponse(
+            {
+                "title": "Nothing to check!",
+                "msg": "General Instructions should not have points and are not checked!",
+                "class": "bg-warning",
+                "success": True,
+            }
+        )
     return JsonResponse(
         {
             "title": "Check succeeded",
-            "msg": "<div>Points are consistent. No issues found!</div>",
+            "msg": f"<div>Compared {version.question.name} v{version.version} to {other_version.question.name} v{other_version.version}. No issues found!</div>",
             "class": "",
             "success": True,
         }
