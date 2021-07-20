@@ -405,6 +405,7 @@ def delete_voting(request, voting_pk):
     voting = get_object_or_404(Voting, pk=voting_pk)
     choice_list = VotingChoice.objects.filter(voting=voting)
     # try:
+    voting_pk = voting.pk
     voting.delete()
     for choice in choice_list:
         choice.delete()
@@ -418,9 +419,7 @@ def delete_voting(request, voting_pk):
     return JsonResponse(
         {
             "success": True,
-            "message": "<strong>The voting #"
-            + voting_pk
-            + " has been deleted successfully.</strong>",
+            "message": f"<strong>The voting #{voting_pk} has been deleted successfully.</strong>",
         }
     )
 
