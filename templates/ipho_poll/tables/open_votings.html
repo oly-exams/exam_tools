@@ -52,7 +52,7 @@
                         <a class="btn btn-default" href="{% url 'poll:voting' voting_pk=voting.pk %}" title="details"><i class="fa fa-info fa-fw"></i></a >
                         </span>
                         <span class="parent">
-                        <a class="btn btn-warning" href="{% url 'poll:remove-end-date' voting_pk=voting.pk %}" title="draft vote"><i class="fa fa-level-down fa-fw"></i></a>
+                        <a class="btn btn-warning" href="{% url 'poll:add-minutes' voting_pk=voting.pk minutes=1 %}" title="Add one minute">+1 min</a>
                         </span>
                         <span class="parent">
                         <a class="btn btn-success" href="{% url 'poll:close-voting' voting_pk=voting.pk %}" title="close vote"><i class="fa fa-check-square fa-fw"></i></a>

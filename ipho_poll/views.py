@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import concurrent.futures
+import datetime
 from dateutil import tz
 from past.utils import old_div
 
@@ -502,12 +503,15 @@ def set_end_date(request, voting_pk):
 @login_required
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
-def remove_end_date(request, voting_pk):
+def add_minutes(request, voting_pk, minutes):
+    if minutes > 42:
+        raise Http404("Cannot add more than 42 minutes.")
+
     voting = get_object_or_404(Voting, pk=voting_pk)
     if not voting.is_open():
         raise Http404("Action not allowed")
 
-    voting.end_date = None
+    voting.end_date = voting.end_date + datetime.timedelta(minutes=minutes)
     voting.save()
     if voting.voting_room is not None:
         return HttpResponseRedirect(
