@@ -176,7 +176,7 @@ class MarkingManager(models.Manager):
         # return self.get_queryset().filter(marking_meta__in=MarkingMeta.objects.for_user(user))
         exams = Exam.objects.for_user(user)
         queryset = self.get_queryset().filter(
-            marking_meta__question__exam__in=exams.all(), version=version
+            marking_meta__question__exam__in=exams, version=version
         )
         if user.is_superuser:
             return queryset
@@ -209,7 +209,7 @@ class MarkingManager(models.Manager):
                 # This filters out all >=locked Delegation Markings for exams with Org view after moderation.
                 exams_org_view_after_mod = exams.filter(
                     marking_organizer_can_see_delegation_marks__gte=Exam.MARKING_ORGANIZER_VIEW_MODERATION_FINAL
-                ).all()
+                )
                 deleg_marking_view_after_mod_q = (
                     Q(marking_meta__question__exam__in=exams_org_view_after_mod)
                     & locked_action_q
@@ -217,7 +217,7 @@ class MarkingManager(models.Manager):
                 # This filters out all >=submitted Delegation Markings for exams with Org view after submission.
                 exams_org_view_after_subm = exams.filter(
                     marking_organizer_can_see_delegation_marks__gte=Exam.MARKING_ORGANIZER_VIEW_WHEN_SUBMITTED
-                ).all()
+                )
                 deleg_marking_view_after_subm_q = (
                     Q(marking_meta__question__exam__in=exams_org_view_after_subm)
                     & subm_action_q
@@ -241,7 +241,6 @@ class MarkingManager(models.Manager):
                 ).all()
                 org_marking_view_after_subm_q = (
                     Q(marking_meta__question__exam__in=exams_deleg_view_after_subm)
-                    & Q(version="O")
                     & subm_action_q
                 )
                 # This filters out all Official markings for exams with delegation can view off marks
@@ -250,7 +249,7 @@ class MarkingManager(models.Manager):
                 ).all()
                 org_marking_view_always_q = Q(
                     marking_meta__question__exam__in=exams_deleg_view_yes
-                ) & Q(version="O")
+                )
 
                 return queryset.filter(
                     org_marking_view_after_subm_q | org_marking_view_always_q
@@ -265,10 +264,10 @@ class MarkingManager(models.Manager):
 
     def editable(self, user, version):
 
-        if user.is_superuser:
-            return self.for_user(user, version)
-
         queryset = self.for_user(user, version)
+        if user.is_superuser:
+            return queryset
+
         exams = Exam.objects.for_user(user)
 
         un_subm_actions = MarkingAction.objects.filter(
