@@ -58,6 +58,18 @@ class VersionNodeAdminForm(forms.ModelForm):
         # }
 
 
+class TranslationNodeAdminForm(forms.ModelForm):
+    text = forms.CharField(widget=AceWidget(mode="xml", wordwrap=True, width="100%"))
+
+    class Meta:
+        model = TranslationNode
+        fields = "__all__"
+
+        # widgets = {
+        #     'body':AceWidget()
+        # }
+
+
 class FigureAdminForm(forms.ModelForm):
     content = forms.CharField(widget=AceWidget(mode="xml", wordwrap=True, width="100%"))
 
@@ -124,6 +136,7 @@ class VersionNodeAdmin(admin.ModelAdmin):
 
 
 class TranslationNodeAdmin(admin.ModelAdmin):
+    form = TranslationNodeAdminForm
     list_display = ("question", "language", "status", "timestamp")
     list_filter = ("question", "language__delegation")
 
