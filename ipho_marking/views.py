@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # pylint: disable=too-many-lines
-
+# pylint: disable=unexpected-keyword-arg
 import csv
 import decimal
 import itertools
@@ -726,7 +726,7 @@ def delegation_stud_edit(
 @permission_required("ipho_core.is_delegation")
 def delegation_edit_all(request, question_id):
     delegation = Delegation.objects.get(members=request.user)
-    students = Student.objects.filter(delegation=delegation).order_by("code")
+    students = Student.objects.filter(delegation=delegation)
 
     question = get_object_or_404(
         Question.objects.for_user(request.user),
@@ -1155,7 +1155,7 @@ def delegation_confirm(
             markings_query, key=lambda m: m.marking_meta.question.pk
         )
     }
-    students = Student.objects.filter(delegation=delegation).order_by("pk").all()
+    students = Student.objects.filter(delegation=delegation).all()
     # totals is of the form {question.pk:{student.pk:total, ...}, ...}
     totals_questions = {
         k: {  # s is a list of markings for student p
