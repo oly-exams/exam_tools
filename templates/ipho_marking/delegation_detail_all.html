@@ -58,7 +58,7 @@
             <th colspan="3" style="text-align: center;">{{ stud.code }}
               <br/>
               {% for doc in documents %}
-                {% if doc.student.pk == stud.pk and doc.scan_file and doc.scan_status == 'S' or doc.scan_status == 'P' and doc.scan_file  %}
+                {% if doc.student.pk == stud.pk and doc.scan_file and doc.scan_status == 'S' or doc.student.pk == stud.pk and doc.scan_status == 'P' and doc.scan_file  %}
                   <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=doc.student.pk position=question.position %}">
                     <i class="fa fa-file-pdf-o"></i>
                     View scan
