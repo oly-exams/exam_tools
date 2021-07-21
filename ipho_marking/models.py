@@ -172,19 +172,23 @@ class MarkingMeta(models.Model):
 
 
 class MarkingManager(models.Manager):
-    def for_user(self, user):  # pylint: disable=too-many-locals
+    def for_user(self, user, version):  # pylint: disable=too-many-return-statements
         # return self.get_queryset().filter(marking_meta__in=MarkingMeta.objects.for_user(user))
         exams = Exam.objects.for_user(user)
-        queryset = self.get_queryset().filter(marking_meta__question__exam__in=exams)
+        queryset = self.get_queryset().filter(
+            marking_meta__question__exam__in=exams.all(), version=version
+        )
+        if user.is_superuser:
+            return queryset
 
         # In a first step, we need to find markings which are >=locked/submitted
         # We achieve this by creating individual Q objects for each Action and then concatenating them
         locked_actions = MarkingAction.objects.filter(
             status__gte=MarkingAction.LOCKED_BY_MODERATION
-        )
+        ).all()
         subm_actions = MarkingAction.objects.filter(
             status__gte=MarkingAction.SUBMITTED_FOR_MODERATION
-        )
+        ).all()
         locked_action_q_list = [
             Q(student__delegation=a.delegation, marking_meta__question=a.question)
             for a in locked_actions
@@ -196,113 +200,113 @@ class MarkingManager(models.Manager):
         # Q(pk__in=[]) is an empty Q object which we use as initializer (and default) object in reduce
         locked_action_q = reduce(operator.or_, locked_action_q_list, Q(pk__in=[]))
         subm_action_q = reduce(operator.or_, subm_action_q_list, Q(pk__in=[]))
-        if user.is_superuser:
-            return queryset
-        if user.has_perm("ipho_core.is_marker"):
-            # This filters out all >=locked Delegation Markings for exams with Org view after moderation.
-            exams_org_view_after_mod = exams.filter(
-                marking_organizer_can_see_delegation_marks__gte=Exam.MARKING_ORGANIZER_VIEW_MODERATION_FINAL
-            )
-            deleg_marking_view_after_mod_q = (
-                Q(marking_meta__question__exam__in=exams_org_view_after_mod)
-                & Q(version="D")
-                & locked_action_q
-            )
-            # This filters out all >=submitted Delegation Markings for exams with Org view after submission.
-            exams_org_view_after_subm = exams.filter(
-                marking_organizer_can_see_delegation_marks__gte=Exam.MARKING_ORGANIZER_VIEW_WHEN_SUBMITTED
-            )
-            deleg_marking_view_after_subm_q = (
-                Q(marking_meta__question__exam__in=exams_org_view_after_subm)
-                & Q(version="D")
-                & subm_action_q
-            )
-            # This filters out all final, >= locked marks
-            marking_final_q = Q(version="F") & locked_action_q
-            # This filters out the official marks
-            marking_official = Q(version="O")
 
-            return queryset.filter(
-                deleg_marking_view_after_mod_q
-                | deleg_marking_view_after_subm_q
-                | marking_final_q
-                | marking_official
-            )
+        if user.has_perm("ipho_core.is_marker"):
+            if version == "O":
+                return queryset
+            if version == "D":
+
+                # This filters out all >=locked Delegation Markings for exams with Org view after moderation.
+                exams_org_view_after_mod = exams.filter(
+                    marking_organizer_can_see_delegation_marks__gte=Exam.MARKING_ORGANIZER_VIEW_MODERATION_FINAL
+                ).all()
+                deleg_marking_view_after_mod_q = (
+                    Q(marking_meta__question__exam__in=exams_org_view_after_mod)
+                    & locked_action_q
+                )
+                # This filters out all >=submitted Delegation Markings for exams with Org view after submission.
+                exams_org_view_after_subm = exams.filter(
+                    marking_organizer_can_see_delegation_marks__gte=Exam.MARKING_ORGANIZER_VIEW_WHEN_SUBMITTED
+                ).all()
+                deleg_marking_view_after_subm_q = (
+                    Q(marking_meta__question__exam__in=exams_org_view_after_subm)
+                    & subm_action_q
+                )
+                return queryset.filter(
+                    deleg_marking_view_after_mod_q | deleg_marking_view_after_subm_q
+                )
+
+            if version == "F":
+                return queryset.filter(locked_action_q)
 
         if user.has_perm("ipho_core.is_delegation"):
             # A delegation can only view their own markings
-            delegs = Delegation.objects.filter(members=user)
+            delegs = Delegation.objects.filter(members=user).all()
             queryset = queryset.filter(student__delegation__in=delegs)
-            # This filters out all >=submitted Official Markings for exams with Delegation can view after submission.
-            exams_deleg_view_after_subm = exams.filter(
-                marking_delegation_can_see_organizer_marks__gte=Exam.MARKING_DELEGATION_VIEW_WHEN_SUBMITTED
-            )
-            org_marking_view_after_subm_q = (
-                Q(marking_meta__question__exam__in=exams_deleg_view_after_subm)
-                & Q(version="O")
-                & subm_action_q
-            )
-            # This filters out all Official markings for exams with delegation can view off marks
-            exams_deleg_view_yes = exams.filter(
-                marking_delegation_can_see_organizer_marks__gte=Exam.MARKING_DELEGATION_VIEW_YES
-            )
-            org_marking_view_always_q = Q(
-                marking_meta__question__exam__in=exams_deleg_view_yes
-            ) & Q(version="O")
-            # This filters out all final, >= locked marks
-            marking_final_q = Q(version="F") & locked_action_q
-            # This filters out the delegation marks
-            marking_delegation = Q(version="D")
 
-            return queryset.filter(
-                org_marking_view_after_subm_q
-                | org_marking_view_always_q
-                | marking_final_q
-                | marking_delegation
-            )
+            if version == "O":
+                # This filters out all >=submitted Official Markings for exams with Delegation can view after submission.
+                exams_deleg_view_after_subm = exams.filter(
+                    marking_delegation_can_see_organizer_marks__gte=Exam.MARKING_DELEGATION_VIEW_WHEN_SUBMITTED
+                ).all()
+                org_marking_view_after_subm_q = (
+                    Q(marking_meta__question__exam__in=exams_deleg_view_after_subm)
+                    & Q(version="O")
+                    & subm_action_q
+                )
+                # This filters out all Official markings for exams with delegation can view off marks
+                exams_deleg_view_yes = exams.filter(
+                    marking_delegation_can_see_organizer_marks__gte=Exam.MARKING_DELEGATION_VIEW_YES
+                ).all()
+                org_marking_view_always_q = Q(
+                    marking_meta__question__exam__in=exams_deleg_view_yes
+                ) & Q(version="O")
+
+                return queryset.filter(
+                    org_marking_view_after_subm_q | org_marking_view_always_q
+                )
+
+            if version == "D":
+                return queryset
+            if version == "F":
+                return queryset.filter(locked_action_q)
+
         return self.none()
 
-    def editable(self, user):
-        queryset = self.for_user(user)
+    def editable(self, user, version):
+
+        if user.is_superuser:
+            return self.for_user(user, version)
+
+        queryset = self.for_user(user, version)
         exams = Exam.objects.for_user(user)
 
-        # In a first step, we need to find markings which are <final/submitted
-        # We achieve this by creating individual Q objects for each Action and then concatenating them
-        un_final_actions = MarkingAction.objects.filter(status__lt=MarkingAction.FINAL)
         un_subm_actions = MarkingAction.objects.filter(
             status__lt=MarkingAction.SUBMITTED_FOR_MODERATION
-        )
-        un_final_action_q_list = [
-            Q(student__delegation=a.delegation, marking_meta__question=a.question)
-            for a in un_final_actions
-        ]
+        ).all()
+
         un_subm_action_q_list = [
             Q(student__delegation=a.delegation, marking_meta__question=a.question)
             for a in un_subm_actions
         ]
         # Q(pk__in=[]) is an empty Q object which we use as initializer (and default) object in reduce
-        un_final_action_q = reduce(operator.or_, un_final_action_q_list, Q(pk__in=[]))
         un_subm_action_q = reduce(operator.or_, un_subm_action_q_list, Q(pk__in=[]))
 
-        if user.is_superuser:
-            # return self.none() # prevents superuser from accidentally editing something
-            return queryset  # allow superuser to edit marks, since after all, he or she is a superuser :-)
-        if user.has_perm("ipho_core.is_marker"):
-            # Organizers can only edit organizer Markings
-            queryset = queryset.filter(version="O")
+        if user.has_perm("ipho_core.is_marker") and version == "O":
+            un_final_actions = MarkingAction.objects.filter(
+                status__lt=MarkingAction.FINAL
+            ).all()
+            un_final_action_q_list = [
+                Q(student__delegation=a.delegation, marking_meta__question=a.question)
+                for a in un_final_actions
+            ]
+            un_final_action_q = reduce(
+                operator.or_, un_final_action_q_list, Q(pk__in=[])
+            )
 
             # This filters out all <submitted Markings for exams with Org edit if not submitted
             exams_org_edit_before_subm = exams.filter(
                 marking_organizer_can_enter__gte=Exam.MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED
-            )
+            ).all()
             marking_edit_before_subm_q = (
                 Q(marking_meta__question__exam__in=exams_org_edit_before_subm)
                 & un_subm_action_q
             )
+
             # This filters out all <final Markings for exams with Org edit if not final
             exams_org_edit_before_final = exams.filter(
                 marking_organizer_can_enter__gte=Exam.MARKING_ORGANIZER_CAN_ENTER_IF_NOT_FINAL
-            )
+            ).all()
             marking_edit_before_final_q = (
                 Q(marking_meta__question__exam__in=exams_org_edit_before_final)
                 & un_final_action_q
@@ -311,18 +315,15 @@ class MarkingManager(models.Manager):
                 marking_edit_before_subm_q | marking_edit_before_final_q
             )
 
-        if user.has_perm("ipho_core.is_delegation"):
-            # Delegations should only be able to edit delegation markings
-            queryset = queryset.filter(version="D")
-
+        if user.has_perm("ipho_core.is_delegation") and version == "D":
             # This filters out all Markings for exams with Delegation action >= MARKING_DELEGATION_ACTION_ENTER_SUBMIT
             exams_deleg_edit = exams.filter(
                 marking_delegation_action__gte=Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT
             )
             marking_deleg_edit_q = Q(marking_meta__question__exam__in=exams_deleg_edit)
-
             # Only unsubmitted markings can be edited
             return queryset.filter(marking_deleg_edit_q & un_subm_action_q)
+
         return self.none()
 
 
