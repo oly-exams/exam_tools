@@ -120,7 +120,7 @@ class LanguageAdmin(admin.ModelAdmin):
 class VersionNodeAdmin(admin.ModelAdmin):
     form = VersionNodeAdminForm
     list_display = ("question", "language", "version", "tag", "status", "timestamp")
-    list_filter = ("question",)
+    list_filter = ("status", "version", "question", "tag")
 
 
 class TranslationNodeAdmin(admin.ModelAdmin):
