@@ -233,7 +233,7 @@ def export_with_total(request):
 @permission_required("ipho_core.is_organizer_admin")
 def export(
     request, include_totals=False
-):  # pylint: disable=too-many-locals, too-many-branches
+):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     versions = request.GET.get("v", "O,D,F").split(",")
 
     csv_rows = []
@@ -267,9 +267,10 @@ def export(
             stud_markings = Marking.objects.filter(
                 student=student, marking_meta__in=mmeta, version=version
             )
-            visible_stud_markings = Marking.objects.for_user(
-                request.user, version
-            ).filter(student=student, marking_meta__in=mmeta)
+
+            # visible_stud_markings = Marking.objects.for_user(
+            #    request.user, version
+            # ).filter(student=student, marking_meta__in=mmeta)
             row = [
                 student.code,
                 student.first_name,
@@ -288,24 +289,47 @@ def export(
             points = []
             all_visible = True
             for marking in version_markings:
-                if marking in visible_stud_markings:
+                delegation = student.delegation
+                action = MarkingAction.objects.get(
+                    delegation=delegation, question=marking.marking_meta.question
+                )
+                if version == "O":
+                    points.append(marking.points)
+                elif (
+                    version == "D"
+                    and marking.marking_meta.question.exam.marking_organizer_can_see_delegation_marks
+                    >= Exam.MARKING_ORGANIZER_VIEW_MODERATION_FINAL
+                    and action.status >= MarkingAction.SUBMITTED_FOR_MODERATION
+                    and (
+                        action.status >= MarkingAction.LOCKED_BY_MODERATION
+                        or marking.marking_meta.question.exam.marking_organizer_can_see_delegation_marks
+                        >= Exam.MARKING_ORGANIZER_VIEW_WHEN_SUBMITTED
+                    )
+                ):
+                    points.append(marking.points)
+                elif (
+                    version == "F"
+                    and action.status >= MarkingAction.LOCKED_BY_MODERATION
+                ):
                     points.append(marking.points)
                 else:
                     all_visible = False
                     points.append(None)
 
             row += points
-            if include_totals:
+            if include_totals and all_visible:
                 for question in questions:
                     # Only append total if all markings are visible
                     q_markings = version_markings.filter(
                         marking_meta__question=question
                     )
                     # If some marks are not visible
-                    if q_markings.exclude(pk__in=visible_stud_markings).exists():
-                        row.append(None)
-                    else:
+                    if (
+                        all_visible
+                    ):  # q_markings.exclude(pk__in=visible_stud_markings).exists():
                         row.append(_get_total(q_markings))
+                    else:
+                        row.append(None)
 
                 for exam in exams:
                     # Only append total if all markings are visible
@@ -313,10 +337,12 @@ def export(
                         marking_meta__question__exam=exam
                     )
                     # If some marks are not visible
-                    if e_markings.exclude(pk__in=visible_stud_markings).exists():
-                        row.append(None)
-                    else:
+                    if (
+                        all_visible
+                    ):  # e_markings.exclude(pk__in=visible_stud_markings).exists():
                         row.append(_get_total(e_markings))
+                    else:
+                        row.append(None)
 
                 # Only append total if all markings are visible
                 if all_visible:
@@ -341,7 +367,7 @@ def _get_total(filtered_markings):
 
 
 @permission_required("ipho_core.is_delegation")
-def delegation_export(request, exam_id=None):
+def delegation_export(request, exam_id=None):  # pylint: disable=too-many-branches
     delegation = Delegation.objects.get(members=request.user)
     if exam_id is not None:
         exams = Exam.objects.for_user(request.user).filter(pk=exam_id)
@@ -376,13 +402,34 @@ def delegation_export(request, exam_id=None):
         i = 0
         for student in students:
             for version in versions:
-                marking = Marking.objects.for_user(request.user, version).filter(
-                    student__delegation=delegation,
-                    marking_meta=meta,
-                    student=student,
+                marking = Marking.objects.get(
+                    student=student, version=version, marking_meta=meta
                 )
-                if marking.exists():
-                    points = marking.first().points
+                marking_action = MarkingAction.objects.get(
+                    delegation=delegation, question=meta.question
+                )
+                if version == "D":
+                    pass
+                elif (
+                    version == "F"
+                    and marking_action.status >= MarkingAction.LOCKED_BY_MODERATION
+                ):
+                    pass
+                elif (
+                    version == "O"
+                    and meta.question.exam.marking_delegation_can_see_organizer_marks
+                    >= Exam.MARKING_DELEGATION_VIEW_WHEN_SUBMITTED
+                    and (
+                        marking_action.status >= MarkingAction.SUBMITTED_FOR_MODERATION
+                        or meta.question.exam.marking_delegation_can_see_organizer_marks
+                        >= Exam.MARKING_DELEGATION_VIEW_YES
+                    )
+                ):
+                    pass
+                else:
+                    marking = None
+                if marking is not None:
+                    points = marking.points
                 else:
                     points = None
                 row.append(points)
