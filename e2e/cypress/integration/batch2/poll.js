@@ -21,7 +21,7 @@ describe('Polls', function() {
         cy.route("GET", "/poll/voting/*/").as("getStaffVoting");
     })
 
-    it.only('Test Voting', function() {
+    it('Test Voting', function() {
         cy.login('admin','1234')
         cy.visit('poll/staff/')
 
