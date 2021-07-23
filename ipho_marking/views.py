@@ -307,10 +307,7 @@ def export(
                     )
                 ):
                     points.append(marking.points)
-                elif (
-                    version == "F"
-                    and action.status >= MarkingAction.LOCKED_BY_MODERATION
-                ):
+                elif version == "F" and action.status >= MarkingAction.FINAL:
                     points.append(marking.points)
                 else:
                     all_visible = False
