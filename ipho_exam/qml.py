@@ -34,7 +34,6 @@ from future import standard_library
 
 standard_library.install_aliases()
 
-
 from bs4 import BeautifulSoup
 
 # import tidylib
@@ -52,6 +51,7 @@ from . import simplediff
 # block groups
 PARAGRAPH_LIKE_BLOCKS = (
     "paragraph",
+    "paragraph_colored",
     "list",
     "enumerate",
     "table",
@@ -94,7 +94,7 @@ TIDYOPTIONS = {
     "clean": True,
     "bare": True,
     "new-blocklevel-tags": "question,subquestion,subanswer,subanswercontinuation,box,section,part,figure,list,texfield,texparam,texenv,table,row",
-    "new-inline-tags": "title,paragraph,param,caption,equation,equation_unnumbered,item,texparam,cell,tablecaption",
+    "new-inline-tags": "title,paragraph,paragraph_colored,param,caption,equation,equation_unnumbered,item,texparam,cell,tablecaption",
     "new-empty-tags": "pagebreak,vspace",
 }  # yapf:disable
 
@@ -777,6 +777,20 @@ class QMLparagraph(QMLobject):
 
     def xhtml_end(self):
         return "</p>"
+
+
+class QMLparagraphcolored(QMLparagraph):
+    tag = "paragraph_colored"
+    display_name = "Paragraph (colored)"
+    sort_order = 121
+
+    default_attributes = {"color": "red"}
+
+    def tex_begin(self):
+        return "{\\color{" + self.attributes.get("color", "") + "}"
+
+    def tex_end(self):
+        return "}"
 
 
 class QMLfigure(QMLobject):
