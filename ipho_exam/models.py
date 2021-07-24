@@ -1050,6 +1050,7 @@ class CompiledFigure(Figure):
 
     @staticmethod
     def _to_pdf(fig_svg, fig_name):
+        # pylint: disable=consider-using-with
         with codecs.open("%s.svg" % (fig_name), "w", encoding="utf-8") as f:
             f.write(fig_svg)
         error = subprocess.Popen(
@@ -1069,6 +1070,7 @@ class CompiledFigure(Figure):
 
     @staticmethod
     def _to_png(fig_svg, fig_name):
+        # pylint: disable=consider-using-with
         with codecs.open("%s.svg" % (fig_name), "w", encoding="utf-8") as f:
             f.write(fig_svg)
         error = subprocess.Popen(

@@ -196,9 +196,9 @@ class CastedVote(models.Model):
 
     def clean(self):
         super().clean()
-        if timezone.now() > self.voting.end_date:
+        if not self.voting.is_open():
             raise ValidationError(
-                "Voting is already closed, cannot save this vote. Please reload the page."
+                "Voting is not open, cannot save this vote. Please reload the page."
             )
 
     class Meta:
