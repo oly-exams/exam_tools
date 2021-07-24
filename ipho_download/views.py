@@ -23,13 +23,8 @@ import datetime
 import pytz
 
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.http import (
-    HttpResponse,
-    HttpResponseNotModified,
-    Http404,
-    HttpResponseForbidden,
-)
+from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpResponse, HttpResponseNotModified, Http404
 from django.conf import settings
 from django.utils.cache import patch_response_headers
 
@@ -46,21 +41,13 @@ def file_hash(fname):
 
 
 @login_required
-def main(
-    request, type, url
-):  # pylint: disable=too-many-locals,redefined-builtin, too-many-branches
+@permission_required("ipho_core.can_see_boardmeeting")
+def main(request, type, url):  # pylint: disable=too-many-locals,redefined-builtin
     type_ = type
     url = os.path.normpath(url)
 
     basedir = os.path.join(MEDIA_ROOT, "downloads")
     path = os.path.join(basedir, url)
-
-    boardmeeting_only_files = os.path.join(basedir, "boardmeeting_only")
-    if not request.user.has_perm("ipho_core.can_see_boardmeeting") and path.startswith(
-        boardmeeting_only_files
-    ):
-        return HttpResponseForbidden("Only boardmeeting members can view these files.")
-
     rel_url = os.path.relpath(path, basedir)
     if rel_url[0] == "." and "/" in rel_url:
         raise Http404("File path not valid.")
@@ -80,6 +67,7 @@ def main(
 
         filename = os.path.basename(path)
         content_type, _ = mimetypes.guess_type(path)
+        # pylint: disable=consider-using-with
         res = HttpResponse(open(path, "rb"), content_type=content_type)
         res["content-disposition"] = f'inline; filename="{filename}"'
         res["ETag"] = etag
@@ -91,12 +79,6 @@ def main(
         if fname[0] == ".":
             continue
         fullpath = os.path.join(path, fname)
-
-        if not request.user.has_perm(
-            "ipho_core.can_see_boardmeeting"
-        ) and os.path.normpath(fullpath).startswith(boardmeeting_only_files):
-            continue
-
         fpath = os.path.relpath(fullpath, basedir)
         fttype = "f"
         ftype = "file"

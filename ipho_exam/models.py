@@ -1050,6 +1050,7 @@ class CompiledFigure(Figure):
 
     @staticmethod
     def _to_pdf(fig_svg, fig_name):
+        # pylint: disable=consider-using-with
         with codecs.open("%s.svg" % (fig_name), "w", encoding="utf-8") as f:
             f.write(fig_svg)
         error = subprocess.Popen(
@@ -1069,6 +1070,7 @@ class CompiledFigure(Figure):
 
     @staticmethod
     def _to_png(fig_svg, fig_name):
+        # pylint: disable=consider-using-with
         with codecs.open("%s.svg" % (fig_name), "w", encoding="utf-8") as f:
             f.write(fig_svg)
         error = subprocess.Popen(
@@ -1342,7 +1344,7 @@ class DocumentManager(models.Manager):
     def scans_ready(self, user):
         queryset = self.for_user(user)
         return (
-            queryset.filter(Q(scan_status="S") | Q(scan_status="P"))
+            queryset.filter(scan_status="S")
             .exclude(
                 scan_file__isnull=True,
             )
@@ -1354,7 +1356,6 @@ class Document(models.Model):
     objects = DocumentManager()
 
     SCAN_STATUS_CHOICES = (
-        ("P", "Printed"),
         ("S", "Success"),
         ("W", "Warning"),
         ("M", "Missing pages"),
@@ -1395,7 +1396,7 @@ class Document(models.Model):
         blank=True,
         null=True,
         choices=SCAN_STATUS_CHOICES,
-        help_text="Status of the scanned document. P - Printed, S - Success, W - Warning, M - Missing pages",
+        help_text="Status of the scanned document. S - Success, W - Warning, M - Missing pages",
     )
     scan_msg = models.TextField(
         blank=True,
