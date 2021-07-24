@@ -75,7 +75,7 @@ def compile_tex_diff(old_body, new_body, ext_resources=tuple()):
 def compile_tex(body, ext_resources=tuple()):
     doc = "question"
     etag = md5(body.encode("utf8")).hexdigest()
-
+    # pylint: disable=consider-using-with
     cache_key = f"{CACHE_PREFIX}:{etag}"
     pdf = cache.get(cache_key)
     # body = body.replace("&#39;", "'") # convert HTML apostrophe in human readable apostrophe

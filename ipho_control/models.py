@@ -23,7 +23,7 @@ from django.dispatch import receiver
 from django.db import models
 from ipho_exam.models import Exam, Question
 
-import ipho_control.phase_checks as phase_checks
+from ipho_control import phase_checks
 
 
 class ExamPhaseManager(models.Manager):

@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # pylint: disable=too-many-lines
-# pylint: disable=unexpected-keyword-arg
 import csv
 import decimal
 import itertools
