@@ -65,9 +65,6 @@ class TranslationNodeAdminForm(forms.ModelForm):
         model = TranslationNode
         fields = "__all__"
 
-        # widgets = {
-        #     'body':AceWidget()
-        # }
 
 
 class FigureAdminForm(forms.ModelForm):
