@@ -1,5 +1,5 @@
-yapf
-pylint
-docker
-pre-commit
-pylint-django
+yapf <0.32, >=0.31
+pylint <2.10, >=2.9.5
+docker <6 , >=5
+pre-commit <2.14, >=2.13
+pylint-django <2.5, >=2.4

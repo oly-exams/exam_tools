@@ -66,7 +66,6 @@ class TranslationNodeAdminForm(forms.ModelForm):
         fields = "__all__"
 
 
-
 class FigureAdminForm(forms.ModelForm):
     content = forms.CharField(widget=AceWidget(mode="xml", wordwrap=True, width="100%"))
 
