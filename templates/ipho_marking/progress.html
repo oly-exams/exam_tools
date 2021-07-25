@@ -5,7 +5,7 @@
 
 
 {% block extra-head %}
-<meta http-equiv="refresh" content="15" />
+<meta http-equiv="refresh" content="600" />
 {% endblock %}
 
 {% block pageheader %}<h1>Marking progress</h1>{% endblock %}
@@ -28,7 +28,7 @@
 </div>
 <p>Note that only students with unfinished marks are shown.</p>
 
-<br/>
+<br />
 
 {% for exam_name, questions, student_statuses in marking_statuses %}
 <div class="panel panel-default">
@@ -67,14 +67,14 @@
 
 {% block extra-script %}
 <script>
-$('document').ready(function(){
-    $(document).on('click', '#reload', function(event){
-        location.reload();
+  $('document').ready(function () {
+    $(document).on('click', '#reload', function (event) {
+      location.reload();
     });
 
     // Activates tooltipls
-    $('.btn').tooltip({containter: ".parent"});
+    $('.btn').tooltip({ containter: ".parent" });
 
-}); // $(document).ready()
+  }); // $(document).ready()
 </script>
 {% endblock %}

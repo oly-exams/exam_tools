@@ -19,6 +19,8 @@
 
 from decimal import Decimal
 
+from django.http.response import Http404
+
 from ipho_exam import qquery
 from ipho_exam.models import Question
 from ipho_exam.qml import QMLquestion, QMLpart, QMLsubquestion, QMLsubanswer, make_qml
@@ -56,17 +58,17 @@ def check_version(version):
         )
     except Question.DoesNotExist:
         raise PointValidationError(  # pylint: disable=raise-missing-from
-            "The {} sheet corresponding to this {} does not exist.".format(
+            "The {} sheet corresponding to this {} sheet does not exist.".format(
                 q_type[other_code], q_type[code]
             )
         )
     try:
         other_version = qquery.latest_version(
-            other_question.pk, lang_id=OFFICIAL_LANGUAGE_PK
-        ).node
-    except IndexError:
+            other_question.pk, lang_id=OFFICIAL_LANGUAGE_PK, status=["C", "S"]
+        ).node  # select the lastet version which is either staged or published
+    except Http404:
         raise PointValidationError(  # pylint: disable=raise-missing-from
-            "The {} sheet corresponding to this {} does not have a published version.".format(
+            "The {} sheet corresponding to this {} does not have a published or staged version.".format(
                 q_type[other_code], q_type[code]
             )
         )

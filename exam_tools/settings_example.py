@@ -37,6 +37,7 @@ ADMINS = (
     ("Michele Dolfi", "michele.dolfi@gmail.com"),
 )
 
+
 MANAGERS = ADMINS
 
 DATABASES = {

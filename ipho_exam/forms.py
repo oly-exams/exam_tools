@@ -201,7 +201,6 @@ class ExamQuestionForm(ModelForm):
 
 class DeleteForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        print("hello world from delete form")
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.html5_required = True
@@ -404,10 +403,15 @@ class AdminBlockAttributeForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        if not cleaned_data["key"] or not cleaned_data["key"].isidentifier():
+        if not cleaned_data.get("key") or not cleaned_data.get("value"):
+            cleaned_data[
+                "DELETE"
+            ] = True  # delete the Form if either of key or value are empty
+            return cleaned_data
+        if not cleaned_data["key"].isidentifier():
             self.add_error(
-                "value",
-                "The key can only ontain alphanumeric characters or underscores.",
+                "key",
+                "The key can only contain alphanumeric characters or underscores.",
             )
         if cleaned_data["key"] == "points":
             try:

@@ -174,7 +174,9 @@ def staff_stud_detail(request, version, stud_id, question_id):
     ctx["msg"] = []
 
     if not request.user.has_perm("ipho_core.is_marker") or version != "O":
-        raise Http404("You cannot modify these markings!")
+        raise Http404(
+            "You cannot modify these markings since you are not a marker or you are trying to edit a delegation or final marking"
+        )
 
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id

@@ -727,7 +727,7 @@ body { margin-bottom: 70px; }
                     var style = $('select[name="style"]').val();
                     if (style in ipho_languages) {
                         var polyglossia = ipho_languages[style]['polyglossia'];
-                        if (polyglossia == null) polyglossia = 'custom';
+                        if (polyglossia == null) polyglossia = 'english';
                         var polyglossia_options = ipho_languages[style]['polyglossia_options'];
                         if (polyglossia_options == null) polyglossia_options = '';
                         $('select[name="direction"]').val(ipho_languages[style]['direction']);

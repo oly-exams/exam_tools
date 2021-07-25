@@ -623,7 +623,9 @@ def voter_index(
             initial=[{"voting_right": vt} for vt in voting_rights],
         )
         for vote_form in CastedVoteFormset:
-            vote_form.fields["choice"].queryset = voting.votingchoice_set.all()
+            vote_form.fields[
+                "choice"
+            ].queryset = voting.votingchoice_set.all().order_by("pk")
 
         if this_voting_submitted:
             if CastedVoteFormset.is_valid():

@@ -44,7 +44,6 @@ from .utils import natural_id
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 SITE_URL = getattr(settings, "SITE_URL")
 INKSCAPE_BIN = getattr(settings, "INKSCAPE_BIN", "inkscape")
-DOCUMENT_PATH = getattr(settings, "DOCUMENT_PATH")
 
 
 class LanguageManager(models.Manager):
@@ -58,16 +57,16 @@ class Language(models.Model):
     objects = LanguageManager()
     DIRECTION_CHOICES = (("ltr", "Left-to-right"), ("rtl", "Right-to-left"))
     POLYGLOSSIA_CHOICES = (
+        ("afrikaans", "Afrikaans"),
         ("albanian", "Albanian"),
         ("amharic", "Amharic"),
         ("arabic", "Arabic"),
         ("armenian", "Armenian"),
         ("asturian", "Asturian"),
-        ("bahasai", "Bahasai"),
-        ("bahasam", "Bahasam"),
         ("basque", "Basque"),
+        ("belarusian", "Belarusian"),
         ("bengali", "Bengali"),
-        ("brazilian", "Brazilian"),
+        ("bosnian", "Bosnian"),
         ("breton", "Breton"),
         ("bulgarian", "Bulgarian"),
         ("catalan", "Catalan"),
@@ -80,44 +79,50 @@ class Language(models.Model):
         ("english", "English"),
         ("esperanto", "Esperanto"),
         ("estonian", "Estonian"),
-        ("farsi", "Farsi"),
         ("finnish", "Finnish"),
         ("french", "French"),
-        ("friulan", "Friulan"),
+        ("friulian", "Friulian"),
+        ("gaelic", "Gaelic"),
         ("galician", "Galician"),
+        ("georgian", "Georgian"),
         ("german", "German"),
         ("greek", "Greek"),
         ("hebrew", "Hebrew"),
         ("hindi", "Hindi"),
+        ("hungarian", "Hungarian"),
         ("icelandic", "Icelandic"),
         ("interlingua", "Interlingua"),
-        ("irish", "Irish"),
         ("italian", "Italian"),
+        ("japanese", "Japanese"),
         ("kannada", "Kannada"),
+        ("khmer", "Khmer"),
+        ("korean", "Korean"),
+        ("kurdish", "Kurdish"),
         ("lao", "Lao"),
         ("latin", "Latin"),
         ("latvian", "Latvian"),
         ("lithuanian", "Lithuanian"),
-        ("lsorbian", "Lsorbian"),
-        ("magyar", "Magyar"),
+        ("macedonian", "Macedonian"),
+        ("malay", "Malay"),
         ("malayalam", "Malayalam"),
         ("marathi", "Marathi"),
+        ("mongolian", "Mongolian"),
         ("nko", "Nko"),
-        ("norsk", "Norsk"),
-        ("nynorsk", "Nynorsk"),
+        ("norwegian", "Norwegian"),
         ("occitan", "Occitan"),
+        ("persian", "Persian"),
         ("piedmontese", "Piedmontese"),
         ("polish", "Polish"),
-        ("portuges", "Portuges"),
+        ("portuguese", "Portuguese"),
         ("romanian", "Romanian"),
         ("romansh", "Romansh"),
         ("russian", "Russian"),
-        ("samin", "Samin"),
+        ("sami", "Sami"),
         ("sanskrit", "Sanskrit"),
-        ("scottish", "Scottish"),
         ("serbian", "Serbian"),
         ("slovak", "Slovak"),
         ("slovenian", "Slovenian"),
+        ("sorbian", "Sorbian"),
         ("spanish", "Spanish"),
         ("swedish", "Swedish"),
         ("syriac", "Syriac"),
@@ -129,10 +134,9 @@ class Language(models.Model):
         ("turkmen", "Turkmen"),
         ("ukrainian", "Ukrainian"),
         ("urdu", "Urdu"),
-        ("usorbian", "Usorbian"),
+        ("uyghur", "Uyghur"),
         ("vietnamese", "Vietnamese"),
         ("welsh", "Welsh"),
-        ("custom", "Other"),
     )  # yapf:disable
     STYLES_CHOICES = (
         ("afrikaans", "Afrikaans"),
@@ -669,7 +673,7 @@ class Exam(models.Model):
             >= Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT_FINALIZE
         )
 
-    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+    def save(self, *args, **kwargs):
         if self.pk:
             previous_feedback = Exam.objects.get(pk=self.pk).feedback
         else:
@@ -1009,7 +1013,9 @@ class CompiledFigure(Figure):
     params = models.TextField(blank=True)
 
     def params_as_list(self):
-        return list([si.trim() for si in self.params.split(",")])
+        return list(  # pylint: disable=consider-using-generator
+            [si.trim() for si in self.params.split(",")]
+        )
 
     def _to_svg(self, query, lang=None):
         placeholders = self.params.split(",")
@@ -1090,7 +1096,7 @@ class RawFigure(Figure):
     def params_as_list(self):  # pylint: disable=no-self-use
         return []
 
-    def to_inline(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def to_inline(self, *args, **kwargs):
         return self.content, self.filetype
 
     def to_file(
@@ -1256,9 +1262,7 @@ class ExamAction(models.Model):
 
 
 @receiver(post_save, sender=Exam, dispatch_uid="create_actions_on_exam_creation")
-def create_actions_on_exam_creation(
-    instance, created, raw, **kwargs
-):  # pylint: disable=unused-argument
+def create_actions_on_exam_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
@@ -1272,9 +1276,7 @@ def create_actions_on_exam_creation(
 @receiver(
     post_save, sender=Delegation, dispatch_uid="create_actions_on_delegation_creation"
 )
-def create_actions_on_delegation_creation(
-    instance, created, raw, **kwargs
-):  # pylint: disable=unused-argument
+def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
@@ -1304,21 +1306,18 @@ class StudentSubmission(models.Model):
 
 def exam_prints_filename(obj, fname):  # pylint: disable=unused-argument
     path = f"exams-docs/{obj.student.code}/print/exam-{obj.exam.id}-{obj.position}.pdf"
-    fullpath = os.path.join(DOCUMENT_PATH, path)
-    return fullpath
+    return path
 
 
 def exam_scans_filename(obj, fname):  # pylint: disable=unused-argument
     path = f"exams-docs/{obj.student.code}/scan/exam-{obj.exam.id}-{obj.position}.pdf"
-    fullpath = os.path.join(DOCUMENT_PATH, path)
-    return fullpath
+    return path
 
 
 def exam_scans_orig_filename(obj, fname):  # pylint: disable=unused-argument
     timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
     path = f"scans-evaluated/{obj.barcode_base}__{timestamp}.pdf"
-    fullpath = os.path.join(DOCUMENT_PATH, path)
-    return fullpath
+    return path
 
 
 class DocumentManager(models.Manager):
@@ -1424,8 +1423,8 @@ class DocumentTask(models.Model):
 class PrintLog(models.Model):
     TYPE_CHOICES = (("P", "Printout"), ("S", "Scan"))
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
-    type = models.CharField(max_length=1, choices=TYPE_CHOICES)
+    doctype = models.CharField(max_length=1, choices=TYPE_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.document.exam.code}-{self.document.position} ({self.type}) {self.timestamp}"
+        return f"{self.document.exam.code}-{self.document.position} ({self.doctype}) {self.timestamp}"

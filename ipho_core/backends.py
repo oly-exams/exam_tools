@@ -19,9 +19,7 @@ from ipho_core.models import User
 
 
 class TokenLoginBackend:
-    
-    def authenticate(self, request, token=None):
-        print(token)
+    def authenticate(self, request, token=None):  # pylint: disable=no-self-use
         if token is None:
             return None
         try:
@@ -30,8 +28,7 @@ class TokenLoginBackend:
         except User.DoesNotExist:
             return None
 
-
-    def get_user(self, user_id):
+    def get_user(self, user_id):  # pylint: disable=no-self-use
         try:
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:

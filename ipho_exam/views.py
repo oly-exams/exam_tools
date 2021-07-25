@@ -22,7 +22,6 @@ import os
 import re
 import csv
 import json
-import math
 import types
 import random
 import urllib
@@ -150,8 +149,6 @@ django_logger = logging.getLogger("django.request")
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
-
-INITIAL_QML = '<question id="q0"><title id="title0">Question title</title></question>'  # QML for newly created questions
 
 
 @login_required
@@ -567,7 +564,7 @@ def add_pdf_node(request, question_id, lang_id):
 
 @permission_required("ipho_core.can_see_boardmeeting")
 def translation_export(request, question_id, lang_id, version_num=None):
-    """ Translation export, both for normal editor and admin editor """
+    """Translation export, both for normal editor and admin editor"""
     if version_num is None:
         trans = qquery.latest_version(question_id, lang_id, user=request.user)
     else:
@@ -585,7 +582,7 @@ def translation_export(request, question_id, lang_id, version_num=None):
 
 @permission_required("ipho_core.is_delegation")
 def translation_import(request, question_id, lang_id):
-    """ Translation import (only for delegations) """
+    """Translation import (only for delegations)"""
     delegation = Delegation.objects.get(members=request.user)
     language = get_object_or_404(Language, id=lang_id)
     question = get_object_or_404(
@@ -1835,7 +1832,10 @@ def admin_new_version(request, exam_id, question_id):
             )
         else:
             node = VersionNode(
-                question=question, language=lang, version=0, text=INITIAL_QML
+                question=question,
+                language=lang,
+                version=0,
+                text=qml.DEFAULT_QML_QUESTION_TEXT,
             )
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
@@ -1852,7 +1852,7 @@ def admin_new_version(request, exam_id, question_id):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_import_version(request, question_id):
-    """ Translation import for admin """
+    """Translation import for admin"""
     language = get_object_or_404(Language, id=OFFICIAL_LANGUAGE_PK)
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
@@ -1879,7 +1879,7 @@ def admin_import_version(request, question_id):
                     question=question,
                     language=language,
                     version=0,
-                    text=INITIAL_QML,
+                    text=qml.DEFAULT_QML_QUESTION_TEXT,
                 )
         else:
             node = get_object_or_404(
@@ -2275,11 +2275,16 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
         if "block_content" in form.cleaned_data:
             block.data = form.cleaned_data["block_content"]
             block.data_html = form.cleaned_data["block_content"]
+        current_id = block.attributes.get("id")
         block.attributes = {
             ff.cleaned_data["key"]: ff.cleaned_data["value"]
             for ff in attrs_form
-            if ff.cleaned_data
+            if ff.cleaned_data and not ff.cleaned_data["DELETE"]
         }
+        if (
+            "id" not in block.attributes
+        ):  # if "id" was deleted, restore it (since deletion of the "id" key is not allowed)
+            block.attributes["id"] = current_id
         node.text = qml.xml2string(qmln.make_xml())
         node.save()
 
@@ -2966,7 +2971,7 @@ def submission_exam_confirm(
         .filter(exam=exam, student__delegation=delegation)
         .order_by("student", "position")
     )
-    all_finished = all([not hasattr(doc, "documenttask") for doc in documents])
+    all_finished = all(not hasattr(doc, "documenttask") for doc in documents)
 
     if request.POST and all_finished:  # pylint: disable=too-many-nested-blocks
         if "agree-submit" in request.POST:
@@ -2998,7 +3003,7 @@ def submission_exam_confirm(
                 total_countries = remaining_countries + submitted_countries
 
                 power = getattr(settings, "RANDOM_DRAW_SUB_POWER", 0.1)
-                threshold = math.pow(submitted_countries / total_countries, power)
+                threshold = (submitted_countries / float(total_countries)) ** power
                 draw_exists = RandomDrawLog.objects.filter(
                     delegation=delegation, tag=str(exam.pk)
                 ).exists()
@@ -4059,7 +4064,7 @@ def bulk_print(
                     title=f"P: {doc.barcode_base}",
                 )
                 tot_printed += 1
-                log = PrintLog(document=doc, type="P")
+                log = PrintLog(document=doc, doctype="P")
                 log.save()
         for pk in request.POST.getlist("scans[]", []):  # pylint: disable=invalid-name
             doc = Document.objects.for_user(request.user).filter(pk=pk).first()
@@ -4072,7 +4077,7 @@ def bulk_print(
                     title=f"S: {doc.barcode_base}",
                 )
                 tot_printed += 1
-                log = PrintLog(document=doc, type="S")
+                log = PrintLog(document=doc, doctype="S")
                 log.save()
 
         page = request.GET.get("page") or 1
@@ -4116,8 +4121,12 @@ def bulk_print(
             all_docs = all_docs.filter(scan_status=scan_status)
 
     all_docs = all_docs.annotate(
-        last_print_p=Max(Case(When(printlog__type="P", then=F("printlog__timestamp")))),
-        last_print_s=Max(Case(When(printlog__type="S", then=F("printlog__timestamp")))),
+        last_print_p=Max(
+            Case(When(printlog__doctype="P", then=F("printlog__timestamp")))
+        ),
+        last_print_s=Max(
+            Case(When(printlog__doctype="S", then=F("printlog__timestamp")))
+        ),
     )
 
     exam_print_filter_options = ["not printed", "printed"]
@@ -4229,9 +4238,7 @@ def bulk_print(
 
 
 @permission_required("ipho_core.is_printstaff")
-def print_doc(
-    request, type, exam_id, position, student_id, queue
-):  # pylint: disable=redefined-builtin
+def print_doc(request, doctype, exam_id, position, student_id, queue):
     queue_list = printer.allowed_choices(request.user)
     if not queue in (q[0] for q in queue_list):
         # pylint: disable=raising-non-exception
@@ -4240,20 +4247,20 @@ def print_doc(
         Document, exam=exam_id, position=position, student=student_id
     )
 
-    if type == "P":
+    if doctype == "P":
         printer.send2queue(
             doc.file, queue, user=request.user, title=f"P: {doc.barcode_base}"
         )
-        log = PrintLog(document=doc, type="P")
+        log = PrintLog(document=doc, doctype="P")
         log.save()
     elif doc.scan_file:
         printer.send2queue(
             doc.scan_file, queue, user=request.user, title=f"S: {doc.barcode_base}"
         )
-        log = PrintLog(document=doc, type="S")
+        log = PrintLog(document=doc, doctype="S")
         log.save()
     else:
-        raise Http404(f"Document type `{type}` not found.")
+        raise Http404(f"Document type `{doctype}` not found.")
 
     res = request.META.get("HTTP_REFERER", reverse("exam:bulk-print"))
     return HttpResponseRedirect(res)

@@ -1,10 +1,9 @@
-
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
 {% block extra-head %}
-<meta http-equiv="refresh" content="15" />
+<meta http-equiv="refresh" content="600" />
 {% endblock %}
 
 {% block content %}
@@ -50,7 +49,8 @@
     {% empty %}
     <p class="alert alert-info">No exam is enabled for delegation marking.</p>
     {% endfor %}
-    <a class="btn btn-default btn-sm" href="export-countries-to-moderate.csv"><i class="fa fa-file-excel-o"></i> Export countries to moderate</i></a>
+    <a class="btn btn-default btn-sm" href="export-countries-to-moderate.csv"><i class="fa fa-file-excel-o"></i> Export
+        countries to moderate</i></a>
 </div>
 
 {% endblock %}
@@ -58,14 +58,14 @@
 
 {% block extra-script %}
 <script>
-$('document').ready(function(){
-    $(document).on('click', '#reload', function(event){
-        location.reload();
-    });
+    $('document').ready(function () {
+        $(document).on('click', '#reload', function (event) {
+            location.reload();
+        });
 
-    // Activates tooltipls
-    $('.btn').tooltip({containter: ".parent"});
+        // Activates tooltipls
+        $('.btn').tooltip({ containter: ".parent" });
 
-}); // $(document).ready()
+    }); // $(document).ready()
 </script>
 {% endblock %}
