@@ -2150,6 +2150,55 @@ def admin_publish_version(request, exam_id, question_id, version_num):
 
 
 @permission_required("ipho_core.can_edit_exam")
+def admin_check_points(request, exam_id, question_id, version_num):
+    lang_id = OFFICIAL_LANGUAGE_PK
+    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
+    lang = get_object_or_404(Language, id=lang_id)
+    assert lang.versioned
+    node = get_object_or_404(
+        VersionNode, question=question, language=lang, version=version_num
+    )
+    try:
+        (version, other_version) = check_points.check_version(
+            node, other_question_status=dict(VersionNode.STATUS_CHOICES).keys()
+        )
+    except (check_points.PointValidationError, TypeError) as exc:
+        check_message = (
+            "<div >Point check identified the following issue:</div><div><strong>"
+            + escape(str(exc))
+            + "</strong></div>"
+        )
+        return JsonResponse(
+            {
+                "title": "Inconsistent Points",
+                "msg": check_message,
+                "class": "bg-danger",
+                "success": False,
+            }
+        )
+    if version == "G":
+        return JsonResponse(
+            {
+                "title": "Nothing to check!",
+                "msg": "General Instructions should not have points and are not checked!",
+                "class": "bg-warning",
+                "success": True,
+            }
+        )
+    return JsonResponse(
+        {
+            "title": "Check succeeded",
+            "msg": f"<div>Compared {version.question.name} v{version.version} to {other_version.question.name} v{other_version.version}. No issues found!</div>",
+            "class": "",
+            "success": True,
+        }
+    )
+
+
+@permission_required("ipho_core.can_edit_exam")
 def admin_settag_version(request, exam_id, question_id, version_num):
     if not request.is_ajax:
         raise Exception(
@@ -3864,7 +3913,7 @@ def pdf_exam_pos_student(
             return response
     elif type == "S":  ## look for scans
         if doc.scan_file:
-            output_pdf = pdf.check_add_watermark(request, doc.scan_file.read())
+            output_pdf = doc.scan_file.read()
             response = HttpResponse(output_pdf, content_type="application/pdf")
             response["Content-Disposition"] = (
                 "attachment; filename=%s" % doc.scan_file.name
@@ -3874,7 +3923,7 @@ def pdf_exam_pos_student(
         raise Http404("Scan document not found")
     elif type == "O":  ## look for scans
         if doc.scan_file_orig:
-            output_pdf = pdf.check_add_watermark(request, doc.scan_file_orig.read())
+            output_pdf = doc.scan_file_orig.read()
             response = HttpResponse(output_pdf, content_type="application/pdf")
             response[
                 "Content-Disposition"
@@ -4268,10 +4317,17 @@ def print_doc(request, doctype, exam_id, position, student_id, queue):
 
 @permission_required("ipho_core.is_printstaff")
 def set_scan_status(request, doc_id, status):
-    doc = get_object_or_404(Document, id=doc_id)
-    doc.scan_status = status
-    doc.save()
-    return HttpResponseRedirect(reverse("exam:bulk-print"))
+    if request.method == "POST" and request.is_ajax:
+        doc = get_object_or_404(Document, id=doc_id)
+        doc.scan_status = status
+        doc.save()
+        return JsonResponse(
+            {
+                "success": True,
+                "new_status": doc.scan_status,
+            }
+        )
+    return HttpResponseForbidden("Nothing to see here!")
 
 
 @permission_required("ipho_core.is_printstaff")

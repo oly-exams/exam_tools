@@ -97,7 +97,7 @@ def render_odt_response(context, filename, ext_resources):
                 f"--metadata=title:{contextdict['title']}",
             ],
         )
-        result = open(output, "rb").read()
+        result = open(output, "rb").read()  # pylint: disable=consider-using-with
 
     finally:
         if result and os.path.exists(tmp):

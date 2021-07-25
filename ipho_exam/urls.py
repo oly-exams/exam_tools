@@ -304,6 +304,11 @@ urlpatterns = [
         name="admin-publish-version",
     ),
     path(
+        "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/check_points",
+        views.admin_check_points,
+        name="admin-check-points",
+    ),
+    path(
         "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/settag",
         views.admin_settag_version,
         name="admin-settag-version",
@@ -399,8 +404,8 @@ urlpatterns = [
         views.extra_sheets,
         name="extra-sheets",
     ),
-    re_path(
-        r"^admin/scan-status/(?P<doc_id>\d+)/(?P<status>\w)$",
+    path(
+        "admin/scan-status/<int:doc_id>/<slug:status>",
         views.set_scan_status,
         name="set-scan-status",
     ),

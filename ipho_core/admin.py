@@ -42,8 +42,20 @@ class AutoLoginInline(admin.StackedInline):
     verbose_name_plural = "autologin"
 
 
+@admin.action(description="Activate selected accounts")
+def activate_users(modeladmin, request, queryset):  # pylint: disable=unused-argument
+    queryset.update(is_active=True)
+
+
+@admin.action(description="De-activate selected accounts")
+def deactivate_users(modeladmin, request, queryset):  # pylint: disable=unused-argument
+    queryset.filter(is_superuser=False).update(is_active=False)
+
+
 class UserAdmin(BaseUserAdmin):
+    list_display = BaseUserAdmin.list_display + ("is_active",)
     inlines = (AutoLoginInline,)
+    actions = [activate_users, deactivate_users]
 
 
 class DelegationAdmin(admin.ModelAdmin):

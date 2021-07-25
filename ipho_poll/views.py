@@ -86,8 +86,8 @@ def staff_index(request, room_id=None):
 @login_required
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
-def staff_index_partial(request, qtype, room_id=""):
-    if room_id == "":
+def staff_index_partial(request, qtype, room_id=None):
+    if room_id is None:
         room = None
     else:
         room = get_object_or_404(VotingRoom.objects.for_user(request.user), pk=room_id)
@@ -279,12 +279,12 @@ def voting_large(request, voting_pk):
 @login_required
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
-def add_voting(request, room_id=""):
+def add_voting(request, room_id=None):
     if not request.is_ajax:
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
-    if room_id == "":
+    if room_id is None:
         room = None
     else:
         room = get_object_or_404(VotingRoom.objects.for_user(request.user), pk=room_id)
@@ -405,6 +405,7 @@ def delete_voting(request, voting_pk):
     voting = get_object_or_404(Voting, pk=voting_pk)
     choice_list = VotingChoice.objects.filter(voting=voting)
     # try:
+    voting_pk = voting.pk
     voting.delete()
     for choice in choice_list:
         choice.delete()
@@ -418,9 +419,7 @@ def delete_voting(request, voting_pk):
     return JsonResponse(
         {
             "success": True,
-            "message": "<strong>The voting #"
-            + voting_pk
-            + " has been deleted successfully.</strong>",
+            "message": f"<strong>The voting #{voting_pk} has been deleted successfully.</strong>",
         }
     )
 
