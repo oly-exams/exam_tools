@@ -689,7 +689,7 @@
     "polyglossia_options": null
   },
   "persian": {
-    "direction": "ltr",
+    "direction": "rtl",
     "fonts": [
       "notokufiarabic",
       "notonaskharabic",
