@@ -70,7 +70,8 @@
     </div>
 
     <div class="tab-pane" id="marking">
-      <p class="lead">Submit your marking and see the official marks. 
+      <p class="lead">
+        <!-- Submit your marking and see the official marks. -->
         {% if exam_list %}
         <a class="btn btn-default btn-sm" href="{% url 'marking:delegation-export-all' %}"><i
         class="fa fa-file-excel-o"></i> Export All</i></a>
