@@ -378,7 +378,7 @@ describe('Marking', function () {
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
         cy.get("#marking").should('be.visible')
-        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Submit marks").click()
+        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Submit marks to organizers").click()
         cy.url().should('contain', '/marking/confirm/3')
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries
@@ -503,7 +503,7 @@ describe('Marking', function () {
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
         cy.get("#marking").should('be.visible')
-        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Submit marks").click()
+        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Submit marks to organizers").click()
         cy.url().should('contain', '/marking/confirm/3')
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries

@@ -544,7 +544,7 @@ def delegation_summary(
             if marking_status == MarkingAction.OPEN:
                 action_button = {
                     "link": reverse("marking:delegation-confirm", args=(question.pk,)),
-                    "text": "Submit marks",
+                    "text": "Submit marks to organizers",
                 }
             elif marking_status == MarkingAction.SUBMITTED_FOR_MODERATION:
                 if (
@@ -1310,7 +1310,7 @@ def delegation_confirm(
         ctx["confirmation_h2"] = f"Confirm points for {question.name}"
         ctx[
             "confirmation_info"
-        ] = "You need to confirm the marking of your delegation before you can see the points assigned by the official markers."
+        ] = "You need to confirm the marking of your delegation in order to attend the arbitration or to be able to indicate that you accept the marks without aribtration in a next step."
         ctx["confirmation_checkbox_label"] = "I confirm my version of the markings."
         ctx["confirm_button_label"] = "Confirm"
     return render(request, "ipho_marking/delegation_confirm.html", ctx)
