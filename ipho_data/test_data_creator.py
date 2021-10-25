@@ -128,7 +128,7 @@ class TestDataCreator(DataCreator):
 
         que2 = self.create_question(
             exam,
-            name="Two Problems in Mechanics",
+            name="Nonlinear Dynamics in Electric Circuits",
             code="Q",
             position=2,
             type=self.QUESTION,
