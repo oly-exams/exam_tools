@@ -80,8 +80,8 @@ class TestDataCreator(DataCreator):
                 qml_id="q0_ti1",
             )
 
-    def create_ipho2016_theory_exam(self):
-        exam = self.create_exam(name="Theory", code="T")
+    def create_ipho2016_theory_exam(self, name="Theory"):
+        exam = self.create_exam(name=name, code="T")
         gen_inst = self.create_question(
             exam, name="General Instructions", code="G", position=0, type=self.QUESTION
         )
