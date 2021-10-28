@@ -14,10 +14,10 @@ describe('Polls', function() {
 
     beforeEach(() => {
         cy.server()
-        cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/drafted/).as("getStaffPartialsDrafted");
-        cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/open/).as("getStaffPartialsOpen");
-        cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/closed/).as("getStaffPartialsClosed");
-        cy.route("GET", "/poll/voting/add/room/**").as("getCreateVoting");
+        cy.route("GET", /(\/poll\/staff\/room\/\d*\/partials\/drafted)|(\/poll\/staff\/room\/partials\/drafted)/).as("getStaffPartialsDrafted");
+        cy.route("GET", /(\/poll\/staff\/room\/\d*\/partials\/open)|(\/poll\/staff\/room\/partials\/open)/).as("getStaffPartialsOpen");
+        cy.route("GET", /(\/poll\/staff\/room\/\d*\/partials\/closed)|(\/poll\/staff\/room\/partials\/closed)/).as("getStaffPartialsClosed");
+        cy.route("GET", /(\/poll\/voting\/add\/room\/.*)|(\/poll\/voting\/add\/main.*)/).as("getCreateVoting");
         cy.route("GET", "/poll/voting/*/").as("getStaffVoting");
     })
 
@@ -57,8 +57,12 @@ describe('Polls', function() {
         cy.get('#voting-panel-2').contains('Leader A')
         cy.get('#voting-panel-1').contains('Leader B')
         cy.get('#voting-panel-2').contains('Leader B')
+
         // Vote with one leader
-        cy.get('#id_q2-0-choice_1').click()
+        //cy.get('#id_q2-0-choice_1').click()
+        cy.get('#voting-panel-2').get('#div_id_q2-0-choice').contains('weekday').click()
+        cy.screenshot('vote-1', {capture: 'runner'})
+
         cy.get('#voting-panel-2 .btn').contains('Vote').click()
         cy.url().should('contain', 'poll/voted/')
         cy.get('.btn').contains('Continue Voting').click()
@@ -68,7 +72,10 @@ describe('Polls', function() {
         cy.get('#voting-panel-1').contains('Leader B')
         cy.get('#voting-panel-2').contains('Leader B')
         // Vote with the second leader
-        cy.get('#id_q2-0-choice_1').click()
+        //cy.get('#id_q2-0-choice_1').click()
+        cy.get('#voting-panel-2').get('#div_id_q2-0-choice').contains('weekday').click()
+        cy.screenshot('vote-2', {capture: 'runner'})
+
         cy.get('#voting-panel-2 .btn').contains('Vote').click()
         cy.url().should('contain', 'poll/voted/')
         cy.get('.btn').contains('Continue Voting').click()
@@ -78,6 +85,7 @@ describe('Polls', function() {
         // Vote on the second voting
         cy.get('#id_q1-0-choice_1').click()
         cy.get('#id_q1-1-choice_1').click()
+
         cy.get('#voting-panel-1 .btn').contains('Vote').click()
         cy.url().should('contain', 'poll/voted/')
         cy.get('.btn').contains('Continue Voting').click()
@@ -88,6 +96,7 @@ describe('Polls', function() {
         cy.login('admin','1234')
         cy.visit('poll/voting/detail/2/')
         // Check results
+        cy.screenshot('results', {capture: 'runner'})
         cy.get('#choice-4 > .numvotes').shouldHaveTrimmedText('2')
         cy.get('#choice-5 > .numvotes').shouldHaveTrimmedText('0')
 

@@ -115,9 +115,27 @@
     <div id="alerts-container"></div>
 
     <div class="row">
-       <div class="col-md-12 vote-voting-container" id="drafted-container" data-href="{% url 'poll:staff-index-partials' qtype='drafted' room_id=active_room.pk|default:'' %}"></div>
-       <div class="col-md-12 vote-voting-container" id="open-container" data-href="{% url 'poll:staff-index-partials' qtype='open' room_id=active_room.pk|default:'' %}"></div>
-       <div class="col-md-12 vote-voting-container" id="closed-container" data-href="{% url 'poll:staff-index-partials' qtype='closed' room_id=active_room.pk|default:'' %}"></div>
+       <div class="col-md-12 vote-voting-container" id="drafted-container" data-href="
+       {% if active_room %}
+        {% url 'poll:staff-index-partials-room' qtype='drafted' room_id=active_room.pk %}
+       {% else %}
+        {% url 'poll:staff-index-partials' qtype='drafted' %}
+       {% endif %}
+       "></div>
+       <div class="col-md-12 vote-voting-container" id="open-container" data-href="
+       {% if active_room %}
+        {% url 'poll:staff-index-partials-room' qtype='open' room_id=active_room.pk %}
+       {% else %}
+        {% url 'poll:staff-index-partials' qtype='open' %}
+       {% endif %}
+       "></div>
+       <div class="col-md-12 vote-voting-container" id="closed-container" data-href="
+       {% if active_room %}
+        {% url 'poll:staff-index-partials-room' qtype='closed' room_id=active_room.pk %}
+       {% else %}
+        {% url 'poll:staff-index-partials' qtype='closed' %}
+       {% endif %}
+       "></div>
     </div>
 </div> <!-- container -->
 {% endblock %}

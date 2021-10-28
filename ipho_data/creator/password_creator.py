@@ -50,8 +50,10 @@ class PasswordCreator:
                 writer.writerow(data)
 
     def _get_filepath_pw_mapping(self, assoz_filename):
-        # 010_olyexams_superusers.csv -> pw/olyexams_credentials.csv
-        filename = f"pws/{assoz_filename.split('_')[1]}_credentials.csv"
+        # 010_olyexams_superusers.csv -> pw/olyexams_superusers_credentials.csv
+        filename = (
+            f"pws/{assoz_filename.split('_', 1)[1].rsplit('.', 1)[0]}_credentials.csv"
+        )
         filepath = self.data_creator.full_path(filename)
         filepath.parent.mkdir(parents=True, exist_ok=True)
         return filepath

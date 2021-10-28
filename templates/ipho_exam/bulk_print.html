@@ -214,7 +214,7 @@ This list shows only documents that have been submitted by the delegations.
                 </button>
                 <ul class="dropdown-menu">
                   {% for p in queue_list %}
-                  <li><a href="{% url 'exam:print-doc' exam_id=d.participant__exam__id position=d.position participant_id=d.participant__id queue=p.0 type='P' %}">{{ p.1 }}</a></li>
+                  <li><a href="{% url 'exam:print-doc' exam_id=d.participant__exam__id position=d.position participant_id=d.participant__id queue=p.0 doctype='P' %}">{{ p.1 }}</a></li>
                   {% endfor %}
                 </ul>
               </div>
@@ -241,7 +241,7 @@ This list shows only documents that have been submitted by the delegations.
                   </button>
                   <ul class="dropdown-menu">
                     {% for p in queue_list %}
-                    <li><a href="{% url 'exam:print-doc' exam_id=d.participant__exam__id position=d.position participant_id=d.participant__id queue=p.0 type='S' %}">{{ p.1 }}</a></li>
+                    <li><a href="{% url 'exam:print-doc' exam_id=d.participant__exam__id position=d.position participant_id=d.participant__id queue=p.0 doctype='S' %}">{{ p.1 }}</a></li>
                     {% endfor %}
                   </ul>
                 </div>
@@ -266,7 +266,7 @@ This list shows only documents that have been submitted by the delegations.
               {% if d.scan_file %}
               <div class="btn-group">
                 {% for r,label in scan_status_choices %}
-                <a class="btn btn-default btn-xs {% if d.scan_status == r %}active{% endif %}" href="{% url 'exam:set-scan-status' doc_id=d.pk status=r %}" title="{{ label }}" data-toggle="tooltip">{{ r }}</a>
+                <a class="btn btn-default btn-xs scan-status-button {% if d.scan_status == r %}active{% endif %}" href="{% url 'exam:set-scan-status' doc_id=d.pk status=r %}" title="{{ label }}" data-toggle="tooltip">{{ r }}</a>
                 {% endfor %}
               </div>
                 {% if d.scan_msg %}
@@ -350,6 +350,62 @@ $('.printouts-all').click(function() {
     $(this).click();
   });
 });
+
+$(function() {
+    // Get csrftoken
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+
+    $(document).on('click', 'a.scan-status-button', function(evt) {
+        evt.preventDefault();
+        var btn = $(evt.target);
+        var btngroup = btn.parent();
+        var url = btn.prop('href');
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: [],
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (!data['success']) {
+                    return;
+                }
+                btngroup.children().removeClass("active");
+                btn.addClass("active");
+            }
+        });
+    });
+  })
+
 
 </script>
 {% endblock %}

@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2018 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -58,7 +58,11 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Import CSV with users seating info")
-    parser.add_argument("file", type=argparse.FileType("rU"), help="Input CSV file")
+    parser.add_argument(
+        "file",
+        type=argparse.FileType("rU", encoding="utf-8-sig"),
+        help="Input CSV file",
+    )
     args = parser.parse_args()
 
     main(args.file)

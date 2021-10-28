@@ -10,6 +10,7 @@ ipho.db.bak*
 db/
 exams-docs
 document-files
+media
 outcode_raw.svg
 .idea
 runserver.sh

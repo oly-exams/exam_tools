@@ -81,6 +81,20 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="check-modal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div  id="check-modal-header" class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+              <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+    </div>
 <div class="container">
     <div class="page-header">
       <h1>Exam management</h1>
@@ -328,6 +342,31 @@ $(function() {
                 modal.find('form').attr('action', href);
                 modal.find('.modal-body').html(data['form']);
                 modal.find('.modal-footer').removeClass('hide');
+                modal.find("[data-toggle=popover]").popover(); // activate popover
+            },
+        });
+    })
+
+    $('#check-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var href = button.attr('href');
+        var modal = $(this);
+
+        modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+        modal.find('.modal-body').html('');
+        $("#check-modal-header").removeClass();
+        $("#check-modal-header").addClass("modal-header");
+        
+        //modal.find('.modal-footer').addClass('hide');
+
+        $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+                modal.find('.modal-title').text(data['title']);
+                modal.find('.modal-body').html(data['msg']);
+                $("#check-modal-header").addClass(data['class']);
+                //modal.find('.modal-footer').removeClass('hide');
                 modal.find("[data-toggle=popover]").popover(); // activate popover
             },
         });

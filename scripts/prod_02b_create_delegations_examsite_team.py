@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2018 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -26,7 +26,7 @@ django.setup()
 from django.core import serializers
 import csv
 
-from ipho_core.models import Delegation, Group, User
+from ipho_core.models import Delegation, Group, User, Autologin
 from ipho_poll.models import VotingRight
 
 
@@ -52,6 +52,12 @@ def create_objs(input):
         if created:
             log(user, "..", "created")
         created_objs.append(user)
+
+        if not hasattr(user, "autologin"):
+            autologin = AutoLogin(user=user)
+            autologin.save()
+            log("Autologin created")
+        created_objs.append(user.autologin)
 
         delegation.members.add(user)
         delegation.save()
@@ -80,7 +86,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Import CSV Delegation data")
     parser.add_argument("--dumpdata", action="store_true", help="Dump Json data")
-    parser.add_argument("file", type=argparse.FileType("rU"), help="Input CSV file")
+    parser.add_argument(
+        "file",
+        type=argparse.FileType("rU", encoding="utf-8-sig"),
+        help="Input CSV file",
+    )
     args = parser.parse_args()
 
     main(args.file, args.dumpdata)

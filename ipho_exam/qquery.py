@@ -32,8 +32,12 @@ class Qwrapper:
     pass
 
 
-def latest_version(question_id, lang_id, user=None):
+def latest_version(question_id, lang_id, user=None, status=None):
     # pylint: disable=attribute-defined-outside-init
+
+    if status is None:
+        status = ["C"]
+
     qwp = Qwrapper()
 
     if user is not None:
@@ -51,7 +55,7 @@ def latest_version(question_id, lang_id, user=None):
     if qwp.lang.versioned:
         qwp.node = (
             VersionNode.objects.filter(
-                question=qwp.question, language=qwp.lang, status="C"
+                question=qwp.question, language=qwp.lang, status__in=status
             )
             .order_by("-version")
             .first()
@@ -66,7 +70,7 @@ def latest_version(question_id, lang_id, user=None):
     qwp.qml = (
         qml.make_qml(qwp.node)
         if "<question" in qwp.node.text
-        else qml.QMLquestion('<question id="q0" />')
+        else qml.create_empty_qml_question()
     )
 
     return qwp
@@ -90,7 +94,7 @@ def get_version(question_id, lang_id, version_num, user=None):
     qwp.qml = (
         qml.make_qml(qwp.node)
         if "<question" in qwp.node.text
-        else qml.QMLquestion('<question id="q0" />')
+        else qml.create_empty_qml_question()
     )
 
     return qwp

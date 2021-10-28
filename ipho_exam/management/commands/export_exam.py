@@ -59,6 +59,7 @@ class Command(BaseCommand):
         objs += list(VersionNode.objects.filter(question__exam__name__contains=name))
 
         self.stdout.ending = None
+        # pylint: disable=consider-using-with
         stream = open(output, "w") if output else None
         try:
             serializers.serialize(

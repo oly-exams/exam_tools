@@ -569,6 +569,13 @@ class QMLquestion(QMLobject):
         return "\\end{PR}\n\n"
 
 
+def create_empty_qml_question():
+    return QMLquestion('<question id="q0" />')
+
+
+DEFAULT_QML_QUESTION_TEXT = '<question id="q0"><title id="title0">Question title</title></question>'  # QML for newly created questions
+
+
 class QMLsubquestion(QMLobject):
     tag = "subquestion"
     display_name = "Task box (use for question sheets)"

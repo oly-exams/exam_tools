@@ -201,7 +201,6 @@ class ExamQuestionForm(ModelForm):
 
 class DeleteForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        print("hello world from delete form")
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.html5_required = True
@@ -402,10 +401,15 @@ class AdminBlockAttributeForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        if not cleaned_data["key"] or not cleaned_data["key"].isidentifier():
+        if not cleaned_data.get("key") or not cleaned_data.get("value"):
+            cleaned_data[
+                "DELETE"
+            ] = True  # delete the Form if either of key or value are empty
+            return cleaned_data
+        if not cleaned_data["key"].isidentifier():
             self.add_error(
-                "value",
-                "The key can only ontain alphanumeric characters or underscores.",
+                "key",
+                "The key can only contain alphanumeric characters or underscores.",
             )
         if cleaned_data["key"] == "points":
             try:
@@ -498,8 +502,8 @@ class PrintDocsForm(forms.Form):
         self.fields["queue"].choices = queue_list
         default_opts = printer.default_opts()
         opts_map = {"duplex": "Duplex", "color": "ColourModel", "staple": "Staple"}
-        for k in opts_map:
-            self.fields[k].initial = default_opts[opts_map[k]]
+        for k, val in opts_map.items():
+            self.fields[k].initial = default_opts[val]
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -520,9 +524,9 @@ class PrintDocsForm(forms.Form):
         queue = cleaned_data.get("queue")
         allowed_opts = printer.allowed_opts(queue)
         opts_map = {"duplex": "Duplex", "color": "ColourModel", "staple": "Staple"}
-        for k in opts_map:
+        for k, val in opts_map.items():
             if cleaned_data.get(k) not in ["None", "Gray"]:
-                if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
+                if cleaned_data.get(k) != allowed_opts[val]:
                     msg = "The current printer does not support this option."
                     self.add_error(k, msg)
 

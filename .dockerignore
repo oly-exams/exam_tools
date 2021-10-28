@@ -9,3 +9,4 @@ docker
 .dockerignore
 .gitlab
 document-files
+media

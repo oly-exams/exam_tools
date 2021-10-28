@@ -333,7 +333,7 @@ body { margin-bottom: 70px; }
                     Compare to:
                     <span class="dropdown" id="dropdown-compare-source">
                       <button class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown">
-                        {% if orig_diff %}v{{ orig_diff }} {{ orig_diff_tag }}{% endif %}
+                        {% if orig_diff %}v{{ orig_diff }} {{ orig_diff_tag|default:'' }}{% endif %}
                         <span class="caret"></span>
                       </button>
                       <ul class="dropdown-menu">
@@ -348,6 +348,17 @@ body { margin-bottom: 70px; }
                                   </a>
                               </li>
                           {% endfor %}
+                          {% if orig_diff %}
+                            <li>
+                              {% if trans_lang %}
+                                <a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk lang_id=trans_lang.pk %}">
+                              {% else %}
+                                <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=question.pk orig_id=orig_lang.pk %}">
+                              {% endif %}
+                                None
+                              </a>
+                            </li>
+                          {% endif %}
                       </ul>
                     </span>
                     </small>
@@ -727,7 +738,7 @@ body { margin-bottom: 70px; }
                     var style = $('select[name="style"]').val();
                     if (style in ipho_languages) {
                         var polyglossia = ipho_languages[style]['polyglossia'];
-                        if (polyglossia == null) polyglossia = 'custom';
+                        if (polyglossia == null) polyglossia = 'english';
                         var polyglossia_options = ipho_languages[style]['polyglossia_options'];
                         if (polyglossia_options == null) polyglossia_options = '';
                         $('select[name="direction"]').val(ipho_languages[style]['direction']);

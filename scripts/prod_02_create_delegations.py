@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2018 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -40,6 +40,7 @@ def create_objs(input):
     created_objs = []
     delegations_group = Group.objects.get(name="Delegation")
     for i, row in enumerate(reader):
+
         ## Delegation
         delegation, created = Delegation.objects.get_or_create(
             name=row["Country Code"], defaults={"country": row["Country Name"]}
@@ -105,7 +106,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Import CSV Delegation data")
     parser.add_argument("--dumpdata", action="store_true", help="Dump Json data")
-    parser.add_argument("file", type=argparse.FileType("rU"), help="Input CSV file")
+    parser.add_argument(
+        "file",
+        type=argparse.FileType("rU", encoding="utf-8-sig"),
+        help="Input CSV file",
+    )
     args = parser.parse_args()
 
     main(args.file, args.dumpdata)

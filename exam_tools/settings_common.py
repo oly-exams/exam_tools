@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -29,7 +29,7 @@ PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 
 TEMPLATE_PATH = os.path.join(PROJECT_PATH, "templates")
 STATIC_PATH = os.path.join(PROJECT_PATH, "static")
-DOCUMENT_PATH = os.path.join(PROJECT_PATH, "document-files")
+DOCUMENT_PATH = os.path.join(PROJECT_PATH, "media")
 
 EVENT_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, "events", "demo")
 
@@ -64,23 +64,24 @@ DEMO_MODE = False
 # Allow user sign-up for demo
 DEMO_SIGN_UP = False
 
-# Sets unoffical banner
+# Determines whether the unoffical banner on top of every web page displayed
 OFFICIALLY_SUPPORTED = False
 
 # record users logging in and out
 # (will produce these entries, via exam-tools logger info)
 # CHE User 172.20.0.1 successfully logged in at 12/08/2020 08:44:41
 # CHE User 172.20.0.1 successfully logged out at 12/08/2020 08:44:47
-RECORD_USER_LOGIN_LOGOUT_IPS = False
+RECORD_USER_LOGIN_LOGOUT_IPS = True
 
 # Show a summary of the exam control phases on the home page
-CONTROL_SHOW_PHASES_ON_HOME = False
+CONTROL_SHOW_PHASES_ON_HOME = True
 
 # Adds a watermark to PDFs shown to non-staff
-ADD_DELEGATION_WATERMARK = False
+ADD_DELEGATION_WATERMARK = True
 
-# Defines if there is a 'banner' page for the delegation prints
-ADD_DELEGATION_PRINT_BANNER = False
+# Defines if there is a 'banner' page showing the name of the delegation for the official prints
+# to facilitate sorting the printed pages
+ADD_DELEGATION_PRINT_BANNER = True
 
 # Defines whether a QR code should be printed on the cover sheets
 CODE_ON_COVER_SHEET = False
@@ -91,12 +92,14 @@ NO_ANSWER_SHEETS = False
 # Defines wheter translated answer sheets are possible
 ONLY_OFFICIAL_ANSWER_SHEETS = False
 
-# Defines whether a QR code should be printed on the participant sheets
+# Defines whether the QR code should *not* be printed on the student sheets
 # (Answer sheets and Working sheets)
+# ```CODE_WITHOUT_QR = True``` means: do not print QR codes on any sheets
+# ```CODE_WITHOUT_QR = False```means: print QR codes on Answer and Working sheets
 CODE_WITHOUT_QR = False
 
 # Defines whether delegations can accept official marks without moderation
-ACCEPT_MARKS_BEFORE_MODERATION = False
+ACCEPT_MARKS_BEFORE_MODERATION = True
 
 # Defines whether final marks need to be signed off by a delegation
 SIGN_OFF_FINAL_MARKS = False
@@ -105,7 +108,7 @@ SIGN_OFF_FINAL_MARKS = False
 VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
 
 # Activates autotranslate
-AUTO_TRANSLATE = True
+AUTO_TRANSLATE = False
 # The API-key for google translate
 GOOGLE_TRANSLATE_SERVICE_ACCOUNT_KEY = r"""{}"""
 # The API-key for deepl
@@ -495,7 +498,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = ""
+MEDIA_ROOT = DOCUMENT_PATH
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -651,12 +654,22 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "django.server",
         },
+        "exam_tools": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "default",
+        },
     },
     "loggers": {
         "django.server": {
             "handlers": ["django.server"],
             "level": "INFO",
             "propagate": False,
-        }
+        },
+        "exam_tools": {
+            "handlers": ["exam_tools"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
     },
 }
