@@ -20,6 +20,12 @@
 
 # pylint: disable=unused-wildcard-import
 
+
+# pylint: disable=unreachable
+raise NotImplementedError(
+    "have not fixed RABBITMQ env change, not sure if this file is needed"
+)
+
 from .settings_common import *
 
 
