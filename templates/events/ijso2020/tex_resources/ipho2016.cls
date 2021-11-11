@@ -124,7 +124,7 @@
 
 }
 {
-    \end{minipage}\vline\hfill\end{framed}
+    \end{minipage}\vrule\hfill\end{framed}
 }
 
 % Subanswer continuation (QMLsubanswercontinuation)
@@ -136,7 +136,7 @@
 
 }
 {
-    \end{minipage}\vline\hfill\end{framed}
+    \end{minipage}\vrule\hfill\end{framed}
 }
 
 % Box (QMLbox)
