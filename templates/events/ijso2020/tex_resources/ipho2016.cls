@@ -119,24 +119,24 @@
 {
     \def\QSApoints{#1} %\vspace{0.5em}
     \renewcommand{\arraystretch}{2.}
-    \begin{framed}\noindent\begin{minipage}[t][#4][t]{\textwidth}
+    \begin{framed}\noindent\begin{minipage}[t][#4][t]{0.8\textwidth}
     {\noindent\textbf{ \begin{english} #2.#3 $(\QSApoints ~\text{pt})$ \end{english}}}
 
 }
 {
-    \end{minipage}\end{framed}
+    \end{minipage}\vline\hfill\end{framed}
 }
 
 % Subanswer continuation (QMLsubanswercontinuation)
 \newenvironment{QSAC}[3]
 {
     \renewcommand{\arraystretch}{2.}
-    \begin{framed}\noindent\begin{minipage}[t][#3][t]{\textwidth}
+    \begin{framed}\noindent\begin{minipage}[t][#3][t]{0.8\textwidth}
     {\noindent\textbf{ \begin{english} #1.#2 (cont.) \end{english}}}
 
 }
 {
-    \end{minipage}\end{framed}
+    \end{minipage}\vline\hfill\end{framed}
 }
 
 % Box (QMLbox)
