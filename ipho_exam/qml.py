@@ -1046,13 +1046,17 @@ class QMLenumerate(QMLobject):
     valid_children = ("item",)
 
     def tex_begin(self):
-        return "\\begin{enumerate}\n"
+        label = self.arguments.get("label", "")
+        label = "[" + label + "]" if label else ""
+        return "\\begin{enumerate}" + label+ "\n"
 
     def tex_end(self):
         return "\\end{enumerate}\n\n"
 
     def xhtml_begin(self):
-        return "<ol>"
+        label = self.arguments.get("label", "")
+        label = " type=\"" + label + "\"" if label else ""
+        return "<ol" + label + ">"
 
     def xhtml_end(self):
         return "</ol>"
