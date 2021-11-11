@@ -444,10 +444,11 @@ def set_end_date(request, voting_pk):
 
         if settings.ENABLE_PUSH:
             # send push messages
+            room_txt = ""
             if voting.voting_room is not None:
-                room_txt = f"in room {voting.voting_room.name}"
+                room_txt = f" in room {voting.voting_room.name}"
             data = {
-                "body": f"A voting has just opened {room_txt}, click here to go to the voting page",
+                "body": f"A voting has just opened{room_txt}, click here to go to the voting page",
                 "url": reverse("poll:voter-index"),
                 "reload_client": True,
             }
