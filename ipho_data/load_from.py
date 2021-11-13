@@ -27,10 +27,6 @@ def load_from_data_path(data_path):
     tdc.create_delegation_user(pw_strategy="read", enforce_iso3166=False)
     tdc.create_official_delegation()
 
-    for name in ["MCQ", "Theory", "Experiment"]:
-        exam = tdc.create_exam(name=name, code=name[0])
-        tdc.create_exam_phases_for_exam(exam)
-
     return tdc
 
 
@@ -50,6 +46,13 @@ def main():
                 tdc.create_students()
             elif argv == "test_votings":
                 tdc.create_three_poll_votings()
+            else:  # assuming it an exam name to be created
+                name = argv
+                code = name[0]
+                if ":" in argv:
+                    code, name = argv.split(":", 1)
+                exam = tdc.create_exam(name=name, code=code)
+                tdc.create_exam_phases_for_exam(exam)
 
 
 if __name__ == "__main__":
