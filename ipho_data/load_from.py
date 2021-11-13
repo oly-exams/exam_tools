@@ -25,7 +25,6 @@ def load_from_data_path(data_path):
     tdc.create_olyexams_superuser(pw_strategy="read")
     tdc.create_organizer_user(pw_strategy="read")
     tdc.create_delegation_user(pw_strategy="read", enforce_iso3166=False)
-    tdc.create_examsite_user(pw_strategy="read", enforce_iso3166=False)
     tdc.create_official_delegation()
 
     for name in ["MCQ", "Theory", "Experiment"]:
@@ -41,6 +40,16 @@ def main():
         return
     path = Path(sys.argv[1])
     tdc = load_from_data_path(path)
+    if len(sys.argv) > 2:
+        for argv in sys.argv[2:]:
+            if argv == "ipho2016":
+                tdc.create_ipho2016_theory_exam_only()
+            elif argv == "remote":
+                tdc.create_examsite_user(pw_strategy="read", enforce_iso3166=False)
+            elif argv == "students":
+                tdc.create_students()
+            elif argv == "test_votings":
+                tdc.create_three_poll_votings()
 
 
 if __name__ == "__main__":
