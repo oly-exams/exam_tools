@@ -40,9 +40,16 @@ def main():
         return
     path = Path(sys.argv[1])
     tdc = load_from_data_path(path)
-    if len(sys.argv) == 3:
-        if sys.argv[2] == "ipho2016":
-            tdc.create_ipho2016_theory_exam_only()
+    if len(sys.argv) > 2:
+        for argv in sys.argv[2:]:
+            if argv == "ipho2016":
+                tdc.create_ipho2016_theory_exam_only()
+            elif argv == "remote":
+                tdc.create_examsite_user(pw_strategy="read", enforce_iso3166=True)
+            elif argv == "students":
+                tdc.create_students()
+            elif argv == "test_votings":
+                tdc.create_three_poll_votings()
 
 
 if __name__ == "__main__":
