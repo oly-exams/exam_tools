@@ -3426,6 +3426,17 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
             trans_node = get_object_or_404(
                 TranslationNode, question=question, language_id=lang_id
             )
+
+            # RestrictedChar list from here:
+            # https://www.w3.org/TR/xml11/#charsets
+            remove_re = re.compile("[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x84\x84-\x9F]")
+
+            def strip_illegal_xml_chars(text):
+                text, count = remove_re.subn("", text)
+                if count > 0:
+                    print("removed invalid xml character")
+                return text
+
             if len(trans_node.text) > 0:
                 trans_q = qml.make_qml(trans_node)
                 trans_q.set_lang(trans_lang)
@@ -3438,9 +3449,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
                 qmln = deepcopy(orig_q)
                 cleaned_data = form.cleaned_data
                 for k in list(cleaned_data.keys()):
-                    cleaned_data[k] = (
-                        cleaned_data[k].replace(chr(8), "").replace(chr(29), "")
-                    )
+                    cleaned_data[k] = strip_illegal_xml_chars(cleaned_data[k])
                 qmln.update(cleaned_data, set_blanks=True)
                 new_text = qml.xml2string(qmln.make_xml())
                 new_checksum = md5(new_text.encode("utf8")).hexdigest()
