@@ -46,7 +46,7 @@ class UserDataCreator(BaseDataCreator):
                     )
 
                 country_name, country_code, voting_power = deleg_data
-                username = country_code
+                username = country_code + "-Leader"
                 password = pw_gen(username)
 
                 delegation = self._create_delegation(country_name, country_code)
@@ -75,7 +75,7 @@ class UserDataCreator(BaseDataCreator):
                     self._enforce_iso3166(deleg_data.country_code)
 
                 country_code = deleg_data.country_code
-                username = country_code + "-Examsite"
+                username = country_code + "-Supervisor"
                 password = pw_gen(username)
                 user = self._create_user(
                     self._create_delegation_voting,
