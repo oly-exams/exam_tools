@@ -64,6 +64,7 @@ from django.db.models import (
     IntegerField,
     F,
     Max,
+    FileField,
 )
 from django.template.defaultfilters import slugify
 from django.utils.html import escape
@@ -100,6 +101,8 @@ from ipho_exam.models import (
     PrintLog,
     Place,
     CachedAutoTranslation,
+    Student,
+    create_ppnt_on_stud_creation,
 )
 from ipho_exam.models import (
     VALID_RAW_FIGURE_EXTENSIONS,
@@ -2839,6 +2842,15 @@ def submission_exam_assign(
         answer_sheet_language = None
 
     # set forms for all participants
+    students = Student.objects.filter(delegation=delegation)
+    print("students_ppnt: ", Participant.objects.filter(delegation=delegation, exam=exam))
+    for student in students:
+        create_ppnt_on_stud_creation(student, created=True, raw=False)
+    
+    print("no students: ", len(students))
+    print("students_ppnt: ", Participant.objects.filter(delegation=delegation, exam=exam))
+    print(exam)
+
     for ppnt in delegation.get_participants(exam):
         ppnt_langs = ParticipantSubmission.objects.filter(participant=ppnt).values_list(
             "language", flat=True
@@ -2907,7 +2919,12 @@ def submission_exam_assign(
                 ssub.save()
 
         ## Generate PDF compilation
-        for participant in delegation.get_participants(exam):
+
+        # generate question and answer sheets for every student.
+        # for participant in Student.objects.filter(delegation=delegation):
+        # for participant in delegation.get_participants(exam):
+        for participant in Participant.objects.filter(delegation=delegation, exam=exam):
+            print(participant)
             participant_languages = ParticipantSubmission.objects.filter(
                 participant__exam=exam, participant=participant
             )
@@ -2920,6 +2937,9 @@ def submission_exam_assign(
                 k: list(g)
                 for k, g in itertools.groupby(questions, key=lambda q: q.position)
             }
+            # TODO(Anian): delete
+            # grouped_questions = {idx: [q] for idx, q in enumerate(questions)}
+
             for position, qgroup in list(grouped_questions.items()):
                 doc, _ = Document.objects.get_or_create(
                     participant=participant, position=position
@@ -3020,6 +3040,22 @@ def submission_exam_confirm(
         .filter(participant__exam=exam, participant__delegation=delegation)
         .order_by("participant", "position")
     )
+    print("submission: ", documents)
+    document_bytes = []
+    # TODO(Anian): What position should be used here?
+    position = 5
+    for document in documents:
+        with document.file.open() as f:
+            document_bytes += [f.read()]
+    final_output = pdf.concatenate_documents(document_bytes)
+    concatenated_name = "concatenated.pdf"
+    with open(concatenated_name, "wb") as f:
+        f.write(final_output)
+    participant = Participant.objects.filter(delegation=delegation)[0]
+    concatenated_doc = Document(participant=participant, position=position,
+                                file=FileField(concatenated_name))
+    concatenated_doc.save()
+
     all_finished = all(not hasattr(doc, "documenttask") for doc in documents)
 
     if request.POST and all_finished:  # pylint: disable=too-many-nested-blocks
