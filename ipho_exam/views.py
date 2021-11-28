@@ -2841,17 +2841,13 @@ def submission_exam_assign(
     else:
         answer_sheet_language = None
 
-    # set forms for all participants
+    # temporarily create students as participants, will be deleted in
+    # ubmission_exam_confirm.
     students = Student.objects.filter(delegation=delegation)
-    print("students_ppnt: ", Participant.objects.filter(delegation=delegation, exam=exam))
-    # create students as participants
     for student in students:
         create_ppnt_on_stud_creation(student, created=True, raw=False)
 
-    print("no students: ", len(students))
-    print("students_ppnt: ", Participant.objects.filter(delegation=delegation, exam=exam))
-    print(exam)
-
+    # set forms for all participants
     for ppnt in delegation.get_participants(exam):
         ppnt_langs = ParticipantSubmission.objects.filter(participant=ppnt).values_list(
             "language", flat=True
@@ -2920,12 +2916,8 @@ def submission_exam_assign(
                 ssub.save()
 
         ## Generate PDF compilation
-
         # generate question and answer sheets for every student.
-        # for participant in Student.objects.filter(delegation=delegation):
-        # for participant in delegation.get_participants(exam):
-        for participant in Participant.objects.filter(delegation=delegation, exam=exam):
-            print(participant)
+        for participant in delegation.get_participants(exam):
             participant_languages = ParticipantSubmission.objects.filter(
                 participant__exam=exam, participant=participant
             )
@@ -2938,8 +2930,6 @@ def submission_exam_assign(
                 k: list(g)
                 for k, g in itertools.groupby(questions, key=lambda q: q.position)
             }
-            # TODO(Anian): delete
-            # grouped_questions = {idx: [q] for idx, q in enumerate(questions)}
 
             for position, qgroup in list(grouped_questions.items()):
                 doc, _ = Document.objects.get_or_create(
@@ -3042,11 +3032,14 @@ def submission_exam_confirm(
         .order_by("participant", "position")
     )
 
-    print("submission")
-    print(documents)
+    # TODO(Anian): This part currently fails if invoked for the first time
+    # since pdf have not been generated. For the moment, in the browser
+    # return one page to the assign page, wait a few seconds such that
+    # the pdfs are generated and then click on next to get to the confirm page.
+
+    # concatenate all generated pdfs.
     document_bytes = []
     for document in documents:
-        print(document)
         with document.file.open() as f:
             document_bytes += [f.read()]
     final_output = pdf.concatenate_documents(document_bytes)
@@ -3058,6 +3051,7 @@ def submission_exam_confirm(
     # currently len(participants) - 1 corresponds to G-AUT
     participants = Participant.objects.filter(delegation=delegation)
     delegation_participant = participants[len(participants)-1]
+
     # delete all non-group participants since we created them in
     # submission_exam_assign
     for ppnt in participants:
@@ -3079,8 +3073,6 @@ def submission_exam_confirm(
         )
         .order_by("participant", "position")
     )
-    print("new documents")
-    print(documents)
 
     all_finished = all(not hasattr(doc, "documenttask") for doc in documents)
 
