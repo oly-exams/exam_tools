@@ -723,7 +723,7 @@ def create_ppnt_on_stud_creation(
         return
     for exam in Exam.objects.all():
         if created:
-            ppnt = _create_ppnt_on_creation_helper(exam, instance)
+            _create_ppnt_on_creation_helper(exam, instance)
         else:
             for ppnt in instance.participant_set.all():
                 if not ppnt.is_group:
@@ -745,27 +745,14 @@ def create_ppnt_on_exam_creation(
         _create_ppnt_on_creation_helper(instance, student)
 
 
-def student_exam_to_ppnt(exam, student):
-    """ converts a student and an exam to a participant.
-    exam:
-    student (ipho_exam.models.Student): 
-    
-    returns: (ipho_exam.models.Participant)
-    """
+def _create_ppnt_on_creation_helper(exam, student):
     ppnt, _ = Participant.objects.get_or_create(
         code=student.code,
         exam=exam,
         full_name=student.full_name,
         delegation=student.delegation,
     )
-    return ppnt
-
-
-def _create_ppnt_on_creation_helper(exam, student):
-    ppnt = student_exam_to_ppnt(exam, student)
     ppnt.students.set((student,))
-    return ppnt
-
 
 
 class QuestionManager(models.Manager):
