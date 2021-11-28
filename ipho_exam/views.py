@@ -65,7 +65,6 @@ from django.db.models import (
     IntegerField,
     F,
     Max,
-    FileField,
 )
 from django.template.defaultfilters import slugify
 from django.utils.html import escape
@@ -2848,7 +2847,7 @@ def submission_exam_assign(
     # create students as participants
     for student in students:
         create_ppnt_on_stud_creation(student, created=True, raw=False)
-    
+
     print("no students: ", len(students))
     print("students_ppnt: ", Participant.objects.filter(delegation=delegation, exam=exam))
     print(exam)
@@ -3042,6 +3041,7 @@ def submission_exam_confirm(
         .filter(participant__exam=exam, participant__delegation=delegation)
         .order_by("participant", "position")
     )
+
     print("submission")
     print(documents)
     document_bytes = []
@@ -3058,7 +3058,7 @@ def submission_exam_confirm(
     # currently len(participants) - 1 corresponds to G-AUT
     participants = Participant.objects.filter(delegation=delegation)
     delegation_participant = participants[len(participants)-1]
-    # delete all non-group participants since we created them in 
+    # delete all non-group participants since we created them in
     # submission_exam_assign
     for ppnt in participants:
         if not ppnt.is_group:
@@ -3069,12 +3069,12 @@ def submission_exam_confirm(
         # TODO(Anian): What position should be used here?
         positions = [d.position for d in Document.objects.all()]
         position = max(positions) + 1
-        Document.objects.create(participant=delegation_participant, 
+        Document.objects.create(participant=delegation_participant,
                                 position=position, file=django_file)
 
     documents = (
         Document.objects.for_user(request.user)
-        .filter(participant__exam=exam, 
+        .filter(participant__exam=exam,
                 participant__delegation=delegation
         )
         .order_by("participant", "position")
