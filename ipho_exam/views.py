@@ -53,6 +53,7 @@ from django.contrib.auth.decorators import (
 )
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.files import File
 from django.template.context_processors import csrf
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -2844,6 +2845,7 @@ def submission_exam_assign(
     # set forms for all participants
     students = Student.objects.filter(delegation=delegation)
     print("students_ppnt: ", Participant.objects.filter(delegation=delegation, exam=exam))
+    # create students as participants
     for student in students:
         create_ppnt_on_stud_creation(student, created=True, raw=False)
     
@@ -3040,21 +3042,45 @@ def submission_exam_confirm(
         .filter(participant__exam=exam, participant__delegation=delegation)
         .order_by("participant", "position")
     )
-    print("submission: ", documents)
+    print("submission")
+    print(documents)
     document_bytes = []
-    # TODO(Anian): What position should be used here?
-    position = 5
     for document in documents:
+        print(document)
         with document.file.open() as f:
             document_bytes += [f.read()]
     final_output = pdf.concatenate_documents(document_bytes)
     concatenated_name = "concatenated.pdf"
     with open(concatenated_name, "wb") as f:
         f.write(final_output)
-    participant = Participant.objects.filter(delegation=delegation)[0]
-    concatenated_doc = Document(participant=participant, position=position,
-                                file=FileField(concatenated_name))
-    concatenated_doc.save()
+
+    # TODO(Anian): replace with correct participant
+    # currently len(participants) - 1 corresponds to G-AUT
+    participants = Participant.objects.filter(delegation=delegation)
+    delegation_participant = participants[len(participants)-1]
+    # delete all non-group participants since we created them in 
+    # submission_exam_assign
+    for ppnt in participants:
+        if not ppnt.is_group:
+            ppnt.delete()
+
+    with open(concatenated_name, "rb") as f:
+        django_file = File(f)
+        # TODO(Anian): What position should be used here?
+        positions = [d.position for d in Document.objects.all()]
+        position = max(positions) + 1
+        Document.objects.create(participant=delegation_participant, 
+                                position=position, file=django_file)
+
+    documents = (
+        Document.objects.for_user(request.user)
+        .filter(participant__exam=exam, 
+                participant__delegation=delegation
+        )
+        .order_by("participant", "position")
+    )
+    print("new documents")
+    print(documents)
 
     all_finished = all(not hasattr(doc, "documenttask") for doc in documents)
 

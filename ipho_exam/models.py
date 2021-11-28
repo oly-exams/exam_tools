@@ -723,7 +723,7 @@ def create_ppnt_on_stud_creation(
         return
     for exam in Exam.objects.all():
         if created:
-            _create_ppnt_on_creation_helper(exam, instance)
+            ppnt = _create_ppnt_on_creation_helper(exam, instance)
         else:
             for ppnt in instance.participant_set.all():
                 if not ppnt.is_group:
@@ -764,6 +764,7 @@ def student_exam_to_ppnt(exam, student):
 def _create_ppnt_on_creation_helper(exam, student):
     ppnt = student_exam_to_ppnt(exam, student)
     ppnt.students.set((student,))
+    return ppnt
 
 
 
