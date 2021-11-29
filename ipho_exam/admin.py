@@ -101,6 +101,7 @@ class QuestionInline(admin.StackedInline):
 class ExamAdmin(admin.ModelAdmin):
     list_display = (
         "name",
+        "flags",
         "visibility",
         "can_translate",
         "feedback",
@@ -159,7 +160,7 @@ class ParticipantAdmin(admin.ModelAdmin):
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ("name", "exam", "feedback_status", "position")
+    list_display = ("name", "exam", "feedback_status", "position", "flags")
     list_filter = ("exam",)
 
 

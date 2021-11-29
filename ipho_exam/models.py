@@ -352,6 +352,11 @@ class Exam(models.Model):
 
     code = models.CharField(max_length=8)
     name = models.CharField(max_length=100, unique=True)
+
+    FLAG_SQUASHED = 1
+
+    flags = models.PositiveSmallIntegerField(default=0)
+
     # pylint: disable=invalid-name
 
     # Note that IntegerFields enable us to filter using order relations.
@@ -783,6 +788,10 @@ class Question(models.Model):
         help_text="Sorting index inside one exam"
     )
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, default=QUESTION)
+
+    FLAG_HIDDEN_PDF = 1
+
+    flags = models.PositiveSmallIntegerField(default=0)
 
     FEEDBACK_CLOSED = -1
     FEEDBACK_ORGANIZER_COMMENT = 0

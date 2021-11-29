@@ -10,6 +10,9 @@
             {% endif %}
         </a>
         <span class="glyphicon glyphicon-chevron-down"></span>
+        {% if question.flags|binand:question.FLAG_HIDDEN_PDF %}
+        <span class="label label-default">Hidden in final PDF</span>
+        {% endif %}
         <button class="btn btn-sm btn-warning" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'exam:admin-edit-question' exam_id=exam.pk question_id=question.pk %}"><i class="fa fa-pencil fa-fw"></i> edit</button>
         <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-modal" data-remote="false" href="{% url 'exam:admin-delete-question' exam_id=exam.pk question_id=question.pk %}" title="Delete question"><i class="fa fa-trash-o"></i> delete</button>
         </h4>

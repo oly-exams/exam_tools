@@ -2916,10 +2916,17 @@ def submission_exam_assign(
             except Place.DoesNotExist:
                 participant_seat = ""
             questions = exam.question_set.all()
-            grouped_questions = {
-                k: list(g)
-                for k, g in itertools.groupby(questions, key=lambda q: q.position)
-            }
+            if exam.flags & exam.FLAG_SQUASHED:
+                grouped_questions = {0: [
+                    q
+                    for q in questions.order_by("type", "position")
+                    if ~q.flags & q.FLAG_HIDDEN_PDF
+                ]}
+            else:
+                grouped_questions = {
+                    k: list(g)
+                    for k, g in itertools.groupby(questions, key=lambda q: q.position)
+                }
             for position, qgroup in list(grouped_questions.items()):
                 doc, _ = Document.objects.get_or_create(
                     participant=participant, position=position

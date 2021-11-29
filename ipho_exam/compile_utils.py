@@ -18,6 +18,7 @@
 # coding=utf-8
 
 
+import itertools
 import os
 from hashlib import md5
 import requests
@@ -75,106 +76,125 @@ def participant_exam_document(
         all_barcodes.append(bgenerator.base)
         all_docs.append(page)
 
-    for question in questions:
-        for ppnt_l in participant_languages:
-            if question.is_answer_sheet() and not ppnt_l.with_answer:
-                continue
-            if question.is_question_sheet() and not ppnt_l.with_question:
-                continue
+    if question.exam.flags & question.exam.FLAG_SQUASHED:
+        qp = ((q, p) for p, q in itertools.product(participant_languages, questions))
+    else:
+        qp = itertools.product(questions, participant_languages)
 
-            print(f"Prepare {question} in {ppnt_l.language}.")
-            trans = qquery.latest_version(
-                question.pk, ppnt_l.language.pk
-            )  ## TODO: simplify latest_version, because question and language are already in memory
-            if not trans.lang.is_pdf:
-                trans_content, ext_resources = trans.qml.make_tex()
-                for reso in ext_resources:
-                    if isinstance(reso, tex.FigureExport):
-                        reso.lang = ppnt_l.language
-                ext_resources.append(
+    start_page = 0
+    state = (None, None)
+
+    for question, ppnt_l in qp:
+        if question.exam.flags & question.exam.FLAG_SQUASHED:
+            if state != (question.type, ppnt_l):
+                state = (question.type, ppnt_l)
+                start_page = 0
+
+        if question.is_answer_sheet() and not ppnt_l.with_answer:
+            continue
+        if question.is_question_sheet() and not ppnt_l.with_question:
+            continue
+
+        print(f"Prepare {question} in {ppnt_l.language}.")
+        trans = qquery.latest_version(
+            question.pk, ppnt_l.language.pk
+        )  ## TODO: simplify latest_version, because question and language are already in memory
+        if not trans.lang.is_pdf or question.exam.flags & question.exam.FLAG_SQUASHED:
+            trans_content, ext_resources = trans.qml.make_tex()
+            for reso in ext_resources:
+                if isinstance(reso, tex.FigureExport):
+                    reso.lang = ppnt_l.language
+            ext_resources.append(
+                tex.TemplateExport(
+                    os.path.join(
+                        EVENT_TEMPLATE_PATH, "tex_resources", "ipho2016.cls"
+                    )
+                )
+            )
+            context = {
+                "polyglossia": ppnt_l.language.polyglossia,
+                "polyglossia_options": ppnt_l.language.polyglossia_options,
+                "font": fonts.ipho[ppnt_l.language.font],
+                "extraheader": ppnt_l.language.extraheader,
+                "lang_name": f"{ppnt_l.language.name} ({ppnt_l.language.delegation.country})",
+                "exam_name": f"{question.exam.name}",
+                "code": (
+                    question.code
+                    if question.exam.flags & question.exam.FLAG_SQUASHED
+                    else f"{question.code}{question.position}"
+                ),
+                "title": f"{question.exam.name} - {question.name}",
+                "is_answer": question.is_answer_sheet(),
+                "document": trans_content,
+                "startnum": start_page + 1,
+            }
+            body = render_to_string(
+                os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_question.tex"),
+                request=HttpRequest(),
+                context=context,
+            )
+            print(f"Compile {question} {ppnt_l.language}.")
+            question_pdf = pdf.compile_tex(body, ext_resources)
+        else:
+            question_pdf = trans.node.pdf.read()
+
+        doc_pages = pdf.get_num_pages(question_pdf)
+        meta["num_pages"] += doc_pages
+        if question.exam.flags & question.exam.FLAG_SQUASHED:
+            start_page += doc_pages
+        if question.is_answer_sheet():
+            bgenerator = iphocode.QuestionBarcodeGen(
+                question.exam, question, ppnt_l.participant, startnum=start_page
+            )
+            page = pdf.add_barcode(question_pdf, bgenerator)
+            meta["barcode_num_pages"] += doc_pages
+            all_barcodes.append(bgenerator.base)
+            all_docs.append(page)
+        else:
+            bgenerator = iphocode.QuestionBarcodeGen(
+                question.exam, question, ppnt_l.participant, startnum=start_page, suppress_code=True
+            )
+            page = pdf.add_barcode(question_pdf, bgenerator)
+            all_docs.append(page)
+
+        if question.is_answer_sheet() and question.working_pages > 0:
+            context = {
+                "polyglossia": "english",
+                "polyglossia_options": "",
+                "font": fonts.ipho["notosans"],
+                "extraheader": "",
+                # 'lang_name'   : u'{} ({})'.format(ppnt_l.language.name, ppnt_l.language.delegation.country),
+                "exam_name": f"{question.exam.name}",
+                "code": "{}{}".format("W", question.position),
+                "title": f"{question.exam.name} - {question.name}",
+                "is_answer": question.is_answer_sheet(),
+                "pages": list(range(question.working_pages)),
+            }
+            body = render_to_string(
+                os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_blank.tex"),
+                request=HttpRequest(),
+                context=context,
+            )
+            question_pdf = pdf.compile_tex(
+                body,
+                [
                     tex.TemplateExport(
                         os.path.join(
                             EVENT_TEMPLATE_PATH, "tex_resources", "ipho2016.cls"
                         )
                     )
-                )
-                context = {
-                    "polyglossia": ppnt_l.language.polyglossia,
-                    "polyglossia_options": ppnt_l.language.polyglossia_options,
-                    "font": fonts.ipho[ppnt_l.language.font],
-                    "extraheader": ppnt_l.language.extraheader,
-                    "lang_name": f"{ppnt_l.language.name} ({ppnt_l.language.delegation.country})",
-                    "exam_name": f"{question.exam.name}",
-                    "code": f"{question.code}{question.position}",
-                    "title": f"{question.exam.name} - {question.name}",
-                    "is_answer": question.is_answer_sheet(),
-                    "document": trans_content,
-                }
-                body = render_to_string(
-                    os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_question.tex"),
-                    request=HttpRequest(),
-                    context=context,
-                )
-                print(f"Compile {question} {ppnt_l.language}.")
-                question_pdf = pdf.compile_tex(body, ext_resources)
-            else:
-                question_pdf = trans.node.pdf.read()
+                ],
+            )
+            bgenerator = iphocode.QuestionBarcodeGen(
+                question.exam, question, ppnt_l.participant, qcode="W"
+            )
+            page = pdf.add_barcode(question_pdf, bgenerator)
 
-            doc_pages = pdf.get_num_pages(question_pdf)
+            doc_pages = pdf.get_num_pages(page)
             meta["num_pages"] += doc_pages
-            if question.is_answer_sheet():
-                bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, ppnt_l.participant
-                )
-                page = pdf.add_barcode(question_pdf, bgenerator)
-                meta["barcode_num_pages"] += doc_pages
-                all_barcodes.append(bgenerator.base)
-                all_docs.append(page)
-            else:
-                bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, ppnt_l.participant, suppress_code=True
-                )
-                page = pdf.add_barcode(question_pdf, bgenerator)
-                all_docs.append(page)
-
-            if question.is_answer_sheet() and question.working_pages > 0:
-                context = {
-                    "polyglossia": "english",
-                    "polyglossia_options": "",
-                    "font": fonts.ipho["notosans"],
-                    "extraheader": "",
-                    # 'lang_name'   : u'{} ({})'.format(ppnt_l.language.name, ppnt_l.language.delegation.country),
-                    "exam_name": f"{question.exam.name}",
-                    "code": "{}{}".format("W", question.position),
-                    "title": f"{question.exam.name} - {question.name}",
-                    "is_answer": question.is_answer_sheet(),
-                    "pages": list(range(question.working_pages)),
-                }
-                body = render_to_string(
-                    os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_blank.tex"),
-                    request=HttpRequest(),
-                    context=context,
-                )
-                question_pdf = pdf.compile_tex(
-                    body,
-                    [
-                        tex.TemplateExport(
-                            os.path.join(
-                                EVENT_TEMPLATE_PATH, "tex_resources", "ipho2016.cls"
-                            )
-                        )
-                    ],
-                )
-                bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, ppnt_l.participant, qcode="W"
-                )
-                page = pdf.add_barcode(question_pdf, bgenerator)
-
-                doc_pages = pdf.get_num_pages(page)
-                meta["num_pages"] += doc_pages
-                meta["barcode_num_pages"] += doc_pages
-                all_barcodes.append(bgenerator.base)
-                all_docs.append(page)
+            meta["barcode_num_pages"] += doc_pages
+            all_barcodes.append(bgenerator.base)
+            all_docs.append(page)
 
         exam_id = question.exam.pk
         exam_code = question.exam.code
