@@ -76,7 +76,7 @@ def participant_exam_document(
         all_barcodes.append(bgenerator.base)
         all_docs.append(page)
 
-    if question.exam.flags & question.exam.FLAG_SQUASHED:
+    if questions[0].exam.flags & questions[0].exam.FLAG_SQUASHED:
         qp = ((q, p) for p, q in itertools.product(participant_languages, questions))
     else:
         qp = itertools.product(questions, participant_languages)
