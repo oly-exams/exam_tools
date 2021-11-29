@@ -3599,6 +3599,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         "title": f"{trans.question.exam.name} - {trans.question.name}",
         "is_answer": trans.question.is_answer_sheet(),
         "document": trans_content,
+        "startnum": 1,
     }
     body = render_to_string(
         os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_question.tex"),
@@ -3736,6 +3737,7 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
         "title": f"{question.exam.name} - {question.name}",
         "is_answer": question.is_answer_sheet(),
         "document": old_trans_content,
+        "startnum": 1,
     }
     new_context = {
         "polyglossia": lang.polyglossia,
@@ -3748,6 +3750,7 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
         "title": f"{question.exam.name} - {question.name}",
         "is_answer": question.is_answer_sheet(),
         "document": new_trans_content,
+        "startnum": 1,
     }
     old_body = render_to_string(
         os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_question.tex"),
