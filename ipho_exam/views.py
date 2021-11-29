@@ -3595,7 +3595,11 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         "extraheader": trans.lang.extraheader,
         "lang_name": f"{trans.lang.name} ({trans.lang.delegation.country})",
         "exam_name": f"{trans.question.exam.name}",
-        "code": f"{trans.question.code}{trans.question.position}",
+        "code": (
+            trans.question.code
+            if trans.question.exam.flags & trans.question.exam.FLAG_SQUASHED
+            else f"{trans.question.code}{trans.question.position}"
+        ),
         "title": f"{trans.question.exam.name} - {trans.question.name}",
         "is_answer": trans.question.is_answer_sheet(),
         "document": trans_content,
@@ -3733,7 +3737,11 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
         "extraheader": lang.extraheader,
         "lang_name": f"{lang.name} ({lang.delegation.country})",
         "exam_name": f"{question.exam.name}",
-        "code": f"{question.code}{question.position}",
+        "code": (
+            question.code
+            if question.exam.flags & question.exam.FLAG_SQUASHED
+            else f"{question.code}{question.position}"
+        ),
         "title": f"{question.exam.name} - {question.name}",
         "is_answer": question.is_answer_sheet(),
         "document": old_trans_content,
@@ -3746,7 +3754,11 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
         "extraheader": lang.extraheader,
         "lang_name": f"{lang.name} ({lang.delegation.country})",
         "exam_name": f"{question.exam.name}",
-        "code": f"{question.code}{question.position}",
+        "code": (
+            question.code
+            if question.exam.flags & question.exam.FLAG_SQUASHED
+            else f"{question.code}{question.position}"
+        ),
         "title": f"{question.exam.name} - {question.name}",
         "is_answer": question.is_answer_sheet(),
         "document": new_trans_content,
