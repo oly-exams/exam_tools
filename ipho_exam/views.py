@@ -31,6 +31,7 @@ import itertools
 from copy import deepcopy
 from hashlib import md5
 from collections import OrderedDict
+from time import sleep
 
 
 # coding=utf-8
@@ -102,7 +103,7 @@ from ipho_exam.models import (
     Place,
     CachedAutoTranslation,
     Student,
-    create_ppnt_on_stud_creation,
+    get_ppnt_on_stud_exam_creation,
 )
 from ipho_exam.models import (
     VALID_RAW_FIGURE_EXTENSIONS,
@@ -2806,6 +2807,31 @@ def upload_scan_delegation(request, exam_id, position, participant_id):
     return JsonResponse(json_kwargs)
 
 
+def set_form(ppnt, languages, answer_sheet_language, request):
+    ppnt_langs = ParticipantSubmission.objects.filter(participant=ppnt).values_list(
+        "language", flat=True
+    )
+    ppnt_question_langs = ppnt_langs.filter(with_question=True)
+    try:
+        ppnt_answer_lang_obj = ParticipantSubmission.objects.get(
+            participant=ppnt, with_answer=True
+        )
+        ppnt_answer_lang = ppnt_answer_lang_obj.language
+    except ParticipantSubmission.DoesNotExist:
+        ppnt_answer_lang = None
+    form = AssignTranslationForm(
+        request.POST or None,
+        prefix=f"ppnt-{ppnt.pk}",
+        languages_queryset=languages,
+        answer_language=answer_sheet_language,
+        initial=dict(
+            languages=ppnt_question_langs, answer_language=ppnt_answer_lang
+        ),
+    )
+
+    return form
+
+
 @permission_required("ipho_core.is_delegation")
 def submission_exam_assign(
     request, exam_id
@@ -2841,41 +2867,25 @@ def submission_exam_assign(
     else:
         answer_sheet_language = None
 
-    # temporarily create students as participants, will be deleted in
-    # ubmission_exam_confirm.
-    students = Student.objects.filter(delegation=delegation)
-    for student in students:
-        create_ppnt_on_stud_creation(student, created=True, raw=False)
-
     # set forms for all participants
     for ppnt in delegation.get_participants(exam):
-        ppnt_langs = ParticipantSubmission.objects.filter(participant=ppnt).values_list(
-            "language", flat=True
-        )
-        ppnt_question_langs = ppnt_langs.filter(with_question=True)
-        try:
-            ppnt_answer_lang_obj = ParticipantSubmission.objects.get(
-                participant=ppnt, with_answer=True
-            )
-            ppnt_answer_lang = ppnt_answer_lang_obj.language
-        except ParticipantSubmission.DoesNotExist:
-            ppnt_answer_lang = None
-        form = AssignTranslationForm(
-            request.POST or None,
-            prefix=f"ppnt-{ppnt.pk}",
-            languages_queryset=languages,
-            answer_language=answer_sheet_language,
-            initial=dict(
-                languages=ppnt_question_langs, answer_language=ppnt_answer_lang
-            ),
-        )
+        form = set_form(ppnt, languages, answer_sheet_language, request)
         all_valid = all_valid and form.is_valid()
         with_errors = with_errors or form.errors
         submission_forms.append((ppnt, form))
 
+        if ppnt.is_group:
+            for student in ppnt.students.all():
+                group_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
+                form = set_form(group_ppnt, languages, answer_sheet_language, request)
+                all_valid = all_valid and form.is_valid()
+                with_errors = with_errors or form.errors
+                submission_forms.append((group_ppnt, form))
+
     if all_valid:
         ## Save form
         for ppnt, form in submission_forms:
+            print("preparing ", ppnt)
             current_langs = []
             ## Modify the with_answer status and delete unused submissions
             for ssub in ParticipantSubmission.objects.filter(participant=ppnt):
@@ -3026,45 +3036,31 @@ def submission_exam_confirm(
             reverse("exam:submission-exam-submitted", args=(exam.pk,))
         )
 
-    documents = (
-        Document.objects.for_user(request.user)
-        .filter(participant__exam=exam, participant__delegation=delegation)
-        .order_by("participant", "position")
-    )
-
-    # TODO(Anian): This part currently fails if invoked for the first time
-    # since pdf have not been generated. For the moment, in the browser
-    # return one page to the assign page, wait a few seconds such that
-    # the pdfs are generated and then click on next to get to the confirm page.
-
-    # concatenate all generated pdfs.
     document_bytes = []
-    for document in documents:
-        with document.file.open() as f:
-            document_bytes += [f.read()]
-    final_output = pdf.concatenate_documents(document_bytes)
-    concatenated_name = "concatenated.pdf"
-    with open(concatenated_name, "wb") as f:
-        f.write(final_output)
-
-    # TODO(Anian): replace with correct participant
-    # currently len(participants) - 1 corresponds to G-AUT
     participants = Participant.objects.filter(delegation=delegation)
-    delegation_participant = participants[len(participants)-1]
-
-    # delete all non-group participants since we created them in
-    # submission_exam_assign
     for ppnt in participants:
+        print(ppnt)
         if not ppnt.is_group:
-            ppnt.delete()
+            continue
+        for student in ppnt.students.all():
+            group_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
+            docs = Document.objects.filter(participant=group_ppnt)
+            for doc in docs:
+                with doc.file.open("rb") as f:
+                    document_bytes += [f.read()]
+            group_ppnt.delete()
+        final_output = pdf.concatenate_documents(document_bytes)
+        concatenated_name = "concatenated.pdf"
+        with open(concatenated_name, "wb") as f:
+            f.write(final_output)
 
-    with open(concatenated_name, "rb") as f:
-        django_file = File(f)
-        # TODO(Anian): What position should be used here?
-        positions = [d.position for d in Document.objects.all()]
-        position = max(positions) + 1
-        Document.objects.create(participant=delegation_participant,
-                                position=position, file=django_file)
+        with open(concatenated_name, "rb") as f:
+            django_file = File(f)
+            # TODO(Anian): What position should be used here?
+            positions = [d.position for d in Document.objects.all()]
+            position = max(positions) + 1
+            Document.objects.create(participant=ppnt,
+                                    position=position, file=django_file)
 
     documents = (
         Document.objects.for_user(request.user)
@@ -3073,6 +3069,10 @@ def submission_exam_confirm(
         )
         .order_by("participant", "position")
     )
+
+    print(documents)
+    for doc in documents:
+        print(doc, doc.participant_id)
 
     all_finished = all(not hasattr(doc, "documenttask") for doc in documents)
 

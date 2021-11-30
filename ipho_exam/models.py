@@ -733,6 +733,19 @@ def create_ppnt_on_stud_creation(
                     ppnt.save()
 
 
+def get_ppnt_on_stud_exam_creation(exam, student):
+    """creates a participant, returns it, but does not stores it.
+    """
+    ppnt, _ = Participant.objects.get_or_create(
+        code=student.code,
+        exam=exam,
+        full_name=student.full_name,
+        delegation=student.delegation,
+    )
+    ppnt.students.set((student,))
+    return ppnt
+
+
 @receiver(post_save, sender=Exam, dispatch_uid="create_ppnt_on_exam_creation")
 def create_ppnt_on_exam_creation(
     instance, created, raw, **kwargs
@@ -746,13 +759,7 @@ def create_ppnt_on_exam_creation(
 
 
 def _create_ppnt_on_creation_helper(exam, student):
-    ppnt, _ = Participant.objects.get_or_create(
-        code=student.code,
-        exam=exam,
-        full_name=student.full_name,
-        delegation=student.delegation,
-    )
-    ppnt.students.set((student,))
+    get_ppnt_on_stud_exam_creation(exam, student)
 
 
 class QuestionManager(models.Manager):
