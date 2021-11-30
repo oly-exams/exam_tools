@@ -1,3 +1,4 @@
+{% load exam_utils_tags %}
 \documentclass[12pt,a4paper,foldmarks=false]{scrlttr2}
 \usepackage{graphicx}
 
@@ -19,12 +20,12 @@
 
 \begin{document}
 
-\begin{letter}{\flushright{ \textbf{% templatetag openbrace %}{{ participant.code }} {{ exam.code }}-{% if exam.flags|binand:exam.FLAG_SQUASHED %}{% else %}{{ question.position }}{% endif %} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}} }}
+\begin{letter}{\flushright{ \textbf{% templatetag openbrace %}{{ participant.code }} {{ exam.code }}{% if exam.flags|binand:exam.FLAG_SQUASHED %}{% else %}-{{ question.position }}{% endif %} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}} }}
 \opening{}
 
 \begin{center}
 {\textbf{\Huge {{ exam.name }}\\ {% if exam.flags|binand:exam.FLAG_SQUASHED %}{% else %}{{ question.name }}{% endif %}}}
-\vspace{1em}\\
+\vspace{1em}{% if exam.flags|binand:exam.FLAG_SQUASHED %}{% else %}\\{% endif %}
 {\textbf{\Large Cover sheet}}
 \end{center}
 
