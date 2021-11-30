@@ -77,7 +77,8 @@ def participant_exam_document(
         all_docs.append(page)
 
     if questions[0].exam.flags & questions[0].exam.FLAG_SQUASHED:
-        qp = ((q, p) for p, q in itertools.product(participant_languages, questions))
+        groups = ((k, list(g)) for k, g in itertools.groupby(questions, key=lambda q: q.code))
+        qp = ((q, p) for (__, g), p in itertools.product(groups, participant_languages) for q in g)
     else:
         qp = itertools.product(questions, participant_languages)
 
@@ -86,8 +87,8 @@ def participant_exam_document(
 
     for question, ppnt_l in qp:
         if question.exam.flags & question.exam.FLAG_SQUASHED:
-            if state != (question.type, ppnt_l):
-                state = (question.type, ppnt_l)
+            if state != (question.code, ppnt_l):
+                state = (question.code, ppnt_l)
                 start_page = 0
 
         if question.is_answer_sheet() and not ppnt_l.with_answer:
@@ -140,8 +141,6 @@ def participant_exam_document(
 
         doc_pages = pdf.get_num_pages(question_pdf)
         meta["num_pages"] += doc_pages
-        if question.exam.flags & question.exam.FLAG_SQUASHED:
-            start_page += doc_pages
         if question.is_answer_sheet():
             bgenerator = iphocode.QuestionBarcodeGen(
                 question.exam, question, ppnt_l.participant, startnum=start_page
@@ -156,6 +155,8 @@ def participant_exam_document(
             )
             page = pdf.add_barcode(question_pdf, bgenerator)
             all_docs.append(page)
+        if question.exam.flags & question.exam.FLAG_SQUASHED:
+            start_page += doc_pages
 
         if question.is_answer_sheet() and question.working_pages > 0:
             context = {
