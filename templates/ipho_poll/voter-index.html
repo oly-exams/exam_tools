@@ -14,7 +14,7 @@
         {% endif %}
         </h1>
         <div class="alert alert-warning">
-            <strong>Votes can not be changed once submitted. The two Leaders are advised to vote together from the same laptop.</strong>
+			<strong>Votes can not be changed once submitted.{% if voting_rights_count > 1 %} The {{ voting_rights_count }} Leaders are advised to vote together from the same laptop.{% endif %}</strong>
         </div>
         {% if err %}
         <div class="alert alert-danger">

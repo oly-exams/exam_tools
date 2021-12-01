@@ -702,6 +702,7 @@ def voter_index(
             "err": err_msg,
             "rooms": voting_rooms.all(),
             "active_room": room,
+            "voting_rights_count": user.votingright_set.count(),
         },
     )
 
