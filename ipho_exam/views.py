@@ -53,7 +53,6 @@ from django.contrib.auth.decorators import (
 )
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.files import File
 from django.template.context_processors import csrf
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -101,7 +100,6 @@ from ipho_exam.models import (
     PrintLog,
     Place,
     CachedAutoTranslation,
-    Student,
     get_ppnt_on_stud_exam_creation,
 )
 from ipho_exam.models import (
@@ -3044,12 +3042,10 @@ def submission_exam_confirm(
 
     documents = (
         Document.objects.for_user(request.user)
-        .filter(participant__exam=exam,
-                participant__delegation=delegation
+        .filter(participant__exam=exam, participant__delegation=delegation
         )
         .order_by("participant", "position")
     )
-
     all_finished = all(not hasattr(doc, "documenttask") for doc in documents)
 
     if request.POST and all_finished:  # pylint: disable=too-many-nested-blocks
