@@ -31,7 +31,6 @@ import itertools
 from copy import deepcopy
 from hashlib import md5
 from collections import OrderedDict
-from time import sleep
 
 
 # coding=utf-8
@@ -2807,71 +2806,6 @@ def upload_scan_delegation(request, exam_id, position, participant_id):
     return JsonResponse(json_kwargs)
 
 
-def set_form(ppnt, languages, answer_sheet_language, request):
-    ppnt_langs = ParticipantSubmission.objects.filter(participant=ppnt).values_list(
-        "language", flat=True
-    )
-    ppnt_question_langs = ppnt_langs.filter(with_question=True)
-    try:
-        ppnt_answer_lang_obj = ParticipantSubmission.objects.get(
-            participant=ppnt, with_answer=True
-        )
-        ppnt_answer_lang = ppnt_answer_lang_obj.language
-    except ParticipantSubmission.DoesNotExist:
-        ppnt_answer_lang = None
-    form = AssignTranslationForm(
-        request.POST or None,
-        prefix=f"ppnt-{ppnt.pk}",
-        languages_queryset=languages,
-        answer_language=answer_sheet_language,
-        initial=dict(
-            languages=ppnt_question_langs, answer_language=ppnt_answer_lang
-        ),
-    )
-
-    return form
-
-def generate_sheet(participant, exam):
-    filter_participant = Q(participant=participant)
-    if participant.is_group:
-        # add all students submission to the participant group
-        for student in participant.students.all():
-            student_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
-            filter_participant = filter_participant | Q(participant=student_ppnt)
-    participant_languages = ParticipantSubmission.objects.filter(
-        filter_participant, participant__exam=exam
-    )
-    try:
-        participant_seat = Place.objects.get(participant=participant).name
-    except Place.DoesNotExist:
-        participant_seat = ""
-    questions = exam.question_set.all()
-    grouped_questions = {
-        k: list(g)
-        for k, g in itertools.groupby(questions, key=lambda q: q.position)
-    }
-
-    for position, qgroup in list(grouped_questions.items()):
-        doc, _ = Document.objects.get_or_create(
-            participant=participant, position=position
-        )
-        cover_ctx = {
-            "participant": participant,
-            "exam": exam,
-            "question": qgroup[0],
-            "place": participant_seat,
-        }
-        question_task = tasks.participant_exam_document.s(
-            qgroup, participant_languages, cover=cover_ctx, commit=True
-        )
-        # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
-        question_task.freeze()
-        _, _ = DocumentTask.objects.update_or_create(
-            document=doc, defaults={"task_id": question_task.id}
-        )
-        question_task.delay()
-
-
 @permission_required("ipho_core.is_delegation")
 def submission_exam_assign(
     request, exam_id
@@ -2909,20 +2843,30 @@ def submission_exam_assign(
 
     # set forms for all participants
     for ppnt in delegation.get_participants(exam):
-        form = set_form(ppnt, languages, answer_sheet_language, request)
-        print("form")
+        ppnt_langs = ParticipantSubmission.objects.filter(participant=ppnt).values_list(
+            "language", flat=True
+        )
+        ppnt_question_langs = ppnt_langs.filter(with_question=True)
+        try:
+            ppnt_answer_lang_obj = ParticipantSubmission.objects.get(
+                participant=ppnt, with_answer=True
+            )
+            ppnt_answer_lang = ppnt_answer_lang_obj.language
+        except ParticipantSubmission.DoesNotExist:
+            ppnt_answer_lang = None
+        form = AssignTranslationForm(
+            request.POST or None,
+            prefix=f"ppnt-{ppnt.pk}",
+            languages_queryset=languages,
+            answer_language=answer_sheet_language,
+            initial=dict(
+                languages=ppnt_question_langs, answer_language=ppnt_answer_lang
+            ),
+        )
+
         all_valid = all_valid and form.is_valid()
         with_errors = with_errors or form.errors
         submission_forms.append((ppnt, form))
-
-        # TODO(Anian)
-        # if ppnt.is_group:
-            # for student in ppnt.students.all():
-                # group_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
-                # form = set_form(group_ppnt, languages, answer_sheet_language, request)
-                # all_valid = all_valid and form.is_valid()
-                # with_errors = with_errors or form.errors
-                # submission_forms.append((group_ppnt, form))
 
     if all_valid:
         ## Save form
@@ -2994,7 +2938,44 @@ def submission_exam_assign(
         # generate question and answer sheets for every student.
         all_tasks = []
         for participant in delegation.get_participants(exam):
-            generate_sheet(participant, exam)
+            filter_participant = Q(participant=participant)
+            if participant.is_group:
+                # add all students submission to the participant group
+                for student in participant.students.all():
+                    student_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
+                    filter_participant = filter_participant | Q(participant=student_ppnt)
+            participant_languages = ParticipantSubmission.objects.filter(
+                filter_participant, participant__exam=exam
+            )
+            try:
+                participant_seat = Place.objects.get(participant=participant).name
+            except Place.DoesNotExist:
+                participant_seat = ""
+            questions = exam.question_set.all()
+            grouped_questions = {
+                k: list(g)
+                for k, g in itertools.groupby(questions, key=lambda q: q.position)
+            }
+
+            for position, qgroup in list(grouped_questions.items()):
+                doc, _ = Document.objects.get_or_create(
+                    participant=participant, position=position
+                )
+                cover_ctx = {
+                    "participant": participant,
+                    "exam": exam,
+                    "question": qgroup[0],
+                    "place": participant_seat,
+                }
+                question_task = tasks.participant_exam_document.s(
+                    qgroup, participant_languages, cover=cover_ctx, commit=True
+                )
+                # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
+                question_task.freeze()
+                _, _ = DocumentTask.objects.update_or_create(
+                    document=doc, defaults={"task_id": question_task.id}
+                )
+                question_task.delay()
 
         filename = "exam-{}-{}-concatenated.pdf".format(slugify(exam.name), participant.code)
         # chord_task = tasks.wait_and_concatenate(all_tasks, filename)
