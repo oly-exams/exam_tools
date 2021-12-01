@@ -3042,8 +3042,7 @@ def submission_exam_confirm(
 
     documents = (
         Document.objects.for_user(request.user)
-        .filter(participant__exam=exam, participant__delegation=delegation
-        )
+        .filter(participant__exam=exam, participant__delegation=delegation)
         .order_by("participant", "position")
     )
     all_finished = all(not hasattr(doc, "documenttask") for doc in documents)
