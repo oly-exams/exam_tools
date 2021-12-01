@@ -2831,11 +2831,15 @@ def set_form(ppnt, languages, answer_sheet_language, request):
 
     return form
 
-def generate_sheet(participant, exam, group=None):
-    if group is None and participant.is_group:
-        group = participant
+def generate_sheet(participant, exam):
+    filter_participant = Q(participant=participant)
+    if participant.is_group:
+        # add all students submission to the participant group
+        for student in participant.students.all():
+            student_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
+            filter_participant = filter_participant | Q(participant=student_ppnt)
     participant_languages = ParticipantSubmission.objects.filter(
-        participant__exam=exam, participant=participant
+        filter_participant, participant__exam=exam
     )
     try:
         participant_seat = Place.objects.get(participant=participant).name
@@ -2849,7 +2853,7 @@ def generate_sheet(participant, exam, group=None):
 
     for position, qgroup in list(grouped_questions.items()):
         doc, _ = Document.objects.get_or_create(
-            participant=group, position=position
+            participant=participant, position=position
         )
         cover_ctx = {
             "participant": participant,
@@ -2865,7 +2869,7 @@ def generate_sheet(participant, exam, group=None):
         _, _ = DocumentTask.objects.update_or_create(
             document=doc, defaults={"task_id": question_task.id}
         )
-        result = question_task.delay()
+        question_task.delay()
 
 
 @permission_required("ipho_core.is_delegation")
@@ -2955,35 +2959,42 @@ def submission_exam_assign(
                 else:
                     with_answer = form.cleaned_data["answer_language"] == lang
                 with_question = lang in form.cleaned_data["languages"]
-                ssub = ParticipantSubmission(
-                    participant=ppnt,
-                    language=lang,
-                    with_answer=with_answer,
-                    with_question=with_question,
-                )
-                ssub.save()
 
                 if ppnt.is_group:
+                    # if ppnt is group, create submission for each of its
+                    # students, do not create question sheet for ppnt.
+                    ssub = ParticipantSubmission(
+                        participant=ppnt,
+                        language=lang,
+                        with_answer=1,
+                        with_question=0,
+                    )
+                    ssub.save()
                     for student in ppnt.students.all():
-                        group_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
+                        student_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
                         ssub = ParticipantSubmission(
-                            participant=group_ppnt,
+                            participant=student_ppnt,
                             language=lang,
-                            with_answer=with_answer,
-                            with_question=with_question,
+                            with_answer=1,
+                            with_question=1,
                         )
                         ssub.save()
+                else:
+                    # default options
+                    ssub = ParticipantSubmission(
+                        participant=ppnt,
+                        language=lang,
+                        with_answer=with_answer,
+                        with_question=with_question,
+                    )
+                    ssub.save()
+
 
         ## Generate PDF compilation
         # generate question and answer sheets for every student.
         all_tasks = []
         for participant in delegation.get_participants(exam):
             generate_sheet(participant, exam)
-            if ppnt.is_group:
-                for student in ppnt.students.all():
-                    # student_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
-                    generate_sheet(participant, exam)
-                    # student_ppnt.delete()
 
         filename = "exam-{}-{}-concatenated.pdf".format(slugify(exam.name), participant.code)
         # chord_task = tasks.wait_and_concatenate(all_tasks, filename)
@@ -3180,6 +3191,13 @@ def submission_exam_confirm(
             ppnt_langs[lang] = False
         assigned_participant_language[participant] = ppnt_langs
 
+        if participant.is_group:
+            # remove all students that have been created before.
+            # TODO(Anian): but we should keep the documents associated to it.
+            for student in participant.students.all():
+                student_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
+                # student_ppnt.delete()
+
     participant_languages = ParticipantSubmission.objects.filter(
         participant__exam=exam, participant__delegation=delegation
     )
@@ -3192,6 +3210,9 @@ def submission_exam_confirm(
             assigned_participant_language[ppnt_l.participant][ppnt_l.language] = "A"
         else:
             assigned_participant_language[ppnt_l.participant][ppnt_l.language] = ""
+
+
+    
 
     return render(
         request,
