@@ -2831,6 +2831,42 @@ def set_form(ppnt, languages, answer_sheet_language, request):
 
     return form
 
+def generate_sheet(participant, exam, group=None):
+    if group is None and participant.is_group:
+        group = participant
+    participant_languages = ParticipantSubmission.objects.filter(
+        participant__exam=exam, participant=participant
+    )
+    try:
+        participant_seat = Place.objects.get(participant=participant).name
+    except Place.DoesNotExist:
+        participant_seat = ""
+    questions = exam.question_set.all()
+    grouped_questions = {
+        k: list(g)
+        for k, g in itertools.groupby(questions, key=lambda q: q.position)
+    }
+
+    for position, qgroup in list(grouped_questions.items()):
+        doc, _ = Document.objects.get_or_create(
+            participant=group, position=position
+        )
+        cover_ctx = {
+            "participant": participant,
+            "exam": exam,
+            "question": qgroup[0],
+            "place": participant_seat,
+        }
+        question_task = tasks.participant_exam_document.s(
+            qgroup, participant_languages, cover=cover_ctx, commit=True
+        )
+        # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
+        question_task.freeze()
+        _, _ = DocumentTask.objects.update_or_create(
+            document=doc, defaults={"task_id": question_task.id}
+        )
+        result = question_task.delay()
+
 
 @permission_required("ipho_core.is_delegation")
 def submission_exam_assign(
@@ -2870,17 +2906,19 @@ def submission_exam_assign(
     # set forms for all participants
     for ppnt in delegation.get_participants(exam):
         form = set_form(ppnt, languages, answer_sheet_language, request)
+        print("form")
         all_valid = all_valid and form.is_valid()
         with_errors = with_errors or form.errors
         submission_forms.append((ppnt, form))
 
-        if ppnt.is_group:
-            for student in ppnt.students.all():
-                group_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
-                form = set_form(group_ppnt, languages, answer_sheet_language, request)
-                all_valid = all_valid and form.is_valid()
-                with_errors = with_errors or form.errors
-                submission_forms.append((group_ppnt, form))
+        # TODO(Anian)
+        # if ppnt.is_group:
+            # for student in ppnt.students.all():
+                # group_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
+                # form = set_form(group_ppnt, languages, answer_sheet_language, request)
+                # all_valid = all_valid and form.is_valid()
+                # with_errors = with_errors or form.errors
+                # submission_forms.append((group_ppnt, form))
 
     if all_valid:
         ## Save form
@@ -2925,41 +2963,30 @@ def submission_exam_assign(
                 )
                 ssub.save()
 
+                if ppnt.is_group:
+                    for student in ppnt.students.all():
+                        group_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
+                        ssub = ParticipantSubmission(
+                            participant=group_ppnt,
+                            language=lang,
+                            with_answer=with_answer,
+                            with_question=with_question,
+                        )
+                        ssub.save()
+
         ## Generate PDF compilation
         # generate question and answer sheets for every student.
+        all_tasks = []
         for participant in delegation.get_participants(exam):
-            participant_languages = ParticipantSubmission.objects.filter(
-                participant__exam=exam, participant=participant
-            )
-            try:
-                participant_seat = Place.objects.get(participant=participant).name
-            except Place.DoesNotExist:
-                participant_seat = ""
-            questions = exam.question_set.all()
-            grouped_questions = {
-                k: list(g)
-                for k, g in itertools.groupby(questions, key=lambda q: q.position)
-            }
+            generate_sheet(participant, exam)
+            if ppnt.is_group:
+                for student in ppnt.students.all():
+                    # student_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
+                    generate_sheet(participant, exam)
+                    # student_ppnt.delete()
 
-            for position, qgroup in list(grouped_questions.items()):
-                doc, _ = Document.objects.get_or_create(
-                    participant=participant, position=position
-                )
-                cover_ctx = {
-                    "participant": participant,
-                    "exam": exam,
-                    "question": qgroup[0],
-                    "place": participant_seat,
-                }
-                question_task = tasks.participant_exam_document.s(
-                    qgroup, participant_languages, cover=cover_ctx, commit=True
-                )
-                # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
-                question_task.freeze()
-                _, _ = DocumentTask.objects.update_or_create(
-                    document=doc, defaults={"task_id": question_task.id}
-                )
-                question_task.delay()
+        filename = "exam-{}-{}-concatenated.pdf".format(slugify(exam.name), participant.code)
+        # chord_task = tasks.wait_and_concatenate(all_tasks, filename)
 
         ## Return
         return HttpResponseRedirect(
@@ -3011,6 +3038,33 @@ def submission_exam_assign(
         },
     )
 
+def add_concatenated(delegation, exam):
+    document_bytes = []
+    participants = Participant.objects.filter(delegation=delegation)
+    for ppnt in participants:
+        if not ppnt.is_group:
+            continue
+        for student in ppnt.students.all():
+            group_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
+            docs = Document.objects.filter(participant=group_ppnt)
+            for doc in docs:
+                with doc.file.open("rb") as f:
+                    document_bytes += [f.read()]
+            group_ppnt.delete()
+        final_output = pdf.concatenate_documents(document_bytes)
+        concatenated_name = "concatenated.pdf"
+        with open(concatenated_name, "wb") as f:
+            f.write(final_output)
+
+        with open(concatenated_name, "rb") as f:
+            django_file = File(f)
+            # TODO(Anian): What position should be used here?
+            position = 10
+            # positions = [d.position for d in Document.objects.all()]
+            # position = max(positions) + 1
+            Document.objects.get_or_create(participant=ppnt,
+                                    position=position, file=django_file)
+
 
 @permission_required("ipho_core.is_delegation")
 def submission_exam_confirm(
@@ -3036,31 +3090,7 @@ def submission_exam_confirm(
             reverse("exam:submission-exam-submitted", args=(exam.pk,))
         )
 
-    document_bytes = []
-    participants = Participant.objects.filter(delegation=delegation)
-    for ppnt in participants:
-        print(ppnt)
-        if not ppnt.is_group:
-            continue
-        for student in ppnt.students.all():
-            group_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
-            docs = Document.objects.filter(participant=group_ppnt)
-            for doc in docs:
-                with doc.file.open("rb") as f:
-                    document_bytes += [f.read()]
-            group_ppnt.delete()
-        final_output = pdf.concatenate_documents(document_bytes)
-        concatenated_name = "concatenated.pdf"
-        with open(concatenated_name, "wb") as f:
-            f.write(final_output)
-
-        with open(concatenated_name, "rb") as f:
-            django_file = File(f)
-            # TODO(Anian): What position should be used here?
-            positions = [d.position for d in Document.objects.all()]
-            position = max(positions) + 1
-            Document.objects.create(participant=ppnt,
-                                    position=position, file=django_file)
+    # add_concatenated(delegation, exam)
 
     documents = (
         Document.objects.for_user(request.user)

@@ -116,7 +116,7 @@ def concatenate_documents(all_pages, filename="exam.pdf"):
 def wait_and_concatenate(self, all_tasks, filename="exam.pdf"):
     for t in all_tasks:
         if not t.ready():
-            self.retry(countdown=1)
+            raise self.retry(exc="", countdown=1)
         elif t.failed():
             raise t.result
     all_pages = [t.result for t in all_tasks]
