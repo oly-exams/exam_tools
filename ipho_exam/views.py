@@ -3126,7 +3126,7 @@ def submission_exam_confirm(
             # remove all students that have been created before.
             for student in participant.students.all():
                 student_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
-                # TODO(Anian): If we uncomment this line, the associated 
+                # TODO(Anian): If we uncomment this line, the associated
                 # documents are also deleted.
                 # student_ppnt.delete()
 
