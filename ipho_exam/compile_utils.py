@@ -47,6 +47,28 @@ def participant_exam_document(
     questions, participant_languages, cover=None, job_task=None,
     student_suppress_code=None
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
+    """creates a PDF for the exam of a given participant.
+
+    Args:
+        questions (list): ipho_exam.models.Question.
+        participant_languages (list): ipho_exam.models.ParticipantSubmission.
+        ...
+        student_suppress_code (bool, optional): If true, suppresses
+            barcode on exams that belong to participants that are no
+            group. This flag is introduced to generate exams for
+            participants that are a group, and thus want to have answer
+            sheets generated for each of their students, but only one
+            answer sheet with barcodes. Defaults to False.
+
+    Returns:
+        final_doc, meta: ...
+    """
+    print("arguments")
+    print(type(questions))
+    print(type(participant_languages))
+    print(type(cover))
+    print(type(job_task))
+    print(type(student_suppress_code))
     if student_suppress_code is None:
         student_suppress_code = False
     meta = {}
@@ -128,7 +150,6 @@ def participant_exam_document(
 
             doc_pages = pdf.get_num_pages(question_pdf)
             meta["num_pages"] += doc_pages
-            print("ppnt of exam:", ppnt_l.participant)
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(
                     question.exam, question, ppnt_l.participant, 
