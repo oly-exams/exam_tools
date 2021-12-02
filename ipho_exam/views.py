@@ -2904,6 +2904,8 @@ def submission_exam_assign(
                 if ppnt.is_group:
                     # if ppnt is group, create submission for each of its
                     # students, do not create question sheet for ppnt.
+                    # TODO(Anian): Why are questions also generated for
+                    # ppnt? I set it to False here.
                     ssub = ParticipantSubmission(
                         participant=ppnt, language=lang, with_answer=True,
                         with_question=False)
