@@ -146,7 +146,7 @@ def participant_exam_document(
             meta["num_pages"] += doc_pages
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, ppnt_l.participant, 
+                    question.exam, question, ppnt_l.participant,
                     suppress_code=suppress_code
                 )
                 page = pdf.add_barcode(question_pdf, bgenerator)
