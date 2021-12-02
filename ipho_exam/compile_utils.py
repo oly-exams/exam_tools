@@ -44,8 +44,11 @@ def all_same(items):
 
 
 def participant_exam_document(
-    questions, participant_languages, cover=None, job_task=None
+    questions, participant_languages, cover=None, job_task=None,
+    suppress_code=None
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
+    if suppress_code is None:
+        suppress_code = False
     meta = {}
     meta["num_pages"] = 0
     meta["barcode_num_pages"] = 0
@@ -124,11 +127,13 @@ def participant_exam_document(
             meta["num_pages"] += doc_pages
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, ppnt_l.participant
+                    question.exam, question, ppnt_l.participant, 
+                    suppress_code=suppress_code
                 )
                 page = pdf.add_barcode(question_pdf, bgenerator)
-                meta["barcode_num_pages"] += doc_pages
-                all_barcodes.append(bgenerator.base)
+                if not suppress_code:
+                    meta["barcode_num_pages"] += doc_pages
+                    all_barcodes.append(bgenerator.base)
                 all_docs.append(page)
             else:
                 bgenerator = iphocode.QuestionBarcodeGen(
