@@ -2927,11 +2927,11 @@ def submission_exam_assign(
 
         ## Generate PDF compilation
         for participant in delegation.get_participants(exam):
-            suppress_code = None
+            student_suppress_code = None
             filter_participant = Q(participant=participant)
             if participant.is_group:
-                # TODO(Anian):
-                suppress_code = True
+                # suppress QR code for students
+                student_suppress_code = True
                 # add all students submission to the participant group
                 for student in participant.students.all():
                     student_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
@@ -2960,7 +2960,7 @@ def submission_exam_assign(
                 }
                 question_task = tasks.participant_exam_document.s(
                     qgroup, participant_languages, cover=cover_ctx, commit=True,
-                    suppress_code=suppress_code
+                    student_suppress_code=student_suppress_code
                 )
                 # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()

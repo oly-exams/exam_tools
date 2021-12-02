@@ -171,12 +171,12 @@ def identity_args(self, prev_task):  # pylint: disable=unused-argument
 @shared_task(bind=True)
 def participant_exam_document(
     self, questions, participant_languages, cover=None, commit=False,
-    suppress_code=None
+    student_suppress_code=None
 ):
     job_task = self.request.id if commit else None
     return compile_utils.participant_exam_document(
         questions, participant_languages, cover, job_task=job_task,
-        suppress_code=suppress_code
+        student_suppress_code=student_suppress_code
     )
 
 

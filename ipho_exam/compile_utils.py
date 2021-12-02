@@ -45,10 +45,10 @@ def all_same(items):
 
 def participant_exam_document(
     questions, participant_languages, cover=None, job_task=None,
-    suppress_code=None
+    student_suppress_code=None
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
-    if suppress_code is None:
-        suppress_code = False
+    if student_suppress_code is None:
+        student_suppress_code = False
     meta = {}
     meta["num_pages"] = 0
     meta["barcode_num_pages"] = 0
@@ -80,6 +80,9 @@ def participant_exam_document(
 
     for question in questions:
         for ppnt_l in participant_languages:
+            suppress_code = False
+            if not ppnt_l.participant.is_group and student_suppress_code:
+                suppress_code = True
             if question.is_answer_sheet() and not ppnt_l.with_answer:
                 continue
             if question.is_question_sheet() and not ppnt_l.with_question:
@@ -125,6 +128,7 @@ def participant_exam_document(
 
             doc_pages = pdf.get_num_pages(question_pdf)
             meta["num_pages"] += doc_pages
+            print("ppnt of exam:", ppnt_l.participant)
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(
                     question.exam, question, ppnt_l.participant, 
@@ -171,14 +175,16 @@ def participant_exam_document(
                     ],
                 )
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, ppnt_l.participant, qcode="W"
+                    question.exam, question, ppnt_l.participant, qcode="W",
+                    suppress_code=suppress_code
                 )
                 page = pdf.add_barcode(question_pdf, bgenerator)
 
                 doc_pages = pdf.get_num_pages(page)
                 meta["num_pages"] += doc_pages
-                meta["barcode_num_pages"] += doc_pages
-                all_barcodes.append(bgenerator.base)
+                if not suppress_code:
+                    meta["barcode_num_pages"] += doc_pages
+                    all_barcodes.append(bgenerator.base)
                 all_docs.append(page)
 
         exam_id = question.exam.pk
