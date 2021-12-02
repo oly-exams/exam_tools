@@ -737,10 +737,12 @@ def get_ppnt_on_stud_exam_creation(exam, student):
     """creates a participant based on an exam and a student
     and returns it.
 
-    exam (ipho_exam.models.Exam): exam
-    student (ipho_exam.models.Student): student
+    Args:
+        exam (ipho_exam.models.Exam): exam
+        student (ipho_exam.models.Student): student
 
-    returns (ipho_exam.models.Participant): participant
+    Returns:
+        ipho_exam.models.Participant: participant
     """
     ppnt, _ = Participant.objects.get_or_create(
         code=student.code,
