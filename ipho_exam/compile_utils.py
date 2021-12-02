@@ -63,12 +63,6 @@ def participant_exam_document(
     Returns:
         final_doc, meta: ...
     """
-    print("arguments")
-    print(type(questions))
-    print(type(participant_languages))
-    print(type(cover))
-    print(type(job_task))
-    print(type(student_suppress_code))
     if student_suppress_code is None:
         student_suppress_code = False
     meta = {}
