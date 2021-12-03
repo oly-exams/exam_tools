@@ -36,7 +36,7 @@ standard_library.install_aliases()
 
 
 from bs4 import BeautifulSoup
-
+import html_diff
 # import tidylib
 
 from django import forms
@@ -47,7 +47,8 @@ from django.urls import reverse
 
 from .models import Figure
 from . import tex
-from . import simplediff
+
+html_diff.config.tags_fcts_as_blocks.append(lambda tag: tag.name == 'span' and 'math-tex' in tag.attrs.get('class', []))
 
 # block groups
 PARAGRAPH_LIKE_BLOCKS = (
@@ -485,13 +486,13 @@ class QMLobject:
     def diff_content_html(self, other_data):
         if self.has_text:
             if self.id in other_data:
-                self.data_html = simplediff.html_diff(
+                self.data_html = html_diff.diff(
                     other_data[self.id], self.data_html
                 )
             else:
                 self.data_html = "<ins>" + self.data_html + "</ins>"
             # if self.id in other_data:
-            #     self.data = escape(simplediff.html_diff(unescape_entities(self.data), other_data[self.id]))
+            #     self.data = escape(html_diff.diff(unescape_entities(self.data), other_data[self.id]))
             # else:
             #     self.data = escape(u'<ins>' + unescape_entities(self.data) + u'</ins>')
         for child in self.children:
