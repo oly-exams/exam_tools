@@ -32,4 +32,3 @@ unittest-xml-reporting >=3, <4
 psycopg2
 pypandoc >=1.5, <1.6
 latex2mathml >=2.16.1, <3
-html-diff >=0.4.1
