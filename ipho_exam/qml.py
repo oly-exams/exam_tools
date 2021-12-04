@@ -158,7 +158,7 @@ def xml2string(xml):
 
 
 def content2string(node):
-    parts = [node.text] + [ET.tostring(child, encoding="unicode") for child in node]
+    parts = [node.text]
     # We assume that `node` is a pure QML tag, therefore we don't consider the tail.
     # +[node.tail])
     # filter removes possible Nones in texts and tails
