@@ -2917,11 +2917,18 @@ def submission_exam_assign(
                 participant_seat = ""
             questions = exam.question_set.all()
             if exam.flags & exam.FLAG_SQUASHED:
-                grouped_questions = {0: [
-                    q
-                    for q in questions.order_by("type", "position")
-                    if ~q.flags & q.FLAG_HIDDEN_PDF
-                ]}
+                grouped_questions = {
+                    0: [
+                        q
+                        for q in questions.filter(position=0)
+                        if ~q.flags & q.FLAG_HIDDEN_PDF
+                    ],
+                    1: [
+                        q
+                        for q in questions.exclude(position=0).order_by("type", "position")
+                        if ~q.flags & q.FLAG_HIDDEN_PDF
+                    ],
+                }
             else:
                 grouped_questions = {
                     k: list(g)
@@ -3596,7 +3603,7 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         "lang_name": f"{trans.lang.name} ({trans.lang.delegation.country})",
         "exam_name": f"{trans.question.exam.name}",
         "code": (
-            trans.question.code
+            f"{trans.question.code}{int(bool(trans.question.position))}"
             if trans.question.exam.flags & trans.question.exam.FLAG_SQUASHED
             else f"{trans.question.code}{trans.question.position}"
         ),
@@ -3738,7 +3745,7 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
         "lang_name": f"{lang.name} ({lang.delegation.country})",
         "exam_name": f"{question.exam.name}",
         "code": (
-            question.code
+            f"{question.code}{int(bool(question.position))}"
             if question.exam.flags & question.exam.FLAG_SQUASHED
             else f"{question.code}{question.position}"
         ),
@@ -3755,7 +3762,7 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
         "lang_name": f"{lang.name} ({lang.delegation.country})",
         "exam_name": f"{question.exam.name}",
         "code": (
-            question.code
+            f"{question.code}{int(bool(question.position))}"
             if question.exam.flags & question.exam.FLAG_SQUASHED
             else f"{question.code}{question.position}"
         ),

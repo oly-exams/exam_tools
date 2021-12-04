@@ -44,7 +44,9 @@ class QuestionBarcodeGen:
         self.suppress_code |= settings.CODE_WITHOUT_QR
 
         self.base = f"{participant.code} {exam.code}"
-        if ~exam.flags & exam.FLAG_SQUASHED:
+        if exam.flags & exam.FLAG_SQUASHED:
+            self.base += f"-{int(bool(question.position))}"
+        else:
             self.base += f"-{question.position}"
         self.text = self.base + f" {qcode}" + "-{pag}"
         self.format = format_

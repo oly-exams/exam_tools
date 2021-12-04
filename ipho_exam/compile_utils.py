@@ -120,7 +120,7 @@ def participant_exam_document(
                 "lang_name": f"{ppnt_l.language.name} ({ppnt_l.language.delegation.country})",
                 "exam_name": f"{question.exam.name}",
                 "code": (
-                    question.code
+                    f"{question.code}{int(bool(question.position))}"
                     if question.exam.flags & question.exam.FLAG_SQUASHED
                     else f"{question.code}{question.position}"
                 ),

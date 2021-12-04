@@ -20,12 +20,12 @@
 
 \begin{document}
 
-\begin{letter}{\flushright{ \textbf{% templatetag openbrace %}{{ participant.code }} {{ exam.code }}{% if exam.flags|binand:exam.FLAG_SQUASHED %}{% else %}-{{ question.position }}{% endif %} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}} }}
+\begin{letter}{\flushright{ \textbf{% templatetag openbrace %}{{ participant.code }} {{ exam.code }}-{% if exam.flags|binand:exam.FLAG_SQUASHED %}{% if question.position == 0 %}0{% else %}1{% endif %}{% else %}{{ question.position }}{% endif %} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}} }}
 \opening{}
 
 \begin{center}
-{\textbf{\Huge {{ exam.name }}\\ {% if exam.flags|binand:exam.FLAG_SQUASHED %}{% else %}{{ question.name }}{% endif %}}}
-\vspace{1em}{% if exam.flags|binand:exam.FLAG_SQUASHED %}{% else %}\\{% endif %}
+	{\textbf{\Huge {{ exam.name }}\\ {% if not exam.flags|binand:exam.FLAG_SQUASHED or question.position == 0 %}{{ question.name }}{% endif %}}}
+\vspace{1em}{% if not exam.flags|binand:exam.FLAG_SQUASHED or question.position == 0 %}\\{% endif %}
 {\textbf{\Large Cover sheet}}
 \end{center}
 
