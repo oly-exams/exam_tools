@@ -744,13 +744,12 @@ def get_ppnt_on_stud_exam_creation(exam, student):
     Returns:
         ipho_exam.models.Participant: participant
     """
-    ppnt, _ = Participant.objects.get_or_create(
+    ppnt = Participant(
         code=student.code,
         exam=exam,
         full_name=student.full_name,
         delegation=student.delegation,
     )
-    ppnt.students.set((student,))
     return ppnt
 
 
@@ -767,7 +766,13 @@ def create_ppnt_on_exam_creation(
 
 
 def _create_ppnt_on_creation_helper(exam, student):
-    get_ppnt_on_stud_exam_creation(exam, student)
+    ppnt, _ = Participant.objects.get_or_create(
+        code=student.code,
+        exam=exam,
+        full_name=student.full_name,
+        delegation=student.delegation,
+    )
+    ppnt.students.set((student,))
 
 
 class QuestionManager(models.Manager):
