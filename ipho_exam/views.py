@@ -56,7 +56,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template.context_processors import csrf
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.db import IntegrityError
 from django.db.models import (
     Q,
     Sum,
@@ -101,7 +100,6 @@ from ipho_exam.models import (
     PrintLog,
     Place,
     CachedAutoTranslation,
-    get_ppnt_on_stud_exam_creation,
 )
 from ipho_exam.models import (
     VALID_RAW_FIGURE_EXTENSIONS,
@@ -2900,29 +2898,18 @@ def submission_exam_assign(
                 else:
                     with_answer = form.cleaned_data["answer_language"] == lang
                 with_question = lang in form.cleaned_data["languages"]
-
                 ssub = ParticipantSubmission(
-                    participant=ppnt, language=lang, with_answer=True,
-                    with_question=False)
+                    participant=ppnt,
+                    language=lang,
+                    with_answer=with_answer,
+                    with_question=with_question,
+                )
                 ssub.save()
-
-
 
         ## Generate PDF compilation
         for participant in delegation.get_participants(exam):
-            student_suppress_code = None
-            filter_participant = Q(participant=participant)
-            """
-            if participant.is_group:
-                # suppress QR code for students
-                student_suppress_code = True
-                # add all students submission to the participant group
-                for student in participant.students.all():
-                    student_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
-                    filter_participant = filter_participant | Q(participant=student_ppnt)
-            """
             participant_languages = ParticipantSubmission.objects.filter(
-                filter_participant, participant__exam=exam
+                participant__exam=exam, participant=participant
             )
             try:
                 participant_seat = Place.objects.get(participant=participant).name
@@ -2944,8 +2931,7 @@ def submission_exam_assign(
                     "place": participant_seat,
                 }
                 question_task = tasks.participant_exam_document.s(
-                    qgroup, participant_languages, cover=cover_ctx, commit=True,
-                    student_suppress_code=student_suppress_code
+                    qgroup, participant_languages, cover=cover_ctx, commit=True
                 )
                 # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
@@ -3109,16 +3095,6 @@ def submission_exam_confirm(
         for lang in languages:
             ppnt_langs[lang] = False
         assigned_participant_language[participant] = ppnt_langs
-
-        """
-        if participant.is_group:
-            # remove all students that have been created before.
-            for student in participant.students.all():
-                student_ppnt = get_ppnt_on_stud_exam_creation(exam, student)
-                # TODO(Anian): If we uncomment this line, the associated
-                # documents are also deleted.
-                # student_ppnt.delete()
-        """
 
     participant_languages = ParticipantSubmission.objects.filter(
         participant__exam=exam, participant__delegation=delegation

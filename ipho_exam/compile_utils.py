@@ -44,27 +44,8 @@ def all_same(items):
 
 
 def participant_exam_document(
-    questions, participant_languages, cover=None, job_task=None,
-    student_suppress_code=None
+    questions, participant_languages, cover=None, job_task=None
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
-    """creates a PDF for the exam of a given participant.
-
-    Args:
-        questions (list): ipho_exam.models.Question.
-        participant_languages (list): ipho_exam.models.ParticipantSubmission.
-        ...
-        student_suppress_code (bool, optional): If true, suppresses
-            barcode on exams that belong to participants that are no
-            group. This flag is introduced to generate exams for
-            participants that are a group, and thus want to have answer
-            sheets generated for each of their students, but only one
-            answer sheet with barcodes. Defaults to False.
-
-    Returns:
-        final_doc, meta: ...
-    """
-    if student_suppress_code is None:
-        student_suppress_code = False
     meta = {}
     meta["num_pages"] = 0
     meta["barcode_num_pages"] = 0
@@ -96,9 +77,6 @@ def participant_exam_document(
 
     for question in questions:
         for ppnt_l in participant_languages:
-            suppress_code = False
-            if not ppnt_l.participant.is_group and student_suppress_code:
-                suppress_code = True
             if question.is_answer_sheet() and not ppnt_l.with_answer:
                 continue
             if question.is_question_sheet() and not ppnt_l.with_question:
@@ -146,13 +124,11 @@ def participant_exam_document(
             meta["num_pages"] += doc_pages
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, ppnt_l.participant,
-                    suppress_code=suppress_code
+                    question.exam, question, ppnt_l.participant
                 )
                 page = pdf.add_barcode(question_pdf, bgenerator)
-                if not suppress_code:
-                    meta["barcode_num_pages"] += doc_pages
-                    all_barcodes.append(bgenerator.base)
+                meta["barcode_num_pages"] += doc_pages
+                all_barcodes.append(bgenerator.base)
                 all_docs.append(page)
             else:
                 bgenerator = iphocode.QuestionBarcodeGen(
@@ -190,16 +166,14 @@ def participant_exam_document(
                     ],
                 )
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, ppnt_l.participant, qcode="W",
-                    suppress_code=suppress_code
+                    question.exam, question, ppnt_l.participant, qcode="W"
                 )
                 page = pdf.add_barcode(question_pdf, bgenerator)
 
                 doc_pages = pdf.get_num_pages(page)
                 meta["num_pages"] += doc_pages
-                if not suppress_code:
-                    meta["barcode_num_pages"] += doc_pages
-                    all_barcodes.append(bgenerator.base)
+                meta["barcode_num_pages"] += doc_pages
+                all_barcodes.append(bgenerator.base)
                 all_docs.append(page)
 
         exam_id = question.exam.pk
