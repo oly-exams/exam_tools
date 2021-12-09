@@ -95,6 +95,28 @@
                     </label>
                   </div>
                 {% endif %}
+                {% if ss.is_group %}
+                  {% for s in ss.students.all %}
+                    <li>{{ s.full_name }}</li>
+                    <div class="checkbox {% if form.languages.errors %}has-error{% endif %}">
+                      <label>
+                          <input type="checkbox" autocomplete="off" id="{{ form.languages.html_name }}-val-{{ lang_id }}" name="student-{{s.id}}-question-language" value="{{ lang_id }}" {% if lang_id in form.languages.value|intlist %}checked{% endif %} />
+                          deliver
+                      </label>
+                    </div>
+                      {% if not no_answer and not no_answer_language %}
+                        <div class="radio {% if not lang_id in form.languages.value|intlist %}disabled{% endif %} {% if form.answer_language.errors %}has-error{% endif %}">
+                          <label>
+                            <input type="radio" id="{{ form.answer_language.html_name }}-val-{{ lang_id }}" name="student-{{s.id}}-answer-language" value="{{ lang_id }}" {% if lang_id|escape == form.answer_language.value|escape %}checked{% endif %}
+                              {% comment %} TODO(Anian):  {% endcomment %}
+                              {% comment %} {% if not lang_id in form.languages.value|intlist %}disabled{% endif %} {% endcomment %}
+                              />
+                            with answer sheets
+                          </label>
+                        </div>
+                      {% endif %}
+                  {% endfor %}
+                {% endif %}
               </td>
           {% endfor %}
       </tr>

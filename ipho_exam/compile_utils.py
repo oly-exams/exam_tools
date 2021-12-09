@@ -163,7 +163,8 @@ def generate_exam(question, participant, language, all_barcodes, all_docs,
 
 
 def participant_exam_document(
-    questions, participant_languages, cover=None, job_task=None
+    questions, participant_languages, cover=None, job_task=None,
+    question_lang_list=None, answer_lang_list=None
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     meta = {}
     meta["num_pages"] = 0
@@ -209,14 +210,18 @@ def participant_exam_document(
             for student in ppnt.students.all():
                 for question in questions:
                     stud_ppnt = get_ppnt_on_stud_exam(question.exam, student)
-                    for ppnt_l in participant_languages:
-                        if question.is_answer_sheet() and not ppnt_l.with_answer:
-                            continue
-                        if question.is_question_sheet() and not ppnt_l.with_question:
-                            continue
-                        all_barcodes, all_docs, meta = generate_exam(
-                            question, stud_ppnt, ppnt_l.language, all_barcodes,
-                        all_docs, meta, qrcode=False)
+                    if question.is_question_sheet():
+                        if student in question_lang_list:
+                            for lang in question_lang_list[student]:
+                                all_barcodes, all_docs, meta = generate_exam(
+                                    question, stud_ppnt, lang, all_barcodes,
+                                    all_docs, meta, qrcode=False)
+                    elif question.is_answer_sheet():
+                        if student in answer_lang_list:
+                            for lang in answer_lang_list[student]:
+                                all_barcodes, all_docs, meta = generate_exam(
+                                    question, stud_ppnt, lang, all_barcodes,
+                                    all_docs, meta, qrcode=False)
 
         exam_id = question.exam.pk
         exam_code = question.exam.code
