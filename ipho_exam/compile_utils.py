@@ -194,27 +194,29 @@ def participant_exam_document(
         all_barcodes.append(bgenerator.base)
         all_docs.append(page)
 
-    for question in questions:
-        for ppnt_l in participant_languages:
-            if question.is_answer_sheet() and not ppnt_l.with_answer:
-                continue
-            if question.is_question_sheet() and not ppnt_l.with_question:
-                continue
-            if ppnt_l.participant.is_group:
-                # generate answer sheet for group
-                if question.is_answer_sheet():
-                    all_barcodes, all_docs, meta = generate_exam(
-                        question, ppnt_l.participant, ppnt_l.language, all_barcodes,
-                        all_docs, meta)
-                for student in ppnt_l.participant.students.all():
-                    stud_ppnt = get_ppnt_on_stud_exam(question.exam, student)
-                    all_barcodes, all_docs, meta = generate_exam(
-                        question, stud_ppnt, ppnt_l.language, all_barcodes,
-                       all_docs, meta, qrcode=False)
-            else:
+        for question in questions:
+            for ppnt_l in participant_languages:
+                if question.is_answer_sheet() and not ppnt_l.with_answer:
+                    continue
+                if question.is_question_sheet() and (not ppnt_l.with_question or ppnt.is_group):
+                    continue
                 all_barcodes, all_docs, meta = generate_exam(
                     question, ppnt_l.participant, ppnt_l.language, all_barcodes,
                     all_docs, meta)
+
+        if ppnt.is_group:
+            # generate documents for students
+            for student in ppnt.students.all():
+                stud_ppnt = get_ppnt_on_stud_exam(question.exam, student)
+                for question in questions:
+                    for ppnt_l in participant_languages:
+                        if question.is_answer_sheet() and not ppnt_l.with_answer:
+                            continue
+                        if question.is_question_sheet() and not ppnt_l.with_question:
+                            continue
+                        all_barcodes, all_docs, meta = generate_exam(
+                            question, stud_ppnt, ppnt_l.language, all_barcodes,
+                        all_docs, meta, qrcode=False)
 
         exam_id = question.exam.pk
         exam_code = question.exam.code
