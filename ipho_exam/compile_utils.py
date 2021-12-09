@@ -47,8 +47,23 @@ def all_same(items):
 def generate_exam(question, participant, language, all_barcodes, all_docs,
                   meta, qrcode=True):
     """helper function that prepares documents, compiles them and
-    returns a list with all pdfs. Does not add a QR code if qrcode is 
+    returns a list with all pdfs. Does not add a QR code if qrcode is
     set to False.
+
+    Args:
+        question (ipho_exam.models.Question): question.
+        participant (ipho_exam.models.Participant): participant.
+        language (ipho_exam.models.Language): language for participant.
+        all_barcodes (list): list of iphocode.Question.BarcodeGen that
+            have a QR code.
+        all_docs (list): list of bytes with pdf content.
+        meta (dict): dictionary that contains information, e.g.,
+            about number of pages.
+        qrcode (bool, optional): If False, does not add a QR code to
+            document. If True, adds a QR code to answer sheets.
+
+    Returns:
+        all_barcodes, all_docs, meta: see in Args.
     """
     print(f"Prepare {question} in {language} for {participant}.")
     trans = qquery.latest_version(
