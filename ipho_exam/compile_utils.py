@@ -31,7 +31,7 @@ from django.conf import settings
 
 from ipho_exam.models import (
     DocumentTask,
-    get_ppnt_on_stud_exam_creation,
+    get_ppnt_on_stud_exam,
 )
 from ipho_exam import tex, pdf, qquery, fonts, iphocode
 
@@ -46,6 +46,10 @@ def all_same(items):
 
 def generate_exam(question, participant, language, all_barcodes, all_docs,
                   meta, qrcode=True):
+    """helper function that prepares documents, compiles them and
+    returns a list with all pdfs. Does not add a QR code if qrcode is 
+    set to False.
+    """
     print(f"Prepare {question} in {language} for {participant}.")
     trans = qquery.latest_version(
         question.pk, language.pk
@@ -184,7 +188,7 @@ def participant_exam_document(
                         question, ppnt_l.participant, ppnt_l.language, all_barcodes,
                         all_docs, meta)
                 for student in ppnt_l.participant.students.all():
-                    stud_ppnt = get_ppnt_on_stud_exam_creation(question.exam, student)
+                    stud_ppnt = get_ppnt_on_stud_exam(question.exam, student)
                     all_barcodes, all_docs, meta = generate_exam(
                         question, stud_ppnt, ppnt_l.language, all_barcodes,
                        all_docs, meta, qrcode=False)
