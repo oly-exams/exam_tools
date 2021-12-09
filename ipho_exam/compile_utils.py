@@ -31,6 +31,7 @@ from django.conf import settings
 
 from ipho_exam.models import (
     DocumentTask,
+    get_ppnt_on_stud_exam_creation,
 )
 from ipho_exam import tex, pdf, qquery, fonts, iphocode
 
@@ -43,16 +44,17 @@ def all_same(items):
     return all(x == items[0] for x in items)
 
 
-def generate_exam(question, ppnt_l, all_barcodes, all_docs, meta):
-    print(f"Prepare {question} in {ppnt_l.language}.")
+def generate_exam(question, participant, language, all_barcodes, all_docs,
+                  meta, qrcode=True):
+    print(f"Prepare {question} in {language} for {participant}.")
     trans = qquery.latest_version(
-        question.pk, ppnt_l.language.pk
+        question.pk, language.pk
     )  ## TODO: simplify latest_version, because question and language are already in memory
     if not trans.lang.is_pdf:
         trans_content, ext_resources = trans.qml.make_tex()
         for reso in ext_resources:
             if isinstance(reso, tex.FigureExport):
-                reso.lang = ppnt_l.language
+                reso.lang = language
         ext_resources.append(
             tex.TemplateExport(
                 os.path.join(
@@ -61,11 +63,11 @@ def generate_exam(question, ppnt_l, all_barcodes, all_docs, meta):
             )
         )
         context = {
-            "polyglossia": ppnt_l.language.polyglossia,
-            "polyglossia_options": ppnt_l.language.polyglossia_options,
-            "font": fonts.ipho[ppnt_l.language.font],
-            "extraheader": ppnt_l.language.extraheader,
-            "lang_name": f"{ppnt_l.language.name} ({ppnt_l.language.delegation.country})",
+            "polyglossia": language.polyglossia,
+            "polyglossia_options": language.polyglossia_options,
+            "font": fonts.ipho[language.font],
+            "extraheader": language.extraheader,
+            "lang_name": f"{language.name} ({language.delegation.country})",
             "exam_name": f"{question.exam.name}",
             "code": f"{question.code}{question.position}",
             "title": f"{question.exam.name} - {question.name}",
@@ -77,16 +79,16 @@ def generate_exam(question, ppnt_l, all_barcodes, all_docs, meta):
             request=HttpRequest(),
             context=context,
         )
-        print(f"Compile {question} {ppnt_l.language}.")
+        print(f"Compile {question} {language}.")
         question_pdf = pdf.compile_tex(body, ext_resources)
     else:
         question_pdf = trans.node.pdf.read()
 
     doc_pages = pdf.get_num_pages(question_pdf)
     meta["num_pages"] += doc_pages
-    if question.is_answer_sheet():
+    if question.is_answer_sheet() and qrcode:
         bgenerator = iphocode.QuestionBarcodeGen(
-            question.exam, question, ppnt_l.participant
+            question.exam, question, participant
         )
         page = pdf.add_barcode(question_pdf, bgenerator)
         meta["barcode_num_pages"] += doc_pages
@@ -94,7 +96,7 @@ def generate_exam(question, ppnt_l, all_barcodes, all_docs, meta):
         all_docs.append(page)
     else:
         bgenerator = iphocode.QuestionBarcodeGen(
-            question.exam, question, ppnt_l.participant, suppress_code=True
+            question.exam, question, participant, suppress_code=True
         )
         page = pdf.add_barcode(question_pdf, bgenerator)
         all_docs.append(page)
@@ -105,7 +107,7 @@ def generate_exam(question, ppnt_l, all_barcodes, all_docs, meta):
             "polyglossia_options": "",
             "font": fonts.ipho["notosans"],
             "extraheader": "",
-            # 'lang_name'   : u'{} ({})'.format(ppnt_l.language.name, ppnt_l.language.delegation.country),
+            # 'lang_name'   : u'{} ({})'.format(language.name, language.delegation.country),
             "exam_name": f"{question.exam.name}",
             "code": "{}{}".format("W", question.position),
             "title": f"{question.exam.name} - {question.name}",
@@ -128,7 +130,7 @@ def generate_exam(question, ppnt_l, all_barcodes, all_docs, meta):
             ],
         )
         bgenerator = iphocode.QuestionBarcodeGen(
-            question.exam, question, ppnt_l.participant, qcode="W"
+            question.exam, question, participant, qcode="W", suppress_code=not qrcode
         )
         page = pdf.add_barcode(question_pdf, bgenerator)
 
@@ -138,7 +140,7 @@ def generate_exam(question, ppnt_l, all_barcodes, all_docs, meta):
         all_barcodes.append(bgenerator.base)
         all_docs.append(page)
 
-        return all_barcodes, all_docs, meta
+    return all_barcodes, all_docs, meta
 
 
 def participant_exam_document(
@@ -175,12 +177,25 @@ def participant_exam_document(
 
     for question in questions:
         for ppnt_l in participant_languages:
-            if question.is_answer_sheet() and not ppnt_l.with_answer:
-                continue
-            if question.is_question_sheet() and not ppnt_l.with_question:
-                continue
-            all_barcodes, all_docs, meta = generate_exam(
-                question, ppnt_l, all_barcodes, all_docs, meta)
+            if ppnt_l.participant.is_group:
+                # generate answer sheet for group
+                if question.is_answer_sheet():
+                    all_barcodes, all_docs, meta = generate_exam(
+                        question, ppnt_l.participant, ppnt_l.language, all_barcodes,
+                        all_docs, meta)
+                for student in ppnt_l.participant.students.all():
+                    stud_ppnt = get_ppnt_on_stud_exam_creation(question.exam, student)
+                    all_barcodes, all_docs, meta = generate_exam(
+                        question, stud_ppnt, ppnt_l.language, all_barcodes,
+                       all_docs, meta, qrcode=False)
+            else:
+                if question.is_answer_sheet() and not ppnt_l.with_answer:
+                    continue
+                if question.is_question_sheet() and not ppnt_l.with_question:
+                    continue
+                all_barcodes, all_docs, meta = generate_exam(
+                    question, ppnt_l.participant, ppnt_l.language, all_barcodes,
+                    all_docs, meta)
 
         exam_id = question.exam.pk
         exam_code = question.exam.code
