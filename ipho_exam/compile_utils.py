@@ -207,8 +207,8 @@ def participant_exam_document(
         if ppnt.is_group:
             # generate documents for students
             for student in ppnt.students.all():
-                stud_ppnt = get_ppnt_on_stud_exam(question.exam, student)
                 for question in questions:
+                    stud_ppnt = get_ppnt_on_stud_exam(question.exam, student)
                     for ppnt_l in participant_languages:
                         if question.is_answer_sheet() and not ppnt_l.with_answer:
                             continue
