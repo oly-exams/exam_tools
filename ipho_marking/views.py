@@ -1291,7 +1291,7 @@ def delegation_confirm(
         ctx["confirmation_h2"] = f"Sign off final points for {question.name}"
         ctx["confirmation_info"] = (
             "Please check the points displayed below. "
-            + "Note that you <strong>cannot</strong> moderate the points if you acceppt them now."
+            + "Note that you <strong>cannot</strong> moderate the points if you accept them now."
         )
         ctx["confirmation_checkbox_label"] = "I accept the final markings."
         ctx["confirm_button_label"] = "Accept"
