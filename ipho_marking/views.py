@@ -1255,7 +1255,7 @@ def delegation_confirm(
             markings_query, key=lambda m: m.marking_meta.question.pk
         )
     }
-    participants = Participant.objects.filter(delegation=delegation).all()
+    participants = Participant.objects.filter(delegation=delegation, exam=question.exam).all()
     # totals is of the form {question.pk:{participant.pk:total, ...}, ...}
     totals_questions = {
         k: {  # s is a list of markings for participant p
