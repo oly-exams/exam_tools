@@ -96,7 +96,7 @@
 
 %Question (QMLsubquestion)
 \newenvironment{QTF}[3]
-{\def\QTFpoints{#1} %\vspace{0.5em}
+{\def\QTFpoints{(#1)} %\vspace{0.5em}
 \begin{framed}
    \noindent
    \parbox[t]{.1\textwidth}{
