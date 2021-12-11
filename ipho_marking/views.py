@@ -118,14 +118,18 @@ def summary(request):
     )
 
     points_per_participant = []
-    participants = Participant.objects.all().values("id", "code", "delegation")
-    for participant in participants:
+    participants = [(c, list(ps)) for c, ps in itertools.groupby(
+        Participant.objects.all().values("id", "code", "exam__name"),
+        key=lambda p: p["code"],
+    )]
+    for code, participant_group in participants:
         ppnt_question_points_list = []
         ppnt_question_editable_list = []
+        ppnt_question_id_list = []
         for question in questions:
             ppnt_markings_question = markings.filter(
                 marking_meta__question=question["question__pk"],
-                participant=participant["id"],
+                participant__code=code,
             )
             points_question = ppnt_markings_question.aggregate(Sum("points"))[
                 "points__sum"
@@ -134,26 +138,36 @@ def summary(request):
 
             editable = editable_markings.filter(
                 marking_meta__question=question["question__pk"],
-                participant=participant["id"],
+                participant__code=code,
             ).exists()
             if editable:
                 ppnt_question_editable_list.append(question["question__pk"])
             else:
                 ppnt_question_editable_list.append(False)
+            ps = [
+                p
+                for p in participant_group
+                if p["exam__name"] == question["question__exam__name"]
+            ]
+            ppnt_question_id_list.append(ps[0]["id"] if ps else None)
 
         ppnt_exam_points_list = []
         for exam in exams:
             ppnt_markings_exam = markings.filter(
                 marking_meta__question__exam=exam["question__exam__pk"],
-                participant=participant["id"],
+                participant__code=code,
             )
             points_exam = ppnt_markings_exam.aggregate(Sum("points"))["points__sum"]
             ppnt_exam_points_list.append(points_exam)
 
         points_per_participant.append(
             (
-                participant,
-                list(zip(ppnt_question_points_list, ppnt_question_editable_list)),
+                code,
+                list(zip(
+                    ppnt_question_points_list,
+                    ppnt_question_editable_list,
+                    ppnt_question_id_list,
+                )),
                 ppnt_exam_points_list,
             )
         )
@@ -378,13 +392,15 @@ def delegation_export(request, exam_id=None):  # pylint: disable=too-many-branch
     response["Content-Disposition"] = 'attachment; filename="markings.csv"'
 
     writer = csv.writer(response)
-    participants = Participant.objects.filter(delegation=delegation)
+    participants = [(code, list(p)) for code, p in itertools.groupby(Participant.objects.filter(
+        delegation=delegation, exam__in=exams
+    ), key=lambda p: p.code)]
 
     row1 = ["Participant"]
     row2 = ["Version"]
-    for participant in participants:
+    for code, __ in participants:
         for version in versions:
-            row1.append(participant.code)
+            row1.append(code)
             row2.append(Marking.MARKING_VERSIONS[version])
     writer.writerow(row1)
     writer.writerow(row2)
@@ -396,18 +412,18 @@ def delegation_export(request, exam_id=None):  # pylint: disable=too-many-branch
         .order_by("question__exam", "question__position", "position")
     )
     for meta in mmeta:
+        marking_action = MarkingAction.objects.get(
+            delegation=delegation, question=meta.question
+        )
         row = [f"{meta.question.name} - {meta.name} ({meta.max_points})"]
         i = 0
-        for participant in participants:
+        for code, __ in participants:
             for version in versions:
                 marking = Marking.objects.filter(
-                    participant=participant, version=version, marking_meta=meta
+                    participant__code=code, version=version, marking_meta=meta
                 )
                 if marking.exists():
                     marking = marking.first()
-                    marking_action = MarkingAction.objects.get(
-                        delegation=delegation, question=meta.question
-                    )
                     if version == "D":
                         pass
                     elif (
