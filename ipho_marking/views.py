@@ -400,30 +400,34 @@ def delegation_export(request, exam_id=None):  # pylint: disable=too-many-branch
         i = 0
         for participant in participants:
             for version in versions:
-                marking = Marking.objects.get(
+                marking = Marking.objects.filter(
                     participant=participant, version=version, marking_meta=meta
                 )
-                marking_action = MarkingAction.objects.get(
-                    delegation=delegation, question=meta.question
-                )
-                if version == "D":
-                    pass
-                elif (
-                    version == "F"
-                    and marking_action.status >= MarkingAction.LOCKED_BY_MODERATION
-                ):
-                    pass
-                elif (
-                    version == "O"
-                    and meta.question.exam.marking_delegation_can_see_organizer_marks
-                    >= Exam.MARKING_DELEGATION_VIEW_WHEN_SUBMITTED
-                    and (
-                        marking_action.status >= MarkingAction.SUBMITTED_FOR_MODERATION
-                        or meta.question.exam.marking_delegation_can_see_organizer_marks
-                        >= Exam.MARKING_DELEGATION_VIEW_YES
+                if marking.exists():
+                    marking = marking.first()
+                    marking_action = MarkingAction.objects.get(
+                        delegation=delegation, question=meta.question
                     )
-                ):
-                    pass
+                    if version == "D":
+                        pass
+                    elif (
+                        version == "F"
+                        and marking_action.status >= MarkingAction.LOCKED_BY_MODERATION
+                    ):
+                        pass
+                    elif (
+                        version == "O"
+                        and meta.question.exam.marking_delegation_can_see_organizer_marks
+                        >= Exam.MARKING_DELEGATION_VIEW_WHEN_SUBMITTED
+                        and (
+                            marking_action.status >= MarkingAction.SUBMITTED_FOR_MODERATION
+                            or meta.question.exam.marking_delegation_can_see_organizer_marks
+                            >= Exam.MARKING_DELEGATION_VIEW_YES
+                        )
+                    ):
+                        pass
+                    else:
+                        marking = None
                 else:
                     marking = None
                 if marking is not None:
