@@ -44,8 +44,9 @@ def all_same(items):
     return all(x == items[0] for x in items)
 
 
-def generate_exam(question, participant, language, all_barcodes, all_docs,
-                  meta, qrcode=True):
+def generate_exam(  # pylint: disable=too-many-arguments
+    question, participant, language, all_barcodes, all_docs, meta, qrcode=True
+):
     """helper function that prepares documents, compiles them and
     returns a list with all pdfs. Does not add a QR code if qrcode is
     set to False.
@@ -76,9 +77,7 @@ def generate_exam(question, participant, language, all_barcodes, all_docs,
                 reso.lang = language
         ext_resources.append(
             tex.TemplateExport(
-                os.path.join(
-                    EVENT_TEMPLATE_PATH, "tex_resources", "ipho2016.cls"
-                )
+                os.path.join(EVENT_TEMPLATE_PATH, "tex_resources", "ipho2016.cls")
             )
         )
         context = {
@@ -106,9 +105,7 @@ def generate_exam(question, participant, language, all_barcodes, all_docs,
     doc_pages = pdf.get_num_pages(question_pdf)
     meta["num_pages"] += doc_pages
     if question.is_answer_sheet() and qrcode:
-        bgenerator = iphocode.QuestionBarcodeGen(
-            question.exam, question, participant
-        )
+        bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, participant)
         page = pdf.add_barcode(question_pdf, bgenerator)
         meta["barcode_num_pages"] += doc_pages
         all_barcodes.append(bgenerator.base)
@@ -142,9 +139,7 @@ def generate_exam(question, participant, language, all_barcodes, all_docs,
             body,
             [
                 tex.TemplateExport(
-                    os.path.join(
-                        EVENT_TEMPLATE_PATH, "tex_resources", "ipho2016.cls"
-                    )
+                    os.path.join(EVENT_TEMPLATE_PATH, "tex_resources", "ipho2016.cls")
                 )
             ],
         )
@@ -163,8 +158,12 @@ def generate_exam(question, participant, language, all_barcodes, all_docs,
 
 
 def participant_exam_document(
-    questions, participant_languages, cover=None, job_task=None,
-    question_lang_list=None, answer_lang_list=None
+    questions,
+    participant_languages,
+    cover=None,
+    job_task=None,
+    question_lang_list=None,
+    answer_lang_list=None,
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     meta = {}
     meta["num_pages"] = 0
@@ -195,37 +194,73 @@ def participant_exam_document(
         all_barcodes.append(bgenerator.base)
         all_docs.append(page)
 
-        for question in questions:
-            for ppnt_l in participant_languages:
-                if question.is_answer_sheet() and not ppnt_l.with_answer:
-                    continue
-                if question.is_question_sheet() and (not ppnt_l.with_question or ppnt.is_group):
-                    continue
+    for question in questions:
+        for ppnt_l in participant_languages:
+            if question.is_answer_sheet() and not ppnt_l.with_answer:
+                continue
+            if question.is_question_sheet() and (
+                not ppnt_l.with_question or ppnt.is_group
+            ):
+                continue
+            all_barcodes, all_docs, meta = generate_exam(
+                question,
+                ppnt_l.participant,
+                ppnt_l.language,
+                all_barcodes,
+                all_docs,
+                meta,
+            )
+
+            # add a second set of answer sheets for the group with draft watermark
+            if question.is_answer_sheet() and ppnt.is_group:
+                start = len(all_docs)
                 all_barcodes, all_docs, meta = generate_exam(
-                    question, ppnt_l.participant, ppnt_l.language, all_barcodes,
-                    all_docs, meta)
+                    question,
+                    ppnt_l.participant,
+                    ppnt_l.language,
+                    all_barcodes,
+                    all_docs,
+                    meta,
+                    qrcode=False,
+                )
+                for i in range(start, len(all_docs)):
+                    all_docs[i] = pdf.add_watermark(
+                        all_docs[i], watermark_filename="watermark_draft.pdf"
+                    )
 
-        if ppnt.is_group:
-            # generate documents for students
-            for student in ppnt.students.all():
-                for question in questions:
-                    stud_ppnt = get_ppnt_on_stud_exam(question.exam, student)
-                    if question.is_question_sheet():
-                        if student in question_lang_list:
-                            for lang in question_lang_list[student]:
-                                all_barcodes, all_docs, meta = generate_exam(
-                                    question, stud_ppnt, lang, all_barcodes,
-                                    all_docs, meta, qrcode=False)
-                    elif question.is_answer_sheet():
-                        if student in answer_lang_list:
-                            for lang in answer_lang_list[student]:
-                                all_barcodes, all_docs, meta = generate_exam(
-                                    question, stud_ppnt, lang, all_barcodes,
-                                    all_docs, meta, qrcode=False)
+    if ppnt.is_group:  # pylint: disable=too-many-nested-blocks
+        # generate documents for students
+        for student in ppnt.students.all():
+            for question in questions:
+                stud_ppnt = get_ppnt_on_stud_exam(question.exam, student)
+                if question.is_question_sheet():
+                    if student in question_lang_list:
+                        for lang in question_lang_list[student]:
+                            all_barcodes, all_docs, meta = generate_exam(
+                                question,
+                                stud_ppnt,
+                                lang,
+                                all_barcodes,
+                                all_docs,
+                                meta,
+                                qrcode=False,
+                            )
+                elif question.is_answer_sheet():
+                    if student in answer_lang_list:
+                        for lang in answer_lang_list[student]:
+                            all_barcodes, all_docs, meta = generate_exam(
+                                question,
+                                stud_ppnt,
+                                lang,
+                                all_barcodes,
+                                all_docs,
+                                meta,
+                                qrcode=False,
+                            )
 
-        exam_id = question.exam.pk
-        exam_code = question.exam.code
-        position = question.position
+    exam_id = question.exam.pk
+    exam_code = question.exam.code
+    position = question.position
 
     if all_same(all_barcodes):
         meta["barcode_base"] = all_barcodes[0] or None

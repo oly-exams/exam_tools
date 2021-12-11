@@ -100,7 +100,6 @@ from ipho_exam.models import (
     PrintLog,
     Place,
     CachedAutoTranslation,
-    get_ppnt_on_stud_exam,
 )
 from ipho_exam.models import (
     VALID_RAW_FIGURE_EXTENSIONS,
@@ -2816,14 +2815,22 @@ def set_form(ppnt, languages, answer_sheet_language, request):
         ppnt_answer_lang = ppnt_answer_lang_obj.language
     except ParticipantSubmission.DoesNotExist:
         ppnt_answer_lang = None
+
+    post_data = dict(request.POST.items())
+    if ppnt.is_group:  # mskoenz: we get validation errors if the question is not set
+        # but for groups, we don't want to set the question in the frontend,
+        # therefore we set it here to whatever the answer is.
+        qkey = f"ppnt-{ppnt.id}-languages"
+        akey = f"ppnt-{ppnt.id}-answer_language"
+        if akey in post_data:
+            post_data[qkey] = [post_data[akey]]
+
     form = AssignTranslationForm(
-        request.POST or None,
+        post_data or None,
         prefix=f"ppnt-{ppnt.pk}",
         languages_queryset=languages,
         answer_language=answer_sheet_language,
-        initial=dict(
-            languages=ppnt_question_langs, answer_language=ppnt_answer_lang
-        ),
+        initial=dict(languages=ppnt_question_langs, answer_language=ppnt_answer_lang),
     )
     return form
 
@@ -2869,7 +2876,6 @@ def submission_exam_assign(
         all_valid = all_valid and form.is_valid()
         with_errors = with_errors or form.errors
         submission_forms.append((ppnt, form))
-
 
     if all_valid:
         ## Save form
@@ -2922,14 +2928,20 @@ def submission_exam_assign(
                 answer_lang_list = {}
                 for student in participant.students.all():
                     # see templates/ipho_exam/submission_assign.html around line 108, 117
-                    question_lang = request.POST.getlist(f"student-{student.id}-question-language", None)
+                    question_lang = request.POST.getlist(
+                        f"student-{student.id}-question-language", None
+                    )
                     if question_lang:
                         question_lang_list[student] = [
-                            Language.objects.get(id=int(lang)) for lang in question_lang]
-                    answer_lang = request.POST.get(f"student-{student.id}-answer-language", None)
+                            Language.objects.get(id=int(lang)) for lang in question_lang
+                        ]
+                    answer_lang = request.POST.get(
+                        f"student-{student.id}-answer-language", None
+                    )
                     if answer_lang:
                         answer_lang_list[student] = [
-                            Language.objects.get(id=int(answer_lang))]
+                            Language.objects.get(id=int(answer_lang))
+                        ]
 
             participant_languages = ParticipantSubmission.objects.filter(
                 participant__exam=exam, participant=participant
@@ -2954,9 +2966,12 @@ def submission_exam_assign(
                     "place": participant_seat,
                 }
                 question_task = tasks.participant_exam_document.s(
-                    qgroup, participant_languages, cover=cover_ctx, commit=True,
-                    question_lang_list=question_lang_list, 
-                    answer_lang_list=answer_lang_list
+                    qgroup,
+                    participant_languages,
+                    cover=cover_ctx,
+                    commit=True,
+                    question_lang_list=question_lang_list,
+                    answer_lang_list=answer_lang_list,
                 )
                 # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
@@ -2964,7 +2979,6 @@ def submission_exam_assign(
                     document=doc, defaults={"task_id": question_task.id}
                 )
                 question_task.delay()
-
 
         ## Return
         return HttpResponseRedirect(

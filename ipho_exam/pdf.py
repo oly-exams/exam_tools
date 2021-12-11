@@ -18,6 +18,7 @@
 
 import os
 import codecs
+from pathlib import Path
 import shutil
 import logging
 import subprocess
@@ -218,11 +219,15 @@ def check_add_watermark(request, doc):
     return doc
 
 
-def add_watermark(doc):
+def add_watermark(doc, watermark_filename=None):
     """
     Adds the 'delegation print' watermark to the given PDF document.
     """
-    with open(WATERMARK_PATH, "rb") as wm_f:
+    filename = WATERMARK_PATH
+    if watermark_filename:
+        filename = Path(filename).parent / watermark_filename
+
+    with open(filename, "rb") as wm_f:
         watermark = PdfFileReader(BytesIO(wm_f.read()))
         watermark_page = watermark.getPage(0)
 
