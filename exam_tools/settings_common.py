@@ -119,6 +119,7 @@ DEEPL_API_URL = "https://api.deepl.com/v2/translate"
 # This dictionary maps the AUTO_TRANSLATE_LANGUAGES to the DeepL nomenclature
 # These languages are also preferrably translated with DeepL
 DEEPL_SOURCE_LANGUAGES = {
+    "": "",
     "de": "DE",
     "en-GB": "EN",
     "en-US": "EN",

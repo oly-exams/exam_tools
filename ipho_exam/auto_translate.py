@@ -22,6 +22,7 @@ from hashlib import md5
 import requests
 from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
+import deepl
 
 from django.conf import settings
 
@@ -35,60 +36,6 @@ logger = logging.getLogger("exam_tools")
 AUTO_TRANSLATE_LANGUAGE_LIST = [
     lang["language"] for lang in settings.AUTO_TRANSLATE_LANGUAGES
 ]
-
-
-class DeepLClient:
-    def __init__(self, auth_key=settings.DEEPL_API_KEY):
-        self.parameters = {
-            "split_sentences": "nonewlines",
-            "tag_handling": "xml",
-            "non_splitting_tags": "span",
-            "auth_key": auth_key,
-        }
-        self.url = settings.DEEPL_API_URL
-
-    def translate_multiple(self, texts, source_lang, target_lang, parameters=None):
-        """Translate a list of texts with DeepL"""
-        # prepare request parameters
-        new_parameters = self.parameters.copy()
-        if parameters is not None:
-            new_parameters.update(parameters)
-        if source_lang is not None:
-            new_parameters["source_lang"] = source_lang
-        new_parameters["target_lang"] = target_lang
-
-        if len(texts) > 50:
-            raise ValueError("Can only translate up to 50 texts.")
-        new_parameters["text"] = texts
-
-        # send request
-        response = requests.get(self.url, params=new_parameters)
-
-        # raise error if request was not successful
-        if response.status_code != 200:
-            raise ValueError(
-                f"DeepL returned status code: {response.status_code} \n"
-                f"The response was {response.content} \n"
-                f"With parameters {new_parameters}"
-            )
-
-        # return a list of translated texts
-        res_dict = response.json()
-        translations = res_dict["translations"]
-        translated_texts = [trl["text"] for trl in translations]
-        return translated_texts
-
-    def translate(self, text, source_lang, target_lang, parameters=None):
-        """Translate a string with DeepL"""
-        res = self.translate_multiple(
-            [
-                text,
-            ],
-            source_lang,
-            target_lang,
-            parameters=parameters,
-        )
-        return res[0]
 
 
 class MathReplacer:
@@ -174,14 +121,15 @@ def translate_deepl(from_lang, to_lang, text):
     deepl_from_lang = settings.DEEPL_SOURCE_LANGUAGES[from_lang]
     deepl_to_lang = settings.DEEPL_TARGET_LANGUAGES[to_lang]
 
-    translate_client = DeepLClient()
+    translate_client = deepl.Translator(settings.DEEPL_API_KEY)
 
     # translate
     try:
-        translated_text = translate_client.translate(
-            text, deepl_from_lang, deepl_to_lang
-        )
-    except ValueError as err:
+        translated_text = translate_client.translate_text(
+            text, source_lang=deepl_from_lang, target_lang=deepl_to_lang
+        ).text
+    except (ValueError, TypeError, deepl.DeepLException) as err:
+        print(err)
         # log error and use google as a fallback
         django_logger.error(err)
         logger.error(err)
@@ -225,7 +173,7 @@ def auto_translate_helper(raw_text, from_lang_obj, to_lang, delegation):
     if raw_translated_text is None:
         # prefer deepl
         if (
-            from_lang in settings.DEEPL_SOURCE_LANGUAGES
+            (from_lang in settings.DEEPL_SOURCE_LANGUAGES or not from_lang)
             and to_lang in settings.DEEPL_SOURCE_LANGUAGES
         ):
             raw_translated_text = translate_deepl(from_lang, to_lang, text)
