@@ -20,7 +20,7 @@
 
 \begin{document}
 
-\begin{letter}{\flushright{ \textbf{% templatetag openbrace %}{{ participant.code }} {{ exam.code }}-{% if exam.flags|binand:exam.FLAG_SQUASHED %}{% if question.position == 0 %}0{% else %}1{% endif %}{% else %}{{ question.position }}{% endif %} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}} }}
+\begin{letter}{\flushright{ \textbf{% templatetag openbrace %}{{ participant.code }} {{ exam.code }}-{% if exam.flags|binand:exam.FLAG_SQUASHED %}{% if question.position == 0 %}0{% else %}1{% endif %}{% else %}{{ question.position }}{% endif %} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}}{% if participant.is_group %}\\~{% for ss in participant.students.all%}\\{{ ss.full_name }} {{ ss.code }}{%endfor%}{% endif %} }}
 \opening{}
 
 \begin{center}

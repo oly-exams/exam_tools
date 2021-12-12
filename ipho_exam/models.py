@@ -738,6 +738,21 @@ def create_ppnt_on_stud_creation(
                     ppnt.save()
 
 
+def get_ppnt_on_stud_exam(exam, student):
+    """creates a participant based on an exam and a student
+    without storing it into the database.
+
+    Args:
+        exam (ipho_exam.models.Exam): exam
+        student (ipho_exam.models.Student): student
+
+    Returns:
+        ipho_exam.models.Participant: participant
+    """
+    return Participant(code=student.code, exam=exam,
+        full_name=student.full_name, delegation=student.delegation)
+
+
 @receiver(post_save, sender=Exam, dispatch_uid="create_ppnt_on_exam_creation")
 def create_ppnt_on_exam_creation(
     instance, created, raw, **kwargs
