@@ -111,7 +111,7 @@
               <td class="text-center">
                 <div class="checkbox {% if form.languages.errors %}has-error{% endif %}">
                   <label>
-                    <input type="checkbox" autocomplete="off" id="{{ form.languages.html_name }}-val-{{ lang_id }}" name="student-{{s.id}}-question-language" value="{{ lang_id }}" {% if lang_id in form.languages.value|intlist %}checked{% endif %} />
+                    <input type="checkbox" autocomplete="off" id="{{ form.languages.html_name }}-val-{{ lang_id }}" name="student-{{s.id}}-question-language" value="{{ lang_id }}" />
                     deliver
                   </label>
                 </div>
