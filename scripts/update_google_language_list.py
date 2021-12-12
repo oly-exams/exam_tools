@@ -17,7 +17,7 @@
 
 
 # Imports the Google Cloud client library
-from google.cloud import translate
+from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
 import json
 import sys
