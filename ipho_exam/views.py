@@ -2816,17 +2816,21 @@ def set_form(ppnt, languages, answer_sheet_language, request):
     except ParticipantSubmission.DoesNotExist:
         ppnt_answer_lang = None
 
-    post_data = dict(request.POST.items())
-    if ppnt.is_group:  # mskoenz: we get validation errors if the question is not set
-        # but for groups, we don't want to set the question in the frontend,
-        # therefore we set it here to whatever the answer is.
-        qkey = f"ppnt-{ppnt.id}-languages"
-        akey = f"ppnt-{ppnt.id}-answer_language"
-        if akey in post_data:
-            post_data[qkey] = [post_data[akey]]
+    post_data = request.POST or None
+    if post_data:
+        post_data = post_data.copy()  # makes it mutable
+        if (
+            ppnt.is_group
+        ):  # mskoenz: we get validation errors if the question is not set
+            # but for groups, we don't want to set the question in the frontend,
+            # therefore we set it here to whatever the answer is.
+            qkey = f"ppnt-{ppnt.id}-languages"
+            akey = f"ppnt-{ppnt.id}-answer_language"
+            if akey in post_data:
+                post_data[qkey] = post_data[akey]
 
     form = AssignTranslationForm(
-        post_data or None,
+        post_data,
         prefix=f"ppnt-{ppnt.pk}",
         languages_queryset=languages,
         answer_language=answer_sheet_language,
