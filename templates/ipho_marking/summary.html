@@ -39,15 +39,15 @@
         </tr>
       </thead>
       <tbody>
-        {% for participant, points, exam_points in points_per_participant %}
+        {% for code, points, exam_points in points_per_participant %}
         <tr>
-            <td>{{ participant.code }}</td>
-            {% for points, editable_pk in points %}
+            <td>{{ code }}</td>
+            {% for points, editable_pk, ppnt_id in points %}
             <td>
               {{ points|floatformat:"2"|default:'-' }}
               {% if vid == "O" %}
                 {% if editable_pk %}
-                <a class="btn btn-default btn-xs" href="{% url 'marking:staff-ppnt-detail' question_id=editable_pk version=vid ppnt_id=participant.id %}">
+                <a class="btn btn-default btn-xs" href="{% url 'marking:staff-ppnt-detail' question_id=editable_pk version=vid ppnt_id=ppnt_id %}">
                   <i class="fa fa-pencil" aria-hidden="true"></i>
                 </a>
                 {% else %}
