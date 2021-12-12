@@ -24,7 +24,10 @@ import os
 
 def format_code(code):
     parts = code.split("-", 1)
-    return parts[0].lower() + "-" + "".join(parts[1:])
+    s = parts[0].lower()
+    if len(parts) > 1:
+        s += "-" + "-".join(parts[1:])
+    return s
 
 raw_cred = sys.argv[1]
 # Instantiates a client
