@@ -19,7 +19,6 @@ import re
 import logging
 import json
 from hashlib import md5
-import requests
 from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
 import deepl
@@ -173,9 +172,8 @@ def auto_translate_helper(raw_text, from_lang_obj, to_lang, delegation):
     if raw_translated_text is None:
         # prefer deepl
         if (
-            (from_lang in settings.DEEPL_SOURCE_LANGUAGES or not from_lang)
-            and to_lang in settings.DEEPL_SOURCE_LANGUAGES
-        ):
+            from_lang in settings.DEEPL_SOURCE_LANGUAGES or not from_lang
+        ) and to_lang in settings.DEEPL_TARGET_LANGUAGES:
             raw_translated_text = translate_deepl(from_lang, to_lang, text)
         else:
             raw_translated_text = translate_google(from_lang, to_lang, text)
