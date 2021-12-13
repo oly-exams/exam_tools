@@ -24,7 +24,7 @@ describe('Translation', function() {
     })
 
     it('Test create Language', function() {
-        cy.login('CHE','1234')
+        cy.login("CHE-Leader",'1234')
         cy.visit('exam/languages')
 
         cy.get('#no-languages-container .btn.btn-lg').click()
@@ -125,7 +125,7 @@ describe('Translation', function() {
     })
 
     it('Test Basic Editor Functions', function() {
-        cy.login('AUS','1234')
+        cy.login("AUS-Leader",'1234')
         cy.wait(500)
         cy.visit('exam/editor/1/question/1/orig/1/lang/2')
 
@@ -177,7 +177,7 @@ describe('Translation', function() {
     })
 
     it('Test Advanced Editor Functions', function() {
-        cy.login('AUS','1234')
+        cy.login("AUS-Leader",'1234')
         cy.wait(500)
         cy.visit('exam/editor/1/question/1/orig/1/lang/2')
 
@@ -229,7 +229,7 @@ describe('Translation', function() {
 
     it("Test Permissions", function(){
         cy.visit("/")
-        cy.login('AUS','1234')
+        cy.login("AUS-Leader",'1234')
         // Check whether a translation of another delegation can be edited
         cy.request( {
             failOnStatusCode: false,
@@ -243,7 +243,7 @@ describe('Translation', function() {
         cy.getExamPhaseByName('Theory', "Preparation (Editing)").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('AUS', '1234')
+        cy.login("AUS-Leader", '1234')
         cy.visit('exam/translation/list')
         cy.get('h3 > .btn').should("not.contain", "Add translation")
         cy.get('#exam-tbody-1').should('not.exist')
@@ -263,7 +263,7 @@ describe('Translation', function() {
         cy.getExamPhaseByName('Theory', "Preparation (Translating)").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('AUS', '1234')
+        cy.login("AUS-Leader", '1234')
         cy.visit('exam/translation/list')
         cy.get('h3 > .btn').should("not.contain", "Add translation")
         cy.get('#exam-tbody-1').should('not.exist')
