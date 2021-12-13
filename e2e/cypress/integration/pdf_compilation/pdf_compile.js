@@ -52,7 +52,7 @@ describe('General', function() {
         cy.url().then((url) => {
             // Switch page and Wait for  30 seconds to ensure compilation
             // We need to wait manually because otherwise firefox would open the pdf reader, triggering a cross site request
-            cy.visit("")
+            cy.visit("/chocobunny")
             cy.wait(45000)
             // visit page again and confirm contenttype
             cy.request({

@@ -50,17 +50,17 @@ describe('Feedback', function() {
         cy.wait("@getFeedbackPartial")
 
         cy.get("#feedback-modal").should("be.visible")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(4)").contains("Armenia Lorem ipsum")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(4)").contains("Armenia Lorem ipsum")
 
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(2) > :nth-child(3)").contains("Australia")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(2) > :nth-child(4)").contains("Australia Lorem ipsum")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(2) > :nth-child(3)").contains("Australia")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(2) > :nth-child(4)").contains("Australia Lorem ipsum")
 
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(3) > :nth-child(3)").contains("Austria")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(3) > :nth-child(4)").contains("Austria Lorem ipsum")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(3) > :nth-child(3)").contains("Austria")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(3) > :nth-child(4)").contains("Austria Lorem ipsum")
 
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(4) > :nth-child(3)").contains("Switzerland")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(4) > :nth-child(4)").contains("Switzerland Lorem ipsum")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(4) > :nth-child(3)").contains("Switzerland")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(4) > :nth-child(4)").contains("Switzerland Lorem ipsum")
 
     })
 
@@ -94,7 +94,7 @@ describe('Feedback', function() {
         cy.wait("@getFeedbackPartial")
 
         cy.get("#feedback-modal").should("be.visible")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
         cy.logout()
         //delegation
         cy.login("ARM-Leader","1234")
@@ -108,7 +108,7 @@ describe('Feedback', function() {
         cy.wait("@getFeedbackPartial")
 
         cy.get("#feedback-modal").should("be.visible")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
         cy.logout()
 
         cy.login("admin", "1234")
@@ -125,7 +125,7 @@ describe('Feedback', function() {
         cy.wait("@getFeedbackPartial")
 
         cy.get("#feedback-modal").should("be.visible")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
         cy.logout()
         //delegation
         cy.login("ARM-Leader","1234")
@@ -139,7 +139,7 @@ describe('Feedback', function() {
         cy.wait("@getFeedbackPartial")
 
         cy.get("#feedback-modal").should("be.visible")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
         cy.logout()
 
         cy.login("admin", "1234")
@@ -321,7 +321,7 @@ describe('Feedback', function() {
         cy.wait("@getFeedbackPartial")
 
         cy.get("#feedback-modal").should("be.visible")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(4)").contains("Another comment")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(4)").contains("Another comment")
 
         //Delegations should never be able to add comments
         cy.logout()
@@ -370,7 +370,7 @@ describe('Feedback', function() {
         cy.wait("@getFeedbackPartial")
 
         cy.get("#feedback-modal").should("be.visible")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(4)").contains("Another comment2")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(4)").contains("Another comment2")
 
         //Delegations should never be able to add comments
         cy.logout()
@@ -415,8 +415,8 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
         //Check if modal content has been loaded.
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
-        cy.get("#feedback-modal #feedback-tbody-None button.dropdown-toggle").should('not.exist')
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 button.dropdown-toggle").should('not.exist')
 
         cy.logout()
         cy.login('admin', '1234')
@@ -430,8 +430,8 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
-        cy.get("#feedback-modal #feedback-tbody-None button.dropdown-toggle").should('not.exist')
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 button.dropdown-toggle").should('not.exist')
 
         // open feedbacks for question
         cy.visit("control/cockpit")
@@ -450,8 +450,8 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
-        cy.get("#feedback-modal #feedback-tbody-None button.dropdown-toggle").should('not.exist')
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 button.dropdown-toggle").should('not.exist')
 
         //Organizers should be able to edit statuses
         cy.logout()
@@ -471,15 +471,15 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(2) button").should('contain', 'Implemented').and('not.contain', 'Submitted')
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(2) button").should('contain', 'Implemented').and('not.contain', 'Submitted')
         //Change status in exam view
         cy.get('#feedback-tbody-1 > :nth-child(2) > :nth-child(2) button').should('not.contain', 'Scheduled for voting')
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(2) > :nth-child(2) button.dropdown-toggle").click()
-        cy.get('#feedback-modal #feedback-tbody-None > :nth-child(2) > :nth-child(2)').contains("Scheduled for voting").click()
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(2) > :nth-child(2) button.dropdown-toggle").click()
+        cy.get('#feedback-modal #feedback-tbody-1 > :nth-child(2) > :nth-child(2)').contains("Scheduled for voting").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-None > :nth-child(2) > :nth-child(2) button').should('contain', 'Scheduled for voting').and('not.contain', 'Submitted')
+        cy.get('#feedback-modal #feedback-tbody-1 > :nth-child(2) > :nth-child(2) button').should('contain', 'Scheduled for voting').and('not.contain', 'Submitted')
         //Check in feedback list
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -508,15 +508,15 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(3) > :nth-child(2) button").should('contain', 'Settled after voting').and('not.contain', 'Submitted')
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(3) > :nth-child(2) button").should('contain', 'Settled after voting').and('not.contain', 'Submitted')
         //Change status in exam view
-        cy.get('#feedback-modal #feedback-tbody-None > :nth-child(4) > :nth-child(2) button').should('not.contain', 'Withdrawn')
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(4) > :nth-child(2) button.dropdown-toggle").click()
-        cy.get('#feedback-modal #feedback-tbody-None > :nth-child(4) > :nth-child(2)').contains("Withdrawn").click()
+        cy.get('#feedback-modal #feedback-tbody-1 > :nth-child(4) > :nth-child(2) button').should('not.contain', 'Withdrawn')
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(4) > :nth-child(2) button.dropdown-toggle").click()
+        cy.get('#feedback-modal #feedback-tbody-1 > :nth-child(4) > :nth-child(2)').contains("Withdrawn").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-None > :nth-child(4) > :nth-child(2) button').should('contain', 'Withdrawn').and('not.contain', 'Submitted')
+        cy.get('#feedback-modal #feedback-tbody-1 > :nth-child(4) > :nth-child(2) button').should('contain', 'Withdrawn').and('not.contain', 'Submitted')
         //Check in feedback list
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -536,8 +536,8 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
-        cy.get("#feedback-modal #feedback-tbody-None button.dropdown-toggle").should('not.exist')
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 button.dropdown-toggle").should('not.exist')
         //Check statuses shown to delegation
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -552,11 +552,11 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
-        cy.get('#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(2)').should('contain', 'Implemented').and('not.contain', 'Submitted')
-        cy.get('#feedback-modal #feedback-tbody-None > :nth-child(2) > :nth-child(2)').should('contain', 'Scheduled for voting').and('not.contain', 'Submitted')
-        cy.get('#feedback-modal #feedback-tbody-None > :nth-child(3) > :nth-child(2)').should('contain', 'Settled after voting').and('not.contain', 'Submitted')
-        cy.get('#feedback-modal #feedback-tbody-None > :nth-child(4) > :nth-child(2)').should('contain', 'Withdrawn').and('not.contain', 'Submitted')
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get('#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(2)').should('contain', 'Implemented').and('not.contain', 'Submitted')
+        cy.get('#feedback-modal #feedback-tbody-1 > :nth-child(2) > :nth-child(2)').should('contain', 'Scheduled for voting').and('not.contain', 'Submitted')
+        cy.get('#feedback-modal #feedback-tbody-1 > :nth-child(3) > :nth-child(2)').should('contain', 'Settled after voting').and('not.contain', 'Submitted')
+        cy.get('#feedback-modal #feedback-tbody-1 > :nth-child(4) > :nth-child(2)').should('contain', 'Withdrawn').and('not.contain', 'Submitted')
 
         // Switch phase
         // Translation (exam.feedback = Exam.FEEDBACK_READONLY)
@@ -573,8 +573,8 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
-        cy.get("#feedback-modal #feedback-tbody-None button.dropdown-toggle").should('not.exist')
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 button.dropdown-toggle").should('not.exist')
 
         cy.logout()
         cy.login('admin', '1234')
@@ -587,8 +587,8 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get("#feedback-modal #feedback-tbody-None > :nth-child(1) > :nth-child(3)").contains("Armenia")
-        cy.get("#feedback-modal #feedback-tbody-None button.dropdown-toggle").should('not.exist')
+        cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
+        cy.get("#feedback-modal #feedback-tbody-1 button.dropdown-toggle").should('not.exist')
 
     })
 
@@ -604,7 +604,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
 
         cy.logout()
         cy.login('admin', '1234')
@@ -616,7 +616,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
 
         // open feedbacks for question
         cy.visit("control/cockpit")
@@ -632,7 +632,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
 
         //Delegations should now be able to add likes
         cy.logout()
@@ -663,24 +663,24 @@ describe('Feedback', function() {
         cy.wait("@getFeedbackPartial")
 
         //Check un-/likes entered before
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(1) > :nth-child(6) span.feedback-like-trigger').should('contain', "ARM")
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(2) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(2) > :nth-child(6) span.feedback-unlike-trigger').should('contain', "ARM")
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like-trigger').should('contain', "ARM")
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(2) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(2) > :nth-child(6) span.feedback-unlike-trigger').should('contain', "ARM")
         //Add like
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(3) > :nth-child(6) span.feedback-like-trigger').should('not.have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(3) > :nth-child(6) span.feedback-like-trigger').click()
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(6) span.feedback-like-trigger').should('not.have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(6) span.feedback-like-trigger').click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(3) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(3) > :nth-child(6) span.feedback-like-trigger').should('contain', "ARM")
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(6) span.feedback-like-trigger').should('contain', "ARM")
         //Add unlike
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(4) > :nth-child(6) span.feedback-unlike-trigger').should('not.have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(4) > :nth-child(6) span.feedback-unlike-trigger').click()
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(6) span.feedback-unlike-trigger').should('not.have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(6) span.feedback-unlike-trigger').click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(4) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(4) > :nth-child(6) span.feedback-unlike-trigger').should('contain', "ARM")
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(6) span.feedback-unlike-trigger').should('contain', "ARM")
         //Crosscheck on feedback list
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -706,7 +706,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
         //Feedback should be disabled again for delegations
         cy.logout()
         cy.login("ARM-Leader",'1234')
@@ -718,7 +718,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
 
         // Switch phase
         // Translation (exam.feedback = Exam.FEEDBACK_READONLY)
@@ -735,7 +735,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
         //Feedback should be disabled again for delegations
         cy.logout()
         cy.login("ARM-Leader",'1234')
@@ -747,7 +747,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-None :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
 
 
 
