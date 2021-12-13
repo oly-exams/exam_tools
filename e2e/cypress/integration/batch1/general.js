@@ -20,7 +20,7 @@ describe('Basic Functionalities', function() {
     it('Test Login and Logout', function() {
         cy.visit('/')
         cy.url().should('contain', 'accounts/login')
-        cy.get('[type="text"]').type('CHE')
+        cy.get('[type="text"]').type('CHE-LEADER')
         cy.get('[type="password"]').type('1234')
         cy.get('[type="submit"]').click()
         cy.url().should('not.contain', 'accounts/login')

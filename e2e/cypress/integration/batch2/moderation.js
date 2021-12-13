@@ -137,6 +137,8 @@ describe('Marking', function () {
         //Check copy button
         cy.get("#copy-10").click()
 
+        cy.wait(500)
+
         for (let index = 0; index < 13; index++) {
             marking_helpers.check_point_form(10,index,"0")
         }

@@ -1,6 +1,9 @@
 
 
 export function check_permission_denied_redirect(paths) {
+    Cypress.on('uncaught:exception', (err, runnable) => {
+        return false;
+      });
     paths.forEach(function (elem, idx) {
         cy.visit(elem)
         cy.url().should('contain', 'accounts/login/?next=' + elem)
