@@ -207,7 +207,7 @@ describe('Marking', function () {
 
         // Check marks and status for delegation
         cy.logout()
-        cy.login('ARM', '1234')
+        cy.login('ARM-Leader', '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()

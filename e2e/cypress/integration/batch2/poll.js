@@ -243,6 +243,9 @@ describe('Polls', function() {
     })
 
     it("Test Permissions", function(){
+        Cypress.on('uncaught:exception', (err, runnable) => {
+            return false;
+          });
         cy.login("AUS-Leader",'1234')
         // Check whether a delegation can access the staff voting pane
         cy.visit('/poll/staff/')

@@ -267,7 +267,7 @@ describe('Translation', function() {
         cy.logout()
         cy.login("AUS-Leader", '1234')
         cy.visit('exam/translation/list')
-        cy.get('h3 > .btn').should("not.contain", "Add translation")
+        cy.get('h3 > .btn').should('not.exist')
         cy.get('#exam-tbody-1').should('not.exist')
         cy.visit('exam/submission/list')
         //Check that there are no exams available
