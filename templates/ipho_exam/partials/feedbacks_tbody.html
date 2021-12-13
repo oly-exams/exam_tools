@@ -3,7 +3,7 @@
 <tr>
     <td>{{ fb.pk }}</td>
     <td>
-      {% if perms.ipho_core.is_organizer_admin and fb.commentable %}
+      {% if perms.ipho_core.can_manage_feedback and fb.commentable %}
         <div class="btn-group">
           <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
             {{ fb.status_display }}
@@ -45,7 +45,7 @@
           </span> <!-- btn-toolbar -->
         </div>
     </td>
-    {% if perms.ipho_core.is_organizer_admin and fb.exam_feedback_editable %}
+    {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
     <td>
       {% if fb.commentable %}
       <button type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">

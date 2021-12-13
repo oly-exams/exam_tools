@@ -128,7 +128,7 @@
           <th>Comment</th>
           <th>Timestamp</th>
           <th style="width:170px">Actions</th>
-          {% if perms.ipho_core.is_organizer_admin and exam.check_feedback_editable %}
+          {% if perms.ipho_core.can_manage_feedback and exam.check_feedback_editable %}
           {% if question and question.check_feedback_commentable or not question %}
           <th>Comments</th>
           {% endif %}
