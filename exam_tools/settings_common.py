@@ -104,6 +104,9 @@ ACCEPT_MARKS_BEFORE_MODERATION = True
 # Defines whether final marks need to be signed off by a delegation
 SIGN_OFF_FINAL_MARKS = False
 
+# Defines wheter negative marks are allowed
+ALLOW_NEGATIVE_MARKS = False
+
 # Shows the remaining delegations in voting fullscreen view.
 VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
 

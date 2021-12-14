@@ -23,7 +23,6 @@ from django.db import models
 from django.db.models import Q
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
@@ -34,6 +33,7 @@ from ipho_exam import qml
 
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
+ALLOW_NEGATIVE_MARKS = getattr(settings, "ALLOW_NEGATIVE_MARKS", False)
 
 
 def generate_markings_from_exam(exam, user=None):
@@ -288,7 +288,10 @@ class MarkingManager(models.Manager):
                 status__lt=MarkingAction.FINAL
             ).all()
             un_final_action_q_list = [
-                Q(participant__delegation=a.delegation, marking_meta__question=a.question)
+                Q(
+                    participant__delegation=a.delegation,
+                    marking_meta__question=a.question,
+                )
                 for a in un_final_actions
             ]
             un_final_action_q = reduce(
@@ -338,7 +341,7 @@ class Marking(models.Model):
         blank=True,
         max_digits=8,
         decimal_places=2,
-        validators=[MinValueValidator(0.0)],
+        validators=[],
     )
     comment = models.TextField(null=True, blank=True)
     MARKING_VERSIONS = OrderedDict(
@@ -351,6 +354,8 @@ class Marking(models.Model):
     version = models.CharField(max_length=1, choices=list(MARKING_VERSIONS.items()))
 
     def clean(self):
+        if self.points == "" or self.points is None:
+            return
         try:
             if self.points > self.marking_meta.max_points:
                 raise ValidationError(
@@ -360,6 +365,25 @@ class Marking(models.Model):
                         )
                     }
                 )
+            if ALLOW_NEGATIVE_MARKS:
+                # pylint: disable=invalid-unary-operand-type
+                if self.points < -self.marking_meta.max_points:
+                    raise ValidationError(
+                        {
+                            "points": ValidationError(
+                                "The number of points cannot be smaller than the negative maximum."
+                            )
+                        }
+                    )
+            else:
+                if self.points < 0:
+                    raise ValidationError(
+                        {
+                            "points": ValidationError(
+                                "The number of points cannot be negative."
+                            )
+                        }
+                    )
         except TypeError:
             # pylint: disable=raise-missing-from
             raise ValidationError(
