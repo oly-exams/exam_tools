@@ -22,6 +22,7 @@
     <td>{{ fb.delegation__country }}</td>
     <td>{{ fb.question__name }}</td>
     <td>{{ fb.part }}</td>
+    <td style="display:none;">{{ fb.part_position }}</td>
     <td>{{ fb.comment }}{% if fb.org_comment %}<br><strong>Comment from the organizers:</strong><br>{{ fb.org_comment }}{% endif %}</td>
     <td><time datetime="{{ fb.timestamp|date:"c" }}" data-format="hh:mm A"></time></td>
     <td>

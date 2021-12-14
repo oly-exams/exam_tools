@@ -721,9 +721,7 @@ class Participant(models.Model):
 
 
 @receiver(post_save, sender=Student, dispatch_uid="create_ppnt_on_stud_creation")
-def create_ppnt_on_stud_creation(
-    instance, created, raw, **kwargs
-):  # pylint: disable=unused-argument
+def create_ppnt_on_stud_creation(instance, created, raw, **kwargs):
     if raw:
         return
     for exam in Exam.objects.all():
@@ -749,14 +747,16 @@ def get_ppnt_on_stud_exam(exam, student):
     Returns:
         ipho_exam.models.Participant: participant
     """
-    return Participant(code=student.code, exam=exam,
-        full_name=student.full_name, delegation=student.delegation)
+    return Participant(
+        code=student.code,
+        exam=exam,
+        full_name=student.full_name,
+        delegation=student.delegation,
+    )
 
 
 @receiver(post_save, sender=Exam, dispatch_uid="create_ppnt_on_exam_creation")
-def create_ppnt_on_exam_creation(
-    instance, created, raw, **kwargs
-):  # pylint: disable=unused-argument
+def create_ppnt_on_exam_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
@@ -1264,6 +1264,7 @@ class Feedback(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     qml_id = models.CharField(max_length=100, default=None, null=True, blank=True)
     part = models.CharField(max_length=100, default=None)
+    part_position = models.IntegerField(default=0)
     comment = models.TextField(blank=True)
     org_comment = models.TextField(blank=True, null=True, default=None)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="S")
@@ -1271,19 +1272,6 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"#{self.pk} {self.question.name} - {self.question.exam.name} ({self.delegation.name})"
-
-    @staticmethod
-    def part_id(txt):
-        all_parts = []
-        for key, _ in Feedback.PARTS_CHOICES:
-            for kkey, _ in Feedback.SUBPARTS_CHOICES:
-                all_parts.append(f"{key}.{kkey}")
-        try:
-            i = all_parts.index(txt)
-        except ValueError:
-            # print('Problem')
-            i = len(all_parts)
-        return i
 
 
 class Like(models.Model):
