@@ -611,7 +611,7 @@ describe('Feedback', function() {
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
 
-        cy.get('#feedback-tbody-1 :nth-child(1) > :nth-child(8) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-tbody-1 :nth-child(1) > :nth-child(9) span.feedback-like').should('have.class', 'disabled')
         cy.visit("exam/view/1/question/2")
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
