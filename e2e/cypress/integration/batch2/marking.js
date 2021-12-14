@@ -43,8 +43,8 @@ describe('Marking', function () {
 
         // too much
         marking_helpers.edit_point_form(1,1,10)
-        // negative
-        marking_helpers.edit_point_form(1,2,-1)
+        // too negative
+        marking_helpers.edit_point_form(1,2,-10)
         // too many digits
         marking_helpers.edit_point_form(1,3,0.1234)
         // NaN
@@ -52,6 +52,9 @@ describe('Marking', function () {
         //empty
         // cypress doesn't let you type(""), so we need to do it by hand
         cy.get("#id_ppnt-1-5-points").clear()
+
+        // negative which should work
+        marking_helpers.edit_point_form(1,8,-0.6)
 
         // add more values for other participants
         marking_helpers.edit_point_form(2,10, 1)
@@ -72,13 +75,14 @@ describe('Marking', function () {
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(1,1, true, "The number of points cannot exceed the maximum.")
-        marking_helpers.check_point_form_error(1,2, true, "Ensure this value is greater than or equal to 0.0.")
+        marking_helpers.check_point_form_error(1,2, true, "The number of points cannot be smaller than the negative maximum.")
         marking_helpers.check_point_form_error(1,3, true, "Ensure that there are no more than 2 decimal places.")
         marking_helpers.check_point_form_error(1,4, true, "Enter a number.")
         marking_helpers.check_point_form_error(1,5, true, "This field is required.")
 
         // check that there are no errors on other fields
         marking_helpers.check_point_form_error(1,0, false)
+        marking_helpers.check_point_form_error(1,8, false)
         marking_helpers.check_point_form_error(2,10, false)
         marking_helpers.check_point_form_error(3,10, false)
         marking_helpers.check_point_form_error(4,10, false)
@@ -87,7 +91,7 @@ describe('Marking', function () {
         // correct errors:
         marking_helpers.edit_point_form(1,1,0.5)
         marking_helpers.edit_point_form(1,2,0.14)
-        marking_helpers.edit_point_form(1,3,0)
+        marking_helpers.edit_point_form(1,3,0.6)
         marking_helpers.edit_point_form(1,4,0.75)
         marking_helpers.edit_point_form(1,5,0)
         marking_helpers.edit_point_form(1,10,1)
@@ -124,9 +128,10 @@ describe('Marking', function () {
         // check the points edited before
         marking_helpers.check_point_form(1,1,'0.50')
         marking_helpers.check_point_form(1,2,'0.14')
-        marking_helpers.check_point_form(1,3,'0.00')
+        marking_helpers.check_point_form(1,3,'0.60')
         marking_helpers.check_point_form(1,4,'0.75')
         marking_helpers.check_point_form(1,5,'0.00')
+        marking_helpers.check_point_form(1,8,'-0.60')
         marking_helpers.check_point_form(2,10,'1.00')
         marking_helpers.check_point_form(3,10,'1.00')
         marking_helpers.check_point_form(4,10,'1.00')
@@ -168,8 +173,8 @@ describe('Marking', function () {
 
         // too much
         marking_helpers.edit_point_form(-1,1,10)
-        // negative
-        marking_helpers.edit_point_form(-1,2,-1)
+        // too negative
+        marking_helpers.edit_point_form(-1,2,-10)
         // too many digits
         marking_helpers.edit_point_form(-1,3,0.1234)
         // NaN
@@ -178,11 +183,14 @@ describe('Marking', function () {
         // cypress doesn't let you type(""), so we need to do it by hand
         cy.get("#id_form-5-points").clear()
 
+        // negative which should work
+        marking_helpers.edit_point_form(-1,8,-0.6)
+
         cy.get('input[type="submit"]').click()
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(-1,1, true, "The number of points cannot exceed the maximum.", false)
-        marking_helpers.check_point_form_error(-1,2, true, "Ensure this value is greater than or equal to 0.0.", false)
+        marking_helpers.check_point_form_error(-1,2, true, "The number of points cannot be smaller than the negative maximum.", false)
         marking_helpers.check_point_form_error(-1,3, true, "Ensure that there are no more than 2 decimal places.", false)
         marking_helpers.check_point_form_error(-1,4, true, "Enter a number.", false)
         marking_helpers.check_point_form_error(-1,5, true, "This field is required.", false)
@@ -208,6 +216,7 @@ describe('Marking', function () {
         marking_helpers.check_point_form(-1,3,"0.00")
         marking_helpers.check_point_form(-1,4,"0.75")
         marking_helpers.check_point_form(-1,5,"0.00")
+        marking_helpers.check_point_form(-1,8,"-0.60")
         marking_helpers.check_point_form(-1,10,"1.00")
 
     })
@@ -229,8 +238,8 @@ describe('Marking', function () {
 
         // too much
         marking_helpers.edit_point_form(-1,1,10)
-        // negative
-        marking_helpers.edit_point_form(-1,2,-1)
+        // too negative
+        marking_helpers.edit_point_form(-1,2,-10)
         // too many digits
         marking_helpers.edit_point_form(-1,3,0.1234)
         // NaN
@@ -238,12 +247,14 @@ describe('Marking', function () {
         //empty
         // cypress doesn't let you type(""), so we need to do it by hand
         cy.get("#id_form-5-points").clear()
+        // negative which should work
+        marking_helpers.edit_point_form(-1,8,-0.6)
 
         cy.get('input[type="submit"]').click()
 
         // check that errors are displayed (there are no error classes in this view, so we don't check for them)
         marking_helpers.check_point_form_error(-1,1, true, "The number of points cannot exceed the maximum.", false)
-        marking_helpers.check_point_form_error(-1,2, true, "Ensure this value is greater than or equal to 0.0.", false)
+        marking_helpers.check_point_form_error(-1,2, true, "The number of points cannot be smaller than the negative maximum.", false)
         marking_helpers.check_point_form_error(-1,3, true, "Ensure that there are no more than 2 decimal places.", false)
         marking_helpers.check_point_form_error(-1,4, true, "Enter a number.", false)
         marking_helpers.check_point_form_error(-1,5, true, "This field is required.", false)
@@ -269,12 +280,13 @@ describe('Marking', function () {
         marking_helpers.check_point_form(-1,3,"0.00")
         marking_helpers.check_point_form(-1,4,"0.75")
         marking_helpers.check_point_form(-1,5,"0.00")
+        marking_helpers.check_point_form(-1,8,"-0.60")
 
         //check values also in readonly view
         cy.visit("/marking/detail/1/question/3")
 
         // Delegation is the second column
-        marking_helpers.check_delegation_points_view(2,["0.75", "0.50", "0.14", "0.00", "0.75", "0.00"])
+        marking_helpers.check_delegation_points_view(2,["0.75", "0.50", "0.14", "0.00", "0.75", "0.00", "0.00", "0.00", "-0.60"])
 
     })
 
@@ -293,8 +305,8 @@ describe('Marking', function () {
 
         // too much
         marking_helpers.edit_point_form(-1,5,10)
-        // negative
-        marking_helpers.edit_point_form(-1,10,-1)
+        // too negative
+        marking_helpers.edit_point_form(-1,10,-10)
         // too many digits
         marking_helpers.edit_point_form(-1,15,0.1234)
         // NaN
@@ -302,6 +314,8 @@ describe('Marking', function () {
         //empty
         // cypress doesn't let you type(""), so we need to do it by hand
         cy.get("#id_form-25-points").clear()
+        // negative which should work
+        marking_helpers.edit_point_form(-1,8,-0.1)
 
         // add more values for other participants
         marking_helpers.edit_point_form(-1,1, 0.17)
@@ -314,7 +328,7 @@ describe('Marking', function () {
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(-1,5, true, "The number of points cannot exceed the maximum.")
-        marking_helpers.check_point_form_error(-1,10, true, "Ensure this value is greater than or equal to 0.0.")
+        marking_helpers.check_point_form_error(-1,2, true, "The number of points cannot be smaller than the negative maximum.")
         marking_helpers.check_point_form_error(-1,15, true, "Ensure that there are no more than 2 decimal places.")
         marking_helpers.check_point_form_error(-1,20, true, "Enter a number.")
         marking_helpers.check_point_form_error(-1,25, true, "This field is required.")
@@ -326,6 +340,7 @@ describe('Marking', function () {
         marking_helpers.check_point_form_error(-1,2, false)
         marking_helpers.check_point_form_error(-1,3, false)
         marking_helpers.check_point_form_error(-1,4, false)
+        marking_helpers.check_point_form_error(-1,8, false)
 
         // correct errors:
         marking_helpers.edit_point_form(-1,5,0.5)
@@ -353,6 +368,7 @@ describe('Marking', function () {
         marking_helpers.check_point_form(-1,2,"0.17")
         marking_helpers.check_point_form(-1,3,"0.17")
         marking_helpers.check_point_form(-1,4,"0.17")
+        marking_helpers.check_point_form(-1,8,"-0.10")
         //check values also in readonly view
         cy.visit("/marking/detail_all/question/3")
 
@@ -361,7 +377,7 @@ describe('Marking', function () {
         // CHE-S-3 Del. is column 5, CHE-S-3 clumn 8,...
         marking_helpers.check_delegation_points_view(5,["0.17",])
         marking_helpers.check_delegation_points_view(8,["0.17",])
-        marking_helpers.check_delegation_points_view(11,["0.17",])
+        marking_helpers.check_delegation_points_view(11,["0.17","-0.10"])
         marking_helpers.check_delegation_points_view(14,["0.17",])
 
     })
