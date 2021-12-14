@@ -22,20 +22,11 @@ import sys
 import os
 
 
-def format_code(code):
-    parts = code.split("-", 1)
-    s = parts[0].lower()
-    if len(parts) > 1:
-        s += "-" + "-".join(parts[1:])
-    return s
-
 raw_cred = sys.argv[1]
 # Instantiates a client
 translate_client = deepl.Translator(raw_cred)
-lan_list_source = {format_code(l.code): l.code for l in translate_client.get_source_languages()}
-# Allow to guess
-lan_list_source[""] = ""
-lan_list_target = {format_code(l.code): l.code for l in translate_client.get_target_languages()}
+lan_list_source = {l.code for l in translate_client.get_source_languages()}
+lan_list_target = {l.code for l in translate_client.get_target_languages()}
 with open(
     os.path.join(os.path.dirname(__file__), "../exam_tools/settings.py"), "a"
 ) as f:

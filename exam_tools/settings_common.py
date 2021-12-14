@@ -113,50 +113,37 @@ AUTO_TRANSLATE = False
 GOOGLE_TRANSLATE_SERVICE_ACCOUNT_KEY = r"""{}"""
 # The API-key for deepl
 DEEPL_API_KEY = ""
-# The API url
-DEEPL_API_URL = "https://api.deepl.com/v2/translate"
 # DeepL and google translate use different codes for the languages
 # This dictionary maps the AUTO_TRANSLATE_LANGUAGES to the DeepL nomenclature
 # These languages are also preferrably translated with DeepL
 DEEPL_SOURCE_LANGUAGES = {
-    "": "",
-    "de": "DE",
-    "en-GB": "EN",
-    "en-US": "EN",
-    "fr": "FR",
-    "it": "IT",
-    "ja": "JA",
-    "es": "ES",
-    "nl": "NL",
-    "pl": "PL",
-    "pt-PT": "PT",
-    "pt-BR": "PT",
-    "ru": "RU",
-    "zh-CN": "ZH",
+    "DE",
+    "EN",
+    "FR",
+    "IT",
+    "JA",
+    "ES",
+    "NL",
+    "PL",
+    "PT",
+    "RU",
+    "ZH",
 }
 
 DEEPL_TARGET_LANGUAGES = {
-    "de": "DE",
-    "en-GB": "EN-GB",
-    "en-US": "EN-US",
-    "fr": "FR",
-    "it": "IT",
-    "ja": "JA",
-    "es": "ES",
-    "nl": "NL",
-    "pl": "PL",
-    "pt-PT": "PT-PT",
-    "pt-BR": "PT-BR",
-    "ru": "RU",
-    "zh-CN": "ZH",
-}
-
-# Some language variants are not present in google translate:
-GOOGLE_TRANSLATE_LANGUAGE_PATCH = {
-    "en-GB": "en",
-    "en-US": "en",
-    "pt-PT": "pt",
-    "pt-BR": "pt",
+    "DE",
+    "EN-GB",
+    "EN-US",
+    "FR",
+    "IT",
+    "JA",
+    "ES",
+    "NL",
+    "PL",
+    "PT-PT",
+    "PT-BR",
+    "RU",
+    "ZH",
 }
 
 # A list of languages for auto translate
