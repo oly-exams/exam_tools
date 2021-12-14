@@ -604,7 +604,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(7) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
 
         cy.logout()
         cy.login('admin', '1234')
@@ -616,7 +616,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(7) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
 
         // open feedbacks for question
         cy.visit("control/cockpit")
@@ -632,7 +632,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(7) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
 
         //Delegations should now be able to add likes
         cy.logout()
@@ -663,24 +663,24 @@ describe('Feedback', function() {
         cy.wait("@getFeedbackPartial")
 
         //Check un-/likes entered before
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(7) span.feedback-like').should('have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(7) span.feedback-like-trigger').should('contain', "ARM")
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(2) > :nth-child(7) span.feedback-like').should('have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(2) > :nth-child(7) span.feedback-unlike-trigger').should('contain', "ARM")
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like-trigger').should('contain', "ARM")
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(2) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(2) > :nth-child(6) span.feedback-unlike-trigger').should('contain', "ARM")
         //Add like
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(7) span.feedback-like-trigger').should('not.have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(7) span.feedback-like-trigger').click()
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(6) span.feedback-like-trigger').should('not.have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(6) span.feedback-like-trigger').click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(7) span.feedback-like').should('have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(7) span.feedback-like-trigger').should('contain', "ARM")
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(3) > :nth-child(6) span.feedback-like-trigger').should('contain', "ARM")
         //Add unlike
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(7) span.feedback-unlike-trigger').should('not.have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(7) span.feedback-unlike-trigger').click()
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(6) span.feedback-unlike-trigger').should('not.have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(6) span.feedback-unlike-trigger').click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(7) span.feedback-like').should('have.class', 'disabled')
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(7) span.feedback-unlike-trigger').should('contain', "ARM")
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(4) > :nth-child(6) span.feedback-unlike-trigger').should('contain', "ARM")
         //Crosscheck on feedback list
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -706,7 +706,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(7) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
         //Feedback should be disabled again for delegations
         cy.logout()
         cy.login("ARM-Leader",'1234')
@@ -718,7 +718,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(7) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
 
         // Switch phase
         // Translation (exam.feedback = Exam.FEEDBACK_READONLY)
@@ -735,7 +735,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(7) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
         //Feedback should be disabled again for delegations
         cy.logout()
         cy.login("ARM-Leader",'1234')
@@ -747,7 +747,7 @@ describe('Feedback', function() {
         cy.get("#q0_ti1").click()
         cy.wait("@getFeedbackPartial")
 
-        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(7) span.feedback-like').should('have.class', 'disabled')
+        cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
 
 
 
