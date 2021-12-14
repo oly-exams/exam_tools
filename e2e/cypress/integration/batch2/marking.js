@@ -286,7 +286,7 @@ describe('Marking', function () {
         cy.visit("/marking/detail/1/question/3")
 
         // Delegation is the second column
-        marking_helpers.check_delegation_points_view(2,["0.75", "0.50", "0.14", "0.00", "0.75", "0.00", "0.00", "0.00", "-0.60"])
+        marking_helpers.check_delegation_points_view(2,["0.75", "0.50", "0.14", "0.00", "0.75", "0.00", "0.20", "0.60", "-0.60"])
 
     })
 
@@ -328,7 +328,7 @@ describe('Marking', function () {
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(-1,5, true, "The number of points cannot exceed the maximum.")
-        marking_helpers.check_point_form_error(-1,2, true, "The number of points cannot be smaller than the negative maximum.")
+        marking_helpers.check_point_form_error(-1,10, true, "The number of points cannot be smaller than the negative maximum.")
         marking_helpers.check_point_form_error(-1,15, true, "Ensure that there are no more than 2 decimal places.")
         marking_helpers.check_point_form_error(-1,20, true, "Enter a number.")
         marking_helpers.check_point_form_error(-1,25, true, "This field is required.")
