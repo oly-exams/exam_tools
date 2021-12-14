@@ -113,14 +113,16 @@ def generate_exam(  # pylint: disable=too-many-arguments
     meta["num_pages"] += doc_pages
     meta["last_num_pages"] = doc_pages
     if question.is_answer_sheet() and qrcode:
-        bgenerator = iphocode.QuestionBarcodeGen(question.exam, question, participant)
+        bgenerator = iphocode.QuestionBarcodeGen(
+            question.exam, question, participant, startnum=start_page
+        )
         page = pdf.add_barcode(question_pdf, bgenerator)
         meta["barcode_num_pages"] += doc_pages
         all_barcodes.append(bgenerator.base)
         all_docs.append(page)
     else:
         bgenerator = iphocode.QuestionBarcodeGen(
-            question.exam, question, participant, suppress_code=True
+            question.exam, question, participant, startnum=start_page, suppress_code=True
         )
         page = pdf.add_barcode(question_pdf, bgenerator)
         all_docs.append(page)
@@ -133,7 +135,11 @@ def generate_exam(  # pylint: disable=too-many-arguments
             "extraheader": "",
             # 'lang_name'   : u'{} ({})'.format(language.name, language.delegation.country),
             "exam_name": f"{question.exam.name}",
-            "code": "{}{}".format("W", question.position),
+            "code": (
+                f"W{int(bool(question.position))}"
+                if question.exam.flags & question.exam.FLAG_SQUASHED
+                else f"W{question.position}"
+            ),
             "title": f"{question.exam.name} - {question.name}",
             "is_answer": question.is_answer_sheet(),
             "pages": list(range(question.working_pages)),
