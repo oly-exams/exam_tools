@@ -108,28 +108,37 @@ def translate_google(from_lang, to_lang, text):
     return cloud_response["translatedText"]
 
 
-def translate_deepl(from_lang, to_lang, text):
-    if from_lang:
-        ul = from_lang.upper()
-        parts = ul.split("-")
-        # TODO: Should we allow variants?
-        # As in, translate from fr-CH if the source string is fr-FR?
-        if ul in settings.DEEPL_SOURCE_LANGUAGES:
-            from_lang = ul
-        elif len(parts) > 1 and parts[0] in settings.DEEPL_SOURCE_LANGUAGES:
-            from_lang = parts[0]
-        else:
-            return None
-
-    ul = to_lang.upper()
+def find_best_matching_deepl_lang(lang, langs):
+    ul = lang.upper()
     parts = ul.split("-")
     # TODO: Should we allow variants?
-    # As in, translate to fr-CH if the actual target is fr-FR?
-    if ul in settings.DEEPL_TARGET_LANGUAGES:
-        to_lang = ul
-    elif len(parts) > 1 and parts[0] in settings.DEEPL_TARGET_LANGUAGES:
-        to_lang = parts[0]
-    else:
+    # As in, use fr-CH where fr-FR is given/requested?
+    if ul in langs:
+        return ul
+    elif len(parts) > 1 and parts[0] in langs:
+        return parts[0]
+    elif len(parts) == 1:
+        if ul + "-" + ul in langs:
+            return ul + "-" + ul
+        else:
+            for l in langs:
+                if ul == l.split("-")[0]:
+                    return l
+    return None
+
+
+def translate_deepl(from_lang, to_lang, text):
+    if from_lang:
+        from_lang = find_best_matching_deepl_lang(
+            from_lang, settings.DEEPL_SOURCE_LANGUAGES
+        )
+        if from_lang is None:
+            return None
+
+    to_lang = find_best_matching_deepl_lang(
+        to_lang, settings.DEEPL_TARGET_LANGUAGES
+    )
+    if to_lang is None:
         return None
 
     translate_client = deepl.Translator(settings.DEEPL_API_KEY)
