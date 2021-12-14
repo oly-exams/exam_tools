@@ -27,7 +27,7 @@ describe('Marking', function () {
         }).its("status").should('eq', 404)
 
         cy.logout()
-        cy.login('AUS', '1234')
+        cy.login('AUS-Leader', '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
@@ -80,7 +80,7 @@ describe('Marking', function () {
             '/marking/moderate/question/3/delegation/4'
         ]
         cy.logout()
-        cy.login('CHE', '1234')
+        cy.login('CHE-Leader', '1234')
         marking_helpers.check_permission_denied_redirect(moderation_pages)
 
         cy.logout()
@@ -96,7 +96,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Moderation").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('CHE', '1234')
+        cy.login('CHE-Leader', '1234')
         marking_helpers.check_permission_denied_redirect(moderation_pages)
 
         cy.logout()
@@ -169,7 +169,7 @@ describe('Marking', function () {
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(10,1, true, "The number of points cannot exceed the maximum.")
-        marking_helpers.check_point_form_error(10,2, true, "Ensure this value is greater than or equal to 0.0.")
+        marking_helpers.check_point_form_error(10,2, true, "The number of points cannot be negative.")
         marking_helpers.check_point_form_error(10,3, true, "Ensure that there are no more than 2 decimal places.")
         marking_helpers.check_point_form_error(10,4, true, "Enter a number.")
         marking_helpers.check_point_form_error(10,5, true, "This field is required.")
@@ -205,7 +205,7 @@ describe('Marking', function () {
 
         // Check marks and status for delegation
         cy.logout()
-        cy.login('ARM', '1234')
+        cy.login('ARM-Leader', '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()

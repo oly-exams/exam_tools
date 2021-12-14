@@ -72,7 +72,7 @@ describe('Marking', function () {
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(1,1, true, "The number of points cannot exceed the maximum.")
-        marking_helpers.check_point_form_error(1,2, true, "Ensure this value is greater than or equal to 0.0.")
+        marking_helpers.check_point_form_error(1,2, true, "The number of points cannot be negative.")
         marking_helpers.check_point_form_error(1,3, true, "Ensure that there are no more than 2 decimal places.")
         marking_helpers.check_point_form_error(1,4, true, "Enter a number.")
         marking_helpers.check_point_form_error(1,5, true, "This field is required.")
@@ -182,7 +182,7 @@ describe('Marking', function () {
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(-1,1, true, "The number of points cannot exceed the maximum.", false)
-        marking_helpers.check_point_form_error(-1,2, true, "Ensure this value is greater than or equal to 0.0.", false)
+        marking_helpers.check_point_form_error(-1,2, true, "The number of points cannot be negative.", false)
         marking_helpers.check_point_form_error(-1,3, true, "Ensure that there are no more than 2 decimal places.", false)
         marking_helpers.check_point_form_error(-1,4, true, "Enter a number.", false)
         marking_helpers.check_point_form_error(-1,5, true, "This field is required.", false)
@@ -219,7 +219,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('CHE', '1234')
+        cy.login('CHE-Leader', '1234')
         cy.visit('/marking/detail/1/question/3/edit')
 
         // check/edit some points
@@ -243,7 +243,7 @@ describe('Marking', function () {
 
         // check that errors are displayed (there are no error classes in this view, so we don't check for them)
         marking_helpers.check_point_form_error(-1,1, true, "The number of points cannot exceed the maximum.", false)
-        marking_helpers.check_point_form_error(-1,2, true, "Ensure this value is greater than or equal to 0.0.", false)
+        marking_helpers.check_point_form_error(-1,2, true, "The number of points cannot be negative.", false)
         marking_helpers.check_point_form_error(-1,3, true, "Ensure that there are no more than 2 decimal places.", false)
         marking_helpers.check_point_form_error(-1,4, true, "Enter a number.", false)
         marking_helpers.check_point_form_error(-1,5, true, "This field is required.", false)
@@ -284,7 +284,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('CHE', '1234')
+        cy.login('CHE-Leader', '1234')
         cy.visit('/marking/detail_all/question/3/edit')
 
         marking_helpers.check_point_form(-1,0,'0.80')
@@ -314,7 +314,7 @@ describe('Marking', function () {
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(-1,5, true, "The number of points cannot exceed the maximum.")
-        marking_helpers.check_point_form_error(-1,10, true, "Ensure this value is greater than or equal to 0.0.")
+        marking_helpers.check_point_form_error(-1,10, true, "The number of points cannot be negative.")
         marking_helpers.check_point_form_error(-1,15, true, "Ensure that there are no more than 2 decimal places.")
         marking_helpers.check_point_form_error(-1,20, true, "Enter a number.")
         marking_helpers.check_point_form_error(-1,25, true, "This field is required.")
@@ -373,7 +373,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('CHE', '1234')
+        cy.login('CHE-Leader', '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
@@ -450,7 +450,7 @@ describe('Marking', function () {
         marking_helpers.test_delegation_marks_view_all(marking_helpers.CHE_ppnt_ids.slice(0,1), [0,], "0.00")
 
         cy.logout()
-        cy.login('AUS', '1234')
+        cy.login('AUS-Leader', '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
@@ -498,7 +498,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking (Submit only)").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('CHE', '1234')
+        cy.login('CHE-Leader', '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
@@ -557,7 +557,7 @@ describe('Marking', function () {
         var deleg_pages = [
             "/marking/",
         ]
-        cy.login('AUS', '1234')
+        cy.login('AUS-Leader', '1234')
 
         //check a participant of another delegation
         cy.request({
