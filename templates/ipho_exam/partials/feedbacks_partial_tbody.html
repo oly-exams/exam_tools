@@ -16,7 +16,7 @@
       <th style="width:170px">Actions</th>
   </tr>
   </thead>
-  <tbody id="feedback-tbody-{{ ex.pk|default:'None' }}">
+  <tbody id="feedback-tbody-{{ question.exam.pk|default:'None' }}">
     {% for fb in feedbacks %}
     <tr>
         <td>{{ fb.pk }}</td>

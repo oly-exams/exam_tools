@@ -15,25 +15,25 @@ describe('Marking', function () {
 
     it("Test General Visibility (Translation phase)", function () {
 
-        cy.login('CHE', '1234')
+        cy.login("CHE-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(false)
         marking_helpers.test_final_points_visibility(marking_helpers.CHE_ppnts_final)
         marking_helpers.test_delegation_view_edit_status(marking_helpers.CHE_ppnt_ids, 404)
 
         cy.logout()
-        cy.login('ARM', '1234')
+        cy.login("ARM-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(false)
         marking_helpers.test_final_points_visibility(marking_helpers.ARM_ppnts_final)
         marking_helpers.test_delegation_view_edit_status(marking_helpers.ARM_ppnt_ids, 404)
 
         cy.logout()
-        cy.login('AUS', '1234')
+        cy.login("AUS-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(false)
         marking_helpers.test_final_points_visibility(marking_helpers.AUS_ppnts_final)
         marking_helpers.test_delegation_view_edit_status(marking_helpers.AUS_ppnt_ids, 404)
 
         cy.logout()
-        cy.login('AUT', '1234')
+        cy.login("AUT-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(false)
         marking_helpers.test_final_points_visibility(marking_helpers.AUT_ppnts_final)
         marking_helpers.test_delegation_view_edit_status(marking_helpers.AUT_ppnt_ids, 404)
@@ -54,7 +54,7 @@ describe('Marking', function () {
 
         //checking only one delegation for time reasons
         cy.logout()
-        cy.login('CHE', '1234')
+        cy.login("CHE-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(false)
         marking_helpers.test_delegation_view_edit_status(marking_helpers.CHE_ppnt_ids, 404)
 
@@ -82,28 +82,28 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('CHE', '1234')
+        cy.login("CHE-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(true, marking_helpers.CHE_ppnts_editable)
         marking_helpers.test_summary_action_content([marking_helpers.submit_action,])
         marking_helpers.test_final_points_visibility(marking_helpers.CHE_ppnts_final)
         marking_helpers.test_delegation_view_edit_status(marking_helpers.CHE_ppnt_ids, 200)
 
         cy.logout()
-        cy.login('ARM', '1234')
+        cy.login("ARM-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(true, marking_helpers.ARM_ppnts_viewable)
         marking_helpers.test_summary_action_content([marking_helpers.accept_action,])
         marking_helpers.test_final_points_visibility(marking_helpers.ARM_ppnts_final)
         marking_helpers.test_delegation_view_edit_status(marking_helpers.ARM_ppnt_ids, 404)
 
         cy.logout()
-        cy.login('AUS', '1234')
+        cy.login("AUS-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(true, marking_helpers.AUS_ppnts_viewable)
         marking_helpers.test_summary_action_content([marking_helpers.sign_off_action,])
         marking_helpers.test_final_points_visibility(marking_helpers.AUS_ppnts_final)
         marking_helpers.test_delegation_view_edit_status(marking_helpers.AUS_ppnt_ids, 404)
 
         cy.logout()
-        cy.login('AUT', '1234')
+        cy.login("AUT-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(true, marking_helpers.AUT_ppnts_viewable)
         marking_helpers.test_summary_action_content([marking_helpers.finalized_action,])
         marking_helpers.test_final_points_visibility(marking_helpers.AUT_ppnts_final)
@@ -134,7 +134,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking (Submit only)").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('CHE', '1234')
+        cy.login("CHE-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(true, marking_helpers.CHE_ppnts_editable)
         marking_helpers.test_summary_action_content([marking_helpers.submit_action,])
         // Only test final points for one deleg, the main difference are the actions
@@ -142,19 +142,19 @@ describe('Marking', function () {
         marking_helpers.test_delegation_view_edit_status(marking_helpers.CHE_ppnt_ids, 200)
 
         cy.logout()
-        cy.login('ARM', '1234')
+        cy.login("ARM-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(true, marking_helpers.ARM_ppnts_viewable)
         marking_helpers.test_summary_action_content_none(1)
         marking_helpers.test_delegation_view_edit_status(marking_helpers.ARM_ppnt_ids, 404)
 
         cy.logout()
-        cy.login('AUS', '1234')
+        cy.login("AUS-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(true, marking_helpers.AUS_ppnts_viewable)
         marking_helpers.test_summary_action_content_none(1)
         marking_helpers.test_delegation_view_edit_status(marking_helpers.AUS_ppnt_ids, 404)
 
         cy.logout()
-        cy.login('AUT', '1234')
+        cy.login("AUT-Leader", '1234')
         marking_helpers.test_marking_summary_visibility(true, marking_helpers.AUT_ppnts_viewable)
         marking_helpers.test_summary_action_content([marking_helpers.finalized_action,])
         marking_helpers.test_delegation_view_edit_status(marking_helpers.AUT_ppnt_ids, 404)
@@ -181,19 +181,19 @@ describe('Marking', function () {
 
     it("Test Marks Visibility  (Translation phase)", function () {
         // Testing only the first participant in each array, otherwise the test takes ~10min
-        cy.login('CHE', '1234')
+        cy.login("CHE-Leader", '1234')
         marking_helpers.test_delegation_marks_view_all(marking_helpers.CHE_ppnt_ids.slice(0, 1), [0, 2], "-")
 
         cy.logout()
-        cy.login('ARM', '1234')
+        cy.login("ARM-Leader", '1234')
         marking_helpers.test_delegation_marks_view_all(marking_helpers.ARM_ppnt_ids.slice(0, 1), [0, 2], "-")
 
         cy.logout()
-        cy.login('AUS', '1234')
+        cy.login("AUS-Leader", '1234')
         marking_helpers.test_delegation_marks_view_all(marking_helpers.AUS_ppnt_ids.slice(0, 1), [0,], "-")
 
         cy.logout()
-        cy.login('AUT', '1234')
+        cy.login("AUT-Leader", '1234')
         marking_helpers.test_delegation_marks_view_all(marking_helpers.AUT_ppnt_ids.slice(0, 1), [0,], "-")
 
         cy.logout()
@@ -213,7 +213,7 @@ describe('Marking', function () {
 
         // Test only one delegation for time reasons
         cy.logout()
-        cy.login('ARM', '1234')
+        cy.login("ARM-Leader", '1234')
         marking_helpers.test_delegation_marks_view_all(marking_helpers.ARM_ppnt_ids.slice(0, 1), [0, 2], "-")
 
         cy.logout()
@@ -228,11 +228,11 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('CHE', '1234')
+        cy.login("CHE-Leader", '1234')
         marking_helpers.test_delegation_marks_view_all(marking_helpers.CHE_ppnt_ids.slice(0, 1), [0,], "-")
 
         cy.logout()
-        cy.login('ARM', '1234')
+        cy.login("ARM-Leader", '1234')
         marking_helpers.test_delegation_marks_view_all(marking_helpers.ARM_ppnt_ids.slice(0, 1), [0,], "0.00")
 
         cy.logout()
@@ -247,11 +247,11 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking (Submit only)").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('CHE', '1234')
+        cy.login("CHE-Leader", '1234')
         marking_helpers.test_delegation_marks_view_all(marking_helpers.CHE_ppnt_ids.slice(0, 1), [0,], "0.00")
 
         cy.logout()
-        cy.login('ARM', '1234')
+        cy.login("ARM-Leader", '1234')
         marking_helpers.test_delegation_marks_view_all(marking_helpers.ARM_ppnt_ids.slice(0, 1), [0,], "0.00")
 
         cy.logout()

@@ -1059,6 +1059,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         key=lambda fback: (fback["question__pk"], Feedback.part_id(fback["part"]))
     )
 
+    ctxt["question"] = question
     ctxt["feedbacks"] = feedbacks
     ctxt["status_choices"] = Feedback.STATUS_CHOICES
     ctxt["is_delegation"] = delegation is not None or request.user.has_perm(
@@ -2964,7 +2965,9 @@ def submission_exam_assign(
                     ],
                     1: [
                         q
-                        for q in questions.exclude(position=0).order_by("type", "position")
+                        for q in questions.exclude(position=0).order_by(
+                            "type", "position"
+                        )
                         if ~q.flags & q.FLAG_HIDDEN_PDF
                     ],
                 }
