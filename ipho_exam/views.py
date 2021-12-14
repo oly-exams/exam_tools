@@ -903,7 +903,7 @@ def exam_view(
 
 
 @permission_required("ipho_core.can_see_boardmeeting")
-def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too-many-statements, too-many-nested-blocks
+def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     request, exam_id, question_id, qml_id="", orig_id=OFFICIAL_LANGUAGE_PK
 ):
     delegation = Delegation.objects.filter(members=request.user).first()
@@ -926,40 +926,61 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             question=question, language=orig_lang, status="C"
         ).order_by("-version")[0]
         qml_root = qml.make_qml(node)
-        part = "Introduction"
-        if qml_root.has_children:
-            found = False
-            part_count = 0
-            if qml_root.id == qml_root or qml_id == "global":
-                part = "General"
-                found = True
-            if not found:
-                for child in qml_root.children:
-                    if "part_nr" in child.attributes:
-                        if "question_nr" in child.attributes:
-                            part = (
-                                child.attributes["part_nr"]
-                                + "."
-                                + child.attributes["question_nr"]
-                            )
-                        else:
-                            part = child.attributes["part_nr"]
-                    if child.tag == "part":
-                        part_count += 1
-                        print("part_count: ", part_count)
-                        if part_count == 1:
-                            part = "Introduction"
-                        else:
-                            part = chr(ord("A") + part_count - 2)
 
-                    if child.id == qml_id or (child.find(qml_id) is not None):
-                        found = True
-                        break
+        nodes = [[nd, False] for nd in qml_root.children]
+        is_subpart = False
+        part_title = None
+        part_position = 0
+        part_label = None
+        question_label = None
+        part_count = 0
+
+        if qml_id in (qml_root.id, "global"):
+            part_title = "General"
+            nodes = []
+        while nodes:
+            # set the current node
+            current_node, is_subpart = nodes.pop(0)
+            part_position += 1
+            # set part title
+            if current_node.tag == "part":
+                part_count += 1
+                part_title = current_node.data
+                if part_title == "" or part_title is None:
+                    if part_label is not None:
+                        part_title = part_label
+                    else:
+                        part_title = "Introduction"
+            # set part and question label
+            if current_node.tag in [
+                "subquestion",
+                "subanswer",
+                "subanswercontinuation",
+            ]:
+                part_label = current_node.attributes.get("part_nr")
+                question_label = current_node.attributes.get("question_nr")
+                is_subpart = True
+            # end the loop if our node is reached
+            if current_node.id == qml_id:
+                break
+            # depth first
+            if current_node.has_children and current_node.children:
+                # add list of children to front of nodes
+                nodes[0:0] = [[nd, is_subpart] for nd in current_node.children]
+
+        if part_title is not None:
+            part_text = f"{part_title}"
+            if is_subpart:
+                part_text = f"{part_title}, Task:{part_label}.{question_label}"
+        else:
+            part_text = "Introduction"
+
         if form.is_valid():
             form.instance.delegation = delegation
             form.instance.question = question
             form.instance.qml_id = qml_id
-            form.instance.part = part
+            form.instance.part = part_text
+            form.instance.part_position = part_position
 
             # part = models.CharField(max_length=100, default=None)
             form.save()
@@ -1005,6 +1026,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             "status",
             "timestamp",
             "part",
+            "part_position",
             "comment",
             "org_comment",
         )
@@ -1056,7 +1078,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         )
     feedbacks = list(feedbacks)
     feedbacks.sort(
-        key=lambda fback: (fback["question__pk"], Feedback.part_id(fback["part"]))
+        key=lambda fback: (fback["question__pk"], fback["part_position"]),
     )
 
     ctxt["feedbacks"] = feedbacks
@@ -1216,6 +1238,7 @@ def feedbacks_list(
                 "status",
                 "timestamp",
                 "part",
+                "part_position",
                 "comment",
                 "org_comment",
             )
@@ -1269,7 +1292,7 @@ def feedbacks_list(
             )
         feedbacks = list(feedbacks)
         feedbacks.sort(
-            key=lambda fback: (fback["question__pk"], Feedback.part_id(fback["part"]))
+            key=lambda fback: (fback["question__pk"], fback["part_position"])
         )
 
         return render(
@@ -1432,6 +1455,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             "question__name",
             "qml_id",
             "part",
+            "part_position",
             "delegation__name",
             "status",
             "timestamp",
@@ -1476,6 +1500,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             "Question",
             "Qml_id",
             "Part",
+            "Position",
             "Delegation",
             "Status",
             "Timestamp",
@@ -2964,7 +2989,9 @@ def submission_exam_assign(
                     ],
                     1: [
                         q
-                        for q in questions.exclude(position=0).order_by("type", "position")
+                        for q in questions.exclude(position=0).order_by(
+                            "type", "position"
+                        )
                         if ~q.flags & q.FLAG_HIDDEN_PDF
                     ],
                 }

@@ -125,6 +125,7 @@
           <th>Delegation</th>
           <th>Question</th>
           <th>Part</th>
+          <th style="display:none;">Part Position</th>
           <th>Comment</th>
           <th>Timestamp</th>
           <th style="width:170px">Actions</th>
@@ -246,7 +247,7 @@ $(function() {
           var table = $('#feedback-table-'+tid).DataTable({
             columnDefs: [
               { type: 'natural', targets: 4 },
-              { "width": "25%", "targets": 5 },
+              { "width": "25%", "targets": 6 },
             ],
             stateSave: true,
             retrieve:true,
@@ -263,7 +264,8 @@ $(function() {
             var table = $('#feedback-table-'+tid).DataTable({
               columnDefs: [
                 { type: 'natural', targets: 4 },
-                { "width": "25%", "targets": 5 },
+                { "width": "25%", "targets": 6 },
+                { "orderData": 5,    "targets":4 },
               ],
               stateSave: true,
               retrieve:true,
