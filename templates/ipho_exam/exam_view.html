@@ -380,7 +380,7 @@ body { margin-bottom: 70px; }
                 }
             });
 
-            {% if exam %}
+            {% if exam and question %}
             function update_feedback_numbers(){
               var url = "{% url 'exam:feedback-numbers' exam_id=exam.pk question_id=question.pk%}";
               $.ajax({
