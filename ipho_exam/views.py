@@ -969,9 +969,13 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
                 nodes[0:0] = [[nd, is_subpart] for nd in current_node.children]
 
         if part_title is not None:
-            part_text = f"{part_title}"
+            part_text = f"{part_title}"[:100]
             if is_subpart:
-                part_text = f"{part_title}, Task:{part_label}.{question_label}"
+                short_part_label = part_label[:15]
+                short_question_label = question_label[:15]
+                task_label = f", Task:{short_part_label}.{short_question_label}"
+                short_part_label = part_label[: 100 - len(task_label)]
+                part_text = short_part_label + task_label
         else:
             part_text = "Introduction"
 
@@ -979,7 +983,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             form.instance.delegation = delegation
             form.instance.question = question
             form.instance.qml_id = qml_id
-            form.instance.part = part_text[:99]
+            form.instance.part = part_text[:100]
             form.instance.part_position = part_position
 
             # part = models.CharField(max_length=100, default=None)
