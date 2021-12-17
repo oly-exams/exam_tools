@@ -717,7 +717,8 @@ class Participant(models.Model):
 
     @property
     def is_group(self):
-        return len(self.students.all()) > 1
+        # XXX: TEMPORARY UGLY HACK
+        return len(self.students.all()) > 1 or self.code.startswith("G-")
 
 
 @receiver(post_save, sender=Student, dispatch_uid="create_ppnt_on_stud_creation")
