@@ -979,7 +979,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             form.instance.delegation = delegation
             form.instance.question = question
             form.instance.qml_id = qml_id
-            form.instance.part = part_text
+            form.instance.part = part_text[:99]
             form.instance.part_position = part_position
 
             # part = models.CharField(max_length=100, default=None)
