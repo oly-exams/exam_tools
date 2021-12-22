@@ -27,7 +27,7 @@ describe('Marking', function () {
         }).its("status").should('eq', 404)
 
         cy.logout()
-        cy.login('AUS-Leader', '1234')
+        cy.login("AUS-Leader", '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
@@ -80,7 +80,7 @@ describe('Marking', function () {
             '/marking/moderate/question/3/delegation/4'
         ]
         cy.logout()
-        cy.login('CHE-Leader', '1234')
+        cy.login("CHE-Leader", '1234')
         marking_helpers.check_permission_denied_redirect(moderation_pages)
 
         cy.logout()
@@ -96,7 +96,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Moderation").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('CHE-Leader', '1234')
+        cy.login("CHE-Leader", '1234')
         marking_helpers.check_permission_denied_redirect(moderation_pages)
 
         cy.logout()
@@ -137,6 +137,8 @@ describe('Marking', function () {
         //Check copy button
         cy.get("#copy-10").click()
 
+        cy.wait(500)
+
         for (let index = 0; index < 13; index++) {
             marking_helpers.check_point_form(10,index,"0")
         }
@@ -150,8 +152,8 @@ describe('Marking', function () {
 
         // too much
         marking_helpers.edit_point_form(10,1,10)
-        // negative
-        marking_helpers.edit_point_form(10,2,-1)
+        // too negative
+        marking_helpers.edit_point_form(10,2,-10)
         // too many digits
         marking_helpers.edit_point_form(10,3,0.1234)
         // NaN
@@ -159,6 +161,8 @@ describe('Marking', function () {
         //empty
         // cypress doesn't let you type(""), so we need to do it by hand
         cy.get("#id_ppnt-10-5-points").clear()
+        // negative which should work
+        marking_helpers.edit_point_form(10,8,-0.1)
 
         // check totals
         // change focus to make sure the totals are calculated
@@ -169,18 +173,19 @@ describe('Marking', function () {
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(10,1, true, "The number of points cannot exceed the maximum.")
-        marking_helpers.check_point_form_error(10,2, true, "The number of points cannot be negative.")
+        marking_helpers.check_point_form_error(10,2, true, "The number of points cannot be smaller than the negative maximum.")
         marking_helpers.check_point_form_error(10,3, true, "Ensure that there are no more than 2 decimal places.")
         marking_helpers.check_point_form_error(10,4, true, "Enter a number.")
         marking_helpers.check_point_form_error(10,5, true, "This field is required.")
 
         // check that there are no errors on other fields
         marking_helpers.check_point_form_error(10,0, false)
+        marking_helpers.check_point_form_error(10,8, false)
 
         // correct errors:
         marking_helpers.edit_point_form(10,1,0.5)
         marking_helpers.edit_point_form(10,2,0.14)
-        marking_helpers.edit_point_form(10,3,0)
+        marking_helpers.edit_point_form(10,3,0.1)
         marking_helpers.edit_point_form(10,4,0.75)
         marking_helpers.edit_point_form(10,5,0)
         marking_helpers.edit_point_form(10,10,1)
@@ -218,9 +223,10 @@ describe('Marking', function () {
             cy.get('tbody tr').eq(0).find('td').eq(1).shouldHaveTrimmedText("0.75")
             cy.get('tbody tr').eq(1).find('td').eq(1).shouldHaveTrimmedText("0.50")
             cy.get('tbody tr').eq(2).find('td').eq(1).shouldHaveTrimmedText("0.14")
-            cy.get('tbody tr').eq(3).find('td').eq(1).shouldHaveTrimmedText("0.00")
+            cy.get('tbody tr').eq(3).find('td').eq(1).shouldHaveTrimmedText("0.10")
             cy.get('tbody tr').eq(4).find('td').eq(1).shouldHaveTrimmedText("0.75")
             cy.get('tbody tr').eq(5).find('td').eq(1).shouldHaveTrimmedText("0.00")
+            cy.get('tbody tr').eq(8).find('td').eq(1).shouldHaveTrimmedText("-0.10")
             cy.get('tbody tr').eq(10).find('td').eq(1).shouldHaveTrimmedText("1.00")
 
             cy.get('tfoot tr').eq(0).find('td').eq(0).find('b').shouldHaveTrimmedText("Total:")
@@ -240,9 +246,10 @@ describe('Marking', function () {
             cy.get('tr').eq(0).find('td').eq(3).shouldHaveTrimmedText("0.75")
             cy.get('tr').eq(1).find('td').eq(3).shouldHaveTrimmedText("0.50")
             cy.get('tr').eq(2).find('td').eq(3).shouldHaveTrimmedText("0.14")
-            cy.get('tr').eq(3).find('td').eq(3).shouldHaveTrimmedText("0.00")
+            cy.get('tr').eq(3).find('td').eq(3).shouldHaveTrimmedText("0.10")
             cy.get('tr').eq(4).find('td').eq(3).shouldHaveTrimmedText("0.75")
             cy.get('tr').eq(5).find('td').eq(3).shouldHaveTrimmedText("0.00")
+            cy.get('tr').eq(8).find('td').eq(3).shouldHaveTrimmedText("-0.10")
             cy.get('tr').eq(10).find('td').eq(3).shouldHaveTrimmedText("1.00")
         })
         cy.get("#points-table tfoot tr").within(($tr)=>{

@@ -1085,6 +1085,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         key=lambda fback: (fback["question__pk"], fback["part_position"]),
     )
 
+    ctxt["question"] = question
     ctxt["feedbacks"] = feedbacks
     ctxt["status_choices"] = Feedback.STATUS_CHOICES
     ctxt["is_delegation"] = delegation is not None or request.user.has_perm(

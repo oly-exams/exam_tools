@@ -46,7 +46,7 @@ describe('Polls', function() {
 
         cy.logout()
 
-        cy.login('ARM','1234')
+        cy.login("ARM-Leader",'1234')
         cy.visit('/poll/')
         // Check available votings
         cy.contains('Q2')
@@ -161,7 +161,7 @@ describe('Polls', function() {
         cy.get('#closed-container #voting-2')
 
 
-        cy.login('ARM','1234')
+        cy.login("ARM-Leader",'1234')
         cy.visit('/poll/')
         // Check if vote is open
         cy.contains('Q1')
@@ -228,7 +228,7 @@ describe('Polls', function() {
 
         // Check feedbacks on delegation page
         cy.logout()
-        cy.login('ARM','1234')
+        cy.login("ARM-Leader",'1234')
         cy.visit('/poll/')
         cy.get('#voting-panel-4').within(()=>{
             cy.contains("Q4")
@@ -243,7 +243,10 @@ describe('Polls', function() {
     })
 
     it("Test Permissions", function(){
-        cy.login('AUS','1234')
+        Cypress.on('uncaught:exception', (err, runnable) => {
+            return false;
+          });
+        cy.login("AUS-Leader",'1234')
         // Check whether a delegation can access the staff voting pane
         cy.visit('/poll/staff/')
         cy.url().should('contain', 'accounts/login/?next=/poll/staff/')

@@ -43,7 +43,7 @@ describe('Voting Rooms', function() {
 
         cy.logout()
 
-        cy.login('ARM','1234')
+        cy.login('ARM-Leader','1234')
         cy.visit('/poll/')
 
         // Check room 2 first
@@ -73,7 +73,7 @@ describe('Voting Rooms', function() {
 
         cy.logout()
 
-        cy.login('ARM','1234')
+        cy.login('ARM-Leader','1234')
 
         // Visit room 1 first
         cy.visit("/poll/room/1")
