@@ -27,7 +27,7 @@ describe('Marking', function () {
         }).its("status").should('eq', 404)
 
         cy.logout()
-        cy.login('AUS-Leader', '1234')
+        cy.login('AUS', '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
@@ -80,7 +80,7 @@ describe('Marking', function () {
             '/marking/moderate/question/3/delegation/4'
         ]
         cy.logout()
-        cy.login('CHE-Leader', '1234')
+        cy.login('CHE', '1234')
         marking_helpers.check_permission_denied_redirect(moderation_pages)
 
         cy.logout()
@@ -96,7 +96,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Moderation").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login('CHE-Leader', '1234')
+        cy.login('CHE', '1234')
         marking_helpers.check_permission_denied_redirect(moderation_pages)
 
         cy.logout()
@@ -205,7 +205,7 @@ describe('Marking', function () {
 
         // Check marks and status for delegation
         cy.logout()
-        cy.login('ARM-Leader', '1234')
+        cy.login('ARM', '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()

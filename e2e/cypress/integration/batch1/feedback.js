@@ -21,7 +21,7 @@ describe('Feedback', function() {
     })
 
     it('Test Loaded Feedback', function(){
-        cy.login("ARM-Leader", "1234")
+        cy.login("ARM", "1234")
 
         //check feedback overview page
         cy.visit("exam/feedbacks/list/1")
@@ -74,7 +74,7 @@ describe('Feedback', function() {
         cy.get('[data-target="#feedback-modal"]').should('not.exist')
         cy.logout()
         //delegation
-        cy.login("ARM-Leader","1234")
+        cy.login("ARM","1234")
         cy.request({ url:"exam/feedbacks/list/1", failOnStatusCode: false}).its("status").should('eq', 404)
         cy.request({ url:"exam/view/1/question/2", failOnStatusCode: false}).its("status").should('eq', 404)
 
@@ -97,7 +97,7 @@ describe('Feedback', function() {
         cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
         cy.logout()
         //delegation
-        cy.login("ARM-Leader","1234")
+        cy.login("ARM","1234")
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
 
@@ -128,7 +128,7 @@ describe('Feedback', function() {
         cy.get("#feedback-modal #feedback-tbody-1 > :nth-child(1) > :nth-child(3)").contains("Armenia")
         cy.logout()
         //delegation
-        cy.login("ARM-Leader","1234")
+        cy.login("ARM","1234")
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
 
@@ -151,7 +151,7 @@ describe('Feedback', function() {
         cy.get('[data-target="#feedback-modal"]').should('not.exist')
         cy.logout()
         //delegation
-        cy.login("ARM-Leader","1234")
+        cy.login("ARM","1234")
         cy.request({ url:"exam/feedbacks/list/1", failOnStatusCode: false}).its("status").should('eq', 404)
         cy.visit("exam/view/1/question/2")
         cy.get('[data-target="#feedback-modal"]').should('not.exist')
@@ -159,7 +159,7 @@ describe('Feedback', function() {
     })
 
     it('Test Add Feedback', function() {
-        cy.login("ARM-Leader",'1234')
+        cy.login("ARM",'1234')
         //Feedbacks are closed on default. No user should be able to add feedback
         cy.visit("exam/view/1/question/2")
         cy.get("#q0_pa1").click()
@@ -193,7 +193,7 @@ describe('Feedback', function() {
         cy.get("#feedback-modal #modal-form-submit").should("not.exist")
 
         cy.logout()
-        cy.login("ARM-Leader", '1234')
+        cy.login("ARM", '1234')
         cy.visit("exam/view/1/question/2")
         cy.get("#q0_pa1").click()
         cy.wait("@getFeedbackPartial")
@@ -234,7 +234,7 @@ describe('Feedback', function() {
         cy.get("#feedback-modal #modal-form-submit").should("not.exist")
         //Delegation should not be able to add feedback
         cy.logout()
-        cy.login("ARM-Leader", '1234')
+        cy.login("ARM", '1234')
         cy.visit("exam/view/1/question/2")
         cy.get("#q0_pa1").click()
         cy.wait("@getFeedbackPartial")
@@ -257,7 +257,7 @@ describe('Feedback', function() {
         cy.get("#feedback-modal #modal-form-submit").should("not.exist")
 
         cy.logout()
-        cy.login("ARM-Leader", '1234')
+        cy.login("ARM", '1234')
         cy.visit("exam/view/1/question/2")
         cy.get("#q0_pa1").click()
         cy.wait("@getFeedbackPartial")
@@ -268,7 +268,7 @@ describe('Feedback', function() {
     })
 
     it('Test Organizer Comment', function(){
-        cy.login("ARM-Leader",'1234')
+        cy.login("ARM",'1234')
         //Feedbacks are closed on default. No user should be able to add comments
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -325,7 +325,7 @@ describe('Feedback', function() {
 
         //Delegations should never be able to add comments
         cy.logout()
-        cy.login("ARM-Leader",'1234')
+        cy.login("ARM",'1234')
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
 
@@ -374,7 +374,7 @@ describe('Feedback', function() {
 
         //Delegations should never be able to add comments
         cy.logout()
-        cy.login("ARM-Leader",'1234')
+        cy.login("ARM",'1234')
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
 
@@ -393,7 +393,7 @@ describe('Feedback', function() {
         cy.get('#feedback-tbody-1 .add-comment-button').should('not.exist')
 
         cy.logout()
-        cy.login("ARM-Leader", '1234')
+        cy.login("ARM", '1234')
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
 
@@ -403,7 +403,7 @@ describe('Feedback', function() {
     })
 
     it('Test Status', function(){
-        cy.login("ARM-Leader",'1234')
+        cy.login("ARM",'1234')
         //Feedbacks are closed on default. No user should be able to edit the status
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -440,7 +440,7 @@ describe('Feedback', function() {
 
         //Delegations should not be able to change the status, independent of the settings
         cy.logout()
-        cy.login("ARM-Leader",'1234')
+        cy.login("ARM",'1234')
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
 
@@ -525,7 +525,7 @@ describe('Feedback', function() {
         cy.get('#feedback-tbody-1 > :nth-child(4) > :nth-child(2) button').should('contain', 'Withdrawn').and('not.contain', 'Submitted')
 
         cy.logout()
-        cy.login("ARM-Leader",'1234')
+        cy.login("ARM",'1234')
         //Delegations should not be able to change satuses
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -593,7 +593,7 @@ describe('Feedback', function() {
     })
 
     it('Test Dis-/Like', function() {
-        cy.login("ARM-Leader",'1234')
+        cy.login("ARM",'1234')
         //Feedbacks are closed on default. No user should be able to dis-/like
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -636,7 +636,7 @@ describe('Feedback', function() {
 
         //Delegations should now be able to add likes
         cy.logout()
-        cy.login("ARM-Leader",'1234')
+        cy.login("ARM",'1234')
         //Feedbacks are closed on default. No user should be able to dis-/like
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
@@ -709,7 +709,7 @@ describe('Feedback', function() {
         cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
         //Feedback should be disabled again for delegations
         cy.logout()
-        cy.login("ARM-Leader",'1234')
+        cy.login("ARM",'1234')
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
 
@@ -738,7 +738,7 @@ describe('Feedback', function() {
         cy.get('#feedback-modal #feedback-tbody-1 :nth-child(1) > :nth-child(6) span.feedback-like').should('have.class', 'disabled')
         //Feedback should be disabled again for delegations
         cy.logout()
-        cy.login("ARM-Leader",'1234')
+        cy.login("ARM",'1234')
         cy.visit("exam/feedbacks/list/1")
         cy.wait("@getFeedbackTable")
 

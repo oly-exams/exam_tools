@@ -69,7 +69,7 @@ describe('General', function() {
     })
 
     it("Test Final submission", function() {
-        cy.login("AUS-Leader", 1234)
+        cy.login("AUS", 1234)
 
         cy.visit("/exam/submission/1/assign")
 
@@ -148,7 +148,7 @@ describe('General', function() {
 
         // Check delegation scan view
         cy.logout()
-        cy.login("AUS-Leader", '1234')
+        cy.login("AUS", '1234')
         cy.visit('/marking/')
         var id_prefix = "processed_scan"
         download_test_pdf(6, 1, id_prefix, "delegation_view_")
@@ -163,14 +163,14 @@ describe('General', function() {
 
         // Test an examsite user without submissions
         cy.logout()
-        cy.login('ARM-Supervisor', '1234')
+        cy.login('ARM-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should be empty
         cy.get('#submission-table tbody').children().should('have.length', 0)
 
         // Test an examsite user with submissions
         cy.logout()
-        cy.login('AUS-Supervisor', '1234')
+        cy.login('AUS-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should be empty
         cy.get('#submission-table tbody').children().should('have.length', 0)
@@ -181,14 +181,14 @@ describe('General', function() {
 
         // Test an examsite user without submissions
         cy.logout()
-        cy.login('ARM-Supervisor', '1234')
+        cy.login('ARM-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should be empty
         cy.get('#submission-table tbody').children().should('have.length', 0)
 
         // Test an examsite user with submissions
         cy.logout()
-        cy.login('AUS-Supervisor', '1234')
+        cy.login('AUS-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should now have 3 entries
         cy.get('#submission-table tbody').children().should('have.length', 6)
@@ -208,7 +208,7 @@ describe('General', function() {
 
         // Test an examsite user with submissions
         cy.logout()
-        cy.login('AUS-Supervisor', '1234')
+        cy.login('AUS-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should now have 3 entries
         cy.get('#submission-table tbody').children().should('have.length', 6)
@@ -241,7 +241,7 @@ describe('General', function() {
 
         // Check delegation scan view
         cy.logout()
-        cy.login("AUS-Leader", '1234')
+        cy.login("AUS", '1234')
         cy.visit('/marking/')
         var id_prefix = "processed_scan"
         download_test_pdf(6, 2, id_prefix, "delegation_view_")

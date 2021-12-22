@@ -228,7 +228,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login("CHE-Leader", '1234')
+        cy.login("CHE", '1234')
         cy.visit('/marking/detail/1/question/3/edit')
 
         // check/edit some points
@@ -296,7 +296,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login("CHE-Leader", '1234')
+        cy.login("CHE", '1234')
         cy.visit('/marking/detail_all/question/3/edit')
 
         marking_helpers.check_point_form(-1,0,'0.80')
@@ -389,7 +389,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login("CHE-Leader", '1234')
+        cy.login("CHE", '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
@@ -466,7 +466,7 @@ describe('Marking', function () {
         marking_helpers.test_delegation_marks_view_all(marking_helpers.CHE_ppnt_ids.slice(0,1), [0,], "0.00")
 
         cy.logout()
-        cy.login("AUS-Leader", '1234')
+        cy.login("AUS", '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
@@ -514,7 +514,7 @@ describe('Marking', function () {
         cy.getExamPhaseByName('Theory', "Delegation Marking (Submit only)").then(cy.switchExamPhase)
 
         cy.logout()
-        cy.login("CHE-Leader", '1234')
+        cy.login("CHE", '1234')
 
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
@@ -573,7 +573,7 @@ describe('Marking', function () {
         var deleg_pages = [
             "/marking/",
         ]
-        cy.login("AUS-Leader", '1234')
+        cy.login("AUS", '1234')
 
         //check a participant of another delegation
         cy.request({

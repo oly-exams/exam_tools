@@ -151,7 +151,7 @@ describe('Control', function() {
     })
 
     it("Test Delegation Phase View", function(){
-        cy.login("ARM-Leader", "1234")
+        cy.login("ARM", "1234")
         cy.visit("/")
         cy.get('#exam-summary-container #phase-summary-parent > :nth-child(1)').should('contain', 'Theory').and('contain', 'Discussion (Translation)')
         cy.get('#phase-summary-parent > :nth-child(1) #phase-summary-1').should('not.be.visible')
@@ -169,13 +169,13 @@ describe('Control', function() {
 
         // No phases should be visible for delegations
         cy.logout()
-        cy.login("ARM-Leader", "1234")
+        cy.login("ARM", "1234")
         cy.visit("/")
         cy.get('#exam-summary-container').should('have.text', '\n\nNo exams available.\n\n')
     })
 
     it("Test Permissions", function(){
-        cy.login("AUS-Leader",'1234')
+        cy.login("AUS",'1234')
         // Check whether a delegation can access the cockpit
         cy.visit('control/cockpit')
         cy.url().should('contain', 'accounts/login/?next=/control/cockpit')
