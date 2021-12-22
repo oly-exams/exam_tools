@@ -26,8 +26,8 @@ def main():
     for filename_csv, username in [
         ("010_olyexams_superuser.csv", "{Username}"),
         ("011_organizer_user.csv", "{Username}"),
-        ("020_delegations.csv", "{Country Code}-Leader"),
-        ("021_supervisor_user.csv", "{Country Code}-Supervisor"),
+        ("020_delegations.csv", "{Country Code}"),
+        ("021_examsite_user.csv", "{Country Code}-Examsite"),
     ]:
         with pw_creator.create_pw_gen(filename_csv, "create") as pw_gen:
             with open(path / filename_csv) as f:

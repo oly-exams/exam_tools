@@ -46,13 +46,13 @@ class UserDataCreator(BaseDataCreator):
                     )
 
                 country_name, country_code, voting_power = deleg_data
-                username = country_code + "-Leader"
+                username = country_code
                 password = pw_gen(username)
 
                 delegation = self._create_delegation(country_name, country_code)
                 user = self._create_user(
                     self._create_delegation_voting,
-                    username=username,
+                    username=username + "-Leader",
                     password=password,
                     voting_power=voting_power,
                     group="Delegation",
@@ -67,7 +67,7 @@ class UserDataCreator(BaseDataCreator):
                 delegation.save()
 
     def create_examsite_user(self, pw_strategy="create", enforce_iso3166=True):
-        filename_csv = "021_supervisor_user.csv"
+        filename_csv = "021_examsite_user.csv"
         fieldnames = ["country_code"]
         with self._pw_creator.create_pw_gen(filename_csv, pw_strategy) as pw_gen:
             for deleg_data in self.read_csv(filename_csv, fieldnames):

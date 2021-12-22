@@ -19,7 +19,7 @@ class PasswordCreator:
         self._seed_for["010_olyexams_superuser.csv"] = seed_rng.randint(0, 100000)
         self._seed_for["011_organizer_user.csv"] = seed_rng.randint(0, 100000)
         self._seed_for["020_delegations.csv"] = seed_rng.randint(0, 100000)
-        self._seed_for["021_supervisor_user.csv"] = seed_rng.randint(0, 100000)
+        self._seed_for["021_examsite_user.csv"] = seed_rng.randint(0, 100000)
 
     @staticmethod
     def generate_password(length, rng):
