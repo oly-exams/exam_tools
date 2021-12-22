@@ -46,13 +46,13 @@ class UserDataCreator(BaseDataCreator):
                     )
 
                 country_name, country_code, voting_power = deleg_data
-                username = country_code
+                username = country_code + "-Leader"
                 password = pw_gen(username)
 
                 delegation = self._create_delegation(country_name, country_code)
                 user = self._create_user(
                     self._create_delegation_voting,
-                    username=username + "-Leader",
+                    username=username,
                     password=password,
                     voting_power=voting_power,
                     group="Delegation",
