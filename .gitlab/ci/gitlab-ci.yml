@@ -23,9 +23,9 @@ variables:
     # this is an unelegant fact: on push only the first is defined
     # and the second empty "", on merge-request it is the other way.
     # With this concat, we always have a well defined IMG_NAME
-    IMG_NAME: "$CI_COMMIT_BRANCH$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+    IMG_NAME: "${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"
     # need this to detect if a web request sets a different IMG_NAME
-    IMG_COMPARE: "$CI_COMMIT_BRANCH$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+    IMG_COMPARE: "${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"
 
     # technical git variables
     GIT_DEPTH: 2  # (default=50) we need the previous commit for pre-commit
