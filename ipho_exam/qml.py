@@ -36,6 +36,7 @@ standard_library.install_aliases()
 
 from bs4 import BeautifulSoup
 import html_diff
+
 # import tidylib
 
 from django import forms
@@ -47,7 +48,9 @@ from django.urls import reverse
 from .models import Figure
 from . import tex
 
-html_diff.config.tags_fcts_as_blocks.append(lambda tag: tag.name == 'span' and 'math-tex' in tag.attrs.get('class', []))
+html_diff.config.tags_fcts_as_blocks.append(
+    lambda tag: tag.name == "span" and "math-tex" in tag.attrs.get("class", [])
+)
 
 # block groups
 PARAGRAPH_LIKE_BLOCKS = (
@@ -486,9 +489,7 @@ class QMLobject:
     def diff_content_html(self, other_data):
         if self.has_text:
             if self.id in other_data:
-                self.data_html = html_diff.diff(
-                    other_data[self.id], self.data_html
-                )
+                self.data_html = html_diff.diff(other_data[self.id], self.data_html)
             else:
                 self.data_html = "<ins>" + self.data_html + "</ins>"
             # if self.id in other_data:
@@ -1063,14 +1064,14 @@ class QMLenumerate(QMLobject):
     def tex_begin(self):
         label = self.attributes.get("label", "")
         label = "[" + label + ".]" if label else ""
-        return "\\begin{enumerate}" + label+ "\n"
+        return "\\begin{enumerate}" + label + "\n"
 
     def tex_end(self):
         return "\\end{enumerate}\n\n"
 
     def xhtml_begin(self):
         label = self.attributes.get("label", "")
-        label = " type=\"" + label + "\"" if label else ""
+        label = ' type="' + label + '"' if label else ""
         return "<ol" + label + ">"
 
     def xhtml_end(self):

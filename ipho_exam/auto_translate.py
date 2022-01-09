@@ -109,21 +109,20 @@ def translate_google(from_lang, to_lang, text):
 
 
 def find_best_matching_deepl_lang(lang, langs):
-    ul = lang.upper()
-    parts = ul.split("-")
-    # TODO: Should we allow variants?
+    ulang = lang.upper()
+    parts = ulang.split("-")
+    # TODO: Shoulangd we allow variants?
     # As in, use fr-CH where fr-FR is given/requested?
-    if ul in langs:
-        return ul
-    elif len(parts) > 1 and parts[0] in langs:
+    if ulang in langs:
+        return ulang
+    if len(parts) > 1 and parts[0] in langs:
         return parts[0]
-    elif len(parts) == 1:
-        if ul + "-" + ul in langs:
-            return ul + "-" + ul
-        else:
-            for l in langs:
-                if ul == l.split("-")[0]:
-                    return l
+    if len(parts) == 1:
+        if ulang + "-" + ulang in langs:
+            return ulang + "-" + ulang
+        for lng in langs:
+            if ulang == lng.split("-")[0]:
+                return lng
     return None
 
 
@@ -135,9 +134,7 @@ def translate_deepl(from_lang, to_lang, text):
         if from_lang is None:
             return None
 
-    to_lang = find_best_matching_deepl_lang(
-        to_lang, settings.DEEPL_TARGET_LANGUAGES
-    )
+    to_lang = find_best_matching_deepl_lang(to_lang, settings.DEEPL_TARGET_LANGUAGES)
     if to_lang is None:
         return None
 

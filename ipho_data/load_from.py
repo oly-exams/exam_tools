@@ -39,7 +39,7 @@ def main():
     if len(sys.argv) > 2:
         for argv in sys.argv[2:]:
             if argv == "ipho2016":
-                tdc.create_ipho2016_theory_exam_only()
+                tdc.create_ipho2016_theory_exam()
             elif argv == "remote":
                 tdc.create_examsite_user(pw_strategy="read", enforce_iso3166=False)
             elif argv == "students":

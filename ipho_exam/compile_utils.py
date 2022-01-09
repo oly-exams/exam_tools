@@ -46,7 +46,14 @@ def all_same(items):
 
 
 def generate_exam(  # pylint: disable=too-many-arguments
-    question, participant, language, all_barcodes, all_docs, meta, start_page=0, qrcode=True
+    question,
+    participant,
+    language,
+    all_barcodes,
+    all_docs,
+    meta,
+    start_page=0,
+    qrcode=True,
 ):
     """helper function that prepares documents, compiles them and
     returns a list with all pdfs. Does not add a QR code if qrcode is
@@ -122,7 +129,11 @@ def generate_exam(  # pylint: disable=too-many-arguments
         all_docs.append(page)
     else:
         bgenerator = iphocode.QuestionBarcodeGen(
-            question.exam, question, participant, startnum=start_page, suppress_code=True
+            question.exam,
+            question,
+            participant,
+            startnum=start_page,
+            suppress_code=True,
         )
         page = pdf.add_barcode(question_pdf, bgenerator)
         all_docs.append(page)
@@ -212,15 +223,21 @@ def participant_exam_document(
     # XXX: for now, no support for both squashed exam AND groups.
 
     if questions[0].exam.flags & questions[0].exam.FLAG_SQUASHED:
-        groups = ((k, list(g)) for k, g in itertools.groupby(questions, key=lambda q: q.code))
-        qp = ((q, p) for (__, g), p in itertools.product(groups, participant_languages) for q in g)
+        groups = (
+            (k, list(g)) for k, g in itertools.groupby(questions, key=lambda q: q.code)
+        )
+        qpl = (
+            (q, p)
+            for (__, g), p in itertools.product(groups, participant_languages)
+            for q in g
+        )
     else:
-        qp = itertools.product(questions, participant_languages)
+        qpl = itertools.product(questions, participant_languages)
 
     start_page = 0
     state = (None, None)
 
-    for question, ppnt_l in qp:
+    for question, ppnt_l in qpl:
         if question.exam.flags & question.exam.FLAG_SQUASHED:
             if state != (question.code, ppnt_l):
                 state = (question.code, ppnt_l)
@@ -228,9 +245,7 @@ def participant_exam_document(
 
         if question.is_answer_sheet() and not ppnt_l.with_answer:
             continue
-        if question.is_question_sheet() and (
-            not ppnt_l.with_question or ppnt.is_group
-        ):
+        if question.is_question_sheet() and (not ppnt_l.with_question or ppnt.is_group):
             continue
         all_barcodes, all_docs, meta = generate_exam(
             question,

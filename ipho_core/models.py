@@ -102,7 +102,7 @@ class Delegation(models.Model):
     def __str__(self):
         return f"{self.country} ({self.name})"
 
-    def get_participants(self, exam):  # pylint: disable=unused-argument
+    def get_participants(self, exam):
         return self.participant_set.filter(exam=exam)
 
 

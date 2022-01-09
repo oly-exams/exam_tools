@@ -88,7 +88,7 @@ def import_exam(request):
 
 
 @permission_required("ipho_core.is_marker")
-def summary(request):
+def summary(request):  # pylint: disable=too-many-locals
     vid = request.GET.get("version", "O")
     markings = Marking.objects.for_user(request.user, version=vid)
     editable_markings = Marking.objects.editable(request.user, version=vid)
@@ -118,10 +118,13 @@ def summary(request):
     )
 
     points_per_participant = []
-    participants = [(c, list(ps)) for c, ps in itertools.groupby(
-        Participant.objects.all().values("id", "code", "exam__name"),
-        key=lambda p: p["code"],
-    )]
+    participants = [
+        (c, list(ps))
+        for c, ps in itertools.groupby(
+            Participant.objects.all().values("id", "code", "exam__name"),
+            key=lambda p: p["code"],
+        )
+    ]
     for code, participant_group in participants:
         ppnt_question_points_list = []
         ppnt_question_editable_list = []
@@ -144,6 +147,7 @@ def summary(request):
                 ppnt_question_editable_list.append(question["question__pk"])
             else:
                 ppnt_question_editable_list.append(False)
+            # pylint: disable=invalid-name
             ps = [
                 p
                 for p in participant_group
@@ -163,11 +167,13 @@ def summary(request):
         points_per_participant.append(
             (
                 code,
-                list(zip(
-                    ppnt_question_points_list,
-                    ppnt_question_editable_list,
-                    ppnt_question_id_list,
-                )),
+                list(
+                    zip(
+                        ppnt_question_points_list,
+                        ppnt_question_editable_list,
+                        ppnt_question_id_list,
+                    )
+                ),
                 ppnt_exam_points_list,
             )
         )
@@ -379,7 +385,9 @@ def _get_total(filtered_markings):
 
 
 @permission_required("ipho_core.is_delegation")
-def delegation_export(request, exam_id=None):  # pylint: disable=too-many-branches
+def delegation_export(
+    request, exam_id=None
+):  # pylint: disable=too-many-branches, too-many-locals
     delegation = Delegation.objects.get(members=request.user)
     if exam_id is not None:
         exams = Exam.objects.for_user(request.user).filter(pk=exam_id)
@@ -392,9 +400,13 @@ def delegation_export(request, exam_id=None):  # pylint: disable=too-many-branch
     response["Content-Disposition"] = 'attachment; filename="markings.csv"'
 
     writer = csv.writer(response)
-    participants = [(code, list(p)) for code, p in itertools.groupby(Participant.objects.filter(
-        delegation=delegation, exam__in=exams
-    ), key=lambda p: p.code)]
+    participants = [
+        (code, list(p))
+        for code, p in itertools.groupby(
+            Participant.objects.filter(delegation=delegation, exam__in=exams),
+            key=lambda p: p.code,
+        )
+    ]
 
     row1 = ["Participant"]
     row2 = ["Version"]
@@ -436,7 +448,8 @@ def delegation_export(request, exam_id=None):  # pylint: disable=too-many-branch
                         and meta.question.exam.marking_delegation_can_see_organizer_marks
                         >= Exam.MARKING_DELEGATION_VIEW_WHEN_SUBMITTED
                         and (
-                            marking_action.status >= MarkingAction.SUBMITTED_FOR_MODERATION
+                            marking_action.status
+                            >= MarkingAction.SUBMITTED_FOR_MODERATION
                             or meta.question.exam.marking_delegation_can_see_organizer_marks
                             >= Exam.MARKING_DELEGATION_VIEW_YES
                         )
@@ -817,9 +830,7 @@ def delegation_edit_all(request, question_id):
         Question.objects.for_user(request.user),
         id=question_id,
     )
-    participants = Participant.objects.filter(
-        delegation=delegation, exam=question.exam
-    )
+    participants = Participant.objects.filter(delegation=delegation, exam=question.exam)
 
     ctx = {}
     ctx["msg"] = []
@@ -1275,7 +1286,9 @@ def delegation_confirm(
             markings_query, key=lambda m: m.marking_meta.question.pk
         )
     }
-    participants = Participant.objects.filter(delegation=delegation, exam=question.exam).all()
+    participants = Participant.objects.filter(
+        delegation=delegation, exam=question.exam
+    ).all()
     # totals is of the form {question.pk:{participant.pk:total, ...}, ...}
     totals_questions = {
         k: {  # s is a list of markings for participant p
