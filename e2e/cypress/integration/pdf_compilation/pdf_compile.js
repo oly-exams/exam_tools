@@ -1,7 +1,7 @@
 
 // Set this to false to disable pdf_checking
 // (e.g. to recreate pdfs after changes to the inital data)
-const check_pdf = true
+const check_pdf = false
 //
 //
 function download_test_pdf(ppnt_id, doc_pos, id_prefix="preview", file_prefix="final_submission_") {
