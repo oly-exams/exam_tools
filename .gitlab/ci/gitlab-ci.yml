@@ -14,7 +14,7 @@ variables:
     DOCKER_DIR: docker_deploy/docker
     DEPLOY_REPO_GROUP: oly-exams
     DEPLOY_REPO_NAME: docker_deploy
-    DEPLOY_REPO_BRANCH: master
+    DEPLOY_REPO_BRANCH: icho2022
 
     # docker related variables
     DOCKER_CACHE: "yes"
