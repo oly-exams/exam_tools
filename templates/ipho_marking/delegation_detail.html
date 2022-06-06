@@ -1,11 +1,7 @@
-{% extends "ipho_marking/base.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
 
-
-
-{% block extra-head %}
-{% endblock %}
 
 {% block pageheader %}<h1>Delegation detailed marking</h1>{% endblock %}
 
@@ -71,8 +67,8 @@
           {% endif %}
           <th>Points</th>
         </tr>
-        {% if show_official_marks %}
         {{ form.management_form }}
+        {% if show_official_marks %}
         {% for form_item in form %}
           <tr>
               <th>{{ form_item.points.label_tag }}</th>
@@ -86,7 +82,14 @@
           </tr>
         {% endfor %}
         {% else %}
-        {{ form.as_table }}
+          {% for form_item in form %}
+          <tr>
+            <td>{{ form_item.points.label }}</td>
+            <td>
+              {% include "ipho_marking/parts/edit_cell.html" %}
+          </td>
+        </tr>
+        {% endfor %}
         {% endif %}
       </table>
       <input type="submit" class="btn btn-primary" value="Save" />

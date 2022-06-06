@@ -86,9 +86,9 @@ th {
           <td>{{ meta.name }} ({{ meta.max_points }})</td>
           {% for form in forms %}
             <td class="thdnone"></td>
-            <td><div class="{{ form.errors|yesno:"has-error," }}">
-              {{ form.id }}{{ form.points.errors }}{{ form.points }}
-            </div></td>
+            <td>
+              {% include "ipho_marking/parts/edit_cell.html" with form_item=form %}
+            </td>
           {% endfor %}
         </tr>
       {% endfor %}
@@ -169,5 +169,7 @@ window.addEventListener("beforeunload", function (e) {
     return null;
   }
 });
+
+{% include "ipho_marking/parts/comment_tooltip.js"%}
 </script>
 {% endblock %}

@@ -1,0 +1,20 @@
+<table>
+    <tr>
+      <td>
+        <div>
+            {% if instance.points is None %}
+                -
+            {% else %}
+                {{ instance.points|floatformat:2 }}
+            {% endif %}
+        </div>
+      </td>
+      <td>
+          {% if instance.comment %}
+          &nbsp;<a class="btn-xs btn-primary comment-button-tooltip" title='{{instance.comment|default_if_none:""}}'><i class="fa fa-comment"></i></a> 
+          {% else %}
+          &nbsp;&nbsp;&nbsp;
+          {% endif %}
+      </td>
+    </tr>
+</table>

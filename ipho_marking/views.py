@@ -47,6 +47,7 @@ OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 
 
 DiffColorPair = namedtuple("DiffColorPair", ["O", "D"])
+EmptyMarking = namedtuple("EmptyMarking", ["points", "comment"])
 
 
 def get_diff_color_pair(official, delegation):
@@ -220,7 +221,7 @@ def staff_ppnt_detail(request, version, ppnt_id, question_id):
     FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
-        fields=["points"],
+        fields=["points", "comment"],
         extra=0,
         can_delete=False,
         can_order=False,
@@ -653,7 +654,7 @@ def delegation_summary(
         not_none_pts = [p for p in ppnt_exam_points_list if p is not None]
         # As sum([]) = 0 would give a total =0 for None points, we need to set it to None by hand
         if not_none_pts and not_none_pts == ppnt_exam_points_list:
-            total = sum([p for p in ppnt_exam_points_list if p is not None])
+            total = sum(p for p in ppnt_exam_points_list if p is not None)
         else:
             total = None
         points_per_student.append((student, ppnt_exam_points_list, total))
@@ -757,7 +758,7 @@ def delegation_ppnt_edit(
     FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
-        fields=["points"],
+        fields=["points", "comment"],
         extra=0,
         can_delete=False,
         can_order=False,
@@ -866,7 +867,7 @@ def delegation_edit_all(request, question_id):
     FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
-        fields=["points"],
+        fields=["points", "comment"],
         extra=0,
         can_delete=False,
         can_order=False,
@@ -1084,14 +1085,13 @@ def delegation_view_all(request, question_id):
                 ):
                     pass
                 else:
-                    marking = None
-                if marking is not None:
-                    points = marking.points
-                else:
-                    points = None
-                version_dict[version] = points
+                    marking = EmptyMarking(None, "")
+
+                version_dict[version] = marking
+
+            empty = EmptyMarking(None, "")
             version_dict["diff_color"] = get_diff_color_pair(
-                version_dict.get("O", None), version_dict.get("D", None)
+                version_dict.get("O", empty).points, version_dict.get("D", empty).points
             )
             participant_list.append((participant, version_dict))
         grouped_markings.append((meta, participant_list))
@@ -1105,7 +1105,8 @@ def delegation_view_all(request, question_id):
     ctx["sums"] = [
         {
             version: sum(
-                entry[1][participant][1][version] or 0 for entry in grouped_markings
+                entry[1][participant][1][version].points or 0
+                for entry in grouped_markings
             )
             for version in ["O", "D", "F"]
         }
@@ -1427,7 +1428,7 @@ def moderation_detail(
         FormSet = modelformset_factory(  # pylint: disable=invalid-name
             Marking,
             form=PointsForm,
-            fields=["points"],
+            fields=["points", "comment"],
             extra=0,
             can_delete=False,
             can_order=False,
@@ -1576,7 +1577,7 @@ def official_marking_detail(
         FormSet = modelformset_factory(  # pylint: disable=invalid-name
             Marking,
             form=PointsForm,
-            fields=["points"],
+            fields=["points", "comment"],
             extra=0,
             can_delete=False,
             can_order=False,

@@ -50,12 +50,11 @@ class PointsForm(ModelForm):
             self.instance.marking_meta.name, self.instance.marking_meta.max_points
         )
         self.fields["points"].required = True
+        self.fields["comment"].required = False
 
         self.helper = FormHelper()
         self.helper.html5_required = True
         self.helper.form_show_labels = True
-        # self.helper.disable_csrf = False
-        # self.disable_csrf = False
         self.helper.form_tag = False
 
     class Meta:
@@ -66,5 +65,6 @@ class PointsForm(ModelForm):
         widgets = {
             "points": forms.TextInput(
                 attrs={"style": "width:55px", "class": "form-control"}
-            )
+            ),
+            "comment": forms.Textarea(attrs={"class": "form-control"}),
         }
