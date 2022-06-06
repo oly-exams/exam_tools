@@ -115,7 +115,7 @@
               {% if perms.ipho_core.can_vote and not user.is_superuser and user.votingright_set.all %}
               <li><a href="{% url 'poll:voter-index' %}">Voting</a></li>
               {% endif %}
-              {% if perms.ipho_core.can_see_boardmeeting %}
+              {% if perms.ipho_core.can_see_boardmeeting or perms.ipho_core.is_delegation_print %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
               {% endif %}
               {% if perms.ipho_core.can_print_boardmeeting_site or perms.ipho_core.can_print_exam_site %}

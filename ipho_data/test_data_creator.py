@@ -81,8 +81,8 @@ class TestDataCreator(DataCreator):
                 qml_id="q0_ti1",
             )
 
-    def create_ipho2016_theory_exam(self):
-        exam = self.create_exam(name="Theory", code="T")
+    def create_ipho2016_theory_exam(self, name="Theory"):
+        exam = self.create_exam(name=name, code="T")
         gen_inst = self.create_question(
             exam, name="General Instructions", code="G", position=0, type=self.QUESTION
         )
@@ -215,7 +215,7 @@ class TestDataCreator(DataCreator):
 
         que2 = self.create_question(
             exam,
-            name="Jumping beads",
+            name="Nonlinear Dynamics in Electric Circuits",
             code="Q",
             position=2,
             type=self.QUESTION,
@@ -242,7 +242,55 @@ class TestDataCreator(DataCreator):
 
         return exam
 
-    def create_ipho2016_theory_marking(self, all_actions_open=False):
+    def create_ipho2016_theory_exam_only(self):  # pylint: disable=invalid-name
+        exam = self.create_exam(name="Theory-Demo", code="T")
+        gen_inst = self.create_question(
+            exam, name="General Instructions", code="G", position=0, type=self.QUESTION
+        )
+        self.create_exam_phases_for_exam(exam)
+        self.create_official_version_node(gen_inst, text=IPHO2016_DATA["T-G0-v1"])
+        self.create_official_version_node(
+            gen_inst, text=IPHO2016_DATA["T-G0-final"], version=2
+        )
+        que1 = self.create_question(
+            exam,
+            name="Two Problems in Mechanics",
+            code="Q",
+            position=1,
+            type=self.QUESTION,
+        )
+        self.create_official_version_node(que1, text=IPHO2016_DATA["T-Q1-final"])
+        ans1 = self.create_question(
+            exam,
+            name="Two Problems in Mechanics - Answer Sheet",
+            code="A",
+            position=1,
+            type=self.ANSWER,
+            working_pages=6,
+        )
+        self.create_official_version_node(ans1, text=IPHO2016_DATA["T-A1-final"])
+        que2 = self.create_question(
+            exam,
+            name="Nonlinear Dynamics in Electric Circuits",
+            code="Q",
+            position=2,
+            type=self.QUESTION,
+        )
+        self.create_official_version_node(que2, text=IPHO2016_DATA["T-Q2-final"])
+        ans2 = self.create_question(
+            exam,
+            name="Nonlinear Dynamics in Electric Circuits - Answer Sheet",
+            code="A",
+            position=2,
+            type=self.ANSWER,
+            working_pages=6,
+        )
+        self.create_official_version_node(ans2, text=IPHO2016_DATA["T-A2-final"])
+        self.create_figures_with_ids(
+            fig_ids=IPHO2016_DATA["FIGURE_IDS"], filename="logo_square.png"
+        )
+
+    def create_ipho2016_marking(self, all_actions_open=False):
         answer1 = Question.objects.get(name="Two Problems in Mechanics - Answer Sheet")
         answer2 = Question.objects.get(
             name="Nonlinear Dynamics in Electric Circuits - Answer Sheet"

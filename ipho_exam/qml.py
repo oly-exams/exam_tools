@@ -156,9 +156,8 @@ def make_qml(node):
 
 
 def xml2string(xml):
-    s = ET.tostring(xml, encoding="unicode")
-    # s, errors = tidylib.tidy_fragment(s, options=TIDYOPTIONS)
-    return s
+    # there should never be unsanatized xml here
+    return ET.tostring(xml, encoding="unicode")
 
 
 def content2string(node):
@@ -372,11 +371,8 @@ class QMLobject:
         assert "id" in self.attributes
         elem = ET.Element(self.tag, self.attributes)
         if self.__class__.has_text:
-            s = self.data
-            # print("data={}".format(self.data))
-            # print("tidy")
-            # s, errors = tidylib.tidy_fragment(s, options=TIDYOPTIONS)
-            elem.text = s
+            # there should never be unsanatized xml here
+            elem.text = self.data
 
         for child in self.children:
             elem.append(child.make_xml())
