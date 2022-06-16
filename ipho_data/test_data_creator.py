@@ -248,9 +248,11 @@ class TestDataCreator(DataCreator):
             exam, name="General Instructions", code="G", position=0, type=self.QUESTION
         )
         self.create_exam_phases_for_exam(exam)
-        self.create_official_version_node(gen_inst, text=IPHO2016_DATA["T-G0-v1"])
         self.create_official_version_node(
-            gen_inst, text=IPHO2016_DATA["T-G0-final"], version=2
+            gen_inst, text=IPHO2016_THEORY_DATA["T-G0-v1"]
+        )
+        self.create_official_version_node(
+            gen_inst, text=IPHO2016_THEORY_DATA["T-G0-final"], version=2
         )
         que1 = self.create_question(
             exam,
@@ -259,7 +261,7 @@ class TestDataCreator(DataCreator):
             position=1,
             type=self.QUESTION,
         )
-        self.create_official_version_node(que1, text=IPHO2016_DATA["T-Q1-final"])
+        self.create_official_version_node(que1, text=IPHO2016_THEORY_DATA["T-Q1-final"])
         ans1 = self.create_question(
             exam,
             name="Two Problems in Mechanics - Answer Sheet",
@@ -268,7 +270,7 @@ class TestDataCreator(DataCreator):
             type=self.ANSWER,
             working_pages=6,
         )
-        self.create_official_version_node(ans1, text=IPHO2016_DATA["T-A1-final"])
+        self.create_official_version_node(ans1, text=IPHO2016_THEORY_DATA["T-A1-final"])
         que2 = self.create_question(
             exam,
             name="Nonlinear Dynamics in Electric Circuits",
@@ -276,7 +278,7 @@ class TestDataCreator(DataCreator):
             position=2,
             type=self.QUESTION,
         )
-        self.create_official_version_node(que2, text=IPHO2016_DATA["T-Q2-final"])
+        self.create_official_version_node(que2, text=IPHO2016_THEORY_DATA["T-Q2-final"])
         ans2 = self.create_question(
             exam,
             name="Nonlinear Dynamics in Electric Circuits - Answer Sheet",
@@ -285,9 +287,9 @@ class TestDataCreator(DataCreator):
             type=self.ANSWER,
             working_pages=6,
         )
-        self.create_official_version_node(ans2, text=IPHO2016_DATA["T-A2-final"])
+        self.create_official_version_node(ans2, text=IPHO2016_THEORY_DATA["T-A2-final"])
         self.create_figures_with_ids(
-            fig_ids=IPHO2016_DATA["FIGURE_IDS"], filename="logo_square.png"
+            fig_ids=IPHO2016_THEORY_DATA["FIGURE_IDS"], filename="logo_square.png"
         )
 
     def create_ipho2016_marking(self, all_actions_open=False):
