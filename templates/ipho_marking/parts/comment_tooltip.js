@@ -1,3 +1,7 @@
+$('.modal').on('shown.bs.modal', function () {
+    $(".modal-body textarea", this).focus();
+})
+
 $(".modal-close").on("click", function() {
 
 pk = this.attributes.pk.value

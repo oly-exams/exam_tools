@@ -173,7 +173,7 @@ def normalize_html(data):
         str(data)
         .replace("<p>&nbsp;</p>", "__EMPTYPP__")
         .replace("<p>&#160;</p>", "__EMPTYPP__")
-        .replace("<p>{}</p>".format(chr(160)), "__EMPTYPP__")
+        .replace(f"<p>{chr(160)}</p>", "__EMPTYPP__")
         .replace("&nbsp;", " ")
         .replace("&#160;", " ")
         .replace(chr(160), " ")
@@ -191,7 +191,7 @@ mathtex_pattern = re.compile(r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</s
 
 def escape_equations(txt):
     return mathtex_pattern.sub(
-        lambda m: r'<span class="math-tex">\({}\)</span>'.format(escape(m.group(1))),
+        lambda m: rf'<span class="math-tex">\({escape(m.group(1))}\)</span>',
         txt,
     )
 
@@ -556,7 +556,7 @@ class QMLquestion(QMLobject):
         return tex_src.strip()
 
     def heading(self):
-        return "Question/answer {}pt".format(self.attributes["points"])
+        return "Question/Answer {} pt".format(self.attributes["points"])
 
     def tex_begin(self):
         return "\\begin{{PR}}{{{}}}{{{}}}\n\n".format(
@@ -587,7 +587,7 @@ class QMLsubquestion(QMLobject):
     default_attributes = {"points": "0.0", "part_nr": "A", "question_nr": "1"}
 
     def heading(self):
-        return "Task box {}.{}, {}pt".format(
+        return "Task box {}.{}, {} pt".format(
             self.attributes["part_nr"],
             self.attributes["question_nr"],
             self.attributes["points"],
@@ -624,7 +624,7 @@ class QMLsubanswer(QMLobject):
     default_attributes = {"points": "0.0", "part_nr": "A", "question_nr": "1"}
 
     def heading(self):
-        return "Answer box {}.{}, {}pt".format(
+        return "Answer box {}.{}, {} pt".format(
             self.attributes["part_nr"],
             self.attributes["question_nr"],
             self.attributes["points"],
@@ -719,7 +719,7 @@ class QMLtitle(QMLobject):
         return "", []
 
     def make_xhtml(self):
-        return "<h1>{}</h1>".format(data2xhtml(self.data)), []
+        return f"<h1>{data2xhtml(self.data)}</h1>", []
 
 
 class QMLpart(QMLobject):
@@ -738,7 +738,7 @@ class QMLpart(QMLobject):
         return "}{%s}\n\n" % self.attributes.get("points", "")
 
     def make_xhtml(self):
-        return "<h2>{}</h2>".format(data2xhtml(self.data)), []
+        return f"<h2>{data2xhtml(self.data)}</h2>", []
 
 
 class QMLsection(QMLobject):
@@ -757,7 +757,7 @@ class QMLsection(QMLobject):
         return "}\n\n"
 
     def make_xhtml(self):
-        return "<h3>{}</h3>".format(data2xhtml(self.data)), []
+        return f"<h3>{data2xhtml(self.data)}</h3>", []
 
 
 class QMLparagraph(QMLobject):
@@ -1097,7 +1097,7 @@ class QMLlistItem(QMLobject):
         return texout
 
     def make_xhtml(self):
-        return "<li>{}</li>".format(data2xhtml(self.data)), []
+        return f"<li>{data2xhtml(self.data)}</li>", []
 
 
 class QMLlatex(QMLobject):
