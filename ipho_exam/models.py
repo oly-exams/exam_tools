@@ -633,7 +633,7 @@ class Exam(models.Model):
         ):
             return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
         max_choice = max(
-            [choice[0] for choice in cls._meta.get_field("visibility").choices]
+            choice[0] for choice in cls._meta.get_field("visibility").choices
         )
         return max_choice + 1
 
@@ -648,7 +648,7 @@ class Exam(models.Model):
         if user.has_perm("ipho_core.can_see_boardmeeting"):
             return Exam.CAN_TRANSLATE_BOARDMEETING
         max_choice = max(
-            [choice[0] for choice in cls._meta.get_field("can_translate").choices]
+            choice[0] for choice in cls._meta.get_field("can_translate").choices
         )
         return max_choice + 1
 
@@ -1107,7 +1107,7 @@ class CompiledFigure(Figure):
 
     def params_as_list(self):
         return list(  # pylint: disable=consider-using-generator
-            [si.trim() for si in self.params.split(",")]
+            si.trim() for si in self.params.split(",")
         )
 
     def _to_svg(self, query, lang=None):

@@ -3731,7 +3731,7 @@ def auto_translate(request):
 @permission_required("ipho_core.is_organizer_admin")
 def auto_translate_count(request):
     def to_money(count):
-        return count / 10 ** 6 * 20
+        return count / 10**6 * 20
 
     total_counts = CachedAutoTranslation.objects.annotate(
         total_char_count=F("source_length") * F("hits")
@@ -3743,7 +3743,7 @@ def auto_translate_count(request):
         "name", "auto_translate_char_count"
     )
     delegation_tot_count = sum(
-        [a["auto_translate_char_count"] for a in delegation_counts_raw]
+        a["auto_translate_char_count"] for a in delegation_counts_raw
     )
     if delegation_tot_count:
         delegation_counts = [
@@ -3980,7 +3980,7 @@ def pdf_exam_for_participant(request, exam_id, participant_id):
         result = question_task.delay()
         all_tasks.append(result)
         print("Group", position, "done.")
-    filename = "exam-{}-{}.pdf".format(slugify(exam.name), participant.code)
+    filename = f"exam-{slugify(exam.name)}-{participant.code}.pdf"
     chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
     # chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
     return HttpResponseRedirect(reverse("exam:pdf-task", args=[chord_task.id]))
