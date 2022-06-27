@@ -39,7 +39,13 @@ from django.contrib.auth.decorators import permission_required
 from ipho_core.models import Student, Delegation
 from ipho_exam.models import Exam, Participant, Question, Document
 
-from .models import MarkingMeta, Marking, MarkingAction, generate_markings_from_exam
+from .models import (
+    MarkingMeta,
+    Marking,
+    QuestionPointsRescale,
+    MarkingAction,
+    generate_markings_from_exam,
+)
 from .forms import ImportForm, PointsForm
 
 OFFICIAL_LANGUAGE_PK = 1
@@ -95,22 +101,24 @@ def summary(request):  # pylint: disable=too-many-locals
     editable_markings = Marking.objects.editable(request.user, version=vid)
 
     questions = (
-        MarkingMeta.objects.for_user(request.user)
+        QuestionPointsRescale.objects.for_user(request.user)
         .all()
-        .values("question")
-        .annotate(question_points=Sum("max_points"))
         .values(
-            "question__pk", "question__exam__name", "question__name", "question_points"
+            "question__pk",
+            "question__exam__name",
+            "question__name",
+            "max_internal_points",
+            "max_external_points",
         )
         .order_by("question__exam", "question__position")
         .distinct()
     )
 
     exams = (
-        MarkingMeta.objects.for_user(request.user)
+        QuestionPointsRescale.objects.for_user(request.user)
         .all()
         .values("question__exam")
-        .annotate(exam_points=Sum("max_points"))
+        .annotate(exam_points=Sum("max_external_points"))
         .values("question__exam__pk", "question__exam__name", "exam_points")
         .order_by(
             "question__exam",
@@ -158,11 +166,9 @@ def summary(request):  # pylint: disable=too-many-locals
 
         ppnt_exam_points_list = []
         for exam in exams:
-            ppnt_markings_exam = markings.filter(
-                marking_meta__question__exam=exam["question__exam__pk"],
-                participant__code=code,
+            points_exam = QuestionPointsRescale.external_sum_for_exam(
+                markings, participant_code=code, exam=exam["question__exam__pk"]
             )
-            points_exam = ppnt_markings_exam.aggregate(Sum("points"))["points__sum"]
             ppnt_exam_points_list.append(points_exam)
 
         points_per_participant.append(
@@ -643,10 +649,9 @@ def delegation_summary(
                 delegation=delegation,
                 status__lte=MarkingAction.SUBMITTED_FOR_MODERATION,
             ).exists():
-                ppnt_markings_exam = markings.filter(
-                    marking_meta__question__exam=exam, participant=participant
+                points_exam = QuestionPointsRescale.external_sum_for_exam(
+                    markings, participant.code, exam
                 )
-                points_exam = ppnt_markings_exam.aggregate(Sum("points"))["points__sum"]
                 ppnt_exam_points_list.append(points_exam)
             else:
                 ppnt_exam_points_list.append(None)
@@ -661,9 +666,9 @@ def delegation_summary(
 
     # We need a list of exams and total number of points for the header of the table
     exams_with_totals = (
-        MarkingMeta.objects.filter(question__exam__in=exams)
+        QuestionPointsRescale.objects.filter(question__exam__in=exams)
         .values("question__exam")
-        .annotate(exam_points=Sum("max_points"))
+        .annotate(exam_points=Sum("max_external_points"))
         .values("question__exam__name", "exam_points")
         .order_by(
             "question__exam",

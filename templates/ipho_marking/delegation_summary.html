@@ -185,10 +185,10 @@
             <td>{{ student.full_name }} ({{ student.code }})</td>
             {% for ep in exam_points %}
             <td>
-              {{ ep|default_if_none:'-' }}
+              {{ ep|floatformat:"2"|default_if_none:'-' }}
             </td>
             {% endfor %}
-            <td>{{ total|default_if_none:'-' }}</td>
+            <td>{{ total|floatformat:"2"|default_if_none:'-' }}</td>
           </tr>
           {% endfor %}
         </table>
