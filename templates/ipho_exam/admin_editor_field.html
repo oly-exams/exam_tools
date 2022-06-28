@@ -40,48 +40,52 @@
               {% include 'ipho_exam/partials/admin_editor_attributes.html' with attributes=field.attributes %}
               </span>
               {% if field.description %} <p>{{ field.description }}</p> {% endif %}
+              <a class="label label-success" data-toggle="collapse" href="#editor-field-{{ field.id }}" role="button" aria-expanded="false" aria-controls="#editor-field-{{ field.id }}">
+                Hide/Show
+              </a>
           </div>
       </div>
 
-      <div class="row">
-          <div class="col-sm-12">
-              {% if field.has_text %}
-              <div class="question-content" id="{{ field.id }}-content">
-                  {{ field.content_html|safe }}
-              </div>
-              {% endif %}
-          </div>
-      </div>
+      <div id="editor-field-{{ field.id }}" class="collapse in">
+        <div class="row">
+            <div class="col-sm-12">
+                {% if field.has_text %}
+                <div class="question-content" id="{{ field.id }}-content">
+                    {{ field.content_html|safe }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
 
-      {% if field.has_children %}
-      <div class="row">
-          <div class="col-xs-12 content-field-nested" id="{{ field.id }}-children">
-              {% if field.children %}
-                  {% include 'ipho_exam/admin_editor_field.html' with fields_set=field.children parent=field %}
-              {% endif %}
-          </div>
-      </div>
+        {% if field.has_children %}
+        <div class="row">
+            <div class="col-xs-12 content-field-nested" id="{{ field.id }}-children">
+                {% if field.children %}
+                    {% include 'ipho_exam/admin_editor_field.html' with fields_set=field.children parent=field %}
+                {% endif %}
+            </div>
+        </div>
 
-      <div class="row no-child-add" {% if field.children %}style="display:none"{% endif %}>
-          <div class="col-xs-12">
-              <div class="dropdown">
-                <a class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" title="New block">
-                  <i class="fa fa-plus fa-fw"></i>
-                  <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                  {% for qtag, qname, __ in qml_types %}
-                      {% if qtag in field.valid_children %}
-                          <li><a data-action="add-block-first" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk version_num=node_version block_id=field.id tag_name=qtag %}">{{ qname }}</a></li>
-                      {% endif %}
-                  {% endfor %}
-                </ul>
-              </div>
-          </div>
-      </div>
-      {% endif %}
+        <div class="row no-child-add" {% if field.children %}style="display:none"{% endif %}>
+            <div class="col-xs-12">
+                <div class="dropdown">
+                  <a class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" title="New block">
+                    <i class="fa fa-plus fa-fw"></i>
+                    <span class="caret"></span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    {% for qtag, qname, __ in qml_types %}
+                        {% if qtag in field.valid_children %}
+                            <li><a data-action="add-block-first" data-block-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk version_num=node_version block_id=field.id tag_name=qtag %}">{{ qname }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
   </div>
-
   {% if parent %}
   <div class="row">
       <div class="col-xs-12">
