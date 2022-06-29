@@ -39,13 +39,53 @@
   </div>
 </div>
 
+<div class="modal fade" id="smart-upload-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4>Smart Upload</h4>
+      </div>
+      <form method="post" action="">
+          <div class="modal-body">
+            <div>
+              Your files names must follow the "Exam Code" naming convention:
+            </div>
+            <blockquote class="blockquote">
+            {{ docs.1.barcode_base }}.pdf
+            </blockquote>
+            <div class="alert alert-warning">
+              Files that do not correspond to the naming convention or 
+              do not match a valid exam code will be ignored and skipped.
+            </div>
+            <div>
+              The exam codes can be found in the table. Drag and drop (or click and select) multiple files below for upload.
+            </div>
+            <div class="form-group">
+              <div class="controls">
+                <input type="file" multiple="true" id="filesUpload" class="form-control"/>
+              </div>
+            </div>
+            <div class="alert alert-warning"> <strong>Warning!</strong>
+              Uploading new files will overwrite previous files if they exist.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Upload</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div id="alerts-container"></div>
 
     <p class="lead">
         This table lists all the submissions made by your delegation team.
     </p>
 
-    <table class="table table-striped feedback-table" id="submission-table">
+    <table class="table table-bordered feedback-table" id="submission-table">
       <thead>
         <tr>
             <th class="col-sm-01">#</th>
@@ -53,27 +93,48 @@
             <th>Q#</th>
             <th>Participant</th>
             <th>Exam code</th>
-            <th>Exam file</th>
-            <th>Scans</th>
+            <th class="col-sm-1">File</th>
+            <th class="col-sm-1">Combined with no coverpages</th>
+            <th class="col-sm-2">
+              Scans
+              {% if docs %}
+              <a class="btn btn-default btn-xs" id="smart-upload" data-toggle="modal" data-target="#smart-upload-modal"><i class="fa fa-fw fa-upload"></i> Smart Upload</a>
+              {% endif %}
+
+            </th>
         </tr>
       </thead>
       <tbody>
         {% for d in docs %}
         <tr>
           <td>{{ d.pk }} </td>
-          <td>{{ d.participant__exam__name }}</td>
-          <td>{{ d.position }}</td>
-          <td>{{ d.participant__code }}</td>
-          <td>{{ d.barcode_base }}</td>
-          <td >
-            <a class="btn btn-default btn-xs" id="submission-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> exam</a>
+          {% if d.position == 0 %}
+          <td rowspan="{{d.max_position}}" style="vertical-align: middle;">
+            {{ d.participant__exam__name }}
           </td>
+          {% endif %}
+          <td>{{ d.position }}</td>
+          {% if d.position == 0 %}
+          <td rowspan="{{d.max_position}}" style="vertical-align: middle;">
+            {{ d.participant__code }}
+          </td>
+          {% endif %}
+          <td>{{ d.barcode_base }}</td>
           <td>
-            {% if d.scan_file %}
-              <a class="btn btn-default btn-xs" id="scan-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>
-              <br />
-            {% endif %}
+            <a class="btn btn-default btn-xs" id="submission-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i>exam</a>
+          </td>
+          {% if d.position == 0 %}
+          <td rowspan="{{d.max_position}}" style="vertical-align: middle;">
+            <a class="btn btn-default btn-xs" id="submission-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id %}"><i class="fa fa-fw fa-file-pdf-o"></i>combined</a>
+          </td>
+          {% endif %}
+          <td>
+            {% if d.position != 0 %}
             <a class="btn btn-default btn-xs" id="upload-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="{% url 'exam:submission-delegation-submitted-scan-upload' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-upload"></i> upload</a>
+            {% if d.scan_file %}
+            <a class="btn btn-default btn-xs" id="scan-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>
+            {% endif %}
+            {% endif %}
           </td>
         </tr>
       {% endfor %}
@@ -144,9 +205,8 @@ $(function() {
 
                 var cell = launchButton.parent('td');
                 cell.html(
-                  '<a class="btn btn-default btn-xs" href="'+data['download_link']+'"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>' +
-                  '<br />' +
-                  '<a class="btn btn-default btn-xs" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="'+data['upload_link']+'"><i class="fa fa-fw fa-upload"></i> upload</a>'
+                  '<a class="btn btn-default btn-xs" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="'+data['upload_link']+'"><i class="fa fa-fw fa-upload"></i> upload</a>\n'+
+                  '<a class="btn btn-default btn-xs" href="'+data['download_link']+'"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>'
                 );
                 // TODO: update data in table
                 // $('#languages-tbody').html(data['tbody']);
@@ -155,7 +215,11 @@ $(function() {
             }
         });
     });
+    // Smart Upload modal
 
+
+
+    // Open Modal
     $('#upload-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var href = button.attr('href');

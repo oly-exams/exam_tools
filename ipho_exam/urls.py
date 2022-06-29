@@ -149,7 +149,7 @@ urlpatterns = [
     ),
     path(
         "pdf/exam/<int:exam_id>/participant/<int:participant_id>",
-        views.pdf_exam_for_participant,
+        views.pdf_exam_participant,
         name="pdf-exam-participant",
     ),
     path(

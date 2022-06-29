@@ -17,7 +17,6 @@
 
 # pylint: disable=too-many-lines
 
-
 import os
 import re
 import csv
@@ -28,10 +27,12 @@ import urllib
 import logging
 import traceback
 import itertools
-from copy import deepcopy
 from hashlib import md5
-from collections import OrderedDict
+from pathlib import Path
+from copy import deepcopy
+from collections import OrderedDict, defaultdict
 
+from PyPDF2 import PdfFileMerger
 
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render, redirect
@@ -2750,13 +2751,23 @@ def submission_delegation_list_submitted(request):
         "scan_file",
         "timestamp",
     ).order_by("participant__exam_id", "participant_id", "position")
+    # do NOT change the secondary order by participant_id!
+
+    exam_id2max_position = defaultdict(set)
+    for doc in all_docs:
+        key = doc["participant__exam__id"]
+        val = doc["position"]
+        exam_id2max_position[key].add(val)
+
+    for doc in all_docs:
+        if doc["position"] == 0:
+            key = doc["participant__exam__id"]
+            doc["max_position"] = len(exam_id2max_position[key])
 
     return render(
         request,
         "ipho_exam/submission_delegation_list.html",
-        {
-            "docs": all_docs,
-        },
+        {"docs": all_docs, "exam2max_position": exam_id2max_position},
     )
 
 
@@ -3949,6 +3960,7 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
 
 @login_required
 def pdf_exam_for_participant(request, exam_id, participant_id):
+    # mskoenz 2022: afaics deprecated, see pdf_exam_participant
     participant = get_object_or_404(Participant, id=participant_id)
 
     user = request.user
@@ -4052,6 +4064,37 @@ def pdf_exam_pos_participant(
 
         raise Http404("Scan document not found")
     raise Http404("Scan document: Invalid type")
+
+
+@login_required
+def pdf_exam_participant(request, exam_id, participant_id):
+    participant = get_object_or_404(Participant, id=participant_id, exam=exam_id)
+    user = request.user
+    if not user.has_perm("ipho_core.is_printstaff"):
+        if not participant.delegation.members.filter(pk=user.pk).exists():
+            return HttpResponseForbidden(
+                "You do not have permission to view this document."
+            )
+    doc_path = Path(settings.DOCUMENT_PATH)
+    output = doc_path / f"exams-docs/{participant.code}/print/exam-{exam_id}.pdf"
+    if not output.exists():
+        merger = PdfFileMerger()
+        for doc in (
+            Document.objects.filter(participant=participant_id)
+            .values("file", "position", "num_pages")
+            .order_by("position")
+        ):
+            with open(doc_path / doc["file"], "rb") as f:
+                merger.append(f, pages=(1, doc["num_pages"]))
+
+        with open(output, "wb") as f:
+            merger.write(f)
+        merger.close()
+
+    with open(output, "rb") as f:
+        response = HttpResponse(f.read(), content_type="application/pdf")
+        response["Content-Disposition"] = f"attachment; filename={output}"
+        return response
 
 
 @login_required
