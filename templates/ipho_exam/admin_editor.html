@@ -153,6 +153,7 @@ body { margin-bottom: 70px; }
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({
             showMathMenu: false,
+            TeX: {extensions: ["mhchem.js"], mhchem: { legacy: false }},
         });
     </script>
     <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>

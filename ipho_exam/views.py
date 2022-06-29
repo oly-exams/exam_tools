@@ -2380,6 +2380,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
             }
         )
 
+    print(block.content_html())
     form_html = render_crispy_form(form)
     attrs_form_html = render_crispy_form(attrs_form, AdminBlockAttributeHelper())
     return JsonResponse(

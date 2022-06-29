@@ -1,0 +1,4 @@
+15c15
+< MathJax.Hub.Config({delayJaxRegistration: true});
+---
+> MathJax.Hub.Config({delayJaxRegistration: true, TeX: {extensions: ["mhchem.js"], mhchem: { legacy: false }},});
