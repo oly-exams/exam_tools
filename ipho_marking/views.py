@@ -285,7 +285,7 @@ def export(
             title_row.append(f"Question Total: {question.exam.name} - {question.name}")
         for exam in exams:
             title_row.append(f"Exam Total: {exam.name}")
-        title_row.append("Participant Total")
+        title_row.append("Student Total")
 
     csv_rows.append(title_row)
 
@@ -356,22 +356,27 @@ def export(
                     else:
                         row.append(None)
 
+                student_total = 0
                 for exam in exams:
                     # Only append total if all markings are visible
-                    e_markings = version_markings.filter(
-                        marking_meta__question__exam=exam
-                    )
                     # If some marks are not visible
                     if (
                         all_visible
                     ):  # e_markings.exclude(pk__in=visible_ppnt_markings).exists():
-                        row.append(_get_total(e_markings))
+                        e_markings = version_markings.filter(
+                            marking_meta__question__exam=exam
+                        )
+                        points_exam = QuestionPointsRescale.external_sum_for_exam(
+                            e_markings, participant_code=None, exam=None
+                        )
+                        student_total += points_exam
+                        row.append(points_exam)
                     else:
                         row.append(None)
 
                 # Only append total if all markings are visible
                 if all_visible:
-                    student_total = _get_total(version_markings)
+                    pass
                 else:
                     student_total = None
                 row.append(student_total)

@@ -189,14 +189,15 @@ class QuestionPointsRescale(models.Model):
         return self.max_external_points / self.max_internal_points
 
     @staticmethod
-    def external_sum_for_exam(markings, participant_code, exam):
-        ppnt_markings_exam = (
-            markings.filter(
+    def external_sum_for_exam(markings, participant_code=None, exam=None):
+        if participant_code is not None and exam is not None:
+            markings = markings.filter(
                 marking_meta__question__exam=exam,
                 participant__code=participant_code,
             )
-            .values("marking_meta__question")
-            .annotate(question_total=Sum("points"))
+
+        ppnt_markings_exam = markings.values("marking_meta__question").annotate(
+            question_total=Sum("points")
         )
 
         points_exam = 0
