@@ -2793,7 +2793,7 @@ def upload_many_scan_delegation(request):
     form_html = render_crispy_form(form)
 
     json_kwargs = {
-        "title": "Upload scan file",
+        "title": "Upload many scan files",
         "form": form_html,
         "success": False,
     }
