@@ -631,12 +631,15 @@ class QMLsubanswer(QMLobject):
         )
 
     def tex_begin(self):
-        return "\\begin{{QSA}}{{{}}}{{{}}}{{{}}}{{{}}}\n".format(
+        res = "\\begin{{QSA}}{{{}}}{{{}}}{{{}}}{{{}}}\n".format(
             self.attributes["points"],
             self.attributes["part_nr"],
             self.attributes["question_nr"],
             self.attributes.get("height", ""),
         )
+        if self.attributes.get("align", "top") == "bottom":
+            res += r"\vspace*{\fill}"
+        return res
 
     def tex_end(self):
         return "\\end{QSA}\n\n"
