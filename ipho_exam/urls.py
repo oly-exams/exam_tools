@@ -252,6 +252,11 @@ urlpatterns = [
         views.upload_scan_delegation,
         name="submission-delegation-submitted-scan-upload",
     ),
+    path(
+        "submission/submitted/scan/exam/many",
+        views.upload_many_scan_delegation,
+        name="submission-delegation-submitted-scan-many",
+    ),
     re_path(r"^figures/?$", views.figure_list, name="figures"),
     path("figure/add", views.figure_add, name="figure-add"),
     path("figure/<str:fig_id>", views.figure_edit, name="figure-edit"),

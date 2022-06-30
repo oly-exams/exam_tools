@@ -138,6 +138,7 @@ from ipho_exam.forms import (
     PrintDocsForm,
     ScanForm,
     DelegationScanForm,
+    DelegationScanManyForm,
     ExtraSheetForm,
     PublishForm,
     FeedbackCommentForm,
@@ -2769,6 +2770,40 @@ def submission_delegation_list_submitted(request):
         "ipho_exam/submission_delegation_list.html",
         {"docs": all_docs, "exam2max_position": exam_id2max_position},
     )
+
+
+@permission_required("ipho_core.is_delegation_print")
+def upload_many_scan_delegation(request):
+    exams = list(Exam.objects.for_user(request.user))
+    delegation = Delegation.objects.get(members=request.user)
+    participant = Participant.objects.filter(
+        exam=exams[0], delegation=delegation
+    ).first()
+    doc = get_object_or_404(Document, position=1, participant=participant)
+    submission_open = any(
+        exam.answer_sheet_scan_upload >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
+        for exam in exams
+    )
+    form = DelegationScanManyForm(
+        submission_open=submission_open,
+        example_exam_code=doc.barcode_base,
+        data=request.POST or None,
+        files=request.FILES or None,
+    )
+    form_html = render_crispy_form(form)
+
+    json_kwargs = {
+        "title": "Upload scan file",
+        "form": form_html,
+        "success": False,
+    }
+
+    if submission_open:
+        json_kwargs["submit"] = "Upload"
+    else:
+        json_kwargs["submit"] = "Inactive"
+
+    return JsonResponse(json_kwargs)
 
 
 @permission_required("ipho_core.is_delegation_print")
