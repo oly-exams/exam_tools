@@ -136,6 +136,7 @@ def make_content_node(node):
     descr["attrs"] = node.attributes
     descr["original"] = node.content()
     descr["original_html"] = node.content_html()
+    descr["tag"] = node.tag
     descr["description"] = node.attributes.get("description")
 
     descr["children"] = []

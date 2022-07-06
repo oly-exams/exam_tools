@@ -51,7 +51,13 @@
             <div class="col-sm-12">
                 {% if field.has_text %}
                 <div class="question-content" id="{{ field.id }}-content">
-                    {{ field.content_html|safe }}
+                  {% if field.tag == "equation" %}
+                  \({{ field.content_html|safe }}\)
+                  {% elif field.tag == "equation_unnumbered" %}
+                  \({{ field.content_html|safe }}\)
+                  {% else %}
+                    {{ field.content_html|safe }} 
+                  {% endif %}
                 </div>
                 {% endif %}
             </div>
