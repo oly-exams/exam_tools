@@ -13,6 +13,8 @@ from ipho_marking.models import MarkingAction
 
 from ipho_data.ipho2016_qml_theory_data import IPHO2016_THEORY_DATA
 from ipho_data.ipho2016_qml_experiment_data import IPHO2016_EXPERIMENT_DATA
+from ipho_data.imko_qml_theory_data import IMKO_THEORY_DATA
+
 from ipho_data.data_creator import DataCreator
 
 DEFAULT_DATABASE_NAME = settings.DATABASES["default"]["NAME"]
@@ -55,17 +57,18 @@ class TestDataCreator(DataCreator):
 
     def create_three_poll_votings(self, room_name=None):
         self.create_poll_voting(
-            "Q1", "How is it going", room_name, y="good", m="meh", n="bad"
+            "Personal State", "How is it going", room_name, y="good", m="meh", n="bad"
         )
 
         self.create_poll_voting(
-            "Q2", "Current day", room_name, d="weekday", e="weekend"
+            "Current Day", "Current day", room_name, d="weekday", e="weekend"
         )
 
-        voting3 = self.create_poll_voting(
-            "Q3", "Favorite color", room_name, r="red", b="blue", g="green"
+        voting3, created = self.create_poll_voting(
+            "Color", "Favorite color", room_name, r="red", b="blue", g="green"
         )
-        self.close_poll_voting_with_result(voting3, r=1, b=2, g=3)
+        if created:
+            self.close_poll_voting_with_result(voting3, r=1, b=2, g=3)
 
     def create_feedback_for_question(self, question, comment=None):
         for deleg in Delegation.objects.all():
@@ -335,3 +338,56 @@ class TestDataCreator(DataCreator):
             self.set_marking_status(
                 delegation_code="AUT", question=answer2, status=MarkingAction.FINAL
             )
+
+    def create_mock_theory_exam(self):
+        exam = self.create_exam(name="Theory", code="T")
+        self.create_exam_phases_for_exam(exam)
+
+        gen_inst = self.create_question(
+            exam, name="General Instructions", code="G", position=0, type=self.QUESTION
+        )
+        self.create_official_version_node(
+            gen_inst, text=IMKO_THEORY_DATA["T-G0"], tag="initial", status="S"
+        )
+        que1 = self.create_question(
+            exam,
+            name="Addition",
+            code="Q",
+            position=1,
+            type=self.QUESTION,
+        )
+        self.create_official_version_node(
+            que1, text=IMKO_THEORY_DATA["T-Q1"], tag="initial", status="S"
+        )
+        ans1 = self.create_question(
+            exam,
+            name="Addition-Answer Sheet",
+            code="A",
+            position=1,
+            type=self.ANSWER,
+            working_pages=1,
+        )
+        self.create_official_version_node(
+            ans1, text=IMKO_THEORY_DATA["T-A1"], tag="initial", status="S"
+        )
+        que2 = self.create_question(
+            exam,
+            name="Multiplication",
+            code="Q",
+            position=2,
+            type=self.QUESTION,
+        )
+        self.create_official_version_node(
+            que2, text=IMKO_THEORY_DATA["T-Q2"], tag="initial", status="S"
+        )
+        ans2 = self.create_question(
+            exam,
+            name="Multiplication-Answer Sheet",
+            code="A",
+            position=2,
+            type=self.ANSWER,
+            working_pages=1,
+        )
+        self.create_official_version_node(
+            ans2, text=IMKO_THEORY_DATA["T-A2"], tag="initial", status="S"
+        )
