@@ -1,5 +1,6 @@
 {% extends "ipho_marking/base.html" %}
 {% load static %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 
 {% block extra-head %}
@@ -168,7 +169,7 @@
     </div>
 
     <div class="tab-pane" id="final-points">
-      <p class="lead">Final results of your delegation decided after the moderation session.</p>
+      <p class="lead">Final results of your delegation decided after the {% trans "moderation" %} session.</p>
 
       <div class="panel panel-default">
         <table class="table table-striped">

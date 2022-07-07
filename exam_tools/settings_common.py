@@ -30,6 +30,7 @@ PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 TEMPLATE_PATH = os.path.join(PROJECT_PATH, "templates")
 STATIC_PATH = os.path.join(PROJECT_PATH, "static")
 DOCUMENT_PATH = os.path.join(PROJECT_PATH, "media")
+LOCALE_PATHS = [os.path.join(PROJECT_PATH, "locale")]
 
 EVENT_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, "events", "demo")
 
@@ -665,5 +666,6 @@ LOGGING = {
     },
 }
 
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+LANGUAGES = [("en-PH", "Physics"), ("en-CH", "Chemistry")]
+LANGUAGE_CODE = "en-PH"

@@ -35,6 +35,7 @@ from django.http import (
     Http404,
 )
 from django.contrib.auth.decorators import permission_required
+from django.utils.translation import gettext_lazy as _
 
 from ipho_core.models import Student, Delegation
 from ipho_exam.models import Exam, Participant, Question, Document
@@ -555,7 +556,7 @@ def delegation_summary(
                     ):
                         question_ctx[
                             "view_tooltip"
-                        ] = "Official marks are shown once you submitted your marks for moderation."
+                        ] = f"Official marks are shown once you submitted your marks for {_('moderation')}."
                     else:
                         question_ctx[
                             "view_tooltip"
@@ -602,8 +603,8 @@ def delegation_summary(
                         "link": reverse(
                             "marking:delegation-final-confirm", args=(question.pk,)
                         ),
-                        "text": "Accept marks without moderation",
-                        "tooltip": "You don't need to do anything if you want to have a moderation.",
+                        "text": f"Accept marks without {_('moderation')}",
+                        "tooltip": f"You don't need to do anything if you want to have a {_('moderation')}.",
                     }
             elif marking_status == MarkingAction.LOCKED_BY_MODERATION:
                 if (
@@ -616,7 +617,7 @@ def delegation_summary(
                         ),
                         "text": "Sign off marks",
                         "class": "btn-success",
-                        "tooltip": "You can either accept the final marks or reopen the moderation again.",
+                        "tooltip": f"You can either accept the final marks or reopen the {_('moderation')} again.",
                     }
             elif marking_status == MarkingAction.FINAL:
                 action_button = {
@@ -1346,10 +1347,10 @@ def delegation_confirm(
                 "Please check the points displayed below. "
                 + "If the points are not as discussed in the moderation, "
                 + "you can reopen it to allow the organizers to change the marks. "
-                + "Note that this does <strong>not</strong> lead to another moderation session."
+                + f"Note that this does <strong>not</strong> lead to another {_('moderation')} session."
             )
             ctx["confirmation_alert_class"] = "alert-info"
-            ctx["reject_button_label"] = "Reopen moderation"
+            ctx["reject_button_label"] = f"Reopen {_('moderation')}"
         else:
             ctx["confirmation_alert_class"] = "alert-warning"
 

@@ -1,5 +1,6 @@
 {% extends "ipho_marking/base.html" %}
 {% load static %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 {% load editor_extras %}
 
@@ -72,7 +73,7 @@ td {
 </style>
 {% endblock %}
 
-{% block pageheader %}<h1>Moderation {{ delegation.country }} ({{ delegation.name }})</h1>{% endblock %}
+{% block pageheader %}<h1>{% trans "Moderation" %} {{ delegation.country }} ({{ delegation.name }})</h1>{% endblock %}
 
 {% block page-content %}
 
