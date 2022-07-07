@@ -10,14 +10,14 @@ input = $("#commentModal"+pk+" .modal-body textarea").first()[0]
 input.innerHTML = input.value;
 value = input.value;
 console.log(value);
-button.removeClass("btn-primary")
-        .removeClass("btn-default")
-        .attr("data-original-title", value);
+button.attr("data-original-title", value);
+icon = $("i", button)
+icon.removeClass("fa-comment-o").removeClass("fa-comment")
 
 if(value == "") {
-    button.addClass("btn-secondary");
+    icon.addClass("fa-comment-o");
 } else {
-    button.addClass("btn-primary");
+    icon.addClass("fa-comment");
 }
 
 $('#commentModal'+pk).modal("hide");

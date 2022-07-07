@@ -3,7 +3,7 @@
       <td>
         <div {{ form_item.points.errors|yesno:'class="has-error error",,'|safe }}>
         {{ form_item.id }} {{ form_item.points.errors }} {{ form_item.points }}</td><td>
-        &nbsp;<a id="commentButton{{form_item.instance.id}}" class="btn-xs btn-{% if form_item.instance.comment %}primary{%else%}seconday{%endif%} comment-button-tooltip" title='{{form_item.instance.comment|default_if_none:""}}' data-toggle="modal" data-target="#commentModal{{form_item.instance.id}}"><i class="fa fa-comment"></i></a> 
+        &nbsp;<a id="commentButton{{form_item.instance.id}}" class="btn-xs btn-secondary comment-button-tooltip" title='{{form_item.instance.comment|default_if_none:""}}' data-toggle="modal" data-target="#commentModal{{form_item.instance.id}}"><i class="fa {% if form_item.instance.comment %}fa-comment{%else%}fa-comment-o{%endif%}"></i></a> 
         
         <div class="modal" id="commentModal{{ form_item.instance.id }}" role="dialog">
           <div class="modal-dialog" role="document">
