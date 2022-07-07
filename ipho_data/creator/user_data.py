@@ -40,7 +40,7 @@ class UserDataCreator(BaseDataCreator):
         fieldnames = ["country_name", "country_code", "voting_power"]
         with self._pw_creator.create_pw_gen(filename_csv, pw_strategy) as pw_gen:
             for deleg_data in self.read_csv(filename_csv, fieldnames):
-                if enforce_iso3166 or deleg_data.country_code in ["OLY", "ORG"]:
+                if enforce_iso3166 and not deleg_data.country_code in ["OLY", "ORG"]:
                     self._enforce_iso3166(
                         deleg_data.country_code, deleg_data.country_name
                     )
