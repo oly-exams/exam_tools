@@ -45,15 +45,23 @@
             {{fb.unlike_delegations.1|safe}}
           </span> <!-- btn-toolbar -->
         </div>
+        <div style="display:inline-block">
+          <span href="{% url 'exam:feedback-thread' feedback_id=fb.pk %}" class="btn btn-primary open-fb-thread">
+            <i class="fa fa-comment" aria-hidden="true"></i>
+            {% if fb.num_comments %}
+            <span class="badge">{{ fb.num_comments }}</span>
+            {% endif %}
+          </span> <!-- btn-toolbar -->
+        </div>
+        {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
+        {% if fb.commentable %}
+          <div style="display:inline-block">
+            <button type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
+              Comment
+            </button>
+          <div>
+          {% endif %}
+        {% endif %}
     </td>
-    {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
-    <td>
-      {% if fb.commentable %}
-      <button type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
-        Add comment
-      </button>
-      {% endif %}
-    </td>
-    {% endif %}
 </tr>
 {% endfor %}

@@ -65,6 +65,7 @@ from django.db.models import (
     IntegerField,
     F,
     Max,
+    Count,
 )
 from django.template.defaultfilters import slugify
 from django.utils.html import escape
@@ -92,6 +93,7 @@ from ipho_exam.models import (
     CompiledFigure,
     RawFigure,
     Feedback,
+    FeedbackComment,
     Like,
     ParticipantSubmission,
     ExamAction,
@@ -1001,9 +1003,9 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             ctxt["form_html"] = form_html
         else:
             ctxt["form_html"] = ""
+    query = Feedback.objects.filter(question=question, qml_id=qml_id)
     feedbacks = (
-        Feedback.objects.filter(question=question, qml_id=qml_id)
-        .annotate(
+        query.annotate(
             num_likes=Sum(
                 Case(When(like__status="L", then=1), output_field=IntegerField())
             ),
@@ -1038,6 +1040,14 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         )
         .order_by("-timestamp")
     )
+    # not in an annotate due to: https://code.djangoproject.com/ticket/10060
+    feedback_comments = dict(
+        query.annotate(num_comments=Count("feedbackcomment")).values_list(
+            "pk", "num_comments"
+        )
+    )
+    for x in feedbacks:
+        x["num_comments"] = feedback_comments[x["pk"]]
 
     for f in feedbacks:
         like_del = [
@@ -1112,6 +1122,55 @@ def feedback_partial_like(request, status, feedback_id):
     return JsonResponse(
         {
             "success": True,
+        }
+    )
+
+
+@permission_required("ipho_core.can_see_boardmeeting")
+def feedback_thread(request, feedback_id):
+    if not request.is_ajax:
+        raise Exception()
+
+    feedback = get_object_or_404(
+        Feedback,
+        pk=feedback_id,
+    )
+    ctx = {}
+    ctx["feedback_open"] = (
+        feedback.question.feedback_status == Question.FEEDBACK_OPEN
+        and feedback.question.exam.feedback == Exam.FEEDBACK_CAN_BE_OPENED
+    )
+
+    try:
+        delegation = Delegation.objects.get(members=request.user)
+        ctx["current_delegation"] = delegation.name
+    except Delegation.DoesNotExist:
+        ctx["feedback_open"] = False
+        ctx["current_delegation"] = ""
+
+    if request.POST and ctx["feedback_open"] and request.POST.get("text", "") != "":
+        ctx["delegation"] = ctx["current_delegation"]
+        ctx["comment"] = request.POST["text"]
+        FeedbackComment(
+            delegation=delegation, comment=ctx["comment"], feedback=feedback
+        ).save()
+        return JsonResponse(
+            {
+                "success": True,
+                "new_comment": render_to_string(
+                    "ipho_exam/partials/feedback_thread_msg.html", ctx
+                ),
+            }
+        )
+    comments = FeedbackComment.objects.filter(feedback=feedback).values_list(
+        "delegation__name", "comment"
+    )
+    ctx["comments"] = comments
+    html = render_to_string("ipho_exam/partials/feedback_thread.html", ctx)
+    return JsonResponse(
+        {
+            "success": True,
+            "text": html,
         }
     )
 
@@ -1210,13 +1269,12 @@ def feedbacks_list(
         questions = Question.objects.for_user(request.user).filter(
             exam=request.GET["exam_id"]
         )
+        query = Feedback.objects.filter(question__in=questions).filter(
+            status__in=filter_st,
+            question__in=filter_qu,
+        )
         feedbacks = (
-            Feedback.objects.filter(question__in=questions)
-            .filter(
-                status__in=filter_st,
-                question__in=filter_qu,
-            )
-            .annotate(
+            query.annotate(
                 num_likes=Sum(
                     Case(When(like__status="L", then=1), output_field=IntegerField())
                 ),
@@ -1251,6 +1309,14 @@ def feedbacks_list(
             )
             .order_by("-pk")
         )
+        # not in an annotate due to: https://code.djangoproject.com/ticket/10060
+        feedback_comments = dict(
+            query.annotate(num_comments=Count("feedbackcomment")).values_list(
+                "pk", "num_comments"
+            )
+        )
+        for x in feedbacks:
+            x["num_comments"] = feedback_comments[x["pk"]]
 
         choices = dict(Feedback._meta.get_field("status").flatchoices)
         for fback in feedbacks:

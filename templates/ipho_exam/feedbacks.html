@@ -117,27 +117,41 @@
         {{ exam.name }}
 
     </h3>
-    <table class="table table-striped feedback-table" id="feedback-table-{{exam.pk}}">
-      <thead>
-      <tr>
-          <th class="col-sm-01">#</th>
-          <th>Status</th>
-          <th>Delegation</th>
-          <th>Question</th>
-          <th>Part</th>
-          <th style="display:none;">Part Position</th>
-          <th>Comment</th>
-          <th>Timestamp</th>
-          <th style="width:170px">Actions</th>
-          {% if perms.ipho_core.can_manage_feedback and exam.check_feedback_editable %}
-          {% if question and question.check_feedback_commentable or not question %}
-          <th>Comments</th>
-          {% endif %}
-          {% endif %}
-      </tr>
-    </thead>
-      <tbody id="feedback-tbody-{{ exam.pk }}"></tbody>
-    </table>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-8">
+          <table class="table table-striped feedback-table" id="feedback-table-{{exam.pk}}">
+            <thead>
+            <tr>
+                <th class="col-sm-01">#</th>
+                <th>Status</th>
+                <th>Delegation</th>
+                <th>Question</th>
+                <th>Part</th>
+                <th style="display:none;">Part Position</th>
+                <th>Comment</th>
+                <th>Timestamp</th>
+                <th style="width:170px">Actions</th>
+                {% if perms.ipho_core.can_manage_feedback and exam.check_feedback_editable %}
+                {% if question and question.check_feedback_commentable or not question %}
+                {% endif %}
+                {% endif %}
+            </tr>
+          </thead>
+            <tbody id="feedback-tbody-{{ exam.pk }}"></tbody>
+          </table>
+        </div>
+        <div class="col-md-4">
+          <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h3>Discussion</h3>
+            </div>
+            <div id="thread-area">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   {% else %}
   <div class="dropdown ">
     <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
@@ -252,28 +266,32 @@ $(function() {
             stateSave: true,
             retrieve:true,
             autoWidth: false,
-            });
-            table.destroy();
-            $("#feedback-tbody-"+tid).html(data);
-            $("time[data-format]").each(function () {
-                var el = $(this);
-                var dt = moment(el.attr("datetime"));
-                el.text(dt.format(el.data("format")));
-            });
-            $('[data-toggle="tooltip"]').tooltip();
-            var table = $('#feedback-table-'+tid).DataTable({
-              columnDefs: [
-                { type: 'natural', targets: 4 },
-                { "width": "25%", "targets": 6 },
-                { "orderData": 5,    "targets":4 },
-              ],
-              stateSave: true,
-              retrieve:true,
-              autoWidth: false,
-            });
-            table.draw(false);
-            $('[data-toggle="tooltip"]').tooltip();
-
+          });
+          table.destroy();
+          $("#feedback-tbody-"+tid).html(data);
+          $("time[data-format]").each(function () {
+              var el = $(this);
+              var dt = moment(el.attr("datetime"));
+              el.text(dt.format(el.data("format")));
+          });
+          $('[data-toggle="tooltip"]').tooltip();
+          var table = $('#feedback-table-'+tid).DataTable({
+            columnDefs: [
+              { type: 'natural', targets: 4 },
+              { "width": "25%", "targets": 6 },
+              { "orderData": 5,    "targets":4 },
+            ],
+            stateSave: true,
+            retrieve:true,
+            autoWidth: false,
+            drawCallback:function( settings ) {
+                $('.open-fb-thread').on('click', 
+                  {% include "ipho_exam/partials/feedback_thread.js" %}
+                );
+            },
+          });
+          table.draw(false);
+          $('[data-toggle="tooltip"]').tooltip();
         });
     }
 
@@ -290,7 +308,7 @@ $(function() {
           url: url,
           type: 'POST',
           success: function(data) {
-                update_feedbacks({{ exam.pk }});
+              update_feedbacks({{ exam.pk }});
           }
       });
       return false;

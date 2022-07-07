@@ -34,6 +34,7 @@ from ipho_exam.models import (
     Figure,
     RawFigure,
     Feedback,
+    FeedbackComment,
     Like,
     ParticipantSubmission,
     ExamAction,
@@ -198,6 +199,11 @@ class FeedbackAdmin(admin.ModelAdmin):
     list_filter = ("question", "delegation", "status")
 
 
+class FeedbackCommentAdmin(admin.ModelAdmin):
+    list_display = ("feedback", "delegation", "comment", "timestamp")
+    list_filter = ("feedback__question", "delegation")
+
+
 class LikeAdmin(admin.ModelAdmin):
     list_display = ("status", "feedback", "delegation")
 
@@ -266,6 +272,7 @@ class DocumentAdmin(admin.ModelAdmin):
 
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(Feedback, FeedbackAdmin)
+admin.site.register(FeedbackComment, FeedbackCommentAdmin)
 admin.site.register(Like, LikeAdmin)
 admin.site.register(Exam, ExamAdmin)
 admin.site.register(Participant, ParticipantAdmin)

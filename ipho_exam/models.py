@@ -1274,6 +1274,16 @@ class Feedback(models.Model):
         return f"#{self.pk} {self.question.name} - {self.question.exam.name} ({self.delegation.name})"
 
 
+class FeedbackComment(models.Model):
+    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE)
+    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
+    comment = models.TextField(blank=True)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["timestamp"]
+
+
 class Like(models.Model):
     CHOICES = (
         ("L", "Liked"),

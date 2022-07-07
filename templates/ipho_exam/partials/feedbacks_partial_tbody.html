@@ -5,64 +5,89 @@
       {{ warning |safe}}
     </div>
 {% endif %}
-<table class="table table-striped" id="feedback-table">
-  <thead>
-  <tr>
-      <th>#</th>
-      <th>Status</th>
-      <th>Delegation</th>
-      <th>Comment</th>
-      <th>Timestamp</th>
-      <th style="width:170px">Actions</th>
-  </tr>
-  </thead>
-  <tbody id="feedback-tbody-{{ question.exam.pk|default:'None' }}">
-    {% for fb in feedbacks %}
-    <tr>
-        <td>{{ fb.pk }}</td>
-        <td>
-          {% if perms.ipho_core.is_organizer_admin and fb.commentable %}
-            <div class="btn-group">
-              <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                {{ fb.status_display }}
-                <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu">
-                {% for k,v in status_choices %}
-                <li class="{% if k == fb.status %}active{% endif %}"><a href="{% url 'exam:feedback-set-status' status=k feedback_id=fb.pk %}" class="feedback-status">{{ v }}</a></li>
-                {% endfor %}
-              </ul>
-            </div>
-          {% else %}
-            {{ fb.status_display }}
-          {% endif %}
-        </td>
-        <td>{{ fb.delegation__country }}</td>
-        <td>{{ fb.comment }}{% if fb.org_comment %}<br><strong>Comment from the organizers:</strong><br>{{ fb.org_comment }}{% endif %}</td>
-        <td><time datetime="{{ fb.timestamp|date:"c" }}" data-format="hh:mm A"></time></td>
-        <td>
-          <div class="btn-toolbar">
-            <div style="display:inline-block" data-toggle="tooltip" title="{{fb.like_delegations.0|safe}}">
-              <span href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="feedback-like feedback-like-trigger feedback-like-top btn btn-info {{ fb.enable_likes|yesno:',disabled' }}">
-                <span class="fa fa-thumbs-o-up feedback-like" aria-hidden="true"></span>
-                {% if fb.num_likes %}
-                <span class="badge feedback-like">{{ fb.num_likes }}</span>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-8">
+      <table class="table table-striped" id="feedback-table">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Delegation</th>
+            <th>Comment</th>
+            <th>Timestamp</th>
+            <th style="width:170px">Actions</th>
+        </tr>
+        </thead>
+        <tbody id="feedback-tbody-{{ question.exam.pk|default:'None' }}">
+          {% for fb in feedbacks %}
+          <tr>
+              <td>{{ fb.pk }}</td>
+              <td>
+                {% if perms.ipho_core.is_organizer_admin and fb.commentable %}
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+                      {{ fb.status_display }}
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      {% for k,v in status_choices %}
+                      <li class="{% if k == fb.status %}active{% endif %}"><a href="{% url 'exam:feedback-set-status' status=k feedback_id=fb.pk %}" class="feedback-status">{{ v }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                {% else %}
+                  {{ fb.status_display }}
                 {% endif %}
-                {{fb.like_delegations.1|safe}}
-              </span>
-            </div>
-            <div style="display:inline-block" data-toggle="tooltip" title="{{fb.unlike_delegations.0|safe}}">
-              <span href="{% url 'exam:feedback-like' status='U' feedback_id=fb.pk %}" class="feedback-like feedback-unlike-trigger btn feedback-like-top btn-warning {{ fb.enable_likes|yesno:',disabled' }}">
-                <i class="fa fa-thumbs-o-down feedback-like" aria-hidden="true"></i>
-                {% if fb.num_unlikes %}
-                <span class="badge feedback-like">{{ fb.num_unlikes }}</span>
-                {% endif %}
-                {{fb.unlike_delegations.1|safe}}
-              </span> <!-- btn-toolbar -->
-        </td>
-    </tr>
-    {% endfor %}
+              </td>
+              <td>{{ fb.delegation__country }}</td>
+              <td>{{ fb.comment }}{% if fb.org_comment %}<br><strong>Comment from the organizers:</strong><br>{{ fb.org_comment }}{% endif %}</td>
+              <td><time datetime="{{ fb.timestamp|date:"c" }}" data-format="hh:mm A"></time></td>
+              <td>
+                <div class="btn-toolbar">
+                  <div style="display:inline-block" data-toggle="tooltip" title="{{fb.like_delegations.0|safe}}">
+                    <span href="{% url 'exam:feedback-like' status='L' feedback_id=fb.pk %}" class="feedback-like feedback-like-trigger feedback-like-top btn btn-info {{ fb.enable_likes|yesno:',disabled' }}">
+                      <span class="fa fa-thumbs-o-up feedback-like" aria-hidden="true"></span>
+                      {% if fb.num_likes %}
+                      <span class="badge feedback-like">{{ fb.num_likes }}</span>
+                      {% endif %}
+                      {{fb.like_delegations.1|safe}}
+                    </span>
+                  </div>
+                  <div style="display:inline-block" data-toggle="tooltip" title="{{fb.unlike_delegations.0|safe}}">
+                    <span href="{% url 'exam:feedback-like' status='U' feedback_id=fb.pk %}" class="feedback-like feedback-unlike-trigger btn feedback-like-top btn-warning {{ fb.enable_likes|yesno:',disabled' }}">
+                      <i class="fa fa-thumbs-o-down feedback-like" aria-hidden="true"></i>
+                      {% if fb.num_unlikes %}
+                      <span class="badge feedback-like">{{ fb.num_unlikes }}</span>
+                      {% endif %}
+                      {{fb.unlike_delegations.1|safe}}
+                    </span> <!-- btn-toolbar -->
+                  </div>
+                  <div style="display:inline-block">
+                    <span href="{% url 'exam:feedback-thread' feedback_id=fb.pk %}" class="btn btn-primary open-fb-thread">
+                      <i class="fa fa-comment" aria-hidden="true"></i>
+                      {% if fb.num_comments %}
+                      <span class="badge">{{ fb.num_comments }}</span>
+                      {% endif %}
+                    </span> <!-- btn-toolbar -->
+                  </div>
+              </td>
+          </tr>
+          {% endfor %}
 
-</tbody>
-</table>
-{{form_html}}
+      </tbody>
+    </table>
+    {{form_html}}
+    
+    </div>
+    <div class="col-md-4">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3>Discussion</h3>
+        </div>
+        <div id="thread-area">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -222,6 +222,11 @@ urlpatterns = [
         name="feedback-like",
     ),
     re_path(
+        r"^feedbacks/thread/(?P<feedback_id>\d+)$",
+        views.feedback_thread,
+        name="feedback-thread",
+    ),
+    re_path(
         r"^feedbacks/(?P<feedback_id>\d+)/status/(?P<status>\w)$",
         views.feedback_set_status,
         name="feedback-set-status",

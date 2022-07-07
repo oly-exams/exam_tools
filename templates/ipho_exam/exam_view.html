@@ -102,6 +102,10 @@ del {
 }
 
 body { margin-bottom: 70px; }
+
+#thread-area .comment {
+  margin-bottom: 10px;
+}
 </style>
 
 {% endblock %}
@@ -426,6 +430,11 @@ body { margin-bottom: 70px; }
               var table = $('#feedback-table').DataTable({
                 stateSave: true,
                 retrieve:true,
+                drawCallback:function( settings ) {
+                    $('.open-fb-thread', modal).on('click', 
+                      {% include "ipho_exam/partials/feedback_thread.js" %}
+                    );
+                },
               });
               table.draw(false);
               $('[data-toggle="tooltip"]').tooltip();
@@ -444,11 +453,15 @@ body { margin-bottom: 70px; }
                 modal.find('#qml_id_div').addClass(qml_id);
               });
             }
+
+
+            
             $('#feedback-modal').on('show.bs.modal', function (event) {
-                var modal = $(this);
-                var button = $(event.relatedTarget); // Button that triggered the modal
-                var qml_id = button[0].id;
-                load_feedbacks(modal, qml_id)
+              var modal = $(this);
+              var button = $(event.relatedTarget); // Button that triggered the modal
+              var qml_id = button[0].id;
+              load_feedbacks(modal, qml_id);
+              
             });
             $('#feedback-modal form').on('submit',function(evt) {
                 var form = evt.target;
