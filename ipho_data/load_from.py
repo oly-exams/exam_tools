@@ -10,13 +10,13 @@ import non_install_helper
 
 # this file should only be run on the remote, where we have a settings file
 
-os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "exam_tools.settings")
 
 import ipho_data.django_setup
 from ipho_data.test_data_creator import TestDataCreator
 
 
-def load_from_data_path(data_path):
+def load_from_data_path(data_path, enforce_iso3166):
 
     tdc = TestDataCreator(data_path=data_path)
 
@@ -24,7 +24,7 @@ def load_from_data_path(data_path):
     tdc.create_groups()
     tdc.create_olyexams_superuser(pw_strategy="read")
     tdc.create_organizer_user(pw_strategy="read")
-    tdc.create_delegation_user(pw_strategy="read", enforce_iso3166=True)
+    tdc.create_delegation_user(pw_strategy="read", enforce_iso3166=enforce_iso3166)
     tdc.create_official_delegation()
 
     return tdc
@@ -32,20 +32,34 @@ def load_from_data_path(data_path):
 
 def main():
     if len(sys.argv) < 2:
-        print("please use load_from.py path [ipho2016]")
+        print(
+            "please use load_from.py path [skip-iso] [ipho2016] [students] [remote] [mock]"
+        )
         return
-    path = Path(sys.argv[1])
-    tdc = load_from_data_path(path)
+    path = Path(sys.argv[1]).resolve()
+
+    enforce_iso3166 = True
+    if len(sys.argv) > 2 and sys.argv[2] == "skip-iso":
+        print("\033[1;31mskipping iso3166 checking\033[0m")
+        enforce_iso3166 = False
+
+    tdc = load_from_data_path(path, enforce_iso3166)
     if len(sys.argv) > 2:
         for argv in sys.argv[2:]:
             if argv == "ipho2016":
                 tdc.create_ipho2016_theory_exam_only()
             elif argv == "remote":
-                tdc.create_examsite_user(pw_strategy="read", enforce_iso3166=True)
+                tdc.create_examsite_user(
+                    pw_strategy="read", enforce_iso3166=enforce_iso3166
+                )
+            elif argv == "skip-iso":
+                pass
             elif argv == "students":
                 tdc.create_students()
             elif argv == "test_votings":
                 tdc.create_three_poll_votings()
+            elif argv == "mock":
+                tdc.create_mock_theory_exam()
             else:  # assuming it an exam name to be created
                 name = argv
                 code = name[0]
