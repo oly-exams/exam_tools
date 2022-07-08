@@ -1,19 +1,28 @@
-<div class="panel-body">
-    <div class="comment-area" style="overflow-y: scroll !important; height:450px !important;">
-        {% for delegation, comment in comments %}
-        {% include "ipho_exam/partials/feedback_thread_msg.html"%}
-        {% endfor %}
-        <div class="ps-scrollbar-x-rail" style="left: 0px; bottom: 0px;"><div class="ps-scrollbar-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps-scrollbar-y-rail" style="top: 0px; height: 0px; right: 2px;"><div class="ps-scrollbar-y" tabindex="0" style="top: 0px; height: 2px;"></div></div></div>
-
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h4>Discussion</h4>
+        {% include "ipho_exam/partials/feedback_thread_msg.html" with delegation=original_delegation comment=original_comment %}
     </div>
-    <div class="panel-footer">
-        {% if feedback_open %}
-        <div class="label label-primary">{{ current_delegation }}</div>
-        <textarea class="form-control comment-text"></textarea>
-        <div class="btn btn-primary comment-submit">Send</div>
-        {% elif current_delegation %}
-        <div class="btn btn-primary disabled">Feedback closed</div>
-        {% endif %}
+    <div class="panel-body">
+        <div class="comment-area" style="overflow-y: scroll !important; height:450px !important;">
+            {% for delegation, comment in comments %}
+            {% include "ipho_exam/partials/feedback_thread_msg.html"%}
+            {% endfor %}
+            <div class="ps-scrollbar-x-rail" style="left: 0px; bottom: 0px;"><div class="ps-scrollbar-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps-scrollbar-y-rail" style="top: 0px; height: 0px; right: 2px;"><div class="ps-scrollbar-y" tabindex="0" style="top: 0px; height: 2px;"></div></div></div>
+    
+        </div>
+        <div class="panel-footer">
+            {% if feedback_open %}
+            <div class="label label-success">{{ current_delegation }}</div>
+            <textarea class="form-control comment-text"></textarea>
+            <div class="btn btn-primary comment-submit pull-right" style="margin-left:6px;margin-top:6px;">Send</div>
+            {% elif current_delegation %}
+            <div class="btn btn-primary disabled">Feedback closed</div>
+            {% endif %}
+            <button type="button" class="btn btn-default pull-right" data-dismiss="modal" style="margin-left:6px;margin-top:6px;">Close</button>
+            <div class="clearfix"></div>
+        </div>
+    
     </div>
-
 </div>
+

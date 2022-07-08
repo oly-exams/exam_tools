@@ -145,48 +145,50 @@ body { margin-bottom: 70px; }
     <li>Feebacks are shown to all delegations.</li>
     <li>A list of feedbacks is available <a href="{% if question %}{% url 'exam:feedbacks-list' exam_id=exam.pk %}{% else %}{% url 'exam:feedbacks-list' %}{% endif %}">here</a>.</li>
 </ul>
-    <div class="modal fade" id="figure-modal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-          </div>
-              <div class="modal-body text-center"></div>
-        </div>
+<div class="modal fade" id="figure-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
+          <div class="modal-body text-center"></div>
     </div>
+  </div>
+</div>
 
-    <div class="modal fade " id="feedback-modal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <div class="" id="qml_id_div"></div>
-            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            <h4 class="modal-title"></h4>
-          </div>
-          <form method="post" action="">
-              <div class="modal-body feedback"></div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                {% if not perms.ipho_core.is_organizer_admin %}
-                  {% if question.check_feedback_editable %}
-                    <button id="modal-form-submit" type="submit" class="btn btn-primary">Send feedback</button>
-                  {% endif %}
-                {% endif %}
-              </div>
-          </form>
-        </div>
+<div class="modal fade " id="feedback-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="" id="qml_id_div"></div>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title"></h4>
       </div>
+      <form method="post" action="">
+          <div class="modal-body feedback"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            {% if not perms.ipho_core.is_organizer_admin %}
+              {% if question.check_feedback_editable %}
+                <button id="modal-form-submit" type="submit" class="btn btn-primary">Send feedback</button>
+              {% endif %}
+            {% endif %}
+          </div>
+      </form>
     </div>
+  </div>
+</div>
 
-    <div id="alerts-container">
-        {% if warning %}
-            <div class="alert alert-warning alert-dismissible" role="alert">
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <strong>Warning:</strong> {{ warning }}
-            </div>
-        {% endif %}
-    </div>
+{% include "ipho_exam/partials/feedback_thread_modal.html" %}
+
+<div id="alerts-container">
+    {% if warning %}
+        <div class="alert alert-warning alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <strong>Warning:</strong> {{ warning }}
+        </div>
+    {% endif %}
+</div>
 
 
 <ul class="nav nav-tabs">
@@ -365,6 +367,7 @@ body { margin-bottom: 70px; }
 
             // Figure preview
             $('#figure-modal').on('show.bs.modal', function (event) {
+                {% include "ipho_exam/partials/stackable_modal_fix.js" %}
                 var modal = $(this);
                 var button = $(event.relatedTarget); // Button that triggered the modal
 
@@ -385,7 +388,10 @@ body { margin-bottom: 70px; }
                 }
             });
 
+            {% include "ipho_exam/partials/feedback_thread.js" %}
+
             {% if exam and question %}
+            
             function update_feedback_numbers(){
               var url = "{% url 'exam:feedback-numbers' exam_id=exam.pk question_id=question.pk%}";
               $.ajax({
@@ -418,6 +424,7 @@ body { margin-bottom: 70px; }
               var table = $('#feedback-table').DataTable({
                 stateSave: true,
                 retrieve:true,
+                autoWidth:false,
               });
               table.destroy();
               modal.find('.modal-title').html('Feedbacks');
@@ -430,11 +437,7 @@ body { margin-bottom: 70px; }
               var table = $('#feedback-table').DataTable({
                 stateSave: true,
                 retrieve:true,
-                drawCallback:function( settings ) {
-                    $('.open-fb-thread', modal).on('click', 
-                      {% include "ipho_exam/partials/feedback_thread.js" %}
-                    );
-                },
+                autoWidth:false,
               });
               table.draw(false);
               $('[data-toggle="tooltip"]').tooltip();
@@ -457,6 +460,7 @@ body { margin-bottom: 70px; }
 
             
             $('#feedback-modal').on('show.bs.modal', function (event) {
+              {% include "ipho_exam/partials/stackable_modal_fix.js" %}
               var modal = $(this);
               var button = $(event.relatedTarget); // Button that triggered the modal
               var qml_id = button[0].id;

@@ -8,7 +8,7 @@
 .asteriskField {
     display: none;
 }
-
+{% include "ipho_exam/partials/feedback_thread.css" %}
 </style>
 {% endblock %}
 
@@ -73,6 +73,7 @@
       </div>
     </div>
 
+    {% include "ipho_exam/partials/feedback_thread_modal.html" %}
     <div id="alerts-container"></div>
 
   {% if exam %}
@@ -115,43 +116,29 @@
 
     <h3>
         {{ exam.name }}
-
     </h3>
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-8">
-          <table class="table table-striped feedback-table" id="feedback-table-{{exam.pk}}">
-            <thead>
-            <tr>
-                <th class="col-sm-01">#</th>
-                <th>Status</th>
-                <th>Delegation</th>
-                <th>Question</th>
-                <th>Part</th>
-                <th style="display:none;">Part Position</th>
-                <th>Comment</th>
-                <th>Timestamp</th>
-                <th style="width:170px">Actions</th>
-                {% if perms.ipho_core.can_manage_feedback and exam.check_feedback_editable %}
-                {% if question and question.check_feedback_commentable or not question %}
-                {% endif %}
-                {% endif %}
-            </tr>
-          </thead>
-            <tbody id="feedback-tbody-{{ exam.pk }}"></tbody>
-          </table>
-        </div>
-        <div class="col-md-4">
-          <div class="panel panel-primary">
-            <div class="panel-heading">
-              <h3>Discussion</h3>
-            </div>
-            <div id="thread-area">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+
+    <table class="table table-striped feedback-table" id="feedback-table-{{exam.pk}}">
+      <thead>
+      <tr>
+          <th class="col-sm-01">#</th>
+          <th>Status</th>
+          <th>Delegation</th>
+          <th>Question</th>
+          <th>Part</th>
+          <th style="display:none;">Part Position</th>
+          <th>Comment</th>
+          {% if perms.ipho_core.can_manage_feedback and exam.check_feedback_editable %}
+          {% if question and question.check_feedback_commentable or not question %}
+          <th>Author</th>
+          {% endif %}
+          {% endif %}
+          <th>Timestamp</th>
+          <th style="width:180px">Actions</th>
+      </tr>
+    </thead>
+      <tbody id="feedback-tbody-{{ exam.pk }}"></tbody>
+    </table>
   {% else %}
   <div class="dropdown ">
     <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
@@ -232,6 +219,8 @@ $(function() {
     });
 
 
+    {% include "ipho_exam/partials/feedback_thread.js" %}
+
     $('#feedback-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var fid = button.data('feedback-pk');
@@ -259,13 +248,9 @@ $(function() {
             dataType: "html",
         }).done(function( data ) {
           var table = $('#feedback-table-'+tid).DataTable({
-            columnDefs: [
-              { type: 'natural', targets: 4 },
-              { "width": "25%", "targets": 6 },
-            ],
             stateSave: true,
             retrieve:true,
-            autoWidth: false,
+            autoWidth:false,
           });
           table.destroy();
           $("#feedback-tbody-"+tid).html(data);
@@ -276,19 +261,9 @@ $(function() {
           });
           $('[data-toggle="tooltip"]').tooltip();
           var table = $('#feedback-table-'+tid).DataTable({
-            columnDefs: [
-              { type: 'natural', targets: 4 },
-              { "width": "25%", "targets": 6 },
-              { "orderData": 5,    "targets":4 },
-            ],
             stateSave: true,
             retrieve:true,
-            autoWidth: false,
-            drawCallback:function( settings ) {
-                $('.open-fb-thread').on('click', 
-                  {% include "ipho_exam/partials/feedback_thread.js" %}
-                );
-            },
+            autoWidth:false,
           });
           table.draw(false);
           $('[data-toggle="tooltip"]').tooltip();

@@ -1140,6 +1140,8 @@ def feedback_thread(request, feedback_id):
         feedback.question.feedback_status == Question.FEEDBACK_OPEN
         and feedback.question.exam.feedback == Exam.FEEDBACK_CAN_BE_OPENED
     )
+    ctx["original_comment"] = feedback.comment
+    ctx["original_delegation"] = feedback.delegation.name
 
     try:
         delegation = Delegation.objects.get(members=request.user)
@@ -1307,8 +1309,9 @@ def feedbacks_list(
                 "comment",
                 "org_comment",
             )
-            .order_by("-pk")
+            .order_by("-timestamp")
         )
+
         # not in an annotate due to: https://code.djangoproject.com/ticket/10060
         feedback_comments = dict(
             query.annotate(num_comments=Count("feedbackcomment")).values_list(
@@ -1341,13 +1344,13 @@ def feedbacks_list(
             if len(like_del) in [1, 2]:
                 like_del_slug = "<br> " + ", ".join(like_del)
             elif len(like_del) > 2:
-                like_del_slug = "<br> " + like_del[0] + ", ..., " + like_del[-1]
+                like_del_slug = "<br> " + like_del[0] + ", ..."
             unlike_del_string = ", ".join(unlike_del)
             unlike_del_slug = ""
             if len(unlike_del) in [1, 2]:
                 unlike_del_slug = "<br> " + ", ".join(unlike_del)
             elif len(unlike_del) > 2:
-                unlike_del_slug = "<br> " + unlike_del[0] + ", ..., " + unlike_del[-1]
+                unlike_del_slug = "<br> " + unlike_del[0] + ", ..."
             fback["like_delegations"] = [like_del_string, like_del_slug]
             fback["unlike_delegations"] = [unlike_del_string, unlike_del_slug]
             fback["status_display"] = choices[fback["status"]]
@@ -1523,7 +1526,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             ),
         )
         .values_list(
-            "pk",
+            "pk",  # make sure this stays at pos 0
             "question__exam__name",
             "question__name",
             "qml_id",
@@ -1558,6 +1561,15 @@ def feedbacks_export_csv(request, exam_id, question_id):
         unlike_del_string = ", ".join(unlike_del)
         f.append(like_del_string)
         f.append(unlike_del_string)
+
+        discussion = []
+        for delegation, comment in (
+            FeedbackComment.objects.filter(feedback=f[0])
+            .order_by("timestamp")
+            .values_list("delegation__name", "comment")
+        ):
+            discussion.append(f"{delegation}: {comment}")
+        f.append("\n".join(discussion))
         feedbacks.append(f)
 
     response = HttpResponse(content_type="text/csv")
@@ -1583,6 +1595,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             "Num unlikes",
             "Like delegations",
             "Unlike Delegations",
+            "Discussion",
         ]
     )
 

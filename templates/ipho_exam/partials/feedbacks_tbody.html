@@ -24,6 +24,17 @@
     <td>{{ fb.part }}</td>
     <td style="display:none;">{{ fb.part_position }}</td>
     <td>{{ fb.comment }}{% if fb.org_comment %}<br><strong>Comment from the organizers:</strong><br>{{ fb.org_comment }}{% endif %}</td>
+    {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
+    {% if fb.commentable %}
+    <td>
+        <div style="display:inline-block">
+          <button type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
+            Comment
+          </button>
+        <div>
+    </td>
+    {% endif %}
+    {% endif %}
     <td><time datetime="{{ fb.timestamp|date:"c" }}" data-format="hh:mm A"></time></td>
     <td>
       <div class="btn-toolbar">
@@ -46,22 +57,13 @@
           </span> <!-- btn-toolbar -->
         </div>
         <div style="display:inline-block">
-          <span href="{% url 'exam:feedback-thread' feedback_id=fb.pk %}" class="btn btn-primary open-fb-thread">
+          <span url="{% url 'exam:feedback-thread' feedback_id=fb.pk %}" class="btn btn-primary open-fb-thread" data-toggle="modal" data-target="#feedback-thread-modal">
             <i class="fa fa-comment" aria-hidden="true"></i>
             {% if fb.num_comments %}
             <span class="badge">{{ fb.num_comments }}</span>
             {% endif %}
           </span> <!-- btn-toolbar -->
         </div>
-        {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
-        {% if fb.commentable %}
-          <div style="display:inline-block">
-            <button type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
-              Comment
-            </button>
-          <div>
-          {% endif %}
-        {% endif %}
     </td>
 </tr>
 {% endfor %}
