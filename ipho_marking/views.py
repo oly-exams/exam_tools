@@ -739,7 +739,7 @@ def delegation_ppnt_edit(
     ctx["question"] = question
     ctx["exam"] = question.exam
 
-    marking_action, _ = MarkingAction.objects.get_or_create(
+    marking_action, __ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
     )
     if not marking_action.in_progress():
@@ -850,7 +850,7 @@ def delegation_edit_all(request, question_id):
     ctx["question"] = question
     ctx["exam"] = question.exam
 
-    marking_action, _ = MarkingAction.objects.get_or_create(
+    marking_action, __ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
     )
     if not marking_action.in_progress():
@@ -942,7 +942,7 @@ def delegation_ppnt_view(request, ppnt_id, question_id):
     ctx["exam"] = question.exam
     ctx["versions_display"] = versions_display
 
-    marking_action, _ = MarkingAction.objects.get_or_create(
+    marking_action, __ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
     )
 
@@ -1037,7 +1037,7 @@ def delegation_view_all(request, question_id):
     ctx["exam"] = question.exam
     ctx["versions_display"] = versions_display
 
-    marking_action, _ = MarkingAction.objects.get_or_create(
+    marking_action, __ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
     )
 
@@ -1137,7 +1137,7 @@ def delegation_confirm(
     )
     form_error = ""
 
-    marking_action, _ = MarkingAction.objects.get_or_create(
+    marking_action, __ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
     )
 
@@ -1265,7 +1265,7 @@ def delegation_confirm(
                             participant__delegation=delegation,
                             version="O",
                         ):
-                            fin_mark, _ = Marking.objects.get_or_create(
+                            fin_mark, __ = Marking.objects.get_or_create(
                                 marking_meta=off_mark.marking_meta,
                                 participant=off_mark.participant,
                                 version="F",
