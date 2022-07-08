@@ -673,11 +673,14 @@ class QMLsubanswercontinuation(QMLobject):
         )
 
     def tex_begin(self):
-        return "\\begin{{QSAC}}{{{}}}{{{}}}{{{}}}\n".format(
+        res = "\\begin{{QSAC}}{{{}}}{{{}}}{{{}}}\n".format(
             self.attributes["part_nr"],
             self.attributes["question_nr"],
             self.attributes.get("height", ""),
         )
+        if self.attributes.get("align", "top") == "bottom":
+            res += r"\vspace*{\fill}"
+        return res
 
     def tex_end(self):
         return "\\end{QSAC}\n\n"
