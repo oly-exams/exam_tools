@@ -46,6 +46,8 @@ def main():
                 tdc.create_students()
             elif argv == "test_votings":
                 tdc.create_three_poll_votings()
+            elif argv == "figures_from_folder":
+                tdc.create_figures_from_folder(folder="figures")
             else:  # assuming it an exam name to be created
                 name = argv
                 code = name[0]
