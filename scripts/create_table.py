@@ -2,6 +2,7 @@
 import pandas as pd
 import uuid
 from string import Template
+import os
 
 get_hex = lambda: uuid.uuid4().hex
 
@@ -39,8 +40,9 @@ def save(xml, name):
 
 
 if __name__ == "__main__":
-    input = "020_delegations.csv"
-    output = "example.xml"
+    pathdir = os.path.dirname(os.path.realpath(__file__))
+    input = os.path.join(pathdir, "ibo2022", "020_delegations.csv")
+    output = os.path.join(pathdir, "ibo2022", "example.xml")
     xml = csv2xml(input)
     save(xml, output)
     

@@ -1,7 +1,8 @@
 """creates a PDF with all passwords for login."""
 import subprocess
+import os
 
-def fill_main(content):
+def fill_main(content, logo):
     tex = f"""
 \\documentclass{{article}}
 
@@ -12,7 +13,7 @@ def fill_main(content):
 \\pagestyle{{fancy}}
 
 \\fancyhf{{}}
-\\fancyhead[OR]{{\\includegraphics[height=5\\baselineskip]{{logo.png}}}}
+\\fancyhead[OR]{{\\includegraphics[height=5\\baselineskip]{{ {logo} }}}}
 \\addtolength{{\\headheight}}{{5\\baselineskip}}
 
 \\begin{{document}}
@@ -51,12 +52,13 @@ if __name__ == "__main__":
     # Country Name,Country Code,pws
     # Argentina,ARG,pwd1
     # Armenia,ARM,pwd2
-    csv = "../../IBO2022/01_initial_data/pws/delegations_credentials.csv"  # path to csv file
+    pathdir = os.path.dirname(os.path.realpath(__file__))
+    csv = os.path.join(pathdir, "ibo2022", "delegations_credentials.csv")  # path to csv file
     url = "ibo2022.oly-exams.org"  # URL of server
-    logo = "logo.png"  # path to logo
+    logo = os.path.join(pathdir, "ibo2022", "logo.png")  # path to logo
 
     text = ""
-    file = "delegation_password_printout.tex"
+    file = os.path.join(pathdir, "ibo2022", "delegation_password_printout.tex")
     skip = True
     with open(csv, "r") as f:
         for line in f.readlines():
@@ -67,10 +69,10 @@ if __name__ == "__main__":
             array = line.strip("\n").split(",")
             text += set_country(url, *array)
 
-    tex = fill_main(text)
+    tex = fill_main(text, logo)
 
 
     with open(file, "w") as f:
         f.write(tex)
 
-    subprocess.run(f"pdflatex {file}".split())
+    subprocess.run(f"pdflatex -output-directory=ibo2022 {file}".split())
