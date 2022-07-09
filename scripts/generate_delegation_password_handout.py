@@ -33,8 +33,11 @@ def set_country(url, full_name, name, pwd):
 \\begin{{tabular}}{{ll}}
     URL & \href{{{url}}}{{{url}}} \\\\
     Country &  {full_name} \\\\
-    user name & \\verb\{name}\\ \\\\
+    user name & \\verb\\{name}\\ \\\\
     password & \\verb\\{pwd}\\ \\\\
+    \\\\
+    WiFi SSID & \\verb\\IBO2022_5\\ \\\\
+    WiFi password & \\verb@IBO2022@ \\\\
 \\end{{tabular}}
 \\clearpage
 \\newpage
