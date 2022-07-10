@@ -22,6 +22,7 @@
 
 import os
 import uuid
+import time
 import subprocess
 import codecs
 
@@ -37,6 +38,7 @@ from polymorphic.models import PolymorphicModel
 from polymorphic.managers import PolymorphicManager
 
 from ipho_core.models import Delegation, Student
+import ipho_exam
 from ipho_exam import fonts
 from .exceptions import IphoExamForbidden
 from .utils import natural_id
@@ -1094,6 +1096,35 @@ class CachedHTMLDiff(models.Model):
 
     class Meta:
         ordering = ["-hits", "-timestamp"]
+
+    @staticmethod
+    def calc_or_get_cache(source_node, target_node, diff_q):
+        diff = CachedHTMLDiff.objects.filter(
+            source_node=source_node,
+            target_node=target_node,
+            source_text=source_node.text,
+            target_text=target_node.text,
+        ).first()
+        if diff:
+            diff.hits += 1
+            diff.save()
+            diff_q = ipho_exam.qml.QMLquestion(diff.diff_text)
+        else:
+            diff = CachedHTMLDiff(
+                source_node=source_node,
+                target_node=target_node,
+                source_text=source_node.text,
+                target_text=target_node.text,
+            )
+            start = time.time()
+            target_q = ipho_exam.qml.make_qml(target_node)
+            target_data = target_q.get_data()
+            diff_q.diff_content_html(target_data)
+            timing = time.time() - start
+            diff.diff_text = ipho_exam.qml.xml2string(diff_q.make_xml())
+            diff.timing = int(timing * 1000)
+            diff.save()
+        return diff_q
 
 
 VALID_RAW_FIGURE_EXTENSIONS = (".png", ".jpg", ".jpeg")
