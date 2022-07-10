@@ -21,7 +21,6 @@ import os
 import re
 import csv
 import json
-import time
 import types
 import random
 import urllib
@@ -2170,57 +2169,10 @@ def admin_accept_version(
         )
 
     old_q = qml.make_qml(compare_node)
-    old_data = old_q.get_data()
     new_q = qml.make_qml(node)
-    new_data = new_q.get_data()
 
-    diff = CachedHTMLDiff.objects.filter(
-        source_node=compare_node,
-        target_node=node,
-        source_text=compare_node.text,
-        target_text=node.text,
-    ).first()
-    if diff:
-        diff.hits += 1
-        diff.save()
-        old_q = qml.QMLquestion(diff.diff_text)
-    else:
-        diff = CachedHTMLDiff(
-            source_node=compare_node,
-            target_node=node,
-            source_text=compare_node.text,
-            target_text=node.text,
-        )
-        start = time.time()
-        old_q.diff_content_html(new_data)
-        timing = time.time() - start
-        diff.diff_text = qml.xml2string(old_q.make_xml())
-        diff.timing = int(timing * 1000)
-        diff.save()
-
-    diff = CachedHTMLDiff.objects.filter(
-        source_node=node,
-        target_node=compare_node,
-        source_text=node.text,
-        target_text=compare_node.text,
-    ).first()
-    if diff:
-        diff.hits += 1
-        diff.save()
-        new_q = qml.QMLquestion(diff.diff_text)
-    else:
-        diff = CachedHTMLDiff(
-            source_node=node,
-            target_node=compare_node,
-            source_text=node.text,
-            target_text=compare_node.text,
-        )
-        start = time.time()
-        new_q.diff_content_html(old_data)
-        timing = time.time() - start
-        diff.diff_text = qml.xml2string(new_q.make_xml())
-        diff.timing = int(timing * 1000)
-        diff.save()
+    old_q = CachedHTMLDiff.calc_or_get_cache(compare_node, node, old_q)
+    new_q = CachedHTMLDiff.calc_or_get_cache(node, compare_node, new_q)
 
     old_flat_dict = old_q.flat_content_dict()
 
@@ -3674,35 +3626,9 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
                 VersionNode, question=question, language=orig_lang, version=orig_diff
             )
 
-            diff = CachedHTMLDiff.objects.filter(
-                source_node=official_question.node,
-                target_node=orig_diff_node,
-                source_text=official_question.node.text,
-                target_text=orig_diff_node.text,
-            ).first()
-            if diff:
-                diff.hits += 1
-                diff.save()
-                orig_q = qml.QMLquestion(diff.diff_text)
-            else:
-                diff = CachedHTMLDiff(
-                    source_node=official_question.node,
-                    target_node=orig_diff_node,
-                    source_text=official_question.node.text,
-                    target_text=orig_diff_node.text,
-                )
-
-                start = time.time()
-                orig_diff_q = qml.make_qml(orig_diff_node)
-                orig_diff_data = orig_diff_q.get_data()
-                ## make diff
-                ## show diff, new elements
-                ## don't show, removed elements (non-trivial insert in the tree)
-                orig_q.diff_content_html(orig_diff_data)
-                timing = time.time() - start
-                diff.diff_text = qml.xml2string(orig_q.make_xml())
-                diff.timing = int(timing * 1000)
-                diff.save()
+            orig_q = CachedHTMLDiff.calc_or_get_cache(
+                official_question.node, orig_diff_node, orig_q
+            )
 
         content_set = qml.make_content(orig_q)
 
