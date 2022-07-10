@@ -48,8 +48,8 @@ if __name__ == "__main__":
     default_out = os.path.join(pathdir, "ibo2022", "example.xml")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=str, help="input CSV file", default=default_in)
-    parser.add_argument("--output", type=str, help="where to store XML file", default=default_out)
+    parser.add_argument("--input", "-i", type=str, help="input CSV file", default=default_in)
+    parser.add_argument("--output", "-o", type=str, help="where to store XML file", default=default_out)
 
     args = parser.parse_args()
     xml = csv2xml(args.input)
