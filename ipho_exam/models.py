@@ -633,7 +633,7 @@ class Exam(models.Model):
         ):
             return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
         max_choice = max(
-            [choice[0] for choice in cls._meta.get_field("visibility").choices]
+            choice[0] for choice in cls._meta.get_field("visibility").choices
         )
         return max_choice + 1
 
@@ -648,7 +648,7 @@ class Exam(models.Model):
         if user.has_perm("ipho_core.can_see_boardmeeting"):
             return Exam.CAN_TRANSLATE_BOARDMEETING
         max_choice = max(
-            [choice[0] for choice in cls._meta.get_field("can_translate").choices]
+            choice[0] for choice in cls._meta.get_field("can_translate").choices
         )
         return max_choice + 1
 
@@ -1073,6 +1073,29 @@ class CachedAutoTranslation(models.Model):
         return f"{self.source_lang} -> {self.target_lang} ({self.source_length})"
 
 
+class CachedHTMLDiff(models.Model):
+    source_node = models.ForeignKey(
+        VersionNode, on_delete=models.CASCADE, related_name="cached_diff_source"
+    )
+    target_node = models.ForeignKey(
+        VersionNode, on_delete=models.CASCADE, related_name="cached_diff_target"
+    )
+    source_text = models.TextField()
+    target_text = models.TextField()
+    diff_text = models.TextField()
+    timestamp = models.DateTimeField(auto_now=True)
+    timing = models.IntegerField(
+        default=0, help_text="execution time of the diff in ms"
+    )
+    hits = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.source_node} -> {self.target_node}"
+
+    class Meta:
+        ordering = ["-hits", "-timestamp"]
+
+
 VALID_RAW_FIGURE_EXTENSIONS = (".png", ".jpg", ".jpeg")
 VALID_COMPILED_FIGURE_EXTENSIONS = (".svg", ".svgz")
 VALID_FIGURE_EXTENSIONS = VALID_RAW_FIGURE_EXTENSIONS + VALID_COMPILED_FIGURE_EXTENSIONS
@@ -1106,9 +1129,7 @@ class CompiledFigure(Figure):
     params = models.TextField(blank=True)
 
     def params_as_list(self):
-        return list(  # pylint: disable=consider-using-generator
-            [si.trim() for si in self.params.split(",")]
-        )
+        return list(si.trim() for si in self.params.split(","))
 
     def _to_svg(self, query, lang=None):
         placeholders = self.params.split(",")
