@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("ipho_exam", "0029_feedback_part_position"),
+        ("ipho_exam", "0030_feedbackcomment"),
     ]
 
     operations = [

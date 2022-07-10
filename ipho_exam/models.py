@@ -695,7 +695,7 @@ class Exam(models.Model):
 
 class ParticipantManager(models.Manager):
     def get_by_natural_key(self, code, exam_key):
-        return self.get(code=code, exam=Exam.objects.get_by_natural_key(exam_key))
+        return self.get(code=code, exam=Exam.objects.get_by_natural_key(*exam_key))
 
 
 class Participant(models.Model):
