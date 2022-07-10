@@ -1,8 +1,10 @@
 """create table from csv"""
-import pandas as pd
-import uuid
-from string import Template
+import argparse
 import os
+from string import Template
+import uuid
+
+import pandas as pd
 
 get_hex = lambda: uuid.uuid4().hex
 
@@ -18,6 +20,7 @@ def csv2xml(file):
         str: xml as string
     """
     df = pd.read_csv(file)
+    df.fillna("", inplace=True)  # replace None with ""
 
     col = len(df.columns) * "|l" + "|"
     head = f'<table columns="{col}" top_line="1" id="{get_hex()}">'
@@ -41,9 +44,14 @@ def save(xml, name):
 
 if __name__ == "__main__":
     pathdir = os.path.dirname(os.path.realpath(__file__))
-    input = os.path.join(pathdir, "ibo2022", "020_delegations.csv")
-    output = os.path.join(pathdir, "ibo2022", "example.xml")
-    xml = csv2xml(input)
-    save(xml, output)
-    
+    default_in = os.path.join(pathdir, "ibo2022", "table.csv")
+    default_out = os.path.join(pathdir, "ibo2022", "example.xml")
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", type=str, help="input CSV file", default=default_in)
+    parser.add_argument("--output", type=str, help="where to store XML file", default=default_out)
+
+    args = parser.parse_args()
+    xml = csv2xml(args.input)
+    save(xml, args.output)
     
