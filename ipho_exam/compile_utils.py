@@ -199,7 +199,8 @@ def participant_exam_document(
     meta["filename"] = ""
     all_barcodes = []
     all_docs = []
-    if cover is not None:
+    ppnt = participant_languages[0].participant
+    if settings.INCLUDE_COVER and cover is not None:
         suppress_cover_code = not settings.CODE_ON_COVER_SHEET
         body = render_to_string(
             os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_cover.tex"),
@@ -208,7 +209,6 @@ def participant_exam_document(
         )
         question_pdf = pdf.compile_tex(body, [])
         que = questions[0]
-        ppnt = participant_languages[0].participant
         bgenerator = iphocode.QuestionBarcodeGen(
             que.exam, que, ppnt, qcode="C", suppress_code=suppress_cover_code
         )
