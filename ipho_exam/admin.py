@@ -44,6 +44,7 @@ from ipho_exam.models import (
     DocumentTask,
     Place,
     AttributeChange,
+    CachedHTMLDiff,
 )
 
 # Register your models here.
@@ -270,6 +271,11 @@ class DocumentAdmin(admin.ModelAdmin):
     list_filter = ("position", "participant__delegation", "scan_status")
 
 
+class CachedHTMLDiffAdmin(admin.ModelAdmin):
+    list_display = ("source_node", "target_node", "hits", "timestamp", "timing")
+    list_filter = ("source_node", "target_node")
+
+
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(Feedback, FeedbackAdmin)
 admin.site.register(FeedbackComment, FeedbackCommentAdmin)
@@ -283,6 +289,7 @@ admin.site.register(AttributeChange, AttributeChangeAdmin)
 admin.site.register(PDFNode, PDFNodeAdmin)
 admin.site.register(TranslationImportTmp)
 admin.site.register(CachedAutoTranslation)
+admin.site.register(CachedHTMLDiff, CachedHTMLDiffAdmin)
 admin.site.register(Figure, FigureAdmin)
 admin.site.register(RawFigure)
 

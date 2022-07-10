@@ -21,6 +21,7 @@ import os
 import re
 import csv
 import json
+import time
 import types
 import random
 import urllib
@@ -103,6 +104,7 @@ from ipho_exam.models import (
     PrintLog,
     Place,
     CachedAutoTranslation,
+    CachedHTMLDiff,
 )
 from ipho_exam.models import (
     VALID_RAW_FIGURE_EXTENSIONS,
@@ -2085,7 +2087,7 @@ def admin_delete_version(request, exam_id, question_id, version_num):
 @permission_required("ipho_core.can_edit_exam")
 def admin_accept_version(
     request, exam_id, question_id, version_num, compare_version=None
-):
+):  # pylint: disable=too-many-locals, too-many-statements
     lang_id = OFFICIAL_LANGUAGE_PK
 
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
@@ -2172,8 +2174,53 @@ def admin_accept_version(
     new_q = qml.make_qml(node)
     new_data = new_q.get_data()
 
-    old_q.diff_content_html(new_data)
-    new_q.diff_content_html(old_data)
+    diff = CachedHTMLDiff.objects.filter(
+        source_node=compare_node,
+        target_node=node,
+        source_text=compare_node.text,
+        target_text=node.text,
+    ).first()
+    if diff:
+        diff.hits += 1
+        diff.save()
+        old_q = qml.QMLquestion(diff.diff_text)
+    else:
+        diff = CachedHTMLDiff(
+            source_node=compare_node,
+            target_node=node,
+            source_text=compare_node.text,
+            target_text=node.text,
+        )
+        start = time.time()
+        old_q.diff_content_html(new_data)
+        timing = time.time() - start
+        diff.diff_text = qml.xml2string(old_q.make_xml())
+        diff.timing = int(timing * 1000)
+        diff.save()
+
+    diff = CachedHTMLDiff.objects.filter(
+        source_node=node,
+        target_node=compare_node,
+        source_text=node.text,
+        target_text=compare_node.text,
+    ).first()
+    if diff:
+        diff.hits += 1
+        diff.save()
+        new_q = qml.QMLquestion(diff.diff_text)
+    else:
+        diff = CachedHTMLDiff(
+            source_node=node,
+            target_node=compare_node,
+            source_text=node.text,
+            target_text=compare_node.text,
+        )
+        start = time.time()
+        new_q.diff_content_html(old_data)
+        timing = time.time() - start
+        diff.diff_text = qml.xml2string(new_q.make_xml())
+        diff.timing = int(timing * 1000)
+        diff.save()
 
     old_flat_dict = old_q.flat_content_dict()
 
@@ -3626,13 +3673,36 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
             orig_diff_node = get_object_or_404(
                 VersionNode, question=question, language=orig_lang, version=orig_diff
             )
-            orig_diff_q = qml.make_qml(orig_diff_node)
-            orig_diff_data = orig_diff_q.get_data()
 
-            ## make diff
-            ## show diff, new elements
-            ## don't show, removed elements (non-trivial insert in the tree)
-            orig_q.diff_content_html(orig_diff_data)
+            diff = CachedHTMLDiff.objects.filter(
+                source_node=official_question.node,
+                target_node=orig_diff_node,
+                source_text=official_question.node.text,
+                target_text=orig_diff_node.text,
+            ).first()
+            if diff:
+                diff.hits += 1
+                diff.save()
+                orig_q = qml.QMLquestion(diff.diff_text)
+            else:
+                diff = CachedHTMLDiff(
+                    source_node=official_question.node,
+                    target_node=orig_diff_node,
+                    source_text=official_question.node.text,
+                    target_text=orig_diff_node.text,
+                )
+
+                start = time.time()
+                orig_diff_q = qml.make_qml(orig_diff_node)
+                orig_diff_data = orig_diff_q.get_data()
+                ## make diff
+                ## show diff, new elements
+                ## don't show, removed elements (non-trivial insert in the tree)
+                orig_q.diff_content_html(orig_diff_data)
+                timing = time.time() - start
+                diff.diff_text = qml.xml2string(orig_q.make_xml())
+                diff.timing = int(timing * 1000)
+                diff.save()
 
         content_set = qml.make_content(orig_q)
 
