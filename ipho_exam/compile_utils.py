@@ -199,8 +199,7 @@ def participant_exam_document(
     meta["filename"] = ""
     all_barcodes = []
     all_docs = []
-    ppnt = participant_languages[0].participant
-    if settings.INCLUDE_COVER and cover is not None:
+    if cover is not None:
         suppress_cover_code = not settings.CODE_ON_COVER_SHEET
         body = render_to_string(
             os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_cover.tex"),
@@ -209,6 +208,7 @@ def participant_exam_document(
         )
         question_pdf = pdf.compile_tex(body, [])
         que = questions[0]
+        ppnt = participant_languages[0].participant
         bgenerator = iphocode.QuestionBarcodeGen(
             que.exam, que, ppnt, qcode="C", suppress_code=suppress_cover_code
         )
@@ -218,7 +218,8 @@ def participant_exam_document(
         if not suppress_cover_code:
             meta["barcode_num_pages"] += doc_pages
         all_barcodes.append(bgenerator.base)
-        all_docs.append(page)
+        if settings.INCLUDE_COVER:
+            all_docs.append(page)
 
     # XXX: for now, no support for both squashed exam AND groups.
 

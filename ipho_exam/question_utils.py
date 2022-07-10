@@ -38,7 +38,7 @@ def compile_ppnt_exam_question(
     all_tasks = []
 
     ppnt = participant_languages[0].participant
-    if settings.INCLUDE_COVER and cover is not None:
+    if cover is not None:
         body = render_to_string(
             os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_cover.tex"),
             request=HttpRequest(),
@@ -50,7 +50,8 @@ def compile_ppnt_exam_question(
             question.exam, question, ppnt, qcode="C", suppress_code=True
         )
         barcode_task = tasks.add_barcode.s(bgenerator)
-        all_tasks.append(celery.chain(compile_task, barcode_task))
+        if settings.INCLUDE_COVER:
+            all_tasks.append(celery.chain(compile_task, barcode_task))
 
     for question in questions:
         for ppnt_l in participant_languages:
