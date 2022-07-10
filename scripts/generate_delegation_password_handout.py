@@ -1,6 +1,7 @@
 """creates a PDF with all passwords for login."""
 import subprocess
 import os
+import argparse
 
 def fill_main(content, logo):
     tex = f"""
@@ -32,13 +33,13 @@ def fill_main(content, logo):
 def set_country(url, full_name, name, pwd):
     tex = f"""
 \\begin{{tabular}}{{ll}}
-    URL & \href{{{url}}}{{{url}}} \\\\
+    URL & \href{{https://{url}}}{{{url}}} \\\\
     Country &  {full_name} \\\\
     user name & \\verb\\{name}\\ \\\\
     password & \\verb\\{pwd}\\ \\\\
     \\\\
     WiFi SSID & \\verb\\IBO2022_5\\ \\\\
-    WiFi password & \\verb@IBO2022@ \\\\
+    WiFi password & \\verb@IBO2022#@ \\\\
 \\end{{tabular}}
 \\clearpage
 \\newpage
@@ -54,11 +55,13 @@ if __name__ == "__main__":
     # Armenia,ARM,pwd2
     pathdir = os.path.dirname(os.path.realpath(__file__))
     csv = os.path.join(pathdir, "ibo2022", "delegations_credentials.csv")  # path to csv file
+    csv = "../../IBO2022/02_prod/pws/delegations_credentials.csv"
+    file = os.path.join(pathdir, "ibo2022", "delegation_password_printout.tex")
+
     url = "ibo2022.oly-exams.org"  # URL of server
     logo = os.path.join(pathdir, "ibo2022", "logo.png")  # path to logo
 
     text = ""
-    file = os.path.join(pathdir, "ibo2022", "delegation_password_printout.tex")
     skip = True
     with open(csv, "r") as f:
         for line in f.readlines():

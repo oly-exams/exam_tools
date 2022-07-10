@@ -35,6 +35,9 @@ from future import standard_library
 standard_library.install_aliases()
 
 from bs4 import BeautifulSoup
+import pandas as pd
+from string import Template
+from io import StringIO
 import html_diff
 
 # import tidylib
@@ -63,6 +66,7 @@ PARAGRAPH_LIKE_BLOCKS = (
     "equation_unnumbered",
     "figure",
     "box",
+    "csvtable",
 )
 DEFAULT_BLOCKS = ("texfield", "texenv")
 
@@ -1425,7 +1429,38 @@ class QMLvspace(QMLobject):
 
     def make_tex(self):
         return r"\vspace{%iem}" % self.get_amount() + "\n", []
+    
+class QMLcsvtable(QMLobject):
+    tag = "csvtable"
+    display_name = "CSV table"
+    default_heading = "CSV table"
+    sort_order = 210
+    
+    has_text = True
+    has_children = False
 
+    def form_element(self):
+        return forms.CharField(widget=forms.Textarea)
+
+    def make_xhtml(self):
+        get_hex = lambda: uuid.uuid4().hex
+        df = pd.read_csv(StringIO(self.data_html))
+        print(df)
+
+        col = len(df.columns) * "|l" + "|"
+        head = f'<table columns="{col}" top_line="1" id="{get_hex()}">'
+        row = Template('<row bottom_line="1" multiplier="1" id="$hex">\n')
+        cell = Template('\t<cell id="$hex">$content</cell>\n')
+
+        xhtmlout = head
+        for _, el in df.iterrows():
+            xhtmlout += row.substitute(hex=get_hex())
+            text = [cell.substitute(hex=get_hex(), content=el[col]) for col in df.columns]
+            xhtmlout += "".join(text)
+            xhtmlout += "</row>\n"
+        xhtmlout += "</table>"
+        return xhtmlout, []
+        
 
 class QMLException(Exception):
     pass
