@@ -19,7 +19,7 @@ def csv2xml(file):
     Returns:
         str: xml as string
     """
-    df = pd.read_csv(file)
+    df = pd.read_csv(file, header=None)
     df.fillna("", inplace=True)  # replace None with ""
 
     col = len(df.columns) * "|l" + "|"
