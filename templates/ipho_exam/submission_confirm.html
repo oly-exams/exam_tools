@@ -42,11 +42,12 @@ The final documents are being prepared. You have to wait until all documents are
       {% for ss,ppnt_langs in participants_languages.items %}
       <tr>
           <td>
-              <div>
+              <div class="student-docs">
                   {{ ss.full_name }} ({{ ss.code }})
                   {% for doc in ppnt_documents|lookup:ss.pk %}
-                  <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" id="preview-{{ ss.pk }}-{{ doc.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=exam.pk participant_id=ss.pk position=doc.position %}" data-doc-status="loading"><i class="fa fa-spinner fa-spin"></i> #{{ doc.position }}</a>
+                  <a class="btn btn-xs btn-default single-doc" target="_blank" title="Preview PDF" id="preview-{{ ss.pk }}-{{ doc.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=exam.pk participant_id=ss.pk position=doc.position %}" data-doc-status="loading"><i class="fa fa-spinner fa-spin"></i> #{{ doc.position }}</a>
                   {% endfor %}
+                  <a class="btn btn-xs btn-default combine-all" title="Preview combined PDF without coversheets" download="preview-{{ ss.code }}.pdf"><i class="fa fa-spinner fa-spin"></i> All</a>
               </div>
               <div>
                   {% if ss.is_group %}
@@ -109,34 +110,52 @@ $(function() {
 
   var num_finished = 0;
   var tot_num = $('a[data-doc-status="loading"]').length;
-  function check_doc_status($btn) {
-    var href = $btn.attr('href');
-    $.ajax({
-      url: href+'/status',
-      dataType: 'json',
-      success: function(data) {
-        taskReady = data['ready'];
-        taskStatus = data['status'];
-        taskFailed = data['failed'];
+  
+  {% include "ipho_exam/partials/merge_pdf_clientside.js"%}
+  
+  function check_participant(idx, docs) {
+    docs = $(docs);
+    var num_finished_ppnt = 0;
+    var tot_num_ppnt = $('.single-doc', docs).length;
+    
+    function check_doc_status(docs, $btn) {
+      var href = $btn.attr('href');
+      $.ajax({
+        url: href+'/status',
+        dataType: 'json',
+        success: function(data) {
+          taskReady = data['ready'];
+          taskStatus = data['status'];
+          taskFailed = data['failed'];
 
-        if (taskFailed) {
-          $btn.find('i').attr('class', 'fa fa-exclamation-triangle');
-        } else if (taskReady) {
-          $btn.find('i').attr('class', 'fa fa-file-pdf-o');
-          num_finished += 1;
-          if (num_finished >= tot_num) {
-            $('.show-on-finished').removeClass('hide');
-            $('.hide-on-finished').addClass('hide');
+          if (taskFailed) {
+            $btn.find('i').attr('class', 'fa fa-exclamation-triangle');
+          } else if (taskReady) {
+            $btn.find('i').attr('class', 'fa fa-file-pdf-o');
+            num_finished += 1;
+            num_finished_ppnt += 1;
+            if (num_finished >= tot_num) {
+              $('.show-on-finished').removeClass('hide');
+              $('.hide-on-finished').addClass('hide');
+            }
+            if (num_finished_ppnt >= tot_num_ppnt) {
+
+              $(".combine-all", docs).click(merge_on_click);
+              $(".combine-all i", docs).removeClass("fa-spin fa-spinner").addClass("fa-plus-square-o");
+            }
+          } else {
+            setTimeout(check_doc_status, 20000, docs, $btn);
           }
-        } else {
-          setTimeout(check_doc_status, 20000, $btn);
-        }
-      },
-    });
+        },
+      });
+    }
+
+    $('a[data-doc-status="loading"]', docs).each(function(i) {
+      check_doc_status(docs, $(this));
+    })
   }
-  $('a[data-doc-status="loading"]').each(function(i) {
-    check_doc_status($(this));
-  });
+
+  $('.student-docs').each(check_participant);
 
 });
 </script>

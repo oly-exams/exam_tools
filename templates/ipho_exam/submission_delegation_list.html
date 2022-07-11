@@ -70,8 +70,8 @@
             </th>
         </tr>
       </thead>
-      <tbody>
         {% for d in docs %}
+        {% if d.position == 0 %}<tbody class="student-docs">{%endif%}
         <tr>
           <td>{{ d.pk }} </td>
           {% if d.position == 0 %}
@@ -88,11 +88,11 @@
           
           <td>{{ d.barcode_base }}</td>
           <td>
-            <a class="btn btn-default btn-xs" id="submission-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i>exam</a>
+            <a class="btn btn-default btn-xs single-doc" id="submission-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i>exam</a>
           </td>
           {% if d.position == 0 %}
           <td rowspan="{{d.max_position}}" style="vertical-align: middle;">
-            <a class="btn btn-default btn-xs" id="submission-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id %}"><i class="fa fa-fw fa-file-pdf-o"></i>combined</a>
+            <a class="btn btn-default btn-xs combine-all" download="{{ d.participant__exam__name }}-{{ d.participant__code }}.pdf"><i class="fa fa-plus-square-o"></i> Combine</a>
           </td>
           {% endif %}
           <td>
@@ -104,14 +104,15 @@
             {% endif %}
           </td>
         </tr>
+        {% ifequal d.position d.max_position %}</tbody>{%endifequal%}
       {% endfor %}
-      </tbody>
     </table>
 
 {% endblock %}
 
 
 {% block extra-script %}
+<script src="{% static '/pdflib/pdf-lib.min.js' %}"></script>
 <script>
 $(function() {
     // Get csrftoken
@@ -246,6 +247,9 @@ $(function() {
             },
         });
     })
+
+    {% include "ipho_exam/partials/merge_pdf_clientside.js"%}
+    $(".combine-all").click(merge_on_click);
 });
 </script>
 {% endblock %}
