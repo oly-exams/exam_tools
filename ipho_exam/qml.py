@@ -496,6 +496,11 @@ class QMLobject:
         for child in self.children:
             child.diff_content_html(other_data)
 
+    def data_html2data(self):
+        self.data = self.data_html
+        for child in self.children:
+            child.data_html2data()
+
     def find(self, search_id):
         if self.id == search_id:
             return self

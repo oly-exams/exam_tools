@@ -1120,6 +1120,7 @@ class CachedHTMLDiff(models.Model):
             target_q = ipho_exam.qml.make_qml(target_node)
             target_data = target_q.get_data()
             diff_q.diff_content_html(target_data)
+            diff_q.data_html2data()
             timing = time.time() - start
             diff.diff_text = ipho_exam.qml.xml2string(diff_q.make_xml())
             diff.timing = int(timing * 1000)
