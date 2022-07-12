@@ -3514,7 +3514,12 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.first()
 
-    delegation = Delegation.objects.get(members=request.user)
+    delegations = Delegation.objects.filter(members=request.user)
+    if not delegations:
+        return HttpResponseForbidden(
+            "You do not have the permissions to edit this question."
+        )
+    delegation = delegations.get()
     should_forbid = ExamAction.require_in_progress(
         ExamAction.TRANSLATION, exam=exam, delegation=delegation
     )
