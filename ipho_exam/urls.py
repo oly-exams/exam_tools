@@ -420,6 +420,11 @@ urlpatterns = [
         name="set-scan-status",
     ),
     path(
+        "admin/mark-scan-as-printed/<int:doc_id>",
+        views.mark_scan_as_printed,
+        name="mark-scan-as-printed",
+    ),
+    path(
         "admin/scan/promote-full/<int:doc_id>",
         views.set_scan_full,
         name="set-scan-full",

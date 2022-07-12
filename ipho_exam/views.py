@@ -4609,6 +4609,29 @@ def set_scan_status(request, doc_id, status):
 
 
 @permission_required("ipho_core.is_printstaff")
+def mark_scan_as_printed(request, doc_id):
+
+    if request.method == "POST" and request.is_ajax:
+        doc = get_object_or_404(Document, id=doc_id)
+
+        log = PrintLog.objects.filter(document=doc, doctype="S").first()
+        if log is None:
+            log = PrintLog(document=doc, doctype="S")
+        else:
+            log.timestamp = timezone.now().isoformat()
+        log.save()
+        return JsonResponse(
+            {
+                "success": True,
+                "timehtml": render_to_string(
+                    "ipho_exam/partials/print_time.html", dict(log=log)
+                ),
+            }
+        )
+    return HttpResponseForbidden("Nothing to see here!")
+
+
+@permission_required("ipho_core.is_printstaff")
 def set_scan_full(request, doc_id):
     doc = get_object_or_404(Document, id=doc_id)
     doc.scan_file = doc.scan_file_orig

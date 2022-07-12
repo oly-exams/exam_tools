@@ -45,6 +45,7 @@ from ipho_exam.models import (
     Place,
     AttributeChange,
     CachedHTMLDiff,
+    PrintLog,
 )
 
 # Register your models here.
@@ -298,3 +299,4 @@ admin.site.register(ParticipantSubmission, ParticipantSubmissionAdmin)
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(DocumentTask)
+admin.site.register(PrintLog)

@@ -140,7 +140,7 @@ $(function() {
             }
             if (num_finished_ppnt >= tot_num_ppnt) {
 
-              $(".combine-all", docs).click(merge_on_click);
+              $(".combine-all", docs).click(merge_on_click_remove_cover);
               $(".combine-all i", docs).removeClass("fa-spin fa-spinner").addClass("fa-plus-square-o");
             }
           } else {
