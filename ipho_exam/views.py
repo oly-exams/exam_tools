@@ -1670,6 +1670,8 @@ def figure_delete(request, fig_id):
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Only superusers can delete figures!")
     obj = get_object_or_404(Figure, fig_id=fig_id)
     obj.delete()
     return JsonResponse(
