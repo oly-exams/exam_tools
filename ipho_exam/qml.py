@@ -345,6 +345,7 @@ class QMLobject:
         self.data_html = self.data
 
         if self.__class__.has_children:
+            print(root)
             for elem in root:
                 self.add_child(elem)
 
@@ -1438,28 +1439,72 @@ class QMLcsvtable(QMLobject):
     
     has_text = True
     has_children = False
+    valid_children = ("table",)
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
+    
+    def parse(self, root):
+        assert self.__class__.tag == root.tag
 
-    def make_xhtml(self):
-        get_hex = lambda: uuid.uuid4().hex
-        df = pd.read_csv(StringIO(self.data_html))
-        print(df)
+        content = content2string(root)
+        self.data = normalize_html(content) if content != "" else content
+        data = data2tex(self.data)
 
-        col = len(df.columns) * "|l" + "|"
-        head = f'<table columns="{col}" top_line="1" id="{get_hex()}">'
-        row = Template('<row bottom_line="1" multiplier="1" id="$hex">\n')
-        cell = Template('\t<cell id="$hex">$content</cell>\n')
+        if data != "":
+            self.attributes = deepcopy(self.__class__.default_attributes)
+            self.attributes.update(root.attrib)
+            df = pd.read_csv(StringIO(data), header=None)
+            table_node = self.add_child(ET.Element("table", {}))
 
-        xhtmlout = head
-        for _, el in df.iterrows():
-            xhtmlout += row.substitute(hex=get_hex())
-            text = [cell.substitute(hex=get_hex(), content=el[col]) for col in df.columns]
-            xhtmlout += "".join(text)
-            xhtmlout += "</row>\n"
-        xhtmlout += "</table>"
-        return xhtmlout, []
+            for _, el in df.iterrows():
+                row_node = table_node.add_child(ET.Element("row", {}))
+                for col in df.columns:
+                    cell = ET.Element("cell", {}, text=el[col])
+                    row_node.add_child(cell)
+            self.data_html = self.data
+        else:
+            super().parse(root)
+        print(root)
+
+
+    # def make_tex(self):
+    #     data = data2tex(self.data)
+    #     df = pd.read_csv(StringIO(data), header=None)
+    #     print(df)
+    #     col = len(df.columns) * "|l" + "|"
+    #     head = f"\\begin{{tabular}}{{ {col} }}\n"
+    #     end = f"\\end{{tabular}} \n\n"
+
+    #     tex = head
+    #     for _, el in df.iterrows():
+    #         tex += "& ".join(el[df.columns]) + "\\\\ \n"
+    #     tex += end
+    #     print(tex)
+    #     return tex, []
+
+    # def make_xml(self):
+    #     assert "id" in self.attributes
+    #     print(self.tag, self.attributes)
+    #     raw_data = data2tex(self.data)
+    #     elem = ET.Element(self.tag, self.attributes)
+    #     get_hex = lambda: uuid.uuid4().hex
+    #     df = pd.read_csv(StringIO(raw_data), header=None)
+    #     print("df", df)
+    #     col = len(df.columns) * "|l" + "|"
+    #     head = f'<table columns="{col}" top_line="1" id="{get_hex()}">'
+    #     row = Template(r'<row bottom_line="1" multiplier="1" id="$hex">\n')
+    #     cell = Template('\t<cell id="$hex">$content</cell>\n')
+
+    #     xml = head
+    #     for _, el in df.iterrows():
+    #         xml += row.substitute(hex=get_hex())
+    #         text = [cell.substitute(hex=get_hex(), content=el[col]) for col in df.columns]
+    #         xml += "".join(text)
+    #         xml += "</row>\n"
+    #     xml += r"</table>"
+    #     elem.text = xml
+    #     return elem
         
 
 class QMLException(Exception):
