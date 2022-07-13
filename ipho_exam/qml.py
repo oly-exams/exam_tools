@@ -387,6 +387,8 @@ class QMLobject:
         
         if self.__class__.tag == "csvtable":
             print(elem)
+            print(self.children)
+            print([e.text for e in elem])
 
         return elem
 
@@ -1439,7 +1441,7 @@ class QMLcsvtable(QMLobject):
     default_heading = "CSV table"
     sort_order = 210
     
-    has_text = True 
+    has_text = True
     has_children = False
     valid_children = ("table",)
 
@@ -1470,6 +1472,29 @@ class QMLcsvtable(QMLobject):
         else:
             super().parse(root)
 
+    def make_xhtml(self):
+        externals = []
+        print(100 * "@")
+        xhtmlout = self.xhtml_begin()
+        for child in self.children:
+            (xhtmlchild, extchild) = child.make_xhtml()
+            externals += extchild
+            xhtmlout += xhtmlchild
+
+        xhtmlout += self.xhtml_end()
+        return xhtmlout, externals
+
+    def make_tex(self):
+        externals = []
+        texout = self.tex_begin()
+        # texout += data2tex(self.data)
+        for child in self.children:
+            (texchild, extchild) = child.make_tex()
+            externals += extchild
+            texout += texchild
+
+        texout += self.tex_end()
+        return escape_percents(texout), externals
 
     # def make_tex(self):
     #     data = data2tex(self.data)
