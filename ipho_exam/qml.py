@@ -345,7 +345,6 @@ class QMLobject:
         self.data_html = self.data
 
         if self.__class__.has_children:
-            print(root)
             for elem in root:
                 self.add_child(elem)
 
@@ -385,6 +384,9 @@ class QMLobject:
 
         for child in self.children:
             elem.append(child.make_xml())
+        
+        if self.__class__.tag == "csvtable":
+            print(elem)
 
         return elem
 
@@ -1437,7 +1439,7 @@ class QMLcsvtable(QMLobject):
     default_heading = "CSV table"
     sort_order = 210
     
-    has_text = True
+    has_text = True 
     has_children = False
     valid_children = ("table",)
 
@@ -1454,18 +1456,19 @@ class QMLcsvtable(QMLobject):
         if data != "":
             self.attributes = deepcopy(self.__class__.default_attributes)
             self.attributes.update(root.attrib)
+
             df = pd.read_csv(StringIO(data), header=None)
             table_node = self.add_child(ET.Element("table", {}))
 
             for _, el in df.iterrows():
                 row_node = table_node.add_child(ET.Element("row", {}))
                 for col in df.columns:
-                    cell = ET.Element("cell", {}, text=el[col])
+                    cell = ET.Element("cell", {})
+                    cell.text = el[col]
                     row_node.add_child(cell)
             self.data_html = self.data
         else:
             super().parse(root)
-        print(root)
 
 
     # def make_tex(self):
