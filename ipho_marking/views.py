@@ -875,6 +875,12 @@ def delegation_edit_all(request, question_id):
     if not marking_query.exists():
         raise Http404("You cannot modify these markings!")
 
+    if (
+        question.exam.marking_delegation_can_see_organizer_marks
+        >= Exam.MARKING_DELEGATION_VIEW_YES
+    ):
+        ctx["show_official_marks"] = True
+
     FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
@@ -1000,13 +1006,16 @@ def delegation_ppnt_view(request, ppnt_id, question_id):
                 pass
             else:
                 marking = None
+
             if marking is not None:
-                points = marking.points
+                pass
             else:
-                points = None
-            version_dict[version] = points
+                marking = EmptyMarking(None, "")
+            version_dict[version] = marking
+
+        empty = EmptyMarking(None, "")
         version_dict["diff_color"] = get_diff_color_pair(
-            version_dict.get("O", None), version_dict.get("D", None)
+            version_dict.get("O", empty).points, version_dict.get("D", empty).points
         )
         grouped_markings.append((meta, version_dict))
 

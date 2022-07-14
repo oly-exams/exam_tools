@@ -22,6 +22,10 @@
     <h2>All Participants</h2>
 
     <h3> {{ exam.name }} - {{ question.name }}</h3>
+    
+    {% if show_official_marks %}
+    <div class="alert alert-info"> If you want to copy from official marks, use "Edit marks" of individual students, not "Edit all marks".</div>
+    {% endif %}
 
     {% if formset %}
     <form method="post">
