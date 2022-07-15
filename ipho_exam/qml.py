@@ -112,6 +112,7 @@ def make_content(root):
     ret = []
     for node in root.children:
         ret.append(make_content_node(node))
+    print(root, ret)
     return ret
 
 
@@ -138,8 +139,13 @@ def make_content_node(node):
     descr["id"] = node.id
     descr["type"] = node.tag
     descr["attrs"] = node.attributes
-    descr["original"] = node.content()
-    descr["original_html"] = node.content_html()
+    if node.heading() == "CSV table":
+        # do not display original text of CSV table
+        descr["original"] = None
+        descr["original_html"] = None
+    else:
+        descr["original"] = node.content()
+        descr["original_html"] = node.content_html()
     descr["description"] = node.attributes.get("description")
 
     descr["children"] = []
@@ -386,9 +392,9 @@ class QMLobject:
             elem.append(child.make_xml())
         
         if self.__class__.tag == "csvtable":
-            print(elem)
-            print(self.children)
-            print([e.text for e in elem])
+            print("elem", elem)
+            print("children", self.children)
+            print("text children", [e.text for e in elem])
 
         return elem
 
@@ -429,6 +435,7 @@ class QMLobject:
             xhtmlout += xhtmlchild
 
         xhtmlout += self.xhtml_end()
+        print("xhtml", xhtmlout)
         return xhtmlout, externals
 
     def heading(self):
