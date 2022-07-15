@@ -44,8 +44,8 @@ def save(xml, name):
 
 if __name__ == "__main__":
     pathdir = os.path.dirname(os.path.realpath(__file__))
-    default_in = os.path.join(pathdir, "ibo2022", "table.csv")
-    default_out = os.path.join(pathdir, "ibo2022", "example.xml")
+    default_in = os.path.join(pathdir, "input_examples", "table.csv")
+    default_out = os.path.join(pathdir, "input_examples", "example.xml")
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", "-i", type=str, help="input CSV file", default=default_in)

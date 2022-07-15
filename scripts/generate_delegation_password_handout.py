@@ -54,12 +54,11 @@ if __name__ == "__main__":
     # Argentina,ARG,pwd1
     # Armenia,ARM,pwd2
     pathdir = os.path.dirname(os.path.realpath(__file__))
-    csv = os.path.join(pathdir, "ibo2022", "delegations_credentials.csv")  # path to csv file
-    csv = "../../IBO2022/02_prod/pws/delegations_credentials.csv"
-    file = os.path.join(pathdir, "ibo2022", "delegation_password_printout.tex")
+    csv = os.path.join(pathdir, "input_examples", "delegations_credentials.csv")  # path to csv file
+    file = os.path.join(pathdir, "input_examples", "delegation_password_printout.tex")
 
     url = "ibo2022.oly-exams.org"  # URL of server
-    logo = os.path.join(pathdir, "ibo2022", "logo.png")  # path to logo
+    logo = os.path.join(pathdir, "input_examples", "logo.png")  # path to logo
 
     text = ""
     skip = True
@@ -78,4 +77,4 @@ if __name__ == "__main__":
     with open(file, "w") as f:
         f.write(tex)
 
-    subprocess.run(f"pdflatex -output-directory=ibo2022 {file}".split())
+    subprocess.run(f"pdflatex -output-directory=input_examples {file}".split())
