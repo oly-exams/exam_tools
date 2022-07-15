@@ -37,7 +37,6 @@ def compile_ppnt_exam_question(
 ):  # pylint: disable=too-many-branches,too-many-locals
     all_tasks = []
 
-    ppnt = participant_languages[0].participant
     if cover is not None:
         body = render_to_string(
             os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_cover.tex"),
@@ -46,6 +45,7 @@ def compile_ppnt_exam_question(
         )
         compile_task = tasks.compile_tex.s(body, [])
         question = questions[0]
+        ppnt = participant_languages[0].participant
         bgenerator = iphocode.QuestionBarcodeGen(
             question.exam, question, ppnt, qcode="C", suppress_code=True
         )

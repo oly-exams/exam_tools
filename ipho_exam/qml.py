@@ -112,7 +112,6 @@ def make_content(root):
     ret = []
     for node in root.children:
         ret.append(make_content_node(node))
-    print(root, ret)
     return ret
 
 
@@ -391,11 +390,6 @@ class QMLobject:
         for child in self.children:
             elem.append(child.make_xml())
         
-        if self.__class__.tag == "csvtable":
-            print("elem", elem)
-            print("children", self.children)
-            print("text children", [e.text for e in elem])
-
         return elem
 
     def tex_begin(self):  # pylint: disable=no-self-use
@@ -435,7 +429,6 @@ class QMLobject:
             xhtmlout += xhtmlchild
 
         xhtmlout += self.xhtml_end()
-        print("xhtml", xhtmlout)
         return xhtmlout, externals
 
     def heading(self):
