@@ -38,12 +38,7 @@ from ipho_core.models import Delegation
 from ipho_exam.models import (
     Exam,
     Question,
-    VersionNode,
-    TranslationNode,
-    PDFNode,
     Language,
-    Figure,
-    Feedback,
     ParticipantSubmission,
     ExamAction,
     Place,
@@ -97,11 +92,14 @@ def compile_question(question, language):
         position = question.position
         question_code = question.code
 
-        filename = "../media/downloads/language_pdf/{}_{}/TRANSLATION_{}_{}.pdf".format(
-            slugify(question.exam.name),
-            slugify(question.name),
-            language.delegation.name,
-            slugify(language.name),
+        filename = (
+            "../media/downloads/language_pdf/TRANSLATION_{}_{}/{}_{}_{}.pdf".format(
+                language.delegation.name,
+                slugify(language.name),
+                slugify(question.exam.name),
+                slugify(question.position),
+                slugify(question.name),
+            )
         )
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "wb") as fp:
@@ -281,7 +279,7 @@ def missing_submissions():
             participant_seat = Place.objects.get(participant=participant, exam=exam)
             for position, qgroup in list(grouped_questions.items()):
                 participant_languages = ParticipantSubmission.objects.filter(
-                    exam__in=exam, participant=participant
+                    participant__exam__in=exam, participant=participant
                 )
                 cover_ctx = {
                     "participant": participant,
@@ -296,9 +294,11 @@ def missing_submissions():
 
 def compile_all(names=("Theory", "Experiment")):
     exams = Exam.objects.filter(name__in=names)
-    questions = Question.objects.filter(exam__in=exams, position__in=[0, 1, 2, 3])
+    questions = Question.objects.filter(
+        exam__in=exams, position__in=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    )
     languages = Language.objects.filter(
-        participantsubmission__exam__in=exams
+        participantsubmission__participant__exam__in=exams
     ).distinct()
     print(f"Going to compile in {len(languages)} languages.")
     for q in questions:
