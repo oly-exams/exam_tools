@@ -35,8 +35,6 @@ from future import standard_library
 standard_library.install_aliases()
 
 from bs4 import BeautifulSoup
-from string import Template
-from io import StringIO
 import html_diff
 
 # import tidylib
@@ -46,7 +44,6 @@ from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.utils.text import unescape_entities
 from django.urls import reverse
-import pandas as pd
 
 from .models import Figure
 from . import tex
@@ -66,7 +63,6 @@ PARAGRAPH_LIKE_BLOCKS = (
     "equation_unnumbered",
     "figure",
     "box",
-    "csvtable",
 )
 DEFAULT_BLOCKS = ("texfield", "texenv")
 
@@ -138,13 +134,8 @@ def make_content_node(node):
     descr["id"] = node.id
     descr["type"] = node.tag
     descr["attrs"] = node.attributes
-    if node.heading() == "CSV table":
-        # do not display original text of CSV table
-        descr["original"] = None
-        descr["original_html"] = None
-    else:
-        descr["original"] = node.content()
-        descr["original_html"] = node.content_html()
+    descr["original"] = node.content()
+    descr["original_html"] = node.content_html()
     descr["description"] = node.attributes.get("description")
 
     descr["children"] = []
@@ -389,6 +380,7 @@ class QMLobject:
 
         for child in self.children:
             elem.append(child.make_xml())
+
         return elem
 
     def tex_begin(self):  # pylint: disable=no-self-use
@@ -1433,71 +1425,6 @@ class QMLvspace(QMLobject):
 
     def make_tex(self):
         return r"\vspace{%iem}" % self.get_amount() + "\n", []
-    
-
-class QMLcsvtable(QMLobject):
-    """expects input in CSV format and transforms it into a QML table."""
-    tag = "csvtable"
-    display_name = "CSV table"
-    default_heading = "CSV table"
-    sort_order = 210  # how should this be set?
-    
-    has_text = True
-    has_children = False
-    valid_children = ("table",)
-    default_attributes = {"columns": "|l|c|", "row_separator": "11"}
-
-
-    def form_element(self):
-        return forms.CharField(widget=forms.Textarea)
-    
-
-    def parse(self, root):
-        assert self.__class__.tag == root.tag
-
-        content = content2string(root)
-        self.data = normalize_html(content) if content != "" else content
-        data = data2tex(self.data)
-
-        if data == "":
-            # when creating a new CSV table, data is empty
-            super().parse(root)
-        else:
-            self.attributes = deepcopy(self.__class__.default_attributes)
-            self.attributes.update(root.attrib)
-
-            try:
-                df = pd.read_csv(StringIO(data), header=None)
-                table = ET.Element("table", {"columns": self.attributes["columns"]})
-                table_node = self.add_child(table)
-
-                for i, el in df.iterrows():
-                    row = ET.Element("row", {"bottom_line": self.attributes["row_separator"][i]})
-                    row_node = table_node.add_child(row)
-                    for col in df.columns:
-                        cell = ET.Element("cell", {})
-                        cell.text = el[col]
-                        row_node.add_child(cell)
-                self.data_html = self.data
-            except Exception as e:
-                print("Error in parsing CSV table")
-                print(e)
-                print(root.text)
-                root.text = "<p></p>"
-                super().parse(root)
-
-
-    def make_tex(self):
-        "do not add self.data to tex"
-        externals = []
-        texout = self.tex_begin()
-        for child in self.children:
-            (texchild, extchild) = child.make_tex()
-            externals += extchild
-            texout += texchild
-
-        texout += self.tex_end()
-        return escape_percents(texout), externals
 
 
 class QMLException(Exception):
