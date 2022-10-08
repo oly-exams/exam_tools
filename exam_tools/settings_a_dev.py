@@ -58,7 +58,7 @@ ADD_DELEGATION_WATERMARK = True
 RECORD_USER_LOGIN_LOGOUT_IPS = True
 # ACCEPT_MARKS_BEFORE_MODERATION = True
 # SIGN_OFF_FINAL_MARKS = True
-INCLUDE_COVER = False 
+INCLUDE_COVER = False
 
 # enable this to see ip logging locally
 LOGGING["handlers"]["logfile"] = {
