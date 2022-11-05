@@ -4081,46 +4081,6 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
 
 
 @login_required
-def pdf_exam_for_participant(request, exam_id, participant_id):
-    # mskoenz 2022: afaics deprecated, see pdf_exam_participant
-    participant = get_object_or_404(Participant, id=participant_id)
-
-    user = request.user
-    if not user.has_perm("ipho_core.can_see_boardmeeting"):
-        exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-        if not (
-            exam.submission_printing >= Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
-            or exam.answer_sheet_scan_upload
-            >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
-        ):
-            return HttpResponseForbidden(
-                "You do not have permission to view this document."
-            )
-
-    ## TODO: implement caching
-    all_tasks = []
-
-    participant_languages = ParticipantSubmission.objects.filter(
-        participant=participant
-    )
-    questions = exam.question_set.all()
-    grouped_questions = {
-        k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)
-    }
-    grouped_questions = OrderedDict(sorted(grouped_questions.items()))
-    for _, qgroup in list(grouped_questions.items()):
-        question_task = question_utils.compile_ppnt_exam_question(
-            qgroup, participant_languages
-        )
-        result = question_task.delay()
-        all_tasks.append(result)
-    filename = f"exam-{slugify(exam.name)}-{participant.code}.pdf"
-    chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
-    # chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
-    return HttpResponseRedirect(reverse("exam:pdf-task", args=[chord_task.id]))
-
-
-@login_required
 def pdf_exam_pos_participant(
     request, exam_id, position, participant_id, type="P"
 ):  # pylint: disable= # pylint: disable=redefined-builtin, too-many-return-statements, too-many-branches
