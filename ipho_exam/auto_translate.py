@@ -111,7 +111,7 @@ def translate_google(from_lang, to_lang, text):
 def find_best_matching_deepl_lang(lang, langs):
     ulang = lang.upper()
     parts = ulang.split("-")
-    # TODO: Shoulangd we allow variants?
+    # TODO: Should we allow variants?
     # As in, use fr-CH where fr-FR is given/requested?
     if ulang in langs:
         return ulang
