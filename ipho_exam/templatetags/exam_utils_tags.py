@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -18,12 +18,17 @@
 from django.template.defaulttags import register
 
 
-@register.filter(name='intlist')
+@register.filter(name="intlist")
 def to_intlist(raw_list):
     return [int(li) for li in raw_list]
 
 
+@register.filter
+def binand(value, arg):
+    return value & arg
+
+
 @register.simple_tag(takes_context=True)
 def this_url(context, **kwargs):
-    func = context['this_url_builder']
+    func = context["this_url_builder"]
     return func(**kwargs)

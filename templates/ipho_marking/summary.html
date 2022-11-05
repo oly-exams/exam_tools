@@ -26,37 +26,44 @@
   </ul>
 </div>
 
-    <table class="table table-striped">
+    <table class="table table-striped" id="summary-table">
+      <thead>
         <tr>
-            <th>Student</th>
+            <th>Participant</th>
             {% for q in questions %}
-            <th>{{ q.question__exam__name }}<br />{{ q.question__name }}<br />{{ q.question_points }}</th>
+            <th>{{ q.question__exam__name }}<br />{{ q.question__name }}<br />{{ q.question_points|floatformat:"-2" }}</th>
             {% endfor %}
             {% for e in exams %}
-            <th>Total<br />{{ e.question__exam__name }}<br />{{ e.exam_points }}</th>
+            <th>Total<br />{{ e.question__exam__name }}<br />{{ e.exam_points|floatformat:"-2" }}</th>
             {% endfor %}
         </tr>
-
-        {% for student, points, exam_points in points_per_student %}
+      </thead>
+      <tbody>
+        {% for code, points, exam_points in points_per_participant %}
         <tr>
-            <td>{{ student.code }}</td>
-            {% for qid,pp in points %}
+            <td>{{ code }}</td>
+            {% for points, editable_pk, ppnt_id in points %}
             <td>
-              {{ pp|default_if_none:'-' }}
+              {{ points|floatformat:"2"|default:'-' }}
               {% if vid == "O" %}
-              <a class="btn btn-default btn-xs" href="{% url 'marking:staff-stud-detail' question_id=qid version=vid stud_id=student.id %}">
-                <i class="fa fa-pencil" aria-hidden="true"></i>
-              </a>
+                {% if editable_pk %}
+                <a class="btn btn-default btn-xs" href="{% url 'marking:staff-ppnt-detail' question_id=editable_pk version=vid ppnt_id=ppnt_id %}">
+                  <i class="fa fa-pencil" aria-hidden="true"></i>
+                </a>
+                {% else %}
+                <i class="fa fa-ban" aria-hidden="true"></i>
+                {% endif %}
               {% endif %}
             </td>
             {% endfor %}
             {% for ep in exam_points %}
             <td>
-              {{ ep.exam_points|default_if_none:'-' }}
+              {{ ep|floatformat:"2"|default:'-' }}
             </td>
             {% endfor %}
         </tr>
         {% endfor %}
+      </tbody>
     </table>
 </div>
 

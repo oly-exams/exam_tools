@@ -9,28 +9,49 @@
 
 {% block pageheader %}<h1>Delegation detailed marking</h1>{% endblock %}
 
-
-
 {% block page-content %}
 
+{% if show_official_marks %}
+<div class="modal fade" id="copy-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            Copy all</h4>
+      </div>
+      <div class="modal-body">
+        <p class="alert alert-warning" id="copy-modal-alert-text">
+          Copying all official marks will overwrite your delegation marks for {{ participant.code }}.<br />
+          <strong>Are you sure?</strong>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-warning" data-dismiss="modal" onclick="copy_all()">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
   <div>
     {% for type, message in msg %}
     <div class="alert {{ type }}">{{ message|safe }}</div>
     {% endfor %}
   </div>
 
-    <h2>Student {{ student.code }}</h2>
+    <h2>{{ participant.full_name }} ({{ participant.code }})</h2>
 
     <h3> {{ exam.name }} - {{ question.name }}
       {% for doc in documents %}
         {% if doc.scan_file and doc.scan_status == 'S' %}
-        <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=exam.pk student_id=student.pk position=question.position %}">
+        <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-participant' exam_id=exam.pk participant_id=participant.pk position=question.position %}">
           <i class="fa fa-file-pdf-o"></i>
           View scan
         </a>
         {% endif %}
         {% if doc.scan_file_orig %}
-        <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=exam.pk student_id=student.pk position=question.position %}">
+        <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=exam.pk participant_id=participant.pk position=question.position %}">
           <i class="fa fa-file-pdf-o"></i>
           View full scan
         </a>
@@ -44,33 +65,70 @@
       <table class="table table-striped">
         <tr>
           <th>Subquestion</th>
+          {% if show_official_marks %}
+          <th>Official</th>
+          <th><button type="button" class="btn btn-sm btn-default translate-copy-all-button" title="Copy all from official" data-toggle="modal" data-target="#copy-modal"><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i><i class="fa fa-arrow-right" aria-hidden="true"></i><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i></button></th>
+          {% endif %}
           <th>Points</th>
         </tr>
+        {% if show_official_marks %}
+        {{ form.management_form }}
+        {% for form_item in form %}
+          <tr>
+              <th>{{ form_item.points.label_tag }}</th>
+              <td>{{ form_item.official.points}}</td>
+              <td><button type="button" class="btn btn-default btn-xs" title="Copy from official" onclick="copy_one('{{form_item.points.id_for_label}}', '{{form_item.official.points}}')"><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i><i class="fa fa-arrow-right" aria-hidden="true"></i><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i></button></td>
+              <td>
+                <div {{ form_item.points.errors|yesno:'class="has-error error",,'|safe }}>
+                  {{ form_item.points.errors }} {{ form_item.points }}{% for hidden in form_item.hidden_fields %}{{ hidden }}{% endfor %}
+                </div>
+              </td>
+          </tr>
+        {% endfor %}
+        {% else %}
         {{ form.as_table }}
+        {% endif %}
       </table>
-      <input type="submit" class="btn btn-primary" value="Submit" />
+      <input type="submit" class="btn btn-primary" value="Save" />
     </form>
     {% endif %}
 
     {% if markings %}
-    <table class="table table-striped">
-      <tr>
-        <th>Subquestion</th>
-        <th>Official</th>
-        <th>Delegation</th>
-        <th>Final</th>
-      </tr>
+    <table class="table table-striped" id="points-table">
+      <thead>
+        <tr>
+          <th>Subquestion</th>
+          <th>Official</th>
+          <th>Delegation</th>
+          <th>Final</th>
+        </tr>
+      </thead>
       {% for m, points in markings %}
-      <tr>
-        <td><strong>{{ m.name }} ({{ m.max_points }})</strong></td>
-        <td>{{ points.O.0.points|default_if_none:'-' }}</td>
-        <td>{{ points.D.0.points|default_if_none:'-' }}</td>
-        <td>{{ points.F.0.points|default_if_none:'-' }}</td>
-      </tr>
+      <tbody>
+        <tr>
+          <td><strong>{{ m.name }} ({{ m.max_points }})</strong></td>
+          <td class="{{ points.diff_color.O }}">{{ points.O|default_if_none:'-' }}</td>
+          <td class="{{ points.diff_color.D }}">{{ points.D|default_if_none:'-' }}</td>
+          <td>{{ points.F|default_if_none:'-' }}</td>
+        </tr>
+      </tbody>
       {% endfor %}
     </table>
     {% endif %}
 
 </div>
+{% if show_official_marks %}
+<script>
+    function copy_one(name, points) {
+        var x = $("input[id='"+name+"']");
+        x.val(points);
+    }
+    function copy_all() {
+        {% for form_item in form %}
+        copy_one('{{form_item.points.id_for_label}}', '{{form_item.official.points}}')
+        {% endfor %}
+    }
+</script>
+{% endif %}
 
 {% endblock %}

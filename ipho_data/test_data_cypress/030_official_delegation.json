@@ -1,0 +1,32 @@
+[
+{
+  "model": "ipho_core.delegation",
+  "pk": 1,
+  "fields": {
+    "name": "Official",
+    "country": "Official",
+    "auto_translate_char_count": 0,
+    "members": []
+  }
+},
+{
+  "model": "ipho_exam.language",
+  "pk": 1,
+  "fields": {
+    "name": "English",
+    "delegation": [
+      "Official"
+    ],
+    "hidden": false,
+    "hidden_from_submission": false,
+    "versioned": true,
+    "is_pdf": false,
+    "style": null,
+    "direction": "ltr",
+    "polyglossia": "english",
+    "polyglossia_options": null,
+    "font": "notosans",
+    "extraheader": ""
+  }
+}
+]

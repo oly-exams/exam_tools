@@ -1,0 +1,276 @@
+
+{% extends "ipho_poll/voting_large_base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra-head %}
+
+<meta http-equiv="refresh" content="5" />
+
+<style>
+  th{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  td{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  table.feedbacks th{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+  table.feedbacks td{
+    font-family: Arial;
+    font-size: 16pt;
+  }
+
+  /*.large{
+    font-family: Arial;
+    font-size: 50pt;
+  }*/
+
+  .pre-scrollable{
+    min-height: 27cm;
+    height: 27cm;
+    max-height:27cm;
+  }
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+  <div class="col-md-6 pre-scrollable">
+
+        <div class="jumbotron">
+            <h1>{{ voting }}
+            {% if voting.voting_room %}
+            <span class="small"> In Room: {{ voting.voting_room }}</span>
+            {% endif %}
+            </h1>
+            {% if status == 'open' %}
+                <p>
+                  Remaining Time: <strong><span class="countdown" data-end-date="{{ voting.end_date | date:'r' }}"></span></strong>
+                </p>
+            {% endif %}
+            <div class="jumbotron">
+                <p>{{ voting.content|safe }}</p>
+            </div>
+            {% if display_remaining_users %}
+            {% if remaining_users_to_vote %}
+            {% if status == 'open' %}
+            <h2>Still waiting for:</h2>
+            {% else %}
+            <h2>Did not vote:</h2>
+            {% endif %}
+            <table class="table table-condensed">
+                {% for row in remaining_users_to_vote %}
+                <tr>
+                    {% for row_username in row %}
+                    {% if row_username %}
+                    <td>{{ row_username }}</td>
+                    {% else %}
+                    <td></td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <h2>Everyone voted!</h2>
+            {% endif %}
+            {% endif %}
+
+
+        </div>
+
+  </div>
+
+
+
+  <div class="col-md-6 pre-scrollable">
+
+
+        <!-- <div class="parent">
+            <button id="reload" title="Refresh" type="button" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+        </div> -->
+
+
+        <div class="panel panel-default">
+            <div class="panel-heading"><h2>Choices</h2></div>
+            <table id="choice-table" class="table table-striped">
+                <tr>
+                    <th></th>
+                    <th>Choice</th>
+                    <th>{% if status == 'closed' %}Votes{% endif %}</th>
+                    <th>{% if status == 'closed' %}Percentages{% endif %}</th>
+                </tr>
+
+                    {% for choice in choices %}
+                        <tr id="choice-{{ choice.pk }}">
+                            {% if choice.label == 'zzz' and 'abstain' in choice.choice_text.lower %}
+                            <td class="col-md-1"> </td>
+                            {% else %}
+                            <td class="col-md-1"><strong>{{ choice.label }}</strong></td>
+                            {% endif %}
+                            <td class="col-md-6" id="choice-{{ choice.pk }}-choice-text">
+                                {{ choice.choice_text }}
+                            </td>
+                            <td class="col-md-2 numvotes">
+                                {% if status == 'closed' %}
+                                {{ choice.votes }}
+                                {% endif %}
+                            </td>
+                            <td class="col-md-2 percvotes">
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+              </table>
+        </div>
+
+        {% if feedbacks %}
+        <div class="panel panel-default">
+            <div class="panel-heading"><h2>Feedbacks</h2></div>
+            <table class="table table-striped feedbacks" id="feedback-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Delegation</th>
+                    <th>Question</th>
+                    <th>Feedback</th>
+                    <th>Likes</th>
+                  </tr>
+                </thead>
+                
+                <tbody>
+                  {% for fb in feedbacks %}
+                  <tr id="feedback-{{ fb.pk }}">
+                      <td>{{ fb.pk }}</td>
+                      <td>{{ fb.delegation__name }}</td>
+                      <td>
+                        {{ fb.question__name }}<br />
+                        {{ fb.part }}
+                      </td>
+                      <td>{{ fb.comment }}</td>
+                      <td style="font-size:24px;">
+                        <span class="label label-info">
+                          <i class="fa fa-thumbs-o-up"></i>
+                          <span class="badge">{{ fb.num_likes }}</span>
+                        </span>
+                        <span class="label label-warning">
+                          <i class="fa fa-thumbs-o-down"></i>
+                          <span class="badge">{{ fb.num_unlikes }}</span>
+                        </span>
+                      </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+                
+
+              </table>
+        </div>
+        {% endif %}
+
+
+  </div>
+
+
+
+
+
+
+</div>
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        showMathMenu: false,
+    });
+</script>
+<script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+
+<script src="{% static "jquery.countdown.js" %}"></script>
+
+<script>
+$('document').ready(function(){
+    $(document).on('click', '#reload', function(event){
+        location.reload();
+    });
+    {% if status == 'closed' %}
+    $('.numvotes').each(function(i){
+      var tot_votes = {% for choice in choices %} {{ choice.votes }} + {% endfor %} 0;
+      votes = $(this).html();
+      percentage =  Math.round((parseInt(votes)/tot_votes)*100)
+
+      if( !(isNaN(percentage)) ){
+        $(this).parent().children('.percvotes').html(percentage + '%');
+      }else{
+        $(this).parent().children('.percvotes').html('--' + '%');
+      }
+    });
+    {% endif %}
+    // Activates tooltipls
+    $('.btn').tooltip({containter: ".parent"});
+
+    // Activate countdowns
+    $('.countdown').each(function(i) {
+        var end_date = $(this).data('end-date');
+        end_date = new Date(end_date);
+        $(this).countdown({
+            date: end_date,
+            render: function (date) {
+              var countdown = "";
+              if (date.days != 0) {
+                if (date.days == 1) {
+                  countdown += date.days  + " day, ";
+                }
+                else {
+                  countdown += date.days  + " days, ";
+                }
+              }
+              if (date.hours != 0 || date.days !=0) {
+                if (date.hours == 1) {
+                  countdown += this.leadingZeros(date.hours) + " hour, ";
+                }
+                else {
+                  countdown += this.leadingZeros(date.hours) + " hours, ";
+                }
+              }
+              if (date.min != 0 || date.hours !=0 || date.days !=0){
+                countdown += this.leadingZeros(date.min) + " min and ";
+              }
+              countdown += this.leadingZeros(date.sec) + " sec";
+              this.el.innerHTML = countdown;
+            },
+            onEnd: function() {
+              // A nicer reload function would be good.
+              location.reload();
+              return;
+            }
+        });
+    });
+
+    function content2math() {
+        // convert equations for mathquill
+        // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
+        // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
+
+        // convert equations for mathjax
+        // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
+        var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
+        $(this).html(newtext);
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
+    }
+    $(".math-tex").each(content2math);
+
+}); // $(document).ready()
+</script>
+{% endblock %}

@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,57 +15,96 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
 
-import os, shutil
+import os
+import shutil
 import logging
 from tempfile import mkdtemp
+import re
+import pypandoc
+import latex2mathml.converter
 
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotModified, JsonResponse, Http404, HttpResponseForbidden
-try:
-    from django.template.loader import find_template
-except:
-    from django.template import engines
-    find_template = engines['django'].engine.find_template
+
+from django.http import HttpResponse
 from django.conf import settings
-
-from appy.pod.renderer import Renderer as ODTRenderer
+from django.utils.html import escape
 
 from . import tex
 
-TEMPLATE_PATH = getattr(settings, 'TEMPLATE_PATH')
-TEMP_PREFIX = getattr(settings, 'ODT_TEMP_PREFIX', 'render_odt-')
+TEMPLATE_PATH = getattr(settings, "TEMPLATE_PATH")
+TEMP_PREFIX = getattr(settings, "ODT_TEMP_PREFIX", "render_odt-")
 
-logger = logging.getLogger('ipho_exam')
+logger = logging.getLogger("ipho_exam")
 
 
-def render_odt_response(tpl_name, context, filename, ext_resources):
-    origin = os.path.join(TEMPLATE_PATH, tpl_name)
+def render_odt_response(context, filename, ext_resources):
     contextdict = {}
-    for d in context:
-        contextdict.update(**d)
+    for data in context:
+        contextdict.update(**data)
     result = None
     output = None
     try:
         tmp = mkdtemp(prefix=TEMP_PREFIX)
 
         for res in ext_resources:
-            res.save(tmp)
+            res.save(tmp, svg_to_png=True)
             if isinstance(res, tex.FigureExport):
-                contextdict['document'] = contextdict['document'].replace(res.figname, "%s/%s" % (tmp, res.figname))
+                contextdict["document"] = contextdict["document"].replace(
+                    res.figname, f"{tmp}/{res.figname}"
+                )
 
-        output = "%s/%s.odt" % (tmp, 'doc')
-        logger.debug("Render template '%s' to '%s'" % (tpl_name, output))
-        renderer = ODTRenderer(origin, contextdict, output, overwriteExisting=True)
-        renderer.run()
-        result = open(output, 'rb').read()
-    # except (OSError, PodError), e:
-    #     logger.error("Cannot render '%s' : %s" % (tpl_name, e))
-    #     raise e
+        ref_name = os.path.join(settings.TEMPLATE_PATH, "ipho_exam/odt/reference.odt")
+        tpl_name = os.path.join(
+            settings.TEMPLATE_PATH, "ipho_exam/odt/tmpl.opendocument"
+        )
+
+        output = f"{tmp}/doc.odt"
+        logger.debug(
+            "Render template '%s' to '%s'", tpl_name, output
+        )  # this is recommended by pylint W1201
+
+        mathtex_pattern = re.compile(
+            r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</span>'
+        )
+
+        def escape_unconverted_tex(texstr):
+            unconverted_pattern = re.compile(r"(?<!\\)~|(?<!\\)\\text")
+            return unconverted_pattern.sub(r" ", texstr)
+
+        def tex_to_mathml(texstr):
+            nttex = escape_unconverted_tex(texstr)
+            return latex2mathml.converter.convert(nttex)
+
+        def xhtml_tex_to_mathml(txt):
+            return mathtex_pattern.sub(
+                lambda m: tex_to_mathml(escape(m.group(1))),
+                txt.replace(r"\begin{equation}", '<span class="math-tex">\\(').replace(
+                    r"\end{equation}", "\\)</span>"
+                ),
+            )
+
+        text = xhtml_tex_to_mathml(contextdict["document"])
+        pypandoc.convert_text(
+            text,
+            format="html",
+            to="odt",
+            outputfile=output,
+            extra_args=[
+                "-M512M -RTS",
+                f"--template={tpl_name}",
+                f"--reference-doc={ref_name}",
+                f"--metadata=lang_name:{contextdict['lang_name']}",
+                f"--metadata=title:{contextdict['title']}",
+            ],
+        )
+        result = open(output, "rb").read()  # pylint: disable=consider-using-with
+
     finally:
-        if output and os.path.exists(tmp):
+        if result and os.path.exists(tmp):
             shutil.rmtree(tmp)
 
-    res = HttpResponse(result, content_type="application/vnd.oasis.opendocument.text", charset="utf-8")
-    res['content-disposition'] = 'attachment; filename="{}"'.format(filename)
+    res = HttpResponse(
+        result, content_type="application/vnd.oasis.opendocument.text", charset="utf-8"
+    )
+    res["content-disposition"] = f'attachment; filename="{filename}"'
     return res

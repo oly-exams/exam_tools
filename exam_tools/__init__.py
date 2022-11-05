@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,8 +15,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
 
 # This will make sure the app is always imported when
 # Django starts so that shared_task will use this app.
 from .celery import app as celery_app  # noqa
+
+__all__ = ["celery_app"]

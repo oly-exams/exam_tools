@@ -1,0 +1,408 @@
+{% extends "ipho_control/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block extra-head %}
+<style>
+  .label-setting-active {
+    color:black;
+    background-color: #ffbf00;
+  }
+  .label-setting-inactive {
+    color:black;
+    background-color: rgb(127, 158, 251);
+  }
+  .label{
+    cursor: default;
+  }
+  .panel-heading.collapse-toggle:after {
+    font-family: 'Glyphicons Halflings';  
+    content: "\e114"; 
+    float: right; 
+    color:rgb(0, 0, 0); 
+    }
+    .panel-heading.collapsed.collapse-toggle:after {
+        content: "\e080";
+    }
+</style>
+{% endblock %}
+
+{% block pageheader %}<h1 style="margin-top: 10px;">{{ h1 }}</h1>{% endblock %}
+
+{% block page-content %}
+{# modal for switching the phase #}
+<div class="modal fade" id="switch-phase-modal" tabindex="-1" aria-labelledby="modalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title" id="modalLabel"> Title </h4>
+      </div>
+      <div class="modal-body">
+        Body
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Abort</button>
+        <button id="switch-phase-submit" data-href="" class="btn btn-primary disabled">Switch</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+{# modal showing the exam history #}
+<div class="modal fade" id="history-modal" tabindex="-1" aria-labelledby="modalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title" id="modalLabel"> Title </h4>
+      </div>
+      <div class="modal-body">
+        Body
+      </div>
+    </div>
+  </div>
+</div>
+
+{# modal for deleting the phase #}
+<div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="modalLabel">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title" id="modalLabel"> Title </h4>
+      </div>
+      <div class="modal-body">
+        Body
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Abort</button>
+        <button id="delete-phase-submit" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div id="alerts-container">
+        {% for alert in alerts %}
+        {{ alert|safe }}
+        {% endfor %}
+    </div>
+    <ul class="nav nav-tabs">
+      {% for exam in exam_list %}
+      <li role="presentation" class="{% if exam.active_tab %}active{% endif %}">
+        <a style="font-size: 18px;" href="{% if not exam.active_tab %}{% url 'control:cockpit-id' exam.exam.pk%}{% endif %}">
+          <span>
+            {{ exam.exam.name }}
+          </span>
+          {% if exam.phase and not exam.phase.undef %}
+          <span class="label label-default">
+            {{ exam.phase.name }}
+          </span>
+          {% endif %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if active_exam %}
+    <div class="row">
+      <div class="col-md-6" id="current-phase-column">
+        <h3>Current phase:</h3>
+        <div class="panel panel-primary" id="current-phase-panel">
+          <div style="font-size: 16px;" class="panel-heading">
+            <div style="font-size: 20px;">
+              {{ active_exam.phase.name }}
+            </div>
+  
+            
+          </div>
+          {% include "ipho_control/phase_labels.html" with settings=active_exam.phase.get_ordered_settings help_texts=help_texts_settings choices=choices_settings names=verbose_names_settings only %}
+          <div class="panel-body">
+            
+            <p>
+              {{ active_exam.phase.description }}
+            </p>
+            
+          </div>
+        </div>
+        {% if question_settings %}
+          <h3>Question settings:</h3>
+          {% include "ipho_control/question_settings.html" %}
+        {% endif %}
+      </div>
+      <div class="col-md-6" id="phase-list">
+        <h3>Available phases: 
+        {% if superuser %}
+          <a role="button" class="btn btn-default" target="_blank" href="{% url 'control:add-phase' active_exam.exam.pk %}">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New Phase
+          </a>
+        {% endif %}
+        <button type="button" id="show-history-button" class="btn btn-default" data-toggle="modal" data-target="#history-modal" data-modal-url="{% url 'control:exam-history' active_exam.exam.pk %}" >
+          Show History
+          <span class="glyphicon glyphicon-time" aria-hidden="true"></span> 
+        </button>
+        </h3>
+        <div style="overflow-y:auto; max-height: 55vh;">
+          {% for phase in phases %}
+          {% with checks=checks_list|lookup:phase.pk %}
+          <div id="phase-panel-{{ phase.pk }}" class="panel panel-info phase-panel {% if phase.is_current_phase %}current-phase{% endif %}">
+            <div class="panel-heading" style="display: flex; justify-content: space-between;">
+              <div>
+                <div style="font-size: 20px;">
+                  {{ phase.name }}
+                </div>
+              </div>
+              {% if superuser %}
+                <div>
+                  <a role="button" class="btn btn-default" target="_blank" href="{% url 'control:edit-phase' phase.pk %}">
+                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                  </a>
+                  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#delete-modal" data-href="{% url 'control:delete-phase' phase.pk %}">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                  </button>
+                </div>
+              {% endif %}
+            </div>
+            {% include "ipho_control/phase_labels.html" with settings=phase.get_ordered_settings help_texts=help_texts_settings choices=choices_settings names=verbose_names_settings collapse_id=phase.pk only %}
+              
+            <div class="panel-body">
+              <p>
+                {{ phase.description }}
+              </p>
+            </div>
+            <div class="panel-footer" style="display: flex; flex-wrap: nowrap; justify-content: space-between;">
+                <ul class="list-group">
+                  {% for check in checks.warnings %}
+                    {% if check.passed %}
+                      <li class="list-group-item list-group-item-success" data-toggle="popover" data-content="{{ checks.help_texts|lookup:check.name }}">{{ check.pretty }}: <span class="glyphicon glyphicon-ok pull-right" aria-hidden="true"></span></li>
+                    {% else %}
+                      <li class="list-group-item list-group-item-warning" data-toggle="popover" data-html="true" title="{{ checks.help_texts|lookup:check.name }}" data-content="{{ check.message }}">{{ check.pretty }}: <span class="glyphicon glyphicon-remove pull-right" aria-hidden="true"></span></li>
+                    {% endif %}
+                  {% endfor %}
+                  {% for check in checks.errors %}
+                    {% if check.passed %}
+                      <li class="list-group-item list-group-item-success" data-toggle="popover" data-content="{{ checks.help_texts|lookup:check.name }}">{{ check.pretty }}: <span class="glyphicon glyphicon-ok pull-right" aria-hidden="true"></span></li>
+                    {% else %}
+                      <li class="list-group-item list-group-item-danger" data-toggle="popover" data-html="true" title="{{ checks.help_texts|lookup:check.name }}" data-content="{{ check.message }}">{{ check.pretty }}: <span class="glyphicon glyphicon-remove pull-right" aria-hidden="true"></span></li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>  
+                {% if phase.is_applicable and not phase.is_current_phase %}
+                  <span>
+                    <button type="button" id="switch-phase-{{ phase.pk }}"class="btn btn-warning btn-lg pull-right" data-toggle="modal" data-target="#switch-phase-modal" data-modal-url="{% url 'control:switch-phase' active_exam.exam.pk phase.pk %}">Switch phase</button>
+                  </span>
+                  {% elif phase.is_current_phase %}
+                  <span data-toggle="tooltip" title="Cannot switch to current phase." >
+                    <button type="button" class="btn btn-primary btn-lg pull-right disabled" >Current phase</button>
+                  </span>
+                {% else %}
+                  <span data-toggle="tooltip" title="Checks failed. Cannot switch to this phase." >
+                    <button type="button" class="btn btn-warning btn-lg pull-right disabled" >Cannot switch phase</button>
+                  </span>
+                {% endif %}
+                </div>
+          </div>
+          {% endwith %}
+          {% endfor %}
+      </div>
+      </div>
+    </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block extra-script %}
+{% if active_exam %}
+<script>
+  $('document').ready(function(){
+
+    $('[data-toggle="tooltip"]').tooltip({
+      delay: { "show": 200, "hide": 10 }
+    }); 
+    $('[data-toggle="popover"]').popover({
+      delay: { "show": 200, "hide": 10 },
+      trigger: "hover"
+    }); 
+    if($( "#phase-list").find(".current-phase").length){
+      $( "#phase-list").find(".current-phase")[0].scrollIntoView();
+    }
+    
+  })
+  $('document').ready(function(){
+    
+    
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+    $('#switch-phase-modal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var href = button.data('modal-url');
+      var modal = $(this);
+
+      modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+      modal.find('.modal-body').html('');
+      $('#switch-phase-submit').addClass('disabled');
+      $('#switch-phase-submit').data('href', '');
+      $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+              if(data['success']){
+                modal.find('.modal-title').html(data['title']);
+                modal.find('.modal-body').html(data['body']);
+                $('#switch-phase-submit').removeClass('disabled');
+                $('#switch-phase-submit').data('href', href);
+                $('[data-toggle="tooltip"]').tooltip({
+                  delay: { "show": 200, "hide": 10 }
+                }); 
+              }else{
+                modal.find('.modal-title').text("Error");
+                modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')
+              }
+                
+            },
+        });
+    });
+
+    $('#switch-phase-submit').on('click', function (event) {
+      event.preventDefault();
+      var button = $(this);
+      var href = button.data('href');
+      var modal = $('#switch-phase-modal');
+
+      modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+      modal.find('.modal-body').html('');
+      $('#switch-phase-submit').addClass('disabled');
+      $.ajax({
+            url: href,
+            dataType: 'json',
+            method: 'post',
+            success: function(data) {
+              if(data['success']){
+                window.location.href = '{% url "control:cockpit-changed-phase" active_exam.exam.pk %}';
+              }else{
+                modal.find('.modal-title').text("Error");
+                modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')
+              }
+                
+            },
+        });
+    });
+    
+    $('#history-modal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var href = button.data('modal-url');
+      var modal = $(this);
+
+      modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+      modal.find('.modal-body').html('');
+      $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+              if(data['success']){
+                modal.find('.modal-title').html(data['title']);
+                modal.find('.modal-body').html(data['body']);
+                $('[data-toggle="tooltip"]').tooltip({
+                  delay: { "show": 200, "hide": 10 }
+                }); 
+                $("time[data-format]").each(function () {
+                  var el = $(this);
+                  var dt = moment(el.attr("datetime"));
+                  el.text(dt.format(el.data("format")));
+                });
+              }else{
+                modal.find('.modal-title').text("Error");
+                modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')
+              }
+                
+            },
+        });
+    });
+
+    $('#delete-modal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var href = button.data('href');
+      var modal = $(this);
+
+      modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+      modal.find('.modal-body').html('');
+
+      $('#delete-phase-submit').addClass('disabled');
+      $('#delete-phase-submit').data('href', '');
+      $.ajax({
+            url: href,
+            dataType: 'json',
+            success: function(data) {
+              if(data['success']){
+                modal.find('.modal-title').html(data['title']);
+                modal.find('.modal-body').html(data['body']);
+                $('#delete-phase-submit').removeClass('disabled');
+                $('#delete-phase-submit').data('href', href);
+              }else{
+                modal.find('.modal-title').text("Error");
+                modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')
+              }
+                
+            },
+        });
+    });
+
+    $('#delete-phase-submit').on('click', function (event) {
+      event.preventDefault();
+      var button = $(this);
+      var href = button.data('href');
+      var modal = $('#delete-modal');
+
+      modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+      modal.find('.modal-body').html('');
+      $('#delete-phase-submit').addClass('disabled');
+      $.ajax({
+            url: href,
+            dataType: 'json',
+            method: 'post',
+            success: function(data) {
+              if(data['success']){
+                window.location.href = '{% url "control:cockpit-deleted-phase" active_exam.exam.pk %}';
+              }else{
+                modal.find('.modal-title').text("Error");
+                modal.find('.modal-body').html('<div class="alert alert-warning" role="alert">'+data["error"]+'</div>')
+              }
+                
+            },
+        });
+    });
+
+
+  });
+</script>
+{% endif %}
+{% endblock %}

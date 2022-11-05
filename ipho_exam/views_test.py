@@ -1,8 +1,6 @@
-# coding=utf-8
-
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -17,23 +15,26 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.shortcuts import get_object_or_404, render_to_response, render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render
 from django.template import RequestContext
-from django.core.urlresolvers import reverse
-
 from django.templatetags.static import static
 
 
 def index(request):
-    return render_to_response('example_exam/index.html', context_instance=RequestContext(request))
+    return render(request, "example_exam/index.html", context=RequestContext(request))
 
 
 def view_exam(request, display_tpl="show"):
 
-    base_template = "base_fullexam.html" if display_tpl == 'show' else "base_ckeditor.html"
-    return render_to_response(
-        'example_exam/theo_2011_Q1.html', {'base_template': base_template}, context_instance=RequestContext(request)
+    base_template = (
+        "base_fullexam.html" if display_tpl == "show" else "base_ckeditor.html"
+    )
+    context = RequestContext(request)
+    context["base_template"] = base_template
+    return render(
+        request,
+        "example_exam/theo_2011_Q1.html",
+        context=context,
     )
 
 
@@ -46,22 +47,24 @@ def edit(request):
 
 
 def inline_edit(request):
-    title = u'Ein Drei-Körper-Problem und LISA'
+    title = "Ein Drei-Körper-Problem und LISA"
 
     parts = []
 
     parts.append(
-        u"""
+        """
     <div class="figure">
         <img src="{}" /><br />
         ABBILDUNG 1: Koplanare Umlaufbahnen der drei Körper.
         ("Koplanar": in der gleichen Ebene liegend)
     </div>
-    """.format(static('exam/img/fig1.svg'))
+    """.format(
+            static("exam/img/fig1.svg")
+        )
     )
 
     parts.append(
-        u""" <p>1.1	Zwei gravitativ wechselwirkende Massen
+        """ <p>1.1	Zwei gravitativ wechselwirkende Massen
     $m$ und $M$ bewegen sich auf kreisförmigen Umlaufbahnen mit den
     jeweiligen Radien $r$ und $R$ um ihren gemeinsamen Schwerpunkt.
     Bestimme die Winkelgeschwindigkeit $w_0$ der Verbindungslinie
@@ -70,7 +73,7 @@ def inline_edit(request):
     )
 
     parts.append(
-        u""" <p>1.2	Ein dritter Körper mit vernachlässigbarer
+        """ <p>1.2	Ein dritter Körper mit vernachlässigbarer
     Masse $m$ befinde sich auf einer koplanaren kreisförmigen Umlaufbahn
     um den gleichen Schwerpunkt, so dass  stationär relativ zu $M$ und
     $m$ bleibt, wie Abbildung 1 zeigt. Nimm an, dass die Masse $m$ sich
@@ -82,7 +85,7 @@ def inline_edit(request):
     )
 
     parts.append(
-        u""" <p>1.3	Betrachte den Fall $M=m$. Wenn die Masse
+        r""" <p>1.3	Betrachte den Fall $M=m$. Wenn die Masse
     $m$ geringfügig in radialer Richtung (entlang der Linie durch $O$
     und $m$) ausgelenkt wird, oszilliert sie um ihre Gleichgewichtslage.
     Berechne die Winkelfrequenz dieser Schwingung als Funktion von
@@ -91,7 +94,7 @@ def inline_edit(request):
     )
 
     parts.append(
-        u""" <p> Die Laser-Interferometrie-Weltraumantenne
+        """ <p> Die Laser-Interferometrie-Weltraumantenne
     ("Laser Interferometry Space Antenna", LISA) ist eine Gruppe von
     drei identischen Weltraumsonden, die niederfrequente
     Gravitationswellen detektieren soll. Jede der drei Sonden befindet
@@ -107,7 +110,7 @@ def inline_edit(request):
     )
 
     parts.append(
-        u""" <p>Die Sonden tauschen ständig Lasersignale
+        """ <p>Die Sonden tauschen ständig Lasersignale
     untereinander aus. Sie detektieren Gravitationswellen mittels
     Interferometrie anhand von winzigen Änderungen in der Armlänge. Eine
     Kollision massiver Objekte in einer nahen Galaxie, etwa von zwei
@@ -116,34 +119,40 @@ def inline_edit(request):
     )
 
     parts.append(
-        u""" <div class="figure"> <img src="{}" /><br /> ABBILDUNG 2: Bild der
+        """ <div class="figure"> <img src="{}" /><br /> ABBILDUNG 2: Bild der
     LISA-Umlaufbahn. (Sun: Sonne, Earth: Erde, AU: Astronomische Einheit
     (AE, mittlerer Abstand Erde-Sonne)) Die drei Sonden kreisen um ihren
     gemeinsamen Schwerpunkt mit einer Umlaufdauer von einem Jahr.
     Anfangs befinden sie sich   hinter der Erde. (Skizze aus D.A.
     Shaddock, "An Overview of the Laser Interferometer Space Antenna",
     Publications of the Astronomical Society of Australia, 2009, 26,
-    S.128-132.). </div> """.format(static('exam/img/fig2.svg'))
+    S.128-132.). </div> """.format(
+            static("exam/img/fig2.svg")
+        )
     )
 
     parts.append(
-        u""" <div class="figure"> <img src="{}" /><br /> ABBILDUNG 3: Vergrösserte Sicht auf
+        """ <div class="figure"> <img src="{}" /><br /> ABBILDUNG 3: Vergrösserte Sicht auf
     die drei Sonden, die der Erde nachfolgen. A, B und C sind die drei
-    Sonden an den Ecken eines gleichseitigen Dreiecks. </div> """.format(static('exam/img/fig3.svg'))
+    Sonden an den Ecken eines gleichseitigen Dreiecks. </div> """.format(
+            static("exam/img/fig3.svg")
+        )
     )
 
     parts.append(
-        u""" <p>1.4	Betrachte die Bewegung der Sonden in der
+        """ <p>1.4	Betrachte die Bewegung der Sonden in der
     Ebene in der sie sich befinden. Berechne die Relativgeschwindigkeit
     jeweils zweier Sonden zueinander.</p> """
     )
 
-    return render(request, 'base_exam.html', {'exam_title': title, 'exam_parts': parts})
+    return render(request, "base_exam.html", {"exam_title": title, "exam_parts": parts})
 
 
 def mathquill(request):
-    return render_to_response('test_mathquill.html', context_instance=RequestContext(request))
+    return render(request, "test_mathquill.html", context=RequestContext(request))
 
 
 def mathquill_toolbar(request):
-    return render_to_response('test_mathquill_toolbar.html', context_instance=RequestContext(request))
+    return render(
+        request, "test_mathquill_toolbar.html", context=RequestContext(request)
+    )

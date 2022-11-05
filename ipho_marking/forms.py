@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,27 +15,28 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from builtins import object
 from django import forms
 from django.forms import ModelForm, Form
-from django.forms.formsets import formset_factory
-from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, MultiField, Div
-from crispy_forms.bootstrap import Accordion, AccordionGroup
+from crispy_forms.layout import Submit
 
 from ipho_exam.models import Exam
-from .models import MarkingMeta, Marking
+from .models import Marking
 
 
 class ImportForm(Form):
-    exam = forms.ModelChoiceField(queryset=Exam.objects.all(), label='Select exam')
+    exam = forms.ModelChoiceField(
+        queryset=Exam.objects.filter(
+            visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
+        ).all(),
+        label="Select exam",
+    )
 
     def __init__(self, *args, **kwargs):
-        super(ImportForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.add_input(Submit('submit', 'Submit'))
+        self.helper.add_input(Submit("submit", "Submit"))
 
         self.helper.html5_required = True
         self.helper.form_show_labels = True
@@ -44,11 +45,11 @@ class ImportForm(Form):
 
 class PointsForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        super(PointsForm, self).__init__(*args, **kwargs)
-        self.fields['points'].label = '{} ({})'.format(
+        super().__init__(*args, **kwargs)
+        self.fields["points"].label = "{} ({})".format(
             self.instance.marking_meta.name, self.instance.marking_meta.max_points
         )
-        self.fields['points'].required = True
+        self.fields["points"].required = True
 
         self.helper = FormHelper()
         self.helper.html5_required = True
@@ -57,9 +58,13 @@ class PointsForm(ModelForm):
         # self.disable_csrf = False
         self.helper.form_tag = False
 
-    class Meta(object):
+    class Meta:
         model = Marking
         fields = [
-            'points',
+            "points",
         ]
-        widgets = {'points': forms.TextInput(attrs={'style': 'width:50px', 'class': 'form-control'})}
+        widgets = {
+            "points": forms.TextInput(
+                attrs={"style": "width:55px", "class": "form-control"}
+            )
+        }

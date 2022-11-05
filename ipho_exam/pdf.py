@@ -15,106 +15,108 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
-from __future__ import division
 
 import os
 import codecs
-import subprocess
+from pathlib import Path
+import shutil
 import logging
-from builtins import range
-from past.utils import old_div
-from django.http import HttpResponse, Http404, HttpResponseNotModified
+import subprocess
+from hashlib import md5
+from tempfile import mkdtemp
+
+from io import BytesIO
+from PyPDF2 import PdfFileWriter, PdfFileReader
+
+from django.http import HttpResponse, HttpResponseNotModified
 from django.core.cache import cache
 from django.conf import settings
 
-from tempfile import mkdtemp
-import subprocess
-import os
-import shutil
-from hashlib import md5
 
-from PyPDF2 import PdfFileWriter, PdfFileReader
-from io import StringIO, BytesIO
-
-TEMP_PREFIX = getattr(settings, 'TEX_TEMP_PREFIX', 'render_tex-')
-CACHE_PREFIX = getattr(settings, 'TEX_CACHE_PREFIX', 'render-tex')
-CACHE_TIMEOUT = getattr(settings, 'TEX_CACHE_TIMEOUT', 600)  # 10 min
-TEXBIN = getattr(settings, 'TEXBIN', '/usr/bin')
-WATERMARK_PATH = getattr(settings, 'WATERMARK_PATH', os.path.join(settings.STATIC_PATH, 'watermark.pdf'))
+TEMP_PREFIX = getattr(settings, "TEX_TEMP_PREFIX", "render_tex-")
+CACHE_PREFIX = getattr(settings, "TEX_CACHE_PREFIX", "render-tex")
+CACHE_TIMEOUT = getattr(settings, "TEX_CACHE_TIMEOUT", 600)  # 10 min
+TEXBIN = getattr(settings, "TEXBIN", "/usr/bin")
+WATERMARK_PATH = getattr(
+    settings, "WATERMARK_PATH", os.path.join(settings.STATIC_PATH, "watermark.pdf")
+)
 
 # Get an instance of a logger
-logger = logging.getLogger('ipho_exam.pdf')
+logger = logging.getLogger("ipho_exam.pdf")
 
 
 class TexCompileException(Exception):
-    def __init__(self, code, doc_fname='', log='', doc_tex=''):
+    def __init__(self, code, doc_fname="", log="", doc_tex=""):
         self.log = log
         self.code = code
         self.doc_fname = doc_fname
         self.doc_tex = doc_tex
-        super(TexCompileException, self).__init__("pdflatex error (code %s) in %s, log:\n %s." % (code, doc_fname, log))
+        super().__init__(f"pdflatex error (code {code}) in {doc_fname}, log:\n {log}.")
 
 
-def compile_tex_diff(old_body, new_body, ext_resources=[]):
+def compile_tex_diff(old_body, new_body, ext_resources=tuple()):
     tmpdir = mkdtemp(prefix=TEMP_PREFIX)
     try:
-        with codecs.open(os.path.join(tmpdir, 'new.tex'), "w", encoding='utf-8') as f:
+        with codecs.open(os.path.join(tmpdir, "new.tex"), "w", encoding="utf-8") as f:
             f.write(new_body)
-        with codecs.open(os.path.join(tmpdir, 'old.tex'), "w", encoding='utf-8') as f:
+        with codecs.open(os.path.join(tmpdir, "old.tex"), "w", encoding="utf-8") as f:
             f.write(old_body)
         diff_body = subprocess.check_output(
-            ['latexdiff', '--encoding=utf-8', 'old.tex', 'new.tex'],
+            ["latexdiff", "--encoding=utf-8", "old.tex", "new.tex"],
             cwd=tmpdir,
             env={
-                'PATH': '{}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(TEXBIN)
+                "PATH": f"{TEXBIN}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
             },
-        ).decode('utf-8')
+        ).decode("utf-8")
     finally:
         shutil.rmtree(tmpdir)
     return compile_tex(diff_body, ext_resources=ext_resources)
 
 
-def compile_tex(body, ext_resources=[]):
-    doc = 'question'
-    etag = md5(body.encode('utf8')).hexdigest()
-
-    cache_key = "%s:%s" % (CACHE_PREFIX, etag)
+def compile_tex(body, ext_resources=tuple()):
+    doc = "question"
+    etag = md5(body.encode("utf8")).hexdigest()
+    # pylint: disable=consider-using-with
+    cache_key = f"{CACHE_PREFIX}:{etag}"
     pdf = cache.get(cache_key)
     # body = body.replace("&#39;", "'") # convert HTML apostrophe in human readable apostrophe
     if pdf is None:
-        logger.debug('Hash of tex not found in cache')
-        if '\\nonstopmode' not in body:
-            raise ValueError("\\nonstopmode not present in document, cowardly refusing to process.")
+        logger.debug("Hash of tex not found in cache")
+        if "\\nonstopmode" not in body:
+            raise ValueError(
+                "\\nonstopmode not present in document, cowardly refusing to process."
+            )
 
         tmp = mkdtemp(prefix=TEMP_PREFIX)
         try:
             for res in ext_resources:
                 res.save(tmp)
 
-            with codecs.open("%s/%s.tex" % (tmp, doc), "w", encoding='utf-8') as f:
+            with codecs.open(f"{tmp}/{doc}.tex", "w", encoding="utf-8") as f:
                 f.write(body)
 
             error = subprocess.Popen(
                 ["xelatex", "%s.tex" % doc],
                 cwd=tmp,
                 env={
-                    'PATH': '{}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(TEXBIN)
+                    "PATH": f"{TEXBIN}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
                 },
-                stdin=open(os.devnull, "r"),
+                stdin=open(os.devnull),
                 stderr=open(os.devnull, "wb"),
-                stdout=open(os.devnull, "wb")
+                stdout=open(os.devnull, "wb"),
             ).wait()
 
             if error:
-                if not os.path.exists("%s/%s.log" % (tmp, doc)):
-                    raise RuntimeError('Error in PDF. Errocode {}. Log does not exists.'.format(error))
-                log = open("%s/%s.log" % (tmp, doc), errors='replace').read()
-                raise TexCompileException(error, "%s/%s.tex" % (tmp, doc), log, doc_tex=body)
+                if not os.path.exists(f"{tmp}/{doc}.log"):
+                    raise RuntimeError(
+                        f"Error in PDF. Errocode {error}. Log does not exists."
+                    )
+                log = open(f"{tmp}/{doc}.log", errors="replace").read()
+                raise TexCompileException(error, f"{tmp}/{doc}.tex", log, doc_tex=body)
 
             del body
 
-            with open("%s/%s.pdf" % (tmp, doc), 'rb') as f:
+            with open(f"{tmp}/{doc}.pdf", "rb") as f:
                 pdf = f.read()
         finally:
             # print('Compiled in', tmp)
@@ -168,9 +170,9 @@ def concatenate_documents(all_documents):
     return output_pdf.getvalue()
 
 
-def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'):
-    etag = md5(body.encode('utf8')).hexdigest()
-    if request.META.get('HTTP_IF_NONE_MATCH', '') == etag:
+def cached_pdf_response(request, body, ext_resources=tuple(), filename="question.pdf"):
+    etag = md5(body.encode("utf8")).hexdigest()
+    if request.META.get("HTTP_IF_NONE_MATCH", "") == etag:
         return HttpResponseNotModified()
 
     try:
@@ -181,16 +183,18 @@ def cached_pdf_response(request, body, ext_resources=[], filename='question.pdf'
         # pdf = job.get()
         #
         pdf = compile_tex(body, ext_resources)
-    except TexCompileException as e:
+    except TexCompileException as err:
         if request.user.is_superuser:
-            return HttpResponse(e.log, content_type="text/plain")
-        else:
-            raise RuntimeError("pdflatex error (code %s) in %s." % (e.code, e.doc_fname))
+            return HttpResponse(err.log, content_type="text/plain")
+
+        raise RuntimeError(
+            f"pdflatex error (code {err.code}) in {err.doc_fname}."
+        ) from err
 
     output_pdf = check_add_watermark(request, pdf)
     res = HttpResponse(output_pdf, content_type="application/pdf")
-    res['content-disposition'] = 'inline; filename="{}"'.format(filename)
-    res['ETag'] = etag
+    res["content-disposition"] = f'inline; filename="{filename}"'
+    res["ETag"] = etag
     return res
 
 
@@ -201,16 +205,29 @@ def check_add_watermark(request, doc):
     """
     if settings.ADD_DELEGATION_WATERMARK:
         user = request.user
-        if not (user.is_staff or user.has_perm('ipho_core.is_staff') or user.has_perm('ipho_core.is_printstaff') or user.has_perm('ipho_core.is_marker')):
+        if not (
+            user.is_staff
+            or user.has_perm("ipho_core.is_organizer_admin")
+            or user.has_perm("ipho_core.can_edit_exam")
+            or user.has_perm("ipho_core.is_printstaff")
+            or user.has_perm("ipho_core.is_marker")
+            or user.has_perm(
+                "ipho_core.is_delegation_print"
+            )  # do not print watermark on prints by delegation examsite team
+        ):
             return add_watermark(doc)
     return doc
 
 
-def add_watermark(doc):
+def add_watermark(doc, watermark_filename=None):
     """
     Adds the 'delegation print' watermark to the given PDF document.
     """
-    with open(WATERMARK_PATH, 'rb') as wm_f:
+    filename = WATERMARK_PATH
+    if watermark_filename:
+        filename = Path(filename).parent / watermark_filename
+
+    with open(filename, "rb") as wm_f:
         watermark = PdfFileReader(BytesIO(wm_f.read()))
         watermark_page = watermark.getPage(0)
 

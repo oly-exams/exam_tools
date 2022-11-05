@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2018 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,47 +15,54 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
 
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 
 import django
+
 django.setup()
 
 import csv
-from ipho_core.models import Student
-from ipho_exam.models import Place, Exam
+from ipho_exam.models import Participant, Place, Exam
 
 
 def main(input):
     reader = csv.DictReader(input)
-    assert('individual_id' in reader.fieldnames)
+    assert "individual_id" in reader.fieldnames
 
     header = reader.fieldnames.copy()
-    header.remove('individual_id')
+    header.remove("individual_id")
     print(header)
-    exams = [ Exam.objects.get(name=n) for n in header]
-    #theory = Exam.objects.get(name='Theory')
-    #experiment = Exam.objects.get(name='Experiment')
+    exams = [Exam.objects.get(name=n) for n in header]
+    # theory = Exam.objects.get(name='Theory')
+    # experiment = Exam.objects.get(name='Experiment')
     for i, row in enumerate(reader):
         try:
-            student = Student.objects.get(code=row['individual_id'])
+            participant = Participant.objects.get(code=row["individual_id"])
             for f, ex in zip(header, exams):
-                Place.objects.get_or_create(student=student, exam=ex, name=row[f])
+                Place.objects.get_or_create(
+                    participant=participant, exam=ex, name=row[f]
+                )
 
-            #Place.objects.get_or_create(student=student, exam=theory, name=row['seat_theory'])
-            #Place.objects.get_or_create(student=student, exam=experiment, name=row['seat_experiment'])
+            # Place.objects.get_or_create(participant=participant, exam=theory, name=row['seat_theory'])
+            # Place.objects.get_or_create(participant=participant, exam=experiment, name=row['seat_experiment'])
 
-            print(row['individual_id'], '.....', 'imported.')
-        except Student.DoesNotExist:
-            print('Skip', row['individual_id'], 'because student does not exist.')
+            print(row["individual_id"], ".....", "imported.")
+        except Participant.DoesNotExist:
+            print("Skip", row["individual_id"], "because participant does not exist.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description='Import CSV with users seating info')
-    parser.add_argument('file', type=argparse.FileType('rU'), help='Input CSV file')
+
+    parser = argparse.ArgumentParser(description="Import CSV with users seating info")
+    parser.add_argument(
+        "file",
+        type=argparse.FileType("rU", encoding="utf-8-sig"),
+        help="Input CSV file",
+    )
     args = parser.parse_args()
 
     main(args.file)

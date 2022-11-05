@@ -6,21 +6,24 @@ exam_tools/settings.py
 venv
 ipho.db
 ipho.db.bak*
+*.db
 db/
 exams-docs
+document-files
+media
 outcode_raw.svg
 .idea
 runserver.sh
 _docs_html
 .vscode/
-static_bower
+node_modules
 .spyderproject
 test_*.pdf
 docs/*.html
 out/*.pdf
-
-
-
+unittest_reports
+database.s3db
+database-initial.s3db
 
 # Created by https://www.gitignore.io/api/vim,macos,emacs,django,python,pycharm,virtualenv,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=vim,macos,emacs,django,python,pycharm,virtualenv,visualstudiocode
@@ -90,6 +93,10 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
+# Cypress
+cypress/screenshots/
+cypress/videos/
+
 # Translations
 *.mo
 
@@ -127,7 +134,6 @@ celerybeat-schedule
 # Environments
 .env
 .venv
-env/
 venv/
 ENV/
 env.bak/
@@ -386,7 +392,6 @@ tags
 [Ll]ib
 [Ll]ib64
 [Ll]ocal
-Scripts
 pyvenv.cfg
 pip-selfcheck.json
 
@@ -402,4 +407,3 @@ pip-selfcheck.json
 .history
 
 # End of https://www.gitignore.io/api/vim,macos,emacs,django,python,pycharm,virtualenv,visualstudiocode
-

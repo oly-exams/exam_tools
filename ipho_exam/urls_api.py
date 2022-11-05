@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,18 +15,33 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import include, url
-
+from django.conf.urls import include, re_path
 from rest_framework.routers import DefaultRouter
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+
 from ipho_exam import views_api
+from ipho_exam.permissions import HasValidApiKeyOrAdmin
+
 
 router = DefaultRouter()
-router.register(r'documents', views_api.DocumentViewSet)
+router.register(r"documents", views_api.DocumentViewSet)
 
-app_name = 'api-exam'
+app_name = "api-exam"
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url(r'^schema', views_api.SwaggerSchemaView.as_view(), name='schema'),
-
-    # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    re_path(r"^", include(router.urls)),
+    re_path(
+        r"^api-schema/",
+        SpectacularAPIView.as_view(
+            permission_classes=[
+                HasValidApiKeyOrAdmin,
+            ],
+        ),
+        name="schema-api",
+    ),
+    re_path(
+        r"^schema",
+        SpectacularSwaggerView.as_view(url_name="api-exam:schema-api"),
+        name="schema",
+    ),
+    # re_path(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

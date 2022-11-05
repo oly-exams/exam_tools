@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block content %}
+
+
+<div class="container">
+    <div class="page-header">
+        <h1>Votings
+        {% if rooms|length > 1 %}
+        <small>Room:</small>
+        {% include "ipho_poll/partials/choose-room-dropdown.html" with active_room=active_room rooms=rooms view_name="poll:voter-index_room" only %}
+        {% endif %}
+        </h1>
+        <div class="alert alert-warning">
+			<strong>Votes can not be changed once submitted.{% if voting_rights_count > 1 %} The {{ voting_rights_count }} Leaders are advised to vote together from the same laptop.{% endif %}</strong>
+        </div>
+        {% if err %}
+        <div class="alert alert-danger">
+            <strong>{{ err }}</strong>
+        </div>
+        {% endif %}
+    </div>
+
+    <div id="alerts-container"></div>
+
+    {% if not unvoted_votings_list%}
+        <div class="alert alert-danger">
+            <strong>Sorry but there are no votings at the moment.</strong>
+        </div>
+
+    {% else %}
+      <div class="containter">
+        {% for voting in unvoted_votings_list %}
+            <div class="col-md-12">
+              <div class="panel panel-default" id="voting-panel-{{ voting.pk }}">
+                <div class="panel-heading">
+                    <h3 class="panel-title"> {{ voting }}
+                    <!-- Countdown removed since it relies on the local time of the computers
+                    <span class="countdown pull-right" data-end-date="{{ voting.end_date.isoformat }}"></span>
+                    </h3> -->
+                </div>
+                <div class="panel-body">
+                {% if voting.content %}<div>{{ voting.content|safe }}</div><hr />{% endif %}
+                {% for key, formset in formset_list.items %}
+                    {% if key == voting.pk %}
+                      <form action="" method="post">{% csrf_token %}
+                            {{ formset.management_form }}
+                            {{ formset }}
+                            <input type="submit" class="btn btn-primary" data-toggle="modal" value="Vote" />
+                      </form>
+                    {% endif %}
+                {% endfor %}
+
+                </div>
+                {% if feedback_dict|get:voting.pk %}
+                <table class="table table-striped feedbacks" id="feedback-table-{{ voting.pk }}">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Delegation</th>
+                      <th>Question</th>
+                      <th>Comment</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for fb in feedback_dict|get:voting.pk %}
+                    <tr id="feedback-{{ fb.pk }}-voting-{{ voting.pk }}">
+                        <td>{{ fb.pk }}</td>
+                        <td>{{ fb.delegation__name }}</td>
+                        <td>
+                          {{ fb.question__name }}<br />
+                          {{ fb.part }}
+                        </td>
+                        <td>{{ fb.comment }}</td>
+                        <td style="font-size:24px;">
+                          <span class="label label-info">
+                            <i class="fa fa-thumbs-o-up"></i>
+                            <span class="badge">{{ fb.num_likes }}</span>
+                          </span>
+                          <span class="label label-warning">
+                            <i class="fa fa-thumbs-o-down"></i>
+                            <span class="badge">{{ fb.num_unlikes }}</span>
+                          </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% endif %}
+
+              </div>
+            </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+</div> <!-- container -->
+
+
+
+
+{% endblock %}
+
+{% block extra-script %}
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        showMathMenu: false,
+    });
+</script>
+<script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="{% static "jquery.countdown.js" %}"></script>
+
+
+<script>
+$('document').ready(function(){
+
+
+  // Activate countdowns
+  $('.countdown').each(function(i) {
+      var end_date = $(this).data('end-date');
+      end_date = new Date(end_date);
+
+      $(this).countdown({
+          date: end_date,
+          render: function (date) {
+            var countdown = "";
+            if (date.days != 0) {
+              if (date.days == 1) {
+                countdown += date.days  + " day, ";
+              }
+              else {
+                countdown += date.days  + " days, ";
+              }
+            }
+            if (date.hours != 0 || date.days !=0) {
+              if (date.hours == 1) {
+                countdown += this.leadingZeros(date.hours) + " hour, ";
+              }
+              else {
+                countdown += this.leadingZeros(date.hours) + " hours, ";
+              }
+            }
+            if (date.min != 0 || date.hours !=0 || date.days !=0){
+              countdown += this.leadingZeros(date.min) + " min and ";
+            }
+            countdown += this.leadingZeros(date.sec) + " sec";
+            this.el.innerHTML = countdown;
+          },
+          onEnd: function() {
+            // A nicer reload function would be good.
+            location.reload();
+            return;
+          }
+      });
+  });
+
+  function content2math() {
+      // convert equations for mathquill
+      // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<img class="mathImg" title="$1" src="http://latex.codecogs.com/svg.latex?$1" />');
+      // var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="mathquill-embedded-latex" data-cke-survive=1>$1</span>');
+
+      // convert equations for mathjax
+      // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
+      var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
+      $(this).html(newtext);
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
+  }
+  $(".math-tex").each(content2math);
+
+});
+
+if('serviceWorker' in navigator){
+    // Handler for messages coming from the service worker
+    navigator.serviceWorker.addEventListener('message', function(event){
+        if(event.data=='reload'){
+          location.reload();
+        }
+    });
+}
+
+
+</script>
+{% endblock %}

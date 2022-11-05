@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2018 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -16,15 +16,25 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+import sys
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
+sys.path.append(".")
 
 import django
+
 django.setup()
 
-from ipho_exam.models import *
+from ipho_exam.models import Exam, ExamAction, Delegation, Question
+from ipho_marking.models import MarkingAction
 
-exams = Exam.objects.all()
 for exam in Exam.objects.all():
     for delegation in Delegation.objects.all():
         for action, _ in ExamAction.ACTION_CHOICES:
-            exam_action, _ = ExamAction.objects.get_or_create(exam=exam, delegation=delegation, action=action)
+            exam_action, _ = ExamAction.objects.get_or_create(
+                exam=exam, delegation=delegation, action=action
+            )
+
+for question in Question.objects.filter(type=Question.ANSWER).all():
+    for delegation in Delegation.objects.all():
+        MarkingAction.objects.get_or_create(question=question, delegation=delegation)

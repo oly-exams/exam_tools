@@ -1,0 +1,41 @@
+<h4>Phase {{ phase.name }}</h4>
+<p>
+    {{ phase.description }}
+</p>
+
+{% if changelog.unchanged %}
+    <h4>Unchanged Settings:</h4>
+    {% include "ipho_control/phase_labels.html" with settings=changelog.unchanged help_texts=help_texts_settings choices=choices_settings names=verbose_names_settings collapse_id="switch_phase" only %}
+{% else %}
+    <h4>No unchanged settings</h4>
+{% endif %}
+
+{% if changelog.changed %}
+    <h4><strong>Changed</strong> Settings:</h4>
+    {% include "ipho_control/phase_labels_changelog.html" with settings=changelog.changed help_texts=help_texts_settings choices=choices_settings names=verbose_names_settings only %}
+    
+    <div style="font-size: 18px; margin-right: 1em;">
+        </div>
+{% else %}
+    <h4>No changed settings</h4>
+{% endif %}
+
+{% if warnings %}
+<h4><strong>Warnings</strong></h4>
+<p>The following warnings occurred. Check with support if you want to proceed nonetheless.</p>
+<div class="alert alert-warning" role="alert">
+    <ul>
+        {% for warning in warnings %}
+            <li>
+                {{ warning }}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% if phase.before_switching %}
+<h4>Other considerations</h4>
+<p class="other-considerations">
+{{ phase.before_switching }}
+</p>
+{% endif %}

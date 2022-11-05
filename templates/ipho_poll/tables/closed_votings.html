@@ -1,0 +1,67 @@
+{% load crispy_forms_tags %}
+
+
+
+{# table of closed votings #}
+<div class='panel panel-default'>
+    <div class="panel-heading"><h2>Closed Votings</h2></div>
+    <div class="panel-body">
+        {% if not votings_list%}
+            <div class="alert alert-info alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                <strong>There are no closed votings at the moment!</strong> Votings will show up here once the delegates have voted upon them.
+            </div>
+        {% endif %}
+    </div>
+    <table id="closed-votings-table" class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>status</th>
+                <th>Voting Title</th>
+                <th>Feedbacks</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% if votings_list %}
+            {% for voting in votings_list %}
+                <tr id="voting-{{ voting.pk }}">
+                    <td class="col-md-1">{{ voting.pk }}</td>
+                    <td class="col-md-2">
+                      {% if voting.vote_result == VOTE_ACCEPTED %}
+                      <span class="label label-success">Accepted</span>
+                      {% elif voting.vote_result == VOTE_REJECTED %}
+                      <span class="label label-danger">Rejected</span>
+                      {% endif %}
+
+                      {% if voting.implementation == VOTE_IMPLEMENTED %}
+                      <span class="label label-info">Implemented</span>
+                      {% endif %}
+                    </td>
+                    <td class="col-md-3" id="voting-{{ voting.pk }}-voting-text">
+                        {{ voting.title }}
+                    </td>
+                    <td class="col-md-4">
+                      {% for fb in voting.feedbacks.all %}
+                      <span class="label label-default">#{{ fb.pk }} ({{ fb.question.exam.code }} {{ fb.question.code }}-{{ fb.question.position }})</span>
+                      {% endfor %}
+                    </td>
+                    <td class="col-md-2">
+                        <div class="btn-toolbar">
+                          <span class="parent">
+                            <a class="btn btn-default" href="{% url 'poll:voting' voting_pk=voting.pk %}" title="details"><i class="fa fa-info fa-fw"></i></a >
+                          </span>
+                          <span class="parent">
+                              <a class="btn btn-default" target="_blank" href="{% url 'poll:voting_large' voting_pk=voting.pk %}" title="fullscreen"><i class="fa fa-expand fa-fw" aria-hidden="true"></i></a >
+                          </span>
+
+
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+    </table>
+</div>

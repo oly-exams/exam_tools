@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -18,6 +18,11 @@
 from django.template.defaulttags import register
 
 
-@register.filter(name='lookup')
+@register.filter(name="lookup")
 def lookup(value, arg):
     return value[arg]
+
+
+@register.filter(name="get")
+def get(value, arg):
+    return value.get(arg)

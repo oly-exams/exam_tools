@@ -186,8 +186,8 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.MathQuillLib = '{% static "mathquill_alpha/mathquill.min.js" %}';
         CKEDITOR.config.MathQuillCss = '{% static "mathquill_alpha/mathquill.css" %}';
         CKEDITOR.config.MathQuilljQuery = '{% static "jquery/js/jquery-1.11.2.min.js" %}';
-        CKEDITOR.config.contentsCss = [ CKEDITOR.getUrl( 'contents.css' ), '{% static "noto/notosans.css" %}', '{% static "noto/" %}{{ trans_font.css }}' ];
-        CKEDITOR.addCss("body{font-family:{{ trans_font.font }}, Noto Sans;}");
+        CKEDITOR.config.contentsCss = [ CKEDITOR.getUrl( 'contents.css' ), '{% static "noto/notosans.css" %}' ];
+        CKEDITOR.addCss("body{font-family: Noto Sans;}");
 
         all_editors = new Array();
 

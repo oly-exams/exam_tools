@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
 # Exam Tools
 #
-# Copyright (C) 2014 - 2018 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -24,54 +22,52 @@
 ## call the testing script
 ## ```python scripts/compile_example.py```
 
-from __future__ import unicode_literals
-from __future__ import print_function
 
-from builtins import range
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 
 import django
+
 django.setup()
 
 from django.conf import settings
 
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 
 from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
-from ipho_exam.models import Exam, Question, Student, Language
+from ipho_exam.models import Exam, Question, Participant, Language
 from hashlib import md5
 import requests
 
-EVENT_TEMPLATE_PATH = getattr(settings, 'EVENT_TEMPLATE_PATH')
-
+EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
 exam = Exam()
-exam.code = 'E'
-exam.name = 'Test template'
+exam.code = "E"
+exam.name = "Test template"
 
 question = Question()
-question.code = 'A'
-question.name = 'Some question'
+question.code = "A"
+question.name = "Some question"
 question.position = 2
 
-student = Student()
-student.code = 'XYZ-S-3'
-student.first_name = 'Smart'
-student.last_name = 'Student'
+participant = Participant()
+participant.code = "XYZ-S-3"
+participant.first_name = "Smart"
+participant.last_name = "Participant"
 
 language = Language()
-language.name = u'Taiwanese'
-language.font = 'notosanstc'
-language.style = 'chinese'
-language.polyglossia_options = ''
-language.polyglossia = 'custom'
-language.extraheader = ''
+language.name = "Taiwanese"
+language.font = "notosanstc"
+language.style = "chinese"
+language.polyglossia_options = ""
+language.polyglossia = "custom"
+language.extraheader = ""
 
 # Exported from Exam Tools
 doc_content = r"""
@@ -477,88 +473,129 @@ def _compile_tex(body, ext_resources):
 
 
 def compile_cover():
-    cover = {'student': student, 'exam': exam, 'question': question, 'place': 'M439'}
-    body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_cover.tex'), request=HttpRequest(), context=cover)
+    cover = {
+        "participant": participant,
+        "exam": exam,
+        "question": question,
+        "place": "M439",
+    }
+    body = render_to_string(
+        os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_cover.tex"),
+        request=HttpRequest(),
+        context=cover,
+    )
     question_pdf = _compile_tex(body, [])
-    bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='C', suppress_code=True)
+    bgenerator = iphocode.QuestionBarcodeGen(
+        exam, question, participant, qcode="C", suppress_code=True
+    )
     page = pdf.add_barcode(question_pdf, bgenerator)
-    with open('test_cover.pdf', 'wb') as pdf_file:
+    with open("test_cover.pdf", "wb") as pdf_file:
         pdf_file.write(page)
 
 
-def compile_question(qml_trans, pdf_name='test_question'):
+def compile_question(qml_trans, pdf_name="test_question"):
     ext_resources = []
-    ext_resources.append(tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls')))
+    ext_resources.append(
+        tex.TemplateExport(
+            os.path.join(EVENT_TEMPLATE_PATH, "tex_resources", "ipho2016.cls")
+        )
+    )
     context = {
-        'polyglossia': language.polyglossia,
-        'polyglossia_options': language.polyglossia_options,
-        'font': fonts.ipho[language.font],
-        'extraheader': language.extraheader,
-        'lang_name': u'{} ({})'.format(language.name, 'Country'),
-        'exam_name': u'{}'.format(exam.name),
-        'code': u'{}{}'.format(question.code, question.position),
-        'title': u'{} - {}'.format(exam.name, question.name),
-        'is_answer': True,
-        'document': qml_trans,
+        "polyglossia": language.polyglossia,
+        "polyglossia_options": language.polyglossia_options,
+        "font": fonts.ipho[language.font],
+        "extraheader": language.extraheader,
+        "lang_name": "{} ({})".format(language.name, "Country"),
+        "exam_name": f"{exam.name}",
+        "code": f"{question.code}{question.position}",
+        "title": f"{exam.name} - {question.name}",
+        "is_answer": True,
+        "document": qml_trans,
     }
-    body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_question.tex'), request=HttpRequest(), context=context)
+    body = render_to_string(
+        os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_question.tex"),
+        request=HttpRequest(),
+        context=context,
+    )
     question_pdf = _compile_tex(body, ext_resources)
-    bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
+    bgenerator = iphocode.QuestionBarcodeGen(exam, question, participant)
     page = pdf.add_barcode(question_pdf, bgenerator)
-    with open('{}.pdf'.format(pdf_name), 'wb') as pdf_file:
+    with open(f"{pdf_name}.pdf", "wb") as pdf_file:
         pdf_file.write(page)
 
 
 def compile_blank():
     pages = 3
     context = {
-        'polyglossia': 'english',
-        'polyglossia_options': '',
-        'font': fonts.ipho['notosans'],
-        'extraheader': '',
-        'exam_name': u'{}'.format(exam.name),
-        'code': u'W2',
-        'title': u'{} - {}'.format(exam.name, question.name),
-        'is_answer': True,
-        'pages': list(range(pages)),
+        "polyglossia": "english",
+        "polyglossia_options": "",
+        "font": fonts.ipho["notosans"],
+        "extraheader": "",
+        "exam_name": f"{exam.name}",
+        "code": "W2",
+        "title": f"{exam.name} - {question.name}",
+        "is_answer": True,
+        "pages": list(range(pages)),
     }
-    body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_blank.tex'), request=HttpRequest(), context=context)
-    question_pdf = _compile_tex(body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
-    bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='W')
+    body = render_to_string(
+        os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_blank.tex"),
+        request=HttpRequest(),
+        context=context,
+    )
+    question_pdf = _compile_tex(
+        body,
+        [
+            tex.TemplateExport(
+                os.path.join(EVENT_TEMPLATE_PATH, "tex_resources", "ipho2016.cls")
+            )
+        ],
+    )
+    bgenerator = iphocode.QuestionBarcodeGen(exam, question, participant, qcode="W")
     page = pdf.add_barcode(question_pdf, bgenerator)
-    with open('test_blank.pdf', 'wb') as pdf_file:
+    with open("test_blank.pdf", "wb") as pdf_file:
         pdf_file.write(page)
 
 
 def compile_graph():
     pages = 3
     context = {
-        'polyglossia': 'english',
-        'polyglossia_options': '',
-        'font': fonts.ipho['notosans'],
-        'extraheader': '',
-        'exam_name': u'{}'.format(exam.name),
-        'code': u'W2',
-        'title': u'{} - {}'.format(exam.name, question.name),
-        'is_answer': True,
-        'pages': list(range(pages)),
+        "polyglossia": "english",
+        "polyglossia_options": "",
+        "font": fonts.ipho["notosans"],
+        "extraheader": "",
+        "exam_name": f"{exam.name}",
+        "code": "W2",
+        "title": f"{exam.name} - {question.name}",
+        "is_answer": True,
+        "pages": list(range(pages)),
     }
-    body = render_to_string(os.path.join(EVENT_TEMPLATE_PATH, 'tex', 'exam_graph.tex'), request=HttpRequest(), context=context)
-    question_pdf = _compile_tex(body, [tex.TemplateExport(os.path.join(EVENT_TEMPLATE_PATH, 'tex_resources', 'ipho2016.cls'))])
-    bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode='W')
+    body = render_to_string(
+        os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_graph.tex"),
+        request=HttpRequest(),
+        context=context,
+    )
+    question_pdf = _compile_tex(
+        body,
+        [
+            tex.TemplateExport(
+                os.path.join(EVENT_TEMPLATE_PATH, "tex_resources", "ipho2016.cls")
+            )
+        ],
+    )
+    bgenerator = iphocode.QuestionBarcodeGen(exam, question, participant, qcode="W")
     page = pdf.add_barcode(question_pdf, bgenerator)
-    with open('test_graph.pdf', 'wb') as pdf_file:
+    with open("test_graph.pdf", "wb") as pdf_file:
         pdf_file.write(page)
 
 
-if __name__ == '__main__':
-    print('cover')
+if __name__ == "__main__":
+    print("cover")
     compile_cover()
-    print('question')
+    print("question")
     compile_question(doc_content)
-    print('blank')
+    print("blank")
     compile_blank()
-    print('answer')
-    compile_question(answer_content, pdf_name='test_answer')
-    print('graph')
+    print("answer")
+    compile_question(answer_content, pdf_name="test_answer")
+    print("graph")
     compile_graph()

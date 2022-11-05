@@ -1,0 +1,195 @@
+
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra-head %}
+<meta http-equiv="refresh" content="5" />
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="page-header">
+      <h1>{{ voting }}
+            {% if voting.voting_room %}
+            <span class="small"> In Room: {{ voting.voting_room }}</span>
+            {% endif %}
+          <button id="reload" title="Refresh Results" type="button" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+      </h1>
+      {% if status == 'open' %}
+          <p>Remaining Time: <span class="countdown" data-end-date="{{ voting.end_date.isoformat }}"></span></p>
+      {% endif %}
+    </div>
+    <div class="row">
+      <div class="col-sm-2">
+        <h4>Status: {{ status }}</h4>
+      </div>
+      <div class="col-sm-2" id="feedback-div">
+        <h4>Feedbacks:</h4>
+          {% for fb in voting.feedbacks.all %}
+          <span class="label label-default">#{{ fb.pk }} ({{ fb.question.exam.code }} {{ fb.question.code }}-{{ fb.question.position }})</span>
+          {% empty %}
+          <span class="label label-default">none</span>
+          {% endfor %}
+      </div>
+      {% if status == 'closed' %}
+      <div class="col-sm-4">
+        <h4>Result</h4>
+        <div class="btn-group">
+          {% for r,label in result_choices %}
+          <a class="btn btn-default {% if voting.vote_result == r %}active{% endif %}" href="{% url 'poll:staff-set-result' voting_pk=voting.pk result=r %}">{{ label }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      {% if voting.vote_result == VOTE_ACCEPTED %}
+      <div class="col-sm-4">
+        <h4>Implementation</h4>
+        <div class="btn-group">
+          {% for r,label in implementation_choices %}
+          <a class="btn btn-default {% if voting.implementation == r %}active{% endif %}" href="{% url 'poll:staff-set-impl' voting_pk=voting.pk impl=r %}">{{ label }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    {% endif %}
+    </div>
+
+    <h3>Content:</h3>
+    <div>{{ voting.content|safe }}</div>
+    <br/>
+    <div class="panel panel-default">
+        <div class="panel-heading"><h2>Choices Legend</h2></div>
+        <table id="drafted-votings-table" class="table table-striped">
+            <tr>
+                <th></th>
+                <th>Choice Text</th>
+                <th>Total Votes</th>
+                <th>Percentages</th>
+            </tr>
+
+                {% for choice in choices %}
+                    <tr id="choice-{{ choice.pk }}">
+                        {% if choice.label == 'zzz' and 'abstain' in choice.choice_text.lower %}
+                        <td class="col-md-1"> </td>
+                        {% else %}
+                        <td class="col-md-1"><strong>{{ choice.label }}</strong></td>
+                        {% endif %}
+                        <td class="col-md-6" id="choice-{{ choice.pk }}-choice-text">
+                            {{ choice.choice_text }}
+                        </td>
+                        <td class="col-md-2 numvotes">
+                            {{ choice.votes }}
+                        </td>
+                        <td class="col-md-2 percvotes">
+                        </td>
+                    </tr>
+                {% endfor %}
+
+          </table>
+    </div>
+
+
+
+    <!-- {% if not votes %}
+    <div class="alert alert-info">There are no votes yet.</div>
+    {% else %}
+        <div class="panel panel-default">
+            <div class="panel-heading"><h2>Votes</h2></div>
+            <div class="panel-body">
+                <div class="row">
+                {% for col_users in cols %}
+                    <div class="list-group col-md-4 col-sm-6">
+                    {% for user in col_users %}
+                        <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    {{ user }}
+                                </div>
+                                <div class="col-xs-6">
+                                    {% for vote in votes %}
+                                        {% if vote.voting_right.user == user%}
+                                            {{ vote.choice.label }} |
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %} -->
+
+</div>
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script src="{% static "jquery.countdown.js" %}"></script>
+
+<script>
+$('document').ready(function(){
+    $(document).on('click', '#reload', function(event){
+        location.reload();
+    });
+
+    $('.numvotes').each(function(i){
+      var tot_votes = {% for choice in choices %} {{ choice.votes }} + {% endfor %} 0;
+      votes = $(this).html();
+      percentage =  Math.round((parseInt(votes)/tot_votes)*100)
+
+      if( !(isNaN(percentage)) ){
+        $(this).parent().children('.percvotes').html(percentage + '%');
+      }else{
+        $(this).parent().children('.percvotes').html('--' + '%');
+      }
+    });
+    // Activates tooltipls
+    $('.btn').tooltip({containter: ".parent"});
+
+    // Activate countdowns
+    $('.countdown').each(function(i) {
+        var end_date = $(this).data('end-date');
+        end_date = new Date(end_date);
+        $(this).countdown({
+            date: end_date,
+            render: function (date) {
+              var countdown = "";
+              if (date.days != 0) {
+                if (date.days == 1) {
+                  countdown += date.days  + " day, ";
+                }
+                else {
+                  countdown += date.days  + " days, ";
+                }
+              }
+              if (date.hours != 0 || date.days !=0) {
+                if (date.hours == 1) {
+                  countdown += this.leadingZeros(date.hours) + " hour, ";
+                }
+                else {
+                  countdown += this.leadingZeros(date.hours) + " hours, ";
+                }
+              }
+              if (date.min != 0 || date.hours !=0 || date.days !=0){
+                countdown += this.leadingZeros(date.min) + " min and ";
+              }
+              countdown += this.leadingZeros(date.sec) + " sec";
+              this.el.innerHTML = countdown;
+            },
+            onEnd: function() {
+              // A nicer reload function would be good.
+              location.reload();
+              return;
+            }
+        });
+    });
+
+
+}); // $(document).ready()
+</script>
+{% endblock %}

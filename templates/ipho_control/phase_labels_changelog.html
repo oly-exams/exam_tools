@@ -1,0 +1,22 @@
+<table class="table phase-changelog">
+    <thead>
+        <tr>
+            <th>Setting</th>
+            <th>From</th>
+            <th>To</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for name, setting in settings.items %}
+        <tr data-toggle="tooltip" title="{{ help_texts|get:name }}">
+            <td>{{ names|get:name }}</td>
+            <td>
+                {% include "ipho_control/phase_setting_label.html" with name=name setting=setting.old choices=choices only %}
+            </td>
+            <td>
+                {% include "ipho_control/phase_setting_label.html" with name=name setting=setting.new choices=choices only %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

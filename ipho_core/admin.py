@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -16,9 +16,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib import admin
-from ipho_core.models import Delegation, Student, AutoLogin, AccountRequest, PushSubscription, RandomDrawLog
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User
+
+# User should not be imported directly (pylint-django:E5142)
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+from ipho_core.models import (
+    Delegation,
+    Student,
+    AutoLogin,
+    AccountRequest,
+    PushSubscription,
+    RandomDrawLog,
+)
 
 # Register your models here.
 
@@ -26,42 +39,56 @@ from django.contrib.auth.models import User
 class AutoLoginInline(admin.StackedInline):
     model = AutoLogin
     can_delete = False
-    verbose_name_plural = 'autologin'
+    verbose_name_plural = "autologin"
+
+
+@admin.action(description="Activate selected accounts")
+def activate_users(modeladmin, request, queryset):  # pylint: disable=unused-argument
+    queryset.update(is_active=True)
+
+
+@admin.action(description="De-activate selected accounts")
+def deactivate_users(modeladmin, request, queryset):  # pylint: disable=unused-argument
+    queryset.filter(is_superuser=False).update(is_active=False)
 
 
 class UserAdmin(BaseUserAdmin):
-    inlines = (AutoLoginInline, )
+    list_display = BaseUserAdmin.list_display + ("is_active",)
+    inlines = (AutoLoginInline,)
+    actions = [activate_users, deactivate_users]
 
 
 class DelegationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'country')
-    filter_horizontal = ('members', )
+    list_display = ("name", "country")
+    filter_horizontal = ("members",)
 
 
 class StudentAdmin(admin.ModelAdmin):
     fields = (
-        'code',
-        ('first_name', 'last_name'),
-        'delegation',
+        "code",
+        ("first_name", "last_name"),
+        "delegation",
     )
     list_display = (
-        'code',
-        'last_name',
-        'first_name',
-        'delegation',
+        "code",
+        "last_name",
+        "first_name",
+        "delegation",
     )
-    search_fields = ('last_name', 'first_name')
-    list_editable = ('first_name', 'last_name', 'delegation')
-    list_filter = ('delegation', )
+    search_fields = ("last_name", "first_name")
+    list_editable = ("first_name", "last_name", "delegation")
+    list_filter = ("delegation",)
 
 
 class AccountRequestAdmin(admin.ModelAdmin):
-    list_display = ('email', 'user', 'timestamp')
-    search_fields = ('user', 'email')
-    list_filter = ('user', )
+    list_display = ("email", "user", "timestamp")
+    search_fields = ("user", "email")
+    list_filter = ("user",)
+
 
 class PushSubscriptionAdmin(admin.ModelAdmin):
     pass
+
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)

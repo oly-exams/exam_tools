@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -17,139 +15,829 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import
+# pylint: disable=too-many-lines
 
-import os, uuid
+# mskoenz: text_direction on 738 inactive, is this intended?
+#         disabled Document.question_name, since it makes no sense
+
+import os
+import uuid
 import subprocess
 import codecs
 
-from builtins import object
-from builtins import str
 
 from django.db import models
-from django import forms
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
-from ipho_core.models import Delegation, Student
-from django.shortcuts import get_object_or_404
-from ipho_exam import fonts
-from .exceptions import IphoExamException, IphoExamForbidden
-from polymorphic.models import PolymorphicModel
-from polymorphic.manager import PolymorphicManager
 
+from polymorphic.models import PolymorphicModel
+from polymorphic.managers import PolymorphicManager
+
+from ipho_core.models import Delegation, Student
+from ipho_exam import fonts
+from .exceptions import IphoExamForbidden
 from .utils import natural_id
 
-OFFICIAL_DELEGATION = getattr(settings, 'OFFICIAL_DELEGATION')
-SITE_URL = getattr(settings, 'SITE_URL')
-INKSCAPE_BIN = getattr(settings, 'INKSCAPE_BIN', 'inkscape')
+OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
+SITE_URL = getattr(settings, "SITE_URL")
+INKSCAPE_BIN = getattr(settings, "INKSCAPE_BIN", "inkscape")
 
 
 class LanguageManager(models.Manager):
     def get_by_natural_key(self, name, delegation_name):
-        return self.get(name=name, delegation=Delegation.objects.get_by_natural_key(delegation_name))
+        return self.get(
+            name=name, delegation=Delegation.objects.get_by_natural_key(delegation_name)
+        )
 
 
-@python_2_unicode_compatible
 class Language(models.Model):
     objects = LanguageManager()
-    DIRECTION_CHOICES = (('ltr', 'Left-to-right'), ('rtl', 'Right-to-left'))
-    POLYGLOSSIA_CHOICES = (('albanian', 'Albanian'), ('amharic', 'Amharic'), ('arabic', 'Arabic'), ('armenian', 'Armenian'), ('asturian', 'Asturian'), ('bahasai', 'Bahasai'), ('bahasam', 'Bahasam'), ('basque', 'Basque'), ('bengali', 'Bengali'), ('brazilian', 'Brazilian'), ('breton', 'Breton'), ('bulgarian', 'Bulgarian'), ('catalan', 'Catalan'), ('coptic', 'Coptic'), ('croatian', 'Croatian'), ('czech', 'Czech'), ('danish', 'Danish'), ('divehi', 'Divehi'), ('dutch', 'Dutch'), ('english', 'English'), ('esperanto', 'Esperanto'), ('estonian', 'Estonian'), ('farsi', 'Farsi'), ('finnish', 'Finnish'), ('french', 'French'), ('friulan', 'Friulan'), ('galician', 'Galician'), ('german', 'German'), ('greek', 'Greek'), ('hebrew', 'Hebrew'), ('hindi', 'Hindi'), ('icelandic', 'Icelandic'), ('interlingua', 'Interlingua'), ('irish', 'Irish'), ('italian', 'Italian'), ('kannada', 'Kannada'), ('lao', 'Lao'), ('latin', 'Latin'), ('latvian', 'Latvian'), ('lithuanian', 'Lithuanian'), ('lsorbian', 'Lsorbian'), ('magyar', 'Magyar'), ('malayalam', 'Malayalam'), ('marathi', 'Marathi'), ('nko', 'Nko'), ('norsk', 'Norsk'), ('nynorsk', 'Nynorsk'), ('occitan', 'Occitan'), ('piedmontese', 'Piedmontese'), ('polish', 'Polish'), ('portuges', 'Portuges'), ('romanian', 'Romanian'), ('romansh', 'Romansh'), ('russian', 'Russian'), ('samin', 'Samin'), ('sanskrit', 'Sanskrit'), ('scottish', 'Scottish'), ('serbian', 'Serbian'), ('slovak', 'Slovak'), ('slovenian', 'Slovenian'), ('spanish', 'Spanish'), ('swedish', 'Swedish'), ('syriac', 'Syriac'), ('tamil', 'Tamil'), ('telugu', 'Telugu'), ('thai', 'Thai'), ('tibetan', 'Tibetan'), ('turkish', 'Turkish'), ('turkmen', 'Turkmen'), ('ukrainian', 'Ukrainian'), ('urdu', 'Urdu'), ('usorbian', 'Usorbian'), ('vietnamese', 'Vietnamese'), ('welsh', 'Welsh'), ('custom', 'Other')) # yapf:disable
-    STYLES_CHOICES = ((u'afrikaans', u'Afrikaans'), (u'albanian', u'Albanian'), (u'amharic', u'Amharic'), (u'arabic', u'Arabic'), (u'armenian', u'Armenian'), (u'asturian', u'Asturian'), (u'azerbaijani', u'Azerbaijani'), (u'basque', u'Basque'), (u'belarusian', u'Belarusian'), (u'bengali', u'Bengali'), (u'bosnian', u'Bosnian'), (u'breton', u'Breton'), (u'bulgarian', u'Bulgarian'), (u'burmese', u'Burmese'), (u'cantonese', u'Cantonese'), (u'catalan', u'Catalan'), (u'chinese', u'Chinese (simplified)'), (u'chinese_tc', u'Chinese (traditional)'), (u'coptic', u'Coptic'), (u'croatian', u'Croatian'), (u'czech', u'Czech'), (u'danish', u'Danish'), (u'divehi', u'Divehi'), (u'dutch', u'Dutch'), (u'english', u'English'), (u'esperanto', u'Esperanto'), (u'estonian', u'Estonian'), (u'filipino', u'Filipino'), (u'finnish', u'Finnish'), (u'french', u'French'), (u'friulian', u'Friulian'), (u'galician', u'Galician'), (u'georgian', u'Georgian'), (u'german', u'German'), (u'greek', u'Greek'), (u'hebrew', u'Hebrew'), (u'hindi', u'Hindi'), (u'hungarian', u'Hungarian'), (u'icelandic', u'Icelandic'), (u'indonesian', u'Indonesian'), (u'interlingua', u'Interlingua'), (u'irish', u'Irish'), (u'italian', u'Italian'), (u'japanese', u'Japanese'), (u'kannada', u'Kannada'), (u'kazakh', u'Kazakh'), (u'khmer', u'Khmer'), (u'korean', u'Korean'), (u'kurdish', u'Kurdish'), (u'kyrgyz', u'Kyrgyz'), (u'lao', u'Lao'), (u'latin', u'Latin'), (u'latvian', u'Latvian'), (u'lithuanian', u'Lithuanian'), (u'luxembourgish', u'Luxembourgish'), (u'macedonian', u'Macedonian'), (u'magyar', u'Magyar'), (u'malay', u'Malay'), (u'malayalam', u'Malayalam'), (u'malaysian', u'Malaysian'), (u'mandarin', u'Mandarin'), (u'marathi', u'Marathi'), (u'mongolian', u'Mongolian'), (u'montenegrin', u'Montenegrin'), (u'nepali', u'Nepali'), (u'northern sotho', u'Northern Sotho'), (u'norwegian bokmål', u'Norwegian Bokmål'), (u'norwegian nynorsk', u'Norwegian Nynorsk'), (u'occitan', u'Occitan'), (u'persian', u'Persian'), (u'piedmontese', u'Piedmontese'), (u'polish', u'Polish'), (u'portuguese', u'Portuguese'), (u'romanian', u'Romanian'), (u'romansh', u'Romansh'), (u'russian', u'Russian'), (u'sanskrit', u'Sanskrit'), (u'scottish', u'Scottish'), (u'serbian', u'Serbian'), (u'sinhalese', u'Sinhalese'), (u'slovak', u'Slovak'), (u'slovenian', u'Slovenian'), (u'southern ndebele', u'Southern Ndebele'), (u'southern sotho', u'Southern Sotho'), (u'spanish', u'Spanish'), (u'swedish', u'Swedish'), (u'syriac', u'Syriac'), (u'tajik', u'Tajik'), (u'tamil', u'Tamil'), (u'telugu', u'Telugu'), (u'thai', u'Thai'), (u'tibetan', u'Tibetan'), (u'tsonga', u'Tsonga'), (u'tswana', u'Tswana'), (u'turkish', u'Turkish'), (u'turkmen', u'Turkmen'), (u'ukrainian', u'Ukrainian'), (u'urdu', u'Urdu'), (u'uzbek', u'Uzbek'), (u'venda', u'Venda'), (u'vietnamese', u'Vietnamese'), (u'welsh', u'Welsh'), (u'xhosa', u'Xhosa'), (u'zulu', u'Zulu')) # yapf:disable
-
-    STYLES_TO_GOOGLE_TRANSLATE_MAPPING = {'irish': 'ga', 'montenegrin': '', 'telugu': 'te', 'tajik': 'tg', 'amharic': 'am', 'romanian': 'ro', 'filipino': 'tl', 'serbian': 'sr', 'icelandic': 'is', 'tamil': 'ta', 'czech': 'cs', 'malayalam': 'ml', 'danish': 'da', 'german': 'de', 'persian': 'fa', 'dutch': 'nl', 'welsh': 'cy', 'asturian': '', 'kurdish': 'ku', 'kyrgyz': 'ky', 'interlingua': '', 'arabic': 'ar', 'afrikaans': 'af', 'portuguese': 'pt', 'ukrainian': 'uk', 'thai': 'th', 'occitan': '', 'macedonian': 'mk', 'kannada': 'kn', 'cantonese': '', 'turkish': 'tr', 'southern sotho': '', 'hebrew': 'iw', 'urdu': 'ur', 'english': 'en', 'slovak': 'sk', 'malaysian': 'ms', 'latvian': 'lv', 'georgian': 'ka', 'lao': 'lo', 'bosnian': 'bs', 'armenian': 'hy', 'magyar': 'hu', 'finnish': 'fi', 'khmer': 'km', 'chinese': 'zh', 'spanish': 'es', 'romansh': '', 'norwegian nynorsk': 'no', 'russian': 'ru', 'mandarin': '', 'tsonga': '', 'luxembourgish': 'lb', 'polish': 'pl', 'latin': 'la', 'coptic': '', 'divehi': '', 'breton': '', 'tibetan': '', 'basque': 'eu', 'croatian': 'hr', 'norwegian bokmål': 'no', 'bulgarian': 'bg', 'hungarian': 'hu', 'indonesian': 'id', 'lithuanian': 'lt', 'burmese': 'my', 'swedish': 'sv', 'turkmen': '', 'greek': 'el', 'nepali': 'ne', 'bengali': 'bn', 'sinhalese': '', 'albanian': 'sq', 'galician': 'gl', 'uzbek': 'uz', 'azerbaijani': 'az', 'mongolian': 'mn', 'belarusian': 'be', 'southern ndebele': '', 'friulian': '', 'catalan': 'ca', 'estonian': 'et', 'kazakh': 'kk', 'tswana': '', 'italian': 'it', 'syriac': '', 'sanskrit': '', 'slovenian': 'sl', 'zulu': 'zu', 'marathi': 'mr', 'venda': '', 'vietnamese': 'vi', 'french': 'fr', 'chinese_tc': 'zh-TW', 'korean': 'ko', 'japanese': 'ja', 'esperanto': 'eo', 'piedmontese': '', 'northern sotho': '', 'scottish': '', 'hindi': 'hi', 'xhosa': 'xh', 'malay': 'ms'}
+    DIRECTION_CHOICES = (("ltr", "Left-to-right"), ("rtl", "Right-to-left"))
+    POLYGLOSSIA_CHOICES = (
+        ("afrikaans", "Afrikaans"),
+        ("albanian", "Albanian"),
+        ("amharic", "Amharic"),
+        ("arabic", "Arabic"),
+        ("armenian", "Armenian"),
+        ("asturian", "Asturian"),
+        ("basque", "Basque"),
+        ("belarusian", "Belarusian"),
+        ("bengali", "Bengali"),
+        ("bosnian", "Bosnian"),
+        ("breton", "Breton"),
+        ("bulgarian", "Bulgarian"),
+        ("catalan", "Catalan"),
+        ("coptic", "Coptic"),
+        ("croatian", "Croatian"),
+        ("czech", "Czech"),
+        ("danish", "Danish"),
+        ("divehi", "Divehi"),
+        ("dutch", "Dutch"),
+        ("english", "English"),
+        ("esperanto", "Esperanto"),
+        ("estonian", "Estonian"),
+        ("finnish", "Finnish"),
+        ("french", "French"),
+        ("friulian", "Friulian"),
+        ("gaelic", "Gaelic"),
+        ("galician", "Galician"),
+        ("georgian", "Georgian"),
+        ("german", "German"),
+        ("greek", "Greek"),
+        ("hebrew", "Hebrew"),
+        ("hindi", "Hindi"),
+        ("hungarian", "Hungarian"),
+        ("icelandic", "Icelandic"),
+        ("interlingua", "Interlingua"),
+        ("italian", "Italian"),
+        ("japanese", "Japanese"),
+        ("kannada", "Kannada"),
+        ("khmer", "Khmer"),
+        ("korean", "Korean"),
+        ("kurdish", "Kurdish"),
+        ("lao", "Lao"),
+        ("latin", "Latin"),
+        ("latvian", "Latvian"),
+        ("lithuanian", "Lithuanian"),
+        ("macedonian", "Macedonian"),
+        ("malay", "Malay"),
+        ("malayalam", "Malayalam"),
+        ("marathi", "Marathi"),
+        ("mongolian", "Mongolian"),
+        ("nko", "Nko"),
+        ("norwegian", "Norwegian"),
+        ("occitan", "Occitan"),
+        ("persian", "Persian"),
+        ("piedmontese", "Piedmontese"),
+        ("polish", "Polish"),
+        ("portuguese", "Portuguese"),
+        ("romanian", "Romanian"),
+        ("romansh", "Romansh"),
+        ("russian", "Russian"),
+        ("sami", "Sami"),
+        ("sanskrit", "Sanskrit"),
+        ("serbian", "Serbian"),
+        ("slovak", "Slovak"),
+        ("slovenian", "Slovenian"),
+        ("sorbian", "Sorbian"),
+        ("spanish", "Spanish"),
+        ("swedish", "Swedish"),
+        ("syriac", "Syriac"),
+        ("tamil", "Tamil"),
+        ("telugu", "Telugu"),
+        ("thai", "Thai"),
+        ("tibetan", "Tibetan"),
+        ("turkish", "Turkish"),
+        ("turkmen", "Turkmen"),
+        ("ukrainian", "Ukrainian"),
+        ("urdu", "Urdu"),
+        ("uyghur", "Uyghur"),
+        ("vietnamese", "Vietnamese"),
+        ("welsh", "Welsh"),
+    )  # yapf:disable
+    STYLES_CHOICES = (
+        ("afrikaans", "Afrikaans"),
+        ("albanian", "Albanian"),
+        ("amharic", "Amharic"),
+        ("arabic", "Arabic"),
+        ("armenian", "Armenian"),
+        ("asturian", "Asturian"),
+        ("azerbaijani", "Azerbaijani"),
+        ("basque", "Basque"),
+        ("belarusian", "Belarusian"),
+        ("bengali", "Bengali"),
+        ("bosnian", "Bosnian"),
+        ("breton", "Breton"),
+        ("bulgarian", "Bulgarian"),
+        ("burmese", "Burmese"),
+        ("cantonese", "Cantonese"),
+        ("catalan", "Catalan"),
+        ("chinese", "Chinese (simplified)"),
+        ("chinese_tc", "Chinese (traditional)"),
+        ("coptic", "Coptic"),
+        ("croatian", "Croatian"),
+        ("czech", "Czech"),
+        ("danish", "Danish"),
+        ("divehi", "Divehi"),
+        ("dutch", "Dutch"),
+        ("english", "English"),
+        ("esperanto", "Esperanto"),
+        ("estonian", "Estonian"),
+        ("filipino", "Filipino"),
+        ("finnish", "Finnish"),
+        ("french", "French"),
+        ("friulian", "Friulian"),
+        ("galician", "Galician"),
+        ("georgian", "Georgian"),
+        ("german", "German"),
+        ("greek", "Greek"),
+        ("hebrew", "Hebrew"),
+        ("hindi", "Hindi"),
+        ("hungarian", "Hungarian"),
+        ("icelandic", "Icelandic"),
+        ("indonesian", "Indonesian"),
+        ("interlingua", "Interlingua"),
+        ("irish", "Irish"),
+        ("italian", "Italian"),
+        ("japanese", "Japanese"),
+        ("kannada", "Kannada"),
+        ("kazakh", "Kazakh"),
+        ("khmer", "Khmer"),
+        ("korean", "Korean"),
+        ("kurdish", "Kurdish"),
+        ("kyrgyz", "Kyrgyz"),
+        ("lao", "Lao"),
+        ("latin", "Latin"),
+        ("latvian", "Latvian"),
+        ("lithuanian", "Lithuanian"),
+        ("luxembourgish", "Luxembourgish"),
+        ("macedonian", "Macedonian"),
+        ("magyar", "Magyar"),
+        ("malay", "Malay"),
+        ("malayalam", "Malayalam"),
+        ("malaysian", "Malaysian"),
+        ("mandarin", "Mandarin"),
+        ("marathi", "Marathi"),
+        ("mongolian", "Mongolian"),
+        ("montenegrin", "Montenegrin"),
+        ("nepali", "Nepali"),
+        ("northern sotho", "Northern Sotho"),
+        ("norwegian bokmål", "Norwegian Bokmål"),
+        ("norwegian nynorsk", "Norwegian Nynorsk"),
+        ("occitan", "Occitan"),
+        ("persian", "Persian"),
+        ("piedmontese", "Piedmontese"),
+        ("polish", "Polish"),
+        ("portuguese", "Portuguese"),
+        ("romanian", "Romanian"),
+        ("romansh", "Romansh"),
+        ("russian", "Russian"),
+        ("sanskrit", "Sanskrit"),
+        ("scottish", "Scottish"),
+        ("serbian", "Serbian"),
+        ("sinhalese", "Sinhalese"),
+        ("slovak", "Slovak"),
+        ("slovenian", "Slovenian"),
+        ("southern ndebele", "Southern Ndebele"),
+        ("southern sotho", "Southern Sotho"),
+        ("spanish", "Spanish"),
+        ("swedish", "Swedish"),
+        ("syriac", "Syriac"),
+        ("tajik", "Tajik"),
+        ("tamil", "Tamil"),
+        ("telugu", "Telugu"),
+        ("thai", "Thai"),
+        ("tibetan", "Tibetan"),
+        ("tsonga", "Tsonga"),
+        ("tswana", "Tswana"),
+        ("turkish", "Turkish"),
+        ("turkmen", "Turkmen"),
+        ("ukrainian", "Ukrainian"),
+        ("urdu", "Urdu"),
+        ("uzbek", "Uzbek"),
+        ("venda", "Venda"),
+        ("vietnamese", "Vietnamese"),
+        ("welsh", "Welsh"),
+        ("xhosa", "Xhosa"),
+        ("zulu", "Zulu"),
+    )  # yapf:disable
 
     name = models.CharField(max_length=100, db_index=True)
-    delegation = models.ForeignKey(Delegation, blank=True, null=True, on_delete=models.CASCADE)
+    delegation = models.ForeignKey(
+        Delegation, blank=True, null=True, on_delete=models.CASCADE
+    )
     hidden = models.BooleanField(default=False)
     hidden_from_submission = models.BooleanField(default=False)
     versioned = models.BooleanField(default=False)
     is_pdf = models.BooleanField(default=False)
-    style = models.CharField(max_length=200, blank=True, null=True, choices=STYLES_CHOICES)
-    direction = models.CharField(max_length=3, default='ltr', choices=DIRECTION_CHOICES)
-    polyglossia = models.CharField(max_length=100, default='english', choices=POLYGLOSSIA_CHOICES)
+    style = models.CharField(
+        max_length=200, blank=True, null=True, choices=STYLES_CHOICES
+    )
+    direction = models.CharField(max_length=3, default="ltr", choices=DIRECTION_CHOICES)
+    polyglossia = models.CharField(
+        max_length=100, default="english", choices=POLYGLOSSIA_CHOICES
+    )
     polyglossia_options = models.TextField(blank=True, null=True)
     font = models.CharField(
-        max_length=100, default='notosans', choices=[(k, v['font']) for k, v in sorted(fonts.ipho.items())]
+        max_length=100,
+        default="notosans",
+        choices=[(k, v["font"]) for k, v in sorted(fonts.ipho.items())],
     )
     extraheader = models.TextField(blank=True)
 
-    class Meta(object):
-        unique_together = index_together = (('name', 'delegation'), )
+    class Meta:
+        unique_together = index_together = (("name", "delegation"),)
 
     def natural_key(self):
-        return (self.name, ) + self.delegation.natural_key()
+        return (self.name,) + self.delegation.natural_key()
 
     def __str__(self):
-        return u'%s (%s)' % (self.name, self.delegation.country)
+        return f"{self.name} ({self.delegation.country})"
 
     def check_permission(self, user):
         if user.is_superuser:
             return True
-        else:
-            return user.delegation_set.filter(id=self.delegation.pk).exists()
+
+        return user.delegation_set.filter(id=self.delegation.pk).exists()
 
     def is_official(self):
         return self.delegation.name == OFFICIAL_DELEGATION
+
+    @classmethod
+    def get_official(cls):
+        return cls.objects.get(delegation__name=OFFICIAL_DELEGATION)
 
 
 class ExamManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
 
+    def for_user(self, user):
+        queryset = self.get_queryset()
+        if user.is_superuser:
+            return queryset.filter(visibility__gte=Exam.VISIBLE_2ND_LVL_SUPPORT_ONLY)
 
-@python_2_unicode_compatible
+        is_official_delegation_member = Delegation.objects.filter(
+            members=user, name=OFFICIAL_DELEGATION
+        ).exists()
+        if (
+            user.has_perm("ipho_core.is_organizer_admin")
+            or user.has_perm("ipho_core.can_edit_exam")
+            or (
+                user.has_perm("ipho_core.is_delegation")
+                and is_official_delegation_member
+            )
+        ):
+            return queryset.filter(
+                visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
+            )
+        if (
+            user.has_perm("ipho_core.can_see_boardmeeting")
+            or user.has_perm("ipho_core.is_marker")
+            or user.has_perm("ipho_core.is_printstaff")
+        ):
+            return queryset.filter(
+                visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+            )
+        if user.has_perm("ipho_core.is_delegation_print"):
+            delegation = Delegation.objects.filter(members=user)
+            actions = ExamAction.objects.filter(
+                delegation__in=delegation,
+                action=ExamAction.TRANSLATION,
+                status=ExamAction.SUBMITTED,
+            )
+            return (
+                queryset.filter(
+                    visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
+                    delegation_status__in=actions,
+                )
+                .filter(
+                    Q(
+                        answer_sheet_scan_upload__gte=Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
+                    )
+                    | Q(
+                        submission_printing__gte=Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
+                    ),
+                )
+                .distinct()
+            )
+        return self.none()
+
+
 class Exam(models.Model):
     objects = ExamManager()
 
     code = models.CharField(max_length=8)
     name = models.CharField(max_length=100, unique=True)
-    active = models.BooleanField(default=True, help_text='Exam is editable and viewable by delegations.')
-    hidden = models.BooleanField(default=False, help_text='Exam is hidden from everyone except superusers.')
-    marking_active = models.BooleanField(default=False, help_text='Allow marking submission from delegations. Activate only after official marks are entered.')
-    moderation_active = models.BooleanField(default=False, help_text='Allow access to moderation interface.')
-    show_scans = models.BooleanField(default=False, help_text='Show successful scans to delegation.')
-    hide_feedback = models.BooleanField(default=False, help_text='Hide feedback from delegations')
+
+    FLAG_SQUASHED = 1
+
+    flags = models.PositiveSmallIntegerField(default=0)
+
+    # pylint: disable=invalid-name
+
+    # Note that IntegerFields enable us to filter using order relations.
+    # We mostly use >=/__gte to filter the hierarchical flags
+    # e.g. visibility__gte=Orga+2nd_level shows the exam when the visibility
+    # is set to orgas+2nd_level or orgas+2nd_level+boardmeeting
+    #
+    # Note also, that the colors in the cockpit depend on the number:
+    # <0: Grey, ==0: Blue, >0: Yellow
+
+    VISIBLE_2ND_LVL_SUPPORT_ONLY = -1
+    VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT = 0
+    VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING = 1
+
+    VISIBILITY_CHOICES = (
+        (VISIBLE_2ND_LVL_SUPPORT_ONLY, "2nd level support only"),
+        (VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT, "Organizer + 2nd level support"),
+        (
+            VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
+            "Boardmeeting + Organizer + 2nd level support",
+        ),
+    )
+
+    # See comments on IntegerFields above
+    visibility = models.IntegerField(
+        default=0,
+        choices=VISIBILITY_CHOICES,
+        help_text="Sets the visibility of the exam for organizers and delegations.",
+        verbose_name="Exam Visibility",
+    )
+
+    CAN_TRANSLATE_NOBODY = -1
+    CAN_TRANSLATE_ORGANIZER = 0
+    CAN_TRANSLATE_BOARDMEETING = 1
+
+    CAN_TRANSLATE_CHOICES = (
+        (CAN_TRANSLATE_NOBODY, "Nobody"),
+        (CAN_TRANSLATE_ORGANIZER, "Organizer only"),
+        (CAN_TRANSLATE_BOARDMEETING, "Boardmeeting members + organizers"),
+    )
+
+    # See comments on IntegerFields above
+    can_translate = models.IntegerField(
+        default=-1,
+        choices=CAN_TRANSLATE_CHOICES,
+        help_text="Sets the ability to translate for organizers and delegations.",
+        verbose_name="Can Translate",
+    )
+
+    FEEDBACK_READONLY = 0
+    FEEDBACK_CAN_BE_OPENED = 1
+    FEEDBACK_INVISIBLE = -1
+
+    FEEDBACK_CHOICES = (
+        (FEEDBACK_READONLY, "Read only"),
+        (FEEDBACK_CAN_BE_OPENED, "Can be opened"),
+        (FEEDBACK_INVISIBLE, "Invisible"),
+    )
+
+    # See comments on IntegerFields above
+    feedback = models.IntegerField(
+        default=0,
+        choices=FEEDBACK_CHOICES,
+        help_text="Sets the status of the feedbacks for all questions.",
+        verbose_name="Feedback",
+    )
+
+    SUBMISSION_PRINTING_NOT_VISIBLE = -1
+    SUBMISSION_PRINTING_WHEN_SUBMITTED = 0
+
+    SUBMISSION_PRINTING_CHOICES = (
+        (SUBMISSION_PRINTING_NOT_VISIBLE, "No, not visible"),
+        (SUBMISSION_PRINTING_WHEN_SUBMITTED, "When submitted"),
+    )
+
+    # See comments on IntegerFields above
+    submission_printing = models.IntegerField(
+        default=-1,
+        choices=SUBMISSION_PRINTING_CHOICES,
+        help_text="Sets the ability to print the exam.",
+        verbose_name="Submission Printing",
+    )
+
+    ANSWER_SHEET_SCAN_UPLOAD_NOT_POSSIBLE = -1
+    ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER = 0
+
+    ANSWER_SHEET_SCAN_UPLOAD_CHOICES = (
+        (ANSWER_SHEET_SCAN_UPLOAD_NOT_POSSIBLE, "Not possible"),
+        (ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER, "Participant answer"),
+    )
+
+    # See comments on IntegerFields above
+    answer_sheet_scan_upload = models.IntegerField(
+        default=-1,
+        choices=ANSWER_SHEET_SCAN_UPLOAD_CHOICES,
+        help_text="Sets the ability for scans being uploaded via the web interface.",
+        verbose_name="Answer Sheet Manual Scan Upload",
+    )
+
+    DELEGATION_SCAN_ACCESS_NO = -1
+    DELEGATION_SCAN_ACCESS_STUDENT_ANSWER = 0
+
+    DELEGATION_SCAN_ACCESS_CHOICES = (
+        (DELEGATION_SCAN_ACCESS_NO, "No"),
+        (DELEGATION_SCAN_ACCESS_STUDENT_ANSWER, "Participant answer"),
+    )
+
+    # See comments on IntegerFields above
+    delegation_scan_access = models.IntegerField(
+        default=-1,
+        choices=DELEGATION_SCAN_ACCESS_CHOICES,
+        help_text="Sets the access to the scanned exams for delegations.",
+        verbose_name="Delegation Scan Access",
+    )
+
+    MARKING_ORGANIZER_VIEW_MODERATION_FINAL = -1
+    MARKING_ORGANIZER_VIEW_WHEN_SUBMITTED = 0
+
+    MARKING_ORGANIZER_VIEW_CHOICES = (
+        (
+            MARKING_ORGANIZER_VIEW_MODERATION_FINAL,
+            "In moderation and when marks are finalized",
+        ),
+        (
+            MARKING_ORGANIZER_VIEW_WHEN_SUBMITTED,
+            "When the delegation has submitted their marks",
+        ),
+    )
+
+    # See comments on IntegerFields above
+    marking_organizer_can_see_delegation_marks = models.IntegerField(
+        default=-1,
+        choices=MARKING_ORGANIZER_VIEW_CHOICES,
+        help_text="Sets the access of organizers to the delegation marks",
+        verbose_name="Organizer can see delegation marks",
+    )
+
+    MARKING_DELEGATION_VIEW_NO = -1
+    MARKING_DELEGATION_VIEW_WHEN_SUBMITTED = 0
+    MARKING_DELEGATION_VIEW_YES = 1
+
+    MARKING_DELEGATION_VIEW_CHOICES = (
+        (MARKING_DELEGATION_VIEW_NO, "No"),
+        (
+            MARKING_DELEGATION_VIEW_WHEN_SUBMITTED,
+            "When the delegation has submitted their marks",
+        ),
+        (MARKING_DELEGATION_VIEW_YES, "Yes"),
+    )
+
+    # See comments on IntegerFields above
+    marking_delegation_can_see_organizer_marks = models.IntegerField(
+        default=-1,
+        choices=MARKING_DELEGATION_VIEW_CHOICES,
+        help_text="Sets the access of delegations to the organizer marks",
+        verbose_name="Delegations can see organizer marks",
+    )
+
+    MARKING_ORGANIZER_CAN_ENTER_NOTHING = -1
+    MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED = 0
+    MARKING_ORGANIZER_CAN_ENTER_IF_NOT_FINAL = 1
+
+    MARKING_ORGANIZER_CAN_ENTER_CHOICES = (
+        (MARKING_ORGANIZER_CAN_ENTER_NOTHING, "No"),
+        (
+            MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED,
+            "If delegation has not submitted marks",
+        ),
+        (MARKING_ORGANIZER_CAN_ENTER_IF_NOT_FINAL, "If marks are not finalized"),
+    )
+
+    # See comments on IntegerFields above
+    marking_organizer_can_enter = models.IntegerField(
+        default=-1,
+        choices=MARKING_ORGANIZER_CAN_ENTER_CHOICES,
+        help_text="Sets the ability of markers to edit marks.",
+        verbose_name="Organizers can edit marks",
+    )
+
+    MARKING_DELEGATION_ACTION_NOTHING = -1
+    MARKING_DELEGATION_ACTION_ENTER_SUBMIT = 0
+    MARKING_DELEGATION_ACTION_ENTER_SUBMIT_FINALIZE = 1
+
+    MARKING_DELEGATION_ACTION_CHOICES = (
+        (MARKING_DELEGATION_ACTION_NOTHING, "Nothing"),
+        (MARKING_DELEGATION_ACTION_ENTER_SUBMIT, "Can enter and submit marks"),
+        (
+            MARKING_DELEGATION_ACTION_ENTER_SUBMIT_FINALIZE,
+            "Can enter, submit and finalize marks",
+        ),
+    )
+
+    # See comments on IntegerFields above
+    marking_delegation_action = models.IntegerField(
+        default=-1,
+        choices=MARKING_DELEGATION_ACTION_CHOICES,
+        help_text="Sets the ability of delegations to enter, submit and finalize their marks.",
+        verbose_name="Delegation marking actions",
+    )
+
+    MODERATION_CLOSED = -1
+    MODERATION_OPEN = 0
+
+    MODERATION_CHOICES = (
+        (MODERATION_CLOSED, "Not open"),
+        (MODERATION_OPEN, "Can be moderated"),
+    )
+
+    # See comments on IntegerFields above
+    moderation = models.IntegerField(
+        default=-1,
+        choices=MODERATION_CHOICES,
+        help_text="Allow access to moderation interface.",
+        verbose_name="Moderation",
+    )
+
+    # Fields controllable by the control app
+    # NOTE: only fields having a default value are respected.
+    _controllable_fields = [
+        "visibility",
+        "can_translate",
+        "feedback",
+        "submission_printing",
+        "answer_sheet_scan_upload",
+        "delegation_scan_access",
+        "marking_organizer_can_see_delegation_marks",
+        "marking_organizer_can_enter",
+        "marking_delegation_can_see_organizer_marks",
+        "marking_delegation_action",
+        "moderation",
+    ]
 
     def __str__(self):
-        return u'%s' % (self.name)
+        return "%s" % (self.name)
 
     def natural_key(self):
-        return (self.name, )
+        return (self.name,)
+
+    @classmethod
+    def get_controllable_fields(cls):
+        """Returns the fields available to the control app (i.e. changeable in ExamPhase)."""
+        all_fields = cls._meta.get_fields()
+        # controllable fields need to have a default value
+        available_fields = [
+            field
+            for field in all_fields
+            if field.name in cls._controllable_fields
+            and hasattr(field, "default")
+            and field.default is not models.fields.NOT_PROVIDED
+        ]
+        # use the ordering defined in controllable fields
+        available_fields.sort(key=lambda o: cls._controllable_fields.index(o.name))
+        return available_fields
+
+    @classmethod
+    def get_default_control_settings(cls):
+        """Returns the default values for controllable fields."""
+        available_fields = cls.get_controllable_fields()
+        default_settings = {f.name: f.default for f in available_fields}
+        return default_settings
+
+    @classmethod
+    def get_visibility(cls, user):
+        if user.is_superuser:
+            return cls.VISIBLE_2ND_LVL_SUPPORT_ONLY
+        if user.has_perm("ipho_core.is_organizer_admin") or user.has_perm(
+            "ipho_core.can_edit_exam"
+        ):
+            return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT
+        if (
+            user.has_perm("ipho_core.can_see_boardmeeting")
+            or user.has_perm("ipho_core.is_marker")
+            or user.has_perm("ipho_core.is_printstaff")
+        ):
+            return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
+        max_choice = max(
+            [choice[0] for choice in cls._meta.get_field("visibility").choices]
+        )
+        return max_choice + 1
+
+    @classmethod
+    def get_translatability(cls, user):
+        if (
+            user.is_superuser
+            or user.has_perm("ipho_core.is_organizer_admin")
+            or user.has_perm("ipho_core.can_edit_exam")
+        ):
+            return Exam.CAN_TRANSLATE_ORGANIZER
+        if user.has_perm("ipho_core.can_see_boardmeeting"):
+            return Exam.CAN_TRANSLATE_BOARDMEETING
+        max_choice = max(
+            [choice[0] for choice in cls._meta.get_field("can_translate").choices]
+        )
+        return max_choice + 1
+
+    def check_visibility(self, user):
+        return self.visibility >= Exam.get_visibility(user)
+
+    def check_translatability(self, user):
+        if not self.check_visibility(user):
+            return False
+        return self.can_translate >= Exam.get_translatability(user)
+
+    def check_feedback_visible(self):
+        return self.feedback >= Exam.FEEDBACK_READONLY
+
+    def check_feedback_editable(self):
+        return self.feedback >= Exam.FEEDBACK_CAN_BE_OPENED
+
+    def delegation_can_submit_marking(self):
+        return (
+            self.marking_delegation_action
+            >= Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT
+        )
+
+    def delegation_can_finalize_marking(self):
+        return (
+            self.marking_delegation_action
+            >= Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT_FINALIZE
+        )
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            previous_feedback = Exam.objects.get(pk=self.pk).feedback
+        else:
+            previous_feedback = None
+        super().save(*args, **kwargs)
+
+        if self.feedback != previous_feedback:
+            for question in self.question_set.all():
+                question.feedback_status = Question.FEEDBACK_CLOSED
+                question.save()
+
+
+class ParticipantManager(models.Manager):
+    def get_by_natural_key(self, code, exam_code):
+        return self.get(code=code, exam__code=exam_code)
+
+
+class Participant(models.Model):
+    objects = ParticipantManager()
+
+    code = models.CharField(max_length=10)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=200 + 200)
+    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
+    students = models.ManyToManyField(Student)
+
+    class Meta:
+        unique_together = index_together = (("code", "exam"),)
+        ordering = ["code", "exam"]
+
+    def natural_key(self):
+        return (self.code, self.exam.code)
+
+    def __str__(self):
+        return f"{self.code} ({self.exam.name})"
+
+    @property
+    def is_group(self):
+        return len(self.students.all()) > 1
+
+
+@receiver(post_save, sender=Student, dispatch_uid="create_ppnt_on_stud_creation")
+def create_ppnt_on_stud_creation(instance, created, raw, **kwargs):
+    if raw:
+        return
+    for exam in Exam.objects.all():
+        if created:
+            _create_ppnt_on_creation_helper(exam, instance)
+        else:
+            for ppnt in instance.participant_set.all():
+                if not ppnt.is_group:
+                    ppnt.code = instance.code
+                    ppnt.full_name = instance.full_name
+                    ppnt.delegation = instance.delegation
+                    ppnt.save()
+
+
+def get_ppnt_on_stud_exam(exam, student):
+    """creates a participant based on an exam and a student
+    without storing it into the database.
+
+    Args:
+        exam (ipho_exam.models.Exam): exam
+        student (ipho_exam.models.Student): student
+
+    Returns:
+        ipho_exam.models.Participant: participant
+    """
+    return Participant(
+        code=student.code,
+        exam=exam,
+        full_name=student.full_name,
+        delegation=student.delegation,
+    )
+
+
+@receiver(post_save, sender=Exam, dispatch_uid="create_ppnt_on_exam_creation")
+def create_ppnt_on_exam_creation(instance, created, raw, **kwargs):
+    # Ignore fixtures and saves for existing courses.
+    if not created or raw:
+        return
+    # the order is only important for for ci/cypress testing
+    for student in Student.objects.order_by("pk"):
+        _create_ppnt_on_creation_helper(instance, student)
+
+
+def _create_ppnt_on_creation_helper(exam, student):
+    ppnt, _ = Participant.objects.get_or_create(
+        code=student.code,
+        exam=exam,
+        full_name=student.full_name,
+        delegation=student.delegation,
+    )
+    ppnt.students.set((student,))
 
 
 class QuestionManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):
         return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam_name))
 
+    def for_user(self, user):
+        return self.get_queryset().filter(exam__in=Exam.objects.for_user(user))
 
-@python_2_unicode_compatible
+
 class Question(models.Model):
     objects = QuestionManager()
 
     QUESTION = 0
     ANSWER = 1
     QUESTION_TYPES = (
-        (QUESTION, 'Question'),
-        (ANSWER, 'Answer'),
+        (QUESTION, "Question"),
+        (ANSWER, "Answer"),
     )
 
     code = models.CharField(
-        max_length=8, help_text="e.g. Q for Question, A for Answer Sheet, G for General Instruction"
+        max_length=8,
+        help_text="e.g. Q for Question, A for Answer Sheet, G for General Instruction",
     )
     name = models.CharField(max_length=100, db_index=True)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
-    position = models.PositiveSmallIntegerField(help_text='Sorting index inside one exam')
+    position = models.PositiveSmallIntegerField(
+        help_text="Sorting index inside one exam"
+    )
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, default=QUESTION)
-    feedback_active = models.BooleanField(default=False, help_text='Are feedbacks allowed?')
-    working_pages = models.PositiveSmallIntegerField(default=0, help_text="How many pages for working sheets")
+
+    FLAG_HIDDEN_PDF = 1
+
+    flags = models.PositiveSmallIntegerField(default=0)
+
+    FEEDBACK_CLOSED = -1
+    FEEDBACK_ORGANIZER_COMMENT = 0
+    FEEDBACK_OPEN = 1
+
+    FEEDBACK_CHOICES = (
+        (FEEDBACK_CLOSED, "Closed"),
+        (FEEDBACK_OPEN, "Open"),
+        (FEEDBACK_ORGANIZER_COMMENT, "Closed, Organizer can still comment."),
+    )
+
+    feedback_status = models.IntegerField(
+        default=-1,
+        choices=FEEDBACK_CHOICES,
+        help_text="Sets the status of the feedbacks for this questions.",
+        verbose_name="Feedback",
+    )
+
+    working_pages = models.PositiveSmallIntegerField(
+        default=0, help_text="How many pages for working sheets"
+    )
+
+    # Fields controllable by the control app
+    _controllable_fields = [
+        "feedback_status",
+    ]
 
     ## TODO: add template field
 
-    class Meta(object):
-        ordering = ['position', 'type']
+    class Meta:
+        ordering = ["position", "type"]
 
     def is_answer_sheet(self):
         return self.type == self.ANSWER
@@ -161,124 +849,160 @@ class Question(models.Model):
         return self.exam.name
 
     def __str__(self):
-        return u'{} [#{} in {}]'.format(self.name, self.position, self.exam.name)
+        return f"{self.name} [#{self.position} in {self.exam.name}]"
 
     def natural_key(self):
-        return (self.name, ) + self.exam.natural_key()
+        return (self.name,) + self.exam.natural_key()
 
-    natural_key.dependencies = ['ipho_exam.exam']
+    natural_key.dependencies = ["ipho_exam.exam"]
 
     def has_published_version(self):
-        return bool(self.versionnode_set.filter(status='C'))
+        return self.versionnode_set.filter(status="C").exists()
 
-    def check_permission(self, user):
-        if user.has_perm('ipho_core.is_staff'):
-            return True
-        else:
-            return self.exam.active
+    def check_visibility(self, user):
+        return self.exam.check_visibility(user)
+
+    def check_feedback_visible(self):
+        return self.exam.check_feedback_visible()
+
+    def check_feedback_editable(self):
+        editable = self.feedback_status == Question.FEEDBACK_OPEN
+        return (
+            self.check_feedback_visible()
+            and self.exam.check_feedback_editable()
+            and editable
+        )
+
+    def check_feedback_commentable(self):
+        commentable = self.feedback_status >= Question.FEEDBACK_ORGANIZER_COMMENT
+        return (
+            self.check_feedback_visible()
+            and self.exam.check_feedback_editable()
+            and commentable
+        )
+
+    @classmethod
+    def get_controllable_fields(cls):
+        """Returns the fields available to the control app."""
+        all_fields = cls._meta.get_fields()
+        available_fields = [
+            field for field in all_fields if field.name in cls._controllable_fields
+        ]
+        available_fields.sort(key=lambda o: o.name)
+        return available_fields
 
 
 class VersionNodeManager(models.Manager):
-    def get_by_natural_key(self, version, question_name, exam_name, lang_name, delegation_name):
+    def get_by_natural_key(
+        self, version, question_name, exam_name, lang_name, delegation_name
+    ):
         return self.get(
             version=version,
             language=Language.objects.get_by_natural_key(lang_name, delegation_name),
-            question=Question.objects.get_by_natural_key(question_name, exam_name)
+            question=Question.objects.get_by_natural_key(question_name, exam_name),
         )
 
 
-@python_2_unicode_compatible
 class VersionNode(models.Model):
     objects = VersionNodeManager()
     STATUS_CHOICES = (
-        ('P', 'Proposal'),
-        ('S', 'Staged'),
-        ('C', 'Confirmed'),
+        ("P", "Proposal"),
+        ("S", "Staged"),
+        ("C", "Confirmed"),
     )
 
     text = models.TextField()
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     version = models.IntegerField()
-    tag = models.CharField(max_length=100, null=True, blank=True, help_text='leave empty to show no tag')
+    tag = models.CharField(
+        max_length=100, null=True, blank=True, help_text="leave empty to show no tag"
+    )
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
 
-    class Meta(object):
-        unique_together = index_together = (('question', 'language', 'version'), )
-        ordering = ['-version', '-timestamp']
+    class Meta:
+        unique_together = index_together = (("question", "language", "version"),)
+        ordering = ["-version", "-timestamp"]
 
     def question_name(self):
         return self.question.name
 
     def __str__(self):
-        return u'vnode: {} [{}, v{} {}, {}] - {}'.format(
-            self.question.name, self.language, self.version, self.tag, self.timestamp, self.status
+        return "vnode: {} [{}, v{} {}, {}] - {}".format(
+            self.question.name,
+            self.language,
+            self.version,
+            self.tag,
+            self.timestamp,
+            self.status,
         )
 
     def natural_key(self):
-        return (self.version, ) + self.question.natural_key() + self.language.natural_key()
+        return (
+            (self.version,) + self.question.natural_key() + self.language.natural_key()
+        )
 
-    natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
+    natural_key.dependencies = ["ipho_exam.question", "ipho_exam.language"]
 
 
 class TranslationNodeManager(models.Manager):
     def get_by_natural_key(self, question_name, exam_name, lang_name, delegation_name):
         return self.get(
             language=Language.objects.get_by_natural_key(lang_name, delegation_name),
-            question=Question.objects.get_by_natural_key(question_name, exam_name)
+            question=Question.objects.get_by_natural_key(question_name, exam_name),
         )
 
 
-@python_2_unicode_compatible
 class TranslationNode(models.Model):
     objects = TranslationNodeManager()
     STATUS_CHOICES = (
-        ('O', 'In progress'),
-        ('L', 'Locked'),
-        ('S', 'Submitted'),
+        ("O", "In progress"),
+        ("L", "Locked"),
+        ("S", "Submitted"),
     )
 
     text = models.TextField(blank=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="O")
     timestamp = models.DateTimeField(auto_now=True)
 
-    class Meta(object):
-        unique_together = index_together = (('question', 'language'), )
+    class Meta:
+        unique_together = index_together = (("question", "language"),)
 
     def question_name(self):
         return self.question.name
 
     def __str__(self):
-        return u'node: {} [{}, {}] - {}'.format(self.question.name, self.language, self.timestamp, self.status)
+        return f"node: {self.question.name} [{self.language}, {self.timestamp}] - {self.status}"
 
     def natural_key(self):
         return self.question.natural_key() + self.language.natural_key()
 
-    natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
+    natural_key.dependencies = ["ipho_exam.question", "ipho_exam.language"]
 
 
 class AttributeChangeManager(models.Manager):
     def get_by_natural_key(self, *args, **kwargs):
-        return self.get(node=TranslationNode.objects.get_by_natural_key(*args, **kwargs))
+        return self.get(
+            node=TranslationNode.objects.get_by_natural_key(*args, **kwargs)
+        )
 
 
-@python_2_unicode_compatible
 class AttributeChange(models.Model):
     objects = AttributeChangeManager()
     content = models.TextField(blank=True)
     node = models.OneToOneField(TranslationNode, on_delete=models.CASCADE)
 
     def __str__(self):
-        return u'attrs:{}'.format(self.node)
+        return f"attrs:{self.node}"
 
     def natural_key(self):
         return self.node.natural_key()
 
     natural_key.dependencies = [
-        'ipho_exam.translationnode',
+        "ipho_exam.translationnode",
     ]
 
 
@@ -286,47 +1010,47 @@ class PDFNodeManager(models.Manager):
     def get_by_natural_key(self, question_name, exam_name, lang_name, delegation_name):
         return self.get(
             language=Language.objects.get_by_natural_key(lang_name, delegation_name),
-            question=Question.objects.get_by_natural_key(question_name, exam_name)
+            question=Question.objects.get_by_natural_key(question_name, exam_name),
         )
 
 
 def get_file_path(instance, filename):
-    ext = filename.split('.')[-1]
-    filename = "%s.%s" % (uuid.uuid4(), ext)
-    return os.path.join('pdfnodes/Lang{}Q{}'.format(instance.question.pk, instance.language.pk), filename)
+    ext = filename.split(".")[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return os.path.join(
+        f"pdfnodes/Lang{instance.question.pk}Q{instance.language.pk}", filename
+    )
 
 
-@python_2_unicode_compatible
 class PDFNode(models.Model):
     objects = PDFNodeManager()
     STATUS_CHOICES = (
-        ('O', 'In progress'),
-        ('L', 'Locked'),
-        ('S', 'Submitted'),
+        ("O", "In progress"),
+        ("L", "Locked"),
+        ("S", "Submitted"),
     )
 
     pdf = models.FileField(upload_to=get_file_path, blank=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="O")
     timestamp = models.DateTimeField(auto_now=True)
 
-    class Meta(object):
-        unique_together = index_together = (('question', 'language'), )
+    class Meta:
+        unique_together = index_together = (("question", "language"),)
 
     def question_name(self):
         return self.question.name
 
     def __str__(self):
-        return u'pdfNode: {} [{}, {}] - {}'.format(self.question.name, self.language, self.timestamp, self.status)
+        return f"pdfNode: {self.question.name} [{self.language}, {self.timestamp}] - {self.status}"
 
     def natural_key(self):
         return self.question.natural_key() + self.language.natural_key()
 
-    natural_key.dependencies = ['ipho_exam.question', 'ipho_exam.language']
+    natural_key.dependencies = ["ipho_exam.question", "ipho_exam.language"]
 
 
-@python_2_unicode_compatible
 class TranslationImportTmp(models.Model):
     slug = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -334,9 +1058,9 @@ class TranslationImportTmp(models.Model):
     content = models.TextField(blank=True)
 
     def __str__(self):
-        return u'%s - %s, %s' % (self.slug, self.question, self.language)
+        return f"{self.slug} - {self.question}, {self.language}"
 
-@python_2_unicode_compatible
+
 class CachedAutoTranslation(models.Model):
     source_and_lang_hash = models.CharField(max_length=32, primary_key=True)
     source_length = models.IntegerField()
@@ -346,12 +1070,11 @@ class CachedAutoTranslation(models.Model):
     hits = models.IntegerField(default=1)
 
     def __str__(self):
-        return u'{} -> {} ({})'.format(self.source_lang, self.target_lang, self.source_length)
+        return f"{self.source_lang} -> {self.target_lang} ({self.source_length})"
 
 
-
-VALID_RAW_FIGURE_EXTENSIONS = ('.png', '.jpg', '.jpeg')
-VALID_COMPILED_FIGURE_EXTENSIONS = ('.svg', '.svgz')
+VALID_RAW_FIGURE_EXTENSIONS = (".png", ".jpg", ".jpeg")
+VALID_COMPILED_FIGURE_EXTENSIONS = (".svg", ".svgz")
 VALID_FIGURE_EXTENSIONS = VALID_RAW_FIGURE_EXTENSIONS + VALID_COMPILED_FIGURE_EXTENSIONS
 
 
@@ -360,17 +1083,22 @@ class FigureManager(PolymorphicManager):
         return self.get(fig_id=fig_id)
 
 
-@python_2_unicode_compatible
 class Figure(PolymorphicModel):
     objects = FigureManager()
     name = models.CharField(max_length=100, db_index=True)
-    fig_id = models.URLField(max_length=100, db_index=True, default=natural_id.generate_id, unique=True, blank=False)
+    fig_id = models.URLField(
+        max_length=100,
+        db_index=True,
+        default=natural_id.generate_id,
+        unique=True,
+        blank=False,
+    )
 
     def natural_key(self):
-        return (self.fig_id, )
+        return (self.fig_id,)
 
     def __str__(self):
-        return u'%s' % (self.name)
+        return "%s" % (self.name)
 
 
 class CompiledFigure(Figure):
@@ -378,85 +1106,104 @@ class CompiledFigure(Figure):
     params = models.TextField(blank=True)
 
     def params_as_list(self):
-        return list([si.trim() for si in self.params.split(',')])
+        return list(  # pylint: disable=consider-using-generator
+            [si.trim() for si in self.params.split(",")]
+        )
 
     def _to_svg(self, query, lang=None):
-        placeholders = self.params.split(',')
+        placeholders = self.params.split(",")
         fig_svg = self.content
-        fonts_repl = u'@import url({host}/static/noto/notosans.css);'.format(host=SITE_URL)
-        font_name = u'Noto Sans'
-        text_direction = u'ltr'
+        fonts_repl = f"@import url({SITE_URL}/static/noto/notosans.css);"
+        font_name = "Noto Sans"
+        # text_direction = "ltr"
         if lang is not None:
-            font_name = fonts.ipho[lang.font]['font']
-            text_direction = lang.direction
-            fonts_repl += '\n@import url({host}/static/noto/{font_css});'.format(
-                host=SITE_URL, font_css=fonts.ipho[lang.font]['css']
+            font_name = fonts.ipho[lang.font]["font"]
+            # text_direction = lang.direction
+            fonts_repl += "\n@import url({host}/static/noto/{font_css});".format(
+                host=SITE_URL, font_css=fonts.ipho[lang.font]["css"]
             )
-        fig_svg = fig_svg.replace('%font-faces%', fonts_repl)
-        fig_svg = fig_svg.replace('%font-family%', font_name)
+        fig_svg = fig_svg.replace("%font-faces%", fonts_repl)
+        fig_svg = fig_svg.replace("%font-family%", font_name)
         # fig_svg = fig_svg.replace('%text-direction%', text_direction)
-        fig_svg = fig_svg.replace('%text-direction%', '')
-        for pl in placeholders:
-            if pl in query:
-                repl = query[pl]
-                fig_svg = fig_svg.replace(u'%{}%'.format(pl), repl)
+        fig_svg = fig_svg.replace("%text-direction%", "")
+        for plh in placeholders:
+            if plh in query:
+                repl = query[plh]
+                fig_svg = fig_svg.replace(f"%{plh}%", repl)
         return fig_svg
 
     def to_inline(self, query, lang=None):
-        return self._to_svg(query=query, lang=lang), 'svg+xml'
+        return self._to_svg(query=query, lang=lang), "svg+xml"
 
-    def to_file(self, fig_name, query, lang=None):
+    def to_file(self, fig_name, query, lang=None, svg_to_png=False):
         fig_svg = self._to_svg(query=query, lang=lang)
+        if svg_to_png:
+            return self._to_png(fig_svg, fig_name)
         return self._to_pdf(fig_svg, fig_name)
 
     @staticmethod
     def _to_pdf(fig_svg, fig_name):
-        with codecs.open('%s.svg' % (fig_name), "w", encoding='utf-8') as fp:
-            fp.write(fig_svg)
+        # pylint: disable=consider-using-with
+        with codecs.open("%s.svg" % (fig_name), "w", encoding="utf-8") as f:
+            f.write(fig_svg)
         error = subprocess.Popen(
-            [INKSCAPE_BIN, '--without-gui',
-             '%s.svg' %
-             (fig_name), '--export-pdf=%s.pdf' % (fig_name)],
-            stdin=open(os.devnull, "r"),
+            [
+                INKSCAPE_BIN,
+                "--without-gui",
+                "%s.svg" % (fig_name),
+                "--export-pdf=%s.pdf" % (fig_name),
+            ],
+            stdin=open(os.devnull),
             stderr=open(os.devnull, "wb"),
-            stdout=open(os.devnull, "wb")
+            stdout=open(os.devnull, "wb"),
         ).wait()
         if error:
-            print('Got error', error)
-            raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
+            print("Got error", error)
+            raise RuntimeError(f"Error in Inkscape. Errorcode {error}.")
 
-    # @staticmethod
-    # def _to_png(fig_svg, fig_name):
-    #     with open('%s.svg' % (fig_name), 'w') as fp:
-    #         fp.write(fig_svg)
-    #     error = subprocess.Popen(
-    #         [INKSCAPE_BIN,
-    #          '--without-gui',
-    #          '%s.svg' % (fig_name),
-    #          '--export-png=%s' % (fig_name),
-    #          '--export-dpi=180'],
-    #         stdin=open(os.devnull, "r"),
-    #         stderr=open(os.devnull, "wb"),
-    #         stdout=open(os.devnull, "wb")
-    #     ).wait()
-    #     if error:
-    #         print('Got error', error)
-    #         raise RuntimeError('Error in Inkscape. Errorcode {}.'.format(error))
+    @staticmethod
+    def _to_png(fig_svg, fig_name):
+        # pylint: disable=consider-using-with
+        with codecs.open("%s.svg" % (fig_name), "w", encoding="utf-8") as f:
+            f.write(fig_svg)
+        error = subprocess.Popen(
+            [
+                INKSCAPE_BIN,
+                "--without-gui",
+                "%s.svg" % (fig_name),
+                "--export-png=%s.png" % (fig_name),
+                "--export-dpi=180",
+            ],
+            stdin=open(os.devnull),
+            stderr=open(os.devnull, "wb"),
+            stdout=open(os.devnull, "wb"),
+        ).wait()
+        if error:
+            print("Got error", error)
+            raise RuntimeError(f"Error in Inkscape. Errorcode {error}.")
 
 
 class RawFigure(Figure):
     content = models.BinaryField()
     filetype = models.CharField(max_length=4)
-    params = ''
+    params = ""
 
-    def params_as_list(self):
+    def params_as_list(self):  # pylint: disable=no-self-use
         return []
 
     def to_inline(self, *args, **kwargs):
         return self.content, self.filetype
 
-    def to_file(self, fig_name, query, lang=None, format_default='auto', force_default=False):
-        with open('{name}.{ext}'.format(name=fig_name, ext=self.filetype), 'wb') as f:
+    def to_file(
+        self,
+        fig_name,
+        query,
+        lang=None,
+        format_default="auto",
+        force_default=False,
+        svg_to_png=False,
+    ):  # pylint: disable=unused-argument, too-many-arguments
+        with open(f"{fig_name}.{self.filetype}", "wb") as f:
             f.write(self.content)
 
 
@@ -465,132 +1212,123 @@ class PlaceManager(models.Manager):
         return self.get(name=name, exam__name=exam_name)
 
 
-@python_2_unicode_compatible
 class Place(models.Model):
     objects = PlaceManager()
 
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
 
     def __str__(self):
-        return u'{} [{} {}]'.format(self.name, self.exam.name, self.student.code)
+        return f"{self.name} [{self.participant.exam.name} {self.participant.code}]"
 
     def natural_key(self):
-        return (self.name, self.exam.name)
+        return (self.name, self.participant.exam.name)
 
-    class Meta(object):
-        unique_together = index_together = ('student', 'exam')
+    class Meta:
+        unique_together = index_together = ("participant",)
 
 
-@python_2_unicode_compatible
 class Feedback(models.Model):
     STATUS_CHOICES = (
-        ('S', 'Submitted'),
-        ('V', 'Scheduled for voting'),
-        ('I', 'Implemented'),
-        ('T', 'Settled after voting'),
-        ('W', 'Withdrawn'),
+        ("S", "Submitted"),
+        ("V", "Scheduled for voting"),
+        ("I", "Implemented"),
+        ("T", "Settled after voting"),
+        ("W", "Withdrawn"),
     )
     PARTS_CHOICES = (
-        ('General', 'General'),
-        ('Intro', 'Introduction'),
-        ('A', 'Part A'),
-        ('B', 'Part B'),
-        ('C', 'Part C'),
-        ('D', 'Part D'),
-        ('E', 'Part E'),
-        ('F', 'Part F'),
-        ('G', 'Part G'),
+        ("General", "General"),
+        ("Intro", "Introduction"),
+        ("A", "Part A"),
+        ("B", "Part B"),
+        ("C", "Part C"),
+        ("D", "Part D"),
+        ("E", "Part E"),
+        ("F", "Part F"),
+        ("G", "Part G"),
     )
     SUBPARTS_CHOICES = (
-        ('General', 'General comment on part'),
-        ('Intro', 'Introduction of part'),
-        ('1', '1'),
-        ('2', '2'),
-        ('3', '3'),
-        ('4', '4'),
-        ('5', '5'),
-        ('6', '6'),
-        ('7', '7'),
-        ('8', '8'),
+        ("General", "General comment on part"),
+        ("Intro", "Introduction of part"),
+        ("1", "1"),
+        ("2", "2"),
+        ("3", "3"),
+        ("4", "4"),
+        ("5", "5"),
+        ("6", "6"),
+        ("7", "7"),
+        ("8", "8"),
     )
 
     delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     qml_id = models.CharField(max_length=100, default=None, null=True, blank=True)
     part = models.CharField(max_length=100, default=None)
+    part_position = models.IntegerField(default=0)
     comment = models.TextField(blank=True)
     org_comment = models.TextField(blank=True, null=True, default=None)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='S')
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="S")
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return u'#{} {} - {} ({})'.format(self.pk, self.question.name, self.question.exam.name, self.delegation.name)
-
-    @staticmethod
-    def part_id(txt):
-        all_parts = []
-        for k, v in Feedback.PARTS_CHOICES:
-            for kk, vv in Feedback.SUBPARTS_CHOICES:
-                all_parts.append('{}.{}'.format(k, kk))
-        try:
-            i = all_parts.index(txt)
-        except:
-            #print('Problem')
-            i = len(all_parts)
-        return i
+        return f"#{self.pk} {self.question.name} - {self.question.exam.name} ({self.delegation.name})"
 
 
 class Like(models.Model):
     CHOICES = (
-        ('L', 'Liked'),
-        ('U', 'Unliked'),
+        ("L", "Liked"),
+        ("U", "Unliked"),
     )
     status = models.CharField(max_length=1, choices=CHOICES)
     delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
     feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE)
 
-    class Meta(object):
-        unique_together = index_together = ('delegation', 'feedback')
+    class Meta:
+        unique_together = index_together = ("delegation", "feedback")
 
 
 class ExamActionManager(models.Manager):
     def get_by_natural_key(self, exam_name, delegation_name, action):
-        return self.get(exam__name=exam_name, delegation__name=delegation_name, action=action)
+        return self.get(
+            exam__name=exam_name, delegation__name=delegation_name, action=action
+        )
 
 
 class ExamAction(models.Model):
     objects = ExamActionManager()
 
-    OPEN = 'O'
-    SUBMITTED = 'S'
+    OPEN = "O"
+    SUBMITTED = "S"
     STATUS_CHOICES = (
-        (OPEN, 'In progress'),
-        (SUBMITTED, 'Submitted'),
+        (OPEN, "In progress"),
+        (SUBMITTED, "Submitted"),
     )
-    TRANSLATION = 'T'
-    POINTS = 'P'
+    TRANSLATION = "T"
+    POINTS = "P"
     ACTION_CHOICES = (
-        (TRANSLATION, 'Translation submission'),
-        (POINTS, 'Points submission'),
+        (TRANSLATION, "Translation submission"),
+        (POINTS, "Points submission"),
     )
-    exam = models.ForeignKey(Exam, related_name='delegation_status', on_delete=models.CASCADE)
-    delegation = models.ForeignKey(Delegation, related_name='exam_status', on_delete=models.CASCADE)
+    exam = models.ForeignKey(
+        Exam, related_name="delegation_status", on_delete=models.CASCADE
+    )
+    delegation = models.ForeignKey(
+        Delegation, related_name="exam_status", on_delete=models.CASCADE
+    )
     action = models.CharField(max_length=2, choices=ACTION_CHOICES)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='O')
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="O")
     timestamp = models.DateTimeField(auto_now=True)
 
-    class Meta(object):
-        unique_together = index_together = (('exam', 'delegation', 'action'), )
+    class Meta:
+        unique_together = index_together = (("exam", "delegation", "action"),)
 
     def natural_key(self):
-        return self.exam.natural_key() + self.delegation.natural_key() + (self.action, )
+        return self.exam.natural_key() + self.delegation.natural_key() + (self.action,)
 
-    natural_key.dependencies = ['ipho_exam.exam', 'ipho_core.delegation']
+    natural_key.dependencies = ["ipho_exam.exam", "ipho_core.delegation"]
 
     @staticmethod
-    def is_in_progress(action, exam, delegation):
+    def action_in_progress(action, exam, delegation):
         translation_submitted = ExamAction.objects.filter(
             exam=exam, delegation=delegation, action=action, status=ExamAction.SUBMITTED
         ).exists()
@@ -598,126 +1336,177 @@ class ExamAction(models.Model):
 
     @staticmethod
     def require_in_progress(action, exam, delegation):
-        if not ExamAction.is_in_progress(action, exam, delegation):
+        if not ExamAction.action_in_progress(action, exam, delegation):
             return IphoExamForbidden(
-                'You cannot perfom this action: this exam is submitted. Contact the staff if you have good reasons to request a reset.'
+                "You cannot perfom this action: this exam is submitted. Contact the staff if you have good reasons to request a reset."
             )
         return None
 
 
-@receiver(post_save, sender=Exam, dispatch_uid='create_actions_on_exam_creation')
+@receiver(post_save, sender=Exam, dispatch_uid="create_actions_on_exam_creation")
 def create_actions_on_exam_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
     for delegation in Delegation.objects.all():
         for action, _ in ExamAction.ACTION_CHOICES:
-            exam_action, _ = ExamAction.objects.get_or_create(exam=instance, delegation=delegation, action=action)
+            ExamAction.objects.get_or_create(
+                exam=instance, delegation=delegation, action=action
+            )
 
 
-@receiver(post_save, sender=Delegation, dispatch_uid='create_actions_on_delegation_creation')
+@receiver(
+    post_save, sender=Delegation, dispatch_uid="create_actions_on_delegation_creation"
+)
 def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
         return
     for exam in Exam.objects.all():
         for action, _ in ExamAction.ACTION_CHOICES:
-            exam_action, _ = ExamAction.objects.get_or_create(exam=exam, delegation=instance, action=action)
+            ExamAction.objects.get_or_create(
+                exam=exam, delegation=instance, action=action
+            )
 
 
-class StudentSubmission(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+class ParticipantSubmission(models.Model):
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
-    with_question = models.BooleanField(default=True, help_text='Deliver question sheets.')
-    with_answer = models.BooleanField(default=False, help_text='Deliver also answer sheet.')
+    with_question = models.BooleanField(
+        default=True, help_text="Deliver question sheets."
+    )
+    with_answer = models.BooleanField(
+        default=False, help_text="Deliver also answer sheet."
+    )
 
     ## TODO: do we need a status? (in progress, submitted, printed)
 
-    class Meta(object):
-        unique_together = index_together = (('student', 'exam', 'language'), )
+    class Meta:
+        unique_together = index_together = (("participant", "language"),)
 
 
-def exam_prints_filename(obj, fname):
-    basestr = 'exams-docs/{}/print/exam-{}-{}.pdf'
-    return basestr.format(obj.student.code, obj.exam.id, obj.position)
+def exam_prints_filename(obj, fname):  # pylint: disable=unused-argument
+    path = f"exams-docs/{obj.participant.code}/print/exam-{obj.participant.exam.id}-{obj.position}.pdf"
+    return path
 
 
-def exam_scans_filename(obj, fname):
-    basestr = 'exams-docs/{}/scan/exam-{}-{}.pdf'
-    return basestr.format(obj.student.code, obj.exam.id, obj.position)
+def exam_scans_filename(obj, fname):  # pylint: disable=unused-argument
+    path = f"exams-docs/{obj.participant.code}/scan/exam-{obj.participant.exam.id}-{obj.position}.pdf"
+    return path
 
 
-def exam_scans_orig_filename(obj, fname):
-    basestr = 'scans-evaluated/{}__{}.pdf'
-    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
-    return basestr.format(obj.barcode_base, timestamp)
+def exam_scans_orig_filename(obj, fname):  # pylint: disable=unused-argument
+    timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
+    path = f"scans-evaluated/{obj.barcode_base}__{timestamp}.pdf"
+    return path
 
 
-@python_2_unicode_compatible
+class DocumentManager(models.Manager):
+    def for_user(self, user):
+        queryset = self.get_queryset()
+        if (
+            user.is_superuser
+            or user.has_perm("ipho_core.is_organizer_admin")
+            or user.has_perm("ipho_core.is_marker")
+        ):
+            return queryset.filter(participant__exam__in=Exam.objects.for_user(user))
+        if user.has_perm("ipho_core.is_printstaff"):
+            # Does show documents even if printing is not activated as there is no scanning flag for organizers at the moment.
+            return queryset.filter(participant__exam__in=Exam.objects.for_user(user))
+        if user.has_perm("ipho_core.is_delegation"):
+            delegs = Delegation.objects.filter(members=user)
+            return queryset.filter(
+                participant__exam__in=Exam.objects.for_user(user)
+            ).filter(participant__delegation__in=delegs)
+        return queryset.none()
+
+    def scans_ready(self, user):
+        queryset = self.for_user(user)
+        return (
+            queryset.filter(scan_status="S")
+            .exclude(
+                scan_file__isnull=True,
+            )
+            .exclude(scan_file="")
+        )
+
+
 class Document(models.Model):
+    objects = DocumentManager()
+
     SCAN_STATUS_CHOICES = (
-        ('S', 'Success'),
-        ('W', 'Warning'),
-        ('M', 'Missing pages'),
+        ("S", "Success"),
+        ("W", "Warning"),
+        ("M", "Missing pages"),
     )
 
-    exam = models.ForeignKey(Exam, help_text='Exam', on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, help_text='Student', on_delete=models.CASCADE)
+    participant = models.ForeignKey(
+        Participant, help_text="Participant", on_delete=models.CASCADE
+    )
     timestamp = models.DateTimeField(auto_now=True, null=True)
     position = models.IntegerField(
-        help_text='Question grouping position, e.g. 0 for cover sheet / instructions, 1 for the first question, etc'
+        help_text="Question grouping position, e.g. 0 for cover sheet / instructions, 1 for the first question, etc"
     )
-    file = models.FileField(blank=True, upload_to=exam_prints_filename, help_text='Exam handouts')
-    num_pages = models.IntegerField(default=0, help_text='Number of pages of the handouts')
-    barcode_num_pages = models.IntegerField(default=0, help_text='Number of pages with a barcode')
+    file = models.FileField(
+        blank=True, upload_to=exam_prints_filename, help_text="Exam handouts"
+    )
+    num_pages = models.IntegerField(
+        default=0, help_text="Number of pages of the handouts"
+    )
+    barcode_num_pages = models.IntegerField(
+        default=0, help_text="Number of pages with a barcode"
+    )
     extra_num_pages = models.IntegerField(
-        default=0, help_text='Number of additional pages with barcode (not in the handouts)'
+        default=0,
+        help_text="Number of additional pages with barcode (not in the handouts)",
     )
-    barcode_base = models.TextField(help_text='Common base barcode on all pages')
+    barcode_base = models.TextField(help_text="Common base barcode on all pages")
     scan_file = models.FileField(
         blank=True,
         upload_to=exam_scans_filename,
-        help_text=
-        'Scanned results. The file is show to the delegation and, if possible, it will contain only the pages with barcode.'
+        help_text="Scanned results. The file is show to the delegation and, if possible, it will contain only the pages with barcode.",
     )
     scan_file_orig = models.FileField(
-        blank=True, upload_to=exam_scans_orig_filename, help_text='Original scanned document without page extractions'
+        blank=True,
+        upload_to=exam_scans_orig_filename,
+        help_text="Original scanned document without page extractions",
     )
     scan_status = models.CharField(
         max_length=10,
         blank=True,
         null=True,
         choices=SCAN_STATUS_CHOICES,
-        help_text='Status of the scanned document. S - Success, W - Warning, M - Missing pages'
+        help_text="Status of the scanned document. S - Success, W - Warning, M - Missing pages",
     )
-    scan_msg = models.TextField(blank=True, null=True, help_text='Warning messages generated by the barcode extractor')
+    scan_msg = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Warning messages generated by the barcode extractor",
+    )
 
-    class Meta(object):
-        unique_together = index_together = (('exam', 'student', 'position'), )
+    class Meta:
+        unique_together = index_together = (("participant", "position"),)
 
-    def question_name(self):
-        return self.question.name
+    # def question_name(self):
+    # return self.question.name
 
     def __str__(self):
-        return u'Document: {} #{} [{}]'.format(self.exam.name, self.position, self.student.code)
+        return f"Document: {self.participant.exam.name} #{self.position} [{self.participant.code}]"
 
 
-@python_2_unicode_compatible
 class DocumentTask(models.Model):
     task_id = models.CharField(unique=True, max_length=255)
     document = models.OneToOneField(Document, on_delete=models.CASCADE)
 
     def __str__(self):
-        return u'{} --> {}'.format(self.task_id, self.document)
+        return f"{self.task_id} --> {self.document}"
 
 
-@python_2_unicode_compatible
 class PrintLog(models.Model):
-    TYPE_CHOICES = (('P', 'Printout'), ('S', 'Scan'))
+    TYPE_CHOICES = (("P", "Printout"), ("S", "Scan"))
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
-    type = models.CharField(max_length=1, choices=TYPE_CHOICES)
+    doctype = models.CharField(max_length=1, choices=TYPE_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return u'{}-{} ({}) {}'.format(self.document.exam.code, self.document.position, self.type, self.timestamp)
+        return f"{self.document.participant.exam.code}-{self.document.position} ({self.doctype}) {self.timestamp}"

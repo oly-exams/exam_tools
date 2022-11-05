@@ -25,6 +25,9 @@ View and print individual documents, or select and print in bulk.
 <p class="alert alert-info">
 <i class="fa fa-info-circle"></i>
 This list shows only documents that have been submitted by the delegations.
+{% for alert in alert_info %}
+<br><i class="fa fa-info-circle"></i> {{ alert }}
+{% endfor %}
 </p>
 
 <p> Number of entries: {{ entries }} </p>
@@ -50,6 +53,23 @@ This list shows only documents that have been submitted by the delegations.
           <li><a href="{% this_url ex=None page=1 %}">-- None --</a></li>
       {% for ex in exams %}
           <li {% if exam == ex %} class="active" {% endif %}><a href="{% this_url ex=ex.pk page=1 %}">{{ ex.name }}</a></li>
+      {% endfor %}
+        </ul>
+      </div>
+
+      <div class="dropdown div-inline">
+        <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      {% if position %}
+          {{ position }}
+      {% else %}
+          Filter Position
+      {% endif %}
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% this_url pos=None %}">-- None --</a></li>
+      {% for pos in positions %}
+          <li {% if position == pos %} class="active" {% endif %}><a href="{% this_url pos=pos %}">{{ pos }}</a></li>
       {% endfor %}
         </ul>
       </div>
@@ -159,7 +179,7 @@ This list shows only documents that have been submitted by the delegations.
           <th></th>
           <th>Exam</th>
           <th>#</th>
-          <th>Student</th>
+          <th>Participant</th>
           <th>Num pages</th>
           <th>Barcode</th>
           <th>Printouts <button type="button" class="printouts-all">invert selection</button>
@@ -171,20 +191,21 @@ This list shows only documents that have been submitted by the delegations.
         {% for d in docs_list %}
           <tr>
             <td>{{ d.pk }} </td>
-            <td>{{ d.exam__name }}<br>Submitted:
-              {% if d.exam__delegation_status__timestamp %}
-              <time datetime="{{ d.exam__delegation_status__timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+            <td>{{ d.participant__exam__name }}<br>Submitted:
+              {% if d.participant__exam__delegation_status__timestamp %}
+              <time datetime="{{ d.participant__exam__delegation_status__timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
               {% else %}
               --:--
               {% endif %}
             </td>
             <td>{{ d.position }}</td>
-            <td>{{ d.student__code }}</td>
+            <td>{{ d.participant__code }}</td>
             <td>{{ d.num_pages }} / {{ d.barcode_num_pages }} / {{ d.extra_num_pages }}</td>
             <td>{{ d.barcode_base }}</td>
             <td align="center">
-              <a class="btn btn-default btn-xs" href="{% url 'exam:pdf-exam-pos-student'  exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+              <a class="btn btn-default btn-xs" id="exam-doc-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
               <br />
+              {% if d.participant__exam__submission_printing %}
               <input class="printouts-single" type="checkbox" name="printouts[]" value="{{ d.pk }}" />
               <div class="btn-group">
                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
@@ -193,10 +214,13 @@ This list shows only documents that have been submitted by the delegations.
                 </button>
                 <ul class="dropdown-menu">
                   {% for p in queue_list %}
-                  <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position student_id=d.student__id queue=p.0 type='P' %}">{{ p.1 }}</a></li>
+                  <li><a href="{% url 'exam:print-doc' exam_id=d.participant__exam__id position=d.position participant_id=d.participant__id queue=p.0 doctype='P' %}">{{ p.1 }}</a></li>
                   {% endfor %}
                 </ul>
               </div>
+              {% else %}
+              Printing is not activated for exam: {{ d.participant__exam__name }}
+              {% endif %}
               <br />
               Print time:
               {% if d.last_print_p %}
@@ -207,7 +231,7 @@ This list shows only documents that have been submitted by the delegations.
             </td>
             <td align="center">
               {% if d.scan_file %}
-                <a class="btn btn-default btn-xs" href="{% url 'exam:scan-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <a class="btn btn-default btn-xs" id="processed_scan-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
                 <br />
                 <input type="checkbox" name="scans[]" value="{{ d.pk }}" />
                 <div class="btn-group">
@@ -217,7 +241,7 @@ This list shows only documents that have been submitted by the delegations.
                   </button>
                   <ul class="dropdown-menu">
                     {% for p in queue_list %}
-                    <li><a href="{% url 'exam:print-doc' exam_id=d.exam__id position=d.position student_id=d.student__id queue=p.0 type='S' %}">{{ p.1 }}</a></li>
+                    <li><a href="{% url 'exam:print-doc' exam_id=d.participant__exam__id position=d.position participant_id=d.participant__id queue=p.0 doctype='S' %}">{{ p.1 }}</a></li>
                     {% endfor %}
                   </ul>
                 </div>
@@ -236,14 +260,13 @@ This list shows only documents that have been submitted by the delegations.
                 --:--
                 {% endif %}
                 <br />
-
               {% endif %}
             </td>
             <td>
               {% if d.scan_file %}
               <div class="btn-group">
                 {% for r,label in scan_status_choices %}
-                <a class="btn btn-default btn-xs {% if d.scan_status == r %}active{% endif %}" href="{% url 'exam:set-scan-status' doc_id=d.pk status=r %}" title="{{ label }}" data-toggle="tooltip">{{ r }}</a>
+                <a class="btn btn-default btn-xs scan-status-button {% if d.scan_status == r %}active{% endif %}" href="{% url 'exam:set-scan-status' doc_id=d.pk status=r %}" title="{{ label }}" data-toggle="tooltip">{{ r }}</a>
                 {% endfor %}
               </div>
                 {% if d.scan_msg %}
@@ -254,7 +277,7 @@ This list shows only documents that have been submitted by the delegations.
             </td>
             <td>
               {% if d.scan_file_orig %}
-                <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-student' exam_id=d.exam__id student_id=d.student__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
                 <br />
                 <div class="btn-group">
                   <a class="btn btn-default btn-xs" href="{% url 'exam:set-scan-full'  doc_id=d.pk %}" title="replace scan by full scan" data-toggle="tooltip"><i class="fa fa-fw fa-angle-double-left"></i></a>
@@ -327,6 +350,62 @@ $('.printouts-all').click(function() {
     $(this).click();
   });
 });
+
+$(function() {
+    // Get csrftoken
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+
+    $(document).on('click', 'a.scan-status-button', function(evt) {
+        evt.preventDefault();
+        var btn = $(evt.target);
+        var btngroup = btn.parent();
+        var url = btn.prop('href');
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: [],
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (!data['success']) {
+                    return;
+                }
+                btngroup.children().removeClass("active");
+                btn.addClass("active");
+            }
+        });
+    });
+  })
+
 
 </script>
 {% endblock %}

@@ -1,0 +1,60 @@
+pre-build:base-python:
+    extends: .build:build_cached_push
+    stage: pre-build
+    variables:
+        SERVICE_NAME: base-python
+    rules:
+        - if: '$DOCKER_CACHE == "no"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
+            - requirements.txt
+
+build:pre-commit:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: pre-commit
+        BUILD_DEPENDENCY: base-python
+    rules:
+        - if: '$DOCKER_CACHE == "no"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
+            - .pre-commit-config.yaml
+            - requirements.txt
+            - requirements_dev.txt
+
+build:django-server:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: django-server
+        BUILD_DEPENDENCY: base-python
+    rules:
+        - if: '$DOCKER_CACHE == "no"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
+            - requirements.txt
+            - bower/*
+
+
+build:celery-worker:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: celery-worker
+        BUILD_DEPENDENCY: base-python
+    rules:
+        - if: '$DOCKER_CACHE == "no"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
+            - requirements.txt
+
+build:testing-cypress:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: testing-cypress
+    rules:
+        - if: '$DOCKER_CACHE == "no"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        # this dep is not real, but here to trigger the build in a new branch.
+        # Theoretically, testing-cypress is branch independent, but to use
+        # the same mechanisms we still build it in every branch.
+        - changes:
+            - requirements.txt

@@ -15,14 +15,14 @@ figure {
 </figure>
 
 
-The submission has a few steps. A status bar will guide you through the process: First you **assign languages to students**, then you will be asked to **confirm** your submission before being being delivered to the organizers for printing.
+The submission has a few steps. A status bar will guide you through the process: First you **assign languages to participants**, then you will be asked to **confirm** your submission before being being delivered to the organizers for printing.
 ![](img/exam_submission_header.png)
 
 ## Assign exams
 
 ![](img/exam_submission_assign.png)
 
-In the assign step you select which languages will be printed for each student. Multiple translations can be develivered.
+In the assign step you select which languages will be printed for each participant. Multiple translations can be develivered.
 
 If some of your languages does not show up in the table, you probably did not create the translations in the [translations overview](translations.md).
 
@@ -32,7 +32,7 @@ Note that this step is not the final submission, even by clicking *Next* you wil
 ## Confirm and submit for printing
 ![](img/exam_submission_confirm.png)
 
-In the second step you see the summary of what has been selected in the previous *Assign step*. For each student the *Preview* button provides a printable version of the exam, as it will be delivered to the students. Please review it.
+In the second step you see the summary of what has been selected in the previous *Assign step*. For each participant the *Preview* button provides a printable version of the exam, as it will be delivered to the participants. Please review it.
 
 By clicking on the checkbox below the summary table and clicking on *Submit*, you will submit the current selection of translations to the organizers who will take care of printing them and package it for the exam.
 
@@ -41,4 +41,3 @@ Please click on *Submit* only when you are sure about the translations. You will
 ## Summary overview
 
 After the exam has been submitted for printing, you will still be able to review your choices, but no changes are anymore allowed.
-

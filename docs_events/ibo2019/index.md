@@ -13,7 +13,7 @@ The translation process consists of the following steps:
 1. [Start the translation](exam_editor.md)
 1. Generate the printable version
 1. Repeat if translation in more languages is needed
-1. [Assign the languages to the students and submit](assign_exams.md)
+1. [Assign the languages to the participants and submit](assign_exams.md)
 
 To guide you through this process we prepared a [**step-by-step**](step_by_step.md) guide which reports the tasks that you already completed and explains how to perfom the next steps.
 

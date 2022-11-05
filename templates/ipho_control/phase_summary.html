@@ -1,0 +1,34 @@
+<div class="panel-group" id="phase-summary-parent" role="tablist" aria-multiselectable="true">
+{% for phase in phases %}
+
+<div class="panel panel-info">
+    <div class="panel-heading" role="tab" data-toggle="collapse" data-parent="#phase-summary-parent" href="#phase-summary-{{ phase.exam.pk }}" aria-expanded="false" aria-controls="phase-summary-{{ phase.exam.pk }}">
+        <span class="accordion-toggle" >
+          <span style="font-size: 16px; margin-right:10px;">{{ phase.exam.name }}:</span>
+          <span style="font-size:20px; margin-right:10px;">    {% if phase.phase %}{{ phase.phase.name }}{% endif %}</span>
+          <span>
+            Last change: 
+            {% if phase.last_change %}
+            <time datetime="{{ phase.last_change|date:'c' }}" data-format="DD. MMM HH:mm:ss"></time>
+            {% else %}
+                  --:--
+            {% endif %}
+          </span>
+        </span>
+    </div>
+    <div class="panel-collapse collapse" id="phase-summary-{{ phase.exam.pk }}" role="tabpanel" aria-labelledby="headingOne">
+    <div class="panel-body">
+      <p>
+        {% if phase.phase %}
+        {{ phase.phase.public_description }}
+        {% else %}
+        This is an unnamed phase, there is no further description available.
+        {% endif %}
+      </p>
+    </div>
+  </div>
+</div>
+{% empty %}
+No exams available.
+{% endfor %}
+</div>

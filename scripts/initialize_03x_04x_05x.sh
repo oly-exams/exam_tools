@@ -14,10 +14,10 @@ python scripts/export_trans_exams.py
 # echo "Delegation translations"
 # python scripts/export_delegation_translations.py
 
-echo "Student seats..."
-# python scripts/prod_04_import_student_seating.py "$INPUT_DIR/040_students_seats.csv"
+echo "Participant seats..."
+# python scripts/prod_04_import_participant_seating.py "$INPUT_DIR/040_participants_seats.csv"
 python scripts/set_random_seats.py
-python manage.py dumpdata --natural-foreign --natural-primary --indent=2  ipho_exam.place > 040_student_seats.json
+python manage.py dumpdata --natural-foreign --natural-primary --indent=2  ipho_exam.place > 040_participant_seats.json
 
 echo "Exam Actions..."
 python scripts/create_all_examactions.py

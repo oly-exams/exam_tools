@@ -125,15 +125,18 @@
           <th>Delegation</th>
           <th>Question</th>
           <th>Part</th>
+          <th style="display:none;">Part Position</th>
           <th>Comment</th>
           <th>Timestamp</th>
           <th style="width:170px">Actions</th>
-          {% if perms.ipho_core.is_staff %}
-          <th>Commments</th>
+          {% if perms.ipho_core.can_manage_feedback and exam.check_feedback_editable %}
+          {% if question and question.check_feedback_commentable or not question %}
+          <th>Comments</th>
+          {% endif %}
           {% endif %}
       </tr>
     </thead>
-      <tbody id="exam-tbody-{{ exam.pk }}"></tbody>
+      <tbody id="feedback-tbody-{{ exam.pk }}"></tbody>
     </table>
   {% else %}
   <div class="dropdown ">
@@ -203,7 +206,7 @@ $(function() {
             contentType: false,
             success: function(data) {
                 if (!data['success']) {
-                    $('#translation-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    $('#feedback-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
                     return;
                 }
                 update_feedbacks({{ exam.pk }});
@@ -217,7 +220,7 @@ $(function() {
 
     $('#feedback-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
-        var fid = button.attr('id');
+        var fid = button.data('feedback-pk');
         var modal = $(this);
         var url =  "{% url 'exam:feedback-add-comment' %}/"+fid;
 
@@ -244,14 +247,14 @@ $(function() {
           var table = $('#feedback-table-'+tid).DataTable({
             columnDefs: [
               { type: 'natural', targets: 4 },
-              { "width": "25%", "targets": 5 },
+              { "width": "25%", "targets": 6 },
             ],
             stateSave: true,
             retrieve:true,
             autoWidth: false,
             });
             table.destroy();
-            $("#exam-tbody-"+tid).html(data);
+            $("#feedback-tbody-"+tid).html(data);
             $("time[data-format]").each(function () {
                 var el = $(this);
                 var dt = moment(el.attr("datetime"));
@@ -261,7 +264,8 @@ $(function() {
             var table = $('#feedback-table-'+tid).DataTable({
               columnDefs: [
                 { type: 'natural', targets: 4 },
-                { "width": "25%", "targets": 5 },
+                { "width": "25%", "targets": 6 },
+                { "orderData": 5,    "targets":4 },
               ],
               stateSave: true,
               retrieve:true,

@@ -1,10 +1,9 @@
-
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
 {% block extra-head %}
-<meta http-equiv="refresh" content="15" />
+<meta http-equiv="refresh" content="600" />
 {% endblock %}
 
 {% block content %}
@@ -23,7 +22,10 @@
         <tr>
             <th>In Progress</th>
             <th>Submitted</th>
-            <th>Remaining</th>
+            <th>Submissions Remaining</th>
+            <th>Moderated</th>
+            <th>Accepted</th>
+            <th>Approvals Remaining</th>
         </tr>
         <tbody>
             <tr>
@@ -34,12 +36,21 @@
                     <span>{{ country }}</span>
                     {% endfor %}
                 </td>
+                <td>{{ summary.4 }}</td>
+                <td>{{ summary.5 }}</td>
+                <td>
+                    {% for country in summary.6 %}
+                    <span>{{ country }}</span>
+                    {% endfor %}
+                </td>
             </tr>
         </tbody>
     </table>
     {% empty %}
-    <p class="alert alert-info">No exam is enabled for marking.</p>
+    <p class="alert alert-info">No exam is enabled for delegation marking.</p>
     {% endfor %}
+    <a class="btn btn-default btn-sm" href="export-countries-to-moderate.csv"><i class="fa fa-file-excel-o"></i> Export
+        countries to moderate</i></a>
 </div>
 
 {% endblock %}
@@ -47,14 +58,14 @@
 
 {% block extra-script %}
 <script>
-$('document').ready(function(){
-    $(document).on('click', '#reload', function(event){
-        location.reload();
-    });
+    $('document').ready(function () {
+        $(document).on('click', '#reload', function (event) {
+            location.reload();
+        });
 
-    // Activates tooltipls
-    $('.btn').tooltip({containter: ".parent"});
+        // Activates tooltipls
+        $('.btn').tooltip({ containter: ".parent" });
 
-}); // $(document).ready()
+    }); // $(document).ready()
 </script>
 {% endblock %}

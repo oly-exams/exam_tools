@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+{% comment %}
+The error pages don't have access to the custom context.
+Hence the unsupported banner is always shown.
+Emptying the block will remove all banners. 
+{% endcomment %}
+{% block banner %}{% endblock %}
+
 {% block content %}
 <div class="jumbotron">
   <div class="container text-center">

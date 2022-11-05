@@ -13,6 +13,16 @@
 /*    	width: 100%;
     	height: 100%;*/
     }
+
+    .panel-heading .accordion-toggle:after {
+    font-family: 'Glyphicons Halflings';  
+    content: "\e114"; 
+    float: right; 
+    color:rgb(0, 0, 0); 
+    }
+    .panel-heading.collapsed .accordion-toggle:after {
+        content: "\e080";
+    }
     </style>
 
 <div class="container">
@@ -38,7 +48,9 @@
               Originally developed for the International Physics Olympiad 2016 held in Zurich, Switzerland, Exam Tools has since
               been used at several Scientific Olympiads to support the exam discussion, translation and administration process.
               Exam feedbacks, translations, printing, voting, corrections and ranking are among the features of this new tool.
+              {% if OFFICIALLY_SUPPORTED %}
               The <a href="http://oly-exams.org">OlyExams</a> team and the local organizers are proud to offer Exam Tools also for the present Olympiad.
+              {% endif %}
           </p>
           <p>
               During the registration process you will need to confirm that your delegation will join with at least one supported notebook computer, and that you were successfully able to translate the test exams. Note that the organizers will not provide any notebooks or workstations to the delegations (except upon prior arrangement).
@@ -51,6 +63,7 @@
           {% if DEMO_MODE %}
           <p>Within this demo version you can perfom the translation and submission of previous years' exams.</p>
           {% endif %}
+          {% if perms.ipho_core.can_see_boardmeeting %}
           <h3>Step-by-step guide</h3>
           <p>To guide you through the translation process, we prepared a step-by-step guide which explains the basic steps needed for testing your notebook.</p>
           {% if DEMO_MODE %}
@@ -58,8 +71,23 @@
           {% else %}
           <p class="text-center"><a class="btn btn-primary btn-lg" href="{% url 'exam:wizard' %}">Get started!</a></p>
           {% endif %}
+          {% if control_show_phases %}
           <hr />
-
+            <div id="exam-summary-header" style="display:flex; justify-content: space-between; align-items: center;">
+                <div style="width: 85%;">
+                    <h2>Exam Phases</h2>
+                    <p>Below you can see the phases the different Exams are in.</p>
+                </div>
+                <div id="exam-summary-reload-container">
+                    <button class="btn btn-default btn-lg" id="exam-summary-reload" style="font-size:22px;">
+                        <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                    </button>
+                </div>
+                
+            </div>
+            <div id="exam-summary-container" data-href="{% url 'control:exam-phase-summary' %}"></div>
+          {% endif %}
+          <hr />
           <p><strong>Navigation:</strong> Below you find a summary of the Exam Tools structure. The same navigation is available in the upper bar on all pages.</p>
 
           <div class="row">
@@ -143,7 +171,7 @@
                   <h3>Voting</h3>
                   <ul>
                       <li>
-                          <a href="{% url 'poll:voterIndex' %}">
+                          <a href="{% url 'poll:voter-index' %}">
                               Vote
                           </a>
                       </li>
@@ -160,7 +188,7 @@
                         </a>
                     </li>
                 </ul>
-                {% if perms.ipho_core.print_technopark or perms.ipho_core.print_irchel %}
+                {% if perms.ipho_core.can_print_boardmeeting_site or perms.ipho_core.can_print_exam_site %}
                 <h3>Print</h3>
                 <ul>
                     <li>
@@ -173,13 +201,20 @@
               </div>
 
           </div>
+          {% endif %}
 
 
         </div>
         <div class="col-md-3">
           <h2>Help</h2>
-          <p>If you need help with the Exam Tools, please contact a Leader Guide or IT Staff member. For general feedback or bug reports, you can also contact us at <br />
-              <a href="mailto:exam-tools-users@oly-exams.org"><i class="fa fa-envelope-o"></i> exam-tools-users@oly-exams.org</a>.</p>
+          <p>If you need help with the Exam Tools, please contact a Leader Guide or IT Staff member. 
+              {% if OFFICIALLY_SUPPORTED %}
+              For general feedback or bug reports, you can also contact us at <br />
+              <a href="mailto:exam-tools-users@oly-exams.org"><i class="fa fa-envelope-o"></i> exam-tools-users@oly-exams.org</a>.
+              {% else %}
+              Note that this event is run without OlyExams support.
+              {% endif %}
+            </p>
 
           <h2>User guide</h2>
           <p>Please refer to the documentation section for a detailed user guide which explains the Exam Tools and how to perfom a test exam translation required by the registration process.</p>
@@ -285,12 +320,50 @@ function subscribeUser() {
     //updateBtn();
   });
 }
+
+{% if control_show_phases %}
+function load_exam_phase_summary() {
+    $.ajax({
+        url: $("#exam-summary-container").data("href"),
+        dataType: 'json',
+        success: function(data) {
+            if(data['success']){
+                $("#exam-summary-container").html(data['body']);
+                $("time[data-format]").each(function () {
+                  var el = $(this);
+                  var dt = moment(el.attr("datetime"));
+                  el.text(dt.format(el.data("format")));
+                });
+                setTimeout(function(){
+                    $('#exam-summary-reload').removeClass("disabled");
+                    $('#exam-summary-reload-container').prop("title", "");
+                    $('#exam-summary-reload-container').tooltip("destroy");
+                },5000)
+            }
+        }
+    });
+}
+{% endif %}
+
 $(document).ready(function() {
   checkStatus().then(function () {
     {% if push %}
     subscribeUser();
     {% endif %}
   });
+
+  {% if control_show_phases %}
+  load_exam_phase_summary();
+  
+  $('#exam-summary-reload').on("click",function(e){
+      e.preventDefault();
+      $('#exam-summary-reload').addClass("disabled");
+      $('#exam-summary-reload-container').prop("title", "Please wait 5 seconds before reloading again.");
+      $('#exam-summary-reload-container').tooltip();
+      load_exam_phase_summary();
+  });
+  {% endif %}
+
 });
 
 </script>

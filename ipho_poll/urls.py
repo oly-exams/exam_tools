@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,30 +15,74 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
-app_name = 'poll'
+app_name = "poll"
 urlpatterns = [
     # staff urls
-    url(r'^staff/$', views.staffIndex, name='staffIndex'),
-    url(r'^staff/partials/(?P<qtype>\w+)$', views.staffIndexPartial, name='staff-index-partials'),
-    url(
-        r'^staff/question/(?P<question_pk>\d+)/set/result/(?P<result>\d+)$', views.staff_setResult, name='staff-set-result'
+    path("staff/", views.staff_index, name="staff-index"),
+    path("staff/room/<int:room_id>", views.staff_index, name="staff-index_room"),
+    path(
+        "staff/room/<int:room_id>/partials/<slug:qtype>",
+        views.staff_index_partial,
+        name="staff-index-partials-room",
     ),
-    url(r'^staff/question/(?P<question_pk>\d+)/set/impl/(?P<impl>\d+)$', views.staff_setImpl, name='staff-set-impl'),
-    url(r'^question/detail/(?P<question_pk>\d+)/$', views.question, name='question'),
-    url(r'^question/large/(?P<question_pk>\d+)/$', views.question_large, name='question_large'),
-    url(r'^question/add/$', views.addQuestion, name='addQuestion'),
-    url(r'^question/(?P<question_pk>\d+)/delete/$', views.deleteQuestion, name='deleteQuestion'),
-    url(r'^question/(?P<question_pk>\d+)/edit/$', views.editQuestion, name='editQuestion'),
-    url(r'^question/(?P<question_pk>\d+)/$', views.setEndDate, name='setEndDate'),
-    url(r'^question/(?P<question_pk>\d+)/removeEndDate$', views.removeEndDate, name='removeEndDate'),
-    url(r'^question/(?P<question_pk>\d+)/close$', views.closeQuestion, name='closeQuestion'),
-
-    #delegation urls
-    url(r'^$', views.voterIndex, name='voterIndex'),
-    url(r'^err/(?P<err_id>\d+)$', views.voterIndex, name='voterIndex_err'),
-    url(r'^voted/$', views.voted, name='voted'),
+    path(
+        "staff/room/partials/<slug:qtype>",
+        views.staff_index_partial,
+        name="staff-index-partials",
+    ),
+    path(
+        "staff/voting/<int:voting_pk>/set/result/<int:result>",
+        views.staff_set_result,
+        name="staff-set-result",
+    ),
+    path(
+        "staff/voting/<int:voting_pk>/set/impl/<int:impl>",
+        views.staff_set_impl,
+        name="staff-set-impl",
+    ),
+    path("voting/detail/<int:voting_pk>/", views.voting_details, name="voting"),
+    path(
+        "voting/large/<int:voting_pk>/",
+        views.voting_large,
+        name="voting_large",
+    ),
+    path("voting/add/room/<int:room_id>", views.add_voting, name="add-voting-in-room"),
+    path("voting/add/main", views.add_voting, name="add-voting"),
+    path(
+        "voting/<int:voting_pk>/delete/",
+        views.delete_voting,
+        name="delete-voting",
+    ),
+    path(
+        "voting/<int:voting_pk>/edit/",
+        views.edit_voting,
+        name="edit-voting",
+    ),
+    path("voting/<int:voting_pk>/", views.set_end_date, name="set-end-date"),
+    path(
+        "voting/<int:voting_pk>/remove-end-date",
+        views.remove_end_date,
+        name="remove-end-date",
+    ),
+    path(
+        "voting/<int:voting_pk>/close",
+        views.close_voting,
+        name="close-voting",
+    ),
+    path("room/edit/<int:room_id>", views.edit_room, name="edit-room"),
+    # delegation urls
+    path("", views.voter_index, name="voter-index"),
+    path("room/<int:room_id>", views.voter_index, name="voter-index_room"),
+    path("err/<int:err_id>", views.voter_index, name="voter-index_err"),
+    path(
+        "room/<int:room_id>/err/<int:err_id>",
+        views.voter_index,
+        name="voter-index_room_err",
+    ),
+    path("voted/room/<int:room_id>", views.voted, name="voted_room"),
+    path("voted/", views.voted, name="voted"),
 ]

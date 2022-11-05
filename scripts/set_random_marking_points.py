@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2018 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,16 +15,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
 
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'exam_tools.settings'
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 import sys
 
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, root_dir)
 
 import django
+
 django.setup()
 
 from ipho_marking.models import Marking, MarkingMeta
@@ -43,5 +44,5 @@ def main():
         i += 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(main())

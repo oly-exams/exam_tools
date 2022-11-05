@@ -15,7 +15,7 @@
 
 
     <p></p>
-    <a class="btn btn-primary" href="{% url 'poll:voterIndex' %}" type="button">Continue Voting</a>
+    <a class="btn btn-primary" href="{% if room_id %}{% url 'poll:voter-index_room' room_id=room_id %}{% else %}{% url 'poll:voter-index' %}{% endif %}" type="button">Continue Voting</a>
 
 
 </div>

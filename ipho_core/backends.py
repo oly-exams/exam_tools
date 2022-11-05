@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,12 +15,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from builtins import object
-from ipho_core.models import AutoLogin, User
+from ipho_core.models import User
 
 
-class TokenLoginBackend(object):
-    def authenticate(self, token=None):
+class TokenLoginBackend:
+    def authenticate(self, request, token=None):  # pylint: disable=no-self-use
         if token is None:
             return None
         try:
@@ -29,7 +28,7 @@ class TokenLoginBackend(object):
         except User.DoesNotExist:
             return None
 
-    def get_user(self, user_id):
+    def get_user(self, user_id):  # pylint: disable=no-self-use
         try:
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:

@@ -1,3 +1,12 @@
 .git
 *.db
+*.db.bk
 db/
+venv/
+static_bower/
+node_modules/
+docker
+.dockerignore
+.gitlab
+document-files
+media

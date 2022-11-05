@@ -1,4 +1,4 @@
-{% load staticfiles %}
+{% load static %}
 
 self.addEventListener('push', function(event) {
   console.log('[Service Worker] Push Received.');

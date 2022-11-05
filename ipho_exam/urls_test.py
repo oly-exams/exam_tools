@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,16 +15,18 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import include, url
+from django.conf.urls import re_path
 
 from . import views_test
 
-app_name = 'test'
+app_name = "test"
 urlpatterns = [
-    url(r'^$', views_test.index),
-    url(r'^view$', views_test.view, name='view'),
-    url(r'^edit$', views_test.edit, name='edit'),
-    url(r'^inline$', views_test.inline_edit, name='inline'),
-    url(r'^mathquill$', views_test.mathquill, name='mathquill'),
-    url(r'^mathquill_toolbar$', views_test.mathquill_toolbar, name='mathquill_toolbar'),
+    re_path(r"^$", views_test.index),
+    re_path(r"^view$", views_test.view, name="view"),
+    re_path(r"^edit$", views_test.edit, name="edit"),
+    re_path(r"^inline$", views_test.inline_edit, name="inline"),
+    re_path(r"^mathquill$", views_test.mathquill, name="mathquill"),
+    re_path(
+        r"^mathquill_toolbar$", views_test.mathquill_toolbar, name="mathquill_toolbar"
+    ),
 ]

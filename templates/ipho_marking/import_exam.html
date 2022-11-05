@@ -9,31 +9,36 @@
 
 {% block page-content %}
 
-    <div id="alerts-container">
-        {% for alert in alerts %}
-        {{ alert|safe }}
-        {% endfor %}
-    </div>
+<div id="alerts-container">
+    {% for alert in alerts %}
+    {{ alert|safe }}
+    {% endfor %}
+</div>
 
-    <div class="row">
-        <div class="col-md-11">
+<div class="row">
+    <div class="col-md-11">
         <p class="lead">Generate the meta data needed in the marking tables.</p>
         <p>Importing the subquestion from an exam means:</p>
-            <ul>
-                <li>Add and overwrite subquestion meta data.
-                    <div class="alert alert-warning">Note that this will not delete current subquestion meta data, current subquestions are identified by their name, which <strong>could also cause false-matches</strong>.</div></li>
-                <li>Generate default entry for all students (null points).
-                    <div class="alert alert-warning">Note that points already set will <strong>not be reset</strong>.</div></li>
-            </ul>
-        <p>Note that this action can take <strong>several minutes</strong>. Please be patient and do not reload the page.</p>
-        </div>
+        <ul>
+            <li>Add and overwrite subquestion meta data.
+                <div class="alert alert-warning">Note that this will not delete current subquestion meta data, current
+                    subquestions are identified by their name, which <strong>could also cause false-matches</strong>.
+                </div>
+            </li>
+            <li>Generate default entry for all participants (0 points).
+                <div class="alert alert-warning">Note that points already set will <strong>not be reset</strong>.</div>
+            </li>
+        </ul>
+        <p>Note that this action can take <strong>several minutes</strong>. Please be patient and do not reload the
+            page.</p>
     </div>
-    <hr />
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-            {% crispy form %}
-        </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        {% crispy form %}
     </div>
+</div>
 
 {% endblock %}
 

@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,52 +15,86 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from builtins import object
-from django.shortcuts import get_object_or_404, render_to_response, render
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
+from django.shortcuts import get_object_or_404
+from django.http import Http404
 
-from crispy_forms.utils import render_crispy_form
-from django.template.loader import render_to_string
-
-from copy import deepcopy
-from collections import OrderedDict
-
-from ipho_core.models import Delegation, Student
-from ipho_exam.models import Exam, Question, VersionNode, TranslationNode, PDFNode, Language, Figure, Feedback, StudentSubmission, ExamAction
+from ipho_exam.models import (
+    Question,
+    VersionNode,
+    TranslationNode,
+    PDFNode,
+    Language,
+)
 from ipho_exam import qml
 
 
-class Qwrapper(object):
+class Qwrapper:
     pass
 
 
-def latest_version(question_id, lang_id):
-    q = Qwrapper()
+def latest_version(question_id, lang_id, user=None, status=None):
+    # pylint: disable=attribute-defined-outside-init
 
-    q.question = get_object_or_404(Question, id=question_id)
-    q.lang = get_object_or_404(Language, id=lang_id)
+    if status is None:
+        status = ["C"]
 
-    if q.lang.is_pdf:
-        q.node = get_object_or_404(PDFNode, question=q.question, language=q.lang)
-        return q
+    qwp = Qwrapper()
 
-    if q.lang.versioned:
-        q.node = VersionNode.objects.filter(question=q.question, language=q.lang, status='C').order_by('-version')[0]
+    if user is not None:
+        qwp.question = get_object_or_404(
+            Question.objects.for_user(user), id=question_id
+        )
     else:
-        q.node = get_object_or_404(TranslationNode, question=q.question, language=q.lang)
+        qwp.question = get_object_or_404(Question, id=question_id)
+    qwp.lang = get_object_or_404(Language, id=lang_id)
 
-    q.qml = qml.make_qml(q.node) if '<question' in q.node.text else qml.QMLquestion('<question id="q0" />')
+    if qwp.lang.is_pdf:
+        qwp.node = get_object_or_404(PDFNode, question=qwp.question, language=qwp.lang)
+        return qwp
 
-    return q
+    if qwp.lang.versioned:
+        qwp.node = (
+            VersionNode.objects.filter(
+                question=qwp.question, language=qwp.lang, status__in=status
+            )
+            .order_by("-version")
+            .first()
+        )
+        if qwp.node is None:
+            raise Http404("No VersionNode found.")
+    else:
+        qwp.node = get_object_or_404(
+            TranslationNode, question=qwp.question, language=qwp.lang
+        )
+
+    qwp.qml = (
+        qml.make_qml(qwp.node)
+        if "<question" in qwp.node.text
+        else qml.create_empty_qml_question()
+    )
+
+    return qwp
 
 
-def get_version(question_id, lang_id, version_num):
-    q = Qwrapper()
+def get_version(question_id, lang_id, version_num, user=None):
+    # pylint: disable=attribute-defined-outside-init
+    qwp = Qwrapper()
 
-    q.question = get_object_or_404(Question, id=question_id)
-    q.lang = get_object_or_404(Language, id=lang_id)
-    q.node = get_object_or_404(VersionNode, question=q.question, language=q.lang, version=version_num)
+    if user is not None:
+        qwp.question = get_object_or_404(
+            Question.objects.for_user(user), id=question_id
+        )
+    else:
+        qwp.question = get_object_or_404(Question, id=question_id)
+    qwp.lang = get_object_or_404(Language, id=lang_id)
+    qwp.node = get_object_or_404(
+        VersionNode, question=qwp.question, language=qwp.lang, version=version_num
+    )
 
-    q.qml = qml.make_qml(q.node) if '<question' in q.node.text else qml.QMLquestion('<question id="q0" />')
+    qwp.qml = (
+        qml.make_qml(qwp.node)
+        if "<question" in qwp.node.text
+        else qml.create_empty_qml_question()
+    )
 
-    return q
+    return qwp

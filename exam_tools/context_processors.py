@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -20,10 +20,12 @@ from django.conf import settings
 
 def ipho_context(request):
     return {
-        'DEMO_MODE': settings.DEMO_MODE,
-        'DEMO_SIGN_UP': settings.DEMO_SIGN_UP,
-        'VERSION': settings.VERSION,
-        'VERSION_DATE': settings.VERSION_DATE,
-        'DOCS_URL': settings.DOCS_URL,
-        'STATIC_PATH': settings.STATIC_PATH,
+        "DEMO_MODE": settings.DEMO_MODE,
+        "DEMO_SIGN_UP": settings.DEMO_SIGN_UP,
+        "VERSION": settings.VERSION,
+        "VERSION_DATE": settings.VERSION_DATE,
+        "DOCS_URL": settings.DOCS_URL,
+        "STATIC_PATH": settings.STATIC_PATH,
+        "DEBUG": getattr(settings, "DEBUG", False),
+        "OFFICIALLY_SUPPORTED": settings.OFFICIALLY_SUPPORTED,
     }

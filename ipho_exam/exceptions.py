@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -16,18 +16,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.http import HttpResponseForbidden
-from django.utils.encoding import python_2_unicode_compatible
 
 
-@python_2_unicode_compatible
 class IphoExamException(Exception):
     def __init__(self, response):
+        super().__init__()
         self.response = response
 
     def __str__(self):
-        return u'IPhO Exam Exception. Reponse: {}'.format(self.response)
+        return f"IPhO Exam Exception. Reponse: {self.response}"
 
 
 class IphoExamForbidden(HttpResponseForbidden):
     def __init__(self, msg):
-        super(IphoExamForbidden, self).__init__(msg)
+        super().__init__(msg)

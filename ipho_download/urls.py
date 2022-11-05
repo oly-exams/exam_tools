@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2019 Oly Exams Team
+# Copyright (C) 2014 - 2021 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,15 +15,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.urls import path, re_path
 
 from . import views
 
-app_name = 'download'
+app_name = "download"
 urlpatterns = [
-    url(r'^$', views.main, {
-        'url': '',
-        'type': 'd'
-    }, name='main'),
-    url(r'^(?P<type>[fd])/(?P<url>.*)$', views.main, name='path'),
+    path("", views.main, {"url": "", "type": "d"}, name="main"),
+    re_path(r"^(?P<type>[fd])/(?P<url>.*)$", views.main, name="path"),
 ]
