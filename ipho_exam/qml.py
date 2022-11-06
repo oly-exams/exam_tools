@@ -1036,7 +1036,7 @@ class QMLlist(QMLobject):
 
     has_text = False
     has_children = True
-    valid_children = ("item","enumerate","figure","list")
+    valid_children = ("item", "enumerate", "figure", "list")
 
     def tex_begin(self):
         return "\\begin{itemize}\n"
@@ -1059,7 +1059,7 @@ class QMLenumerate(QMLobject):
 
     has_text = False
     has_children = True
-    valid_children = ("item","enumerate","figure","list")
+    valid_children = ("item", "enumerate", "figure", "list")
 
     def tex_begin(self):
         label = self.attributes.get("label", "")

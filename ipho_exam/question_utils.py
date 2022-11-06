@@ -34,7 +34,7 @@ EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
 def compile_ppnt_exam_question(
     questions, participant_languages, cover=None, commit=False
-):  # pylint: disable=too-many-branches,too-many-locals
+):  # pylint: disable=too-many-branches,too-many-locals,too-many-statements
     all_tasks = []
 
     if cover is not None:

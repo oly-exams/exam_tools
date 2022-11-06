@@ -3,6 +3,7 @@ import subprocess
 import os
 import argparse
 
+
 def fill_main(content, logo):
     tex = f"""
 \\documentclass{{article}}
@@ -33,7 +34,7 @@ def fill_main(content, logo):
 def set_country(url, full_name, name, pwd):
     tex = f"""
 \\begin{{tabular}}{{ll}}
-    URL & \href{{https://{url}}}{{{url}}} \\\\
+    URL & \\href{{https://{url}}}{{{url}}} \\\\
     Country &  {full_name} \\\\
     user name & \\verb\\{name}\\ \\\\
     password & \\verb\\{pwd}\\ \\\\
@@ -54,7 +55,9 @@ if __name__ == "__main__":
     # Argentina,ARG,pwd1
     # Armenia,ARM,pwd2
     pathdir = os.path.dirname(os.path.realpath(__file__))
-    csv = os.path.join(pathdir, "input_examples", "delegations_credentials.csv")  # path to csv file
+    csv = os.path.join(
+        pathdir, "input_examples", "delegations_credentials.csv"
+    )  # path to csv file
     file = os.path.join(pathdir, "input_examples", "delegation_password_printout.tex")
 
     url = "ibo2022.oly-exams.org"  # URL of server
@@ -62,7 +65,7 @@ if __name__ == "__main__":
 
     text = ""
     skip = True
-    with open(csv, "r") as f:
+    with open(csv) as f:
         for line in f.readlines():
             if skip:
                 # skip header line
@@ -72,7 +75,6 @@ if __name__ == "__main__":
             text += set_country(url, *array)
 
     tex = fill_main(text, logo)
-
 
     with open(file, "w") as f:
         f.write(tex)

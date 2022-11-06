@@ -48,10 +48,13 @@ if __name__ == "__main__":
     default_out = os.path.join(pathdir, "input_examples", "example.xml")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", "-i", type=str, help="input CSV file", default=default_in)
-    parser.add_argument("--output", "-o", type=str, help="where to store XML file", default=default_out)
+    parser.add_argument(
+        "--input", "-i", type=str, help="input CSV file", default=default_in
+    )
+    parser.add_argument(
+        "--output", "-o", type=str, help="where to store XML file", default=default_out
+    )
 
     args = parser.parse_args()
     xml = csv2xml(args.input)
     save(xml, args.output)
-    
