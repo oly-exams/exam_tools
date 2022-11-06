@@ -292,16 +292,8 @@ body { margin-bottom: 70px; }
                     success: function(data) {
                       $el = $('#'+block_id+'-container');
                       if (data['success'] && data['direction'] == 'up') {
-                        if ($el.prev().find('.add-block-front').is(':visible')) { // element to be deleted was the first
-                            $el.find('.add-block-front').show();
-                            $el.prev().find('.add-block-front').hide();
-                        }
                         $el.insertBefore($el.prev());
                       } else if (data['success'] && data['direction'] == 'down') {
-                        if ($el.find('.add-block-front').is(':visible')) { // element to be deleted was the first
-                            $el.next().find('.add-block-front').show();
-                            $el.find('.add-block-front').hide();
-                        }
                         $el.insertAfter($el.next());
                       } else {
                         console.log('Element not moved correctly');
@@ -329,28 +321,6 @@ body { margin-bottom: 70px; }
                     success: function(data) {
                             var elem = $('#'+after_id+'-container')
                             elem.after(data['new_block']);
-                            elem.next().find('.add-block-front').hide();
-                    },
-                });
-            });
-
-            // Block add in front
-            $(document).on('click', 'a[data-action="add-block-front"]', function(evt) {
-                evt.preventDefault();
-
-                var button = $(this);
-                var href = button.attr('href');
-                var block_id = button.data('block-id');
-                var after_id = button.data('after-id');
-
-                $.ajax({
-                    url: href,
-                    dataType: 'json',
-                    success: function(data) {
-                            var elem = $('#'+after_id+'-container')
-                            elem.before(data['new_block']);
-                            elem.find('.add-block-front').hide();
-                            //elem.prev().find('.add-block-front').show(); // already shown
                     },
                 });
             });
@@ -368,7 +338,7 @@ body { margin-bottom: 70px; }
                     dataType: 'json',
                     success: function(data) {
                             $('#'+block_id+'-container .no-child-add').hide();
-                            $('#'+block_id+'-children').append(data['new_block']);
+                            $('#'+block_id+'-children').prepend(data['new_block']);
                     },
                 });
             });
@@ -452,13 +422,6 @@ body { margin-bottom: 70px; }
                     success: function(data) {
                         if (data['success']) {
                             var elem = $('#'+modal.data('block-id')+'-container');
-                            var next = elem.next();
-                            if (elem.find('.add-block-front').is(':visible')) { // element to be deleted was the first
-                                next.find('.add-block-front').show();
-                            }
-                            if (elem.prev().length == 0 && elem.next().length == 0) {
-                              elem.closest('.field-content').find('.no-child-add').show();
-                            }
                             elem.remove();
                         }
                         modal.data('block-id', null);
