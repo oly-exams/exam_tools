@@ -96,10 +96,8 @@ def concatenate_documents(all_pages, filename="exam.pdf"):
     meta["etag"] = md5(
         ("".join([meta["etag"] for _, meta in all_pages])).encode("utf8")
     ).hexdigest()
-    meta["num_pages"] = sum([meta["num_pages"] for _, meta in all_pages])
-    meta["barcode_num_pages"] = sum(
-        [meta["barcode_num_pages"] for _, meta in all_pages]
-    )
+    meta["num_pages"] = sum(meta["num_pages"] for _, meta in all_pages)
+    meta["barcode_num_pages"] = sum(meta["barcode_num_pages"] for _, meta in all_pages)
     all_codes = [
         meta["barcode_base"]
         for _, meta in all_pages
@@ -127,10 +125,8 @@ def wait_and_concatenate(self, all_tasks, filename="exam.pdf"):
     meta["etag"] = md5(
         ("".join([meta["etag"] for _, meta in all_pages])).encode("utf8")
     ).hexdigest()
-    meta["num_pages"] = sum([meta["num_pages"] for _, meta in all_pages])
-    meta["barcode_num_pages"] = sum(
-        [meta["barcode_num_pages"] for _, meta in all_pages]
-    )
+    meta["num_pages"] = sum(meta["num_pages"] for _, meta in all_pages)
+    meta["barcode_num_pages"] = sum(meta["barcode_num_pages"] for _, meta in all_pages)
     all_codes = [
         meta["barcode_base"]
         for _, meta in all_pages

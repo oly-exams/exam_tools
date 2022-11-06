@@ -34,7 +34,7 @@ def main():
     print("\nFor which exam you want to generate random seats.")
     exams_ix = []
     for i, exam in enumerate(exams):
-        print("[{}] {}".format(i + 1, exam.name))
+        print(f"[{i + 1}] {exam.name}")
     ix = int(eval(input("Select index > ")))
     if ix <= 0 or ix > len(exams):
         print("Index is invalid.")

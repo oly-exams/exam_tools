@@ -43,7 +43,7 @@ def main(input):
         delegation.save()
 
         for j in range(5):
-            code = "{}-S-{}".format(delegation.name, j + 1)
+            code = f"{delegation.name}-S-{j + 1}"
             participant = Student(
                 code=code,
                 first_name="Student",
