@@ -286,7 +286,7 @@ describe('Marking', function () {
         cy.visit("/marking/detail/1/question/3")
 
         // Delegation is the second column
-        marking_helpers.check_delegation_points_view(2,["0.75", "0.50", "0.14", "0.00", "0.75", "0.00", "0.20", "0.60", "-0.60"])
+        marking_helpers.check_delegation_points_view(3,["0.75", "0.50", "0.14", "0.00", "0.75", "0.00", "0.20", "0.60", "-0.60"])
 
     })
 

@@ -176,7 +176,7 @@
           <tr>
             <th>Student</th>
             {% for e in final_points_exams %}
-            <th>{{ e.question__exam__name }}<br />({{ e.exam_points }})</th>
+            <th>{{ e.question__exam__name }}<br />({{ e.exam_points|default_if_none:'-' }})</th>
             {% endfor %}
             <th>Total</th>
           </tr>
@@ -186,10 +186,10 @@
             <td>{{ student.full_name }} ({{ student.code }})</td>
             {% for ep in exam_points %}
             <td>
-              {{ ep|floatformat:"2"|default_if_none:'-' }}
+              {{ ep|floatformat:2|default:'-' }}
             </td>
             {% endfor %}
-            <td>{{ total|floatformat:"2"|default_if_none:'-' }}</td>
+            <td>{{ total|floatformat:2|default:'-' }}</td>
           </tr>
           {% endfor %}
         </table>
