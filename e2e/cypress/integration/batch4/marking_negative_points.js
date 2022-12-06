@@ -119,8 +119,8 @@ describe('Marking', function () {
 
         cy.get('tbody').within(($tbody)=>{
             CHE_ppnt_points.forEach(function(elem, idx){
-                cy.get('tr').eq(idx+1).find('td').eq(0).shouldHaveTrimmedText(elem[0])
-                cy.get('tr').eq(idx+1).find('td').eq(1).shouldHaveTrimmedText(elem[1])
+                cy.get('>tr').eq(idx+1).find('>td').eq(0).shouldHaveTrimmedText(elem[0])
+                cy.get('>tr').eq(idx+1).find('>td').eq(1).shouldHaveTrimmedText(elem[1])
             });
         })
 

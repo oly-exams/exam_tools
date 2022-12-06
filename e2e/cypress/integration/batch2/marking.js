@@ -115,8 +115,8 @@ describe('Marking', function () {
 
         cy.get('tbody').within(($tbody)=>{
             CHE_ppnt_points.forEach(function(elem, idx){
-                cy.get('tr').eq(idx+1).find('td').eq(0).shouldHaveTrimmedText(elem[0])
-                cy.get('tr').eq(idx+1).find('td').eq(1).shouldHaveTrimmedText(elem[1])
+                cy.get('tr').eq(idx+1).find('>td').eq(0).shouldHaveTrimmedText(elem[0])
+                cy.get('tr').eq(idx+1).find('>td').eq(1).shouldHaveTrimmedText(elem[1])
             });
         })
 
@@ -274,7 +274,7 @@ describe('Marking', function () {
         cy.visit("/marking/detail/1/question/3")
 
         // Delegation is the second column
-        marking_helpers.check_delegation_points_view(2,["0.75", "0.50", "0.14", "0.00", "0.75", "0.00"])
+        marking_helpers.check_delegation_points_view(1,["0.75", "0.50", "0.14", "0.00", "0.75", "0.00"])
 
     })
 
@@ -357,12 +357,12 @@ describe('Marking', function () {
         cy.visit("/marking/detail_all/question/3")
 
         // CHE-S-1 Del. is column 2
-        marking_helpers.check_delegation_points_view(2,["0.75", "0.50", "0.14", "0.00", "0.75", "0.00"])
+        marking_helpers.check_delegation_points_view(1,["0.75", "0.50", "0.14", "0.00", "0.75", "0.00"])
         // CHE-S-3 Del. is column 5, CHE-S-3 clumn 8,...
-        marking_helpers.check_delegation_points_view(5,["0.17",])
-        marking_helpers.check_delegation_points_view(8,["0.17",])
-        marking_helpers.check_delegation_points_view(11,["0.17",])
-        marking_helpers.check_delegation_points_view(14,["0.17",])
+        marking_helpers.check_delegation_points_view(4,["0.17",])
+        marking_helpers.check_delegation_points_view(7,["0.17",])
+        marking_helpers.check_delegation_points_view(10,["0.17",])
+        marking_helpers.check_delegation_points_view(13,["0.17",])
 
     })
 
@@ -386,20 +386,20 @@ describe('Marking', function () {
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 
-            cy.get('tbody tr').eq(0).find('td').eq(0).shouldHaveTrimmedText("A.1")
-            cy.get('tbody tr').eq(1).find('td').eq(0).shouldHaveTrimmedText("A.2")
-            cy.get('tbody tr').eq(1).find('td').eq(1).shouldHaveTrimmedText("0.50")
-            cy.get('tbody tr').eq(1).find('td').eq(2).shouldHaveTrimmedText("0.50")
-            cy.get('tbody tr').eq(1).find('td').eq(3).shouldHaveTrimmedText("0.50")
-            cy.get('tbody tr').eq(1).find('td').eq(4).shouldHaveTrimmedText("0.50")
-            cy.get('tbody tr').eq(1).find('td').eq(5).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(0).find('>td').eq(0).shouldHaveTrimmedText("A.1")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(0).shouldHaveTrimmedText("A.2")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(1).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(2).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(3).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(4).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(5).shouldHaveTrimmedText("0.50")
 
-            cy.get('tfoot tr').eq(0).find('td').eq(0).find('b').shouldHaveTrimmedText("Total:")
-            cy.get('tfoot tr').eq(0).find('td').eq(1).find('b').shouldHaveTrimmedText("10.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(2).find('b').shouldHaveTrimmedText("10.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(3).find('b').shouldHaveTrimmedText("10.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(4).find('b').shouldHaveTrimmedText("10.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(5).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(0).find('b').shouldHaveTrimmedText("Total:")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(1).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(2).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(3).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(4).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(5).find('b').shouldHaveTrimmedText("10.00")
         })
 
         cy.get('#confirm-alert').should('have.class', 'alert-info').and('contain', "I confirm my version of the markings.")
@@ -422,20 +422,20 @@ describe('Marking', function () {
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 
-            cy.get('tbody tr').eq(0).find('td').eq(0).shouldHaveTrimmedText("A.1")
-            cy.get('tbody tr').eq(1).find('td').eq(0).shouldHaveTrimmedText("A.2")
-            cy.get('tbody tr').eq(1).find('td').eq(1).shouldHaveTrimmedText("0.00")
-            cy.get('tbody tr').eq(1).find('td').eq(2).shouldHaveTrimmedText("0.00")
-            cy.get('tbody tr').eq(1).find('td').eq(3).shouldHaveTrimmedText("0.00")
-            cy.get('tbody tr').eq(1).find('td').eq(4).shouldHaveTrimmedText("0.00")
-            cy.get('tbody tr').eq(1).find('td').eq(5).shouldHaveTrimmedText("0.00")
+            cy.get('>tbody>tr').eq(0).find('>td').eq(0).shouldHaveTrimmedText("A.1")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(0).shouldHaveTrimmedText("A.2")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(1).shouldHaveTrimmedText("0.00")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(2).shouldHaveTrimmedText("0.00")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(3).shouldHaveTrimmedText("0.00")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(4).shouldHaveTrimmedText("0.00")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(5).shouldHaveTrimmedText("0.00")
 
-            cy.get('tfoot tr').eq(0).find('td').eq(0).find('b').shouldHaveTrimmedText("Total:")
-            cy.get('tfoot tr').eq(0).find('td').eq(1).find('b').shouldHaveTrimmedText("0.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(2).find('b').shouldHaveTrimmedText("0.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(3).find('b').shouldHaveTrimmedText("0.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(4).find('b').shouldHaveTrimmedText("0.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(5).find('b').shouldHaveTrimmedText("0.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(0).find('b').shouldHaveTrimmedText("Total:")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(1).find('b').shouldHaveTrimmedText("0.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(2).find('b').shouldHaveTrimmedText("0.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(3).find('b').shouldHaveTrimmedText("0.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(4).find('b').shouldHaveTrimmedText("0.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(5).find('b').shouldHaveTrimmedText("0.00")
         })
 
         cy.get('#confirm-alert').should('have.class', 'alert-warning').and('contain', "I accept the final markings.")
@@ -464,15 +464,15 @@ describe('Marking', function () {
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 
-            cy.get('tbody tr').eq(0).find('td').eq(0).shouldHaveTrimmedText("A.1")
-            cy.get('tbody tr').eq(1).find('td').eq(0).shouldHaveTrimmedText("A.2")
-            cy.get('tbody tr').eq(1).find('td').eq(1).shouldHaveTrimmedText("0.50")
-            cy.get('tbody tr').eq(1).find('td').eq(2).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(0).find('>td').eq(0).shouldHaveTrimmedText("A.1")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(0).shouldHaveTrimmedText("A.2")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(1).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(2).shouldHaveTrimmedText("0.50")
 
 
-            cy.get('tfoot tr').eq(0).find('td').eq(0).find('b').shouldHaveTrimmedText("Total:")
-            cy.get('tfoot tr').eq(0).find('td').eq(1).find('b').shouldHaveTrimmedText("10.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(2).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(0).find('b').shouldHaveTrimmedText("Total:")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(1).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(2).find('b').shouldHaveTrimmedText("10.00")
         })
 
         cy.get('#confirm-alert').should('have.class', 'alert-info').and('contain', "I accept the final markings.")
@@ -486,9 +486,9 @@ describe('Marking', function () {
         marking_helpers.test_summary_action_content([marking_helpers.finalized_action,])
         // check marks on viewall
         cy.visit('/marking/detail_all/question/3')
-        cy.get("#points-table tfoot tr").within(($tr)=>{
-            cy.get('td').eq(3).find('strong').shouldHaveTrimmedText('10.00')
-            cy.get('td').eq(6).find('strong').shouldHaveTrimmedText('10.00')
+        cy.get("#points-table >tfoot>tr").within(($tr)=>{
+            cy.get('>td').eq(3).find('strong').shouldHaveTrimmedText('10.00')
+            cy.get('>td').eq(6).find('strong').shouldHaveTrimmedText('10.00')
         })
     })
 
@@ -511,20 +511,20 @@ describe('Marking', function () {
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 
-            cy.get('tbody tr').eq(0).find('td').eq(0).shouldHaveTrimmedText("A.1")
-            cy.get('tbody tr').eq(1).find('td').eq(0).shouldHaveTrimmedText("A.2")
-            cy.get('tbody tr').eq(1).find('td').eq(1).shouldHaveTrimmedText("0.50")
-            cy.get('tbody tr').eq(1).find('td').eq(2).shouldHaveTrimmedText("0.50")
-            cy.get('tbody tr').eq(1).find('td').eq(3).shouldHaveTrimmedText("0.50")
-            cy.get('tbody tr').eq(1).find('td').eq(4).shouldHaveTrimmedText("0.50")
-            cy.get('tbody tr').eq(1).find('td').eq(5).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(0).find('>td').eq(0).shouldHaveTrimmedText("A.1")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(0).shouldHaveTrimmedText("A.2")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(1).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(2).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(3).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(4).shouldHaveTrimmedText("0.50")
+            cy.get('>tbody>tr').eq(1).find('>td').eq(5).shouldHaveTrimmedText("0.50")
 
-            cy.get('tfoot tr').eq(0).find('td').eq(0).find('b').shouldHaveTrimmedText("Total:")
-            cy.get('tfoot tr').eq(0).find('td').eq(1).find('b').shouldHaveTrimmedText("10.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(2).find('b').shouldHaveTrimmedText("10.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(3).find('b').shouldHaveTrimmedText("10.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(4).find('b').shouldHaveTrimmedText("10.00")
-            cy.get('tfoot tr').eq(0).find('td').eq(5).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(0).find('b').shouldHaveTrimmedText("Total:")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(1).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(2).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(3).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(4).find('b').shouldHaveTrimmedText("10.00")
+            cy.get('>tfoot>tr').eq(0).find('>td').eq(5).find('b').shouldHaveTrimmedText("10.00")
         })
 
         cy.get('#confirm-alert').should('have.class', 'alert-info').and('contain', "I confirm my version of the markings.")

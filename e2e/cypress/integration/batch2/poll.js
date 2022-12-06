@@ -49,9 +49,9 @@ describe('Polls', function() {
         cy.login("ARM",'1234')
         cy.visit('/poll/')
         // Check available votings
-        cy.contains('Q2')
-        cy.contains('Q1')
-        cy.contains('Q3').should('not.exist')
+        cy.contains('Personal State')
+        cy.contains('Current Day')
+        cy.contains('Color').should('not.exist')
         // Check voting rights
         cy.get('#voting-panel-1').contains('Leader A')
         cy.get('#voting-panel-2').contains('Leader A')
@@ -80,8 +80,8 @@ describe('Polls', function() {
         cy.url().should('contain', 'poll/voted/')
         cy.get('.btn').contains('Continue Voting').click()
 
-        cy.contains('Q1')
-        cy.contains('Q2').should('not.exist')
+        cy.contains('Personal State')
+        cy.contains('Current Day').should('not.exist')
         // Vote on the second voting
         cy.get('#id_q1-0-choice_1').click()
         cy.get('#id_q1-1-choice_1').click()
@@ -164,7 +164,7 @@ describe('Polls', function() {
         cy.login("ARM",'1234')
         cy.visit('/poll/')
         // Check if vote is open
-        cy.contains('Q1')
+        cy.contains('Personal State')
         // Wait for vote to close
         cy.wait(60000)
         // Try to vote

@@ -201,12 +201,16 @@ class QuestionPointsRescale(models.Model):
         )
 
         points_exam = 0
+        all_none = True
         for x in ppnt_markings_exam:
             qscale = QuestionPointsRescale.objects.filter(
                 question__pk=x["marking_meta__question"]
             ).first()
             if x["question_total"] is not None:
                 points_exam += x["question_total"] * qscale.factor()
+                all_none = False
+        if all_none:
+            return None
         return points_exam
 
 
