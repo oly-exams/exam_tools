@@ -2086,7 +2086,7 @@ def admin_delete_version(request, exam_id, question_id, version_num):
 @permission_required("ipho_core.can_edit_exam")
 def admin_accept_version(
     request, exam_id, question_id, version_num, compare_version=None
-):  # pylint: disable=too-many-locals, too-many-statements
+):
     lang_id = OFFICIAL_LANGUAGE_PK
 
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
