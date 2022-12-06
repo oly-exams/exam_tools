@@ -128,11 +128,6 @@
           <th>Part</th>
           <th style="display:none;">Part Position</th>
           <th>Comment</th>
-          {% if perms.ipho_core.can_manage_feedback and exam.check_feedback_editable %}
-          {% if question and question.check_feedback_commentable or not question %}
-          <th>Author</th>
-          {% endif %}
-          {% endif %}
           <th>Timestamp</th>
           <th style="width:180px">Actions</th>
       </tr>

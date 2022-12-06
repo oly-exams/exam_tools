@@ -24,17 +24,6 @@
     <td>{{ fb.part }}</td>
     <td style="display:none;">{{ fb.part_position }}</td>
     <td>{{ fb.comment }}{% if fb.org_comment %}<br><strong>Comment from the organizers:</strong><br>{{ fb.org_comment }}{% endif %}</td>
-    {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
-    {% if fb.commentable %}
-    <td>
-        <div style="display:inline-block">
-          <button type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
-            Comment
-          </button>
-        <div>
-    </td>
-    {% endif %}
-    {% endif %}
     <td><time datetime="{{ fb.timestamp|date:"c" }}" data-format="hh:mm A"></time></td>
     <td>
       <div class="btn-toolbar">
@@ -64,6 +53,15 @@
             {% endif %}
           </span> <!-- btn-toolbar -->
         </div>
+        {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
+        {% if fb.commentable %}
+        <div style="display:inline-block">
+          <spam type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
+            Comment
+          </span>
+        <div>
+        {% endif %}
+        {% endif %}
     </td>
 </tr>
 {% endfor %}
