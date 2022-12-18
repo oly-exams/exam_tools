@@ -34,4 +34,5 @@ psycopg2~=2.9
 pypandoc~=1.10
 latex2mathml~=3.74
 html-diff~=0.4
+markdown <3.4
 pandas
