@@ -36,7 +36,7 @@
                   {% elif field.tag == "equation_unnumbered" %}
                   \({{ field.content_html|safe }}\)
                   {% else %}
-                    {{ field.content_html|safe }} 
+                    {{ field.content_html|safe }}
                   {% endif %}
                 </div>
                 {% endif %}
@@ -90,6 +90,7 @@
           </div>
       </div>
   </div>
+  {% endif %}
 
 </div>
 {% endfor %}

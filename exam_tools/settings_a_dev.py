@@ -52,6 +52,8 @@ SITE_URL = "http://django-server:8000"
 ALLOWED_HOSTS += (
     "django-server",
     "localhost",
+    "0.0.0.0",
+    "127.0.0.1",
 )
 
 ADD_DELEGATION_WATERMARK = True
