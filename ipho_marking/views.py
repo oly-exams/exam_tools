@@ -68,6 +68,38 @@ def get_diff_color_pair(official, delegation):
     return DiffColorPair("warning", "info")
 
 
+def get_valid_marking_question_list(request, editable):
+    exams = Exam.objects.for_user(request.user).order_by("pk")
+    exam_filter = Q(
+        marking_delegation_action__gte=Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT
+    ) | Q(
+        marking_delegation_can_see_organizer_marks__gte=Exam.MARKING_DELEGATION_VIEW_WHEN_SUBMITTED
+    )
+
+    question_list = []
+    for exam in exams.filter(exam_filter):
+        answer_sheet_list = Question.objects.filter(
+            exam=exam, type=Question.ANSWER
+        ).order_by("exam__pk", "position")
+
+        for answer_sheet in answer_sheet_list:
+            if not editable:
+                question_list.append(answer_sheet)
+            else:
+                delegation = Delegation.objects.filter(members=request.user).first()
+                action = MarkingAction.objects.get(
+                    delegation=delegation, question=answer_sheet
+                )
+                if (
+                    action.status < MarkingAction.SUBMITTED_FOR_MODERATION
+                    and answer_sheet.exam.marking_delegation_action
+                    >= Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT
+                ):
+                    question_list.append(answer_sheet)
+
+    return question_list
+
+
 @permission_required("ipho_core.is_organizer_admin")
 def import_exam(request):
     ctx = {}
@@ -736,7 +768,9 @@ def delegation_ppnt_edit(
     ctx = {}
     ctx["msg"] = []
     ctx["participant"] = participant
+    ctx["participant_list"] = delegation.get_participants(question.exam)
     ctx["question"] = question
+    ctx["question_list"] = get_valid_marking_question_list(request, editable=True)
     ctx["exam"] = question.exam
 
     marking_action, __ = MarkingAction.objects.get_or_create(
@@ -944,7 +978,9 @@ def delegation_ppnt_view(request, ppnt_id, question_id):
     ctx = {}
     ctx["msg"] = []
     ctx["participant"] = participant
+    ctx["participant_list"] = delegation.get_participants(question.exam)
     ctx["question"] = question
+    ctx["question_list"] = get_valid_marking_question_list(request, editable=False)
     ctx["exam"] = question.exam
     ctx["versions_display"] = versions_display
 

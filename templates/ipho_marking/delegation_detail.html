@@ -35,10 +35,42 @@
     <div class="alert {{ type }}">{{ message|safe }}</div>
     {% endfor %}
   </div>
+  <div>
+    <div class="dropdown div-inline" style="float: left;">
+      <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+    {{ participant.full_name }} ({{ participant.code }})
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
 
-    <h2>{{ participant.full_name }} ({{ participant.code }})</h2>
+    {% for ppnt in participant_list %}
+      {% if form %}
+        <li {% if participant == ppnt %} class="active" {% endif %}><a href="{% url 'marking:delegation-ppnt-detail-edit' ppnt_id=ppnt.pk question_id=question.pk %}">{{ ppnt.full_name }} ({{ ppnt.code }})</a></li>
+      {% else %}
+        <li {% if participant == ppnt %} class="active" {% endif %}><a href="{% url 'marking:delegation-ppnt-detail' ppnt_id=ppnt.pk question_id=question.pk %}">{{ ppnt.full_name }} ({{ ppnt.code }})</a></li>
+      {% endif %}
+    {% endfor %}
+      </ul>
+    </div>
 
-    <h3> {{ exam.name }} - {{ question.name }}
+    <div class="dropdown div-inline" style="float: left; padding-left: 5px;">
+      <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+    {{ exam.name }} - {{ question.name }}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+
+    {% for q in question_list %}
+      {% if form %}
+        <li {% if question == q %} class="active" {% endif %}><a href="{% url 'marking:delegation-ppnt-detail-edit' ppnt_id=participant.pk question_id=q.pk %}">{{ q.exam.name }} - {{ q.name }}</a></li>
+      {% else %}
+        <li {% if question == q %} class="active" {% endif %}><a href="{% url 'marking:delegation-ppnt-detail' ppnt_id=participant.pk question_id=q.pk %}">{{ q.exam.name }} - {{ q.name }}</a></li>
+      {% endif %}
+    {% endfor %}
+      </ul>
+    </div>
+
+    <h3>
       {% for doc in documents %}
         {% if doc.scan_file and doc.scan_status == 'S' %}
         <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-participant' exam_id=exam.pk participant_id=participant.pk position=question.position %}">
@@ -54,6 +86,7 @@
         {% endif %}
       {% endfor %}
     </h3>
+  </div>
 
     {% if form %}
     <form method="post">
