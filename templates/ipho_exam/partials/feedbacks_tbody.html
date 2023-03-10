@@ -56,12 +56,16 @@
         {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
         {% if fb.commentable %}
         <div style="display:inline-block">
-          <spam type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
+          <span type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
             Comment
           </span>
-        <div>
+        </div>
         {% endif %}
         {% endif %}
+        <a href="{% url 'exam:exam-view' exam_id=exam_id question_id=fb.question__pk %}#{{ fb.qml_id }}" class="btn btn-sm btn-default" id="view-exam-{{ fb.qml_id }}" target="_blank" role="button" title="View Exam">
+          View Exam
+        </a>
+      </div>
     </td>
 </tr>
 {% endfor %}

@@ -1312,6 +1312,7 @@ def feedbacks_list(
                 "part_position",
                 "comment",
                 "org_comment",
+                "qml_id",
             )
             .order_by("-timestamp")
         )
@@ -1380,6 +1381,7 @@ def feedbacks_list(
             "ipho_exam/partials/feedbacks_tbody.html",
             {
                 "feedbacks": feedbacks,
+                "exam_id": exam_id,
                 "status_choices": Feedback.STATUS_CHOICES,
                 "is_delegation": delegation is not None
                 or request.user.has_perm("ipho_core.is_organizer_admin"),
