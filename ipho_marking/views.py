@@ -635,7 +635,7 @@ def delegation_summary(
                         "link": reverse(
                             "marking:delegation-final-confirm", args=(question.pk,)
                         ),
-                        "text": f"Accept marks without {_('moderation')}",
+                        "text": f"Sign off official marks without {_('moderation')}",
                         "tooltip": f"You don't need to do anything if you want to have a {_('moderation')}.",
                     }
             elif marking_status == MarkingAction.LOCKED_BY_MODERATION:
@@ -647,14 +647,14 @@ def delegation_summary(
                         "link": reverse(
                             "marking:delegation-final-confirm", args=(question.pk,)
                         ),
-                        "text": "Sign off marks",
+                        "text": f"Sign off final marks from {_('moderation')}",
                         "class": "btn-success",
                         "tooltip": f"You can either accept the final marks or reopen the {_('moderation')} again.",
                     }
             elif marking_status == MarkingAction.FINAL:
                 action_button = {
                     "nolink": True,
-                    "text": "Marks finalized",
+                    "text": "Final marks signed off",
                     "class": "btn-success",
                     "disabled": True,
                 }
@@ -1390,7 +1390,7 @@ def delegation_confirm(
             # i.e. if moderation has happened
             ctx["confirmation_info"] = (
                 "Please check the points displayed below. "
-                + "If the points are not as discussed in the moderation, "
+                + f"If the points are not as discussed in the {_('moderation')}, "
                 + "you can reopen it to allow the organizers to change the marks. "
                 + f"Note that this does <strong>not</strong> lead to another {_('moderation')} session."
             )
@@ -1403,7 +1403,7 @@ def delegation_confirm(
         ctx["confirmation_h2"] = f"Confirm points for {question.name}"
         ctx[
             "confirmation_info"
-        ] = "You need to confirm the marking of your delegation in order to attend the arbitration or to be able to indicate that you accept the marks without aribtration in a next step."
+        ] = f"You need to confirm the marking of your delegation in order to attend the {_('moderation')} or to be able to indicate that you accept the marks without {_('moderation')} in a next step."
         ctx["confirmation_checkbox_label"] = "I confirm my version of the markings."
         ctx["confirm_button_label"] = "Confirm"
     return render(request, "ipho_marking/delegation_confirm.html", ctx)
