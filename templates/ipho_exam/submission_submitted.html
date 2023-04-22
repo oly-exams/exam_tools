@@ -50,11 +50,12 @@ The exams will be printed shortly. Below you can see the final version that has 
       {% for ss,ppnt_langs in participants_languages.items %}
       <tr>
           <td>
-              <div>
+              <div class="student-docs">
                   {{ ss.full_name }} ({{ ss.code }})
                   {% for doc in ppnt_documents|lookup:ss.pk %}
-                  <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=exam.pk participant_id=ss.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> #{{ doc.position }}</a>
+                  <a class="btn btn-xs btn-default single-doc" target="_blank" title="Preview PDF" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=exam.pk participant_id=ss.pk position=doc.position %}"><i class="fa fa-file-pdf-o"></i> #{{ doc.position }}</a>
                   {% endfor %}
+                  <a class="btn btn-xs btn-default combine-all" title="Preview combined PDF without coversheets" download="preview-{{ ss.code }}.pdf"><i class="fa fa-plus-square-o"></i> All</a>
               </div>
               <div>
                   {% if ss.is_group %}
@@ -84,4 +85,13 @@ The exams will be printed shortly. Below you can see the final version that has 
       {% endfor %}
         </tbody>
     </table>
+{% endblock %}
+{% block extra-script %}
+{{ block.super }}
+
+<script>
+{% include "ipho_exam/partials/merge_pdf_clientside.js"%}
+$(".combine-all").click(merge_on_click_remove_cover);
+</script>
+
 {% endblock %}

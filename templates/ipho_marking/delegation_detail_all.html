@@ -22,6 +22,10 @@
     <h2>All Participants</h2>
 
     <h3> {{ exam.name }} - {{ question.name }}</h3>
+    
+    {% if show_official_marks %}
+    <div class="alert alert-info"> If you want to copy from official marks, use "Edit marks" of individual students, not "Edit all marks".</div>
+    {% endif %}
 
     {% if formset %}
     <form method="post">
@@ -33,14 +37,12 @@
             <th>{{ ppnt.code }}</th>
           {% endfor %}
         {{ formset.management_form }}
-        {% for form in formset %}
-          {% if form.instance.participant == participants.first %}
-            </tr><tr><td>{{ form.points.label }}</td>
+        {% for form_item in formset %}
+          {% if form_item.instance.participant == participants.first %}
+            </tr><tr><td>{{ form_item.points.label }}</td>
           {% endif %}
-            <td >
-              <div {{ form.points.errors|yesno:'class="has-error error",,'|safe }}>
-              {{ form.id }} {{ form.points.errors }} {{ form.points }}
-              </div>
+            <td>
+              {% include "ipho_marking/parts/edit_cell.html" %}
             </td>
         {% endfor %}
         </tr>
@@ -87,10 +89,17 @@
         {% for meta, participant_points in markings %}
         <tr>
           <td><strong>{{ meta.name }} ({{ meta.max_points }})</strong></td>
-          {% for participant, points in participant_points %}
-          <td class="{{ points.diff_color.O }}">{{ points.O|default_if_none:'-' }}</td>
-          <td class="{{ points.diff_color.D }}">{{ points.D|default_if_none:'-' }}</td>
-          <td>{{ points.F|default_if_none:'-' }}</td>
+          {% for participant, versions in participant_points %}
+          <td class="{{ versions.diff_color.O }}">
+          {% include "ipho_marking/parts/view_cell.html" with instance=versions.O%}
+          </td>
+          <td class="{{ versions.diff_color.D }}">
+          {% include "ipho_marking/parts/view_cell.html" with instance=versions.D%}
+          </td>
+          <td>
+          {% include "ipho_marking/parts/view_cell.html" with instance=versions.F%}
+          </td>
+          
           {% endfor %}
         </tr>
         {% endfor %}

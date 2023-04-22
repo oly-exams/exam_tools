@@ -222,7 +222,7 @@ describe('Translation', function() {
         cy.visit("exam/editor/1/question/1/orig/1/lang/3")
         cy.get("#copy-all").click({animationDistanceThreshold: 20})
         cy.get("#copy-modal").should("be.visible")
-        cy.wait(500)
+        cy.wait(1000)
         cy.get("#copy-modal .btn").contains("Confirm").click()
         cy.get("#id_q0_ti1").should("have.value","General instructions: Theoretical Examination (30 points)")
         cy.readCKeditor("id_q0_ls3_li5").should("contain", "A list of physical constants is given on the next page.")

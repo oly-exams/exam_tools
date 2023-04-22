@@ -31,7 +31,7 @@
         <tr>
             <th>Participant</th>
             {% for q in questions %}
-            <th>{{ q.question__exam__name }}<br />{{ q.question__name }}<br />{{ q.question_points|floatformat:"-2" }}</th>
+            <th>{{ q.question__exam__name }}<br />{{ q.question__name }}<br />{{ q.max_internal_points|floatformat:"-2" }} {% if q.max_external_points != q.max_internal_points %}[scales to {{ q.max_external_points|floatformat:"-2" }}]{%endif%}</th>
             {% endfor %}
             {% for e in exams %}
             <th>Total<br />{{ e.question__exam__name }}<br />{{ e.exam_points|floatformat:"-2" }}</th>
@@ -42,9 +42,9 @@
         {% for code, points, exam_points in points_per_participant %}
         <tr>
             <td>{{ code }}</td>
-            {% for points, editable_pk, ppnt_id in points %}
+            {% for point, editable_pk, ppnt_id in points %}
             <td>
-              {{ points|floatformat:"2"|default:'-' }}
+              {{ point|floatformat:"2"|default:'-' }}
               {% if vid == "O" %}
                 {% if editable_pk %}
                 <a class="btn btn-default btn-xs" href="{% url 'marking:staff-ppnt-detail' question_id=editable_pk version=vid ppnt_id=ppnt_id %}">

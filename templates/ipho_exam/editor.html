@@ -453,6 +453,8 @@ body { margin-bottom: 70px; }
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({
             showMathMenu: false,
+            TeX: {extensions: ["mhchem.js"]},
+            mhchem: {legacy: false},
         });
     </script>
     <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -531,6 +533,7 @@ body { margin-bottom: 70px; }
             // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
             var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
             $(this).html(newtext);
+            console.log(this, MathJax.Hub.config);
             MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
         }
 

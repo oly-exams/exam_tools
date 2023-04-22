@@ -35,11 +35,18 @@ from django.http import (
     Http404,
 )
 from django.contrib.auth.decorators import permission_required
+from django.utils.translation import gettext_lazy as _
 
 from ipho_core.models import Student, Delegation
 from ipho_exam.models import Exam, Participant, Question, Document
 
-from .models import MarkingMeta, Marking, MarkingAction, generate_markings_from_exam
+from .models import (
+    MarkingMeta,
+    Marking,
+    QuestionPointsRescale,
+    MarkingAction,
+    generate_markings_from_exam,
+)
 from .forms import ImportForm, PointsForm
 
 OFFICIAL_LANGUAGE_PK = 1
@@ -47,6 +54,7 @@ OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 
 
 DiffColorPair = namedtuple("DiffColorPair", ["O", "D"])
+EmptyMarking = namedtuple("EmptyMarking", ["points", "comment"])
 
 
 def get_diff_color_pair(official, delegation):
@@ -94,22 +102,24 @@ def summary(request):  # pylint: disable=too-many-locals
     editable_markings = Marking.objects.editable(request.user, version=vid)
 
     questions = (
-        MarkingMeta.objects.for_user(request.user)
+        QuestionPointsRescale.objects.for_user(request.user)
         .all()
-        .values("question")
-        .annotate(question_points=Sum("max_points"))
         .values(
-            "question__pk", "question__exam__name", "question__name", "question_points"
+            "question__pk",
+            "question__exam__name",
+            "question__name",
+            "max_internal_points",
+            "max_external_points",
         )
         .order_by("question__exam", "question__position")
         .distinct()
     )
 
     exams = (
-        MarkingMeta.objects.for_user(request.user)
+        QuestionPointsRescale.objects.for_user(request.user)
         .all()
         .values("question__exam")
-        .annotate(exam_points=Sum("max_points"))
+        .annotate(exam_points=Sum("max_external_points"))
         .values("question__exam__pk", "question__exam__name", "exam_points")
         .order_by(
             "question__exam",
@@ -157,11 +167,9 @@ def summary(request):  # pylint: disable=too-many-locals
 
         ppnt_exam_points_list = []
         for exam in exams:
-            ppnt_markings_exam = markings.filter(
-                marking_meta__question__exam=exam["question__exam__pk"],
-                participant__code=code,
+            points_exam = QuestionPointsRescale.external_sum_for_exam(
+                markings, participant_code=code, exam=exam["question__exam__pk"]
             )
-            points_exam = ppnt_markings_exam.aggregate(Sum("points"))["points__sum"]
             ppnt_exam_points_list.append(points_exam)
 
         points_per_participant.append(
@@ -220,7 +228,7 @@ def staff_ppnt_detail(request, version, ppnt_id, question_id):
     FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
-        fields=["points"],
+        fields=["points", "comment"],
         extra=0,
         can_delete=False,
         can_order=False,
@@ -278,7 +286,7 @@ def export(
             title_row.append(f"Question Total: {question.exam.name} - {question.name}")
         for exam in exams:
             title_row.append(f"Exam Total: {exam.name}")
-        title_row.append("Participant Total")
+        title_row.append("Student Total")
 
     csv_rows.append(title_row)
 
@@ -349,22 +357,27 @@ def export(
                     else:
                         row.append(None)
 
+                student_total = 0
                 for exam in exams:
                     # Only append total if all markings are visible
-                    e_markings = version_markings.filter(
-                        marking_meta__question__exam=exam
-                    )
                     # If some marks are not visible
                     if (
                         all_visible
                     ):  # e_markings.exclude(pk__in=visible_ppnt_markings).exists():
-                        row.append(_get_total(e_markings))
+                        e_markings = version_markings.filter(
+                            marking_meta__question__exam=exam
+                        )
+                        points_exam = QuestionPointsRescale.external_sum_for_exam(
+                            e_markings, participant_code=None, exam=None
+                        )
+                        student_total += points_exam
+                        row.append(points_exam)
                     else:
                         row.append(None)
 
                 # Only append total if all markings are visible
                 if all_visible:
-                    student_total = _get_total(version_markings)
+                    pass
                 else:
                     student_total = None
                 row.append(student_total)
@@ -543,7 +556,7 @@ def delegation_summary(
                     ):
                         question_ctx[
                             "view_tooltip"
-                        ] = "Official marks are shown once you submitted your marks for moderation."
+                        ] = f"Official marks are shown once you submitted your marks for {_('moderation')}."
                     else:
                         question_ctx[
                             "view_tooltip"
@@ -590,8 +603,8 @@ def delegation_summary(
                         "link": reverse(
                             "marking:delegation-final-confirm", args=(question.pk,)
                         ),
-                        "text": "Accept marks without moderation",
-                        "tooltip": "You don't need to do anything if you want to have a moderation.",
+                        "text": f"Accept marks without {_('moderation')}",
+                        "tooltip": f"You don't need to do anything if you want to have a {_('moderation')}.",
                     }
             elif marking_status == MarkingAction.LOCKED_BY_MODERATION:
                 if (
@@ -604,7 +617,7 @@ def delegation_summary(
                         ),
                         "text": "Sign off marks",
                         "class": "btn-success",
-                        "tooltip": "You can either accept the final marks or reopen the moderation again.",
+                        "tooltip": f"You can either accept the final marks or reopen the {_('moderation')} again.",
                     }
             elif marking_status == MarkingAction.FINAL:
                 action_button = {
@@ -642,10 +655,9 @@ def delegation_summary(
                 delegation=delegation,
                 status__lte=MarkingAction.SUBMITTED_FOR_MODERATION,
             ).exists():
-                ppnt_markings_exam = markings.filter(
-                    marking_meta__question__exam=exam, participant=participant
+                points_exam = QuestionPointsRescale.external_sum_for_exam(
+                    markings, participant.code, exam
                 )
-                points_exam = ppnt_markings_exam.aggregate(Sum("points"))["points__sum"]
                 ppnt_exam_points_list.append(points_exam)
             else:
                 ppnt_exam_points_list.append(None)
@@ -660,9 +672,9 @@ def delegation_summary(
 
     # We need a list of exams and total number of points for the header of the table
     exams_with_totals = (
-        MarkingMeta.objects.filter(question__exam__in=exams)
+        QuestionPointsRescale.objects.filter(question__exam__in=exams)
         .values("question__exam")
-        .annotate(exam_points=Sum("max_points"))
+        .annotate(exam_points=Sum("max_external_points"))
         .values("question__exam__name", "exam_points")
         .order_by(
             "question__exam",
@@ -727,7 +739,7 @@ def delegation_ppnt_edit(
     ctx["question"] = question
     ctx["exam"] = question.exam
 
-    marking_action, _ = MarkingAction.objects.get_or_create(
+    marking_action, __ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
     )
     if not marking_action.in_progress():
@@ -757,7 +769,7 @@ def delegation_ppnt_edit(
     FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
-        fields=["points"],
+        fields=["points", "comment"],
         extra=0,
         can_delete=False,
         can_order=False,
@@ -838,7 +850,7 @@ def delegation_edit_all(request, question_id):
     ctx["question"] = question
     ctx["exam"] = question.exam
 
-    marking_action, _ = MarkingAction.objects.get_or_create(
+    marking_action, __ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
     )
     if not marking_action.in_progress():
@@ -863,10 +875,16 @@ def delegation_edit_all(request, question_id):
     if not marking_query.exists():
         raise Http404("You cannot modify these markings!")
 
+    if (
+        question.exam.marking_delegation_can_see_organizer_marks
+        >= Exam.MARKING_DELEGATION_VIEW_YES
+    ):
+        ctx["show_official_marks"] = True
+
     FormSet = modelformset_factory(  # pylint: disable=invalid-name
         Marking,
         form=PointsForm,
-        fields=["points"],
+        fields=["points", "comment"],
         extra=0,
         can_delete=False,
         can_order=False,
@@ -930,7 +948,7 @@ def delegation_ppnt_view(request, ppnt_id, question_id):
     ctx["exam"] = question.exam
     ctx["versions_display"] = versions_display
 
-    marking_action, _ = MarkingAction.objects.get_or_create(
+    marking_action, __ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
     )
 
@@ -988,13 +1006,16 @@ def delegation_ppnt_view(request, ppnt_id, question_id):
                 pass
             else:
                 marking = None
+
             if marking is not None:
-                points = marking.points
+                pass
             else:
-                points = None
-            version_dict[version] = points
+                marking = EmptyMarking(None, "")
+            version_dict[version] = marking
+
+        empty = EmptyMarking(None, "")
         version_dict["diff_color"] = get_diff_color_pair(
-            version_dict.get("O", None), version_dict.get("D", None)
+            version_dict.get("O", empty).points, version_dict.get("D", empty).points
         )
         grouped_markings.append((meta, version_dict))
 
@@ -1025,7 +1046,7 @@ def delegation_view_all(request, question_id):
     ctx["exam"] = question.exam
     ctx["versions_display"] = versions_display
 
-    marking_action, _ = MarkingAction.objects.get_or_create(
+    marking_action, __ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
     )
 
@@ -1084,14 +1105,13 @@ def delegation_view_all(request, question_id):
                 ):
                     pass
                 else:
-                    marking = None
-                if marking is not None:
-                    points = marking.points
-                else:
-                    points = None
-                version_dict[version] = points
+                    marking = EmptyMarking(None, "")
+
+                version_dict[version] = marking
+
+            empty = EmptyMarking(None, "")
             version_dict["diff_color"] = get_diff_color_pair(
-                version_dict.get("O", None), version_dict.get("D", None)
+                version_dict.get("O", empty).points, version_dict.get("D", empty).points
             )
             participant_list.append((participant, version_dict))
         grouped_markings.append((meta, participant_list))
@@ -1105,7 +1125,8 @@ def delegation_view_all(request, question_id):
     ctx["sums"] = [
         {
             version: sum(
-                entry[1][participant][1][version] or 0 for entry in grouped_markings
+                entry[1][participant][1][version].points or 0
+                for entry in grouped_markings
             )
             for version in ["O", "D", "F"]
         }
@@ -1125,7 +1146,7 @@ def delegation_confirm(
     )
     form_error = ""
 
-    marking_action, _ = MarkingAction.objects.get_or_create(
+    marking_action, __ = MarkingAction.objects.get_or_create(
         question=question, delegation=delegation
     )
 
@@ -1253,7 +1274,7 @@ def delegation_confirm(
                             participant__delegation=delegation,
                             version="O",
                         ):
-                            fin_mark, _ = Marking.objects.get_or_create(
+                            fin_mark, __ = Marking.objects.get_or_create(
                                 marking_meta=off_mark.marking_meta,
                                 participant=off_mark.participant,
                                 version="F",
@@ -1335,10 +1356,10 @@ def delegation_confirm(
                 "Please check the points displayed below. "
                 + "If the points are not as discussed in the moderation, "
                 + "you can reopen it to allow the organizers to change the marks. "
-                + "Note that this does <strong>not</strong> lead to another moderation session."
+                + f"Note that this does <strong>not</strong> lead to another {_('moderation')} session."
             )
             ctx["confirmation_alert_class"] = "alert-info"
-            ctx["reject_button_label"] = "Reopen moderation"
+            ctx["reject_button_label"] = f"Reopen {_('moderation')}"
         else:
             ctx["confirmation_alert_class"] = "alert-warning"
 
@@ -1427,7 +1448,7 @@ def moderation_detail(
         FormSet = modelformset_factory(  # pylint: disable=invalid-name
             Marking,
             form=PointsForm,
-            fields=["points"],
+            fields=["points", "comment"],
             extra=0,
             can_delete=False,
             can_order=False,
@@ -1576,7 +1597,7 @@ def official_marking_detail(
         FormSet = modelformset_factory(  # pylint: disable=invalid-name
             Marking,
             form=PointsForm,
-            fields=["points"],
+            fields=["points", "comment"],
             extra=0,
             can_delete=False,
             can_order=False,

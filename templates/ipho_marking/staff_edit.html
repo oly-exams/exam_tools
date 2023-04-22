@@ -7,7 +7,7 @@
 {% block extra-head %}
 {% endblock %}
 
-{% block pageheader %}<h1>Staff marking input</h1>{% endblock %}
+{% block pageheader %}<h1>Staff Marking Input</h1>{% endblock %}
 
 
 
@@ -25,12 +25,20 @@
 
     <form method="post">
       {% csrf_token %}
+      {{ form.management_form }}
       <table class="table table-striped" style="width: auto !important;">
         <tr>
           <th>Subquestion</th>
           <th>Points</th>
         </tr>
-        {{ form.as_table }}
+        {% for form_item in form %}
+        <tr>
+          <td>{{ form_item.points.label }}</td>
+          <td>
+            {% include "ipho_marking/parts/edit_cell.html" %}
+          </td>
+        </tr>
+          {% endfor %}
       </table>
       <input type="submit" class="btn btn-primary" value="Submit" />
     </form>

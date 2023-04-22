@@ -8,7 +8,7 @@
 .asteriskField {
     display: none;
 }
-
+{% include "ipho_exam/partials/feedback_thread.css" %}
 </style>
 {% endblock %}
 
@@ -73,6 +73,7 @@
       </div>
     </div>
 
+    {% include "ipho_exam/partials/feedback_thread_modal.html" %}
     <div id="alerts-container"></div>
 
   {% if exam %}
@@ -115,8 +116,8 @@
 
     <h3>
         {{ exam.name }}
-
     </h3>
+
     <table class="table table-striped feedback-table" id="feedback-table-{{exam.pk}}">
       <thead>
       <tr>
@@ -128,12 +129,7 @@
           <th style="display:none;">Part Position</th>
           <th>Comment</th>
           <th>Timestamp</th>
-          <th style="width:170px">Actions</th>
-          {% if perms.ipho_core.can_manage_feedback and exam.check_feedback_editable %}
-          {% if question and question.check_feedback_commentable or not question %}
-          <th>Comments</th>
-          {% endif %}
-          {% endif %}
+          <th style="width:180px">Actions</th>
       </tr>
     </thead>
       <tbody id="feedback-tbody-{{ exam.pk }}"></tbody>
@@ -218,6 +214,8 @@ $(function() {
     });
 
 
+    {% include "ipho_exam/partials/feedback_thread.js" %}
+
     $('#feedback-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var fid = button.data('feedback-pk');
@@ -245,35 +243,25 @@ $(function() {
             dataType: "html",
         }).done(function( data ) {
           var table = $('#feedback-table-'+tid).DataTable({
-            columnDefs: [
-              { type: 'natural', targets: 4 },
-              { "width": "25%", "targets": 6 },
-            ],
             stateSave: true,
             retrieve:true,
-            autoWidth: false,
-            });
-            table.destroy();
-            $("#feedback-tbody-"+tid).html(data);
-            $("time[data-format]").each(function () {
-                var el = $(this);
-                var dt = moment(el.attr("datetime"));
-                el.text(dt.format(el.data("format")));
-            });
-            $('[data-toggle="tooltip"]').tooltip();
-            var table = $('#feedback-table-'+tid).DataTable({
-              columnDefs: [
-                { type: 'natural', targets: 4 },
-                { "width": "25%", "targets": 6 },
-                { "orderData": 5,    "targets":4 },
-              ],
-              stateSave: true,
-              retrieve:true,
-              autoWidth: false,
-            });
-            table.draw(false);
-            $('[data-toggle="tooltip"]').tooltip();
-
+            autoWidth:false,
+          });
+          table.destroy();
+          $("#feedback-tbody-"+tid).html(data);
+          $("time[data-format]").each(function () {
+              var el = $(this);
+              var dt = moment(el.attr("datetime"));
+              el.text(dt.format(el.data("format")));
+          });
+          $('[data-toggle="tooltip"]').tooltip();
+          var table = $('#feedback-table-'+tid).DataTable({
+            stateSave: true,
+            retrieve:true,
+            autoWidth:false,
+          });
+          table.draw(false);
+          $('[data-toggle="tooltip"]').tooltip();
         });
     }
 
@@ -290,7 +278,7 @@ $(function() {
           url: url,
           type: 'POST',
           success: function(data) {
-                update_feedbacks({{ exam.pk }});
+              update_feedbacks({{ exam.pk }});
           }
       });
       return false;

@@ -694,8 +694,8 @@ class Exam(models.Model):
 
 
 class ParticipantManager(models.Manager):
-    def get_by_natural_key(self, code, exam_code):
-        return self.get(code=code, exam__code=exam_code)
+    def get_by_natural_key(self, code, exam_key):
+        return self.get(code=code, exam=Exam.objects.get_by_natural_key(*exam_key))
 
 
 class Participant(models.Model):
@@ -712,7 +712,7 @@ class Participant(models.Model):
         ordering = ["code", "exam"]
 
     def natural_key(self):
-        return (self.code, self.exam.code)
+        return (self.code, self.exam.natural_key())
 
     def __str__(self):
         return f"{self.code} ({self.exam.name})"
@@ -1325,6 +1325,16 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"#{self.pk} {self.question.name} - {self.question.exam.name} ({self.delegation.name})"
+
+
+class FeedbackComment(models.Model):
+    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE)
+    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
+    comment = models.TextField(blank=True)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["timestamp"]
 
 
 class Like(models.Model):

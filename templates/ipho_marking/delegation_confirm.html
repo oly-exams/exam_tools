@@ -40,8 +40,8 @@
           {% for marking in markings_list %}
           <tr>
             <td>{{ marking.grouper.name }}</td>
-            {% for item in marking.list %}
-              <td>{{ item.points|floatformat:2|default_if_none:"-" }}</td>
+            {% for instance in marking.list %}
+              <td>{% include "ipho_marking/parts/view_cell.html" %}</td>
             {% endfor %}
           </tr>
           {% endfor %}
@@ -87,7 +87,4 @@
 
   </form>
 
-{% endblock %}
-
-{% block extra-script %}
 {% endblock %}

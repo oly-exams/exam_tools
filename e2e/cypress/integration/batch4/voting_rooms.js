@@ -52,9 +52,9 @@ describe('Voting Rooms', function() {
         cy.get('#room-dropdown ul').should('contain', 'room1').and('contain', 'room2')
         cy.contains('room2').click()
         cy.url().should('contain', 'poll/room/2')
-        cy.contains('Q1').should('not.exist')
-        cy.contains('Q2').should('not.exist')
-        cy.contains('Q3').should('not.exist')
+        cy.contains('Personal State').should('not.exist')
+        cy.contains('Current Day').should('not.exist')
+        cy.contains('Color').should('not.exist')
 
         cy.logout()
         cy.login('admin', '1234')
@@ -79,14 +79,14 @@ describe('Voting Rooms', function() {
         cy.visit("/poll/room/1")
 
         // Check available votings
-        cy.contains('Q2')
-        cy.contains('Q1').should('not.exist')
-        cy.contains('Q3').should('not.exist')
+        cy.contains('Current Day')
+        cy.contains('Personal State').should('not.exist')
+        cy.contains('Color').should('not.exist')
         // Check voting rights
         cy.contains('Leader A')
         cy.contains('Leader B')
         // Vote with one leader
-        cy.get('#voting-panel-2').get('#div_id_q2-0-choice').contains('weekday').click()
+        cy.get('#voting-panel-2').get('#div_id_Current Day-0-choice').contains('weekday').click()
         cy.screenshot('vote-1', {capture: 'runner'})
 
         cy.get('.btn').contains('Vote').click()
@@ -97,7 +97,7 @@ describe('Voting Rooms', function() {
         cy.contains('Leader A').should('not.exist')
         cy.contains('Leader B')
         // Vote with the second leader
-        cy.get('#voting-panel-2').get('#div_id_q2-0-choice').contains('weekday').click()
+        cy.get('#voting-panel-2').get('#div_id_Current Day-0-choice').contains('weekday').click()
         cy.screenshot('vote-2', {capture: 'runner'})
 
         cy.get('.btn').contains('Vote').click()
@@ -109,9 +109,9 @@ describe('Voting Rooms', function() {
         cy.visit('/poll/room/2')
 
         // Check available votings
-        cy.contains('Q1')
-        cy.contains('Q2').should('not.exist')
-        cy.contains('Q3').should('not.exist')
+        cy.contains('Personal State')
+        cy.contains('Current Day').should('not.exist')
+        cy.contains('Color').should('not.exist')
         // Check voting rights
         cy.contains('Leader A')
         cy.contains('Leader B')
@@ -154,9 +154,9 @@ describe('Voting Rooms', function() {
         cy.visit('poll/staff/room/1')
 
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
-        cy.get('#drafted-container #voting-1').should('contain', 'Q1')
-        cy.get('#drafted-container #voting-2').should('contain', 'Q2')
-        cy.get('#closed-container #voting-3').should('contain', 'Q3')
+        cy.get('#drafted-container #voting-1').should('contain', 'Personal State')
+        cy.get('#drafted-container #voting-2').should('contain', 'Current Day')
+        cy.get('#closed-container #voting-3').should('contain', 'Color')
         cy.get('#drafted-container tbody').children().should('have.length', 2)
         cy.get('#open-container tbody').children().should('have.length', 0)
         cy.get('#closed-container tbody').children().should('have.length', 1)
@@ -164,9 +164,9 @@ describe('Voting Rooms', function() {
         cy.visit('poll/staff/room/2')
 
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen", "@getStaffPartialsClosed"])
-        cy.get('#drafted-container #voting-4').should('contain', 'Q1')
-        cy.get('#drafted-container #voting-5').should('contain', 'Q2')
-        cy.get('#closed-container #voting-6').should('contain', 'Q3')
+        cy.get('#drafted-container #voting-4').should('contain', 'Personal State')
+        cy.get('#drafted-container #voting-5').should('contain', 'Current Day')
+        cy.get('#closed-container #voting-6').should('contain', 'Color')
         cy.get('#drafted-container tbody').children().should('have.length', 2)
         cy.get('#open-container tbody').children().should('have.length', 0)
         cy.get('#closed-container tbody').children().should('have.length', 1)

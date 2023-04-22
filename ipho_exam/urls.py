@@ -148,6 +148,11 @@ urlpatterns = [
         name="html-version",
     ),
     path(
+        "pdf/exam/<int:exam_id>/participant/<int:participant_id>",
+        views.pdf_exam_participant,
+        name="pdf-exam-participant",
+    ),
+    path(
         "pdf/exam/<int:exam_id>/<int:position>/participant/<int:participant_id>",
         views.pdf_exam_pos_participant,
         {"type": "P"},
@@ -217,6 +222,11 @@ urlpatterns = [
         name="feedback-like",
     ),
     re_path(
+        r"^feedbacks/thread/(?P<feedback_id>\d+)$",
+        views.feedback_thread,
+        name="feedback-thread",
+    ),
+    re_path(
         r"^feedbacks/(?P<feedback_id>\d+)/status/(?P<status>\w)$",
         views.feedback_set_status,
         name="feedback-set-status",
@@ -246,6 +256,11 @@ urlpatterns = [
         "submission/submitted/scan/exam/<int:exam_id>/<int:position>/participant/<int:participant_id>",
         views.upload_scan_delegation,
         name="submission-delegation-submitted-scan-upload",
+    ),
+    path(
+        "submission/submitted/scan/exam/many",
+        views.upload_many_scan_delegation,
+        name="submission-delegation-submitted-scan-many",
     ),
     re_path(r"^figures/?$", views.figure_list, name="figures"),
     path("figure/add", views.figure_add, name="figure-add"),
@@ -403,6 +418,11 @@ urlpatterns = [
         "admin/scan-status/<int:doc_id>/<slug:status>",
         views.set_scan_status,
         name="set-scan-status",
+    ),
+    path(
+        "admin/mark-scan-as-printed/<int:doc_id>",
+        views.mark_scan_as_printed,
+        name="mark-scan-as-printed",
     ),
     path(
         "admin/scan/promote-full/<int:doc_id>",

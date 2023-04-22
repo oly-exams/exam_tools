@@ -104,9 +104,17 @@
 
     {% for ex in exam_list %}
     <h3>
-		{{ ex.name }} {% if ex.flags|binand:ex.FLAG_SQUASHED %}<span class="label label-default">Squashed</span>{% endif %} <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'exam:admin-add-question' exam_id=ex.pk %}"><i class="fa fa-plus fa-fw"></i> Add question</button>
+		{{ ex.name }} 
+        {% if ex.flags|binand:ex.FLAG_SQUASHED %}<span class="label label-default">Squashed</span>{% endif %} 
+        <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'exam:admin-add-question' exam_id=ex.pk %}">
+            <i class="fa fa-plus fa-fw"></i> Add question</button>
+        <a class="btn btn-secondary" data-toggle="collapse" href="#exam-tbody-{{ ex.pk }}" role="button" aria-expanded="false" aria-controls="#exam-tbody-{{ ex.pk }}">
+            Hide/Show
+        </a>
     </h3>
-    <div id="exam-tbody-{{ ex.pk }}" class="panel-group"></div>
+    <div id="exam-tbody-{{ ex.pk }}" class="panel-group collapse in">
+        <i class="fa fa-spinner fa-pulse"></i> Loading...
+    </div>
     {% endfor %}
 
 

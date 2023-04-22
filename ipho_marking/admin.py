@@ -72,3 +72,4 @@ class MarkingActionAdmin(admin.ModelAdmin):
 admin.site.register(models.MarkingMeta, MarkingMetaAdmin)
 admin.site.register(models.Marking, MarkingAdmin)
 admin.site.register(models.MarkingAction, MarkingActionAdmin)
+admin.site.register(models.QuestionPointsRescale)

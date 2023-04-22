@@ -1,11 +1,12 @@
 {% extends "ipho_marking/base.html" %}
 {% load static %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 
 {% block extra-head %}
 {% endblock %}
 
-{% block pageheader %}<h1>Moderation of results</h1>{% endblock %}
+{% block pageheader %}<h1>{% trans "Moderation" %} of results</h1>{% endblock %}
 
 {% block page-content %}
 <p class="lead">Select the question and delegation.</p>
@@ -30,7 +31,7 @@
         </ul>
       </div>
       {% else %}
-      <p class="alert alert-info">No exam has the moderation feature activated.</p>
+      <p class="alert alert-info">No exam has the {% trans "moderation" %} feature activated.</p>
       {% endif %}
 
     </div>

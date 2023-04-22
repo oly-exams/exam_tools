@@ -33,6 +33,7 @@ patch $STATIC_BOWER/mathjax_4.5.11/plugin.js $BOWER_POSTINSTALL/mj_plugin.diff
 patch $STATIC_BOWER/mathjax_4.5.11/dev/mathjax.html $BOWER_POSTINSTALL/mj_dev_mathjax.diff
 patch $STATIC_BOWER/mathjax_4.5.11/dialogs/mathjax.js $BOWER_POSTINSTALL/mj_dialogs_mathjax.diff
 patch $STATIC_BOWER/mathjax_4.5.11/samples/mathjax.html $BOWER_POSTINSTALL/mj_samples_mathjax.diff
+patch $STATIC_BOWER/MathJax/config/TeX-AMS-MML_HTMLorMML.js $BOWER_POSTINSTALL/mj_config_with_mhchem.diff
 cp -r $STATIC_BOWER/mathedit/mathedit $STATIC/ckeditor_plugins/
 cp -r $STATIC_BOWER/mathjax_4.5.11 $STATIC/ckeditor_plugins/mathjax-mathquill
 cp -r $STATIC_BOWER/sourcedialog_4.5.11 $STATIC/ckeditor_plugins/sourcedialog

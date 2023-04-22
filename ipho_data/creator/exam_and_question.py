@@ -32,7 +32,7 @@ class ExamAndQuestionDataCreator(BaseDataCreator):
 
         return que
 
-    def create_official_version_node(self, que, *, text, version=1, status="C"):
+    def create_official_version_node(self, que, *, text, version=1, status="C", tag=""):
         ofcl_lang = Language.get_official()
         vsnode, created = VersionNode.objects.get_or_create(
             question=que,
@@ -40,6 +40,7 @@ class ExamAndQuestionDataCreator(BaseDataCreator):
             text=text,
             version=version,
             status=status,
+            tag=tag,
         )
         if created:
             vsnode.save()

@@ -35,7 +35,7 @@ def set_up_basic_test_database(voting_room=None):
         tdc.create_language_from_code(code="ARM", name="TestLanguage")
         tdc.create_seatings()
         tdc.import_markings_from_exam(theory)
-        tdc.create_ipho2016_theory_marking()
+        tdc.create_ipho2016_marking()
 
         experiment = tdc.create_ipho2016_experiment_exam()
         tdc.put_students_in_teams(experiment)

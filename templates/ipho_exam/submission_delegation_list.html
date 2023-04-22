@@ -39,13 +39,14 @@
   </div>
 </div>
 
+
 <div id="alerts-container"></div>
 
     <p class="lead">
         This table lists all the submissions made by your delegation team.
     </p>
 
-    <table class="table table-striped feedback-table" id="submission-table">
+    <table class="table table-bordered feedback-table" id="submission-table">
       <thead>
         <tr>
             <th class="col-sm-01">#</th>
@@ -53,37 +54,65 @@
             <th>Q#</th>
             <th>Participant</th>
             <th>Exam code</th>
-            <th>Exam file</th>
-            <th>Scans</th>
+            <th class="col-sm-1">File</th>
+            <th class="col-sm-1">Combined with no coverpages</th>
+            <th class="col-sm-2">
+              Scans
+              {% if docs %}
+              <div>
+                <a class="btn btn-default btn-xs" id="upload-many" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="{% url 'exam:submission-delegation-submitted-scan-many' %}">
+                  <i class="fa fa-fw fa-upload"></i>
+                  upload many
+                </a>
+              </div>
+              {% endif %}
+
+            </th>
         </tr>
       </thead>
-      <tbody>
         {% for d in docs %}
+        {% if d.position == 0 %}<tbody class="student-docs">{%endif%}
         <tr>
           <td>{{ d.pk }} </td>
-          <td>{{ d.participant__exam__name }}</td>
-          <td>{{ d.position }}</td>
-          <td>{{ d.participant__code }}</td>
-          <td>{{ d.barcode_base }}</td>
-          <td >
-            <a class="btn btn-default btn-xs" id="submission-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> exam</a>
+          {% if d.position == 0 %}
+          <td rowspan="{{d.max_position}}" style="vertical-align: middle;">
+            {{ d.participant__exam__name }}
           </td>
+          {% endif %}
+          <td>{{ d.position }}</td>
+          {% if d.position == 0 %}
+          <td rowspan="{{d.max_position}}" style="vertical-align: middle;">
+            {{ d.participant__code }}
+          </td>
+          {% endif %}
+          
+          <td>{{ d.barcode_base }}</td>
           <td>
+            <a class="btn btn-default btn-xs single-doc" id="submission-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i>exam</a>
+          </td>
+          {% if d.position == 0 %}
+          <td rowspan="{{d.max_position}}" style="vertical-align: middle;">
+            <a class="btn btn-default btn-xs combine-all" download="{{ d.participant__exam__name }}-{{ d.participant__code }}.pdf"><i class="fa fa-plus-square-o"></i> Combine</a>
+          </td>
+          {% endif %}
+          <td>
+            {% if d.position != 0 %}
+            <a class="btn btn-default btn-xs" id="upload-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" examcode="{{ d.barcode_base }}" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="{% url 'exam:submission-delegation-submitted-scan-upload' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-upload"></i> upload</a>
             {% if d.scan_file %}
-              <a class="btn btn-default btn-xs" id="scan-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>
-              <br />
+            <a class="btn btn-default btn-xs" id="scan-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>
             {% endif %}
-            <a class="btn btn-default btn-xs" id="upload-{{ d.participant__exam__id }}-{{ d.participant__id }}-{{ d.position }}" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="{% url 'exam:submission-delegation-submitted-scan-upload' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-upload"></i> upload</a>
+            {% endif %}
           </td>
         </tr>
+        {% ifequal d.position d.max_position %}</tbody>{%endifequal%}
       {% endfor %}
-      </tbody>
     </table>
 
 {% endblock %}
 
 
 {% block extra-script %}
+<script src="{% static '/pdflib/pdf-lib.min.js' %}"></script>
 <script>
 $(function() {
     // Get csrftoken
@@ -116,46 +145,87 @@ $(function() {
         }
     });
 
+    function upload_form_and_data(launchButton, form, fd, hide=false) {
+      const cell = launchButton.parent('td');
+      const button_str = cell.find("[examcode]").prop('outerHTML');
+      cell.html(
+        button_str+'\n'+
+        '<a class="btn btn-default btn-xs"><i class="fa fa-spinner fa-pulse"></i> uploading</a>'
+      );
+      $.ajax({
+        url: form.action,
+        type: form.method,
+        data: fd,
+        contentType: false,
+        processData: false,
+        success: function(data) {
+            if (!data['success']) {
+                $('#upload-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                return;
+            }
+
+            cell.html(
+              button_str+'\n'+
+              '<a class="btn btn-default btn-xs" href="'+data['download_link']+'"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>'
+            );
+            // TODO: update data in table
+            // $('#languages-tbody').html(data['tbody']);
+            if(hide) {
+              $('#upload-modal').modal('hide');
+            }
+            // $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
+        }
+      });
+    };
 
     // Upload modal
     $(document).on('submit', '#upload-modal form', function(evt) {
+        evt.preventDefault();
         var form = evt.target;
         var $form = $(form);
-        evt.preventDefault();
+        
+        var modal = $("#upload-modal");
+        
+        if(form.action.endsWith("many")){
+          valid_options = $(".btn[examcode]").map(function(){
+            var text = $(this).attr("examcode");
+            return {regex: new RegExp(text.replace(" ", "[ _-]"), "gm"), button: this};
+          }).get();
 
-        var fd = new FormData();
-        var files = $form.find('input[name="file"]')[0].files[0];
-        fd.append('file', files);
+          var files = $form.find('input[name="files"]')[0].files;
+          for (let i = 0; i< files.length; i++ ) { 
+            const file = files[i];
+            var success = false;
+            for (let j in valid_options) {
+              const valid = valid_options[j];
+              if(valid.regex.test(file.name)) {
+                success = true;
+                const launchButton = $(valid.button);
+                const href = launchButton.attr("href");
+                modal.find('form').attr('action', href);
 
-        var modal = $('#upload-modal');
-        var launchButton = modal.data('launchButton');
+                var fd = new FormData();
+                fd.append('file', file);
+                upload_form_and_data(launchButton, form, fd);
+                break;
+              }
+            };
+            if(!success) {
+              console.log(file.name, "ignored and skipped");
+            };
+          };
+          $('#upload-modal').modal('hide');
+        } else {
+          var file = $form.find('input[name="file"]')[0].files[0];
+          var fd = new FormData();
+          fd.append('file', file);
+          const launchButton = modal.data('launchButton');
+          upload_form_and_data(launchButton, form, fd, hide=true);
+        }
 
-        $.ajax({
-            url: form.action,
-            type: form.method,
-            data: fd,
-            contentType: false,
-            processData: false,
-            success: function(data) {
-                if (!data['success']) {
-                    $('#upload-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
-                    return;
-                }
-
-                var cell = launchButton.parent('td');
-                cell.html(
-                  '<a class="btn btn-default btn-xs" href="'+data['download_link']+'"><i class="fa fa-fw fa-file-pdf-o"></i> scan</a>' +
-                  '<br />' +
-                  '<a class="btn btn-default btn-xs" data-toggle="modal" data-target="#upload-modal" data-remote="false" href="'+data['upload_link']+'"><i class="fa fa-fw fa-upload"></i> upload</a>'
-                );
-                // TODO: update data in table
-                // $('#languages-tbody').html(data['tbody']);
-                $('#upload-modal').modal('hide');
-                // $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
-            }
-        });
     });
 
+    // Open Modal
     $('#upload-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var href = button.attr('href');
@@ -177,6 +247,9 @@ $(function() {
             },
         });
     })
+
+    {% include "ipho_exam/partials/merge_pdf_clientside.js"%}
+    $(".combine-all").click(merge_on_click_remove_cover);
 });
 </script>
 {% endblock %}

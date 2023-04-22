@@ -114,6 +114,7 @@ def make_content_node(node):
     descr["id"] = node.id
     descr["type"] = node.tag
     descr["attrs"] = node.attributes
+    descr["tag"] = node.tag
     if node.tag == "csvtable":
         # do not display original text of CSV table
         descr["original"] = None
@@ -141,12 +142,8 @@ def make_qml(node):
 
 
 def xml2string(xml):
-    s = ET.tostring(xml, encoding="unicode")
-
-    # this is an additional safety measure to prevent any illegal characters ending up in a safed XML
-    # those characters should have already been removed when creating/updating the XML, however.
-    s = remove_forbbiden_xml_chars(s)
-    return s
+    # there should never be unsanatized xml here
+    return ET.tostring(xml, encoding="unicode")
 
 
 def content2string(node):
@@ -360,8 +357,8 @@ class QMLobject:
         assert "id" in self.attributes
         elem = ET.Element(self.tag, self.attributes)
         if self.__class__.has_text:
-            s = self.data
-            elem.text = s
+            # there should never be unsanatized xml here
+            elem.text = self.data
 
         for child in self.children:
             elem.append(child.make_xml())
@@ -549,7 +546,7 @@ class QMLquestion(QMLobject):
         return tex_src.strip()
 
     def heading(self):
-        return "Question/answer {}pt".format(self.attributes["points"])
+        return "Question/Answer {} pt".format(self.attributes["points"])
 
     def tex_begin(self):
         return "\\begin{{PR}}{{{}}}{{{}}}\n\n".format(
@@ -580,7 +577,7 @@ class QMLsubquestion(QMLobject):
     default_attributes = {"points": "0.0", "part_nr": "A", "question_nr": "1"}
 
     def heading(self):
-        return "Task box {}.{}, {}pt".format(
+        return "Task box {}.{}, {} pt".format(
             self.attributes["part_nr"],
             self.attributes["question_nr"],
             self.attributes["points"],
@@ -617,19 +614,22 @@ class QMLsubanswer(QMLobject):
     default_attributes = {"points": "0.0", "part_nr": "A", "question_nr": "1"}
 
     def heading(self):
-        return "Answer box {}.{}, {}pt".format(
+        return "Answer box {}.{}, {} pt".format(
             self.attributes["part_nr"],
             self.attributes["question_nr"],
             self.attributes["points"],
         )
 
     def tex_begin(self):
-        return "\\begin{{QSA}}{{{}}}{{{}}}{{{}}}{{{}}}\n".format(
+        res = "\\begin{{QSA}}{{{}}}{{{}}}{{{}}}{{{}}}\n".format(
             self.attributes["points"],
             self.attributes["part_nr"],
             self.attributes["question_nr"],
             self.attributes.get("height", ""),
         )
+        if self.attributes.get("align", "top") == "bottom":
+            res += r"\vspace*{\fill}"
+        return res
 
     def tex_end(self):
         return "\\end{QSA}\n\n"
@@ -662,11 +662,14 @@ class QMLsubanswercontinuation(QMLobject):
         )
 
     def tex_begin(self):
-        return "\\begin{{QSAC}}{{{}}}{{{}}}{{{}}}\n".format(
+        res = "\\begin{{QSAC}}{{{}}}{{{}}}{{{}}}\n".format(
             self.attributes["part_nr"],
             self.attributes["question_nr"],
             self.attributes.get("height", ""),
         )
+        if self.attributes.get("align", "top") == "bottom":
+            res += r"\vspace*{\fill}"
+        return res
 
     def tex_end(self):
         return "\\end{QSAC}\n\n"

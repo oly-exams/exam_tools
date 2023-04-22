@@ -25,6 +25,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.db.models import Sum
 
 from ipho_core.models import Delegation
 from ipho_exam.models import Participant, Question, Exam
@@ -52,12 +53,14 @@ def generate_markings_from_exam(exam, user=None):
             user=user,
         )
         question_points = qml.question_points(qwy.qml)
+        total_points = 0
         for i, (name, points) in enumerate(question_points):
             mmeta, created = MarkingMeta.objects.update_or_create(
                 question=question,
                 name=name,
                 defaults={"max_points": points, "position": i},
             )
+            total_points += points
             num_created += created
             num_tot += 1
 
@@ -68,6 +71,14 @@ def generate_markings_from_exam(exam, user=None):
                     )
                     num_marking_created += created
                     num_marking_tot += 1
+
+        QuestionPointsRescale.objects.get_or_create(
+            question=question,
+            defaults=dict(
+                max_internal_points=total_points, max_external_points=total_points
+            ),
+        )
+
     return num_tot, num_created, num_marking_tot, num_marking_created
 
 
@@ -151,6 +162,56 @@ class MarkingMetaManager(models.Manager):
         exams = Exam.objects.for_user(user)
         queryset = self.get_queryset().filter(question__exam__in=exams)
         return queryset
+
+
+class QuestionPointsRescaleManager(models.Manager):
+    def for_user(self, user):
+        exams = Exam.objects.for_user(user)
+        queryset = self.get_queryset().filter(question__exam__in=exams)
+        return queryset
+
+
+class QuestionPointsRescale(models.Model):
+    objects = QuestionPointsRescaleManager()
+
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    max_internal_points = models.DecimalField(max_digits=8, decimal_places=2)
+    max_external_points = models.DecimalField(max_digits=8, decimal_places=2)
+
+    class Meta:
+        ordering = ["question"]
+        unique_together = index_together = ("question",)
+
+    def __str__(self):
+        return f"[external points {self.max_external_points}] {self.question.name}"
+
+    def factor(self):
+        return self.max_external_points / self.max_internal_points
+
+    @staticmethod
+    def external_sum_for_exam(markings, participant_code=None, exam=None):
+        if participant_code is not None and exam is not None:
+            markings = markings.filter(
+                marking_meta__question__exam=exam,
+                participant__code=participant_code,
+            )
+
+        ppnt_markings_exam = markings.values("marking_meta__question").annotate(
+            question_total=Sum("points")
+        )
+
+        points_exam = 0
+        all_none = True
+        for x in ppnt_markings_exam:
+            qscale = QuestionPointsRescale.objects.filter(
+                question__pk=x["marking_meta__question"]
+            ).first()
+            if x["question_total"] is not None:
+                points_exam += x["question_total"] * qscale.factor()
+                all_none = False
+        if all_none:
+            return None
+        return points_exam
 
 
 class MarkingMeta(models.Model):

@@ -45,15 +45,32 @@ def file_hash(fname):
 
 
 @login_required
-@permission_required("ipho_core.can_see_boardmeeting")
 def main(
     request, type, url
-):  # pylint: disable=too-many-locals,redefined-builtin, too-many-statements
+):  # pylint: disable=too-many-locals,redefined-builtin,too-many-branches,too-many-statements
     type_ = type
     url = os.path.normpath(url)
 
-    basedir = os.path.join(MEDIA_ROOT, "downloads")
-    os.makedirs(basedir, exist_ok=True)
+    if request.user.has_perm("ipho_core.can_see_boardmeeting"):
+        basedir = os.path.join(MEDIA_ROOT, "downloads")
+    elif request.user.has_perm("ipho_core.is_delegation_print") and ".." not in url:
+        # second check likely not needed since django contracts .. as well
+        basedir = os.path.join(MEDIA_ROOT, "downloads", "visible_for_examsite")
+    else:
+        raise Http404("Insufficient Access!")
+
+    if not os.path.exists(basedir):
+        os.makedirs(basedir)
+    if not os.path.isdir(basedir):  # a convenient fallback if the dir does not exist
+        return render(
+            request,
+            "ipho_download/main.html",
+            {
+                "flist": [],
+                "cur_path": [],
+            },
+        )
+
     path = os.path.join(basedir, url)
     rel_url = os.path.relpath(path, basedir)
     if rel_url[0] == "." and "/" in rel_url:

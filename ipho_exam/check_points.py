@@ -193,7 +193,7 @@ def _wrap_nodes(flat_nodes_reversed, nesting_level=0):
             flat_nodes_reversed.append(candidate)
             return res
         else:
-            assert False
+            raise PointValidationError("there might be missing 'parts' or 'tasks'")
     return res
 
 

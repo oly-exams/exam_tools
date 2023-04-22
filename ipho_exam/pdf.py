@@ -95,12 +95,17 @@ def compile_tex(body, ext_resources=tuple()):
             with codecs.open(f"{tmp}/{doc}.tex", "w", encoding="utf-8") as f:
                 f.write(body)
 
+            env = {
+                "PATH": f"{TEXBIN}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            }
+            event_packages = Path(settings.EVENT_TEMPLATE_PATH) / "tex_packages"
+            if event_packages.exists():
+                env["TEXINPUTS"] = f".:{event_packages}:"
+
             error = subprocess.Popen(
                 ["xelatex", "%s.tex" % doc],
                 cwd=tmp,
-                env={
-                    "PATH": f"{TEXBIN}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-                },
+                env=env,
                 stdin=open(os.devnull),
                 stderr=open(os.devnull, "wb"),
                 stdout=open(os.devnull, "wb"),

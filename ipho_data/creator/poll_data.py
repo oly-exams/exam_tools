@@ -10,14 +10,20 @@ class PollDataCreator(BaseDataCreator):
         room = None
         if room_name is not None:
             room = VotingRoom.objects.get(name=room_name)
-        voting = Voting.objects.create(title=title, content=content, voting_room=room)
+
+        voting, created = Voting.objects.get_or_create(
+            title=title, defaults=dict(content=content, voting_room=room)
+        )
+        if not created:
+            return voting, created
+
         voting.save()
         for key, val in choices.items():
             choice = VotingChoice(voting=voting, label=key, choice_text=val)
             choice.save()
             voting.votingchoice_set.add(choice)
         self.log(voting, "..", "created")
-        return voting
+        return voting, created
 
     def create_voting_room(self, name, visibility=1):
         room, cre = VotingRoom.objects.get_or_create(name=name, visibility=visibility)

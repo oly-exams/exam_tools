@@ -619,6 +619,70 @@ class DelegationScanForm(forms.Form):
         self.form_tag = False
 
 
+class DelegationScanManyForm(forms.Form):
+    files = forms.FileField(
+        validators=[build_extension_validator([".pdf"])],
+        widget=forms.FileInput(attrs={"multiple": True}),
+    )
+
+    def __init__(
+        self,
+        *,
+        example_exam_code,
+        submission_open,
+        do_replace=True,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+
+        warning_message = HTML("")
+        if do_replace:
+            warning_message = HTML(
+                """
+                <div class="alert alert-warning">
+                    <strong>Warning!</strong>
+                    Uploading a new file will overwrite the previous scan file.
+                </div>
+            """
+            )
+        if not submission_open:
+            warning_message = HTML(
+                """
+                <div class="alert alert-danger">
+                    <strong>Error!</strong>
+                    The organizers have not yet opened or already closed the scan upload, uploads are not possible.
+                </div>
+            """
+            )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            HTML(
+                f"""
+            <p>You are uploading <strong>new scans</strong> that are automatically matched.</p>
+            <p>The file names must contain the "Exam code" (connected with a space, - or _)</p>
+            <p>A few valid examples:</p>
+            <div class="alert alert-success">
+            <strong>{ example_exam_code }.pdf<br/>
+            low_quality_{ example_exam_code.replace(" ", "-") }-v3.pdf<br/>
+            { example_exam_code.replace(" ", "_") }V4-fast.pdf</strong>
+            </div>
+            <p>You find the exam code in the table.</p>
+            <div class="alert alert-warning">
+                <strong>Warning!</strong>
+                Files that dont match the conventions are ignored and skipped.
+            </div>
+            """
+            ),
+            warning_message,
+            Field("files"),
+        )
+        self.helper.html5_required = True
+        self.helper.form_show_labels = True
+        self.helper.disable_csrf = True
+        self.form_tag = False
+
+
 class ExtraSheetForm(forms.Form):
     participant = forms.ModelChoiceField(queryset=Participant.objects.all())
     quantity = forms.IntegerField()

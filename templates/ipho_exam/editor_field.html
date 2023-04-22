@@ -13,7 +13,13 @@
         <div class="row">
             <div class="col-xs-5">
                 <div class="translate-original{% if orig_lang.direction == 'rtl' %} rtl{% endif %}" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
-                    {{ field.original_html|safe }}
+                    {% if field.tag == "equation" %}
+                    \({{ field.original_html|safe }}\)
+                    {% elif field.tag == "equation_unnumbered" %}
+                    \({{ field.original_html|safe }}\)
+                    {% else %}
+                      {{ field.original_html|safe }} 
+                    {% endif %}
                 </div>
             </div>
 
@@ -36,7 +42,13 @@
         <div class="row">
             <div class="col-xs-5">
                 <div class="{% if trans_lang.direction == 'rtl' %}rtl{% endif %}">
-                    {{ field.original_html|safe }}
+                    {% if field.tag == "equation" %}
+                    \({{ field.original_html|safe }}\)
+                    {% elif field.tag == "equation_unnumbered" %}
+                    \({{ field.original_html|safe }}\)
+                    {% else %}
+                      {{ field.original_html|safe }} 
+                    {% endif %}
                 </div>
             </div>
             {% if trans_extra_html and trans_extra_html|lookup:field.id %}

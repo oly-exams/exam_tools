@@ -183,7 +183,7 @@ This list shows only documents that have been submitted by the delegations.
           <th>Num pages</th>
           <th>Barcode</th>
           <th>Printouts <button type="button" class="printouts-all">invert selection</button>
-          <th>Scans</th>
+          <th>Scans <button type="button" class="scan-all">invert selection</button></th>
           <th>Scan status</th>
           <th>Full scan</th>
       </tr>
@@ -203,7 +203,7 @@ This list shows only documents that have been submitted by the delegations.
             <td>{{ d.num_pages }} / {{ d.barcode_num_pages }} / {{ d.extra_num_pages }}</td>
             <td>{{ d.barcode_base }}</td>
             <td align="center">
-              <a class="btn btn-default btn-xs" id="exam-doc-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+              <a class="btn btn-default btn-xs doc-link-holder" id="exam-doc-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
               <br />
               {% if d.participant__exam__submission_printing %}
               <input class="printouts-single" type="checkbox" name="printouts[]" value="{{ d.pk }}" />
@@ -231,9 +231,9 @@ This list shows only documents that have been submitted by the delegations.
             </td>
             <td align="center">
               {% if d.scan_file %}
-                <a class="btn btn-default btn-xs" id="processed_scan-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}"><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
+                <a class="btn btn-default btn-xs doc-link-holder" id="processed_scan-{{ d.participant__id }}-{{ d.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=d.participant__exam__id participant_id=d.participant__id position=d.position %}" scan_mark_url = ><i class="fa fa-fw fa-file-pdf-o"></i> view</a>
                 <br />
-                <input type="checkbox" name="scans[]" value="{{ d.pk }}" />
+                <input class="scan-single" type="checkbox" name="scans[]" value="{{ d.pk }}"  scan_mark_url="{% url 'exam:mark-scan-as-printed' doc_id=d.pk %}"/>
                 <div class="btn-group">
                   <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
                     <i class="fa fa-print"></i>
@@ -254,11 +254,13 @@ This list shows only documents that have been submitted by the delegations.
                 {% endif %}
                 <br />
                 Print time:
+                <span class="scan-print-time">
                 {% if d.last_print_s %}
                 <time datetime="{{ d.last_print_s|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
                 {% else %}
                 --:--
                 {% endif %}
+                </span>
                 <br />
               {% endif %}
             </td>
@@ -290,6 +292,16 @@ This list shows only documents that have been submitted by the delegations.
       </tbody>
     </table>
 
+    <div class="student-docs">
+      <a class="btn btn-default pull-right combine-all" download="batch.pdf" style="margin-left:6px;margin-top:6px;"><i class="fa fa-plus-square-o"></i> combined selected into PDF</a>
+      <!-- used to comply with the merge_on_click function, there will be dynamic elements here -->
+    </div>
+    <a class="btn btn-default pull-right scan-print-marker" style="margin-left:6px;margin-top:6px;">mark selected as printed</a>
+    <a class="btn btn-default pull-right select-10-more-scans" style="margin-left:6px;margin-top:6px;">Select 10 more scans</a>
+    <a class="btn btn-default pull-right select-20-scans" style="margin-left:6px;margin-top:6px;">Select first 20 scans</a>
+    <a class="btn btn-default pull-right clear-scan-select" style="margin-left:6px;margin-top:6px;">Clear selection</a>
+    <div class="clearfix"></div>
+    
     {% crispy form %}
 
     </form>
@@ -331,6 +343,7 @@ This list shows only documents that have been submitted by the delegations.
 {% endblock %}
 
 {% block extra-script %}
+<script src="{% static '/pdflib/pdf-lib.min.js' %}"></script>
 <script>
   $(function () {
     $('[data-toggle="tooltip"]').tooltip()
@@ -348,6 +361,31 @@ $('document').ready(function(){
 $('.printouts-all').click(function() {
   $('.printouts-single').each(function() {
     $(this).click();
+  });
+});
+$('.scan-all').click(function() {
+  $('.scan-single').each(function() {
+    $(this).click();
+  });
+});
+
+$('.clear-scan-select').click(function() {
+  $('.scan-single').each(function(idx, checkbox) {
+    checkbox.checked = false;
+  });
+});
+$('.select-20-scans').click(function() {
+  $('.scan-single').each(function(idx, checkbox) {
+    checkbox.checked = (idx < 20);
+  });
+});
+$('.select-10-more-scans').click(function() {
+  var todo = 10;
+  $('.scan-single').each(function(idx, checkbox) {
+    if(checkbox.checked == false && todo > 0){
+      checkbox.checked = true;
+      todo -= 1;
+    }
   });
 });
 
@@ -406,6 +444,48 @@ $(function() {
     });
   })
 
-
+  {% include "ipho_exam/partials/merge_pdf_clientside.js"%}
+  $(".combine-all").click(function(event){
+    $(".student-docs .single-doc").remove();
+    
+    $('.scan-single').each(function(i,checkbox){
+      if(checkbox.checked){
+        const a = document.createElement("a");
+        a.className = "single-doc";
+        const link = $(".doc-link-holder", checkbox.parentElement).attr("href");
+        a.setAttribute("href", link);
+        console.log(link);
+        $(".student-docs").append(a);
+      };
+    });
+    merge_on_click(event, progress=true);
+    var name = `scan_batch_${new String(new Date().toISOString()).replace(/[.:-]+/g, "_").replace(".", "_")}.pdf`;
+    $(".combine-all").attr("download", name);
+  });
+  
+  $(".scan-print-marker").click(function(event){
+    $('.scan-single').each(function(i,checkbox){
+      if(checkbox.checked){
+        const url = $(checkbox).attr("scan_mark_url");
+        console.log(url);
+        $.ajax({
+          url: url,
+          type: "POST",
+          cache: false,
+          processData: false,
+          contentType: false,
+          success: function(data) {
+            console.log(data);
+            var elem = $(".scan-print-time", checkbox.parentElement);
+            elem.html(data.timehtml);
+            var el = $("time", elem);
+            var dt = moment(el.attr("datetime"));
+            el.text(dt.format(el.data("format")));
+          }
+        });
+      }
+    });
+    
+  });
 </script>
 {% endblock %}

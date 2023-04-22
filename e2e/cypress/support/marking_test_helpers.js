@@ -192,18 +192,18 @@ export function check_point_form_error(ppnt_id, field_id, should_have_err=true, 
 
 // Checks the points shown in the delegation view and viewall views
 export function check_delegation_points_view(column, points){
-    cy.get("#points-table tbody").within(($tbody)=>{
+    cy.get("#points-table > tbody").within(($tbody)=>{
         points.forEach(function(elem, idx){
-            cy.get('tr').eq(idx).find('td').eq(column).shouldHaveTrimmedText(elem)
+            cy.get('> tr').eq(idx).find('td table tr td div').eq(column).shouldHaveTrimmedText(elem)
         });
     })
 }
 
 // Checks that all points in column have value in the delegation view and viewall views
 export function check_delegation_points_view_value(column, value="-"){
-    cy.get("#points-table tbody").within(($tbody)=>{
-        cy.get('tr').each(($tr)=>{
-            cy.wrap($tr).find('td').eq(column).shouldHaveTrimmedText(value)
+    cy.get("#points-table>tbody").within(($tbody)=>{
+        cy.get('>tr').each(($tr)=>{
+            cy.wrap($tr).find('>td').eq(column).shouldHaveTrimmedText(value)
         })
     })
 }
@@ -235,11 +235,11 @@ export function test_delegation_marks_view_all(ppnt_ids, columns, value){
 
 // Checks all entries in the staff marking summary
 export function test_staff_summary_values(entries){
-    cy.get("#summary-table tbody").within(($table)=>{
+    cy.get("#summary-table>tbody").within(($table)=>{
         entries.forEach((row, row_idx) => {
-            cy.get('tr').eq(row_idx).within(($row)=>{
+            cy.get('>tr').eq(row_idx).within(($row)=>{
                 row.forEach((col, col_idx) => {
-                    cy.get('td').eq(col_idx+1).shouldHaveTrimmedText(col)
+                    cy.get('>td').eq(col_idx+1).shouldHaveTrimmedText(col)
                 });
             })
         });
@@ -316,8 +316,8 @@ export const AUS_ppnts_viewable = [
 
 export const AUT_ppnt_ids = [8, 9]
 export const AUT_ppnts_final = [
-    ["Ford Prefect (AUT-S-1)", "20", "20"],
-    ["Slartibartfast  (AUT-S-2)", "20", "20"],
+    ["Ford Prefect (AUT-S-1)", "20.00", "20.00"],
+    ["Slartibartfast  (AUT-S-2)", "20.00", "20.00"],
 ]
 export const AUT_ppnts_viewable = [
     ["Ford Prefect (AUT-S-1)", view_only, view_only],

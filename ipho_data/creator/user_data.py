@@ -40,7 +40,7 @@ class UserDataCreator(BaseDataCreator):
         fieldnames = ["country_name", "country_code", "voting_power"]
         with self._pw_creator.create_pw_gen(filename_csv, pw_strategy) as pw_gen:
             for deleg_data in self.read_csv(filename_csv, fieldnames):
-                if enforce_iso3166:
+                if enforce_iso3166 and not deleg_data.country_code in ["OLY", "ORG"]:
                     self._enforce_iso3166(
                         deleg_data.country_code, deleg_data.country_name
                     )
@@ -66,7 +66,9 @@ class UserDataCreator(BaseDataCreator):
                 delegation.members.add(user)
                 delegation.save()
 
-    def create_examsite_user(self, pw_strategy="create", enforce_iso3166=True):
+    def create_examsite_user(
+        self, pw_strategy="create", set_pw_if_exists=False, enforce_iso3166=True
+    ):
         filename_csv = "021_examsite_user.csv"
         fieldnames = ["country_code"]
         with self._pw_creator.create_pw_gen(filename_csv, pw_strategy) as pw_gen:
@@ -81,6 +83,7 @@ class UserDataCreator(BaseDataCreator):
                     self._create_delegation_voting,
                     username=username,
                     password=password,
+                    set_pw_if_exists=set_pw_if_exists,
                     group="Delegation Examsite Team",
                 )
                 if not hasattr(user, "autologin"):
@@ -108,6 +111,7 @@ class UserDataCreator(BaseDataCreator):
         create_voting,
         *,
         password,
+        set_pw_if_exists=False,
         is_superuser=False,
         group="",
         voting_power=0,
@@ -118,6 +122,10 @@ class UserDataCreator(BaseDataCreator):
             **user_data, is_superuser=is_superuser, is_staff=is_staff
         )
         if not created:
+            if set_pw_if_exists:
+                user.set_password(password)
+                assert user.check_password(password)
+                user.save()
             return user
         if group:
             user.groups.add(Group.objects.get(name=group))

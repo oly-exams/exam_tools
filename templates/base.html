@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 {% load static %}
+{% load i18n %}
+
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -115,7 +117,7 @@
               {% if perms.ipho_core.can_vote and not user.is_superuser and user.votingright_set.all %}
               <li><a href="{% url 'poll:voter-index' %}">Voting</a></li>
               {% endif %}
-              {% if perms.ipho_core.can_see_boardmeeting %}
+              {% if perms.ipho_core.can_see_boardmeeting or perms.ipho_core.is_delegation_print %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
               {% endif %}
               {% if perms.ipho_core.can_print_boardmeeting_site or perms.ipho_core.can_print_exam_site %}
@@ -192,7 +194,7 @@
                   {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'marking:marking-submissions' %}">Delegation marking subm. progress</a></li>
                   {% endif %}
-                  <li><a href="{% url 'marking:moderation-index' %}">Moderation</a></li>
+                  <li><a href="{% url 'marking:moderation-index' %}">{% trans "Moderation" %}</a></li>
                   {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'marking:export' %}">Export markings</a></li>
                   <li><a href="{% url 'marking:export-total' %}">Export markings (with totals)</a></li>

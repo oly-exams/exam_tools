@@ -3,10 +3,6 @@
 {% load crispy_forms_tags %}
 
 
-
-{% block extra-head %}
-{% endblock %}
-
 {% block pageheader %}<h1>Delegation detailed marking</h1>{% endblock %}
 
 {% block page-content %}
@@ -71,22 +67,27 @@
           {% endif %}
           <th>Points</th>
         </tr>
-        {% if show_official_marks %}
         {{ form.management_form }}
+        {% if show_official_marks %}
         {% for form_item in form %}
           <tr>
               <th>{{ form_item.points.label_tag }}</th>
-              <td>{{ form_item.official.points}}</td>
+              <td>{% include "ipho_marking/parts/view_cell.html" with instance=form_item.official %}</td>
               <td><button type="button" class="btn btn-default btn-xs" title="Copy from official" onclick="copy_one('{{form_item.points.id_for_label}}', '{{form_item.official.points}}')"><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i><i class="fa fa-arrow-right" aria-hidden="true"></i><i class="fa fa-clipboard fa-fw" aria-hidden="true"></i></button></td>
               <td>
-                <div {{ form_item.points.errors|yesno:'class="has-error error",,'|safe }}>
-                  {{ form_item.points.errors }} {{ form_item.points }}{% for hidden in form_item.hidden_fields %}{{ hidden }}{% endfor %}
-                </div>
+                {% include "ipho_marking/parts/edit_cell.html" %}
               </td>
           </tr>
         {% endfor %}
         {% else %}
-        {{ form.as_table }}
+          {% for form_item in form %}
+          <tr>
+            <td>{{ form_item.points.label }}</td>
+            <td>
+              {% include "ipho_marking/parts/edit_cell.html" %}
+          </td>
+        </tr>
+        {% endfor %}
         {% endif %}
       </table>
       <input type="submit" class="btn btn-primary" value="Save" />
@@ -103,13 +104,13 @@
           <th>Final</th>
         </tr>
       </thead>
-      {% for m, points in markings %}
+      {% for m, version in markings %}
       <tbody>
         <tr>
           <td><strong>{{ m.name }} ({{ m.max_points }})</strong></td>
-          <td class="{{ points.diff_color.O }}">{{ points.O|default_if_none:'-' }}</td>
-          <td class="{{ points.diff_color.D }}">{{ points.D|default_if_none:'-' }}</td>
-          <td>{{ points.F|default_if_none:'-' }}</td>
+          <td class="{{ version.diff_color.O }}">{% include "ipho_marking/parts/view_cell.html" with instance=version.O%}</td>
+          <td class="{{ version.diff_color.D }}">{% include "ipho_marking/parts/view_cell.html" with instance=version.D%}</td>
+          <td>{% include "ipho_marking/parts/view_cell.html" with instance=version.F%}</td>
         </tr>
       </tbody>
       {% endfor %}

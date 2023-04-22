@@ -17,7 +17,6 @@
 
 # pylint: disable=too-many-lines
 
-
 import os
 import re
 import csv
@@ -28,10 +27,12 @@ import urllib
 import logging
 import traceback
 import itertools
-from copy import deepcopy
 from hashlib import md5
-from collections import OrderedDict
+from pathlib import Path
+from copy import deepcopy
+from collections import OrderedDict, defaultdict
 
+from PyPDF2 import PdfFileMerger
 
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render, redirect
@@ -64,6 +65,7 @@ from django.db.models import (
     IntegerField,
     F,
     Max,
+    Count,
 )
 from django.template.defaultfilters import slugify
 from django.utils.html import escape
@@ -91,6 +93,7 @@ from ipho_exam.models import (
     CompiledFigure,
     RawFigure,
     Feedback,
+    FeedbackComment,
     Like,
     ParticipantSubmission,
     ExamAction,
@@ -138,6 +141,7 @@ from ipho_exam.forms import (
     PrintDocsForm,
     ScanForm,
     DelegationScanForm,
+    DelegationScanManyForm,
     ExtraSheetForm,
     PublishForm,
     FeedbackCommentForm,
@@ -1000,9 +1004,9 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             ctxt["form_html"] = form_html
         else:
             ctxt["form_html"] = ""
+    query = Feedback.objects.filter(question=question, qml_id=qml_id)
     feedbacks = (
-        Feedback.objects.filter(question=question, qml_id=qml_id)
-        .annotate(
+        query.annotate(
             num_likes=Sum(
                 Case(When(like__status="L", then=1), output_field=IntegerField())
             ),
@@ -1037,6 +1041,14 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         )
         .order_by("-timestamp")
     )
+    # not in an annotate due to: https://code.djangoproject.com/ticket/10060
+    feedback_comments = dict(
+        query.annotate(num_comments=Count("feedbackcomment")).values_list(
+            "pk", "num_comments"
+        )
+    )
+    for x in feedbacks:
+        x["num_comments"] = feedback_comments[x["pk"]]
 
     for f in feedbacks:
         like_del = [
@@ -1103,6 +1115,7 @@ def feedback_partial_like(request, status, feedback_id):
         pk=feedback_id,
         question__feedback_status=Question.FEEDBACK_OPEN,
         question__exam__feedback__gte=Exam.FEEDBACK_CAN_BE_OPENED,
+        question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
     )
     delegation = Delegation.objects.get(members=request.user)
     Like.objects.get_or_create(
@@ -1111,6 +1124,59 @@ def feedback_partial_like(request, status, feedback_id):
     return JsonResponse(
         {
             "success": True,
+        }
+    )
+
+
+@permission_required("ipho_core.can_see_boardmeeting")
+def feedback_thread(request, feedback_id):
+    if not request.is_ajax:
+        raise Exception()
+
+    feedback = get_object_or_404(
+        Feedback,
+        pk=feedback_id,
+        question__exam__feedback__gte=Exam.FEEDBACK_READONLY,
+        question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
+    )
+    ctx = {}
+    ctx["feedback_open"] = (
+        feedback.question.feedback_status == Question.FEEDBACK_OPEN
+        and feedback.question.exam.feedback == Exam.FEEDBACK_CAN_BE_OPENED
+    )
+    ctx["original_comment"] = feedback.comment
+    ctx["original_delegation"] = feedback.delegation.name
+
+    try:
+        delegation = Delegation.objects.get(members=request.user)
+        ctx["current_delegation"] = delegation.name
+    except Delegation.DoesNotExist:
+        ctx["feedback_open"] = False
+        ctx["current_delegation"] = ""
+
+    if request.POST and ctx["feedback_open"] and request.POST.get("text", "") != "":
+        ctx["delegation"] = ctx["current_delegation"]
+        ctx["comment"] = request.POST["text"]
+        FeedbackComment(
+            delegation=delegation, comment=ctx["comment"], feedback=feedback
+        ).save()
+        return JsonResponse(
+            {
+                "success": True,
+                "new_comment": render_to_string(
+                    "ipho_exam/partials/feedback_thread_msg.html", ctx
+                ),
+            }
+        )
+    comments = FeedbackComment.objects.filter(feedback=feedback).values_list(
+        "delegation__name", "comment"
+    )
+    ctx["comments"] = comments
+    html = render_to_string("ipho_exam/partials/feedback_thread.html", ctx)
+    return JsonResponse(
+        {
+            "success": True,
+            "text": html,
         }
     )
 
@@ -1209,13 +1275,12 @@ def feedbacks_list(
         questions = Question.objects.for_user(request.user).filter(
             exam=request.GET["exam_id"]
         )
+        query = Feedback.objects.filter(question__in=questions).filter(
+            status__in=filter_st,
+            question__in=filter_qu,
+        )
         feedbacks = (
-            Feedback.objects.filter(question__in=questions)
-            .filter(
-                status__in=filter_st,
-                question__in=filter_qu,
-            )
-            .annotate(
+            query.annotate(
                 num_likes=Sum(
                     Case(When(like__status="L", then=1), output_field=IntegerField())
                 ),
@@ -1248,8 +1313,17 @@ def feedbacks_list(
                 "comment",
                 "org_comment",
             )
-            .order_by("-pk")
+            .order_by("-timestamp")
         )
+
+        # not in an annotate due to: https://code.djangoproject.com/ticket/10060
+        feedback_comments = dict(
+            query.annotate(num_comments=Count("feedbackcomment")).values_list(
+                "pk", "num_comments"
+            )
+        )
+        for x in feedbacks:
+            x["num_comments"] = feedback_comments[x["pk"]]
 
         choices = dict(Feedback._meta.get_field("status").flatchoices)
         for fback in feedbacks:
@@ -1274,13 +1348,13 @@ def feedbacks_list(
             if len(like_del) in [1, 2]:
                 like_del_slug = "<br> " + ", ".join(like_del)
             elif len(like_del) > 2:
-                like_del_slug = "<br> " + like_del[0] + ", ..., " + like_del[-1]
+                like_del_slug = "<br> " + like_del[0] + ", ..."
             unlike_del_string = ", ".join(unlike_del)
             unlike_del_slug = ""
             if len(unlike_del) in [1, 2]:
                 unlike_del_slug = "<br> " + ", ".join(unlike_del)
             elif len(unlike_del) > 2:
-                unlike_del_slug = "<br> " + unlike_del[0] + ", ..., " + unlike_del[-1]
+                unlike_del_slug = "<br> " + unlike_del[0] + ", ..."
             fback["like_delegations"] = [like_del_string, like_del_slug]
             fback["unlike_delegations"] = [unlike_del_string, unlike_del_slug]
             fback["status_display"] = choices[fback["status"]]
@@ -1456,7 +1530,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             ),
         )
         .values_list(
-            "pk",
+            "pk",  # make sure this stays at pos 0
             "question__exam__name",
             "question__name",
             "qml_id",
@@ -1491,6 +1565,15 @@ def feedbacks_export_csv(request, exam_id, question_id):
         unlike_del_string = ", ".join(unlike_del)
         f.append(like_del_string)
         f.append(unlike_del_string)
+
+        discussion = []
+        for delegation, comment in (
+            FeedbackComment.objects.filter(feedback=f[0])
+            .order_by("timestamp")
+            .values_list("delegation__name", "comment")
+        ):
+            discussion.append(f"{delegation}: {comment}")
+        f.append("\n".join(discussion))
         feedbacks.append(f)
 
     response = HttpResponse(content_type="text/csv")
@@ -1516,6 +1599,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             "Num unlikes",
             "Like delegations",
             "Unlike Delegations",
+            "Discussion",
         ]
     )
 
@@ -2381,6 +2465,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
             }
         )
 
+    print(block.content_html())
     form_html = render_crispy_form(form)
     attrs_form_html = render_crispy_form(attrs_form, AdminBlockAttributeHelper())
     return JsonResponse(
@@ -2750,14 +2835,58 @@ def submission_delegation_list_submitted(request):
         "scan_file",
         "timestamp",
     ).order_by("participant__exam_id", "participant_id", "position")
+    # do NOT change the secondary order by participant_id!
+
+    exam_id2max_position = defaultdict(set)
+    for doc in all_docs:
+        key = doc["participant__exam__id"]
+        val = doc["position"]
+        exam_id2max_position[key].add(val)
+
+    for doc in all_docs:
+        if doc["position"] == 0:
+            key = doc["participant__exam__id"]
+            doc["max_position"] = len(exam_id2max_position[key])
 
     return render(
         request,
         "ipho_exam/submission_delegation_list.html",
-        {
-            "docs": all_docs,
-        },
+        {"docs": all_docs, "exam2max_position": exam_id2max_position},
     )
+
+
+@permission_required("ipho_core.is_delegation_print")
+def upload_many_scan_delegation(request):
+    exams = list(Exam.objects.for_user(request.user))
+    delegation = Delegation.objects.get(members=request.user)
+    participant = Participant.objects.filter(
+        exam=exams[0], delegation=delegation
+    ).first()
+    doc = get_object_or_404(Document, position=1, participant=participant)
+    submission_open = any(
+        exam.answer_sheet_scan_upload >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
+        for exam in exams
+    )
+    form = DelegationScanManyForm(
+        submission_open=submission_open,
+        example_exam_code=doc.barcode_base,
+        data=request.POST or None,
+        files=request.FILES or None,
+    )
+    form_html = render_crispy_form(form)
+
+    json_kwargs = {
+        "title": "Upload many scan files",
+        "form": form_html,
+        "success": False,
+    }
+
+    if submission_open:
+        json_kwargs["submit"] = "Upload"
+    else:
+        json_kwargs["submit"] = "Inactive"
+
+    return JsonResponse(json_kwargs)
 
 
 @permission_required("ipho_core.is_delegation_print")
@@ -3389,7 +3518,12 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
     elif exam is not None and exam.question_set.count() > 0:
         question = exam.question_set.first()
 
-    delegation = Delegation.objects.get(members=request.user)
+    delegations = Delegation.objects.filter(members=request.user)
+    if not delegations:
+        return HttpResponseForbidden(
+            "You do not have the permissions to edit this question."
+        )
+    delegation = delegations.get()
     should_forbid = ExamAction.require_in_progress(
         ExamAction.TRANSLATION, exam=exam, delegation=delegation
     )
@@ -3518,6 +3652,17 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
             trans_node = get_object_or_404(
                 TranslationNode, question=question, language_id=lang_id
             )
+
+            # RestrictedChar list from here:
+            # https://www.w3.org/TR/xml11/#charsets
+            remove_re = re.compile("[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x84\x84-\x9F]")
+
+            def strip_illegal_xml_chars(text):
+                text, count = remove_re.subn("", text)
+                if count > 0:
+                    print("removed invalid xml character")
+                return text
+
             if len(trans_node.text) > 0:
                 trans_q = qml.make_qml(trans_node)
                 trans_q.set_lang(trans_lang)
@@ -3529,6 +3674,8 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
             if form.is_valid():
                 qmln = deepcopy(orig_q)
                 cleaned_data = form.cleaned_data
+                for k in list(cleaned_data.keys()):
+                    cleaned_data[k] = strip_illegal_xml_chars(cleaned_data[k])
                 qmln.update(cleaned_data, set_blanks=True)
                 new_text = qml.xml2string(qmln.make_xml())
                 new_checksum = md5(new_text.encode("utf8")).hexdigest()
@@ -3932,6 +4079,7 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
 
 @login_required
 def pdf_exam_for_participant(request, exam_id, participant_id):
+    # mskoenz 2022: afaics deprecated, see pdf_exam_participant
     participant = get_object_or_404(Participant, id=participant_id)
 
     user = request.user
@@ -4035,6 +4183,37 @@ def pdf_exam_pos_participant(
 
         raise Http404("Scan document not found")
     raise Http404("Scan document: Invalid type")
+
+
+@login_required
+def pdf_exam_participant(request, exam_id, participant_id):
+    participant = get_object_or_404(Participant, id=participant_id, exam=exam_id)
+    user = request.user
+    if not user.has_perm("ipho_core.is_printstaff"):
+        if not participant.delegation.members.filter(pk=user.pk).exists():
+            return HttpResponseForbidden(
+                "You do not have permission to view this document."
+            )
+    doc_path = Path(settings.DOCUMENT_PATH)
+    output = doc_path / f"exams-docs/{participant.code}/print/exam-{exam_id}.pdf"
+    if not output.exists():
+        merger = PdfFileMerger()
+        for doc in (
+            Document.objects.filter(participant=participant_id)
+            .values("file", "position", "num_pages")
+            .order_by("position")
+        ):
+            with open(doc_path / doc["file"], "rb") as f:
+                merger.append(f, pages=(1, doc["num_pages"]))
+
+        with open(output, "wb") as f:
+            merger.write(f)
+        merger.close()
+
+    with open(output, "rb") as f:
+        response = HttpResponse(f.read(), content_type="application/pdf")
+        response["Content-Disposition"] = f"attachment; filename={output}"
+        return response
 
 
 @login_required
@@ -4428,6 +4607,29 @@ def set_scan_status(request, doc_id, status):
             {
                 "success": True,
                 "new_status": doc.scan_status,
+            }
+        )
+    return HttpResponseForbidden("Nothing to see here!")
+
+
+@permission_required("ipho_core.is_printstaff")
+def mark_scan_as_printed(request, doc_id):
+
+    if request.method == "POST" and request.is_ajax:
+        doc = get_object_or_404(Document, id=doc_id)
+
+        log = PrintLog.objects.filter(document=doc, doctype="S").first()
+        if log is None:
+            log = PrintLog(document=doc, doctype="S")
+        else:
+            log.timestamp = timezone.now().isoformat()
+        log.save()
+        return JsonResponse(
+            {
+                "success": True,
+                "timehtml": render_to_string(
+                    "ipho_exam/partials/print_time.html", dict(log=log)
+                ),
             }
         )
     return HttpResponseForbidden("Nothing to see here!")

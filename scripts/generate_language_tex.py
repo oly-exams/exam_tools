@@ -39,18 +39,11 @@ from django.template.defaultfilters import slugify
 
 
 from django.conf import settings
-from ipho_core.models import Delegation, Participant
+from ipho_core.models import Delegation
 from ipho_exam.models import (
     Exam,
     Question,
-    VersionNode,
-    TranslationNode,
-    PDFNode,
     Language,
-    Figure,
-    Feedback,
-    ParticipantSubmission,
-    ExamAction,
 )
 from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
 
@@ -111,11 +104,12 @@ def compile_question(question, language, logo_file):
         # folder = u'Translation-{}{}-{}-{}-{}'.format(
         #    exam_code, position, question_code, language.delegation.name, language.name.replace(u' ', u'_')
         # )
-        folder = "{}_{}/TRANSLATION_{}_{}".format(
-            slugify(question.exam.name),
-            slugify(question.name),
+        folder = "TRANSLATION_{}_{}/{}_{}_{}/".format(
             language.delegation.name,
             slugify(language.name),
+            slugify(question.exam.name),
+            slugify(question.position),
+            slugify(question.name),
         )
 
         base_folder = folder
@@ -174,10 +168,10 @@ def export_all(logo_file, names=("Theory", "Experiment")):
     exams = Exam.objects.filter(name__in=names)
     # The position filter is only really needed if there are spare problems
     questions = Question.objects.filter(
-        exam__in=exams, position__in=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+        exam__in=exams, position__in=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     )
     languages = Language.objects.filter(
-        participantsubmission__exam__in=exams
+        participantsubmission__participant__exam__in=exams
     ).distinct()
     print(f"Going to export in {len(languages)} languages.")
     for q in questions:
@@ -188,6 +182,6 @@ def export_all(logo_file, names=("Theory", "Experiment")):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        export_all(logo_file="idpho2020_logo.png", names=sys.argv[1:])
+        export_all(logo_file="icho2022_logo.png", names=sys.argv[1:])
     else:
-        export_all(logo_file="idpho2020_logo.png")
+        export_all(logo_file="icho2022_logo.png")
