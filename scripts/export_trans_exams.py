@@ -77,7 +77,9 @@ data = json.loads(ss.getvalue())
 #     d['fields']['name'] = d['fields']['name'].replace(' final', '')
 json.dump(data, open("035_trans_official_lang.json", "w"), indent=2)
 
-nodes = TranslationNode.objects.filter(question__in=questions, language=languages)
+nodes = TranslationNode.objects.filter(
+    question__in=questions, language__in=languages
+).all()
 ss = StringIO()
 save(nodes, ss)
 data = json.loads(ss.getvalue())

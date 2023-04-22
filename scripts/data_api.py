@@ -210,7 +210,7 @@ class MultiTableData(SingleTableData):
     @property
     def tables(self):
         return [
-            "{}.{}".format(self.get_table_module(model), self.get_table_name(model))
+            f"{self.get_table_module(model)}.{self.get_table_name(model)}"
             for model in self.models
         ]
 

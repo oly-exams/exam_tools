@@ -21,6 +21,12 @@ test:docker-a-dev-setup:
         ALL_SERVICE_NAME: django-server postgres rabbitmq celery-worker
         OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/a-dev-test.yml
 
+test:testing-pytest:
+    extends: .test:pull_and_run
+    variables:
+        ALL_SERVICE_NAME: testing-pytest
+        OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/pre-commit-diff.yml
+
 
 test:testing-cypress-batch-1:
     extends: .test:pull_and_run

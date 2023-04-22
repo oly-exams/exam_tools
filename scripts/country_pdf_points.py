@@ -73,11 +73,9 @@ def compile_all():
                 .order_by("marking_meta__question__exam", "marking_meta__question")
             )
             total = sum(
-                [
-                    st_points["exam_points"]
-                    for st_points in ppnt_exam_points_list
-                    if st_points["exam_points"] is not None
-                ]
+                st_points["exam_points"]
+                for st_points in ppnt_exam_points_list
+                if st_points["exam_points"] is not None
             )
             points_per_participant.append((participant, ppnt_exam_points_list, total))
 
