@@ -25,6 +25,7 @@ import json
 import binascii
 from copy import deepcopy
 from decimal import Decimal
+from io import StringIO
 from xml.etree import ElementTree as ET
 import urllib.request
 import urllib.parse
@@ -35,8 +36,7 @@ from future import standard_library
 standard_library.install_aliases()
 
 from bs4 import BeautifulSoup
-from string import Template
-from io import StringIO
+
 import html_diff
 
 from django import forms
@@ -1414,24 +1414,23 @@ class QMLvspace(QMLobject):
 
     def make_tex(self):
         return r"\vspace{%iem}" % self.get_amount() + "\n", []
-    
+
 
 class QMLcsvtable(QMLobject):
     """expects input in CSV format and transforms it into a QML table."""
+
     tag = "csvtable"
     display_name = "CSV table"
     default_heading = "CSV table"
-    sort_order = 210  # how should this be set?
-    
+    sort_order = 410
+
     has_text = True
     has_children = False
     valid_children = ("table",)
     default_attributes = {"columns": "|l|c|", "row_separator": "11"}
 
-
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
-    
 
     def parse(self, root):
         assert self.__class__.tag == root.tag
@@ -1448,25 +1447,27 @@ class QMLcsvtable(QMLobject):
             self.attributes.update(root.attrib)
 
             try:
-                df = pd.read_csv(StringIO(data), header=None)
+                df_table = pd.read_csv(StringIO(data), header=None)
                 table = ET.Element("table", {"columns": self.attributes["columns"]})
                 table_node = self.add_child(table)
 
-                for i, el in df.iterrows():
-                    row = ET.Element("row", {"bottom_line": self.attributes["row_separator"][i]})
+                for i, elem in df_table.iterrows():
+                    row = ET.Element(
+                        "row", {"bottom_line": self.attributes["row_separator"][i]}
+                    )
                     row_node = table_node.add_child(row)
-                    for col in df.columns:
+                    for col in df_table.columns:
                         cell = ET.Element("cell", {})
-                        cell.text = el[col]
+                        cell.text = elem[col]
                         row_node.add_child(cell)
                 self.data_html = self.data
-            except Exception as e:
+            # pylint: disable=broad-except
+            except (Exception,) as error:
                 print("Error in parsing CSV table")
-                print(e)
+                print(error)
                 print(root.text)
                 root.text = "<p></p>"
                 super().parse(root)
-
 
     def make_tex(self):
         "do not add self.data to tex"
