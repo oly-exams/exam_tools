@@ -114,7 +114,7 @@ def make_content_node(node):
     descr["id"] = node.id
     descr["type"] = node.tag
     descr["attrs"] = node.attributes
-    if node.heading() == "CSV table":
+    if node.tag == "csvtable":
         # do not display original text of CSV table
         descr["original"] = None
         descr["original_html"] = None
