@@ -660,7 +660,7 @@ class DelegationScanManyForm(forms.Form):
             HTML(
                 f"""
             <p>You are uploading <strong>new scans</strong> that are automatically matched.</p>
-            <p>The scans must contain the "Exam code" (connected with a space, - or _)</p>
+            <p>The file names must contain the "Exam code" (connected with a space, - or _)</p>
             <p>A few valid examples:</p>
             <div class="alert alert-success">
             <strong>{ example_exam_code }.pdf<br/>
