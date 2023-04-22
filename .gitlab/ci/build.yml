@@ -22,6 +22,18 @@ build:pre-commit:
             - requirements.txt
             - requirements_dev.txt
 
+build:testing-pytest:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: testing-pytest
+        BUILD_DEPENDENCY: base-python
+    rules:
+        - if: '$DOCKER_CACHE == "no"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
+            - requirements.txt
+            - requirements_test.txt
+
 build:django-server:
     extends: .build:build_cached_push
     variables:

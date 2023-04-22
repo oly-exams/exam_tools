@@ -3722,7 +3722,7 @@ def auto_translate(request):
 @permission_required("ipho_core.is_organizer_admin")
 def auto_translate_count(request):
     def to_money(count):
-        return count / 10 ** 6 * 20
+        return count / 10**6 * 20
 
     total_counts = CachedAutoTranslation.objects.annotate(
         total_char_count=F("source_length") * F("hits")
