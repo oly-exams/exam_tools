@@ -30,7 +30,7 @@ def load_from_data_path(data_path, enforce_iso3166):
     return tdc
 
 
-def main():
+def main():  # pylint: disable=too-many-branches
     if len(sys.argv) < 2:
         print(
             "please use load_from.py path [skip-iso] [ipho2016] [students] [remote] [mock]"
@@ -48,6 +48,9 @@ def main():
         for argv in sys.argv[2:]:
             if argv == "ipho2016":
                 tdc.create_ipho2016_theory_exam_only()
+            elif argv == "ibo2019":
+                tdc.create_ibo2019_theory_exam()
+                tdc.create_ibo2019_experimental_exam()
             elif argv == "remote":
                 tdc.create_examsite_user(
                     pw_strategy="read", enforce_iso3166=enforce_iso3166
