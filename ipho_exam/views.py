@@ -3531,10 +3531,6 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
             if form.is_valid():
                 qmln = deepcopy(orig_q)
                 cleaned_data = form.cleaned_data
-                for k in list(cleaned_data.keys()):
-                    cleaned_data[k] = (
-                        cleaned_data[k].replace(chr(8), "").replace(chr(29), "")
-                    )
                 qmln.update(cleaned_data, set_blanks=True)
                 new_text = qml.xml2string(qmln.make_xml())
                 new_checksum = md5(new_text.encode("utf8")).hexdigest()
@@ -3721,7 +3717,7 @@ def auto_translate(request):
 @permission_required("ipho_core.is_organizer_admin")
 def auto_translate_count(request):
     def to_money(count):
-        return count / 10 ** 6 * 20
+        return count / 10**6 * 20
 
     total_counts = CachedAutoTranslation.objects.annotate(
         total_char_count=F("source_length") * F("hits")

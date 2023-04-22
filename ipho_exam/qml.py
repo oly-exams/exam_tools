@@ -37,8 +37,6 @@ standard_library.install_aliases()
 from bs4 import BeautifulSoup
 import html_diff
 
-# import tidylib
-
 from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
@@ -66,41 +64,19 @@ PARAGRAPH_LIKE_BLOCKS = (
 )
 DEFAULT_BLOCKS = ("texfield", "texenv")
 
-TIDYOPTIONS = {
-    "indent": "auto",
-    "indent-spaces": 2,
-    "wrap": 0,
-    "drop-empty-paras": False,
-    "join-styles": False,
-    "literal-attributes": False,
-    "lower-literals": False,
-    "merge-divs": "no",
-    # "merge-spans": "no",
-    # "preserve-entities": True,  # check if this is a useful option
-    "markup": True,
-    "output-xml": False,
-    "output-xhtml": True,
-    "input-xml": False,
-    "show-warnings": False,
-    "numeric-entities": True,
-    "quote-marks": False,
-    "quote-nbsp": True,
-    "quote-ampersand": False,
-    "break-before-br": False,
-    "uppercase-tags": False,
-    "uppercase-attributes": False,
-    "quiet": True,
-    "show-errors": 0,
-    "force-output": True,
-    "input-encoding": "utf8",
-    "output-encoding": "utf8",
-    "word-2000": True,
-    "clean": True,
-    "bare": True,
-    "new-blocklevel-tags": "question,subquestion,subanswer,subanswercontinuation,box,section,part,figure,list,texfield,texparam,texenv,table,row",
-    "new-inline-tags": "title,paragraph,paragraph_colored,param,caption,equation,equation_unnumbered,item,texparam,cell,tablecaption",
-    "new-empty-tags": "pagebreak,vspace",
-}  # yapf:disable
+
+FORBIDDEN_XML_CHARS = "\x01\x02\x03\x04\x05\x06\x07\x08\x0b\x0c\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f\x80\x81\x82\x83\x84\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\ufdd0\ufdd1\ufdd2\ufdd3\ufdd4\ufdd5\ufdd6\ufdd7\ufdd8\ufdd9\ufdda\ufddb\ufddc\ufddd\ufdde\ufddf\U0001fffe\U0001ffff\U0002fffe\U0002ffff\U0003fffe\U0003ffff\U0004fffe\U0004ffff\U0005fffe\U0005ffff\U0006fffe\U0006ffff\U0007fffe\U0007ffff\U0008fffe\U0008ffff\U0009fffe\U0009ffff\U000afffe\U000affff\U000bfffe\U000bffff\U000cfffe\U000cffff\U000dfffe\U000dffff\U000efffe\U000effff\U000ffffe\U000fffff\U0010fffe\U0010ffff"
+delete_forbidden_xml_chars_translation_table = "".maketrans("", "", FORBIDDEN_XML_CHARS)
+
+
+def remove_forbbiden_xml_chars(text):
+    """
+    Remove characters forbidden according to XML 1.0 specifications, among others control characters that can
+    lead to problems when reading XMLs with illegal characters back in.
+
+    This uses the string translate method which is faster than replace or regex.
+    """
+    return text.translate(delete_forbidden_xml_chars_translation_table)
 
 
 def make_content(root):
@@ -157,7 +133,10 @@ def make_qml(node):
 
 def xml2string(xml):
     s = ET.tostring(xml, encoding="unicode")
-    # s, errors = tidylib.tidy_fragment(s, options=TIDYOPTIONS)
+
+    # this is an additional safety measure to prevent any illegal characters ending up in a safed XML
+    # those characters should have already been removed when creating/updating the XML, however.
+    s = remove_forbbiden_xml_chars(s)
     return s
 
 
@@ -373,9 +352,6 @@ class QMLobject:
         elem = ET.Element(self.tag, self.attributes)
         if self.__class__.has_text:
             s = self.data
-            # print("data={}".format(self.data))
-            # print("tidy")
-            # s, errors = tidylib.tidy_fragment(s, options=TIDYOPTIONS)
             elem.text = s
 
         for child in self.children:
@@ -471,7 +447,7 @@ class QMLobject:
         """
 
         if self.id in data:
-            self.data = data[self.id]  # escape(data[self.id])
+            self.data = remove_forbbiden_xml_chars(data[self.id])
             self.data_html = self.data
         elif self.has_text and set_blanks:
             self.data = ""
