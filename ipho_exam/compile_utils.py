@@ -218,7 +218,8 @@ def participant_exam_document(
         if not suppress_cover_code:
             meta["barcode_num_pages"] += doc_pages
         all_barcodes.append(bgenerator.base)
-        all_docs.append(page)
+        if settings.INCLUDE_COVER:
+            all_docs.append(page)
 
     # XXX: for now, no support for both squashed exam AND groups.
 

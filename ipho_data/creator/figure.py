@@ -10,6 +10,7 @@ from ipho_exam.models import (
     VALID_COMPILED_FIGURE_EXTENSIONS,
 )
 
+from ipho_exam.utils import natural_id
 from .base_data import BaseDataCreator
 
 
@@ -36,6 +37,19 @@ class FigureDataCreator(BaseDataCreator):
             fig.save()
             self.log(fig, "..", "created")
         return fig
+
+    def create_figure_from_file(self, *, filename, params=""):
+        self.create_figure(
+            name=os.path.splitext(os.path.split(filename)[1])[0],
+            fig_id=natural_id.generate_id,
+            filename=filename,
+            params=params,
+        )
+
+    def create_figures_from_folder(self, *, folder="figures", params=""):
+        # pylint: disable=unused-argument
+        for filename in os.listdir(self.full_path(folder)):
+            self.create_figure_from_file(filename=os.path.join(folder, filename))
 
     def create_figures_with_ids(self, *, fig_ids, filename, params=""):
         for fig_id in fig_ids:

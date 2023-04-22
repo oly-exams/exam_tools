@@ -786,7 +786,7 @@ class QMLfigure(QMLobject):
     lang = None
     valid_children = ("caption", "param")
 
-    default_attributes = {"figid": "enter-figid", "width": "0.5"}
+    default_attributes = {"figid": "enter_figid", "width": "0.5"}
 
     def fig_query(self):
         query = {}
@@ -1017,7 +1017,7 @@ class QMLlist(QMLobject):
 
     has_text = False
     has_children = True
-    valid_children = ("item",)
+    valid_children = "item"
 
     def tex_begin(self):
         return "\\begin{itemize}\n"
@@ -1040,7 +1040,7 @@ class QMLenumerate(QMLobject):
 
     has_text = False
     has_children = True
-    valid_children = ("item",)
+    valid_children = "item"
 
     def tex_begin(self):
         label = self.attributes.get("label", "")
@@ -1061,7 +1061,7 @@ class QMLenumerate(QMLobject):
 
 class QMLlistItem(QMLobject):
     tag = "item"
-    sort_order = 201
+    sort_order = -1
 
     has_text = True
     has_children = False
