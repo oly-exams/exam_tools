@@ -3023,7 +3023,6 @@ def submission_exam_assign(
                     question_lang_list=question_lang_list,
                     answer_lang_list=answer_lang_list,
                 )
-                # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
                 _, _ = DocumentTask.objects.update_or_create(
                     document=doc, defaults={"task_id": question_task.id}
@@ -3935,46 +3934,6 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
     )
 
     return HttpResponse(html)
-
-
-@login_required
-def pdf_exam_for_participant(request, exam_id, participant_id):
-    participant = get_object_or_404(Participant, id=participant_id)
-
-    user = request.user
-    if not user.has_perm("ipho_core.can_see_boardmeeting"):
-        exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-        if not (
-            exam.submission_printing >= Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
-            or exam.answer_sheet_scan_upload
-            >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
-        ):
-            return HttpResponseForbidden(
-                "You do not have permission to view this document."
-            )
-
-    ## TODO: implement caching
-    all_tasks = []
-
-    participant_languages = ParticipantSubmission.objects.filter(
-        participant=participant
-    )
-    questions = exam.question_set.all()
-    grouped_questions = {
-        k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)
-    }
-    grouped_questions = OrderedDict(sorted(grouped_questions.items()))
-    for position, qgroup in list(grouped_questions.items()):
-        question_task = question_utils.compile_ppnt_exam_question(
-            qgroup, participant_languages
-        )
-        result = question_task.delay()
-        all_tasks.append(result)
-        print("Group", position, "done.")
-    filename = "exam-{}-{}.pdf".format(slugify(exam.name), participant.code)
-    chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
-    # chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
-    return HttpResponseRedirect(reverse("exam:pdf-task", args=[chord_task.id]))
 
 
 @login_required
