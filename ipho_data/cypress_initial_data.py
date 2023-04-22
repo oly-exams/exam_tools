@@ -31,7 +31,7 @@ def set_up_basic_test_database(voting_room=None):
         tdc.create_three_poll_votings(room_name=voting_room)
         tdc.create_official_delegation()
         theory = tdc.create_ipho2016_theory_exam()
-        tdc.create_translations_and_feedback(theory)
+        tdc.create_ipho2016_translations_and_feedback(theory)
         tdc.create_language_from_code(code="ARM", name="TestLanguage")
         tdc.create_seatings()
         tdc.import_markings_from_exam(theory)
