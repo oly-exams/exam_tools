@@ -44,7 +44,7 @@ from ipho_exam.models import (
     Language,
     Figure,
     Feedback,
-    StudentSubmission,
+    ParticipantSubmission,
     ExamAction,
     Place,
 )
@@ -112,7 +112,9 @@ def compile_question(question, language):
         print(e)
 
 
-def compile_stud_exam_question(questions, student_languages, cover=None, commit=False):
+def compile_ppnt_exam_question(
+    questions, participant_languages, cover=None, commit=False
+):
     all_tasks = []
     all_docs = []
     if cover is not None:
@@ -123,7 +125,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         )
         question_pdf = pdf.compile_tex(body, [])
         q = questions[0]
-        s = student_languages[0].student
+        s = participant_languages[0].participant
         bgenerator = iphocode.QuestionBarcodeGen(
             q.exam, q, s, qcode="C", suppress_code=True
         )
@@ -132,7 +134,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         all_docs.append(page)
 
     for question in questions:
-        for sl in student_languages:
+        for sl in participant_languages:
             if question.is_answer_sheet() and not sl.with_answer:
                 continue
 
@@ -171,7 +173,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
 
             if question.is_answer_sheet():
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, sl.student
+                    question.exam, question, sl.participant
                 )
                 page = pdf.check_add_barcode(question_pdf, bgenerator)
                 all_docs.append(page)
@@ -207,7 +209,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
                     ],
                 )
                 bgenerator = iphocode.QuestionBarcodeGen(
-                    question.exam, question, sl.student, qcode="W"
+                    question.exam, question, sl.participant, qcode="W"
                 )
                 page = pdf.check_add_barcode(question_pdf, bgenerator)
                 all_docs.append(page)
@@ -216,8 +218,8 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
         position = question.position
 
     filename = (
-        "../media/downloads/language_pdf/{}_{}/student_exams/EXAM__{}.pdf".format(
-            slugify(question.exam.name), slugify(question.name), sl.student.code
+        "../media/downloads/language_pdf/{}_{}/participant_exams/EXAM__{}.pdf".format(
+            slugify(question.exam.name), slugify(question.name), sl.participant.code
         )
     )
     os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -227,7 +229,7 @@ def compile_stud_exam_question(questions, student_languages, cover=None, commit=
     print(filename, "DONE")
 
 
-def generate_extra_sheets(student, question, startnum, npages):
+def generate_extra_sheets(participant, question, startnum, npages):
     context = {
         "polyglossia": "english",
         "polyglossia_options": "",
@@ -251,7 +253,7 @@ def generate_extra_sheets(student, question, startnum, npages):
         ],
     )
     bgenerator = iphocode.QuestionBarcodeGen(
-        question.exam, question, student, qcode="Z", startnum=startnum
+        question.exam, question, participant, qcode="Z", startnum=startnum
     )
     doc_pdf = pdf.check_add_barcode(question_pdf, bgenerator)
     return doc_pdf
@@ -274,29 +276,31 @@ def missing_submissions():
     }
 
     for d in missing:
-        students = d.student_set.all()
-        for student in students:
-            student_seat = Place.objects.get(student=student, exam=exam)
+        participants = d.participant_set.all()
+        for participant in participants:
+            participant_seat = Place.objects.get(participant=participant, exam=exam)
             for position, qgroup in list(grouped_questions.items()):
-                student_languages = StudentSubmission.objects.filter(
-                    exam__in=exam, student=student
+                participant_languages = ParticipantSubmission.objects.filter(
+                    exam__in=exam, participant=participant
                 )
                 cover_ctx = {
-                    "student": student,
+                    "participant": participant,
                     "exam": exam,
                     "question": qgroup[0],
-                    "place": student_seat.name,
+                    "place": participant_seat.name,
                 }
-                compile_stud_exam_question(
-                    questions, student_languages, cover=cover_ctx, commit=False
+                compile_ppnt_exam_question(
+                    questions, participant_languages, cover=cover_ctx, commit=False
                 )
 
 
 def compile_all(names=("Theory", "Experiment")):
     exams = Exam.objects.filter(name__in=names)
     questions = Question.objects.filter(exam__in=exams, position__in=[0, 1, 2, 3])
-    languages = Language.objects.filter(studentsubmission__exam__in=exams).distinct()
-    print("Going to compile in {} languages.".format(len(languages)))
+    languages = Language.objects.filter(
+        participantsubmission__exam__in=exams
+    ).distinct()
+    print(f"Going to compile in {len(languages)} languages.")
     for q in questions:
         for lang in languages:
             compile_question(q, lang)

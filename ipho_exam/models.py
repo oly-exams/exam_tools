@@ -22,6 +22,7 @@
 
 import os
 import uuid
+import time
 import subprocess
 import codecs
 
@@ -37,6 +38,7 @@ from polymorphic.models import PolymorphicModel
 from polymorphic.managers import PolymorphicManager
 
 from ipho_core.models import Delegation, Student
+import ipho_exam
 from ipho_exam import fonts
 from .exceptions import IphoExamForbidden
 from .utils import natural_id
@@ -352,6 +354,11 @@ class Exam(models.Model):
 
     code = models.CharField(max_length=8)
     name = models.CharField(max_length=100, unique=True)
+
+    FLAG_SQUASHED = 1
+
+    flags = models.PositiveSmallIntegerField(default=0)
+
     # pylint: disable=invalid-name
 
     # Note that IntegerFields enable us to filter using order relations.
@@ -440,7 +447,7 @@ class Exam(models.Model):
 
     ANSWER_SHEET_SCAN_UPLOAD_CHOICES = (
         (ANSWER_SHEET_SCAN_UPLOAD_NOT_POSSIBLE, "Not possible"),
-        (ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER, "Student answer"),
+        (ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER, "Participant answer"),
     )
 
     # See comments on IntegerFields above
@@ -456,7 +463,7 @@ class Exam(models.Model):
 
     DELEGATION_SCAN_ACCESS_CHOICES = (
         (DELEGATION_SCAN_ACCESS_NO, "No"),
-        (DELEGATION_SCAN_ACCESS_STUDENT_ANSWER, "Student answer"),
+        (DELEGATION_SCAN_ACCESS_STUDENT_ANSWER, "Participant answer"),
     )
 
     # See comments on IntegerFields above
@@ -628,7 +635,7 @@ class Exam(models.Model):
         ):
             return cls.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING
         max_choice = max(
-            [choice[0] for choice in cls._meta.get_field("visibility").choices]
+            choice[0] for choice in cls._meta.get_field("visibility").choices
         )
         return max_choice + 1
 
@@ -643,7 +650,7 @@ class Exam(models.Model):
         if user.has_perm("ipho_core.can_see_boardmeeting"):
             return Exam.CAN_TRANSLATE_BOARDMEETING
         max_choice = max(
-            [choice[0] for choice in cls._meta.get_field("can_translate").choices]
+            choice[0] for choice in cls._meta.get_field("can_translate").choices
         )
         return max_choice + 1
 
@@ -686,6 +693,90 @@ class Exam(models.Model):
                 question.save()
 
 
+class ParticipantManager(models.Manager):
+    def get_by_natural_key(self, code, exam_code):
+        return self.get(code=code, exam__code=exam_code)
+
+
+class Participant(models.Model):
+    objects = ParticipantManager()
+
+    code = models.CharField(max_length=10)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=200 + 200)
+    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
+    students = models.ManyToManyField(Student)
+
+    class Meta:
+        unique_together = index_together = (("code", "exam"),)
+        ordering = ["code", "exam"]
+
+    def natural_key(self):
+        return (self.code, self.exam.code)
+
+    def __str__(self):
+        return f"{self.code} ({self.exam.name})"
+
+    @property
+    def is_group(self):
+        return len(self.students.all()) > 1
+
+
+@receiver(post_save, sender=Student, dispatch_uid="create_ppnt_on_stud_creation")
+def create_ppnt_on_stud_creation(instance, created, raw, **kwargs):
+    if raw:
+        return
+    for exam in Exam.objects.all():
+        if created:
+            _create_ppnt_on_creation_helper(exam, instance)
+        else:
+            for ppnt in instance.participant_set.all():
+                if not ppnt.is_group:
+                    ppnt.code = instance.code
+                    ppnt.full_name = instance.full_name
+                    ppnt.delegation = instance.delegation
+                    ppnt.save()
+
+
+def get_ppnt_on_stud_exam(exam, student):
+    """creates a participant based on an exam and a student
+    without storing it into the database.
+
+    Args:
+        exam (ipho_exam.models.Exam): exam
+        student (ipho_exam.models.Student): student
+
+    Returns:
+        ipho_exam.models.Participant: participant
+    """
+    return Participant(
+        code=student.code,
+        exam=exam,
+        full_name=student.full_name,
+        delegation=student.delegation,
+    )
+
+
+@receiver(post_save, sender=Exam, dispatch_uid="create_ppnt_on_exam_creation")
+def create_ppnt_on_exam_creation(instance, created, raw, **kwargs):
+    # Ignore fixtures and saves for existing courses.
+    if not created or raw:
+        return
+    # the order is only important for for ci/cypress testing
+    for student in Student.objects.order_by("pk"):
+        _create_ppnt_on_creation_helper(instance, student)
+
+
+def _create_ppnt_on_creation_helper(exam, student):
+    ppnt, _ = Participant.objects.get_or_create(
+        code=student.code,
+        exam=exam,
+        full_name=student.full_name,
+        delegation=student.delegation,
+    )
+    ppnt.students.set((student,))
+
+
 class QuestionManager(models.Manager):
     def get_by_natural_key(self, name, exam_name):
         return self.get(name=name, exam=Exam.objects.get_by_natural_key(exam_name))
@@ -714,6 +805,10 @@ class Question(models.Model):
         help_text="Sorting index inside one exam"
     )
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, default=QUESTION)
+
+    FLAG_HIDDEN_PDF = 1
+
+    flags = models.PositiveSmallIntegerField(default=0)
 
     FEEDBACK_CLOSED = -1
     FEEDBACK_ORGANIZER_COMMENT = 0
@@ -980,6 +1075,59 @@ class CachedAutoTranslation(models.Model):
         return f"{self.source_lang} -> {self.target_lang} ({self.source_length})"
 
 
+class CachedHTMLDiff(models.Model):
+    source_node = models.ForeignKey(
+        VersionNode, on_delete=models.CASCADE, related_name="cached_diff_source"
+    )
+    target_node = models.ForeignKey(
+        VersionNode, on_delete=models.CASCADE, related_name="cached_diff_target"
+    )
+    source_text = models.TextField()
+    target_text = models.TextField()
+    diff_text = models.TextField()
+    timestamp = models.DateTimeField(auto_now=True)
+    timing = models.IntegerField(
+        default=0, help_text="execution time of the diff in ms"
+    )
+    hits = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.source_node} -> {self.target_node}"
+
+    class Meta:
+        ordering = ["-hits", "-timestamp"]
+
+    @staticmethod
+    def calc_or_get_cache(source_node, target_node, diff_q):
+        diff = CachedHTMLDiff.objects.filter(
+            source_node=source_node,
+            target_node=target_node,
+            source_text=source_node.text,
+            target_text=target_node.text,
+        ).first()
+        if diff:
+            diff.hits += 1
+            diff.save()
+            diff_q = ipho_exam.qml.QMLquestion(diff.diff_text)
+        else:
+            diff = CachedHTMLDiff(
+                source_node=source_node,
+                target_node=target_node,
+                source_text=source_node.text,
+                target_text=target_node.text,
+            )
+            start = time.time()
+            target_q = ipho_exam.qml.make_qml(target_node)
+            target_data = target_q.get_data()
+            diff_q.diff_content_html(target_data)
+            diff_q.data_html2data()
+            timing = time.time() - start
+            diff.diff_text = ipho_exam.qml.xml2string(diff_q.make_xml())
+            diff.timing = int(timing * 1000)
+            diff.save()
+        return diff_q
+
+
 VALID_RAW_FIGURE_EXTENSIONS = (".png", ".jpg", ".jpeg")
 VALID_COMPILED_FIGURE_EXTENSIONS = (".svg", ".svgz")
 VALID_FIGURE_EXTENSIONS = VALID_RAW_FIGURE_EXTENSIONS + VALID_COMPILED_FIGURE_EXTENSIONS
@@ -1013,9 +1161,7 @@ class CompiledFigure(Figure):
     params = models.TextField(blank=True)
 
     def params_as_list(self):
-        return list(  # pylint: disable=consider-using-generator
-            [si.trim() for si in self.params.split(",")]
-        )
+        return list(si.trim() for si in self.params.split(","))
 
     def _to_svg(self, query, lang=None):
         placeholders = self.params.split(",")
@@ -1050,6 +1196,7 @@ class CompiledFigure(Figure):
 
     @staticmethod
     def _to_pdf(fig_svg, fig_name):
+        # pylint: disable=consider-using-with
         with codecs.open("%s.svg" % (fig_name), "w", encoding="utf-8") as f:
             f.write(fig_svg)
         error = subprocess.Popen(
@@ -1069,6 +1216,7 @@ class CompiledFigure(Figure):
 
     @staticmethod
     def _to_png(fig_svg, fig_name):
+        # pylint: disable=consider-using-with
         with codecs.open("%s.svg" % (fig_name), "w", encoding="utf-8") as f:
             f.write(fig_svg)
         error = subprocess.Popen(
@@ -1120,18 +1268,17 @@ class PlaceManager(models.Manager):
 class Place(models.Model):
     objects = PlaceManager()
 
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
 
     def __str__(self):
-        return f"{self.name} [{self.exam.name} {self.student.code}]"
+        return f"{self.name} [{self.participant.exam.name} {self.participant.code}]"
 
     def natural_key(self):
-        return (self.name, self.exam.name)
+        return (self.name, self.participant.exam.name)
 
     class Meta:
-        unique_together = index_together = ("student", "exam")
+        unique_together = index_together = ("participant",)
 
 
 class Feedback(models.Model):
@@ -1170,6 +1317,7 @@ class Feedback(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     qml_id = models.CharField(max_length=100, default=None, null=True, blank=True)
     part = models.CharField(max_length=100, default=None)
+    part_position = models.IntegerField(default=0)
     comment = models.TextField(blank=True)
     org_comment = models.TextField(blank=True, null=True, default=None)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="S")
@@ -1177,19 +1325,6 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"#{self.pk} {self.question.name} - {self.question.exam.name} ({self.delegation.name})"
-
-    @staticmethod
-    def part_id(txt):
-        all_parts = []
-        for key, _ in Feedback.PARTS_CHOICES:
-            for kkey, _ in Feedback.SUBPARTS_CHOICES:
-                all_parts.append(f"{key}.{kkey}")
-        try:
-            i = all_parts.index(txt)
-        except ValueError:
-            # print('Problem')
-            i = len(all_parts)
-        return i
 
 
 class Like(models.Model):
@@ -1287,9 +1422,8 @@ def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
             )
 
 
-class StudentSubmission(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+class ParticipantSubmission(models.Model):
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
     with_question = models.BooleanField(
         default=True, help_text="Deliver question sheets."
@@ -1301,16 +1435,16 @@ class StudentSubmission(models.Model):
     ## TODO: do we need a status? (in progress, submitted, printed)
 
     class Meta:
-        unique_together = index_together = (("student", "exam", "language"),)
+        unique_together = index_together = (("participant", "language"),)
 
 
 def exam_prints_filename(obj, fname):  # pylint: disable=unused-argument
-    path = f"exams-docs/{obj.student.code}/print/exam-{obj.exam.id}-{obj.position}.pdf"
+    path = f"exams-docs/{obj.participant.code}/print/exam-{obj.participant.exam.id}-{obj.position}.pdf"
     return path
 
 
 def exam_scans_filename(obj, fname):  # pylint: disable=unused-argument
-    path = f"exams-docs/{obj.student.code}/scan/exam-{obj.exam.id}-{obj.position}.pdf"
+    path = f"exams-docs/{obj.participant.code}/scan/exam-{obj.participant.exam.id}-{obj.position}.pdf"
     return path
 
 
@@ -1328,21 +1462,21 @@ class DocumentManager(models.Manager):
             or user.has_perm("ipho_core.is_organizer_admin")
             or user.has_perm("ipho_core.is_marker")
         ):
-            return queryset.filter(exam__in=Exam.objects.for_user(user))
+            return queryset.filter(participant__exam__in=Exam.objects.for_user(user))
         if user.has_perm("ipho_core.is_printstaff"):
             # Does show documents even if printing is not activated as there is no scanning flag for organizers at the moment.
-            return queryset.filter(exam__in=Exam.objects.for_user(user))
+            return queryset.filter(participant__exam__in=Exam.objects.for_user(user))
         if user.has_perm("ipho_core.is_delegation"):
             delegs = Delegation.objects.filter(members=user)
-            return queryset.filter(exam__in=Exam.objects.for_user(user)).filter(
-                student__delegation__in=delegs
-            )
+            return queryset.filter(
+                participant__exam__in=Exam.objects.for_user(user)
+            ).filter(participant__delegation__in=delegs)
         return queryset.none()
 
     def scans_ready(self, user):
         queryset = self.for_user(user)
         return (
-            queryset.filter(Q(scan_status="S") | Q(scan_status="P"))
+            queryset.filter(scan_status="S")
             .exclude(
                 scan_file__isnull=True,
             )
@@ -1354,14 +1488,14 @@ class Document(models.Model):
     objects = DocumentManager()
 
     SCAN_STATUS_CHOICES = (
-        ("P", "Printed"),
         ("S", "Success"),
         ("W", "Warning"),
         ("M", "Missing pages"),
     )
 
-    exam = models.ForeignKey(Exam, help_text="Exam", on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, help_text="Student", on_delete=models.CASCADE)
+    participant = models.ForeignKey(
+        Participant, help_text="Participant", on_delete=models.CASCADE
+    )
     timestamp = models.DateTimeField(auto_now=True, null=True)
     position = models.IntegerField(
         help_text="Question grouping position, e.g. 0 for cover sheet / instructions, 1 for the first question, etc"
@@ -1395,7 +1529,7 @@ class Document(models.Model):
         blank=True,
         null=True,
         choices=SCAN_STATUS_CHOICES,
-        help_text="Status of the scanned document. P - Printed, S - Success, W - Warning, M - Missing pages",
+        help_text="Status of the scanned document. S - Success, W - Warning, M - Missing pages",
     )
     scan_msg = models.TextField(
         blank=True,
@@ -1404,13 +1538,13 @@ class Document(models.Model):
     )
 
     class Meta:
-        unique_together = index_together = (("exam", "student", "position"),)
+        unique_together = index_together = (("participant", "position"),)
 
     # def question_name(self):
     # return self.question.name
 
     def __str__(self):
-        return f"Document: {self.exam.name} #{self.position} [{self.student.code}]"
+        return f"Document: {self.participant.exam.name} #{self.position} [{self.participant.code}]"
 
 
 class DocumentTask(models.Model):
@@ -1428,4 +1562,4 @@ class PrintLog(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.document.exam.code}-{self.document.position} ({self.doctype}) {self.timestamp}"
+        return f"{self.document.participant.exam.code}-{self.document.position} ({self.doctype}) {self.timestamp}"

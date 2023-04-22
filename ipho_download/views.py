@@ -20,18 +20,17 @@ import operator
 import mimetypes
 import hashlib
 import datetime
+import shutil
 import pytz
+from crispy_forms.utils import render_crispy_form
 
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.http import (
-    HttpResponse,
-    HttpResponseNotModified,
-    Http404,
-    HttpResponseForbidden,
-)
+from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpResponse, HttpResponseNotModified, Http404, JsonResponse
 from django.conf import settings
 from django.utils.cache import patch_response_headers
+
+from ipho_download.forms import NewDirectoryForm, NewFileForm
 
 
 MEDIA_ROOT = getattr(settings, "MEDIA_ROOT")
@@ -46,26 +45,24 @@ def file_hash(fname):
 
 
 @login_required
+@permission_required("ipho_core.can_see_boardmeeting")
 def main(
     request, type, url
-):  # pylint: disable=too-many-locals,redefined-builtin, too-many-branches
+):  # pylint: disable=too-many-locals,redefined-builtin, too-many-statements
     type_ = type
     url = os.path.normpath(url)
 
     basedir = os.path.join(MEDIA_ROOT, "downloads")
+    os.makedirs(basedir, exist_ok=True)
     path = os.path.join(basedir, url)
-
-    boardmeeting_only_files = os.path.join(basedir, "boardmeeting_only")
-    if not request.user.has_perm("ipho_core.can_see_boardmeeting") and path.startswith(
-        boardmeeting_only_files
-    ):
-        return HttpResponseForbidden("Only boardmeeting members can view these files.")
-
     rel_url = os.path.relpath(path, basedir)
     if rel_url[0] == "." and "/" in rel_url:
         raise Http404("File path not valid.")
     if not os.path.exists(path):
         raise Http404("File not found.")
+
+    dir_form = NewDirectoryForm()
+    file_form = NewFileForm()
 
     if type_ == "f":
         if os.path.isdir(path):
@@ -80,6 +77,7 @@ def main(
 
         filename = os.path.basename(path)
         content_type, _ = mimetypes.guess_type(path)
+        # pylint: disable=consider-using-with
         res = HttpResponse(open(path, "rb"), content_type=content_type)
         res["content-disposition"] = f'inline; filename="{filename}"'
         res["ETag"] = etag
@@ -91,12 +89,6 @@ def main(
         if fname[0] == ".":
             continue
         fullpath = os.path.join(path, fname)
-
-        if not request.user.has_perm(
-            "ipho_core.can_see_boardmeeting"
-        ) and os.path.normpath(fullpath).startswith(boardmeeting_only_files):
-            continue
-
         fpath = os.path.relpath(fullpath, basedir)
         fttype = "f"
         ftype = "file"
@@ -113,6 +105,8 @@ def main(
 
     flist = sorted(flist, key=operator.itemgetter(2))
 
+    dir_form_html = render_crispy_form(dir_form)
+    file_form_html = render_crispy_form(file_form)
     cur_url = ""
     cur_path = [("/", "")]
     cur_split = url.split("/")
@@ -127,5 +121,77 @@ def main(
         {
             "flist": flist,
             "cur_path": cur_path,
+            "dir_form": dir_form_html,
+            "file_form": file_form_html,
+            "url": url,
         },
     )
+
+
+@permission_required("ipho_core.is_organizer_admin")
+def remove(request, url):
+    url = os.path.normpath(url)
+
+    basedir = os.path.join(MEDIA_ROOT, "downloads")
+    path = os.path.join(basedir, url)
+    rel_url = os.path.relpath(path, basedir)
+    if rel_url[0] == "." and "/" in rel_url:
+        return JsonResponse({"error": "Something went wrong!"})
+    if not os.path.exists(path):
+        return JsonResponse({"error": "Parent directory missing!"})
+
+    if os.path.samefile(path, basedir):
+        return JsonResponse({"error": "Cannot remove base directory!"})
+    if not os.path.realpath(path).startswith(os.path.realpath(basedir)):
+        return JsonResponse({"error": "Cannot remove path outside base directory!"})
+    if os.path.isfile(path):
+        os.remove(path)
+    elif request.user.is_superuser:
+        shutil.rmtree(path)
+    else:
+        return JsonResponse({"error": "Only superusers can remove directories!"})
+    return JsonResponse({"success": True})
+
+
+@permission_required("ipho_core.is_organizer_admin")
+def add_new_file(request, url):
+    url = os.path.normpath(url)
+
+    basedir = os.path.join(MEDIA_ROOT, "downloads")
+    path = os.path.join(basedir, url)
+    rel_url = os.path.relpath(path, basedir)
+    if rel_url[0] == "." and "/" in rel_url:
+        return JsonResponse({"error": "Something went wrong!"})
+    if not os.path.exists(path):
+        return JsonResponse({"error": "Parent directory missing!"})
+
+    file_form = NewFileForm(request.POST or None, request.FILES or None)
+    if file_form.is_valid():
+        file = request.FILES["file"]
+        with open(os.path.join(path, file.name), "wb+") as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+        return JsonResponse({"success": True})
+    return JsonResponse({"form": render_crispy_form(file_form)})
+
+
+@permission_required("ipho_core.is_organizer_admin")
+def add_new_directory(request, url):
+    url = os.path.normpath(url)
+
+    basedir = os.path.join(MEDIA_ROOT, "downloads")
+    path = os.path.join(basedir, url)
+    rel_url = os.path.relpath(path, basedir)
+    if rel_url[0] == "." and "/" in rel_url:
+        return JsonResponse({"error": "Something went wrong!"})
+    if not os.path.exists(path):
+        return JsonResponse({"error": "Parent directory missing!"})
+
+    if not os.path.isdir(path):
+        return JsonResponse({"error": "Cannot add directory to file!"})
+
+    dir_form = NewDirectoryForm(request.POST or None)
+    if dir_form.is_valid():
+        os.makedirs(os.path.join(path, dir_form.data["directory"]), exist_ok=True)
+        return JsonResponse({"success": True})
+    return JsonResponse({"form": render_crispy_form(dir_form)})

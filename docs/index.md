@@ -15,7 +15,7 @@ The translation process consists of the following steps:
 1. [Start the translation](exam_editor.md)
 1. Generate the printable version
 1. Repeat if translation in more languages is needed
-1. [Assign the languages to the students and submit](assign_exams.md)
+1. [Assign the languages to the participants and submit](assign_exams.md)
 
 To guide you through this process we prepared a [**step-by-step**](step_by_step.md) guide which reports the tasks that you already completed and explains how to perfom the next steps.
 
@@ -36,4 +36,4 @@ Jump directly to the documentation of the individual components:
 
 Please contact a Team Guide or IT Staff member if you need help with the exam tool or you notice something malfunctioning.
 
-Contact e-mail: [oly-exams@ipho2021.lt](mailto:oly-exams@ipho2021.lt)
+Contact e-mail: [exam-tools-users@oly-exams.org](mailto:exam-tools-users@oly-exams.org)

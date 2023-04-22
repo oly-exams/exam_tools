@@ -92,7 +92,7 @@ NO_ANSWER_SHEETS = False
 # Defines wheter translated answer sheets are possible
 ONLY_OFFICIAL_ANSWER_SHEETS = False
 
-# Defines whether the QR code should be *not* be printed on the student sheets
+# Defines whether the QR code should *not* be printed on the student sheets
 # (Answer sheets and Working sheets)
 # ```CODE_WITHOUT_QR = True``` means: do not print QR codes on any sheets
 # ```CODE_WITHOUT_QR = False```means: print QR codes on Answer and Working sheets
@@ -104,6 +104,9 @@ ACCEPT_MARKS_BEFORE_MODERATION = True
 # Defines whether final marks need to be signed off by a delegation
 SIGN_OFF_FINAL_MARKS = False
 
+# Defines wheter negative marks are allowed
+ALLOW_NEGATIVE_MARKS = False
+
 # Shows the remaining delegations in voting fullscreen view.
 VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
 
@@ -113,49 +116,37 @@ AUTO_TRANSLATE = False
 GOOGLE_TRANSLATE_SERVICE_ACCOUNT_KEY = r"""{}"""
 # The API-key for deepl
 DEEPL_API_KEY = ""
-# The API url
-DEEPL_API_URL = "https://api.deepl.com/v2/translate"
 # DeepL and google translate use different codes for the languages
 # This dictionary maps the AUTO_TRANSLATE_LANGUAGES to the DeepL nomenclature
 # These languages are also preferrably translated with DeepL
 DEEPL_SOURCE_LANGUAGES = {
-    "de": "DE",
-    "en-GB": "EN",
-    "en-US": "EN",
-    "fr": "FR",
-    "it": "IT",
-    "ja": "JA",
-    "es": "ES",
-    "nl": "NL",
-    "pl": "PL",
-    "pt-PT": "PT",
-    "pt-BR": "PT",
-    "ru": "RU",
-    "zh-CN": "ZH",
+    "DE",
+    "EN",
+    "FR",
+    "IT",
+    "JA",
+    "ES",
+    "NL",
+    "PL",
+    "PT",
+    "RU",
+    "ZH",
 }
 
 DEEPL_TARGET_LANGUAGES = {
-    "de": "DE",
-    "en-GB": "EN-GB",
-    "en-US": "EN-US",
-    "fr": "FR",
-    "it": "IT",
-    "ja": "JA",
-    "es": "ES",
-    "nl": "NL",
-    "pl": "PL",
-    "pt-PT": "PT-PT",
-    "pt-BR": "PT-BR",
-    "ru": "RU",
-    "zh-CN": "ZH",
-}
-
-# Some language variants are not present in google translate:
-GOOGLE_TRANSLATE_LANGUAGE_PATCH = {
-    "en-GB": "en",
-    "en-US": "en",
-    "pt-PT": "pt",
-    "pt-BR": "pt",
+    "DE",
+    "EN-GB",
+    "EN-US",
+    "FR",
+    "IT",
+    "JA",
+    "ES",
+    "NL",
+    "PL",
+    "PT-PT",
+    "PT-BR",
+    "RU",
+    "ZH",
 }
 
 # A list of languages for auto translate
@@ -298,7 +289,7 @@ STYLES_TO_AUTO_TRANSLATE_MAPPING = {
     "interlingua": "",
     "arabic": "ar",
     "afrikaans": "af",
-    "portuguese": "pt-PT",
+    "portuguese": "pt",
     "ukrainian": "uk",
     "thai": "th",
     "occitan": "",
@@ -309,7 +300,7 @@ STYLES_TO_AUTO_TRANSLATE_MAPPING = {
     "southern sotho": "",
     "hebrew": "iw",
     "urdu": "ur",
-    "english": "en-US",
+    "english": "en",
     "slovak": "sk",
     "malaysian": "ms",
     "latvian": "lv",
@@ -673,3 +664,6 @@ LOGGING = {
         },
     },
 }
+
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

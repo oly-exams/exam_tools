@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
 {% load humanize %}
+{% load crispy_forms_tags %}
+{% load static %}
 
 {% block content %}
 <div class="container">
@@ -14,20 +16,37 @@
       {% endfor %}
     </ol>
 
+    
     {% with last=cur_path|last %}
     <h3>Content of {{ last.0 }}{% if last.0 != '/' %}/{% endif %}</h3>
     {% endwith %}
-
+    {% if perms.ipho_core.is_organizer_admin %}  
+      <button id="upload-file-button" type="button" class="btn btn-default btn-s" data-toggle="modal" data-target="#new-file-modal">
+        <i class="fa fa-upload fa-fw"></i> Upload file
+      </button>
+      <button id="add-folder-button" type="button" class="btn btn-default btn-s" data-toggle="modal" data-target="#new-directory-modal">
+        <i class="fa fa-folder fa-fw"></i> Add folder
+      </button>
+      <br>
+     <br>
+    {% endif %}
     <table class="table table-striped">
       {% for t,tshort,name,link,fsize,mtime in flist %}
       <tr>
         <td>
           <i class="fa fa-{{ t }}"></i>
-          <a href="{% url 'download:path' type=tshort url=link %}">
+          <a class="download-item" href="{% url 'download:path' type=tshort url=link %}">
           {{ name }}
           </a>
           {% if tshort == 'f' %}
           &nbsp;&nbsp;{{ fsize|filesizeformat }}, last changed {{ mtime|naturaltime }} ({{ mtime|date:'Y-m-d H:iO' }})
+          {% endif %}
+        </td>
+        <td>
+          {% if perms.ipho_core.is_organizer_admin and tshort == "f" or user.is_superuser %}
+          <button type="button" class="btn btn-danger btn-xs remove-button" data-toggle="modal" data-target="#remove-modal" data-href="{% url 'download:remove' url=link %}" data-name="{{ name }}">
+            <i class="fa fa-trash-o fa-fw"></i>
+          </button>
           {% endif %}
         </td>
       </tr>
@@ -36,4 +55,196 @@
 
 </div> <!-- /container -->
 
+<div class="modal fade" id="new-file-modal" tabindex="-1">
+  <div class="modal-dialog">
+      <form method="post" action="{% url 'download:add-file' url=url %}">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title">Upload file</h4>
+      </div>
+
+          <div class="modal-body">
+            {{ file_form }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button id="new-file-modal-submit" type="submit" class="btn btn-primary">Upload</button>
+          </div>
+      </div>
+      </form>
+  </div>
+</div>
+
+<div class="modal fade" id="new-directory-modal" tabindex="-1">
+  <div class="modal-dialog">
+      <form method="post" action="{% url 'download:add-dir' url=url %}">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title">Add folder</h4>
+      </div>
+
+          <div class="modal-body">
+            {{ dir_form }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button id="new-directory-modal-submit" type="submit" class="btn btn-primary">Add</button>
+          </div>
+      </div>
+      </form>
+  </div>
+</div>
+
+<div class="modal fade" id="remove-modal" tabindex="-1">
+  <div class="modal-dialog">
+      <form method="post" action="">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title">Remove</h4>
+      </div>
+
+          <div class="modal-body">
+            Do you really want to remove this file?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-danger">Remove</button>
+          </div>
+      </div>
+      </form>
+  </div>
+</div>
+
 {% endblock %}
+
+
+
+{% block extra-script %}
+<script>
+$(function() {
+    // Get csrftoken
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+    $(document).on('submit', '#new-directory-modal form', function(evt) {
+        var form = evt.target;
+        var $form = $(form);
+        evt.preventDefault();
+        var data = new FormData($form.get(0));
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (!data['success']) {
+                  if (data['form']){
+                    $('#new-directory-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    return;
+                  }
+                  if (data['error']){
+                    $('#new-directory-modal .modal-body').html(data["error"]);
+                  }
+                }else{
+                  location.reload(); 
+                }
+            }
+        });
+    });
+
+    $(document).on('submit', '#new-file-modal form', function(evt) {
+        var form = evt.target;
+        var $form = $(form);
+        evt.preventDefault();
+        var data = new FormData($form.get(0));
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (!data['success']) {
+                  if (data['form']){
+                    $('#new-file-modal .modal-body').html(data['form']).find("[data-toggle=popover]").popover();
+                    return;
+                  }
+                  if (data['error']){
+                    $('#new-file-modal .modal-body').html(data["error"]);
+                  }
+                }else{
+                  location.reload(); 
+                }
+            }
+        });
+    });
+
+    $(document).on('submit', '#remove-modal form', function(evt) {
+        var form = evt.target;
+        var $form = $(form);
+        evt.preventDefault();
+        var data = new FormData($form.get(0));
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (!data['success']) {
+                  if (data['error']){
+                    $('#remove-modal .modal-body').html(data["error"]);
+                  }
+                }else{
+                  location.reload(); 
+                }
+            }
+        });
+    });
+
+    $('#remove-modal').on('show.bs.modal', function(event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var action = button.data('href');
+        $(this).find("form").attr('action', action);
+        var name = button.data('name');
+        $(this).find(".modal-body").html("Do you wan to remove " + name + " ?");
+    });
+
+    
+
+});
+</script>
+{% endblock %}
+

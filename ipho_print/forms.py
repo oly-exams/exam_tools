@@ -73,8 +73,8 @@ class PrintForm(forms.Form):
             default_opts = printer.delegation_opts()
 
         opts_map = {"duplex": "Duplex", "color": "ColourModel", "staple": "Staple"}
-        for k in opts_map:
-            self.initial[k] = default_opts[opts_map[k]]
+        for k, val in opts_map.items():
+            self.initial[k] = default_opts[val]
 
         self.helper = FormHelper()
         if self.enable_opts:
@@ -106,13 +106,13 @@ class PrintForm(forms.Form):
         print(cleaned_data)
         allowed_opts = printer.allowed_opts(queue)
         opts_map = {"duplex": "Duplex", "color": "ColourModel", "staple": "Staple"}
-        for k in opts_map:
+        for k, val in opts_map.items():
             if cleaned_data.get(k) not in ["None", "Gray"]:
 
-                if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
+                if cleaned_data.get(k) != allowed_opts[val]:
                     if self.enable_opts:
                         msg = "The current printer does not support this option."
                         self.add_error(k, msg)
                     else:
-                        cleaned_data[k] = allowed_opts[opts_map[k]]
+                        cleaned_data[k] = allowed_opts[val]
         return cleaned_data

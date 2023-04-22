@@ -26,25 +26,25 @@
     {% endfor %}
   </ul>
 </div>
-<p>Note that only students with unfinished marks are shown.</p>
+<p>Note that only participants with unfinished marks are shown.</p>
 
 <br />
 
-{% for exam_name, questions, student_statuses in marking_statuses %}
+{% for exam_name, questions, participant_statuses in marking_statuses %}
 <div class="panel panel-default">
   <div class="panel-heading">
     <h2 class="panel-title">{{ exam_name }}</h2>
   </div>
   <table class="table table-strided">
     <tr>
-      <th>Student</th>
+      <th>Participant</th>
       {% for question in questions %}
       <th>{{ question.name }}</th>
       {% endfor %}
     </tr>
-    {% for student_code, statuses in student_statuses %}
+    {% for participant_code, statuses in participant_statuses %}
     <tr>
-      <td>{{ student_code }}</td>
+      <td>{{ participant_code }}</td>
       {% for status in statuses %}
       <td>
         {% if status %}

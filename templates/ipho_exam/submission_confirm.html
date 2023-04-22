@@ -39,15 +39,27 @@ The final documents are being prepared. You have to wait until all documents are
           {% endfor %}
         </tr>
         <tbody>
-      {% for ss,stud_langs in students_languages.items %}
+      {% for ss,ppnt_langs in participants_languages.items %}
       <tr>
           <td>
-              {{ ss.first_name }} {{ ss.last_name }} ({{ ss.code }})
-              {% for doc in stud_documents|lookup:ss.pk %}
-              <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" id="preview-{{ ss.pk }}-{{ doc.position }}" href="{% url 'exam:pdf-exam-pos-student'  exam_id=exam.pk student_id=ss.pk position=doc.position %}" data-doc-status="loading"><i class="fa fa-spinner fa-spin"></i> #{{ doc.position }}</a>
-              {% endfor %}
+              <div>
+                  {{ ss.full_name }} ({{ ss.code }})
+                  {% for doc in ppnt_documents|lookup:ss.pk %}
+                  <a class="btn btn-xs btn-default" target="_blank" title="Preview PDF" id="preview-{{ ss.pk }}-{{ doc.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=exam.pk participant_id=ss.pk position=doc.position %}" data-doc-status="loading"><i class="fa fa-spinner fa-spin"></i> #{{ doc.position }}</a>
+                  {% endfor %}
+              </div>
+              <div>
+                  {% if ss.is_group %}
+                  contains:
+                  <ul>
+                  {% for s in ss.students.all %}
+                  <li>{{ s.full_name }}</li>
+                  {% endfor %}
+                  </ul>
+                  {% endif %}
+              </div>
           </td>
-          {% for lang,checked in stud_langs.items %}
+          {% for lang,checked in ppnt_langs.items %}
               <td class="text-center">
                   {% if checked == 'Q' %}
                     <i class="fa fa-check"></i>

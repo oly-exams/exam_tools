@@ -61,7 +61,7 @@ def count_all(language):
 
 
 def get_submitted_langs():
-    submissions = StudentSubmission.objects.filter(exam__name="Theory")
+    submissions = ParticipantSubmission.objects.filter(exam__name="Theory")
     return {s.language for s in submissions}
 
 

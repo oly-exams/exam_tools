@@ -15,6 +15,20 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# from django.test import TestCase
 
-# Create your tests here.
+# Imports the Deepl client library
+import deepl
+import sys
+import os
+
+
+raw_cred = sys.argv[1]
+# Instantiates a client
+translate_client = deepl.Translator(raw_cred)
+lan_list_source = {l.code for l in translate_client.get_source_languages()}
+lan_list_target = {l.code for l in translate_client.get_target_languages()}
+with open(
+    os.path.join(os.path.dirname(__file__), "../exam_tools/settings.py"), "a"
+) as f:
+    f.write("DEEPL_SOURCE_LANGUAGES = " + repr(lan_list_source) + "\n")
+    f.write("DEEPL_TARGET_LANGUAGES = " + repr(lan_list_target) + "\n")

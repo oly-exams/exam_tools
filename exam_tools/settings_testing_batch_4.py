@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# from django.test import TestCase
 
-# Create your tests here.
+# pylint: disable=unused-wildcard-import
+
+
+from .settings_testing import *
+
+ALLOW_NEGATIVE_MARKS = True

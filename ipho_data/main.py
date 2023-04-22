@@ -20,9 +20,22 @@ def set_up_basic_test_database():
     tdc.create_delegation_user(pw_strategy="trivial")
     tdc.create_examsite_user(pw_strategy="trivial")
     tdc.create_students()
-    tdc.create_three_poll_votings()
+
+    voting_room = "room"
+    if voting_room is not None:
+        voting_room_2 = voting_room + "2"
+        voting_room_1 = voting_room + "1"
+        voting_room = voting_room_2
+        tdc.create_voting_room(voting_room_1)
+        # create a second voting room, to enable switching between rooms.
+        tdc.create_voting_room(voting_room_2)
+        # Create votings for the second room
+        tdc.create_three_poll_votings(room_name=voting_room_1)
+    tdc.create_three_poll_votings(room_name=voting_room)
     tdc.create_official_delegation()
     tdc.create_ipho2016_theory_exam()
+    experiment = tdc.create_ipho2016_experiment_exam()
+    tdc.put_students_in_teams(experiment)
 
 
 def main():

@@ -6,10 +6,21 @@ from .settings_common import *
 TMP_ENV = dict()
 TMP_ENV.update(os.environ)
 
-for key in ["POSTGRES_USER", "POSTGRES_PASSWORD", "RABBITMQ_USER", "RABBITMQ_PASSWORD"]:
+for key in ["POSTGRES_USER", "POSTGRES_PASSWORD"]:
     if key + "_FILE" in TMP_ENV:
         with Path(TMP_ENV[key + "_FILE"]).open("r") as f:
             TMP_ENV[key] = f.readline().strip()
+    else:
+        assert key in TMP_ENV
+
+if "RABBITMQ_CONFIG_FILE" in TMP_ENV:
+    with Path(TMP_ENV["RABBITMQ_CONFIG_FILE"]).open("r") as f:
+        for key in ["RABBITMQ_USER", "RABBITMQ_PASSWORD"]:
+            val = f.readline().split("=")[1].strip()
+            TMP_ENV[key] = val
+else:
+    assert "RABBITMQ_USER" in TMP_ENV
+    assert "RABBITMQ_PASSWORD" in TMP_ENV
 
 DATABASES = dict()
 DATABASES["default"] = {
@@ -45,6 +56,8 @@ ALLOWED_HOSTS += (
 
 ADD_DELEGATION_WATERMARK = True
 RECORD_USER_LOGIN_LOGOUT_IPS = True
+# ACCEPT_MARKS_BEFORE_MODERATION = True
+# SIGN_OFF_FINAL_MARKS = True
 
 # enable this to see ip logging locally
 LOGGING["handlers"]["logfile"] = {

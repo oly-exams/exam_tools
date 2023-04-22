@@ -4,9 +4,9 @@
 const check_pdf = true
 //
 //
-function download_test_pdf(stud_id, doc_pos, id_prefix="preview", file_prefix="final_submission_") {
+function download_test_pdf(ppnt_id, doc_pos, id_prefix="preview", file_prefix="final_submission_") {
     // Wait for pdf to compile
-    cy.get('#'+id_prefix+'-'+String(stud_id)+'-'+String(doc_pos)+' i.fa',  { timeout: 60000 }).should('not.have.class', 'fa-spinner').then(($i)=>{
+    cy.get('#'+id_prefix+'-'+String(ppnt_id)+'-'+String(doc_pos)+' i.fa',  { timeout: 60000 }).should('not.have.class', 'fa-spinner').then(($i)=>{
         // Check icon again
         cy.wrap($i).should('have.class', 'fa-file-pdf-o')
         // Get Href
@@ -19,7 +19,7 @@ function download_test_pdf(stud_id, doc_pos, id_prefix="preview", file_prefix="f
             })
             .then((response) => {
                 // Write file to disk and compare
-                var filename_end = '__student-'+String(stud_id)+'__position-'+String(doc_pos)+'.pdf';
+                var filename_end = '__participant-'+String(ppnt_id)+'__position-'+String(doc_pos)+'.pdf';
                 var filename = file_prefix + id_prefix + filename_end;
                 var filename_fixture = "final_submission" + filename_end;
                 cy.writeFile('cypress/pdfs/'+filename, response.body, 'binary');
@@ -52,7 +52,7 @@ describe('General', function() {
         cy.url().then((url) => {
             // Switch page and Wait for  30 seconds to ensure compilation
             // We need to wait manually because otherwise firefox would open the pdf reader, triggering a cross site request
-            cy.visit("")
+            cy.visit("/chocobunny")
             cy.wait(45000)
             // visit page again and confirm contenttype
             cy.request({
@@ -74,12 +74,12 @@ describe('General', function() {
         cy.visit("/exam/submission/1/assign")
 
         //choose languages
-        cy.get("#stud-6-languages-val-1").check()
-        cy.get("#stud-6-languages-val-2").check()
-        cy.get("#stud-6-answer_language-val-2").check()
+        cy.get("#ppnt-6-languages-val-1").check()
+        cy.get("#ppnt-6-languages-val-2").check()
+        cy.get("#ppnt-6-answer_language-val-2").check()
 
-        cy.get("#stud-7-languages-val-1").check()
-        cy.get("#stud-7-answer_language-val-1").check()
+        cy.get("#ppnt-7-languages-val-1").check()
+        cy.get("#ppnt-7-answer_language-val-1").check()
 
         cy.get('button[type="submit"]').should('contain', "Next").click()
 
@@ -128,10 +128,10 @@ describe('General', function() {
         cy.visit('/exam/admin/scan/upload')
 
         cy.get('#id_question').select("Two Problems in Mechanics - Answer Sheet [#1 in Theory]")
-        cy.get('#id_student').select("AUS-S-1")
+        cy.get('#id_participant').select("AUS-S-1 (Theory)")
 
         // Attaching the corresponding fixture to scan. This enables us to use download_test_pdf again
-        const filepath = 'pdfs/final_submission__student-6__position-1.pdf';
+        const filepath = 'pdfs/final_submission__participant-6__position-1.pdf';
         cy.get('#id_file').attachFile({ filePath:filepath, mimeType: 'application/pdf' , encoding:"binary"})
         cy.get('#submit-id-submit').click()
 
@@ -148,7 +148,7 @@ describe('General', function() {
 
         // Check delegation scan view
         cy.logout()
-        cy.login('AUS', '1234')
+        cy.login("AUS", '1234')
         cy.visit('/marking/')
         var id_prefix = "processed_scan"
         download_test_pdf(6, 1, id_prefix, "delegation_view_")
@@ -225,7 +225,7 @@ describe('General', function() {
         cy.get('#upload-1-6-2').click()
         cy.wait('@getUploadModal')
 
-        const filepath = 'pdfs/final_submission__student-6__position-2.pdf';
+        const filepath = 'pdfs/final_submission__participant-6__position-2.pdf';
         cy.get('#id_file').attachFile({ filePath:filepath, mimeType: 'application/pdf' , encoding:"binary"})
         cy.get('#upload-modal button[type="submit"]').click()
         cy.wait('@postUploadModal')
@@ -241,7 +241,7 @@ describe('General', function() {
 
         // Check delegation scan view
         cy.logout()
-        cy.login('AUS', '1234')
+        cy.login("AUS", '1234')
         cy.visit('/marking/')
         var id_prefix = "processed_scan"
         download_test_pdf(6, 2, id_prefix, "delegation_view_")

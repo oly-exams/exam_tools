@@ -41,7 +41,7 @@ from crispy_forms.utils import render_crispy_form
 from django.template.loader import render_to_string
 
 from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
-from ipho_exam.models import Exam, Question, Student, Language
+from ipho_exam.models import Exam, Question, Participant, Language
 from hashlib import md5
 import requests
 
@@ -56,10 +56,10 @@ question.code = "A"
 question.name = "Some question"
 question.position = 2
 
-student = Student()
-student.code = "XYZ-S-3"
-student.first_name = "Smart"
-student.last_name = "Student"
+participant = Participant()
+participant.code = "XYZ-S-3"
+participant.first_name = "Smart"
+participant.last_name = "Participant"
 
 language = Language()
 language.name = "Taiwanese"
@@ -473,7 +473,12 @@ def _compile_tex(body, ext_resources):
 
 
 def compile_cover():
-    cover = {"student": student, "exam": exam, "question": question, "place": "M439"}
+    cover = {
+        "participant": participant,
+        "exam": exam,
+        "question": question,
+        "place": "M439",
+    }
     body = render_to_string(
         os.path.join(EVENT_TEMPLATE_PATH, "tex", "exam_cover.tex"),
         request=HttpRequest(),
@@ -481,7 +486,7 @@ def compile_cover():
     )
     question_pdf = _compile_tex(body, [])
     bgenerator = iphocode.QuestionBarcodeGen(
-        exam, question, student, qcode="C", suppress_code=True
+        exam, question, participant, qcode="C", suppress_code=True
     )
     page = pdf.add_barcode(question_pdf, bgenerator)
     with open("test_cover.pdf", "wb") as pdf_file:
@@ -513,7 +518,7 @@ def compile_question(qml_trans, pdf_name="test_question"):
         context=context,
     )
     question_pdf = _compile_tex(body, ext_resources)
-    bgenerator = iphocode.QuestionBarcodeGen(exam, question, student)
+    bgenerator = iphocode.QuestionBarcodeGen(exam, question, participant)
     page = pdf.add_barcode(question_pdf, bgenerator)
     with open(f"{pdf_name}.pdf", "wb") as pdf_file:
         pdf_file.write(page)
@@ -545,7 +550,7 @@ def compile_blank():
             )
         ],
     )
-    bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode="W")
+    bgenerator = iphocode.QuestionBarcodeGen(exam, question, participant, qcode="W")
     page = pdf.add_barcode(question_pdf, bgenerator)
     with open("test_blank.pdf", "wb") as pdf_file:
         pdf_file.write(page)
@@ -577,7 +582,7 @@ def compile_graph():
             )
         ],
     )
-    bgenerator = iphocode.QuestionBarcodeGen(exam, question, student, qcode="W")
+    bgenerator = iphocode.QuestionBarcodeGen(exam, question, participant, qcode="W")
     page = pdf.add_barcode(question_pdf, bgenerator)
     with open("test_graph.pdf", "wb") as pdf_file:
         pdf_file.write(page)

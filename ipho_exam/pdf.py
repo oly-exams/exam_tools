@@ -18,6 +18,7 @@
 
 import os
 import codecs
+from pathlib import Path
 import shutil
 import logging
 import subprocess
@@ -75,7 +76,7 @@ def compile_tex_diff(old_body, new_body, ext_resources=tuple()):
 def compile_tex(body, ext_resources=tuple()):
     doc = "question"
     etag = md5(body.encode("utf8")).hexdigest()
-
+    # pylint: disable=consider-using-with
     cache_key = f"{CACHE_PREFIX}:{etag}"
     pdf = cache.get(cache_key)
     # body = body.replace("&#39;", "'") # convert HTML apostrophe in human readable apostrophe
@@ -218,11 +219,15 @@ def check_add_watermark(request, doc):
     return doc
 
 
-def add_watermark(doc):
+def add_watermark(doc, watermark_filename=None):
     """
     Adds the 'delegation print' watermark to the given PDF document.
     """
-    with open(WATERMARK_PATH, "rb") as wm_f:
+    filename = WATERMARK_PATH
+    if watermark_filename:
+        filename = Path(filename).parent / watermark_filename
+
+    with open(filename, "rb") as wm_f:
         watermark = PdfFileReader(BytesIO(wm_f.read()))
         watermark_page = watermark.getPage(0)
 

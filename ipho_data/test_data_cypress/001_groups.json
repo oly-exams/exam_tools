@@ -155,6 +155,21 @@
         "exam"
       ],
       [
+        "add_participant",
+        "ipho_exam",
+        "participant"
+      ],
+      [
+        "change_participant",
+        "ipho_exam",
+        "participant"
+      ],
+      [
+        "delete_participant",
+        "ipho_exam",
+        "participant"
+      ],
+      [
         "add_examaction",
         "ipho_exam",
         "examaction"
@@ -275,19 +290,19 @@
         "question"
       ],
       [
-        "add_studentsubmission",
+        "add_participantsubmission",
         "ipho_exam",
-        "studentsubmission"
+        "participantsubmission"
       ],
       [
-        "change_studentsubmission",
+        "change_participantsubmission",
         "ipho_exam",
-        "studentsubmission"
+        "participantsubmission"
       ],
       [
-        "delete_studentsubmission",
+        "delete_participantsubmission",
         "ipho_exam",
-        "studentsubmission"
+        "participantsubmission"
       ],
       [
         "add_translationimporttmp",

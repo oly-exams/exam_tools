@@ -3,7 +3,7 @@
 <tr>
     <td>{{ fb.pk }}</td>
     <td>
-      {% if perms.ipho_core.is_organizer_admin and fb.commentable %}
+      {% if perms.ipho_core.can_manage_feedback and fb.commentable %}
         <div class="btn-group">
           <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
             {{ fb.status_display }}
@@ -22,6 +22,7 @@
     <td>{{ fb.delegation__country }}</td>
     <td>{{ fb.question__name }}</td>
     <td>{{ fb.part }}</td>
+    <td style="display:none;">{{ fb.part_position }}</td>
     <td>{{ fb.comment }}{% if fb.org_comment %}<br><strong>Comment from the organizers:</strong><br>{{ fb.org_comment }}{% endif %}</td>
     <td><time datetime="{{ fb.timestamp|date:"c" }}" data-format="hh:mm A"></time></td>
     <td>
@@ -45,7 +46,7 @@
           </span> <!-- btn-toolbar -->
         </div>
     </td>
-    {% if perms.ipho_core.is_organizer_admin and fb.exam_feedback_editable %}
+    {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
     <td>
       {% if fb.commentable %}
       <button type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">

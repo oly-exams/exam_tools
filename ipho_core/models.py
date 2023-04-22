@@ -102,6 +102,9 @@ class Delegation(models.Model):
     def __str__(self):
         return f"{self.country} ({self.name})"
 
+    def get_participants(self, exam):
+        return self.participant_set.filter(exam=exam)
+
 
 class StudentManager(models.Manager):
     def get_by_natural_key(self, code):
@@ -116,8 +119,6 @@ class Student(models.Model):
     last_name = models.CharField(max_length=200)
     delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
 
-    # exam_languages = models.ManyToManyField(Language)
-
     class Meta:
         ordering = ["code"]
 
@@ -126,6 +127,10 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.code}"
+
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 class PushSubscriptionManager(models.Manager):

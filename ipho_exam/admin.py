@@ -19,12 +19,14 @@ import json
 
 from django.contrib import admin
 from django import forms
+from django.core.exceptions import ValidationError
 from django_ace import AceWidget
 
 from ipho_exam.models import (
     Delegation,
     Language,
     Exam,
+    Participant,
     Question,
     VersionNode,
     TranslationNode,
@@ -33,7 +35,7 @@ from ipho_exam.models import (
     RawFigure,
     Feedback,
     Like,
-    StudentSubmission,
+    ParticipantSubmission,
     ExamAction,
     TranslationImportTmp,
     CachedAutoTranslation,
@@ -41,6 +43,7 @@ from ipho_exam.models import (
     DocumentTask,
     Place,
     AttributeChange,
+    CachedHTMLDiff,
 )
 
 # Register your models here.
@@ -64,10 +67,6 @@ class TranslationNodeAdminForm(forms.ModelForm):
     class Meta:
         model = TranslationNode
         fields = "__all__"
-
-        # widgets = {
-        #     'body':AceWidget()
-        # }
 
 
 class FigureAdminForm(forms.ModelForm):
@@ -103,6 +102,7 @@ class QuestionInline(admin.StackedInline):
 class ExamAdmin(admin.ModelAdmin):
     list_display = (
         "name",
+        "flags",
         "visibility",
         "can_translate",
         "feedback",
@@ -118,8 +118,50 @@ class ExamAdmin(admin.ModelAdmin):
     inlines = [QuestionInline]
 
 
+class ParticipantAdminForm(forms.ModelForm):
+    class Meta:
+        model = Participant
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if "exam" not in cleaned_data:
+            raise ValidationError("exam cannot be empty!")
+
+        for student in cleaned_data.get("students", []):
+            if student.delegation != cleaned_data["delegation"]:
+                raise ValidationError(
+                    f"Student '{student}' must have the same Delegation as the Participant '{cleaned_data['code']} ({cleaned_data['exam']})'. Cross-delegation Participant-groups not supported!"
+                )
+
+            for participant in student.participant_set.filter(
+                exam=cleaned_data["exam"]
+            ):
+                if participant.code != cleaned_data["code"]:
+                    raise ValidationError(
+                        f"Student '{student}' already in another Participant '{participant}'. Cannot be in more than one."
+                    )
+
+        return cleaned_data
+
+
+class ParticipantAdmin(admin.ModelAdmin):
+    form = ParticipantAdminForm
+    list_display = (
+        "code",
+        "exam",
+        "full_name",
+        "is_group",
+        "delegation",
+    )
+    search_fields = ("full_name",)
+    list_editable = tuple()
+    list_filter = ("delegation",)
+
+
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ("name", "exam", "feedback_status", "position")
+    list_display = ("name", "exam", "feedback_status", "position", "flags")
     list_filter = ("exam",)
 
 
@@ -182,28 +224,27 @@ class DelegationFilter(admin.SimpleListFilter):
         value = self.value()
 
         if value is None:
-            return queryset.order_by("student")
-        return queryset.filter(language__delegation__name=value).order_by("student")
+            return queryset.order_by("participant")
+        return queryset.filter(language__delegation__name=value).order_by("participant")
 
 
-class StudentSubmissionAdmin(admin.ModelAdmin):
+class ParticipantSubmissionAdmin(admin.ModelAdmin):
     list_display = (
-        "exam",
-        "student",
+        "participant",
         "delegation",
         "language",
         "with_question",
         "with_answer",
     )
-    list_filter = ("exam", DelegationFilter, "language")
+    list_filter = ("participant__exam", DelegationFilter, "language")
 
     def delegation(self, obj):  # pylint: disable=no-self-use
         return obj.language.delegation
 
 
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = ("name", "exam", "student")
-    list_filter = ("exam", "student__delegation")
+    list_display = ("name", "participant")
+    list_filter = ("participant__exam", "participant__delegation")
 
 
 class ExamActionAdmin(admin.ModelAdmin):
@@ -213,22 +254,27 @@ class ExamActionAdmin(admin.ModelAdmin):
 
 class DocumentAdmin(admin.ModelAdmin):
     list_display = (
-        "exam",
         "position",
-        "student",
+        "participant",
         "num_pages",
         "barcode_num_pages",
         "extra_num_pages",
         "barcode_base",
         "scan_status",
     )
-    list_filter = ("exam", "position", "student__delegation", "scan_status")
+    list_filter = ("position", "participant__delegation", "scan_status")
+
+
+class CachedHTMLDiffAdmin(admin.ModelAdmin):
+    list_display = ("source_node", "target_node", "hits", "timestamp", "timing")
+    list_filter = ("source_node", "target_node")
 
 
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(Feedback, FeedbackAdmin)
 admin.site.register(Like, LikeAdmin)
 admin.site.register(Exam, ExamAdmin)
+admin.site.register(Participant, ParticipantAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(VersionNode, VersionNodeAdmin)
 admin.site.register(TranslationNode, TranslationNodeAdmin)
@@ -236,11 +282,12 @@ admin.site.register(AttributeChange, AttributeChangeAdmin)
 admin.site.register(PDFNode, PDFNodeAdmin)
 admin.site.register(TranslationImportTmp)
 admin.site.register(CachedAutoTranslation)
+admin.site.register(CachedHTMLDiff, CachedHTMLDiffAdmin)
 admin.site.register(Figure, FigureAdmin)
 admin.site.register(RawFigure)
 
 admin.site.register(ExamAction, ExamActionAdmin)
-admin.site.register(StudentSubmission, StudentSubmissionAdmin)
+admin.site.register(ParticipantSubmission, ParticipantSubmissionAdmin)
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(DocumentTask)

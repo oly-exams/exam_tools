@@ -43,14 +43,14 @@ def main(input):
         delegation.save()
 
         for j in range(5):
-            code = "{}-S-{}".format(delegation.name, j + 1)
-            student = Student(
+            code = f"{delegation.name}-S-{j + 1}"
+            participant = Student(
                 code=code,
                 first_name="Student",
                 last_name=str(j + 1),
                 delegation=delegation,
             )
-            student.save()
+            participant.save()
 
         print(row["Country code"], "...", "imported.")
 
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Import CSV to Delegation model and create demo students"
+        description="Import CSV to Delegation model and create demo participants"
     )
     parser.add_argument("file", type=argparse.FileType("rU"), help="Input CSV file")
     args = parser.parse_args()

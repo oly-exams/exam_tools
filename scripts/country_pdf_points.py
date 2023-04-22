@@ -37,9 +37,10 @@ from django.template.loader import render_to_string
 from django.db.models import Sum
 
 from django.conf import settings
-from ipho_core.models import Delegation, Student
+from ipho_core.models import Delegation
 from ipho_exam.models import (
     Exam,
+    Participant,
     Question,
     VersionNode,
     TranslationNode,
@@ -47,7 +48,7 @@ from ipho_exam.models import (
     Language,
     Figure,
     Feedback,
-    StudentSubmission,
+    ParticipantSubmission,
     ExamAction,
 )
 from ipho_marking.models import Marking, MarkingMeta
@@ -58,27 +59,25 @@ OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 
 def compile_all():
     for delegation in Delegation.objects.exclude(name=settings.OFFICIAL_DELEGATION):
-        students = Student.objects.filter(delegation=delegation).values(
+        participants = Participant.objects.filter(delegation=delegation).values(
             "id", "pk", "code", "first_name", "last_name"
         )
         vid = "F"
-        points_per_student = []
-        for student in students:
-            stud_exam_points_list = (
-                Marking.objects.filter(version=vid, student=student["id"])
+        points_per_participant = []
+        for participant in participants:
+            ppnt_exam_points_list = (
+                Marking.objects.filter(version=vid, participant=participant["id"])
                 .values("marking_meta__question")
                 .annotate(exam_points=Sum("points"))
                 .values("exam_points")
                 .order_by("marking_meta__question__exam", "marking_meta__question")
             )
             total = sum(
-                [
-                    st_points["exam_points"]
-                    for st_points in stud_exam_points_list
-                    if st_points["exam_points"] is not None
-                ]
+                st_points["exam_points"]
+                for st_points in ppnt_exam_points_list
+                if st_points["exam_points"] is not None
             )
-            points_per_student.append((student, stud_exam_points_list, total))
+            points_per_participant.append((participant, ppnt_exam_points_list, total))
 
         exams = (
             MarkingMeta.objects.filter(
@@ -109,9 +108,9 @@ def compile_all():
                 ex["question__exam__code"], ex["question__position"]
             )
         results += " & \\textbf{Total} \\\\\n"
-        for (student, stud_exam_points_list, total) in points_per_student:
-            results += "{} & ".format(student["code"])
-            for p in stud_exam_points_list:
+        for (participant, ppnt_exam_points_list, total) in points_per_participant:
+            results += "{} & ".format(participant["code"])
+            for p in ppnt_exam_points_list:
                 results += "{} & ".format(p["exam_points"])
             results += f"{total} \\\\\n"
         results += "\\end{tabular}\n"

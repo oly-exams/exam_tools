@@ -210,6 +210,7 @@ body { margin-bottom: 70px; }
                     {% if orig_lang.versioned %}<span class="badge">v{{ orig_lang.version }}</span>
                     <span class="label label-default">{{ orig_lang.tag|default:'' }}</span>{% endif %}
                   </a>
+                  <a class="btn btn-default btn-success" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=orig_lang.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
                 </span>
                 </h4>
             </div>
@@ -380,7 +381,7 @@ body { margin-bottom: 70px; }
                 }
             });
 
-            {% if exam %}
+            {% if exam and question %}
             function update_feedback_numbers(){
               var url = "{% url 'exam:feedback-numbers' exam_id=exam.pk question_id=question.pk%}";
               $.ajax({

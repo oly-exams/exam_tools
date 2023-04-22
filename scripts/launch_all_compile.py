@@ -17,14 +17,14 @@ from ipho_exam import tasks
 def main():
     exam = Exam.objects.get(name="Experiment - Marking")
     for delegation in Delegation.objects.exclude(name="Official"):
-        for student in delegation.student_set.all():
+        for participant in delegation.get_participants(exam):
             all_tasks = []
-            student_languages = StudentSubmission.objects.filter(
-                exam=exam, student=student
+            participant_languages = ParticipantSubmission.objects.filter(
+                exam=exam, participant=participant
             )
-            if len(student_languages) == 0:
+            if len(participant_languages) == 0:
                 continue
-            student_seat = Place.objects.get(exam=exam, student=student)
+            participant_seat = Place.objects.get(exam=exam, participant=participant)
             questions = exam.question_set.all()
             grouped_questions = {
                 k: list(g)
@@ -32,24 +32,23 @@ def main():
             }
             for position, qgroup in list(grouped_questions.items()):
                 doc, _ = Document.objects.get_or_create(
-                    exam=exam, student=student, position=position
+                    exam=exam, participant=participant, position=position
                 )
                 cover_ctx = {
-                    "student": student,
+                    "participant": participant,
                     "exam": exam,
                     "question": qgroup[0],
-                    "place": student_seat.name,
+                    "place": participant_seat.name,
                 }
-                question_task = tasks.student_exam_document.s(
-                    qgroup, student_languages, cover=cover_ctx, commit=True
+                question_task = tasks.participant_exam_document.s(
+                    qgroup, participant_languages, cover=cover_ctx, commit=True
                 )
-                # question_task = question_utils.compile_stud_exam_question(qgroup, student_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
                 doc_task, _ = DocumentTask.objects.update_or_create(
                     document=doc, defaults={"task_id": question_task.id}
                 )
                 question_task.delay()
-                print(f"Submitted for {student.code} #{position}")
+                print(f"Submitted for {participant.code} #{position}")
 
 
 if __name__ == "__main__":

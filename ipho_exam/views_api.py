@@ -32,7 +32,7 @@ class DocumentViewSet(
     viewsets.GenericViewSet,
 ):
     # """
-    # Access and edit the collection of student documents (exam printouts and scans)
+    # Access and edit the collection of participant documents (exam printouts and scans)
     # """
     """
     list: Collection of documents
@@ -44,4 +44,10 @@ class DocumentViewSet(
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ("id", "position", "student", "exam", "barcode_base", "num_pages")
+    filter_fields = (
+        "id",
+        "position",
+        "participant",
+        "barcode_base",
+        "num_pages",
+    )

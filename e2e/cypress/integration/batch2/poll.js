@@ -14,14 +14,14 @@ describe('Polls', function() {
 
     beforeEach(() => {
         cy.server()
-        cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/drafted/).as("getStaffPartialsDrafted");
-        cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/open/).as("getStaffPartialsOpen");
-        cy.route("GET", /\/poll\/staff\/room\/\d*\/partials\/closed/).as("getStaffPartialsClosed");
-        cy.route("GET", "/poll/voting/add/room/**").as("getCreateVoting");
+        cy.route("GET", /(\/poll\/staff\/room\/\d*\/partials\/drafted)|(\/poll\/staff\/room\/partials\/drafted)/).as("getStaffPartialsDrafted");
+        cy.route("GET", /(\/poll\/staff\/room\/\d*\/partials\/open)|(\/poll\/staff\/room\/partials\/open)/).as("getStaffPartialsOpen");
+        cy.route("GET", /(\/poll\/staff\/room\/\d*\/partials\/closed)|(\/poll\/staff\/room\/partials\/closed)/).as("getStaffPartialsClosed");
+        cy.route("GET", /(\/poll\/voting\/add\/room\/.*)|(\/poll\/voting\/add\/main.*)/).as("getCreateVoting");
         cy.route("GET", "/poll/voting/*/").as("getStaffVoting");
     })
 
-    it.only('Test Voting', function() {
+    it('Test Voting', function() {
         cy.login('admin','1234')
         cy.visit('poll/staff/')
 
@@ -46,7 +46,7 @@ describe('Polls', function() {
 
         cy.logout()
 
-        cy.login('ARM','1234')
+        cy.login("ARM",'1234')
         cy.visit('/poll/')
         // Check available votings
         cy.contains('Q2')
@@ -161,7 +161,7 @@ describe('Polls', function() {
         cy.get('#closed-container #voting-2')
 
 
-        cy.login('ARM','1234')
+        cy.login("ARM",'1234')
         cy.visit('/poll/')
         // Check if vote is open
         cy.contains('Q1')
@@ -228,7 +228,7 @@ describe('Polls', function() {
 
         // Check feedbacks on delegation page
         cy.logout()
-        cy.login('ARM','1234')
+        cy.login("ARM",'1234')
         cy.visit('/poll/')
         cy.get('#voting-panel-4').within(()=>{
             cy.contains("Q4")
@@ -243,7 +243,10 @@ describe('Polls', function() {
     })
 
     it("Test Permissions", function(){
-        cy.login('AUS','1234')
+        Cypress.on('uncaught:exception', (err, runnable) => {
+            return false;
+          });
+        cy.login("AUS",'1234')
         // Check whether a delegation can access the staff voting pane
         cy.visit('/poll/staff/')
         cy.url().should('contain', 'accounts/login/?next=/poll/staff/')

@@ -25,8 +25,7 @@ import django
 django.setup()
 
 import csv
-from ipho_core.models import Student
-from ipho_exam.models import Place, Exam
+from ipho_exam.models import Participant, Place, Exam
 
 
 def main(input):
@@ -41,16 +40,18 @@ def main(input):
     # experiment = Exam.objects.get(name='Experiment')
     for i, row in enumerate(reader):
         try:
-            student = Student.objects.get(code=row["individual_id"])
+            participant = Participant.objects.get(code=row["individual_id"])
             for f, ex in zip(header, exams):
-                Place.objects.get_or_create(student=student, exam=ex, name=row[f])
+                Place.objects.get_or_create(
+                    participant=participant, exam=ex, name=row[f]
+                )
 
-            # Place.objects.get_or_create(student=student, exam=theory, name=row['seat_theory'])
-            # Place.objects.get_or_create(student=student, exam=experiment, name=row['seat_experiment'])
+            # Place.objects.get_or_create(participant=participant, exam=theory, name=row['seat_theory'])
+            # Place.objects.get_or_create(participant=participant, exam=experiment, name=row['seat_experiment'])
 
             print(row["individual_id"], ".....", "imported.")
-        except Student.DoesNotExist:
-            print("Skip", row["individual_id"], "because student does not exist.")
+        except Participant.DoesNotExist:
+            print("Skip", row["individual_id"], "because participant does not exist.")
 
 
 if __name__ == "__main__":

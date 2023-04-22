@@ -11,7 +11,8 @@ from ipho_exam.models import Question
 from ipho_marking.models import MarkingAction
 
 
-from ipho_data.ipho2016_qml_data import IPHO2016_DATA
+from ipho_data.ipho2016_qml_theory_data import IPHO2016_THEORY_DATA
+from ipho_data.ipho2016_qml_experiment_data import IPHO2016_EXPERIMENT_DATA
 from ipho_data.data_creator import DataCreator
 
 DEFAULT_DATABASE_NAME = settings.DATABASES["default"]["NAME"]
@@ -87,21 +88,11 @@ class TestDataCreator(DataCreator):
         )
         phases = self.create_exam_phases_for_exam(exam)
         self.set_exam_to_phase(phases[4])
-        self.create_official_version_node(gen_inst, text=IPHO2016_DATA["T-G0-v1"])
         self.create_official_version_node(
-            gen_inst, text=IPHO2016_DATA["T-G0-final"], version=2
+            gen_inst, text=IPHO2016_THEORY_DATA["T-G0-v1"]
         )
-        lang1 = self.create_language_from_code(code="AUS", name="TestLanguage1")
-        self.create_translation_node(
-            gen_inst, lang1, text=IPHO2016_DATA["T-G0-transl1"]
-        )
-        lang2 = self.create_language_from_code(code="AUS", name="TestLanguage2")
-        self.create_translation_node(
-            gen_inst, lang2, text=IPHO2016_DATA["T-G0-transl2"]
-        )
-        lang3 = self.create_language_from_code(code="AUT", name="TestLanguage3")
-        self.create_translation_node(
-            gen_inst, lang3, text=IPHO2016_DATA["T-G0-transl3"]
+        self.create_official_version_node(
+            gen_inst, text=IPHO2016_THEORY_DATA["T-G0-final"], version=2
         )
 
         que1 = self.create_question(
@@ -111,9 +102,7 @@ class TestDataCreator(DataCreator):
             position=1,
             type=self.QUESTION,
         )
-        self.create_official_version_node(que1, text=IPHO2016_DATA["T-Q1-final"])
-        self.create_translation_node(que1, lang1, text=IPHO2016_DATA["T-Q1-final"])
-        self.create_feedback_for_question(que1)
+        self.create_official_version_node(que1, text=IPHO2016_THEORY_DATA["T-Q1-final"])
 
         ans1 = self.create_question(
             exam,
@@ -123,18 +112,16 @@ class TestDataCreator(DataCreator):
             type=self.ANSWER,
             working_pages=6,
         )
-        self.create_official_version_node(ans1, text=IPHO2016_DATA["T-A1-final"])
-        self.create_translation_node(ans1, lang1, text=IPHO2016_DATA["T-A1-final"])
+        self.create_official_version_node(ans1, text=IPHO2016_THEORY_DATA["T-A1-final"])
 
         que2 = self.create_question(
             exam,
-            name="Two Problems in Mechanics",
+            name="Nonlinear Dynamics in Electric Circuits",
             code="Q",
             position=2,
             type=self.QUESTION,
         )
-        self.create_official_version_node(que2, text=IPHO2016_DATA["T-Q2-final"])
-        self.create_translation_node(que2, lang1, text=IPHO2016_DATA["T-Q2-final"])
+        self.create_official_version_node(que2, text=IPHO2016_THEORY_DATA["T-Q2-final"])
 
         ans2 = self.create_question(
             exam,
@@ -144,16 +131,118 @@ class TestDataCreator(DataCreator):
             type=self.ANSWER,
             working_pages=6,
         )
-        self.create_official_version_node(ans2, text=IPHO2016_DATA["T-A2-final"])
-        self.create_translation_node(ans2, lang1, text=IPHO2016_DATA["T-A2-final"])
+        self.create_official_version_node(ans2, text=IPHO2016_THEORY_DATA["T-A2-final"])
 
         self.create_figures_with_ids(
-            fig_ids=IPHO2016_DATA["FIGURE_IDS"], filename="logo_square.png"
+            fig_ids=IPHO2016_THEORY_DATA["FIGURE_IDS"], filename="logo_square.png"
         )
 
         return exam
 
-    def create_ipho2016_marking(self, all_actions_open=False):
+    def create_translations_and_feedback(self, exam):  # pylint: disable=invalid-name
+        gen_inst = Question.objects.get(name="General Instructions", exam=exam)
+        que1 = Question.objects.get(name="Two Problems in Mechanics", exam=exam)
+        ans1 = Question.objects.get(
+            name="Two Problems in Mechanics - Answer Sheet", exam=exam
+        )
+        que2 = Question.objects.get(
+            name="Nonlinear Dynamics in Electric Circuits", exam=exam
+        )
+        ans2 = Question.objects.get(
+            name="Nonlinear Dynamics in Electric Circuits - Answer Sheet", exam=exam
+        )
+
+        lang1 = self.create_language_from_code(code="AUS", name="TestLanguage1")
+        self.create_translation_node(
+            gen_inst, lang1, text=IPHO2016_THEORY_DATA["T-G0-transl1"]
+        )
+        lang2 = self.create_language_from_code(code="AUS", name="TestLanguage2")
+        self.create_translation_node(
+            gen_inst, lang2, text=IPHO2016_THEORY_DATA["T-G0-transl2"]
+        )
+        lang3 = self.create_language_from_code(code="AUT", name="TestLanguage3")
+        self.create_translation_node(
+            gen_inst, lang3, text=IPHO2016_THEORY_DATA["T-G0-transl3"]
+        )
+        self.create_translation_node(
+            que1, lang1, text=IPHO2016_THEORY_DATA["T-Q1-final"]
+        )
+        self.create_feedback_for_question(que1)
+        self.create_translation_node(
+            ans1, lang1, text=IPHO2016_THEORY_DATA["T-A1-final"]
+        )
+        self.create_translation_node(
+            que2, lang1, text=IPHO2016_THEORY_DATA["T-Q2-final"]
+        )
+        self.create_translation_node(
+            ans2, lang1, text=IPHO2016_THEORY_DATA["T-A2-final"]
+        )
+
+    def create_ipho2016_experiment_exam(self):
+        exam = self.create_exam(name="Experiment", code="E")
+        phases = self.create_exam_phases_for_exam(exam)
+        self.set_exam_to_phase(phases[0])
+
+        gen_inst = self.create_question(
+            exam, name="General Instructions", code="G", position=0, type=self.QUESTION
+        )
+        self.create_official_version_node(
+            gen_inst, text=IPHO2016_EXPERIMENT_DATA["E-G0-final"]
+        )
+
+        que1 = self.create_question(
+            exam,
+            name="Electrical conductivity in two dimensions",
+            code="Q",
+            position=1,
+            type=self.QUESTION,
+        )
+        self.create_official_version_node(
+            que1, text=IPHO2016_EXPERIMENT_DATA["E-Q1-final"]
+        )
+
+        ans1 = self.create_question(
+            exam,
+            name="Electrical conductivity in two dimensions - Answer Sheet",
+            code="A",
+            position=1,
+            type=self.ANSWER,
+            working_pages=3,
+        )
+        self.create_official_version_node(
+            ans1, text=IPHO2016_EXPERIMENT_DATA["E-A1-final"]
+        )
+
+        que2 = self.create_question(
+            exam,
+            name="Jumping beads",
+            code="Q",
+            position=2,
+            type=self.QUESTION,
+        )
+        self.create_official_version_node(
+            que2, text=IPHO2016_EXPERIMENT_DATA["E-Q2-final"]
+        )
+
+        ans2 = self.create_question(
+            exam,
+            name="Jumping beads - Answer Sheet",
+            code="A",
+            position=2,
+            type=self.ANSWER,
+            working_pages=3,
+        )
+        self.create_official_version_node(
+            ans2, text=IPHO2016_EXPERIMENT_DATA["E-A2-final"]
+        )
+
+        self.create_figures_with_ids(
+            fig_ids=IPHO2016_EXPERIMENT_DATA["FIGURE_IDS"], filename="logo_square.png"
+        )
+
+        return exam
+
+    def create_ipho2016_theory_marking(self, all_actions_open=False):
         answer1 = Question.objects.get(name="Two Problems in Mechanics - Answer Sheet")
         answer2 = Question.objects.get(
             name="Nonlinear Dynamics in Electric Circuits - Answer Sheet"

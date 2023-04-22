@@ -96,10 +96,8 @@ def concatenate_documents(all_pages, filename="exam.pdf"):
     meta["etag"] = md5(
         ("".join([meta["etag"] for _, meta in all_pages])).encode("utf8")
     ).hexdigest()
-    meta["num_pages"] = sum([meta["num_pages"] for _, meta in all_pages])
-    meta["barcode_num_pages"] = sum(
-        [meta["barcode_num_pages"] for _, meta in all_pages]
-    )
+    meta["num_pages"] = sum(meta["num_pages"] for _, meta in all_pages)
+    meta["barcode_num_pages"] = sum(meta["barcode_num_pages"] for _, meta in all_pages)
     all_codes = [
         meta["barcode_base"]
         for _, meta in all_pages
@@ -127,10 +125,8 @@ def wait_and_concatenate(self, all_tasks, filename="exam.pdf"):
     meta["etag"] = md5(
         ("".join([meta["etag"] for _, meta in all_pages])).encode("utf8")
     ).hexdigest()
-    meta["num_pages"] = sum([meta["num_pages"] for _, meta in all_pages])
-    meta["barcode_num_pages"] = sum(
-        [meta["barcode_num_pages"] for _, meta in all_pages]
-    )
+    meta["num_pages"] = sum(meta["num_pages"] for _, meta in all_pages)
+    meta["barcode_num_pages"] = sum(meta["barcode_num_pages"] for _, meta in all_pages)
     all_codes = [
         meta["barcode_base"]
         for _, meta in all_pages
@@ -169,10 +165,23 @@ def identity_args(self, prev_task):  # pylint: disable=unused-argument
 
 
 @shared_task(bind=True)
-def student_exam_document(self, questions, student_languages, cover=None, commit=False):
+def participant_exam_document(  # pylint: disable=too-many-arguments
+    self,
+    questions,
+    participant_languages,
+    cover=None,
+    commit=False,
+    question_lang_list=None,
+    answer_lang_list=None,
+):
     job_task = self.request.id if commit else None
-    return compile_utils.student_exam_document(
-        questions, student_languages, cover, job_task=job_task
+    return compile_utils.participant_exam_document(
+        questions,
+        participant_languages,
+        cover,
+        job_task=job_task,
+        question_lang_list=question_lang_list,
+        answer_lang_list=answer_lang_list,
     )
 
 

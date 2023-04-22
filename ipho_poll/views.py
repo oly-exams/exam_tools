@@ -86,8 +86,8 @@ def staff_index(request, room_id=None):
 @login_required
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
-def staff_index_partial(request, qtype, room_id=""):
-    if room_id == "":
+def staff_index_partial(request, qtype, room_id=None):
+    if room_id is None:
         room = None
     else:
         room = get_object_or_404(VotingRoom.objects.for_user(request.user), pk=room_id)
@@ -246,7 +246,7 @@ def voting_large(request, voting_pk):
         usernames = sorted(
             user.username
             + (
-                " ({}/{})".format(user.v_count - user.q_count, user.v_count)
+                f" ({user.v_count - user.q_count}/{user.v_count})"
                 if user.q_count != 0
                 else ""
             )
@@ -279,12 +279,12 @@ def voting_large(request, voting_pk):
 @login_required
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
-def add_voting(request, room_id=""):
+def add_voting(request, room_id=None):
     if not request.is_ajax:
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
-    if room_id == "":
+    if room_id is None:
         room = None
     else:
         room = get_object_or_404(VotingRoom.objects.for_user(request.user), pk=room_id)
@@ -444,10 +444,11 @@ def set_end_date(request, voting_pk):
 
         if settings.ENABLE_PUSH:
             # send push messages
+            room_txt = ""
             if voting.voting_room is not None:
-                room_txt = f"in room {voting.voting_room.name}"
+                room_txt = f" in room {voting.voting_room.name}"
             data = {
-                "body": f"A voting has just opened {room_txt}, click here to go to the voting page",
+                "body": f"A voting has just opened{room_txt}, click here to go to the voting page",
                 "url": reverse("poll:voter-index"),
                 "reload_client": True,
             }
@@ -701,6 +702,7 @@ def voter_index(
             "err": err_msg,
             "rooms": voting_rooms.all(),
             "active_room": room,
+            "voting_rights_count": user.votingright_set.count(),
         },
     )
 

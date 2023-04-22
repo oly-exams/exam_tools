@@ -666,7 +666,7 @@ NOUN_LIST = [
     "event",
     "property",
     "shopping",
-    "student",
+    "participant",
     "wood",
     "competition",
     "distribution",

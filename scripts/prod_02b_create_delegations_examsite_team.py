@@ -26,7 +26,7 @@ django.setup()
 from django.core import serializers
 import csv
 
-from ipho_core.models import Delegation, Student, Group, User, AutoLogin
+from ipho_core.models import Delegation, Group, User, Autologin
 from ipho_poll.models import VotingRight
 
 

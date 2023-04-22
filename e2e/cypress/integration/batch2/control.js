@@ -88,7 +88,7 @@ describe('Control', function() {
             ["Feedback", "Invisible"],
             ["Submission Printing", "No, not visible"],
             ["Answer Sheet Manual Scan Upload", "Not possible"],
-            ["Delegation Scan Access", "Student answer"],
+            ["Delegation Scan Access", "Participant answer"],
             ["Organizer can see delegation marks", "In moderation and when marks are finalized"],
             ["Organizers can edit marks", "No"],
             ["Delegations can see organizer marks", "Yes"],
@@ -109,7 +109,7 @@ describe('Control', function() {
         var changed_settings = [
             ["Can Translate", "Boardmeeting members + organizers", "Nobody"],
             ["Feedback", "Can be opened", "Invisible"],
-            ["Delegation Scan Access", "No", "Student answer"],
+            ["Delegation Scan Access", "No", "Participant answer"],
             ["Delegations can see organizer marks", "No", "Yes"],
             ["Delegation marking actions", "Nothing", "Can enter, submit and finalize marks"],
             ["Moderation", "Not open", "Can be moderated"],
@@ -175,7 +175,7 @@ describe('Control', function() {
     })
 
     it("Test Permissions", function(){
-        cy.login('AUS','1234')
+        cy.login("AUS",'1234')
         // Check whether a delegation can access the cockpit
         cy.visit('control/cockpit')
         cy.url().should('contain', 'accounts/login/?next=/control/cockpit')

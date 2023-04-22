@@ -24,8 +24,7 @@ import django
 
 django.setup()
 
-from ipho_core.models import Student
-from ipho_exam.models import Place, Exam
+from ipho_exam.models import Participant, Place, Exam
 
 import random
 
@@ -35,7 +34,7 @@ def main():
     print("\nFor which exam you want to generate random seats.")
     exams_ix = []
     for i, exam in enumerate(exams):
-        print("[{}] {}".format(i + 1, exam.name))
+        print(f"[{i + 1}] {exam.name}")
     ix = int(eval(input("Select index > ")))
     if ix <= 0 or ix > len(exams):
         print("Index is invalid.")
@@ -43,13 +42,13 @@ def main():
     exam = exams[ix - 1]
     Place.objects.filter(exam=exam).delete()
 
-    for student in Student.objects.all():
+    for participant in Participant.objects.all():
         seat = "{}-{}{}".format(
             random.choice(["M", "N"]),
             random.choice(["A", "B", "C", "D", "E", "F"]),
             random.randint(100, 400),
         )
-        Place.objects.get_or_create(student=student, exam=exam, name=seat)
+        Place.objects.get_or_create(participant=participant, exam=exam, name=seat)
 
 
 if __name__ == "__main__":

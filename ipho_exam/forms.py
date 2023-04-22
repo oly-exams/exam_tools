@@ -33,12 +33,12 @@ from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
 from ipho_exam.models import (
     Language,
     Question,
-    Student,
+    Participant,
     Figure,
     VersionNode,
     PDFNode,
     Feedback,
-    StudentSubmission,
+    ParticipantSubmission,
     TranslationImportTmp,
 )
 from ipho_exam.models import VALID_FIGURE_EXTENSIONS
@@ -315,9 +315,7 @@ class FeedbackCommentForm(forms.Form):
 class SubmissionAssignForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields[
-            "student"
-        ].label_from_instance = lambda obj: f"{obj.first_name} {obj.last_name}"
+        self.fields["participant"].label_from_instance = lambda obj: obj.full_name
 
         self.helper = FormHelper()
         self.helper.html5_required = True
@@ -328,8 +326,8 @@ class SubmissionAssignForm(ModelForm):
         # self.form_tag = False
 
     class Meta:
-        model = StudentSubmission
-        fields = ["student", "language", "with_question", "with_answer"]
+        model = ParticipantSubmission
+        fields = ["participant", "language", "with_question", "with_answer"]
 
 
 class AssignTranslationForm(forms.Form):
@@ -504,8 +502,8 @@ class PrintDocsForm(forms.Form):
         self.fields["queue"].choices = queue_list
         default_opts = printer.default_opts()
         opts_map = {"duplex": "Duplex", "color": "ColourModel", "staple": "Staple"}
-        for k in opts_map:
-            self.fields[k].initial = default_opts[opts_map[k]]
+        for k, val in opts_map.items():
+            self.fields[k].initial = default_opts[val]
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -526,16 +524,16 @@ class PrintDocsForm(forms.Form):
         queue = cleaned_data.get("queue")
         allowed_opts = printer.allowed_opts(queue)
         opts_map = {"duplex": "Duplex", "color": "ColourModel", "staple": "Staple"}
-        for k in opts_map:
+        for k, val in opts_map.items():
             if cleaned_data.get(k) not in ["None", "Gray"]:
-                if cleaned_data.get(k) != allowed_opts[opts_map[k]]:
+                if cleaned_data.get(k) != allowed_opts[val]:
                     msg = "The current printer does not support this option."
                     self.add_error(k, msg)
 
 
 class ScanForm(forms.Form):
     question = forms.ModelChoiceField(queryset=Question.objects.all())
-    student = forms.ModelChoiceField(queryset=Student.objects.all())
+    participant = forms.ModelChoiceField(queryset=Participant.objects.all())
     file = forms.FileField(validators=[build_extension_validator([".pdf"])])
 
     def __init__(self, *args, **kwargs):
@@ -544,19 +542,34 @@ class ScanForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("question"),
-            Field("student"),
+            Field("participant"),
             Field("file"),
             FormActions(Submit("submit", "Upload")),
         )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data["question"].exam != cleaned_data["participant"].exam:
+            raise ValidationError(
+                "The selected participant does not belong to the exam of the selected question!"
+            )
+        return cleaned_data
+
 
 class DelegationScanForm(forms.Form):
     file = forms.FileField(validators=[build_extension_validator([".pdf"])])
 
     def __init__(
-        self, exam, position, student, *, submission_open, do_replace=False, **kwargs
+        self,
+        exam,
+        position,
+        participant,
+        *,
+        submission_open,
+        do_replace=False,
+        **kwargs,
     ):
         super().__init__(**kwargs)
 
@@ -590,11 +603,11 @@ class DelegationScanForm(forms.Form):
               <dd class="col-sm-9">{exam}</dd>
               <dt class="col-sm-3">Question</dt>
               <dd class="col-sm-9">Q #{position}</dd>
-              <dt class="col-sm-3">Student</dt>
-              <dd class="col-sm-9">{student}</dd>
+              <dt class="col-sm-3">Participant</dt>
+              <dd class="col-sm-9">{participant}</dd>
             </dl>
             """.format(
-                    exam=exam.name, position=position, student=student.code
+                    exam=exam.name, position=position, participant=participant.code
                 )
             ),
             warning_message,
@@ -607,7 +620,7 @@ class DelegationScanForm(forms.Form):
 
 
 class ExtraSheetForm(forms.Form):
-    student = forms.ModelChoiceField(queryset=Student.objects.all())
+    participant = forms.ModelChoiceField(queryset=Participant.objects.all())
     quantity = forms.IntegerField()
     template = forms.ChoiceField(
         widget=forms.RadioSelect,
@@ -625,10 +638,18 @@ class ExtraSheetForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("question"),
-            Field("student"),
+            Field("participant"),
             Field("quantity"),
             Field("template"),
             FormActions(Submit("submit", "Generate")),
         )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data["question"].exam != cleaned_data["participant"].exam:
+            raise ValidationError(
+                "The selected participant does not belong to the selected exam!"
+            )
+        return cleaned_data

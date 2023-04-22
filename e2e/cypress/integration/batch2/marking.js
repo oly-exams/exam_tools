@@ -32,7 +32,7 @@ describe('Marking', function () {
 
         cy.url().should('contain', '/marking/official/question/3/delegation/4')
         cy.get('form table thead').within(($thead)=>{
-            marking_helpers.CHE_stud_names.forEach(function(name, idx){
+            marking_helpers.CHE_ppnt_names.forEach(function(name, idx){
                 cy.get('th').eq(idx+1).find('h4').shouldHaveTrimmedText(name)
             });
         })
@@ -51,9 +51,9 @@ describe('Marking', function () {
         marking_helpers.edit_point_form(1,4,"abc")
         //empty
         // cypress doesn't let you type(""), so we need to do it by hand
-        cy.get("#id_Stud-1-5-points").clear()
+        cy.get("#id_ppnt-1-5-points").clear()
 
-        // add more values for other students
+        // add more values for other participants
         marking_helpers.edit_point_form(2,10, 1)
         marking_helpers.edit_point_form(3,10, 1)
         marking_helpers.edit_point_form(4,10, 1)
@@ -61,7 +61,7 @@ describe('Marking', function () {
 
         // check totals
         // change focus to make sure the totals are calculated
-        cy.get("#id_Stud-1-5-points").focus()
+        cy.get("#id_ppnt-1-5-points").focus()
         cy.get("#cell_total_0").shouldHaveTrimmedText('-')
         cy.get("#cell_total_1").shouldHaveTrimmedText('1.00')
         cy.get("#cell_total_2").shouldHaveTrimmedText('1.00')
@@ -72,7 +72,7 @@ describe('Marking', function () {
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(1,1, true, "The number of points cannot exceed the maximum.")
-        marking_helpers.check_point_form_error(1,2, true, "Ensure this value is greater than or equal to 0.0.")
+        marking_helpers.check_point_form_error(1,2, true, "The number of points cannot be negative.")
         marking_helpers.check_point_form_error(1,3, true, "Ensure that there are no more than 2 decimal places.")
         marking_helpers.check_point_form_error(1,4, true, "Enter a number.")
         marking_helpers.check_point_form_error(1,5, true, "This field is required.")
@@ -93,7 +93,7 @@ describe('Marking', function () {
         marking_helpers.edit_point_form(1,10,1)
 
         // check totals again
-        cy.get("#id_Stud-1-0-points").focus()
+        cy.get("#id_ppnt-1-0-points").focus()
         cy.get("#cell_total_0").shouldHaveTrimmedText('3.14')
         cy.get("#cell_total_1").shouldHaveTrimmedText('1.00')
         cy.get("#cell_total_2").shouldHaveTrimmedText('1.00')
@@ -105,16 +105,16 @@ describe('Marking', function () {
 
         cy.url().should('contain', '/marking/official/question/3/delegation/4/confirmed')
 
-        var CHE_stud_points = [
-            [marking_helpers.CHE_stud_names[0], '3.14'],
-            [marking_helpers.CHE_stud_names[1], '1.00'],
-            [marking_helpers.CHE_stud_names[2], '1.00'],
-            [marking_helpers.CHE_stud_names[3], '1.00'],
-            [marking_helpers.CHE_stud_names[4], '1.00'],
+        var CHE_ppnt_points = [
+            [marking_helpers.CHE_ppnt_names[0], '3.14'],
+            [marking_helpers.CHE_ppnt_names[1], '1.00'],
+            [marking_helpers.CHE_ppnt_names[2], '1.00'],
+            [marking_helpers.CHE_ppnt_names[3], '1.00'],
+            [marking_helpers.CHE_ppnt_names[4], '1.00'],
         ]
 
         cy.get('tbody').within(($tbody)=>{
-            CHE_stud_points.forEach(function(elem, idx){
+            CHE_ppnt_points.forEach(function(elem, idx){
                 cy.get('tr').eq(idx+1).find('td').eq(0).shouldHaveTrimmedText(elem[0])
                 cy.get('tr').eq(idx+1).find('td').eq(1).shouldHaveTrimmedText(elem[1])
             });
@@ -159,7 +159,7 @@ describe('Marking', function () {
 
         })
 
-        cy.url().should('contain', "/marking/staff/vO/student/10/question/3/edit")
+        cy.url().should('contain', "/marking/staff/vO/participant/10/question/3/edit")
 
         // check/edit some points
         marking_helpers.edit_point_form(-1, 0, "0.00")
@@ -182,7 +182,7 @@ describe('Marking', function () {
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(-1,1, true, "The number of points cannot exceed the maximum.", false)
-        marking_helpers.check_point_form_error(-1,2, true, "Ensure this value is greater than or equal to 0.0.", false)
+        marking_helpers.check_point_form_error(-1,2, true, "The number of points cannot be negative.", false)
         marking_helpers.check_point_form_error(-1,3, true, "Ensure that there are no more than 2 decimal places.", false)
         marking_helpers.check_point_form_error(-1,4, true, "Enter a number.", false)
         marking_helpers.check_point_form_error(-1,5, true, "This field is required.", false)
@@ -200,7 +200,7 @@ describe('Marking', function () {
         cy.get(".alert-success").should('contain', "Points have been saved.")
 
         // hard reload to check values
-        cy.visit("/marking/staff/vO/student/10/question/3/edit")
+        cy.visit("/marking/staff/vO/participant/10/question/3/edit")
 
         // check values
         marking_helpers.check_point_form(-1,1,"0.50")
@@ -243,7 +243,7 @@ describe('Marking', function () {
 
         // check that errors are displayed (there are no error classes in this view, so we don't check for them)
         marking_helpers.check_point_form_error(-1,1, true, "The number of points cannot exceed the maximum.", false)
-        marking_helpers.check_point_form_error(-1,2, true, "Ensure this value is greater than or equal to 0.0.", false)
+        marking_helpers.check_point_form_error(-1,2, true, "The number of points cannot be negative.", false)
         marking_helpers.check_point_form_error(-1,3, true, "Ensure that there are no more than 2 decimal places.", false)
         marking_helpers.check_point_form_error(-1,4, true, "Enter a number.", false)
         marking_helpers.check_point_form_error(-1,5, true, "This field is required.", false)
@@ -303,7 +303,7 @@ describe('Marking', function () {
         // cypress doesn't let you type(""), so we need to do it by hand
         cy.get("#id_form-25-points").clear()
 
-        // add more values for other students
+        // add more values for other participants
         marking_helpers.edit_point_form(-1,1, 0.17)
         marking_helpers.edit_point_form(-1,2, 0.17)
         marking_helpers.edit_point_form(-1,3, 0.17)
@@ -314,7 +314,7 @@ describe('Marking', function () {
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(-1,5, true, "The number of points cannot exceed the maximum.")
-        marking_helpers.check_point_form_error(-1,10, true, "Ensure this value is greater than or equal to 0.0.")
+        marking_helpers.check_point_form_error(-1,10, true, "The number of points cannot be negative.")
         marking_helpers.check_point_form_error(-1,15, true, "Ensure that there are no more than 2 decimal places.")
         marking_helpers.check_point_form_error(-1,20, true, "Enter a number.")
         marking_helpers.check_point_form_error(-1,25, true, "This field is required.")
@@ -378,11 +378,11 @@ describe('Marking', function () {
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
         cy.get("#marking").should('be.visible')
-        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Submit marks").click()
+        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Submit marks to organizers").click()
         cy.url().should('contain', '/marking/confirm/3')
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries
-            marking_helpers.CHE_stud_names.forEach((elem, idx)=>{
+            marking_helpers.CHE_ppnt_names.forEach((elem, idx)=>{
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 
@@ -418,7 +418,7 @@ describe('Marking', function () {
         cy.get("div.container h2").should('contain', "Sign off final points")
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries
-            marking_helpers.CHE_stud_names.forEach((elem, idx)=>{
+            marking_helpers.CHE_ppnt_names.forEach((elem, idx)=>{
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 
@@ -447,7 +447,7 @@ describe('Marking', function () {
         cy.get("#marking").should('be.visible')
         marking_helpers.test_summary_action_content([marking_helpers.finalized_action,])
 
-        marking_helpers.test_delegation_marks_view_all(marking_helpers.CHE_stud_ids.slice(0,1), [0,], "0.00")
+        marking_helpers.test_delegation_marks_view_all(marking_helpers.CHE_ppnt_ids.slice(0,1), [0,], "0.00")
 
         cy.logout()
         cy.login('AUS', '1234')
@@ -460,7 +460,7 @@ describe('Marking', function () {
         cy.get("div.container h2").should('contain', "Sign off final points")
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries
-            marking_helpers.AUS_stud_names.forEach((elem, idx)=>{
+            marking_helpers.AUS_ppnt_names.forEach((elem, idx)=>{
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 
@@ -503,11 +503,11 @@ describe('Marking', function () {
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
         cy.get("#marking").should('be.visible')
-        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Submit marks").click()
+        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Submit marks to organizers").click()
         cy.url().should('contain', '/marking/confirm/3')
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries
-            marking_helpers.CHE_stud_names.forEach((elem, idx)=>{
+            marking_helpers.CHE_ppnt_names.forEach((elem, idx)=>{
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
 
@@ -559,7 +559,7 @@ describe('Marking', function () {
         ]
         cy.login('AUS', '1234')
 
-        //check a student of another delegation
+        //check a participant of another delegation
         cy.request({
             failOnStatusCode: false,
             url: '/marking/detail/10/question/3',

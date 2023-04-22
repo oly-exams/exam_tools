@@ -37,7 +37,7 @@ describe('Marking', function () {
         cy.get("div.container h2").should('contain', "Sign off final points")
         cy.get("#confirm-table").within(($table)=>{
             // Check just some entries
-            marking_helpers.AUS_stud_names.forEach((elem, idx)=>{
+            marking_helpers.AUS_ppnt_names.forEach((elem, idx)=>{
                 cy.get('thead tr th').eq(1+idx).shouldHaveTrimmedText(elem)
             })
             cy.get('tbody tr').eq(0).find('td').eq(0).shouldHaveTrimmedText("A.1")
@@ -141,7 +141,7 @@ describe('Marking', function () {
             marking_helpers.check_point_form(10,index,"0")
         }
 
-        marking_helpers.ARM_stud_names.forEach((elem, idx)=>{
+        marking_helpers.ARM_ppnt_names.forEach((elem, idx)=>{
             cy.get('thead tr th h4').eq(idx).shouldHaveTrimmedText(elem)
         })
         marking_helpers.check_point_form(10,0,'0')
@@ -158,18 +158,18 @@ describe('Marking', function () {
         marking_helpers.edit_point_form(10,4,"abc")
         //empty
         // cypress doesn't let you type(""), so we need to do it by hand
-        cy.get("#id_Stud-10-5-points").clear()
+        cy.get("#id_ppnt-10-5-points").clear()
 
         // check totals
         // change focus to make sure the totals are calculated
-        cy.get("#id_Stud-10-1-points").focus()
+        cy.get("#id_ppnt-10-1-points").focus()
         cy.get("#cell_total_0").shouldHaveTrimmedText('-')
 
         cy.get("#submit_button").click()
 
         // check that errors are displayed
         marking_helpers.check_point_form_error(10,1, true, "The number of points cannot exceed the maximum.")
-        marking_helpers.check_point_form_error(10,2, true, "Ensure this value is greater than or equal to 0.0.")
+        marking_helpers.check_point_form_error(10,2, true, "The number of points cannot be negative.")
         marking_helpers.check_point_form_error(10,3, true, "Ensure that there are no more than 2 decimal places.")
         marking_helpers.check_point_form_error(10,4, true, "Enter a number.")
         marking_helpers.check_point_form_error(10,5, true, "This field is required.")
@@ -186,7 +186,7 @@ describe('Marking', function () {
         marking_helpers.edit_point_form(10,10,1)
 
         // check totals again
-        cy.get("#id_Stud-10-0-points").focus()
+        cy.get("#id_ppnt-10-0-points").focus()
         cy.get("#cell_total_0").shouldHaveTrimmedText('3.14')
 
         // submit again
@@ -194,7 +194,7 @@ describe('Marking', function () {
 
         cy.url().should('contain', '/marking/moderate/question/3/delegation/1/confirmed')
         // Check total in overview
-        cy.get('tbody tr').eq(1).find('td').eq(0).shouldHaveTrimmedText(marking_helpers.ARM_stud_names[0])
+        cy.get('tbody tr').eq(1).find('td').eq(0).shouldHaveTrimmedText(marking_helpers.ARM_ppnt_names[0])
         cy.get('tbody tr').eq(1).find('td').eq(1).shouldHaveTrimmedText("3.14")
 
         //Marking should not be accessible anymore

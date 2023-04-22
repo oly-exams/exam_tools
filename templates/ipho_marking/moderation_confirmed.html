@@ -16,12 +16,12 @@
   <div class="col-md-5">
     <table class="table table-striped success">
       <tr>
-        <th>Student</th>
+        <th>Participant</th>
         <th>Total</th>
       </tr>
       {% for marking in markings %}
       <tr>
-        <td>{{ marking.student__first_name }} {{ marking.student__last_name }} ({{ marking.student__code }})</td>
+        <td>{{ marking.participant.full_name }} ({{ marking.participant.code }})</td>
         <td>{{ marking.total|floatformat:"2" }}</td>
       </tr>
       {% endfor %}

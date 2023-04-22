@@ -23,7 +23,7 @@ from django.dispatch import receiver
 from django.db import models
 from ipho_exam.models import Exam, Question
 
-import ipho_control.phase_checks as phase_checks
+from ipho_control import phase_checks
 
 
 class ExamPhaseManager(models.Manager):
@@ -271,7 +271,7 @@ class ExamPhase(models.Model):
 
     @classmethod
     def get_exam_field_verbose_choices(cls):
-        """"Returns a dictionary {field_name:choices}"""
+        """ "Returns a dictionary {field_name:choices}"""
         res = {}
         for f in cls.get_available_exam_fields():
             if hasattr(f, "choices"):
@@ -280,7 +280,7 @@ class ExamPhase(models.Model):
 
     @classmethod
     def get_exam_field_verbose_names(cls):
-        """"Returns a dictionary {field_name:verbose_name}"""
+        """ "Returns a dictionary {field_name:verbose_name}"""
         res = {}
         for f in cls.get_available_exam_fields():
             if hasattr(f, "verbose_name"):

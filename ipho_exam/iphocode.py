@@ -32,7 +32,7 @@ class QuestionBarcodeGen:
         self,
         exam,
         question,
-        student,
+        participant,
         qcode=None,
         startnum=0,
         format_="qr",
@@ -43,7 +43,11 @@ class QuestionBarcodeGen:
         self.suppress_code = suppress_code
         self.suppress_code |= settings.CODE_WITHOUT_QR
 
-        self.base = f"{student.code} {exam.code}-{question.position}"
+        self.base = f"{participant.code} {exam.code}"
+        if exam.flags & exam.FLAG_SQUASHED:
+            self.base += f"-{int(bool(question.position))}"
+        else:
+            self.base += f"-{question.position}"
         self.text = self.base + f" {qcode}" + "-{pag}"
         self.format = format_
         self.startnum = startnum
@@ -90,7 +94,7 @@ class QuestionBarcodeGen:
             text_xml.attrib["x"] = "{}mm".format(
                 old_div((img_w - width), 2.0) + old_div(width, 2.0)
             )
-            text_xml.attrib["y"] = "{}mm".format(height + 2)
+            text_xml.attrib["y"] = f"{height + 2}mm"
             text_xml.attrib["font-size"] = "10"
             text_xml.attrib["font-family"] = "Verdana"
             text_xml.text = code

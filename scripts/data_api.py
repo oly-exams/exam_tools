@@ -210,7 +210,7 @@ class MultiTableData(SingleTableData):
     @property
     def tables(self):
         return [
-            "{}.{}".format(self.get_table_module(model), self.get_table_name(model))
+            f"{self.get_table_module(model)}.{self.get_table_name(model)}"
             for model in self.models
         ]
 
@@ -301,7 +301,7 @@ if __name__ == "__main__":
     #    help='Generate missing passwords for users and delegations.')
     # parser.add_argument(
     #    '-s', '--random-seats', action='store_true',
-    #    help='Generate random seats for students.')
+    #    help='Generate random seats for participants.')
 
     parser.add_argument(
         "-i",
@@ -413,7 +413,7 @@ if __name__ == "__main__":
         ),
         SingleTableData(
             21,
-            ipho_core.models.Student,
+            ipho_core.models.Participant,
             source_folder=args.input_folder,
             store_folder=args.output_folder,
         ),

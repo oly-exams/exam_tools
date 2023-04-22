@@ -23,17 +23,17 @@ from django.db import models
 from django.db.models import Q
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-from ipho_core.models import Student, Delegation
-from ipho_exam.models import Question, Exam
+from ipho_core.models import Delegation
+from ipho_exam.models import Participant, Question, Exam
 from ipho_exam import qquery as qwquery
 from ipho_exam import qml
 
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
+ALLOW_NEGATIVE_MARKS = getattr(settings, "ALLOW_NEGATIVE_MARKS", False)
 
 
 def generate_markings_from_exam(exam, user=None):
@@ -61,10 +61,10 @@ def generate_markings_from_exam(exam, user=None):
             num_created += created
             num_tot += 1
 
-            for student in Student.objects.all():
+            for participant in Participant.objects.filter(exam=exam):
                 for version_id, _ in list(Marking.MARKING_VERSIONS.items()):
                     _, created = Marking.objects.get_or_create(
-                        marking_meta=mmeta, student=student, version=version_id
+                        marking_meta=mmeta, participant=participant, version=version_id
                     )
                     num_marking_created += created
                     num_marking_tot += 1
@@ -190,18 +190,20 @@ class MarkingManager(models.Manager):
             status__gte=MarkingAction.SUBMITTED_FOR_MODERATION
         ).all()
         locked_action_q_list = [
-            Q(student__delegation=a.delegation, marking_meta__question=a.question)
+            Q(participant__delegation=a.delegation, marking_meta__question=a.question)
             for a in locked_actions
         ]
         subm_action_q_list = [
-            Q(student__delegation=a.delegation, marking_meta__question=a.question)
+            Q(participant__delegation=a.delegation, marking_meta__question=a.question)
             for a in subm_actions
         ]
         # Q(pk__in=[]) is an empty Q object which we use as initializer (and default) object in reduce
         locked_action_q = reduce(operator.or_, locked_action_q_list, Q(pk__in=[]))
         subm_action_q = reduce(operator.or_, subm_action_q_list, Q(pk__in=[]))
 
-        if user.has_perm("ipho_core.is_marker"):
+        if user.has_perm("ipho_core.is_marker") or user.has_perm(
+            "ipho_core.is_organizer_admin"
+        ):
             if version == "O":
                 return queryset
             if version == "D":
@@ -232,7 +234,7 @@ class MarkingManager(models.Manager):
         if user.has_perm("ipho_core.is_delegation"):
             # A delegation can only view their own markings
             delegs = Delegation.objects.filter(members=user).all()
-            queryset = queryset.filter(student__delegation__in=delegs)
+            queryset = queryset.filter(participant__delegation__in=delegs)
 
             if version == "O":
                 # This filters out all >=submitted Official Markings for exams with Delegation can view after submission.
@@ -241,7 +243,6 @@ class MarkingManager(models.Manager):
                 ).all()
                 org_marking_view_after_subm_q = (
                     Q(marking_meta__question__exam__in=exams_deleg_view_after_subm)
-                    & Q(version="O")
                     & subm_action_q
                 )
                 # This filters out all Official markings for exams with delegation can view off marks
@@ -250,7 +251,7 @@ class MarkingManager(models.Manager):
                 ).all()
                 org_marking_view_always_q = Q(
                     marking_meta__question__exam__in=exams_deleg_view_yes
-                ) & Q(version="O")
+                )
 
                 return queryset.filter(
                     org_marking_view_after_subm_q | org_marking_view_always_q
@@ -276,7 +277,7 @@ class MarkingManager(models.Manager):
         ).all()
 
         un_subm_action_q_list = [
-            Q(student__delegation=a.delegation, marking_meta__question=a.question)
+            Q(participant__delegation=a.delegation, marking_meta__question=a.question)
             for a in un_subm_actions
         ]
         # Q(pk__in=[]) is an empty Q object which we use as initializer (and default) object in reduce
@@ -287,7 +288,10 @@ class MarkingManager(models.Manager):
                 status__lt=MarkingAction.FINAL
             ).all()
             un_final_action_q_list = [
-                Q(student__delegation=a.delegation, marking_meta__question=a.question)
+                Q(
+                    participant__delegation=a.delegation,
+                    marking_meta__question=a.question,
+                )
                 for a in un_final_actions
             ]
             un_final_action_q = reduce(
@@ -331,13 +335,13 @@ class Marking(models.Model):
     objects = MarkingManager()
 
     marking_meta = models.ForeignKey(MarkingMeta, on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     points = models.DecimalField(
         null=True,
         blank=True,
         max_digits=8,
         decimal_places=2,
-        validators=[MinValueValidator(0.0)],
+        validators=[],
     )
     comment = models.TextField(null=True, blank=True)
     MARKING_VERSIONS = OrderedDict(
@@ -350,6 +354,8 @@ class Marking(models.Model):
     version = models.CharField(max_length=1, choices=list(MARKING_VERSIONS.items()))
 
     def clean(self):
+        if self.points == "" or self.points is None:
+            return
         try:
             if self.points > self.marking_meta.max_points:
                 raise ValidationError(
@@ -359,6 +365,25 @@ class Marking(models.Model):
                         )
                     }
                 )
+            if ALLOW_NEGATIVE_MARKS:
+                # pylint: disable=invalid-unary-operand-type
+                if self.points < -self.marking_meta.max_points:
+                    raise ValidationError(
+                        {
+                            "points": ValidationError(
+                                "The number of points cannot be smaller than the negative maximum."
+                            )
+                        }
+                    )
+            else:
+                if self.points < 0:
+                    raise ValidationError(
+                        {
+                            "points": ValidationError(
+                                "The number of points cannot be negative."
+                            )
+                        }
+                    )
         except TypeError:
             # pylint: disable=raise-missing-from
             raise ValidationError(
@@ -375,4 +400,4 @@ class Marking(models.Model):
 
     class Meta:
         # should probably have an ordering?
-        unique_together = (("marking_meta", "student", "version"),)
+        unique_together = (("marking_meta", "participant", "version"),)
