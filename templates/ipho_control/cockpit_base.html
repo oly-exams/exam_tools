@@ -228,6 +228,11 @@
       $( "#phase-list").find(".current-phase")[0].scrollIntoView();
     }
     
+    $('select').prop('selectedIndex', function () {
+        var selected = $(this).children('[selected]').index();
+        return selected != -1 ? selected : 0;
+    });
+    
   })
   $('document').ready(function(){
     

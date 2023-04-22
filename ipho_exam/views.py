@@ -100,6 +100,7 @@ from ipho_exam.models import (
     PrintLog,
     Place,
     CachedAutoTranslation,
+    CachedHTMLDiff,
 )
 from ipho_exam.models import (
     VALID_RAW_FIGURE_EXTENSIONS,
@@ -1669,6 +1670,8 @@ def figure_delete(request, fig_id):
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Only superusers can delete figures!")
     obj = get_object_or_404(Figure, fig_id=fig_id)
     obj.delete()
     return JsonResponse(
@@ -2004,7 +2007,7 @@ def admin_delete_version(request, exam_id, question_id, version_num):
 @permission_required("ipho_core.can_edit_exam")
 def admin_accept_version(
     request, exam_id, question_id, version_num, compare_version=None
-):
+):  # pylint: disable=too-many-locals, too-many-statements
     lang_id = OFFICIAL_LANGUAGE_PK
 
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
@@ -2087,12 +2090,10 @@ def admin_accept_version(
         )
 
     old_q = qml.make_qml(compare_node)
-    old_data = old_q.get_data()
     new_q = qml.make_qml(node)
-    new_data = new_q.get_data()
 
-    old_q.diff_content_html(new_data)
-    new_q.diff_content_html(old_data)
+    old_q = CachedHTMLDiff.calc_or_get_cache(compare_node, node, old_q)
+    new_q = CachedHTMLDiff.calc_or_get_cache(node, compare_node, new_q)
 
     old_flat_dict = old_q.flat_content_dict()
 
@@ -3499,13 +3500,10 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
             orig_diff_node = get_object_or_404(
                 VersionNode, question=question, language=orig_lang, version=orig_diff
             )
-            orig_diff_q = qml.make_qml(orig_diff_node)
-            orig_diff_data = orig_diff_q.get_data()
 
-            ## make diff
-            ## show diff, new elements
-            ## don't show, removed elements (non-trivial insert in the tree)
-            orig_q.diff_content_html(orig_diff_data)
+            orig_q = CachedHTMLDiff.calc_or_get_cache(
+                official_question.node, orig_diff_node, orig_q
+            )
 
         content_set = qml.make_content(orig_q)
 
@@ -3729,7 +3727,7 @@ def auto_translate_count(request):
         "name", "auto_translate_char_count"
     )
     delegation_tot_count = sum(
-        [a["auto_translate_char_count"] for a in delegation_counts_raw]
+        a["auto_translate_char_count"] for a in delegation_counts_raw
     )
     if delegation_tot_count:
         delegation_counts = [
@@ -3930,6 +3928,46 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
     )
 
     return HttpResponse(html)
+
+
+@login_required
+def pdf_exam_for_participant(request, exam_id, participant_id):
+    participant = get_object_or_404(Participant, id=participant_id)
+
+    user = request.user
+    if not user.has_perm("ipho_core.can_see_boardmeeting"):
+        exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+        if not (
+            exam.submission_printing >= Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
+            or exam.answer_sheet_scan_upload
+            >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
+        ):
+            return HttpResponseForbidden(
+                "You do not have permission to view this document."
+            )
+
+    ## TODO: implement caching
+    all_tasks = []
+
+    participant_languages = ParticipantSubmission.objects.filter(
+        participant=participant
+    )
+    questions = exam.question_set.all()
+    grouped_questions = {
+        k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)
+    }
+    grouped_questions = OrderedDict(sorted(grouped_questions.items()))
+    for position, qgroup in list(grouped_questions.items()):
+        question_task = question_utils.compile_ppnt_exam_question(
+            qgroup, participant_languages
+        )
+        result = question_task.delay()
+        all_tasks.append(result)
+        print("Group", position, "done.")
+    filename = f"exam-{slugify(exam.name)}-{participant.code}.pdf"
+    chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
+    # chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
+    return HttpResponseRedirect(reverse("exam:pdf-task", args=[chord_task.id]))
 
 
 @login_required

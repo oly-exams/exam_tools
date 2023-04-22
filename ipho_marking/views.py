@@ -653,7 +653,7 @@ def delegation_summary(
         not_none_pts = [p for p in ppnt_exam_points_list if p is not None]
         # As sum([]) = 0 would give a total =0 for None points, we need to set it to None by hand
         if not_none_pts and not_none_pts == ppnt_exam_points_list:
-            total = sum([p for p in ppnt_exam_points_list if p is not None])
+            total = sum(p for p in ppnt_exam_points_list if p is not None)
         else:
             total = None
         points_per_student.append((student, ppnt_exam_points_list, total))

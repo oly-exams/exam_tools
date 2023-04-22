@@ -38,7 +38,7 @@ h = float(bcode_raw.attrib["height"].replace("mm", ""))
 img_h = h + 5
 img.save("outcode_raw.svg")
 bcode_raw.tag = "g"
-bcode_raw.attrib["transform"] = "translate({}mm,0)".format(old_div((img_w - w), 2.0))
+bcode_raw.attrib["transform"] = f"translate({old_div((img_w - w), 2.0)}mm,0)"
 del bcode_raw.attrib["height"]
 del bcode_raw.attrib["width"]
 del bcode_raw.attrib["version"]
@@ -56,8 +56,8 @@ bcode_xml = etree.Element(
 
 text_xml = etree.Element("text")
 text_xml.attrib["text-anchor"] = "middle"
-text_xml.attrib["x"] = "{}mm".format(old_div((img_w - w), 2.0) + old_div(w, 2.0))
-text_xml.attrib["y"] = "{}mm".format(h + 2)
+text_xml.attrib["x"] = f"{old_div((img_w - w), 2.0) + old_div(w, 2.0)}mm"
+text_xml.attrib["y"] = f"{h + 2}mm"
 text_xml.attrib["font-size"] = "14"
 text_xml.attrib["font-family"] = "Verdana"
 text_xml.text = code

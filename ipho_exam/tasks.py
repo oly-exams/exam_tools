@@ -96,10 +96,8 @@ def concatenate_documents(all_pages, filename="exam.pdf"):
     meta["etag"] = md5(
         ("".join([meta["etag"] for _, meta in all_pages])).encode("utf8")
     ).hexdigest()
-    meta["num_pages"] = sum([meta["num_pages"] for _, meta in all_pages])
-    meta["barcode_num_pages"] = sum(
-        [meta["barcode_num_pages"] for _, meta in all_pages]
-    )
+    meta["num_pages"] = sum(meta["num_pages"] for _, meta in all_pages)
+    meta["barcode_num_pages"] = sum(meta["barcode_num_pages"] for _, meta in all_pages)
     all_codes = [
         meta["barcode_base"]
         for _, meta in all_pages
@@ -107,6 +105,35 @@ def concatenate_documents(all_pages, filename="exam.pdf"):
     ]
     if all_same(all_codes):
         meta["barcode_base"] = all_codes[0] if len(all_codes) > 0 else ""
+    else:
+        meta["barcode_base"] = ",".join(all_codes)
+    return doc_pdf, meta
+
+
+@shared_task(bind=True)
+def wait_and_concatenate(self, all_tasks, filename="exam.pdf"):
+    for t in all_tasks:
+        if not t.ready():
+            self.retry(countdown=1)
+        elif t.failed():
+            raise t.result
+    all_pages = [t.result for t in all_tasks]
+    doc_pdf = pdf.concatenate_documents([question_pdf for question_pdf, _ in all_pages])
+
+    meta = {}
+    meta["filename"] = filename
+    meta["etag"] = md5(
+        ("".join([meta["etag"] for _, meta in all_pages])).encode("utf8")
+    ).hexdigest()
+    meta["num_pages"] = sum(meta["num_pages"] for _, meta in all_pages)
+    meta["barcode_num_pages"] = sum(meta["barcode_num_pages"] for _, meta in all_pages)
+    all_codes = [
+        meta["barcode_base"]
+        for _, meta in all_pages
+        if meta["barcode_base"] is not None
+    ]
+    if all_same(all_codes):
+        meta["barcode_base"] = all_codes[0] or None
     else:
         meta["barcode_base"] = ",".join(all_codes)
     return doc_pdf, meta

@@ -179,7 +179,7 @@ def export_all(logo_file, names=("Theory", "Experiment")):
     languages = Language.objects.filter(
         participantsubmission__exam__in=exams
     ).distinct()
-    print("Going to export in {} languages.".format(len(languages)))
+    print(f"Going to export in {len(languages)} languages.")
     for q in questions:
         for lang in languages:
             compile_question(q, lang, logo_file)

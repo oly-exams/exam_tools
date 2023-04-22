@@ -153,7 +153,7 @@ def normalize_html(data):
         str(data)
         .replace("<p>&nbsp;</p>", "__EMPTYPP__")
         .replace("<p>&#160;</p>", "__EMPTYPP__")
-        .replace("<p>{}</p>".format(chr(160)), "__EMPTYPP__")
+        .replace(f"<p>{chr(160)}</p>", "__EMPTYPP__")
         .replace("&nbsp;", " ")
         .replace("&#160;", " ")
         .replace(chr(160), " ")
@@ -171,7 +171,7 @@ mathtex_pattern = re.compile(r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</s
 
 def escape_equations(txt):
     return mathtex_pattern.sub(
-        lambda m: r'<span class="math-tex">\({}\)</span>'.format(escape(m.group(1))),
+        lambda m: rf'<span class="math-tex">\({escape(m.group(1))}\)</span>',
         txt,
     )
 
@@ -475,6 +475,11 @@ class QMLobject:
         for child in self.children:
             child.diff_content_html(other_data)
 
+    def data_html2data(self):
+        self.data = self.data_html
+        for child in self.children:
+            child.data_html2data()
+
     def find(self, search_id):
         if self.id == search_id:
             return self
@@ -699,7 +704,7 @@ class QMLtitle(QMLobject):
         return "", []
 
     def make_xhtml(self):
-        return "<h1>{}</h1>".format(data2xhtml(self.data)), []
+        return f"<h1>{data2xhtml(self.data)}</h1>", []
 
 
 class QMLpart(QMLobject):
@@ -718,7 +723,7 @@ class QMLpart(QMLobject):
         return "}{%s}\n\n" % self.attributes.get("points", "")
 
     def make_xhtml(self):
-        return "<h2>{}</h2>".format(data2xhtml(self.data)), []
+        return f"<h2>{data2xhtml(self.data)}</h2>", []
 
 
 class QMLsection(QMLobject):
@@ -737,7 +742,7 @@ class QMLsection(QMLobject):
         return "}\n\n"
 
     def make_xhtml(self):
-        return "<h3>{}</h3>".format(data2xhtml(self.data)), []
+        return f"<h3>{data2xhtml(self.data)}</h3>", []
 
 
 class QMLparagraph(QMLobject):
@@ -1077,7 +1082,7 @@ class QMLlistItem(QMLobject):
         return texout
 
     def make_xhtml(self):
-        return "<li>{}</li>".format(data2xhtml(self.data)), []
+        return f"<li>{data2xhtml(self.data)}</li>", []
 
 
 class QMLlatex(QMLobject):

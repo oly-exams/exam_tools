@@ -35,7 +35,7 @@ def main(input):
     for i, row in enumerate(csv_reader):
         delegation = all_delegations[old_div(i, 5)]
 
-        code = "{}-S-{}".format(delegation.name, i % 5 + 1)
+        code = f"{delegation.name}-S-{i % 5 + 1}"
         participant = Student(
             code=code, first_name=row[2], last_name=row[3], delegation=delegation
         )
