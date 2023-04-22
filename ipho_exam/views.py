@@ -4443,9 +4443,7 @@ def extra_sheets(request, exam_id=None):
         exam_id, request.POST or None, initial={"template": "exam_blank.tex"}
     )
     if form.is_valid():
-        participant = get_object_or_404(
-            Participant, id=form.cleaned_data["participant"], exam=question.exam
-        )
+        participant = form.cleaned_data["participant"]
         question = form.cleaned_data["question"]
         position = question.position
         quantity = form.cleaned_data["quantity"]
