@@ -640,12 +640,21 @@ body { margin-bottom: 70px; }
             //   $(this).addClass('math-selected');
             // });
             {% if auto_translate %}
-            function auto_translate(text, to_lang, field_id){
+            function auto_translate(text, to_lang, field_id, button_id=""){
               $.ajax({
                   url: "{% url 'exam:auto-translate' %}",
                   type: 'POST',
                   data: {'from_lang': '{{ orig_lang.pk }}', 'to_lang':to_lang ,'text': text},
               }).done(function (data) {
+                if (data["error"]){
+                  if (button_id!="") {
+
+                    $('#'+button_id).popover({content:"Error: \n"+ data["error"]});
+                    $('#'+button_id).popover("show");
+                    setTimeout(function() {$('#'+button_id).popover("destroy");}, 5000);
+                  }
+                  return false;
+                }
                 if (field_id in all_editors)
                     all_editors[field_id].setData(String(data['text']));
                 else
@@ -664,7 +673,7 @@ body { margin-bottom: 70px; }
                     text = $(orig).data('original-text');
                     field_id = $(this).attr('id').replace('-copy', '');
                     to_lang = $("#auto-translate-dropdown .btn:first-child .text").data('value');
-                    auto_translate(text, to_lang, field_id);
+                    auto_translate(text, to_lang, field_id, $(this).attr('id'));
                   }
 
                 }

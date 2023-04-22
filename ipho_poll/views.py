@@ -246,7 +246,7 @@ def voting_large(request, voting_pk):
         usernames = sorted(
             user.username
             + (
-                " ({}/{})".format(user.v_count - user.q_count, user.v_count)
+                f" ({user.v_count - user.q_count}/{user.v_count})"
                 if user.q_count != 0
                 else ""
             )

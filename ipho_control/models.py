@@ -271,7 +271,7 @@ class ExamPhase(models.Model):
 
     @classmethod
     def get_exam_field_verbose_choices(cls):
-        """"Returns a dictionary {field_name:choices}"""
+        """Returns a dictionary {field_name:choices}"""
         res = {}
         for f in cls.get_available_exam_fields():
             if hasattr(f, "choices"):
@@ -280,7 +280,7 @@ class ExamPhase(models.Model):
 
     @classmethod
     def get_exam_field_verbose_names(cls):
-        """"Returns a dictionary {field_name:verbose_name}"""
+        """Returns a dictionary {field_name:verbose_name}"""
         res = {}
         for f in cls.get_available_exam_fields():
             if hasattr(f, "verbose_name"):

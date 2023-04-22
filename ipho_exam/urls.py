@@ -148,11 +148,6 @@ urlpatterns = [
         name="html-version",
     ),
     path(
-        "pdf/exam/<int:exam_id>/participant/<int:participant_id>",
-        views.pdf_exam_for_participant,
-        name="pdf-exam-participant",
-    ),
-    path(
         "pdf/exam/<int:exam_id>/<int:position>/participant/<int:participant_id>",
         views.pdf_exam_pos_participant,
         {"type": "P"},

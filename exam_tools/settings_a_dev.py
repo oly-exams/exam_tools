@@ -58,6 +58,8 @@ ADD_DELEGATION_WATERMARK = True
 RECORD_USER_LOGIN_LOGOUT_IPS = True
 # ACCEPT_MARKS_BEFORE_MODERATION = True
 # SIGN_OFF_FINAL_MARKS = True
+
+# whether a cover page should be included in the exam (official prints)
 INCLUDE_COVER = False
 
 # enable this to see ip logging locally

@@ -39,8 +39,6 @@ from string import Template
 from io import StringIO
 import html_diff
 
-# import tidylib
-
 from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
@@ -70,41 +68,19 @@ PARAGRAPH_LIKE_BLOCKS = (
 )
 DEFAULT_BLOCKS = ("texfield", "texenv")
 
-TIDYOPTIONS = {
-    "indent": "auto",
-    "indent-spaces": 2,
-    "wrap": 0,
-    "drop-empty-paras": False,
-    "join-styles": False,
-    "literal-attributes": False,
-    "lower-literals": False,
-    "merge-divs": "no",
-    # "merge-spans": "no",
-    # "preserve-entities": True,  # check if this is a useful option
-    "markup": True,
-    "output-xml": False,
-    "output-xhtml": True,
-    "input-xml": False,
-    "show-warnings": False,
-    "numeric-entities": True,
-    "quote-marks": False,
-    "quote-nbsp": True,
-    "quote-ampersand": False,
-    "break-before-br": False,
-    "uppercase-tags": False,
-    "uppercase-attributes": False,
-    "quiet": True,
-    "show-errors": 0,
-    "force-output": True,
-    "input-encoding": "utf8",
-    "output-encoding": "utf8",
-    "word-2000": True,
-    "clean": True,
-    "bare": True,
-    "new-blocklevel-tags": "question,subquestion,subanswer,subanswercontinuation,box,section,part,figure,list,texfield,texparam,texenv,table,row",
-    "new-inline-tags": "title,paragraph,paragraph_colored,param,caption,equation,equation_unnumbered,item,texparam,cell,tablecaption",
-    "new-empty-tags": "pagebreak,vspace",
-}  # yapf:disable
+
+FORBIDDEN_XML_CHARS = "\x01\x02\x03\x04\x05\x06\x07\x08\x0b\x0c\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f\x80\x81\x82\x83\x84\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\ufdd0\ufdd1\ufdd2\ufdd3\ufdd4\ufdd5\ufdd6\ufdd7\ufdd8\ufdd9\ufdda\ufddb\ufddc\ufddd\ufdde\ufddf\U0001fffe\U0001ffff\U0002fffe\U0002ffff\U0003fffe\U0003ffff\U0004fffe\U0004ffff\U0005fffe\U0005ffff\U0006fffe\U0006ffff\U0007fffe\U0007ffff\U0008fffe\U0008ffff\U0009fffe\U0009ffff\U000afffe\U000affff\U000bfffe\U000bffff\U000cfffe\U000cffff\U000dfffe\U000dffff\U000efffe\U000effff\U000ffffe\U000fffff\U0010fffe\U0010ffff"
+delete_forbidden_xml_chars_translation_table = "".maketrans("", "", FORBIDDEN_XML_CHARS)
+
+
+def remove_forbbiden_xml_chars(text):
+    """
+    Remove characters forbidden according to XML 1.0 specifications, among others control characters that can
+    lead to problems when reading XMLs with illegal characters back in.
+
+    This uses the string translate method which is faster than replace or regex.
+    """
+    return text.translate(delete_forbidden_xml_chars_translation_table)
 
 
 def make_content(root):
@@ -166,7 +142,10 @@ def make_qml(node):
 
 def xml2string(xml):
     s = ET.tostring(xml, encoding="unicode")
-    # s, errors = tidylib.tidy_fragment(s, options=TIDYOPTIONS)
+
+    # this is an additional safety measure to prevent any illegal characters ending up in a safed XML
+    # those characters should have already been removed when creating/updating the XML, however.
+    s = remove_forbbiden_xml_chars(s)
     return s
 
 
@@ -183,7 +162,7 @@ def normalize_html(data):
         str(data)
         .replace("<p>&nbsp;</p>", "__EMPTYPP__")
         .replace("<p>&#160;</p>", "__EMPTYPP__")
-        .replace("<p>{}</p>".format(chr(160)), "__EMPTYPP__")
+        .replace(f"<p>{chr(160)}</p>", "__EMPTYPP__")
         .replace("&nbsp;", " ")
         .replace("&#160;", " ")
         .replace(chr(160), " ")
@@ -201,7 +180,7 @@ mathtex_pattern = re.compile(r'<span class="math-tex">\\\((([^<]|<[^/])+)\\\)</s
 
 def escape_equations(txt):
     return mathtex_pattern.sub(
-        lambda m: r'<span class="math-tex">\({}\)</span>'.format(escape(m.group(1))),
+        lambda m: rf'<span class="math-tex">\({escape(m.group(1))}\)</span>',
         txt,
     )
 
@@ -382,9 +361,6 @@ class QMLobject:
         elem = ET.Element(self.tag, self.attributes)
         if self.__class__.has_text:
             s = self.data
-            # print("data={}".format(self.data))
-            # print("tidy")
-            # s, errors = tidylib.tidy_fragment(s, options=TIDYOPTIONS)
             elem.text = s
 
         for child in self.children:
@@ -479,7 +455,7 @@ class QMLobject:
         """
 
         if self.id in data:
-            self.data = data[self.id]  # escape(data[self.id])
+            self.data = remove_forbbiden_xml_chars(data[self.id])
             self.data_html = self.data
         elif self.has_text and set_blanks:
             self.data = ""
@@ -506,6 +482,11 @@ class QMLobject:
             #     self.data = escape(u'<ins>' + unescape_entities(self.data) + u'</ins>')
         for child in self.children:
             child.diff_content_html(other_data)
+
+    def data_html2data(self):
+        self.data = self.data_html
+        for child in self.children:
+            child.data_html2data()
 
     def find(self, search_id):
         if self.id == search_id:
@@ -731,7 +712,7 @@ class QMLtitle(QMLobject):
         return "", []
 
     def make_xhtml(self):
-        return "<h1>{}</h1>".format(data2xhtml(self.data)), []
+        return f"<h1>{data2xhtml(self.data)}</h1>", []
 
 
 class QMLpart(QMLobject):
@@ -750,7 +731,7 @@ class QMLpart(QMLobject):
         return "}{%s}\n\n" % self.attributes.get("points", "")
 
     def make_xhtml(self):
-        return "<h2>{}</h2>".format(data2xhtml(self.data)), []
+        return f"<h2>{data2xhtml(self.data)}</h2>", []
 
 
 class QMLsection(QMLobject):
@@ -769,7 +750,7 @@ class QMLsection(QMLobject):
         return "}\n\n"
 
     def make_xhtml(self):
-        return "<h3>{}</h3>".format(data2xhtml(self.data)), []
+        return f"<h3>{data2xhtml(self.data)}</h3>", []
 
 
 class QMLparagraph(QMLobject):
@@ -813,7 +794,7 @@ class QMLfigure(QMLobject):
     lang = None
     valid_children = ("caption", "param")
 
-    default_attributes = {"figid": "enter-figid", "width": "0.5"}
+    default_attributes = {"figid": "enter_figid", "width": "0.5"}
 
     def fig_query(self):
         query = {}
@@ -1044,7 +1025,7 @@ class QMLlist(QMLobject):
 
     has_text = False
     has_children = True
-    valid_children = ("item",)
+    valid_children = "item"
 
     def tex_begin(self):
         return "\\begin{itemize}\n"
@@ -1067,7 +1048,7 @@ class QMLenumerate(QMLobject):
 
     has_text = False
     has_children = True
-    valid_children = ("item",)
+    valid_children = "item"
 
     def tex_begin(self):
         label = self.attributes.get("label", "")
@@ -1088,7 +1069,7 @@ class QMLenumerate(QMLobject):
 
 class QMLlistItem(QMLobject):
     tag = "item"
-    sort_order = 201
+    sort_order = -1
 
     has_text = True
     has_children = False
@@ -1109,7 +1090,7 @@ class QMLlistItem(QMLobject):
         return texout
 
     def make_xhtml(self):
-        return "<li>{}</li>".format(data2xhtml(self.data)), []
+        return f"<li>{data2xhtml(self.data)}</li>", []
 
 
 class QMLlatex(QMLobject):

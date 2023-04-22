@@ -1,8 +1,8 @@
-pre-build:base-python:
+pre-build:oly-python-deps:
     extends: .build:build_cached_push
     stage: pre-build
     variables:
-        SERVICE_NAME: base-python
+        SERVICE_NAME: oly-python-deps
     rules:
         - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
@@ -13,7 +13,7 @@ build:pre-commit:
     extends: .build:build_cached_push
     variables:
         SERVICE_NAME: pre-commit
-        BUILD_DEPENDENCY: base-python
+        BUILD_DEPENDENCY: oly-python-deps
     rules:
         - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
@@ -22,11 +22,23 @@ build:pre-commit:
             - requirements.txt
             - requirements_dev.txt
 
+build:testing-pytest:
+    extends: .build:build_cached_push
+    variables:
+        SERVICE_NAME: testing-pytest
+        BUILD_DEPENDENCY: base-python
+    rules:
+        - if: '$DOCKER_CACHE == "no"'
+        - if: '$IMG_NAME != $IMG_COMPARE'
+        - changes:
+            - requirements.txt
+            - requirements_test.txt
+
 build:django-server:
     extends: .build:build_cached_push
     variables:
         SERVICE_NAME: django-server
-        BUILD_DEPENDENCY: base-python
+        BUILD_DEPENDENCY: oly-python-deps
     rules:
         - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
@@ -39,7 +51,7 @@ build:celery-worker:
     extends: .build:build_cached_push
     variables:
         SERVICE_NAME: celery-worker
-        BUILD_DEPENDENCY: base-python
+        BUILD_DEPENDENCY: oly-python-deps
     rules:
         - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
