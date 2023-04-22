@@ -4,26 +4,6 @@
 {% for field in fields_set %}
 <div id="{{ field.id }}-container">
 
-  {% if parent %}
-  <div class="row add-block-front" {% if not forloop.first %}style="display:none"{% endif %}>
-      <div class="col-xs-12">
-          <div class="dropdown">
-            <a class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" title="New block">
-              <i class="fa fa-plus fa-fw"></i>
-              <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-              {% for qtag, qname, __ in qml_types %}
-                  {% if qtag in parent.valid_children %}
-                    <li><a data-action="add-block-front" data-block-id="{{ parent.id }}" data-after-id="{{ field.id }}" href="{% url 'exam:admin-editor-add-block' question_id=question.pk exam_id=exam.pk version_num=node_version block_id=parent.id tag_name=qtag %}">{{ qname }}</a></li>
-                  {% endif %}
-              {% endfor %}
-            </ul>
-          </div>
-      </div>
-  </div>
-  {% endif %}
-
   <div class="field-content">
       <div class="row">
           <div class="col-xs-12">
@@ -55,14 +35,6 @@
 
       {% if field.has_children %}
       <div class="row">
-          <div class="col-xs-12 content-field-nested" id="{{ field.id }}-children">
-              {% if field.children %}
-                  {% include 'ipho_exam/admin_editor_field.html' with fields_set=field.children parent=field %}
-              {% endif %}
-          </div>
-      </div>
-
-      <div class="row no-child-add" {% if field.children %}style="display:none"{% endif %}>
           <div class="col-xs-12">
               <div class="dropdown">
                 <a class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" title="New block">
@@ -79,10 +51,16 @@
               </div>
           </div>
       </div>
+      <div class="row">
+          <div class="col-xs-12 content-field-nested" id="{{ field.id }}-children">
+              {% if field.children %}
+                  {% include 'ipho_exam/admin_editor_field.html' with fields_set=field.children parent=field %}
+              {% endif %}
+          </div>
+      </div>
       {% endif %}
   </div>
 
-  {% if parent %}
   <div class="row">
       <div class="col-xs-12">
           <div class="dropdown">
@@ -100,7 +78,6 @@
           </div>
       </div>
   </div>
-  {% endif %}
 
 </div>
 {% endfor %}

@@ -3024,7 +3024,6 @@ def submission_exam_assign(
                     question_lang_list=question_lang_list,
                     answer_lang_list=answer_lang_list,
                 )
-                # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
                 _, _ = DocumentTask.objects.update_or_create(
                     document=doc, defaults={"task_id": question_task.id}
@@ -4482,9 +4481,7 @@ def extra_sheets(request, exam_id=None):
         exam_id, request.POST or None, initial={"template": "exam_blank.tex"}
     )
     if form.is_valid():
-        participant = get_object_or_404(
-            Participant, id=form.cleaned_data["participant"], exam=question.exam
-        )
+        participant = form.cleaned_data["participant"]
         question = form.cleaned_data["question"]
         position = question.position
         quantity = form.cleaned_data["quantity"]
