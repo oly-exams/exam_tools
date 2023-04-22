@@ -338,6 +338,7 @@ def participant_exam_document(
                     "barcode_num_pages": meta["barcode_num_pages"],
                     "barcode_base": meta["barcode_base"],
                 },
+                timeout=30,
             )
             req.raise_for_status()  # or, if r.status_code == requests.codes.ok:
             doc_task.delete()

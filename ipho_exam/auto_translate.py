@@ -22,7 +22,7 @@ from hashlib import md5
 from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
 from google.api_core.exceptions import BadRequest
-import deepl  # pylint: disable=import-error
+import deepl
 
 from django.conf import settings
 

@@ -103,12 +103,12 @@ def compile_tex(body, ext_resources=tuple()):
                 env["TEXINPUTS"] = f".:{event_packages}:"
 
             error = subprocess.Popen(
-                ["xelatex", "%s.tex" % doc],
+                ["xelatex", f"{doc}.tex"],
                 cwd=tmp,
                 env=env,
-                stdin=open(os.devnull),
-                stderr=open(os.devnull, "wb"),
-                stdout=open(os.devnull, "wb"),
+                stdin=open(os.devnull, encoding="utf-8"),
+                stderr=open(os.devnull, "wb", encoding="utf-8"),
+                stdout=open(os.devnull, "wb", encoding="utf-8"),
             ).wait()
 
             if error:
@@ -116,7 +116,9 @@ def compile_tex(body, ext_resources=tuple()):
                     raise RuntimeError(
                         f"Error in PDF. Errocode {error}. Log does not exists."
                     )
-                log = open(f"{tmp}/{doc}.log", errors="replace").read()
+                log = open(
+                    f"{tmp}/{doc}.log", errors="replace", encoding="utf-8"
+                ).read()
                 raise TexCompileException(error, f"{tmp}/{doc}.tex", log, doc_tex=body)
 
             del body

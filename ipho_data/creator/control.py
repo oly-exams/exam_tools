@@ -35,5 +35,5 @@ class ExamPhaseDataCreator(BaseDataCreator):
             phases.append(phase)
         return phases
 
-    def set_exam_to_phase(self, phase):  # pylint: disable=no-self-use
+    def set_exam_to_phase(self, phase):
         phase.apply()

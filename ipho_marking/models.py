@@ -268,7 +268,6 @@ class MarkingManager(models.Manager):
             if version == "O":
                 return queryset
             if version == "D":
-
                 # This filters out all >=locked Delegation Markings for exams with Org view after moderation.
                 exams_org_view_after_mod = exams.filter(
                     marking_organizer_can_see_delegation_marks__gte=Exam.MARKING_ORGANIZER_VIEW_MODERATION_FINAL
@@ -326,7 +325,6 @@ class MarkingManager(models.Manager):
         return self.none()
 
     def editable(self, user, version):
-
         queryset = self.for_user(user, version)
         if user.is_superuser:
             return queryset

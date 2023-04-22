@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=too-many-lines
+# pylint: disable=too-many-lines, consider-using-f-string
 import csv
 import decimal
 import itertools
@@ -1417,9 +1417,9 @@ def moderation_detail(
     marking_action = get_object_or_404(
         MarkingAction, delegation=delegation, question=question
     )
-    if (
-        marking_action.status == MarkingAction.LOCKED_BY_MODERATION
-        or marking_action.status == MarkingAction.FINAL
+    if marking_action.status in (
+        MarkingAction.LOCKED_BY_MODERATION,
+        MarkingAction.FINAL,
     ):
         raise Http404("These markings are locked, you cannot modify them!")
 
@@ -1566,9 +1566,7 @@ def official_marking_index(request, question_id=None):
 
 
 @permission_required("ipho_core.is_marker")
-def official_marking_detail(
-    request, question_id, delegation_id
-):  # pylint: disable=too-many-locals
+def official_marking_detail(request, question_id, delegation_id):
     question = get_object_or_404(
         Question.objects.for_user(request.user),
         id=question_id,

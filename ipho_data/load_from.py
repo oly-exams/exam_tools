@@ -17,7 +17,6 @@ from ipho_data.test_data_creator import TestDataCreator
 
 
 def load_from_data_path(data_path, enforce_iso3166):
-
     tdc = TestDataCreator(data_path=data_path)
 
     tdc.init_database()
@@ -30,7 +29,7 @@ def load_from_data_path(data_path, enforce_iso3166):
     return tdc
 
 
-def main():
+def main():  # pylint: disable=too-many-branches
     if len(sys.argv) < 2:
         print(
             "please use load_from.py path [skip-iso] [ipho2016] [students] [remote] [mock]"

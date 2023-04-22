@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=no-member, too-many-lines
+# pylint: disable=no-member, too-many-lines, consider-using-f-string
 
 # mskoenz: I added lang, data, data_html in Object ctor as None
 
 import re
 import uuid
+import html
 import json
 import binascii
 from copy import deepcopy
@@ -42,7 +43,6 @@ import html_diff
 from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
-from django.utils.text import unescape_entities
 from django.urls import reverse
 import pandas as pd
 
@@ -364,10 +364,10 @@ class QMLobject:
             elem.append(child.make_xml())
         return elem
 
-    def tex_begin(self):  # pylint: disable=no-self-use
+    def tex_begin(self):
         return ""
 
-    def tex_end(self):  # pylint: disable=no-self-use
+    def tex_end(self):
         return "\n\n"
 
     def make_tex(self):
@@ -376,7 +376,6 @@ class QMLobject:
         if self.__class__.has_text:
             texout += data2tex(self.data)
         for child in self.children:
-
             (texchild, extchild) = child.make_tex()
             externals += extchild
             texout += texchild
@@ -384,10 +383,10 @@ class QMLobject:
         texout += self.tex_end()
         return escape_percents(texout), externals
 
-    def xhtml_begin(self):  # pylint: disable=no-self-use
+    def xhtml_begin(self):
         return ""
 
-    def xhtml_end(self):  # pylint: disable=no-self-use
+    def xhtml_end(self):
         return ""
 
     def make_xhtml(self):
@@ -410,7 +409,7 @@ class QMLobject:
             else self.default_heading
         )
 
-    def form_element(self):  # pylint: disable=no-self-use
+    def form_element(self):
         return forms.CharField()
 
     def get_data(self):
@@ -418,7 +417,7 @@ class QMLobject:
         if self.has_text:
             if self.id in ret:
                 raise RuntimeError("id `%s` not unique in question QML." % self.id)
-            ret[self.id] = unescape_entities(self.data)
+            ret[self.id] = html.unescape(self.data)
         for child in self.children:
             ret.update(child.get_data())
         return ret
@@ -474,9 +473,9 @@ class QMLobject:
             else:
                 self.data_html = "<ins>" + self.data_html + "</ins>"
             # if self.id in other_data:
-            #     self.data = escape(html_diff.diff(unescape_entities(self.data), other_data[self.id]))
+            #     self.data = escape(html_diff.diff(hmlt.unescape(self.data), other_data[self.id]))
             # else:
-            #     self.data = escape(u'<ins>' + unescape_entities(self.data) + u'</ins>')
+            #     self.data = escape(u'<ins>' + html.unescape(self.data) + u'</ins>')
         for child in self.children:
             child.diff_content_html(other_data)
 
@@ -926,7 +925,7 @@ class QMLcellfigure(QMLfigure):
     has_text = False
     has_children = False
 
-    def end_tex(self):  # pylint: disable=no-self-use
+    def end_tex(self):
         return ""
 
     def make_tex(self):

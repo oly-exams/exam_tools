@@ -28,18 +28,14 @@ class MarkingDataCreator(BaseDataCreator):
             "marking_created": num_marking_created,
         }
 
-    def _change_marking(
-        self, *, participant, meta, version, points
-    ):  # pylint: disable=no-self-use
+    def _change_marking(self, *, participant, meta, version, points):
         marking = Marking.objects.get(
             participant=participant, marking_meta=meta, version=version
         )
         marking.points = points
         marking.save()
 
-    def _set_max_points_marking(
-        self, *, participant, meta, version
-    ):  # pylint: disable=no-self-use
+    def _set_max_points_marking(self, *, participant, meta, version):
         marking = Marking.objects.get(
             participant=participant, marking_meta=meta, version=version
         )

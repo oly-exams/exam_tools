@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=too-many-lines
+# pylint: disable=too-many-lines, consider-using-f-string
 
 import os
 import re
@@ -406,8 +406,8 @@ def list_all_translations(request):
 
 @permission_required("ipho_core.is_delegation")
 def add_translation(request, exam_id):  # pylint: disable=too-many-branches
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     delegation = Delegation.objects.get(members=request.user)
@@ -522,8 +522,8 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
 
 @permission_required("ipho_core.is_delegation")
 def add_pdf_node(request, question_id, lang_id):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     delegation = Delegation.objects.get(members=request.user)
@@ -706,8 +706,8 @@ def list_language(request):
 
 @permission_required("ipho_core.is_delegation")
 def add_language(request):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     delegation = Delegation.objects.get(members=request.user)
@@ -748,8 +748,8 @@ def add_language(request):
 
 @permission_required("ipho_core.is_delegation")
 def edit_language(request, lang_id):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     delegation = Delegation.objects.get(members=request.user)
@@ -1131,7 +1131,7 @@ def feedback_partial_like(request, status, feedback_id):
 @permission_required("ipho_core.can_see_boardmeeting")
 def feedback_thread(request, feedback_id):
     if not request.is_ajax:
-        raise Exception()
+        raise Exception()  # pylint: disable=broad-exception-raised
 
     feedback = get_object_or_404(
         Feedback,
@@ -1417,14 +1417,14 @@ def feedbacks_list(
 
 @permission_required("ipho_core.can_manage_feedback")
 def feedbacks_add_comment(request, feedback_id=None):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     if feedback_id is not None:
         feedback = get_object_or_404(Feedback, id=feedback_id)
     else:
-        raise Exception("No feedback_id")
+        raise Exception("No feedback_id")  # pylint: disable=broad-exception-raised
 
     form = FeedbackCommentForm(request.POST or None)
 
@@ -1628,8 +1628,8 @@ figparam_placeholder = re.compile(r"%([\w-]+)%")
 
 @permission_required("ipho_core.can_edit_exam")
 def figure_add(request):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
 
@@ -1688,8 +1688,8 @@ def figure_add(request):
 
 @permission_required("ipho_core.can_edit_exam")
 def figure_edit(request, fig_id):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
 
@@ -1750,8 +1750,8 @@ def figure_edit(request, fig_id):
 
 @permission_required("ipho_core.can_edit_exam")
 def figure_delete(request, fig_id):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     if not request.user.is_superuser:
@@ -1775,8 +1775,8 @@ def figure_export(request, fig_id, lang_id=None):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_add_question(request, exam_id):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
 
@@ -1814,8 +1814,8 @@ def admin_add_question(request, exam_id):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_delete_question(request, exam_id, question_id):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
 
@@ -1864,8 +1864,8 @@ def admin_delete_question(request, exam_id, question_id):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_edit_question(request, exam_id, question_id):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
 
@@ -1929,8 +1929,8 @@ def admin_list(request):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_new_version(request, exam_id, question_id):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     lang_id = OFFICIAL_LANGUAGE_PK
@@ -2044,7 +2044,9 @@ def admin_delete_version(request, exam_id, question_id, version_num):
             version=version_num,
         )
     else:
-        raise Exception("Only versioned node can be deleted")
+        raise Exception(  # pylint: disable=broad-exception-raised
+            "Only versioned node can be deleted"
+        )
 
     delete_form = DeleteForm(request.POST or None)
 
@@ -2091,7 +2093,7 @@ def admin_delete_version(request, exam_id, question_id, version_num):
 @permission_required("ipho_core.can_edit_exam")
 def admin_accept_version(
     request, exam_id, question_id, version_num, compare_version=None
-):  # pylint: disable=too-many-locals, too-many-statements
+):
     lang_id = OFFICIAL_LANGUAGE_PK
 
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
@@ -2316,8 +2318,8 @@ def admin_check_points(request, exam_id, question_id, version_num):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_settag_version(request, exam_id, question_id, version_num):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
 
@@ -2402,8 +2404,8 @@ def admin_editor(request, exam_id, question_id, version_num):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_editor_block(request, exam_id, question_id, version_num, block_id):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     lang_id = OFFICIAL_LANGUAGE_PK
@@ -2479,8 +2481,8 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_editor_delete_block(request, exam_id, question_id, version_num, block_id):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     lang_id = OFFICIAL_LANGUAGE_PK
@@ -2517,8 +2519,8 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
 def admin_editor_add_block(  # pylint: disable=too-many-arguments
     request, exam_id, question_id, version_num, block_id, tag_name, after_id=None
 ):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     lang_id = OFFICIAL_LANGUAGE_PK
@@ -2578,8 +2580,8 @@ def admin_editor_add_block(  # pylint: disable=too-many-arguments
 def admin_editor_move_block(  # pylint: disable=too-many-arguments
     request, exam_id, question_id, version_num, parent_id, block_id, direction
 ):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     lang_id = OFFICIAL_LANGUAGE_PK
@@ -2752,7 +2754,6 @@ def admin_submissions_translation(request):
 def print_submissions_translation(request):
     exams = {}
     for exam in Exam.objects.for_user(request.user):
-
         remaining_countries = (
             ExamAction.objects.filter(
                 exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
@@ -2891,8 +2892,8 @@ def upload_many_scan_delegation(request):
 
 @permission_required("ipho_core.is_delegation_print")
 def upload_scan_delegation(request, exam_id, position, participant_id):
-    if not request.is_ajax:
-        raise Exception(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     user = request.user
@@ -3347,9 +3348,7 @@ def submission_exam_confirm(
 
 
 @permission_required("ipho_core.is_delegation")
-def submission_exam_submitted(
-    request, exam_id
-):  # pylint: disable=too-many-locals, too-many-branches
+def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-branches
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
     no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
@@ -3629,7 +3628,9 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
 
         if orig_diff is not None:
             if not orig_lang.versioned:
-                raise Exception("Original language does not support versioning.")
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    "Original language does not support versioning."
+                )
             orig_diff_tag = orig_lang.tag
             orig_diff_node = get_object_or_404(
                 VersionNode, question=question, language=orig_lang, version=orig_diff
@@ -3692,11 +3693,11 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
                 ## It is good to save
                 if request.POST.get("checksum", None) == checksum:
                     if trans_node.status == "L":
-                        raise Exception(
+                        raise Exception(  # pylint: disable=broad-exception-raised
                             "The question cannot be modified. It is locked."
                         )
                     if trans_node.status == "S":
-                        raise Exception(
+                        raise Exception(  # pylint: disable=broad-exception-raised
                             "The question cannot be modified. It is already submitted."
                         )
                     ## update the content in the original XML.
@@ -4614,7 +4615,6 @@ def set_scan_status(request, doc_id, status):
 
 @permission_required("ipho_core.is_printstaff")
 def mark_scan_as_printed(request, doc_id):
-
     if request.method == "POST" and request.is_ajax:
         doc = get_object_or_404(Document, id=doc_id)
 

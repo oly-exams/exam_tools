@@ -76,7 +76,7 @@ def main(request):
             )
         form = PrintForm(queue_list=queue_list, enable_opts=enable_opts)
     form_html = render_crispy_form(form, context=csrf(request))
-    if request.is_ajax():
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
         return JsonResponse(
             {
                 "form": form_html,

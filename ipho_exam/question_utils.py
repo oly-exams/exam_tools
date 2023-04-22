@@ -117,7 +117,7 @@ def compile_ppnt_exam_question(
                     "extraheader": "",
                     # 'lang_name'   : u'{} ({})'.format(sl.language.name, sl.language.delegation.country),
                     "exam_name": f"{question.exam.name}",
-                    "code": "{}{}".format("W", question.position),
+                    "code": f"W{question.position}",
                     "title": f"{question.exam.name} - {question.name}",
                     "is_answer": question.is_answer_sheet(),
                     "pages": list(range(question.working_pages)),
@@ -166,7 +166,7 @@ def generate_extra_sheets(
         "polyglossia_options": "",
         "font": fonts.ipho["notosans"],
         "exam_name": f"{question.exam.name}",
-        "code": "{}{}".format("Z", question.position),
+        "code": f"Z{question.position}",
         "pages": list(range(npages)),
         "startnum": startnum + 1,
     }
