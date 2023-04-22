@@ -1115,6 +1115,7 @@ def feedback_partial_like(request, status, feedback_id):
         pk=feedback_id,
         question__feedback_status=Question.FEEDBACK_OPEN,
         question__exam__feedback__gte=Exam.FEEDBACK_CAN_BE_OPENED,
+        question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
     )
     delegation = Delegation.objects.get(members=request.user)
     Like.objects.get_or_create(
@@ -1135,6 +1136,8 @@ def feedback_thread(request, feedback_id):
     feedback = get_object_or_404(
         Feedback,
         pk=feedback_id,
+        question__exam__feedback__gte=Exam.FEEDBACK_READONLY,
+        question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
     )
     ctx = {}
     ctx["feedback_open"] = (
