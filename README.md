@@ -9,7 +9,7 @@ Base dependencies
 * bower
 
 To compile exams
-* XeLaTeX, with TexLive 2015 (2013 does not work with Noto Fonts and CJK). See [texlive/install.md](texlive/install.md) for installation details.
+* XeLaTeX
 * Fonts, TODO provide list of required fonts
 * CairoSVG (figure convert)
 * pyPDF2 (manipulation of PDF)
@@ -17,7 +17,7 @@ To compile exams
 * pandoc (to generate odt exports)
 
 ### Example Ubuntu packages
-On Ubuntu 14.04, install these packages using ```apt-get```:
+On Ubuntu (currently 20.04 LTS), install these packages using ```apt-get```:
 ```
 git
 python-dev
@@ -52,11 +52,6 @@ sudo apt-get install -y nodejs
 sudo npm install -g bower
 ```
 
-
-### Development/production environment
-The project [ipho2016/deploy](/ipho2016/deploy) provides scripts to deploy a testing environment as well as the final production and demo systems.
-
-
 ## Install
 1. Create exam_tools/settings.py, for a simple installation simply copy exam_tools/settings_example.py
 ```bash
@@ -77,12 +72,12 @@ python manage.py migrate
 
 1. Fill with initial data
 ```bash
-TODO... # loaddata xx_name fixtures.
+./scripts/loaddata_from.sh <fixtures>
 ```
 
 1. (optional) Fill with test data
 ```bash
-TODO... # loaddata test_xx_name fixtures.
+./scripts/loaddata_from.sh <test_fixtures>
 ```
 
 ## Running
