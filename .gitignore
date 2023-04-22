@@ -23,7 +23,11 @@ docs/*.html
 out/*.pdf
 unittest_reports
 database.s3db
+database.s3db.bak
 database-initial.s3db
+poetry.lock
+pyproject.toml.bak
+libcairo.2.dylib
 
 # Created by https://www.gitignore.io/api/vim,macos,emacs,django,python,pycharm,virtualenv,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=vim,macos,emacs,django,python,pycharm,virtualenv,visualstudiocode

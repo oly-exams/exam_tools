@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2021 Oly Exams Team
+# Copyright (C) 2014 - 2023 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -36,7 +36,7 @@ EVENT_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, "events", "demo")
 
 SITE_URL = "http://127.0.0.1:8000"
 
-VERSION = "3.0.0"
+VERSION = "3.1.0"
 
 try:
     GIT_HEAD_DATE = str(
