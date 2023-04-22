@@ -1,6 +1,6 @@
 site_name: Exam Tools Documentation
 theme: readthedocs
-copyright: Copyright 2014 - 2021, Oly Exams Team
+copyright: Copyright 2014 - 2023, Oly Exams Team
 site_dir: _docs_html
 pages:
   - "Home": index.md
