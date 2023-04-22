@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable = consider-using-f-string
+
 
 import os
 import json
@@ -112,7 +114,7 @@ def send2queue(
     data["opts"] = json.dumps(opts)
     data["title"] = json.dumps(title)
     data["add_banner_page"] = json.dumps(add_banner_page)
-    req = requests.post(url, files=files, headers=headers, data=data)
+    req = requests.post(url, files=files, headers=headers, data=data, timeout=30)
     if req.status_code == 200:
         return SUCCESS
 

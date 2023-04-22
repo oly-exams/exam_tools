@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=too-many-lines
+# pylint: disable=too-many-lines, consider-using-f-string
 
 # mskoenz: text_direction on 738 inactive, is this intended?
 #         disabled Document.question_name, since it makes no sense
@@ -1206,9 +1206,9 @@ class CompiledFigure(Figure):
                 "%s.svg" % (fig_name),
                 "--export-pdf=%s.pdf" % (fig_name),
             ],
-            stdin=open(os.devnull),
-            stderr=open(os.devnull, "wb"),
-            stdout=open(os.devnull, "wb"),
+            stdin=open(os.devnull, encoding="utf-8"),
+            stderr=open(os.devnull, "wb", encoding="utf-8"),
+            stdout=open(os.devnull, "wb", encoding="utf-8"),
         ).wait()
         if error:
             print("Got error", error)
@@ -1227,9 +1227,9 @@ class CompiledFigure(Figure):
                 "--export-png=%s.png" % (fig_name),
                 "--export-dpi=180",
             ],
-            stdin=open(os.devnull),
-            stderr=open(os.devnull, "wb"),
-            stdout=open(os.devnull, "wb"),
+            stdin=open(os.devnull, encoding="utf-8"),
+            stderr=open(os.devnull, "wb", encoding="utf-8"),
+            stdout=open(os.devnull, "wb", encoding="utf-8"),
         ).wait()
         if error:
             print("Got error", error)
@@ -1241,7 +1241,7 @@ class RawFigure(Figure):
     filetype = models.CharField(max_length=4)
     params = ""
 
-    def params_as_list(self):  # pylint: disable=no-self-use
+    def params_as_list(self):
         return []
 
     def to_inline(self, *args, **kwargs):

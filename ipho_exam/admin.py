@@ -245,7 +245,7 @@ class ParticipantSubmissionAdmin(admin.ModelAdmin):
     )
     list_filter = ("participant__exam", DelegationFilter, "language")
 
-    def delegation(self, obj):  # pylint: disable=no-self-use
+    def delegation(self, obj):
         return obj.language.delegation
 
 

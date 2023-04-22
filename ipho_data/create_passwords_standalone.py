@@ -30,7 +30,7 @@ def main():
         ("021_examsite_user.csv", "{Country Code}-Examsite"),
     ]:
         with pw_creator.create_pw_gen(filename_csv, "create") as pw_gen:
-            with open(path / filename_csv) as f:
+            with open(path / filename_csv, encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for x in reader:
                     pw_gen(username.format_map(x))

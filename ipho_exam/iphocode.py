@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=c-extension-no-member
+# pylint: disable=c-extension-no-member, consider-using-f-string
 
 from past.utils import old_div
 from django.conf import settings

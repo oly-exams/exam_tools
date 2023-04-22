@@ -15,13 +15,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=consider-using-f-string
+
 import os
+import html
 import shutil
 
 from bs4 import NavigableString
 
 from django.conf import settings
-from django.utils.text import unescape_entities
 from django.template.loader import render_to_string
 
 from ipho_exam.models import Figure
@@ -72,9 +74,9 @@ def html2tex(elem):  # pylint: disable=too-many-branches
                         result.append("\\textbf{%s}" % (html2tex(sel)))
                 elif att == "class" and "math-tex" in sel.attrib[att]:
                     if sel.text is not None and sel.text[:2] == r"\(":
-                        sel.text = unescape_entities(sel.text)
+                        sel.text = html.escape(sel.text)
                         if sel.tail is not None:
-                            sel.tail = unescape_entities(sel.tail)
+                            sel.tail = html.escape(sel.tail)
                         result.append(html2tex(sel))
                 elif att == "class" and "lang-ltr" in sel.attrib[att]:
                     result.append("\\textenglish{%s}" % (html2tex(sel)))
@@ -130,7 +132,7 @@ def html2tex_bs4(elem):  # pylint: disable=too-many-branches
                         if len(sel.contents) > 1:
                             print("WARNING:", "Math with nested tags!!")
                             print(sel)
-                        result.append(unescape_entities(sel.string))
+                        result.append(html.escape(sel.string))
                 elif att == "class" and "lang-ltr" in sel.attrs[att]:
                     result.append("\\textenglish{%s}" % (html2tex_bs4(sel)))
         ## Bold
@@ -202,6 +204,6 @@ class TemplateExport:
     def save(self, dirname):
         src = os.path.join(settings.TEMPLATE_PATH, self.origin)
         dst = os.path.join(dirname, os.path.basename(src))
-        with open(dst, "w") as f:
+        with open(dst, "w", encoding="utf-8") as f:
             static_path = getattr(settings, "STATIC_PATH")
             f.write(render_to_string(src, {"STATIC_PATH": static_path}))

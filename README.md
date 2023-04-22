@@ -3,7 +3,7 @@
 ## Dependencies
 Base dependencies
 * Python 3.8
-* Django 3.1.x
+* Django 4.1.x
 * django-crispy-forms
 * mkdocs (for building the docs)
 * bower
@@ -42,6 +42,9 @@ Then using ```pip```:
 ```bash
 pip install -r requirements.txt
 ```
+For development, also install:
+```
+pip install -r requirements_dev.txt```
 
 ### Install bower
 

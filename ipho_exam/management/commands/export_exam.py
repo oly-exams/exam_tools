@@ -60,7 +60,7 @@ class Command(BaseCommand):
 
         self.stdout.ending = None
         # pylint: disable=consider-using-with
-        stream = open(output, "w") if output else None
+        stream = open(output, "w", encoding="utf-8") if output else None
         try:
             serializers.serialize(
                 format_,

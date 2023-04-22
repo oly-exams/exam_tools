@@ -22,6 +22,8 @@ import subprocess
 # Import the OS module and work out our project's paths
 import os
 
+# pylint: disable = consider-using-f-string
+
 SETTINGS_DIR = os.path.dirname(__file__)
 
 PROJECT_PATH = os.path.join(SETTINGS_DIR, os.pardir)

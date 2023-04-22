@@ -280,8 +280,8 @@ def voting_large(request, voting_pk):
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
 def add_voting(request, room_id=None):
-    if not request.is_ajax:
-        raise Exception(
+    if not request.headers.get("x-requested-with") == "XMLHttpRequest":
+        raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
     if room_id is None:

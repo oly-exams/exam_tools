@@ -3,18 +3,18 @@ import os
 from pathlib import Path
 from .settings_common import *
 
-TMP_ENV = dict()
+TMP_ENV = {}
 TMP_ENV.update(os.environ)
 
 for key in ["POSTGRES_USER", "POSTGRES_PASSWORD"]:
     if key + "_FILE" in TMP_ENV:
-        with Path(TMP_ENV[key + "_FILE"]).open("r") as f:
+        with Path(TMP_ENV[key + "_FILE"]).open("r", encoding="utf-8") as f:
             TMP_ENV[key] = f.readline().strip()
     else:
         assert key in TMP_ENV
 
 if "RABBITMQ_CONFIG_FILE" in TMP_ENV:
-    with Path(TMP_ENV["RABBITMQ_CONFIG_FILE"]).open("r") as f:
+    with Path(TMP_ENV["RABBITMQ_CONFIG_FILE"]).open("r", encoding="utf-8") as f:
         for key in ["RABBITMQ_USER", "RABBITMQ_PASSWORD"]:
             val = f.readline().split("=")[1].strip()
             TMP_ENV[key] = val
@@ -22,7 +22,7 @@ else:
     assert "RABBITMQ_USER" in TMP_ENV
     assert "RABBITMQ_PASSWORD" in TMP_ENV
 
-DATABASES = dict()
+DATABASES = {}
 DATABASES["default"] = {
     "ENGINE": "django.db.backends.postgresql",
     "NAME": "postgres",
