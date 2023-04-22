@@ -21,6 +21,7 @@ import json
 from hashlib import md5
 from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
+from google.api_core.exceptions import BadRequest
 import deepl  # pylint: disable=import-error
 
 from django.conf import settings
@@ -102,9 +103,15 @@ def translate_google(from_lang, to_lang, text):
     google_from_lang = from_lang if from_lang else None
 
     # get translated text
-    cloud_response = translate_client.translate(
-        text, target_language=to_lang, source_language=google_from_lang
-    )
+    try:
+        cloud_response = translate_client.translate(
+            text, target_language=to_lang, source_language=google_from_lang
+        )
+    except BadRequest as err:
+        # log error
+        django_logger.error(err)
+        logger.error(err)
+        return None
     return cloud_response["translatedText"]
 
 
@@ -163,6 +170,8 @@ def auto_translate_helper(raw_text, from_lang_obj, to_lang, delegation):
         from_lang_style = "None"
     if to_lang == from_lang:
         return {"text": raw_text}
+    if raw_text == "":
+        return {"text": raw_text}
     if to_lang not in AUTO_TRANSLATE_LANGUAGE_LIST:
         raise ValueError(
             f"Target Language {to_lang} not in AUTO_TRANSLATE_LANGUAGE_LIST"
@@ -191,7 +200,8 @@ def auto_translate_helper(raw_text, from_lang_obj, to_lang, delegation):
         raw_translated_text = translate_deepl(from_lang, to_lang, text)
         if raw_translated_text is None:
             raw_translated_text = translate_google(from_lang, to_lang, text)
-
+            if raw_translated_text is None:
+                return {"error": "Translation not supported"}
         # cache result
         save_cached_translation(
             from_lang_style, from_lang, from_length, to_lang, text, raw_translated_text

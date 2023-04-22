@@ -1754,6 +1754,8 @@ def figure_delete(request, fig_id):
         raise Exception(
             "TODO: implement small template page for handling without Ajax."
         )
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Only superusers can delete figures!")
     obj = get_object_or_404(Figure, fig_id=fig_id)
     obj.delete()
     return JsonResponse(
@@ -2089,7 +2091,7 @@ def admin_delete_version(request, exam_id, question_id, version_num):
 @permission_required("ipho_core.can_edit_exam")
 def admin_accept_version(
     request, exam_id, question_id, version_num, compare_version=None
-):
+):  # pylint: disable=too-many-locals, too-many-statements
     lang_id = OFFICIAL_LANGUAGE_PK
 
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
@@ -3151,7 +3153,6 @@ def submission_exam_assign(
                     question_lang_list=question_lang_list,
                     answer_lang_list=answer_lang_list,
                 )
-                # question_task = question_utils.compile_ppnt_exam_question(qgroup, participant_languages, cover=cover_ctx, commit=True)
                 question_task.freeze()
                 _, _ = DocumentTask.objects.update_or_create(
                     document=doc, defaults={"task_id": question_task.id}

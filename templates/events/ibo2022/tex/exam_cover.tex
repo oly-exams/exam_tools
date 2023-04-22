@@ -1,0 +1,37 @@
+{% load exam_utils_tags %}
+\documentclass[12pt,a4paper,foldmarks=false]{scrlttr2}
+\usepackage{graphicx}
+
+% \LoadLetterOption{visualize}
+% \showfields{address}
+
+\makeatletter
+  \@setplength{backaddrheight}{0pt}% because backaddress=off
+  \@setplength{toaddrhpos}{9.0cm}%distance from left
+  \@setplength{toaddrvpos}{2.0cm}%distance from top
+  \@setplength{toaddrheight}{4cm}%height of the addressbox
+  \@setplength{toaddrwidth}{9cm}% width of the addressbox
+\makeatother
+
+\usepackage{fontspec}
+\setmainfont[ Path = {{ STATIC_PATH }}/noto/,BoldFont=NotoSans-Bold.ttf, ItalicFont=NotoSans-Italic.ttf, BoldItalicFont=NotoSans-BoldItalic.ttf, ]{NotoSans-Regular.ttf}
+\setkomavar{date}{}
+\nonstopmode
+
+\begin{document}
+
+\begin{letter}{\flushright{ \textbf{% templatetag openbrace %}{{ participant.code }} {{ exam.code }}-{% if exam.flags|binand:exam.FLAG_SQUASHED %}{% if question.position == 0 %}0{% else %}1{% endif %}{% else %}{{ question.position }}{% endif %} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}}{% if participant.is_group %}\\~{% for ss in participant.students.all%}\\{{ ss.full_name }} {{ ss.code }}{%endfor%}{% endif %} }}
+\opening{}
+
+\begin{center}
+	{\textbf{\Huge {{ exam.name }}\\ {% if not exam.flags|binand:exam.FLAG_SQUASHED or question.position == 0 %}{{ question.name }}{% endif %}}}
+\vspace{1em}{% if not exam.flags|binand:exam.FLAG_SQUASHED or question.position == 0 %}\\{% endif %}
+{\textbf{\Large Cover sheet}}
+\end{center}
+
+\vspace{4cm}
+Please return this cover sheet together with all the related question sheets.
+
+\end{letter}
+
+\end{document}

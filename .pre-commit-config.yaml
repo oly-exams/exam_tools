@@ -21,10 +21,11 @@ repos:
     args: [--py38-plus]
 
 - repo: https://github.com/psf/black
-  rev: 22.6.0
+  rev: 22.10.0
   hooks:
   - id: black
     name: black       - code formatter without configuration
+    additional_dependencies: ["click<8.1.0"] # workaround for '_unicodefun' problem: https://github.com/psf/black/issues/2964
 
 # - repo: https://github.com/pre-commit/mirrors-mypy
 #   rev: v0.782

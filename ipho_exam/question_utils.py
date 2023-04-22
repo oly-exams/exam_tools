@@ -34,7 +34,7 @@ EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
 def compile_ppnt_exam_question(
     questions, participant_languages, cover=None, commit=False
-):  # pylint: disable=too-many-branches,too-many-locals
+):  # pylint: disable=too-many-branches,too-many-locals,too-many-statements
     all_tasks = []
 
     if cover is not None:
@@ -50,7 +50,8 @@ def compile_ppnt_exam_question(
             question.exam, question, ppnt, qcode="C", suppress_code=True
         )
         barcode_task = tasks.add_barcode.s(bgenerator)
-        all_tasks.append(celery.chain(compile_task, barcode_task))
+        if settings.INCLUDE_COVER:
+            all_tasks.append(celery.chain(compile_task, barcode_task))
 
     for question in questions:
         for ppnt_l in participant_languages:

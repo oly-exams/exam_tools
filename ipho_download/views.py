@@ -20,13 +20,17 @@ import operator
 import mimetypes
 import hashlib
 import datetime
+import shutil
 import pytz
+from crispy_forms.utils import render_crispy_form
 
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseNotModified, Http404
+from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpResponse, HttpResponseNotModified, Http404, JsonResponse
 from django.conf import settings
 from django.utils.cache import patch_response_headers
+
+from ipho_download.forms import NewDirectoryForm, NewFileForm
 
 
 MEDIA_ROOT = getattr(settings, "MEDIA_ROOT")
@@ -55,6 +59,8 @@ def main(
     else:
         raise Http404("Insufficient Access!")
 
+    if not os.path.exists(basedir):
+        os.makedirs(basedir)
     if not os.path.isdir(basedir):  # a convenient fallback if the dir does not exist
         return render(
             request,
@@ -71,6 +77,9 @@ def main(
         raise Http404("File path not valid.")
     if not os.path.exists(path):
         raise Http404("File not found.")
+
+    dir_form = NewDirectoryForm()
+    file_form = NewFileForm()
 
     if type_ == "f":
         if os.path.isdir(path):
@@ -113,6 +122,8 @@ def main(
 
     flist = sorted(flist, key=operator.itemgetter(2))
 
+    dir_form_html = render_crispy_form(dir_form)
+    file_form_html = render_crispy_form(file_form)
     cur_url = ""
     cur_path = [("/", "")]
     cur_split = url.split("/")
@@ -127,5 +138,77 @@ def main(
         {
             "flist": flist,
             "cur_path": cur_path,
+            "dir_form": dir_form_html,
+            "file_form": file_form_html,
+            "url": url,
         },
     )
+
+
+@permission_required("ipho_core.is_organizer_admin")
+def remove(request, url):
+    url = os.path.normpath(url)
+
+    basedir = os.path.join(MEDIA_ROOT, "downloads")
+    path = os.path.join(basedir, url)
+    rel_url = os.path.relpath(path, basedir)
+    if rel_url[0] == "." and "/" in rel_url:
+        return JsonResponse({"error": "Something went wrong!"})
+    if not os.path.exists(path):
+        return JsonResponse({"error": "Parent directory missing!"})
+
+    if os.path.samefile(path, basedir):
+        return JsonResponse({"error": "Cannot remove base directory!"})
+    if not os.path.realpath(path).startswith(os.path.realpath(basedir)):
+        return JsonResponse({"error": "Cannot remove path outside base directory!"})
+    if os.path.isfile(path):
+        os.remove(path)
+    elif request.user.is_superuser:
+        shutil.rmtree(path)
+    else:
+        return JsonResponse({"error": "Only superusers can remove directories!"})
+    return JsonResponse({"success": True})
+
+
+@permission_required("ipho_core.is_organizer_admin")
+def add_new_file(request, url):
+    url = os.path.normpath(url)
+
+    basedir = os.path.join(MEDIA_ROOT, "downloads")
+    path = os.path.join(basedir, url)
+    rel_url = os.path.relpath(path, basedir)
+    if rel_url[0] == "." and "/" in rel_url:
+        return JsonResponse({"error": "Something went wrong!"})
+    if not os.path.exists(path):
+        return JsonResponse({"error": "Parent directory missing!"})
+
+    file_form = NewFileForm(request.POST or None, request.FILES or None)
+    if file_form.is_valid():
+        file = request.FILES["file"]
+        with open(os.path.join(path, file.name), "wb+") as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+        return JsonResponse({"success": True})
+    return JsonResponse({"form": render_crispy_form(file_form)})
+
+
+@permission_required("ipho_core.is_organizer_admin")
+def add_new_directory(request, url):
+    url = os.path.normpath(url)
+
+    basedir = os.path.join(MEDIA_ROOT, "downloads")
+    path = os.path.join(basedir, url)
+    rel_url = os.path.relpath(path, basedir)
+    if rel_url[0] == "." and "/" in rel_url:
+        return JsonResponse({"error": "Something went wrong!"})
+    if not os.path.exists(path):
+        return JsonResponse({"error": "Parent directory missing!"})
+
+    if not os.path.isdir(path):
+        return JsonResponse({"error": "Cannot add directory to file!"})
+
+    dir_form = NewDirectoryForm(request.POST or None)
+    if dir_form.is_valid():
+        os.makedirs(os.path.join(path, dir_form.data["directory"]), exist_ok=True)
+        return JsonResponse({"success": True})
+    return JsonResponse({"form": render_crispy_form(dir_form)})
