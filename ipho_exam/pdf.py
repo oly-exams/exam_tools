@@ -107,8 +107,8 @@ def compile_tex(body, ext_resources=tuple()):
                 cwd=tmp,
                 env=env,
                 stdin=open(os.devnull, encoding="utf-8"),
-                stderr=open(os.devnull, "wb", encoding="utf-8"),
-                stdout=open(os.devnull, "wb", encoding="utf-8"),
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
             ).wait()
 
             if error:

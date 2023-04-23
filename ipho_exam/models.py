@@ -1207,8 +1207,8 @@ class CompiledFigure(Figure):
                 "--export-pdf=%s.pdf" % (fig_name),
             ],
             stdin=open(os.devnull, encoding="utf-8"),
-            stderr=open(os.devnull, "wb", encoding="utf-8"),
-            stdout=open(os.devnull, "wb", encoding="utf-8"),
+            stderr=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
         ).wait()
         if error:
             print("Got error", error)
@@ -1228,8 +1228,8 @@ class CompiledFigure(Figure):
                 "--export-dpi=180",
             ],
             stdin=open(os.devnull, encoding="utf-8"),
-            stderr=open(os.devnull, "wb", encoding="utf-8"),
-            stdout=open(os.devnull, "wb", encoding="utf-8"),
+            stderr=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
         ).wait()
         if error:
             print("Got error", error)
