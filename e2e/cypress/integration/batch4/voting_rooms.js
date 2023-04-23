@@ -86,7 +86,7 @@ describe('Voting Rooms', function() {
         cy.contains('Leader A')
         cy.contains('Leader B')
         // Vote with one leader
-        cy.get('#voting-panel-2').get('#div_id_Current Day-0-choice').contains('weekday').click()
+        cy.get('#voting-panel-2').get('#div_id_q2-0-choice').contains('weekday').click()
         cy.screenshot('vote-1', {capture: 'runner'})
 
         cy.get('.btn').contains('Vote').click()
@@ -97,7 +97,7 @@ describe('Voting Rooms', function() {
         cy.contains('Leader A').should('not.exist')
         cy.contains('Leader B')
         // Vote with the second leader
-        cy.get('#voting-panel-2').get('#div_id_Current Day-0-choice').contains('weekday').click()
+        cy.get('#voting-panel-2').get('#div_id_q2-0-choice').contains('weekday').click()
         cy.screenshot('vote-2', {capture: 'runner'})
 
         cy.get('.btn').contains('Vote').click()

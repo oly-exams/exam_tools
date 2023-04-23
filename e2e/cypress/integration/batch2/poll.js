@@ -134,17 +134,18 @@ describe('Polls', function() {
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
 
         cy.get('#drafted-container #voting-1').should('not.exist')
-        // redraft
+        // add +1 min
         cy.get('#open-container #voting-1 .btn-toolbar > :nth-child(2) > .btn').click()
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
-        cy.get('#open-container #voting-1').should('not.exist')
+        cy.get('#open-container #voting-1').should('exist')
+        cy.get('#drafted-container #voting-1').should('not.exist')
 
-        //open q1 again
-        cy.get('#drafted-container #voting-1 .btn-toolbar > :nth-child(3) > .btn').click()
-        cy.wait("@getStaffVoting")
-        cy.get('[data-min="1"] > .btn').click()
-        cy.get('#voting-modal .modal-footer > .btn-primary').click()
+        //wait for q1 to not yet close
+        cy.wait(60000)
+        cy.visit('poll/staff/')
         cy.wait(["@getStaffPartialsDrafted", "@getStaffPartialsOpen"])
+        cy.get('#open-container #voting-1').should('exist')
+        cy.get('#drafted-container #voting-1').should('not.exist')
 
         //open q2
         cy.get('#drafted-container #voting-2 .btn-toolbar > :nth-child(3) > .btn').click()
