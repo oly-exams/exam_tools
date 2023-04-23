@@ -314,8 +314,8 @@ class MarkingManager(models.Manager):
                 )
 
                 return queryset.filter(
-                    org_marking_view_after_subm_q
-                    | org_marking_view_always_q  # pylint: disable=unsupported-binary-operation
+                    org_marking_view_after_subm_q  # pylint: disable=unsupported-binary-operation
+                    | org_marking_view_always_q
                 )
 
             if version == "D":
