@@ -7,6 +7,7 @@ pre-build:oly-python-deps:
         - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
+            - .gitlab/ci/build.yml
             - requirements.txt
 
 build:pre-commit:
@@ -18,6 +19,7 @@ build:pre-commit:
         - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
+            - .gitlab/ci/build.yml
             - .pre-commit-config.yaml
             - requirements.txt
             - requirements_dev.txt
@@ -32,6 +34,7 @@ build:testing-pytest:
         - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
+            - .gitlab/ci/build.yml
             - requirements.txt
             - requirements_test.txt
 
@@ -44,6 +47,7 @@ build:django-server:
         - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
+            - .gitlab/ci/build.yml
             - requirements.txt
             - bower/*
 
@@ -57,6 +61,7 @@ build:celery-worker:
         - if: '$DOCKER_CACHE == "no"'
         - if: '$IMG_NAME != $IMG_COMPARE'
         - changes:
+            - .gitlab/ci/build.yml
             - requirements.txt
 
 build:testing-cypress:
@@ -70,4 +75,5 @@ build:testing-cypress:
         # Theoretically, testing-cypress is branch independent, but to use
         # the same mechanisms we still build it in every branch.
         - changes:
+            - .gitlab/ci/build.yml
             - requirements.txt
