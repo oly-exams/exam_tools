@@ -78,6 +78,7 @@ from pywebpush import WebPushException
 from celery.result import AsyncResult
 
 from ipho_core.models import Delegation, RandomDrawLog
+from ipho_core.utils import is_ajax
 
 import ipho_exam
 from ipho_exam import tasks
@@ -257,7 +258,7 @@ def wizard(request):
 def translations_list(request):
     delegation = Delegation.objects.filter(members=request.user).first()
 
-    # if request.is_ajax and 'exam_id' in request.GET:
+    # if is_ajax(request) and 'exam_id' in request.GET:
     if "exam_id" in request.GET:
         exam = get_object_or_404(
             Exam.objects.for_user(request.user).filter(
@@ -406,7 +407,7 @@ def list_all_translations(request):
 
 @permission_required("ipho_core.is_delegation")
 def add_translation(request, exam_id):  # pylint: disable=too-many-branches
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -522,7 +523,7 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
 
 @permission_required("ipho_core.is_delegation")
 def add_pdf_node(request, question_id, lang_id):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -706,7 +707,7 @@ def list_language(request):
 
 @permission_required("ipho_core.is_delegation")
 def add_language(request):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -748,7 +749,7 @@ def add_language(request):
 
 @permission_required("ipho_core.is_delegation")
 def edit_language(request, lang_id):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -1130,7 +1131,7 @@ def feedback_partial_like(request, status, feedback_id):
 
 @permission_required("ipho_core.can_see_boardmeeting")
 def feedback_thread(request, feedback_id):
-    if not request.is_ajax:
+    if not is_ajax(request):
         raise Exception()  # pylint: disable=broad-exception-raised
 
     feedback = get_object_or_404(
@@ -1417,7 +1418,7 @@ def feedbacks_list(
 
 @permission_required("ipho_core.can_manage_feedback")
 def feedbacks_add_comment(request, feedback_id=None):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -1628,7 +1629,7 @@ figparam_placeholder = re.compile(r"%([\w-]+)%")
 
 @permission_required("ipho_core.can_edit_exam")
 def figure_add(request):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -1688,7 +1689,7 @@ def figure_add(request):
 
 @permission_required("ipho_core.can_edit_exam")
 def figure_edit(request, fig_id):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -1750,7 +1751,7 @@ def figure_edit(request, fig_id):
 
 @permission_required("ipho_core.can_edit_exam")
 def figure_delete(request, fig_id):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -1775,7 +1776,7 @@ def figure_export(request, fig_id, lang_id=None):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_add_question(request, exam_id):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -1814,7 +1815,7 @@ def admin_add_question(request, exam_id):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_delete_question(request, exam_id, question_id):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -1864,7 +1865,7 @@ def admin_delete_question(request, exam_id, question_id):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_edit_question(request, exam_id, question_id):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -1905,7 +1906,7 @@ def admin_edit_question(request, exam_id, question_id):
 @permission_required("ipho_core.can_edit_exam")
 @ensure_csrf_cookie
 def admin_list(request):
-    if request.is_ajax and "exam_id" in request.GET:
+    if is_ajax(request) and "exam_id" in request.GET:
         exam = get_object_or_404(
             Exam.objects.for_user(request.user), id=request.GET["exam_id"]
         )
@@ -1929,7 +1930,7 @@ def admin_list(request):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_new_version(request, exam_id, question_id):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -2318,7 +2319,7 @@ def admin_check_points(request, exam_id, question_id, version_num):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_settag_version(request, exam_id, question_id, version_num):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -2404,7 +2405,7 @@ def admin_editor(request, exam_id, question_id, version_num):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_editor_block(request, exam_id, question_id, version_num, block_id):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -2481,7 +2482,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
 
 @permission_required("ipho_core.can_edit_exam")
 def admin_editor_delete_block(request, exam_id, question_id, version_num, block_id):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -2519,7 +2520,7 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
 def admin_editor_add_block(  # pylint: disable=too-many-arguments
     request, exam_id, question_id, version_num, block_id, tag_name, after_id=None
 ):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -2580,7 +2581,7 @@ def admin_editor_add_block(  # pylint: disable=too-many-arguments
 def admin_editor_move_block(  # pylint: disable=too-many-arguments
     request, exam_id, question_id, version_num, parent_id, block_id, direction
 ):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -2892,7 +2893,7 @@ def upload_many_scan_delegation(request):
 
 @permission_required("ipho_core.is_delegation_print")
 def upload_scan_delegation(request, exam_id, position, participant_id):
-    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -3707,7 +3708,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
                     checksum = new_checksum
 
                     ## Respond via Ajax: Saved and with new checksum
-                    if request.is_ajax:
+                    if is_ajax(request):
                         return JsonResponse(
                             {
                                 "last_saved": trans_node.timestamp.isoformat(),
@@ -4600,7 +4601,7 @@ def print_doc(request, doctype, exam_id, position, participant_id, queue):
 
 @permission_required("ipho_core.is_printstaff")
 def set_scan_status(request, doc_id, status):
-    if request.method == "POST" and request.is_ajax:
+    if request.method == "POST" and is_ajax(request):
         doc = get_object_or_404(Document, id=doc_id)
         doc.scan_status = status
         doc.save()
@@ -4615,7 +4616,7 @@ def set_scan_status(request, doc_id, status):
 
 @permission_required("ipho_core.is_printstaff")
 def mark_scan_as_printed(request, doc_id):
-    if request.method == "POST" and request.is_ajax:
+    if request.method == "POST" and is_ajax(request):
         doc = get_object_or_404(Document, id=doc_id)
 
         log = PrintLog.objects.filter(document=doc, doctype="S").first()
