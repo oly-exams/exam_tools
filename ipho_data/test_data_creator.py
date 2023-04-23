@@ -14,6 +14,7 @@ from ipho_marking.models import MarkingAction
 from ipho_data.ipho2016_qml_theory_data import IPHO2016_THEORY_DATA
 from ipho_data.ipho2016_qml_experiment_data import IPHO2016_EXPERIMENT_DATA
 from ipho_data.imko_qml_theory_data import IMKO_THEORY_DATA
+from ipho_data.ibo2019_qml_data import IBO2019_DATA
 
 from ipho_data.data_creator import DataCreator
 
@@ -142,7 +143,9 @@ class TestDataCreator(DataCreator):
 
         return exam
 
-    def create_translations_and_feedback(self, exam):  # pylint: disable=invalid-name
+    def create_ipho2016_translations_and_feedback(
+        self, exam
+    ):  # pylint: disable=invalid-name
         gen_inst = Question.objects.get(name="General Instructions", exam=exam)
         que1 = Question.objects.get(name="Two Problems in Mechanics", exam=exam)
         ans1 = Question.objects.get(
@@ -391,3 +394,54 @@ class TestDataCreator(DataCreator):
         self.create_official_version_node(
             ans2, text=IMKO_THEORY_DATA["T-A2"], tag="initial", status="S"
         )
+
+    def create_ibo2019_theory_exam(self, name="Theory"):
+        exam = self.create_exam(name=name, code="T")
+        phases = self.create_exam_phases_for_exam(exam)
+        self.set_exam_to_phase(phases[4])
+
+        que1 = self.create_question(
+            exam,
+            name="Morning_1",
+            code="Q",
+            position=1,
+            type=self.QUESTION,
+        )
+        self.create_official_version_node(que1, text=IBO2019_DATA["Morning_1"])
+
+        que2 = self.create_question(
+            exam,
+            name="Morning_2",
+            code="Q",
+            position=2,
+            type=self.QUESTION,
+        )
+        self.create_official_version_node(que2, text=IBO2019_DATA["Morning_2"])
+
+        self.create_figures_with_ids(
+            fig_ids=IBO2019_DATA["FIGURE_IDS"], filename="logo_square.png"
+        )
+
+        return exam
+
+    def create_ibo2019_experimental_exam(
+        self, name="Experiment 1"
+    ):  # pylint: disable=invalid-name
+        exam = self.create_exam(name=name, code="T")
+        phases = self.create_exam_phases_for_exam(exam)
+        self.set_exam_to_phase(phases[4])
+
+        que1 = self.create_question(
+            exam,
+            name=name,
+            code="Q",
+            position=1,
+            type=self.QUESTION,
+        )
+        self.create_official_version_node(que1, text=IBO2019_DATA["Experiment_1"])
+
+        self.create_figures_with_ids(
+            fig_ids=IBO2019_DATA["FIGURE_IDS"], filename="logo_square.png"
+        )
+
+        return exam

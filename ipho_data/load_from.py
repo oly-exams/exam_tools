@@ -47,6 +47,9 @@ def main():  # pylint: disable=too-many-branches
         for argv in sys.argv[2:]:
             if argv == "ipho2016":
                 tdc.create_ipho2016_theory_exam_only()
+            elif argv == "ibo2019":
+                tdc.create_ibo2019_theory_exam()
+                tdc.create_ibo2019_experimental_exam()
             elif argv == "remote":
                 tdc.create_examsite_user(
                     pw_strategy="read", enforce_iso3166=enforce_iso3166
