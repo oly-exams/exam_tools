@@ -12,7 +12,7 @@ class PollDataCreator(BaseDataCreator):
             room = VotingRoom.objects.get(name=room_name)
 
         voting, created = Voting.objects.get_or_create(
-            title=title, defaults=dict(content=content, voting_room=room)
+            title=title, voting_room=room, defaults=dict(content=content)
         )
         if not created:
             return voting, created
