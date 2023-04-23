@@ -64,9 +64,9 @@ urlpatterns = [
     ),
     path("voting/<int:voting_pk>/", views.set_end_date, name="set-end-date"),
     path(
-        "voting/<int:voting_pk>/remove-end-date",
-        views.remove_end_date,
-        name="remove-end-date",
+        "voting/<int:voting_pk>/add_minutes/<int:minutes>/",
+        views.add_minutes,
+        name="add-minutes",
     ),
     path(
         "voting/<int:voting_pk>/close",
