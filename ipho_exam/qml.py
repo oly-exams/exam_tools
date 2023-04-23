@@ -21,6 +21,7 @@
 
 import re
 import uuid
+import html
 import json
 import binascii
 from copy import deepcopy
@@ -44,8 +45,6 @@ from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.urls import reverse
 import pandas as pd
-
-from ipho_core.utils import unescape_entities
 
 from .models import Figure
 from . import tex
@@ -418,7 +417,7 @@ class QMLobject:
         if self.has_text:
             if self.id in ret:
                 raise RuntimeError("id `%s` not unique in question QML." % self.id)
-            ret[self.id] = unescape_entities(self.data)
+            ret[self.id] = html.unescape(self.data)
         for child in self.children:
             ret.update(child.get_data())
         return ret
@@ -474,9 +473,9 @@ class QMLobject:
             else:
                 self.data_html = "<ins>" + self.data_html + "</ins>"
             # if self.id in other_data:
-            #     self.data = escape(html_diff.diff(unescape_entities(self.data), other_data[self.id]))
+            #     self.data = escape(html_diff.diff(hmlt.unescape(self.data), other_data[self.id]))
             # else:
-            #     self.data = escape(u'<ins>' + unescape_entities(self.data) + u'</ins>')
+            #     self.data = escape(u'<ins>' + html.unescape(self.data) + u'</ins>')
         for child in self.children:
             child.diff_content_html(other_data)
 

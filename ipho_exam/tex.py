@@ -18,6 +18,7 @@
 # pylint: disable=consider-using-f-string
 
 import os
+import html
 import shutil
 
 from bs4 import NavigableString
@@ -25,7 +26,6 @@ from bs4 import NavigableString
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from ipho_core.utils import unescape_entities
 from ipho_exam.models import Figure
 
 
@@ -74,9 +74,9 @@ def html2tex(elem):  # pylint: disable=too-many-branches
                         result.append("\\textbf{%s}" % (html2tex(sel)))
                 elif att == "class" and "math-tex" in sel.attrib[att]:
                     if sel.text is not None and sel.text[:2] == r"\(":
-                        sel.text = unescape_entities(sel.text)
+                        sel.text = html.unescape(sel.text)
                         if sel.tail is not None:
-                            sel.tail = unescape_entities(sel.tail)
+                            sel.tail = html.unescape(sel.tail)
                         result.append(html2tex(sel))
                 elif att == "class" and "lang-ltr" in sel.attrib[att]:
                     result.append("\\textenglish{%s}" % (html2tex(sel)))
@@ -132,7 +132,7 @@ def html2tex_bs4(elem):  # pylint: disable=too-many-branches
                         if len(sel.contents) > 1:
                             print("WARNING:", "Math with nested tags!!")
                             print(sel)
-                        result.append(unescape_entities(sel.string))
+                        result.append(html.unescape(sel.string))
                 elif att == "class" and "lang-ltr" in sel.attrs[att]:
                     result.append("\\textenglish{%s}" % (html2tex_bs4(sel)))
         ## Bold
