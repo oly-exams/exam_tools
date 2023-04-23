@@ -21,6 +21,7 @@ build:pre-commit:
             - .pre-commit-config.yaml
             - requirements.txt
             - requirements_dev.txt
+            - requirements_test.txt
 
 build:testing-pytest:
     extends: .build:build_cached_push
