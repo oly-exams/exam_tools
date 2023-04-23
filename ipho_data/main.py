@@ -10,7 +10,6 @@ from ipho_data.test_data_creator import TestDataCreator
 
 
 def set_up_basic_test_database():
-
     tdc = TestDataCreator(data_path="test_data", master_seed=0)
 
     tdc.init_database()
@@ -19,7 +18,6 @@ def set_up_basic_test_database():
     tdc.create_organizer_user(pw_strategy="trivial")
     tdc.create_delegation_user(pw_strategy="trivial")
     tdc.create_examsite_user(pw_strategy="trivial")
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     tdc.create_students()
 
     voting_room = "room"
