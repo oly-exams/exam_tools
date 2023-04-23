@@ -1206,7 +1206,7 @@ class CompiledFigure(Figure):
                 "%s.svg" % (fig_name),
                 "--export-pdf=%s.pdf" % (fig_name),
             ],
-            stdin=open(os.devnull, encoding="utf-8"),
+            stdin=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
         ).wait()
