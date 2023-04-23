@@ -506,7 +506,7 @@ def set_end_date(request, voting_pk):
 @ensure_csrf_cookie
 def add_minutes(request, voting_pk, minutes):
     if minutes > 42:
-        # NOTE: This is to avoid exceedingly long votes. The number is 
+        # NOTE: This is to avoid exceedingly long votes. The number is
         # chosen 'randomly'.
         raise Http404("Cannot add more than 42 minutes.")
 
