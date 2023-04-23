@@ -1,2 +1,2 @@
-pytest-django >=4.5.2, <5
+git+https://github.com/pytest-dev/pytest-django@53373573f905ec5e0ec5786f49efdcdca5ae41fd
 pytest >= 7.2.0, <8
