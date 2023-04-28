@@ -6,10 +6,10 @@
 
 \makeatletter
   \@setplength{backaddrheight}{0pt}% because backaddress=off
-  \@setplength{toaddrhpos}{9.0cm}%distance from left
-  \@setplength{toaddrvpos}{2.0cm}%distance from top
-  \@setplength{toaddrheight}{4cm}%height of the addressbox
-  \@setplength{toaddrwidth}{9cm}% width of the addressbox
+  \@setplength{toaddrhpos}{1.5cm}%distance from left
+  \@setplength{toaddrvpos}{5cm}%distance from top
+  \@setplength{toaddrheight}{3.2cm}%height of the addressbox
+  \@setplength{toaddrwidth}{9.1cm}% width of the addressbox
 \makeatother
 
 \usepackage{fontspec}
@@ -19,8 +19,9 @@
 
 \begin{document}
 
-\begin{letter}{\flushright{ \textbf{% templatetag openbrace %}{{ student.code }} {{ exam.code }}-{{ question.position }} C}\\{{ student.first_name }} {{ student.last_name }}\\\textbf{\large {{ place }}} }}
-%\opening{}
+\begin{letter}{
+  \textbf{% templatetag openbrace %}{{ participant.code }} {{ exam.code }}-{{ question.position }} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}}{% if participant.is_group %}\\~{% for ss in participant.students.all%}\\{{ ss.full_name }}{%endfor%}{% endif %} }
+\opening{}
 
 \begin{center}
 {\textbf{\Huge {{ exam.name }}\\ {{ question.name }}}}

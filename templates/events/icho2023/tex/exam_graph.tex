@@ -6,18 +6,18 @@
 % PDF metadata
 \hypersetup{pdftitle={ {{ title }} }}
 
-\setmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %}]{% templatetag openbrace %}{{ font.font_regular }}} %Calibri
+\setmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %} AutoFakeBold, AutoFakeSlant]{% templatetag openbrace %}{{ font.font_regular }}} %Calibri
 \setmainlanguage{% templatetag openbrace %}{{ polyglossia }}}
 {% if font.cjk %}
 \usepackage{xeCJK}
-\setCJKmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %}]{% templatetag openbrace %}{{ font.font_regular }}}
+\setCJKmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %} AutoFakeBold, AutoFakeSlant]{% templatetag openbrace %}{{ font.font_regular }}}
 {% endif %}
 
 %\setotherlanguage{english}
 % Usage:
 % Start other language with \begin{English}, or \textenglish
 
-\fancyhf[HL]{\textbf{\\\vfill \textenglish{\fontsize{.5cm}{.5cm} \selectfont {{ exam_name }}}} \\ \includegraphics[width=4cm]{% templatetag openbrace %}{{ STATIC_PATH }}/icho2023_logo.pdf}}
+\fancyhf[HL]{\textbf{\\\vfill \textenglish{\fontsize{.5cm}{.5cm} \selectfont {{ exam_name }}}} \\ \includegraphics[height=2cm]{% templatetag openbrace %}{{ STATIC_PATH }}/icho2022_logo.png}}
 \fancyhf[HR]{\textbf{\textenglish{\fontsize{2cm}{2.5cm}\selectfont {{ code }}-\thepage}}}
 \fancyhf[HC]{\vspace{5cm}}
 \fancyhf[FC]{\underline{do not} write on the back of this page}
@@ -42,9 +42,9 @@
 \clearpage
 {% endif %}
   \rnode[lt]{A}{~}
-  %\vfill
-  \includegraphics[width=0.995\textwidth]{% templatetag openbrace %}{{ STATIC_PATH }}/graph-paper-ipho2019.png}\rnode[rb]{B}{~}
-  %\psframe(A)(B)
+  \vfill
+  \includegraphics[width=\textwidth]{% templatetag openbrace %}{{ STATIC_PATH }}/graph-paper.pdf}\rnode[rb]{B}{~}
+  \psframe(A)(B)
 {% endfor %}
 
 \end{document}
