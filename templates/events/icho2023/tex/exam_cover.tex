@@ -20,7 +20,7 @@
 \begin{document}
 
 \begin{letter}{
-  \textbf{% templatetag openbrace %}{{ participant.code }} {{ exam.code }}-{{ question.position }} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}} }
+  \textbf{% templatetag openbrace %}{{ participant.code }} {{ exam.code }}-{{ question.position }} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}}{% if participant.is_group %}\\~{% for ss in participant.students.all%}\\{{ ss.full_name }}{%endfor%}{% endif %} }
 \opening{}
 
 \begin{center}
