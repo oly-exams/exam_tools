@@ -578,7 +578,6 @@ def translation_export(request, question_id, lang_id, version_num=None):
         trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
 
     content = qml.xml2string(trans.qml.make_xml())
-    # content = qml.unescape_entities(content)  # original: remove escapes here - not safe!
 
     res = HttpResponse(content, content_type="application/ipho+qml+xml")
     res["content-disposition"] = 'attachment; filename="{}"'.format(
