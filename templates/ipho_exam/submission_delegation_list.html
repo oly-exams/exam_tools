@@ -104,7 +104,7 @@
             {% endif %}
           </td>
         </tr>
-        {% ifequal d.position d.max_position %}</tbody>{%endifequal%}
+        {% if d.position == d.max_position %}</tbody>{%endif%}
       {% endfor %}
     </table>
 
