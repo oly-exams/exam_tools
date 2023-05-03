@@ -731,6 +731,8 @@ class QMLpart(QMLobject):
     has_text = True
     has_children = False
 
+    default_attributes = {"points": "0.0"}
+
     def tex_begin(self):
         return "\\PT{"
 
