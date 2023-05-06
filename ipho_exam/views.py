@@ -2441,7 +2441,6 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     if form.is_valid() and attrs_form.is_valid():
         if "block_content" in form.cleaned_data:
             block.data = form.cleaned_data["block_content"]
-            block.data_html = form.cleaned_data["block_content"]
         current_id = block.attributes.get("id")
         block.attributes = {
             ff.cleaned_data["key"]: ff.cleaned_data["value"]

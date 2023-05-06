@@ -17,7 +17,7 @@
 
 # pylint: disable=no-member, too-many-lines, consider-using-f-string
 
-# mskoenz: I added lang, data, data_html in Object ctor as None
+# mskoenz: I added lang, data in Object ctor as None
 
 import re
 import uuid
@@ -313,7 +313,6 @@ class QMLobject:
         self.children = []
 
         self.data = None
-        self.data_html = None
         self.lang = None
 
         self.parse(root)
@@ -328,7 +327,6 @@ class QMLobject:
         if self.__class__.has_text:
             content = content2string(root)
             self.data = normalize_html(content) if content != "" else content
-        self.data_html = self.data
 
         if self.__class__.has_children:
             for elem in root:
@@ -446,7 +444,7 @@ class QMLobject:
         return None
 
     def content_html(self):
-        return self.data_html
+        return self.data
 
     def update(self, data, set_blanks=False):
         """
@@ -457,10 +455,8 @@ class QMLobject:
 
         if self.id in data:
             self.data = remove_forbbiden_xml_chars(data[self.id])
-            self.data_html = self.data
         elif self.has_text and set_blanks:
             self.data = ""
-            self.data_html = self.data
 
         for child in self.children:
             child.update(data)
@@ -474,20 +470,15 @@ class QMLobject:
     def diff_content_html(self, other_data):
         if self.has_text:
             if self.id in other_data:
-                self.data_html = html_diff.diff(other_data[self.id], self.data_html)
+                self.data = html_diff.diff(other_data[self.id], self.data)
             else:
-                self.data_html = "<ins>" + self.data_html + "</ins>"
+                self.data = "<ins>" + self.data + "</ins>"
             # if self.id in other_data:
             #     self.data = escape(html_diff.diff(hmlt.unescape(self.data), other_data[self.id]))
             # else:
             #     self.data = escape(u'<ins>' + html.unescape(self.data) + u'</ins>')
         for child in self.children:
             child.diff_content_html(other_data)
-
-    def data_html2data(self):
-        self.data = self.data_html
-        for child in self.children:
-            child.data_html2data()
 
     def find(self, search_id):
         if self.id == search_id:
@@ -1084,7 +1075,7 @@ class QMLlistItem(QMLobject):
     has_children = False
 
     def content_html(self):
-        return "<ul><li>%s</li></ul>" % self.data_html
+        return "<ul><li>%s</li></ul>" % self.data
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
@@ -1469,7 +1460,6 @@ class QMLcsvtable(QMLobject):
                         cell = ET.Element("cell", {})
                         cell.text = elem[col]
                         row_node.add_child(cell)
-                self.data_html = self.data
             # pylint: disable=broad-except
             except (Exception,) as error:
                 print("Error in parsing CSV table")
