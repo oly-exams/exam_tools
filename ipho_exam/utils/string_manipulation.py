@@ -15,9 +15,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import html
 import warnings
 
-from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
+from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning, NavigableString
 
 
 warnings.filterwarnings(
@@ -40,7 +41,7 @@ def remove_forbbiden_xml_chars(text):
 def sanitize_html(text):
     text = remove_forbbiden_xml_chars(text)
     text = (
-        str(text)
+        text
         .replace("<p>&nbsp;</p>", "__EMPTYPP__")
         .replace("<p>&#160;</p>", "__EMPTYPP__")
         .replace(f"<p>{chr(160)}</p>", "__EMPTYPP__")
@@ -49,11 +50,14 @@ def sanitize_html(text):
         .replace(chr(160), " ")
         .replace("__EMPTYPP__", "<p>&nbsp;</p>")
     )
-    xhtmlout = BeautifulSoup(text, "html5lib")
-    try:
-        return "".join([str(el) for el in xhtmlout.body.contents])
-    except:  # pylint: disable=bare-except
-        return str(xhtmlout)
+    els = BeautifulSoup(text, "html5lib").body.contents
+    contents = []
+    for el in els:
+        if isinstance(el, NavigableString):
+            contents.append(html.escape(el))
+        else:
+            contents.append(str(el))
+    return "".join(contents)
 
 
 def html2tex(text):
@@ -104,7 +108,7 @@ def html2tex_bs4(elem):  # pylint: disable=too-many-branches
         return escape_percents(fix_tex_parens(str(elem), add_warning_comment=True))
     for sel in elem.children:  # pylint: disable=too-many-nested-blocks
         if isinstance(sel, NavigableString):
-            result.append(fix_tex_parens(str(sel), add_warning_comment=True))
+            result.append(html2tex_bs4(sel))
         ## Span styling
         elif sel.name in ["span"]:
             for att in list(sel.attrs.keys()):
