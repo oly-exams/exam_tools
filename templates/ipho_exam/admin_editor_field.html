@@ -32,11 +32,11 @@
                 {% if field.has_text %}
                 <div class="question-content" id="{{ field.id }}-content">
                   {% if field.tag == "equation" %}
-                  \({{ field.content_html|safe }}\)
+                  \({{ field.content_with_extra|safe }}\)
                   {% elif field.tag == "equation_unnumbered" %}
-                  \({{ field.content_html|safe }}\)
+                  \({{ field.content_with_extra|safe }}\)
                   {% else %}
-                    {{ field.content_html|safe }}
+                    {{ field.content_with_extra|safe }}
                   {% endif %}
                 </div>
                 {% endif %}

@@ -71,7 +71,7 @@ def make_backups(backup_folder):
             )
 
         if node.text:
-            export = qml.xml2string(qml.make_qml(node).make_xml())
+            export = qml.make_qml(node).dump()
             with open(export_file, "w") as f:
                 f.write(export)
 

@@ -480,9 +480,9 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
                         user=request.user,
                     )
                 )
-                data = {key: "\xa0" for key in list(trans.qml.get_data().keys())}
+                data = {key: "\xa0" for key in list(trans.qml.flat_content_dict().keys())}
                 trans.qml.update(data)
-                node.text = qml.xml2string(trans.qml.make_xml())
+                node.text = trans.qml.dump()
                 node.save()
             else:
                 # failed_questions.append(question.name)
@@ -577,7 +577,7 @@ def translation_export(request, question_id, lang_id, version_num=None):
     else:
         trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
 
-    content = qml.xml2string(trans.qml.make_xml())
+    content = trans.qml.dump()
 
     res = HttpResponse(content, content_type="application/ipho+qml+xml")
     res["content-disposition"] = 'attachment; filename="{}"'.format(
@@ -617,9 +617,8 @@ def translation_import(request, question_id, lang_id):
             txt = txt.decode("utf8")
         except AttributeError:
             pass
-        # obj.content = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
-        # obj.content = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
-        obj.content = txt  # safest, but does not look nice: all < and > escaped
+        # Assume that we are importing our internal dump format (xml with escaped html).
+        obj.content = txt
         obj.question = question
         obj.language = language
         obj.save()
@@ -664,14 +663,14 @@ def translation_import_confirm(request, slug):
         )
 
     old_q = trans.qml
-    old_data = old_q.get_data()
+    old_data = old_q.flat_content_dict()
     new_q = qml.QMLquestion(trans_import.content)
-    new_data = new_q.get_data()
+    new_data = new_q.flat_content_dict()
 
-    old_q.diff_content_html(new_data)
-    new_q.diff_content_html(old_data)
+    old_q.diff_content(new_data)
+    new_q.diff_content(old_data)
 
-    old_flat_dict = old_q.flat_content_dict()
+    old_flat_dict = old_q.flat_content_dict(with_extra=True)
 
     ctx = {}
     ctx.update(csrf(request))
@@ -882,7 +881,7 @@ def exam_view(
 
         orig_q_raw = qml.make_qml(orig_node)
         orig_q = deepcopy(official_question.qml)
-        orig_q_raw_data = orig_q_raw.get_data()
+        orig_q_raw_data = orig_q_raw.flat_content_dict()
         orig_q_raw_data = {k: v for k, v in list(orig_q_raw_data.items()) if v}
         orig_q.update(orig_q_raw_data)
         orig_q.set_lang(orig_lang)
@@ -950,7 +949,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             # set part title
             if current_node.tag == "part":
                 part_count += 1
-                part_title = current_node.data
+                part_title = current_node.content()
                 if part_title == "" or part_title is None:
                     if part_label is not None:
                         part_title = part_label
@@ -2008,9 +2007,8 @@ def admin_import_version(request, question_id):
             node.pk = None
             node.version += 1
             node.status = "P"
-        # node.text = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
-        # node.text = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
-        node.text = txt  # safest, but does not look nice: all < and > escaped
+        # Assume that we are importing our internal dump format (xml with escaped html).
+        node.text = txt
         node.save()
         return JsonResponse({"success": True})
 
@@ -2181,7 +2179,7 @@ def admin_accept_version(
     old_q = CachedHTMLDiff.calc_or_get_cache(compare_node, node, old_q)
     new_q = CachedHTMLDiff.calc_or_get_cache(node, compare_node, new_q)
 
-    old_flat_dict = old_q.flat_content_dict()
+    old_flat_dict = old_q.flat_content_dict(with_extra=True)
 
     ctx = {}
     ctx["exam"] = exam
@@ -2387,7 +2385,7 @@ def admin_editor(request, exam_id, question_id, version_num):
     qml_types = sorted(
         (
             (qobj.tag, qobj.display_name, qobj.sort_order)
-            for qobj in qml.QMLobject.all_objects()  # pylint: disable=not-an-iterable
+            for qobj in qml.QMLbase.all_classes()  # pylint: disable=not-an-iterable
         ),
         key=lambda t: t[2],
     )
@@ -2440,7 +2438,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     )
     if form.is_valid() and attrs_form.is_valid():
         if "block_content" in form.cleaned_data:
-            block.data = form.cleaned_data["block_content"]
+            block.update({block_id: form.cleaned_data["block_content"]})
         current_id = block.attributes.get("id")
         block.attributes = {
             ff.cleaned_data["key"]: ff.cleaned_data["value"]
@@ -2451,13 +2449,13 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
             "id" not in block.attributes
         ):  # if "id" was deleted, restore it (since deletion of the "id" key is not allowed)
             block.attributes["id"] = current_id
-        node.text = qml.xml2string(qmln.make_xml())
+        node.text = qmln.dump()
         node.save()
 
         return JsonResponse(
             {
                 "title": heading,
-                "content": block.content_html(),
+                "content": block.content_with_extra(),
                 "attributes": render_to_string(
                     "ipho_exam/partials/admin_editor_attributes.html",
                     {"attributes": block.attributes},
@@ -2466,7 +2464,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
             }
         )
 
-    print(block.content_html())
+    print(block.content_with_extra())
     form_html = render_crispy_form(form)
     attrs_form_html = render_crispy_form(attrs_form, AdminBlockAttributeHelper())
     return JsonResponse(
@@ -2504,7 +2502,7 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
     qlmn = qml.make_qml(node)
 
     qlmn.delete(block_id)
-    node.text = qml.xml2string(qlmn.make_xml())
+    node.text = qlmn.dump()
     node.save()
 
     return JsonResponse(
@@ -2548,14 +2546,14 @@ def admin_editor_add_block(  # pylint: disable=too-many-arguments
     newblock = block.add_child(
         qml.ET.fromstring(f"<{tag_name} />"), after_id=after_id, insert_at_front=True
     )
-    node.text = qml.xml2string(qmln.make_xml())
+    node.text = qmln.dump()
     node.save()
 
     # TODO: find some better sorting way?
     qml_types = sorted(
         (
-            (qobj.tag, qobj.display_name, qobj.sort_order)
-            for qobj in qml.QMLobject.all_objects()  # pylint: disable=not-an-iterable
+            (qcls.tag, qcls.display_name, qcls.sort_order)
+            for qcls in qml.QMLbase.all_classes()  # pylint: disable=not-an-iterable
         ),
         key=lambda t: t[2],
     )
@@ -2621,7 +2619,7 @@ def admin_editor_move_block(  # pylint: disable=too-many-arguments
     else:
         return JsonResponse({"success": False})
 
-    node.text = qml.xml2string(qmln.make_xml())
+    node.text = qmln.dump()
     node.save()
 
     return JsonResponse({"success": True, "direction": direction})
@@ -3620,7 +3618,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
 
         orig_q_raw = qml.make_qml(orig_node)
         orig_q = deepcopy(official_question.qml)
-        orig_q_raw_data = orig_q_raw.get_data()
+        orig_q_raw_data = orig_q_raw.flat_content_dict()
         orig_q_raw_data = {k: v for k, v in list(orig_q_raw_data.items()) if v}
         orig_q.update(orig_q_raw_data)
         orig_q.set_lang(orig_lang)
@@ -3653,31 +3651,18 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
                 TranslationNode, question=question, language_id=lang_id
             )
 
-            # RestrictedChar list from here:
-            # https://www.w3.org/TR/xml11/#charsets
-            remove_re = re.compile("[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x84\x84-\x9F]")
-
-            def strip_illegal_xml_chars(text):
-                text, count = remove_re.subn("", text)
-                if count > 0:
-                    print("removed invalid xml character")
-                return text
-
             if len(trans_node.text) > 0:
                 trans_q = qml.make_qml(trans_node)
                 trans_q.set_lang(trans_lang)
-                trans_content = trans_q.get_data()
+                trans_content = trans_q.flat_content_dict()
                 trans_extra_html = trans_q.get_trans_extra_html()
             checksum = md5(trans_node.text.encode("utf8")).hexdigest()
             form = qml.QMLForm(orig_q, trans_content, request.POST or None)
 
             if form.is_valid():
                 qmln = deepcopy(orig_q)
-                cleaned_data = form.cleaned_data
-                for k in list(cleaned_data.keys()):
-                    cleaned_data[k] = strip_illegal_xml_chars(cleaned_data[k])
-                qmln.update(cleaned_data, set_blanks=True)
-                new_text = qml.xml2string(qmln.make_xml())
+                qmln.update(form.cleaned_data, set_blanks=True)
+                new_text = qmln.dump()
                 new_checksum = md5(new_text.encode("utf8")).hexdigest()
 
                 ## Nothing to do, the checksum is still the same
