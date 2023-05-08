@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import html
+import re
 import warnings
 
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning, NavigableString
@@ -40,6 +41,8 @@ def remove_forbbiden_xml_chars(text):
 
 delete_forbidden_html_name_translation_table = "".maketrans("", "", "<>&")
 
+paragraph_space_pattern = re.compile(r"</p>\s+<p>")
+
 def sanitize_html(text):
     text = remove_forbbiden_xml_chars(text)
     text = (
@@ -52,6 +55,7 @@ def sanitize_html(text):
         .replace(chr(160), " ")
         .replace("__EMPTYPP__", "<p>&nbsp;</p>")
     )
+    text = paragraph_space_pattern.sub("</p>\n<p>", text)
     body = BeautifulSoup(text, "html5lib").body
     for el in body.descendants:
         if not isinstance(el, NavigableString):
@@ -71,6 +75,8 @@ def sanitize_html(text):
 
 
 def html2tex(text):
+    # NOTE: a bit ugly, ensure that each paragraph is treated as such by TeX.
+    text = paragraph_space_pattern.sub("</p>\n\n<p>", text)
     cont_html = BeautifulSoup(text, "html5lib")
     return html2tex_bs4(cont_html.body)
 
