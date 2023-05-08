@@ -38,6 +38,8 @@ def remove_forbbiden_xml_chars(text):
     """
     return text.translate(delete_forbidden_xml_chars_translation_table)
 
+delete_forbidden_html_name_translation_table = "".maketrans("", "", "<>&")
+
 def sanitize_html(text):
     text = remove_forbbiden_xml_chars(text)
     text = (
@@ -50,9 +52,17 @@ def sanitize_html(text):
         .replace(chr(160), " ")
         .replace("__EMPTYPP__", "<p>&nbsp;</p>")
     )
-    els = BeautifulSoup(text, "html5lib").body.contents
+    body = BeautifulSoup(text, "html5lib").body
+    for el in body.descendants:
+        if not isinstance(el, NavigableString):
+            el.name = el.name.translate(delete_forbidden_html_name_translation_table)
+            el.attrs = {
+                k.replace('"', ""): v
+                for k, v in el.attrs.items()
+                if k.replace('"', "")
+            }
     contents = []
-    for el in els:
+    for el in body.contents:
         if isinstance(el, NavigableString):
             contents.append(html.escape(el))
         else:
