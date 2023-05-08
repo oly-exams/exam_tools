@@ -36,7 +36,6 @@ standard_library.install_aliases()
 import html_diff
 
 from django import forms
-from django.utils.safestring import mark_safe
 from django.urls import reverse
 import pandas as pd
 
@@ -154,7 +153,7 @@ class QMLForm(forms.Form):
         if node.has_text:
             self.fields[node.id] = node.form_element()
             self.fields[node.id].initial = (
-                mark_safe(initials[node.id]) if node.id in initials else ""
+                initials[node.id] if node.id in initials else ""
             )
             self.fields[node.id].required = False
             self.fields[node.id].widget.attrs["class"] = "form-control"
