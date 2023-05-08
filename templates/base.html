@@ -210,6 +210,9 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
+              {% if request.session.autologin_user %}
+              <li><a href="{% url 'autologin_stop' %}">Stop impersonation</a></li>
+              {% endif %}
               <li class="navbar-text">{{ user.username }},
                 <strong>
                 {% if user.is_superuser %}

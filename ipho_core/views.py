@@ -21,14 +21,14 @@ import concurrent.futures
 from past.utils import old_div
 
 from django.conf import settings
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
 from django.contrib.auth.decorators import (
     login_required,
     permission_required,
     user_passes_test,
 )
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 from django.urls import reverse
 from pywebpush import WebPushException
@@ -45,6 +45,7 @@ from ipho_core.forms import AccountRequestForm, SendPushForm, RandomDrawForm
 DEMO_MODE = getattr(settings, "DEMO_MODE")
 DEMO_SIGN_UP = getattr(settings, "DEMO_SIGN_UP")
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
+DEFAULT_AUTHENTICATION_BACKEND = getattr(settings, "AUTHENTICATION_BACKENDS")[-1]
 
 
 def any_permission_required(*args):
@@ -71,11 +72,21 @@ def autologin(request, token):
         return HttpResponseForbidden("Only the staff can use autologin.")
     user = authenticate(token=token)
     redirect_to = reverse("home")
+    base_user_id = request.user.id
     if user:
         login(request, user)
+        request.session["autologin_user"] = base_user_id
+        request.session.modified = True
         return redirect(redirect_to)
 
     return redirect(settings.LOGIN_URL + f"?next={redirect_to}")
+
+def autologin_stop(request):
+    user_id = request.session.get("autologin_user", None)
+    if user_id is None:
+        return HttpResponseForbidden("No autologin currently active.")
+    login(request, get_object_or_404(User, id=user_id), backend=DEFAULT_AUTHENTICATION_BACKEND)
+    return redirect(reverse("home"))
 
 
 def account_request(request):
