@@ -207,7 +207,7 @@ class QMLbase:
 
     def __init__(self, xml, force_id=None):
         """
-        Generic __init__ for all QMLbases. It relies on:
+        Generic __init__ for all QML classes. It relies on:
         self.tag : Tag to be used by the class.
         self.parse(xml) : Parser of xml object. Default implementation.
         """
