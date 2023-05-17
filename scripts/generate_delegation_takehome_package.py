@@ -55,7 +55,7 @@ from celery.result import AsyncResult
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
-BASE_PATH = "../media/downloads/delegation_takehome_package"
+BASE_PATH = "../media/downloads/delegation_takehome_package/"
 FONT_PATH = os.path.join(settings.STATIC_PATH, "noto")
 REPLACEMENTS = [(settings.STATIC_PATH, ".")]
 
@@ -100,8 +100,8 @@ def compile_question_pdf(question, language, delegation):
         position = question.position
         question_code = question.code
 
-        base_filename = "{}/{}{}_{}_{}_{}.pdf/".format(
-            delegation.country,
+        base_filename = "{}/{}{}_{}_{}_{}.pdf".format(
+            slugify(delegation.country),
             question.exam.code,
             question.position,
             slugify(question.name),
@@ -162,7 +162,7 @@ def compile_question_tex(question, language, delegation, logo_file):
         question_code = question.code
 
         base_folder = "{}/{}{}_{}_{}_{}_tex/".format(
-            delegation.country,
+            slugify(delegation.country),
             question.exam.code,
             question.position,
             slugify(question.name),
@@ -248,7 +248,7 @@ def generate_all(logo_file, exam_names=("Theory", "Experiment")):
 
     for d in delegations:
         generate_delegation(logo_file, exams, d)
-        base_folder = d.country
+        base_folder = slugify(d.country)
         shutil.make_archive(
             os.path.join(BASE_PATH, base_folder),
             "zip",
