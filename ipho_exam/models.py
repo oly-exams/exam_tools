@@ -109,6 +109,7 @@ class Language(models.Model):
         ("malayalam", "Malayalam"),
         ("marathi", "Marathi"),
         ("mongolian", "Mongolian"),
+        ("myanmar", "Myanmar"),
         ("nko", "Nko"),
         ("norwegian", "Norwegian"),
         ("occitan", "Occitan"),

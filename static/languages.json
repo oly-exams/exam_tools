@@ -139,7 +139,7 @@
       "notosansmyanmar"
     ],
     "language": "Burmese",
-    "polyglossia": null,
+    "polyglossia": "myanmar",
     "polyglossia_options": null
   },
   "cantonese": {
