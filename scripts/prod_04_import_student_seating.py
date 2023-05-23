@@ -44,8 +44,10 @@ def main(input):
     # experiment = Exam.objects.get(name='Experiment')
     for i, row in enumerate(reader):
         try:
-            participant = Participant.objects.get(code=row["individual_id"])
             for f, ex in zip(header, exams):
+                participant = Participant.objects.get(
+                    code=row["individual_id"], exam=ex
+                )
                 Place.objects.get_or_create(participant=participant, name=row[f])
 
             # Place.objects.get_or_create(participant=participant, exam=theory, name=row['seat_theory'])
