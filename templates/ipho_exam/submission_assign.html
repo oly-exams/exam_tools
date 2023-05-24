@@ -9,14 +9,8 @@
 {% block step-content %}
 <p>Select the languages that you want to deliver to your participants.</p>
 <ul>
-    <li>For each participant more than one language can be delivered.</li>
-    {% if not no_answer %}
-    {% if not no_answer_language %}
-    <li>The answer sheets will be provided <strong>only in one</strong> language.</li>
-    {% else %}
-    <li>The answer sheets will be provided <strong>only in {{answer_language}}</strong>.</li>
-    {% endif %}
-    {% endif %}
+    <li>The exam will be provided in only <strong>one</strong> language.</li>
+    <li>An official English version will be available upon request during the exam.</li>
 </ul>
 
 {% if with_errors %}
@@ -88,13 +82,13 @@
               {% else %}
               <div class="checkbox {% if form.languages.errors %}has-error{% endif %}">
                 <label>
-                  <input type="checkbox" autocomplete="off" id="{{ form.languages.html_name }}-val-{{ lang_id }}" name="{{ form.languages.html_name }}" value="{{ lang_id }}" {% if lang_id in form.languages.value|intlist %}checked{% endif %} />
+                  <input type="radio" autocomplete="off" id="{{ form.languages.html_name }}-val-{{ lang_id }}" name="{{ form.languages.html_name }}" value="{{ lang_id }}" {% if lang_id in form.languages.value|intlist %}checked{% endif %} />
                   deliver
                 </label>
               </div>
               {% if not no_answer and not no_answer_language %}
                   <div class="radio {% if not lang_id in form.languages.value|intlist %}disabled{% endif %} {% if form.answer_language.errors %}has-error{% endif %}">
-                    <label>
+                    <label hidden>
                       <input type="radio" id="{{ form.answer_language.html_name }}-val-{{ lang_id }}" name="{{ form.answer_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.answer_language.value|escape %}checked{% endif %} {% if not lang_id in form.languages.value|intlist %}disabled{% endif %}/>
                       with answer sheets
                     </label>
@@ -146,6 +140,7 @@ $(function() {
         $radio = $('#'+$checkbox.attr('id').replace('languages','answer_language'));
         if ($checkbox.is(':checked')) {
             $radio.removeAttr('disabled');
+            $radio.prop('checked',true);
             $radio.parents('div.radio').removeClass('disabled');
         } else {
             $radio.attr('disabled',true);
