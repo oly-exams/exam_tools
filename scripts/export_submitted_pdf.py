@@ -29,12 +29,13 @@ sys.path.append(".")
 import django
 
 django.setup()
+from django.conf import settings
 
-from ipho_exam.models import Document, ExamAction
+from ipho_exam.models import Document, ExamAction, Exam
 from django.db.models import F
 
 # BASE_PATH = "/srv/exam_tools/backups/submission_pdf_export/"
-BASE_PATH = "./media/downloads/participant_pdf/"
+BASE_PATH = "downloads/participant_pdf/"  # inside media folder
 
 
 def get_filename(doc):
@@ -50,7 +51,8 @@ def get_filename(doc):
 
 def move_doc(doc):
     filename = get_filename(doc)
-    dest_path = os.path.join(BASE_PATH, filename + ".pdf")
+    dest_path = os.path.join(settings.DOCUMENT_PATH, BASE_PATH, filename + ".pdf")
+
     try:
         shutil.copyfile(doc.file.path, dest_path)
         print("exported", filename)
@@ -60,12 +62,18 @@ def move_doc(doc):
 
 def generate_all(exam_names=("Theory", "Experiment")):
     try:
-        os.makedirs(BASE_PATH, exist_ok=True)
+        os.makedirs(os.path.join(settings.DOCUMENT_PATH, BASE_PATH), exist_ok=True)
     except OSError:
         print("could not create destination folder")
 
+    exams = Exam.objects.filter(name__in=exam_names)
+
+    if not exams:
+        print(f"ERROR: no exams corresponding to {exam_names}.")
+        return
+
     submitted_docs = Document.objects.filter(
-        participant__exam__name__in=exam_names,
+        participant__exam__in=exams,
         participant__exam__delegation_status__action=ExamAction.TRANSLATION,
         participant__exam__delegation_status__delegation=F("participant__delegation"),
         participant__exam__delegation_status__status=ExamAction.SUBMITTED,

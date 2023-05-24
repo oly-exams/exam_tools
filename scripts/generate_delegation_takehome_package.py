@@ -55,7 +55,7 @@ from celery.result import AsyncResult
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
-BASE_PATH = "../media/downloads/delegation_takehome_package/"
+BASE_PATH = "downloads/delegation_takehome_package/"  # inside media folder
 FONT_PATH = os.path.join(settings.STATIC_PATH, "noto")
 REPLACEMENTS = [(settings.STATIC_PATH, ".")]
 
@@ -108,7 +108,7 @@ def compile_question_pdf(question, language, delegation):
             slugify(language.name),
             language.delegation.name,
         )
-        filename = os.path.join(BASE_PATH, base_filename)
+        filename = os.path.join(settings.DOCUMENT_PATH, BASE_PATH, base_filename)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "wb") as fp:
             fp.write(question_pdf)
@@ -169,7 +169,7 @@ def compile_question_tex(question, language, delegation, logo_file):
             slugify(language.name),
             language.delegation.name,
         )
-        folder = os.path.join(BASE_PATH, base_folder)
+        folder = os.path.join(settings.DOCUMENT_PATH, BASE_PATH, base_folder)
         os.makedirs(folder, exist_ok=True)
 
         with open(os.path.join(folder, "question.tex"), "w") as f:
@@ -246,13 +246,17 @@ def generate_all(logo_file, exam_names=("Theory", "Experiment")):
     delegations = Delegation.objects.exclude(name=OFFICIAL_DELEGATION).all()
     exams = Exam.objects.filter(name__in=exam_names)
 
+    if not exams:
+        print(f"ERROR: no exams corresponding to {exam_names}.")
+        return
+
     for d in delegations:
         generate_delegation(logo_file, exams, d)
         base_folder = slugify(d.country)
         shutil.make_archive(
-            os.path.join(BASE_PATH, base_folder),
+            os.path.join(settings.DOCUMENT_PATH, BASE_PATH, base_folder),
             "zip",
-            root_dir=BASE_PATH,
+            root_dir=os.path.join(settings.DOCUMENT_PATH, BASE_PATH),
             base_dir=base_folder,
         )
 
