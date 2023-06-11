@@ -203,6 +203,7 @@ describe('General', function() {
         cy.wait('@getUploadModal')
         cy.get('#upload-modal').should('be.visible').and('contain', "The organizers have not yet opened or already closed the scan upload, uploads are not possible.")
 
+        cy.visit('/exam/submission/submitted')
         cy.get('#upload-many').click()
         cy.wait('@getUploadModal')
         cy.get('#upload-modal').should('be.visible').and('contain', "The organizers have not yet opened or already closed the scan upload, uploads are not possible.")
