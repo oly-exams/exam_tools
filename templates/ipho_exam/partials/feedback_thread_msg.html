@@ -1,4 +1,4 @@
 <div class="p-2 comment">
-  <div class="label label-{% ifequal delegation current_delegation %}success{% else %}info{% endifequal %}">{{ delegation }}</div>
+  <div class="label label-{% if delegation==current_delegation %}success{% else %}info{% endif %}">{{ delegation }}</div>
   {{ comment }}
 </div>
