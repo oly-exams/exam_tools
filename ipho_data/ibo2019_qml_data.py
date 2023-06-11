@@ -4,7 +4,7 @@ IBO2019_DATA["FIGURE_IDS"] = ["22"]
 
 IBO2019_DATA[
     "Morning_1"
-] = r"""
+] = """
 <question id="q0" points="0.0"><title id="eafa242e78e845b18d6aa5b58aab7454">Morning 1st</title><pagebreak id="facf998cc5f74225bc049ffc05661e8d" /><part id="4ac372d092bc454c888aaa289544e346">Cell Biology</part><section id="561d2288dea247e4bb1cbb29750c10ec">Q1</section><paragraph id="f25a6f2ecbd94762ab3111ab6af60b49">&lt;p&gt;The nematode &lt;em&gt;C. elegans&lt;/em&gt; develops as either a male having only one sex chromosome (XO) or a hermaphrodite with two sex chromosomes (XX). When maintained in groups containing both sexes, hermaphrodites live significantly longer than males. Two signalling pathways, the IGF-1 signalling and the sex determination pathways play pivotal roles in the control of &lt;em&gt;C. elegans&lt;/em&gt; aging.&lt;/p&gt;
 
 &lt;p&gt;DAF-2 and DAF-16 are elements of the IGF-1 signalling pathway. Loss-of-function mutations in their genes were introduced, and the lifespan of generated transgenic animals of the two sexes were measured (Figure 1)&lt;/p&gt;</paragraph><paragraph id="bc1ca6c7e0834cf8b2ccd7a6e9cf4f7d">In all graphs, NS = not significant difference; *** = significant difference.</paragraph><figure figid="22" id="aa7c4337d981444ea4ecb53de3fa0c51" width="1"><caption id="fffac9c0da8346879c42cca46fc192b1">Fig.1. Axis = Mean lifespan (days). WT = Wild-type.</caption></figure><paragraph id="22d6f675d7434c2bba2eabfa6a24ad84">&lt;p&gt;To test whether the nematode sex-determination cascade is involved in the sex-specific regulation of aging, researchers modified the activity of two elements of this pathway, TRA-1 and TRA-3. The mutations of transgenic hermaphrodites were as follows in Figure 2.&lt;/p&gt;
@@ -252,7 +252,7 @@ B. if the species is M. aquaticus.</paragraph></subquestion><subquestion id="612
 
 IBO2019_DATA[
     "Morning_2"
-] = r"""
+] = """
 <question id="q0" points="0.0"><title id="362a1d5a894042ad936cb6e152bd4b4c">Morning 2nd</title><pagebreak id="6ab5482b71d64cb2a09d77c0c2cef907" /><part id="67bdb87864c24c7c9f0321b9ff92a9a6">Genetics and Evolution</part><section id="5ee38a2b7803452a99b6745b6c63bacc">Q23</section><paragraph id="7c4d01fb03654613a92bdfc9723235c0">The gene that determines red or black fur colour is X chromosome linked. During female embryonic development one of the two parental copies of chromosome X becomes inactivated. If a female cat inherits different alleles from its parents, we can observe the mosaicism. For example, if the maternally derived X chromosome becomes inactivated and the paternally remains active such cells form black patches on the cat's coat. If the paternally derived X chromosome turns inactive and the female derived remains active such cells form red patches. (The white patches originate through a different mechanism.)</paragraph><figure figid="22" id="47d49269bbea4aae8afeea7a4cfab310" width="0.5"><caption id="87bd9f50624c432ea06dbc39bc3b0cec">Fig.1</caption></figure><paragraph id="d2805748d6964554b53883af16aa9945">&lt;p&gt;You have a list of possible observations regarding the inheritance of red/black coat colour:&lt;/p&gt;
 
 &lt;p&gt;A. There are no smaller red spots in the middle of the large black spots or vice versa.&lt;/p&gt;
@@ -304,7 +304,7 @@ IBO2019_DATA[
 
 IBO2019_DATA[
     "Experiment_1"
-] = r"""
+] = """
     <question id="q0" points="0.0"><title id="08e806a2d02e4891872c4aa8b24a7ecc">Experiment 4</title><part id="df24b80b8be04a02b84013bfdea3f4c6">SUBTASK 1. PRACTICAL TASK IN BIOINFORMATICS</part><paragraph id="e69bab1584af4121ae17cf5cd9c15aec">&lt;p&gt;Modern biological research in the 21st century is inconceivable without bioinformatic analyses.  In this practical task, we present an example of how bioinformatic data are processed in order to investigate evolutionary issues of bacterial resistance and susceptibility to antibiotics.&lt;/p&gt;</paragraph><paragraph id="eb120a9938954356abe5c006db0b2a30">&lt;p&gt;Please do not start using the Geneious Prime software until you have completely read and understood the instructions. Otherwise, you may cause changes to the data that cannot be restored. The lab assistant will not assist you in replacing lost or corrupted data, so you should proceed step by step only.&lt;/p&gt;</paragraph><box id="b256ac6d6ac045268a82d725b4300841"><paragraph id="29ad8d51f52542feaf8d1ae4aafc3c40">&lt;p&gt;&lt;strong&gt;IMPORTANT TECHNICAL NOTES ON CHEATING&lt;/strong&gt;&lt;/p&gt;
 
 &lt;ul&gt;
@@ -412,6 +412,6 @@ IBO2019_DATA[
 
 IBO2019_DATA[
     "Experiment_2"
-] = r"""
+] = """
 
 """
