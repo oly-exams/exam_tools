@@ -124,6 +124,7 @@ def make_qml(node):
 def dump_xml(xml):
     return ET.tostring(xml, encoding="unicode")
 
+
 def load_xml(text):
     return ET.fromstring(text)
 
@@ -1020,7 +1021,8 @@ class QMLlatex(QMLbase):
         for child in self.children:
             if child.tag == "texparam":
                 content = content.replace(
-                    "{{ %s }}" % child.attributes["name"], string_manipulation.html2tex(child.data)
+                    "{{ %s }}" % child.attributes["name"],
+                    string_manipulation.html2tex(child.data),
                 )
         return content, []
 
@@ -1343,7 +1345,7 @@ class QMLcsvtable(QMLbase):
         assert self.tag == root.tag
 
         self.data = string_manipulation.sanitize_html(root.text or "")
-        data = string_manipulation.html2tex(self.data) # XXX: this doesn't look right.
+        data = string_manipulation.html2tex(self.data)  # XXX: this doesn't look right.
 
         if data == "":
             # when creating a new CSV table, data is empty

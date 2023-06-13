@@ -480,7 +480,9 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
                         user=request.user,
                     )
                 )
-                data = {key: "\xa0" for key in list(trans.qml.flat_content_dict().keys())}
+                data = {
+                    key: "\xa0" for key in list(trans.qml.flat_content_dict().keys())
+                }
                 trans.qml.update(data)
                 node.text = trans.qml.dump()
                 node.save()
