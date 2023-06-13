@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=consider-using-f-string
+
 import html
 import re
 import warnings
@@ -59,18 +61,22 @@ def sanitize_html(text):
     )
     text = paragraph_space_pattern.sub("</p>\n<p>", text)
     body = BeautifulSoup(text, "html5lib").body
-    for el in body.descendants:
-        if not isinstance(el, NavigableString):
-            el.name = el.name.translate(delete_forbidden_html_name_translation_table)
-            el.attrs = {
-                k.replace('"', ""): v for k, v in el.attrs.items() if k.replace('"', "")
+    for elem in body.descendants:
+        if not isinstance(elem, NavigableString):
+            elem.name = elem.name.translate(
+                delete_forbidden_html_name_translation_table
+            )
+            elem.attrs = {
+                k.replace('"', ""): v
+                for k, v in elem.attrs.items()
+                if k.replace('"', "")
             }
     contents = []
-    for el in body.contents:
-        if isinstance(el, NavigableString):
-            contents.append(html.escape(el))
+    for elem in body.contents:
+        if isinstance(elem, NavigableString):
+            contents.append(html.escape(elem))
         else:
-            contents.append(str(el))
+            contents.append(str(elem))
     return "".join(contents)
 
 

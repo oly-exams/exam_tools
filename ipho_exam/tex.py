@@ -15,13 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=consider-using-f-string
-
 import os
-import html
 import shutil
-
-from bs4 import NavigableString
 
 from django.conf import settings
 from django.template.loader import render_to_string

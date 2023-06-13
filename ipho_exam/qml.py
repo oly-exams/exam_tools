@@ -201,7 +201,7 @@ class QMLbase:
 
     @staticmethod
     def get_qml_class(tag):
-        for obj in QMLbase.all_classes():  # pylint: disable=not-an-iterable
+        for obj in QMLbase.all_classes():
             if obj.tag == tag:
                 return obj
         raise QMLException("Tag `%s` not found." % tag)
