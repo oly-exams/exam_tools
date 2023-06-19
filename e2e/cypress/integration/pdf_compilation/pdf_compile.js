@@ -166,14 +166,14 @@ describe('General', function() {
         cy.login('ARM-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should be empty
-        cy.get('#submission-table tbody').children().should('have.length', 0)
+        cy.get('#submission-table tbody').should('not.exist')
 
         // Test an examsite user with submissions
         cy.logout()
         cy.login('AUS-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should be empty
-        cy.get('#submission-table tbody').children().should('have.length', 0)
+        cy.get('#submission-table tbody').should('not.exist')
 
         cy.logout()
         cy.login('admin', '1234')
@@ -184,14 +184,15 @@ describe('General', function() {
         cy.login('ARM-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should be empty
-        cy.get('#submission-table tbody').children().should('have.length', 0)
+        cy.get('#submission-table tbody').should('not.exist')
 
         // Test an examsite user with submissions
         cy.logout()
         cy.login('AUS-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should now have 3 entries
-        cy.get('#submission-table tbody').children().should('have.length', 6)
+        cy.get('#submission-table tbody:nth-of-type(1)').children().should('have.length', 3)
+        cy.get('#submission-table tbody:nth-of-type(2)').children().should('have.length', 3)
 
         var id_prefix = "submission-1"
         download_test_pdf(6, 0, id_prefix, "")
@@ -199,6 +200,11 @@ describe('General', function() {
         download_test_pdf(6, 2, id_prefix, "")
 
         cy.get('#upload-1-6-2').click()
+        cy.wait('@getUploadModal')
+        cy.get('#upload-modal').should('be.visible').and('contain', "The organizers have not yet opened or already closed the scan upload, uploads are not possible.")
+
+        cy.visit('/exam/submission/submitted')
+        cy.get('#upload-many').click()
         cy.wait('@getUploadModal')
         cy.get('#upload-modal').should('be.visible').and('contain', "The organizers have not yet opened or already closed the scan upload, uploads are not possible.")
 
@@ -211,7 +217,8 @@ describe('General', function() {
         cy.login('AUS-Examsite', '1234')
         cy.visit('/exam/submission/submitted')
         //Table should now have 3 entries
-        cy.get('#submission-table tbody').children().should('have.length', 6)
+        cy.get('#submission-table tbody:nth-of-type(1)').children().should('have.length', 3)
+        cy.get('#submission-table tbody:nth-of-type(2)').children().should('have.length', 3)
 
         var id_prefix = "submission-1"
         download_test_pdf(6, 0, id_prefix, "")
