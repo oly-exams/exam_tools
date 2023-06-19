@@ -92,7 +92,7 @@
 
 
 %Question -- no longer used
-\newcommand{\QT}[3]{\vspace{0.2cm}\noindent{\textbf\Alph#2\arabic#3.}}
+\newcommand{\QT}[3]{\vspace{0.2cm}\noindent{\textbf\Alph#2\arabic#3.~(#1 \if#11{pt}\else{pts}\fi)}}
 
 
 %Question (QMLsubquestion)
@@ -105,9 +105,12 @@
     % \noindent\textbf \Alph{ptnum}\arabic{qtnum2}
     \begin{english}\noindent\textbf{#2.#3}\end{english}
  }
- \begin{minipage}[t]{.89\textwidth}}
+ \begin{minipage}[t]{.79\textwidth}}
 {
 \end{minipage}
+\parbox{.1\textwidth}{
+  \hspace{1em} \QTFpoints pt
+}
 % \vspace{0.5em}
 \end{framed}
 }
@@ -118,7 +121,7 @@
     \def\QSApoints{#1} %\vspace{0.5em}
     \renewcommand{\arraystretch}{2.}
     \begin{framed}\noindent\begin{minipage}[t][#4][t]{\textwidth}
-    {\noindent\textbf{ \begin{english} #2.#3 \end{english}}}
+    {\noindent\textbf{ \begin{english} #2.#3 $(\QSApoints ~\text{pt})$ \end{english}}}
 
 }
 {
