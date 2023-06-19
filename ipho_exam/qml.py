@@ -1057,7 +1057,10 @@ class QMLenumerate(QMLobject):
 
     has_text = False
     has_children = True
-    valid_children = "item"
+    valid_children = (
+        "item",
+        "texfield",
+    )
 
     def tex_begin(self):
         label = self.attributes.get("label", "")
