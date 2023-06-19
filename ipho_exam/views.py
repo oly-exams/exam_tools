@@ -2693,7 +2693,11 @@ def _get_submission_languages(exam, delegation, count_answersheets=True):
             Q(delegation__name=OFFICIAL_DELEGATION) & Q(hidden_from_submission=False)
             | (
                 Q(delegation=delegation)
-                & (Q(num_translation=num_questions) | Q(num_pdf=num_questions))
+                & (
+                    Q(num_translation=num_questions)
+                    | Q(num_pdf=num_questions)
+                    | Q(is_pdf=True)
+                )
             )
         )
         .order_by("name")

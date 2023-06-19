@@ -65,6 +65,11 @@ urlpatterns = [
         ipho_core.views.autologin,
         name="autologin",
     ),
+    re_path(
+        r"^accounts/autologin_stop/?$",
+        ipho_core.views.autologin_stop,
+        name="autologin_stop",
+    ),
     path("accounts/impersonate", ipho_core.views.list_impersonate, name="impersonate"),
     path(
         "accounts/account_request",
