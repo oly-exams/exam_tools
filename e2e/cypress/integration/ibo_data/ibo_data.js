@@ -62,7 +62,7 @@ describe('General', function() {
             .then((response) => {
               cy.writeFile('cypress/pdfs/ibo1.pdf', response.body, 'binary')
               if(check_pdf){
-                cy.exec("comparepdf --compare=appearance cypress/pdfs/general_instruction_v1.pdf cypress/fixtures/pdfs/general_instruction_v1.pdf")
+                cy.exec("comparepdf --compare=appearance cypress/pdfs/ibo1.pdf cypress/fixtures/pdfs/ibo1.pdf")
               }
             })
         })

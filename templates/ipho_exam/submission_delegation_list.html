@@ -71,7 +71,7 @@
         </tr>
       </thead>
         {% for d in docs %}
-        {% if d.position == 0 %}<tbody class="student-docs">{%endif%}
+        {% if d.position == 0 %}<tbody id="submission-table-{{ d.participant__id }}" class="student-docs">{%endif%}
         <tr>
           <td>{{ d.pk }} </td>
           {% if d.position == 0 %}
@@ -104,7 +104,7 @@
             {% endif %}
           </td>
         </tr>
-        {% ifequal d.position d.max_position %}</tbody>{%endifequal%}
+        {% if d.position == d.max_position %}</tbody>{%endif%}
       {% endfor %}
     </table>
 

@@ -31,12 +31,13 @@ from xml.etree import ElementTree as ET
 import urllib.request
 import urllib.parse
 import urllib.error
+import warnings
 
 from future import standard_library
 
 standard_library.install_aliases()
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
 
 import html_diff
 
@@ -48,6 +49,10 @@ import pandas as pd
 
 from .models import Figure
 from . import tex
+
+warnings.filterwarnings(
+    "ignore", category=MarkupResemblesLocatorWarning
+)  # ignore bs4 warnings
 
 html_diff.config.tags_fcts_as_blocks.append(
     lambda tag: tag.name == "span" and "math-tex" in tag.attrs.get("class", [])
@@ -725,6 +730,8 @@ class QMLpart(QMLobject):
 
     has_text = True
     has_children = False
+
+    default_attributes = {"points": "0.0"}
 
     def tex_begin(self):
         return "\\PT{"

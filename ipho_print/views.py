@@ -25,6 +25,8 @@ from django.template.context_processors import csrf
 from django.conf import settings
 from crispy_forms.utils import render_crispy_form
 
+from ipho_core.utils import is_ajax
+
 from .forms import PrintForm
 
 from . import printer
@@ -76,7 +78,7 @@ def main(request):
             )
         form = PrintForm(queue_list=queue_list, enable_opts=enable_opts)
     form_html = render_crispy_form(form, context=csrf(request))
-    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+    if is_ajax(request):
         return JsonResponse(
             {
                 "form": form_html,

@@ -22,13 +22,14 @@ def set_up_basic_test_database(voting_room=None):
         if voting_room is not None:
             voting_room_2 = voting_room + "2"
             voting_room_1 = voting_room + "1"
-            voting_room = voting_room_2
             tdc.create_voting_room(voting_room_1)
             # create a second voting room, to enable switching between rooms.
             tdc.create_voting_room(voting_room_2)
-            # Create votings for the second room
+            # Create votings
             tdc.create_three_poll_votings(room_name=voting_room_1)
-        tdc.create_three_poll_votings(room_name=voting_room)
+            tdc.create_three_poll_votings(room_name=voting_room_2)
+        else:
+            tdc.create_three_poll_votings(room_name=None)
         tdc.create_official_delegation()
         theory = tdc.create_ipho2016_theory_exam()
         tdc.create_ipho2016_translations_and_feedback(theory)

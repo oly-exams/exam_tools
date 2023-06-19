@@ -46,6 +46,7 @@ from pywebpush import WebPushException
 
 
 from ipho_core.models import User
+from ipho_core.utils import is_ajax
 from ipho_exam.models import Feedback, Exam
 
 from .models import Voting, VotingChoice, VotingRight, CastedVote, VotingRoom
@@ -281,7 +282,7 @@ def voting_large(request, voting_pk):
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
 def add_voting(request, room_id=None):
-    if not request.headers.get("x-requested-with") == "XMLHttpRequest":
+    if not is_ajax(request):
         raise NotImplementedError(
             "TODO: implement small template page for handling without Ajax."
         )
@@ -506,7 +507,7 @@ def set_end_date(request, voting_pk):
 @ensure_csrf_cookie
 def add_minutes(request, voting_pk, minutes):
     if minutes > 42:
-        # NOTE: This is to avoid exceedingly long votes. The number is 
+        # NOTE: This is to avoid exceedingly long votes. The number is
         # chosen 'randomly'.
         raise Http404("Cannot add more than 42 minutes.")
 
