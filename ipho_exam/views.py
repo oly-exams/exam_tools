@@ -3667,7 +3667,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
 
             if form.is_valid():
                 qmln = deepcopy(orig_q)
-                qmln.update(form.cleaned_data, set_blanks=True)
+                qmln.update(form.cleaned_data)
                 new_text = qmln.dump()
                 new_checksum = md5(new_text.encode("utf8")).hexdigest()
 

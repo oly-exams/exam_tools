@@ -359,17 +359,13 @@ class QMLbase:
     def content_with_extra(self):
         return self.content()
 
-    def update(self, data, set_blanks=False):
+    def update(self, data):
         """
         Update content of the QMLbase and its children with the dict data.
-        If set_blanks is True, fields not contained in data will be set to empty strings,
-        otherwise leave the current content.
         """
 
         if self.id in data:
             self.data = string_manipulation.sanitize_html(data[self.id])
-        elif self.has_text and set_blanks:
-            self.data = ""
 
         for child in self.children:
             child.update(data)
