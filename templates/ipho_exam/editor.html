@@ -693,7 +693,18 @@ body { margin-bottom: 70px; }
 
             $('#copy-modal .btn-warning').on('click', function (evt){
               evt.preventDefault();
-              $(".translate-copy-button").click();
+		$(".translate-copy-button").each(function (index, obj) {
+		    const field_id = obj.id.replace('-copy', '');
+		    var is_empty;
+		    if (field_id in all_editors)
+			is_empty = !all_editors[field_id].getData();
+		    else
+			is_empty = !$('#'+field_id+'-translate input[type="text"]').val();
+		    // only copy over the ones where the translation has nothing
+		    if (is_empty) {
+			obj.click();
+		    }
+		});
               $('#copy-modal').modal('hide');
             });
 
