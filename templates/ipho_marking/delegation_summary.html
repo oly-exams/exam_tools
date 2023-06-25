@@ -24,8 +24,8 @@
 
     <div class="tab-pane active" id="scans">
       <p class="lead">Download scanned exams.</p>
-      <p class="alert alert-info"><i class="fa fa-info-circle fa-lg"></i> Pending documents still have to be processed
-        by the organizers.</p>
+      <p class="alert alert-info"><i class="fa fa-info-circle fa-lg"></i> Some scans may not be available yet. 
+        If so, please check back later.</p>
 
       {% for exam,questions,scans_of_participants in scans_table_per_exam %}
       <div class="panel panel-default">
@@ -72,12 +72,10 @@
 
     <div class="tab-pane" id="marking">
       <p class="lead">
-        <!-- Submit your marking and see the official marks. -->
-        {% if exam_list %}
-        <a class="btn btn-default btn-sm" href="{% url 'marking:delegation-export-all' %}"><i
-        class="fa fa-file-excel-o"></i> Export All</i></a>
-        {% endif %}
+        Submit your marks and see the marks awarded by the local organizers.
       </p>
+      <p class="alert alert-info"><i class="fa fa-info-circle fa-lg"></i> Do not forget to submit your marks
+        to the local organizers once your are done with entering.</p>
 
       {% for exam_ctxt in exam_list %}
       <div class="panel panel-default">
@@ -107,27 +105,27 @@
                   <a {% if not question_ctxt.edit %}disabled{% endif %} style="max-width: 9em;"
                     class="btn btn-warning btn-xs btn-block"
                     href="{% url 'marking:delegation-ppnt-detail-edit' ppnt_id=participant_ctxt.pk question_id=question_ctxt.pk %}"><i
-                      class="fa fa-pencil"></i> Edit marks</a>
+                      class="fa fa-pencil"></i> Enter marks</a>
                 </span>
               </td>
               {% endfor %}
             </tr>
             {% endfor %}
             <tr>
-              <td></td>
+              <td><strong>All my participants</strong></td>
               {% for question in exam_ctxt.questions  %}
               <td>
                 <span class="tooltip-span" data-toggle="tooltip" title="{{ question.view_tooltip }}">
                   <a {% if not question.view_all %}disabled{% endif %} style="max-width: 9em;" data-toggle="tooltip"
                     title="{{ question.viewall_tooltip }}" class="btn btn-default btn-xs btn-block"
                     href="{% url 'marking:delegation-all-detail' question_id=question.pk %}"><i class="fa fa-eye"></i>
-                    View all marks</a>
+                    View marks</a>
                 </span>
                 <span class="tooltip-span" data-toggle="tooltip" title="{{ question.edit_tooltip }}">
                   <a {% if not question.edit_all %}disabled{% endif %} style="max-width: 9em;" data-toggle="tooltip"
                     title="{{ question.editall_tooltip }}" class="btn btn-warning btn-xs btn-block"
                     href="{% url 'marking:delegation-all-detail-edit' question_id=question.pk %}"><i
-                      class="fa fa-pencil"></i> Edit all marks</a>
+                      class="fa fa-pencil"></i> Enter marks</a>
                 </span>
               </td>
               {% endfor %}
@@ -149,7 +147,7 @@
                 {% elif action %}
                 <span class="tooltip-span" data-toggle="tooltip" title="{{ action.tooltip }}">
                   <a style="max-width: 20em;" href="{{ action.link }}"
-                    class="btn {{ action.class|default:"btn-default" }} btn-sm btn-block"
+                    class="btn {{ action.class|default:"btn-warning" }} btn-sm btn-block"
                     {% if action.disabled %}disabled{% endif %}>{{ action.text }} <i
                       class="fa fa-angle-double-right"></i></a>
                 </span>
@@ -166,10 +164,14 @@
       <p class="alert alert-info">Marking is currently not enabled for any exam.</p>
       {% endfor %}
 
+      {% if exam_list %}
+      <a class="btn btn-default btn-sm" href="{% url 'marking:delegation-export-all' %}"><i
+      class="fa fa-file-excel-o"></i> Export all exams</i></a>
+      {% endif %}
     </div>
 
     <div class="tab-pane" id="final-points">
-      <p class="lead">Final results of your delegation decided after the {% trans "moderation" %} session.</p>
+      <p class="lead">Final marks of your participants as agreed upon in the {% trans "moderation" %} session.</p>
 
       <div class="panel panel-default">
         <table class="table table-striped">

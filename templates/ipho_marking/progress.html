@@ -14,8 +14,10 @@
 
 {% block page-content %}
 
+<p class="alert alert-info"><i class="fa fa-info-circle fa-lg"></i> Note that only participants with unfinished marks are shown.</p>
+
 <div class="dropdown">
-  Version:
+  <strong>Version:</strong>
   <button class="btn btn-default dropdown-toggle" type="button" id="dropdownVersion" data-toggle="dropdown">
     {{ version }}
     <span class="caret"></span>
@@ -26,7 +28,6 @@
     {% endfor %}
   </ul>
 </div>
-<p>Note that only participants with unfinished marks are shown.</p>
 
 <br />
 
