@@ -1,3 +1,64 @@
+[tool.poetry]
+name = "exam_tools"
+version = "0.1.0"
+description = ""
+authors = ["OlyExams Team <thomas.uehlinger@oly-exams.org>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+future = "~=0.18"
+Django = "~=4.1.3"
+django-ace = "~=1.0"
+django-celery-results = "~=2.4"
+django-crispy-forms = "~=1.14"
+django-dbbackup = "~=4.0"
+django-filter = "~=22.1"
+django-ipware = "~=4.0"
+django-polymorphic = "~=3.1"
+djangorestframework = "~=3.14"
+drf-spectacular = "~=0.24"
+tornado = "~=6.2"
+pywebpush = "~=1.14"
+CairoSVG = "~=2.5"
+python-barcode = "~=0.14"
+PyPDF2 = "~=2.11"
+mkdocs = "~=1.4"
+Celery = "~=5.0"
+flower = "~=1.2"
+requests = "~=2.28"
+Pillow = "~=9.3"
+iso3166 = "~=2.1"
+lxml = "~=4.9"
+html5lib = "~=1.1"
+beautifulsoup4 = "~=4.11"
+qrcode = "~=7.3"
+Wand = "~=0.6"
+python-dateutil = "~=2.8"
+cssutils = "~=2.6"
+google-cloud-translate = "~=3.8"
+deepl = "~=1.11"
+unittest-xml-reporting = "~=3.2"
+psycopg2 = "~=2.9"
+pypandoc = "~=1.10"
+latex2mathml = "~=3.74"
+html-diff = "~=0.4"
+pandas = "~=2.0"
+
+[tool.poetry.group.dev.dependencies]
+yapf = "~=0.32"
+pylint = "~=2.15"
+docker = "~=6.0"
+pre-commit = "~=2.20"
+pylint-django = "~=2.5"
+
+[tool.poetry.group.test.dependencies]
+pytest-django = { git = "https://github.com/pytest-dev/pytest-django", rev = "53373573f905ec5e0ec5786f49efdcdca5ae41fd" }
+pytest = ">= 7.2.0, <8"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "exam_tools.settings_testing"
 testpaths = [
