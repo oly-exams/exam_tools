@@ -796,7 +796,7 @@
       "notosanssinhala"
     ],
     "language": "Sinhalese",
-    "polyglossia": null,
+    "polyglossia": "french",
     "polyglossia_options": null
   },
   "slovak": {
