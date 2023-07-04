@@ -153,7 +153,7 @@ def translate_deepl(from_lang, to_lang, text):
     # translate
     try:
         translated_text = translate_client.translate_text(
-            text, source_lang=from_lang, target_lang=to_lang
+            text, source_lang=from_lang, target_lang=to_lang, tag_handling="html"
         ).text
     except (ValueError, TypeError, deepl.DeepLException) as err:
         # log error and use google as a fallback
