@@ -118,8 +118,5 @@ def send2queue(
     if req.status_code == 200:
         return SUCCESS
 
-    try:
-        error_msg = req.json()["message"]
-    except Exception:  # pylint: disable=broad-except
-        error_msg = ""
+    error_msg = req.json()["message"]
     raise PrinterError(error_msg)
