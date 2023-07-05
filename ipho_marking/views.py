@@ -375,7 +375,7 @@ def export(
                     points.append(None)
 
             row += points
-            if include_totals and all_visible:
+            if include_totals:
                 for question in questions:
                     # Only append total if all markings are visible
                     q_markings = version_markings.filter(
@@ -402,7 +402,10 @@ def export(
                         points_exam = QuestionPointsRescale.external_sum_for_exam(
                             e_markings, participant_code=None, exam=None
                         )
-                        student_total += points_exam
+                        if points_exam is None:
+                            student_total = None  # disable the student total if any of an exam sum is None
+                        elif student_total is not None:
+                            student_total += points_exam  # only add if both the grand total and the exam total are not None
                         row.append(points_exam)
                     else:
                         row.append(None)
