@@ -108,7 +108,7 @@
 {
 \end{minipage}
 \parbox{.1\textwidth}{
-  \hspace{1em} \QTFpoints pt
+  \hspace{1em} \begin{english} \QTFpoints ~pt \end{english}
 }
 % \vspace{0.5em}
 \end{framed}
