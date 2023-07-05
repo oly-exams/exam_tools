@@ -440,7 +440,7 @@ PRINTER_QUEUES = {
     # },
     "generic.printer-1": {
         "name": "Generic printer",
-        "host": "",
+        "host": "localhost",
         "queue": "printer-1",
         "auth_token": "",
         "opts": {"Duplex": "None", "ColourModel": "Colour", "Staple": "1PLU"},
