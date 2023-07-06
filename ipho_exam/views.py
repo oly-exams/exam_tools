@@ -3119,7 +3119,7 @@ def submission_exam_assign(
                 participant_seat = Place.objects.get(participant=participant).name
             except Place.DoesNotExist:
                 participant_seat = ""
-            questions = exam.question_set.all()
+            questions = exam.question_set.all().order_by("name")
             if exam.flags & exam.FLAG_SQUASHED:
                 grouped_questions = {
                     0: [
