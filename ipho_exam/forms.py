@@ -704,7 +704,7 @@ class DelegationScanManyForm(forms.Form):
 
 class ExtraSheetForm(forms.Form):
     participant = forms.ModelChoiceField(queryset=Participant.objects.all())
-    quantity = forms.IntegerField()
+    quantity = forms.IntegerField(initial=1)
     template = forms.ChoiceField(
         widget=forms.RadioSelect,
         choices=(
@@ -717,6 +717,10 @@ class ExtraSheetForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["question"] = forms.ModelChoiceField(
             queryset=Question.objects.filter(exam_id=exam_id, code="Q")
+        )
+        # limit the choices of participants to the selected exam
+        self.fields["participant"] = forms.ModelChoiceField(
+            queryset=Participant.objects.filter(exam_id=exam_id)
         )
         self.helper = FormHelper()
         self.helper.layout = Layout(
