@@ -86,6 +86,9 @@ ADD_DELEGATION_WATERMARK = True
 # to facilitate sorting the printed pages
 ADD_DELEGATION_PRINT_BANNER = True
 
+# whether a cover page should be included in the exam (official prints)
+INCLUDE_COVER = True
+
 # Defines whether a QR code should be printed on the cover sheets
 CODE_ON_COVER_SHEET = False
 
