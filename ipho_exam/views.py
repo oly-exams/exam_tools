@@ -1449,8 +1449,6 @@ def feedbacks_add_comment(request, feedback_id=None):
     if form.is_valid():
         feedback.org_comment = form.cleaned_data["comment"]
         feedback.save()
-        print(feedback)
-        print(feedback.org_comment)
 
         return JsonResponse(
             {
@@ -1616,7 +1614,6 @@ def feedbacks_export_csv(request, exam_id, question_id):
 @ensure_csrf_cookie
 def figure_list(request):
     fig_list = Figure.objects.all()
-    print(fig_list)
     return render(
         request,
         "ipho_exam/figures.html",
@@ -2470,7 +2467,6 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
             }
         )
 
-    print(block.content_html())
     form_html = render_crispy_form(form)
     attrs_form_html = render_crispy_form(attrs_form, AdminBlockAttributeHelper())
     return JsonResponse(
@@ -4139,13 +4135,12 @@ def pdf_exam_for_participant(request, exam_id, participant_id):
         k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)
     }
     grouped_questions = OrderedDict(sorted(grouped_questions.items()))
-    for position, qgroup in list(grouped_questions.items()):
+    for _, qgroup in list(grouped_questions.items()):
         question_task = question_utils.compile_ppnt_exam_question(
             qgroup, participant_languages
         )
         result = question_task.delay()
         all_tasks.append(result)
-        print("Group", position, "done.")
     filename = f"exam-{slugify(exam.name)}-{participant.code}.pdf"
     chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
     # chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
@@ -4462,7 +4457,6 @@ def bulk_print(
                 "<strong>No jobs sent</strong> Invalid form, please check below",
             )
         )
-    print(messages)
 
     all_docs = Document.objects.for_user(request.user).filter(
         participant__delegation__in=filter_dg,
@@ -4717,7 +4711,21 @@ def extra_sheets(request, exam_id=None):
         position = question.position
         quantity = form.cleaned_data["quantity"]
         template_name = form.cleaned_data["template"]
-        doc = get_object_or_404(Document, position=position, participant=participant)
+
+        try:
+            doc = Document.objects.get(position=position, participant=participant)
+        except Document.DoesNotExist:
+            messages.append(
+                (
+                    "alert-danger",
+                    "No submitted document found for selected participant and question.",
+                )
+            )
+            return render(
+                request,
+                "ipho_exam/extra_sheets.html",
+                {"form": form, "messages": messages},
+            )
 
         doc_pdf = question_utils.generate_extra_sheets(
             participant, question, doc.extra_num_pages, quantity, template_name
