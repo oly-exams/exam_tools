@@ -1,0 +1,34 @@
+{% extends "ipho_marking/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load editor_extras %}
+
+{% block extra-head %}
+{% endblock %}
+
+{% block page-content %}
+
+  <h2>Markings for {{ question.exam.name }} - {{ question.name }}</h2>
+  
+  <p> {{ number_markings }} markings loaded successfully. </p>
+
+  
+  <div class="row">
+  <div class="col-md-5">
+    <table class="table table-striped success">
+      <tr>
+        <th>Participant</th>
+      </tr>
+      {% for student in students %}
+      <tr>
+        <td>{{ student }}</td>
+      </tr>
+      {% endfor %}
+  </table>
+  </div>
+  </div>
+
+{% endblock %}
+
+{% block extra-script %}
+{% endblock %}

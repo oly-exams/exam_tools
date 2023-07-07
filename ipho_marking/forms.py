@@ -25,6 +25,10 @@ from ipho_exam.models import Exam
 from .models import Marking
 
 
+class UploadMarkingForm(Form):
+    file = forms.FileField()
+
+
 class ImportForm(Form):
     exam = forms.ModelChoiceField(
         queryset=Exam.objects.filter(

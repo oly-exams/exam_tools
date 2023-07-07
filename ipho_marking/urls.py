@@ -74,6 +74,11 @@ urlpatterns = [
         name="official-marking-index-question",
     ),
     path(
+        "official/question/<int:question_id>/template",
+        views.create_marking_template,
+        name="official-marking-template",
+    ),
+    path(
         "official/question/<int:question_id>/delegation/<int:delegation_id>",
         views.official_marking_detail,
         name="official-marking-detail",

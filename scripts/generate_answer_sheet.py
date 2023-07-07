@@ -21,6 +21,11 @@ template = Template(
 
 def generate_answer_box(question_nr, points, part_nr="Q"):
     id = secrets.token_hex(32)
+    try:
+        if abs(int(question_nr) - question_nr) < 1e-10:
+            question_nr = int(question_nr)
+    except:
+        pass
     return template.substitute(
         points=points, part_nr=part_nr, question_nr=question_nr, id=id
     )
