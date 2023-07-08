@@ -533,7 +533,6 @@ body { margin-bottom: 70px; }
             // TODO: remove once the tests have been converted to \( \) format. $ $ is too dangerous, since it might delimit two prices in dollars.
             var newtext = $(this).html().replace(/\$(.+?)\$/g, '<span class="math-tex">\\($1\\)</span>');
             $(this).html(newtext);
-            console.log(this, MathJax.Hub.config);
             MathJax.Hub.Queue(["Typeset",MathJax.Hub, this]);
         }
 
@@ -606,7 +605,6 @@ body { margin-bottom: 70px; }
 
             $(document).ready(function () {
               $('.translate-original .math-tex').each(function () {
-                  console.log('before button');
                   var content = $(this).html();
                   $(this).prepend('<button class="btn btn-xs btn-default small" data-clipboard-snippet><i class="fa fa-clipboard" aria-hidden="true"></i></button>').children('[data-clipboard-snippet]').attr('data-clipboard-text', '<span class="math-tex">'+content+'</span>').tooltip({
                       trigger: 'click',
@@ -904,7 +902,7 @@ body { margin-bottom: 70px; }
                           $.ajax(this);
                           return;
                       } else {
-                        console.log(new Date() + ' This is continous error, giving up!');
+                        console.log(new Date() + ' This is persisting error, giving up!');
                         documentStatus = 'FAILED';
                         updateDocumentStatus();
                         $form.find('button[type="submit"]').removeClass('btn-shallow-disabled').tooltip();
