@@ -49,6 +49,7 @@ from .models import (
 )
 from .forms import ImportForm, PointsForm, UploadMarkingForm
 from .import_marking import import_marking, generate_template
+from .export_marking import get_final_marks
 
 import pandas as pd
 
@@ -259,7 +260,12 @@ def staff_ppnt_detail(request, version, ppnt_id, question_id):
 
 @permission_required("ipho_core.is_organizer_admin")
 def export_with_total(request):
-    return export(request, include_totals=True)
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="markings_final.csv"'
+
+    df = get_final_marks()
+    df.to_csv(response)
+    return response
 
 
 @permission_required("ipho_core.is_organizer_admin")

@@ -196,8 +196,8 @@
                   {% endif %}
                   <li><a href="{% url 'marking:moderation-index' %}">{% trans "Moderation" %}</a></li>
                   {% if perms.ipho_core.is_organizer_admin %}
-                  <li><a href="{% url 'marking:export' %}">Export markings</a></li>
-                  <li><a href="{% url 'marking:export-total' %}">Export markings (with totals)</a></li>
+                  {% comment %} <li><a href="{% url 'marking:export' %}">Export markings</a></li> {% endcomment %}
+                  <li><a href="{% url 'marking:export-total' %}">Export final markings </a></li>
                   {% endif %}
                   <li class="divider"></li>
                   {% endif %}
