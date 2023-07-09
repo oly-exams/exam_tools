@@ -1261,8 +1261,8 @@ class RawFigure(Figure):
 
 
 class PlaceManager(models.Manager):
-    def get_by_natural_key(self, name, exam_name):
-        return self.get(name=name, exam__name=exam_name)
+    def get_by_natural_key(self, name, participant_key):
+        return self.get(name=name, participant=Participant.objects.get_by_natural_key(*participant_key))
 
 
 class Place(models.Model):
@@ -1275,7 +1275,7 @@ class Place(models.Model):
         return f"{self.name} [{self.participant.exam.name} {self.participant.code}]"
 
     def natural_key(self):
-        return (self.name, self.participant.exam.name)
+        return (self.name, self.participant.natural_key())
 
     class Meta:
         unique_together = index_together = ("participant",)
