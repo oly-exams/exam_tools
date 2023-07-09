@@ -23,7 +23,7 @@ def get_extra_sheets_count(exam_name, output_file):
     res = [(d.participant, d.position, d.extra_num_pages) for d in docs]
     with open(output_file, "w") as f:
         writer = csv.writer(f)
-        writer.writerow(["participant_code", "quesiton_number", "extra_num_pages"])
+        writer.writerow(["participant_code", "question_number", "extra_num_pages"])
         writer.writerows(res)
 
 
