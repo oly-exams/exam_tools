@@ -22,10 +22,13 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, HTML
 
 
+from ipho_exam.models import Feedback
 from ipho_poll.models import Voting, VotingChoice, CastedVote
 
 
 class VotingForm(ModelForm):
+    feedbacks = forms.ModelMultipleChoiceField(Feedback.objects.order_by('pk'))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
