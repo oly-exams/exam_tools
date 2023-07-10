@@ -120,7 +120,7 @@
     \def\QSApoints{#1} %\vspace{0.5em}
     \renewcommand{\arraystretch}{2.}
     \begin{framed}\noindent\begin{minipage}[t][#4][t]{\textwidth}
-    {\noindent \begin{english} \textbf{#2.#3} \QSApoints pt \end{english}}
+    {\noindent \begin{english} \textbf{#2.#3} (\QSApoints pt) \end{english}}
 
 }
 {
