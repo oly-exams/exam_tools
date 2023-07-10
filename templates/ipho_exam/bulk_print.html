@@ -193,7 +193,7 @@ This list shows only documents that have been submitted by the delegations.
             <td>{{ d.pk }} </td>
             <td>{{ d.participant__exam__name }}<br>Submitted:
               {% if d.participant__exam__delegation_status__timestamp %}
-              <time datetime="{{ d.participant__exam__delegation_status__timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+              <time datetime="{{ d.participant__exam__delegation_status__timestamp|date:"c" }}" data-format="YYYY-MM-DD HH:mm:ss"></time>
               {% else %}
               --:--
               {% endif %}
@@ -222,9 +222,9 @@ This list shows only documents that have been submitted by the delegations.
               Printing is not activated for exam: {{ d.participant__exam__name }}
               {% endif %}
               <br />
-              Print time:
+              Printed:
               {% if d.last_print_p %}
-              <time datetime="{{ d.last_print_p|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+              <time datetime="{{ d.last_print_p|date:"c" }}" data-format="YYYY-MM-DD HH:mm:ss"></time>
               {% else %}
               --:--
               {% endif %}
@@ -246,17 +246,17 @@ This list shows only documents that have been submitted by the delegations.
                   </ul>
                 </div>
                 <br />
-                Scan time:
+                Scanned:
                 {% if d.timestamp %}
-                <time datetime="{{ d.timestamp|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+                <time datetime="{{ d.timestamp|date:"c" }}" data-format="YYYY-MM-DD HH:mm:ss"></time>
                 {% else %}
                 --:--
                 {% endif %}
                 <br />
-                Print time:
+                Printed:
                 <span class="scan-print-time">
                 {% if d.last_print_s %}
-                <time datetime="{{ d.last_print_s|date:"c" }}" data-format="DD. MMM HH:mm:ss"></time>
+                <time datetime="{{ d.last_print_s|date:"c" }}" data-format="YYYY-MM-DD HH:mm:ss"></time>
                 {% else %}
                 --:--
                 {% endif %}
