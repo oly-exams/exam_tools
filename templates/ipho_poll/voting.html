@@ -88,41 +88,6 @@
 
           </table>
     </div>
-
-
-
-    <!-- {% if not votes %}
-    <div class="alert alert-info">There are no votes yet.</div>
-    {% else %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><h2>Votes</h2></div>
-            <div class="panel-body">
-                <div class="row">
-                {% for col_users in cols %}
-                    <div class="list-group col-md-4 col-sm-6">
-                    {% for user in col_users %}
-                        <div class="list-group-item">
-                            <div class="row">
-                                <div class="col-xs-6">
-                                    {{ user }}
-                                </div>
-                                <div class="col-xs-6">
-                                    {% for vote in votes %}
-                                        {% if vote.voting_right.user == user%}
-                                            {{ vote.choice.label }} |
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                    </div>
-                {% endfor %}
-                </div>
-            </div>
-        </div>
-    {% endif %} -->
-
 </div>
 
 {% endblock %}
