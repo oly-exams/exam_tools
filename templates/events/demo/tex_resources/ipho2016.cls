@@ -108,7 +108,7 @@
 {
 \end{minipage}
 \parbox{.1\textwidth}{
-  \hspace{1em} \begin{english} \QTFpoints ~pt \end{english}
+   \hspace{1em} \begin{english} \QTFpoints pt \end{english}
 }
 % \vspace{0.5em}
 \end{framed}
@@ -120,7 +120,7 @@
     \def\QSApoints{#1} %\vspace{0.5em}
     \renewcommand{\arraystretch}{2.}
     \begin{framed}\noindent\begin{minipage}[t][#4][t]{\textwidth}
-    {\noindent\textbf{ \begin{english} #2.#3 $(\QSApoints ~\text{pt})$ \end{english}}}
+    {\noindent \begin{english} \textbf{#2.#3} \QSApoints pt \end{english}}
 
 }
 {
