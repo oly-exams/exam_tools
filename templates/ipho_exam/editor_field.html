@@ -12,7 +12,7 @@
     {% if field.original != None %}
         <div class="row">
             <div class="col-xs-5">
-                <div class="translate-original{% if orig_lang.direction == 'rtl' %} rtl{% endif %}" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
+                <div class="translate-original {% if orig_lang.direction == 'rtl' and field.tag != "equation" and field.tag != "equation_unnumbered" %}rtl{% endif %}" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
                     {% if field.tag == "equation" %}
                     \({{ field.original_html|safe }}\)
                     {% elif field.tag == "equation_unnumbered" %}
@@ -32,7 +32,7 @@
             </button>
           </div>
                 <div class="col-xs-5">
-                    <div class="translate-foreign {% if trans_lang.direction == 'rtl' %}rtl{% endif %}" id="{{ field.id }}-translate">
+                    <div class="translate-foreign {% if trans_lang.direction == 'rtl' and field.tag != "equation" and field.tag != "equation_unnumbered" %}rtl{% endif %}" id="{{ field.id }}-translate">
                         {{ form|lookup:field.id }}
                     </div>
                 </div>
@@ -41,7 +41,7 @@
     {% elif field.original_html %}
         <div class="row">
             <div class="col-xs-5">
-                <div class="{% if trans_lang.direction == 'rtl' %}rtl{% endif %}">
+                <div class="{% if trans_lang.direction == 'rtl' and field.tag != "equation" and field.tag != "equation_unnumbered" %}rtl{% endif %}">
                     {% if field.tag == "equation" %}
                     \({{ field.original_html|safe }}\)
                     {% elif field.tag == "equation_unnumbered" %}
