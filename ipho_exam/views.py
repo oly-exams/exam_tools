@@ -4226,6 +4226,7 @@ def task_status(request, token):
 
 
 def _wrap_pre(s):
+    s = escape(s)
     return "".join(f"<span>{l}</span>" for l in s.split("\n"))
 
 
