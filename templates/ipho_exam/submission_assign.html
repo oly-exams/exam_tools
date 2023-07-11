@@ -87,8 +87,8 @@
                 </label>
               </div>
               {% if not no_answer and not no_answer_language %}
-                  <div class="radio hidden {% if not lang_id in form.languages.value|intlist %}disabled{% endif %} {% if form.answer_language.errors %}has-error{% endif %}">
-                    <label>
+                  <div class="radio {% if not lang_id in form.languages.value|intlist %}disabled{% endif %} {% if form.answer_language.errors %}has-error{% endif %}">
+                    <label hidden>
                       <input type="radio" id="{{ form.answer_language.html_name }}-val-{{ lang_id }}" name="{{ form.answer_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.answer_language.value|escape %}checked{% endif %} {% if not lang_id in form.languages.value|intlist %}disabled{% endif %}/>
                       with answer sheets
                     </label>
@@ -135,7 +135,7 @@
 {{ block.super }}
 <script>
 $(function() {
-    $(':radio[name^="ppnt"]').change(function() {
+    $(':checkbox[name^="ppnt"]').change(function() {
         $checkbox = $(this);
         $radio = $('#'+$checkbox.attr('id').replace('languages','answer_language'));
         if ($checkbox.is(':checked')) {
