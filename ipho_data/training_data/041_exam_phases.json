@@ -4,7 +4,9 @@
         "position": 0,
         "exam_settings": {
             "visibility":-1,
+            "can_publish":-1,
             "can_translate":-1,
+            "can_submit":-1,
             "feedback":-1,
             "submission_printing":-1,
             "answer_sheet_scan_upload":-1,
@@ -28,7 +30,9 @@
         "position": 1,
         "exam_settings": {
             "visibility":0,
+            "can_publish":0,
             "can_translate":-1,
+            "can_submit":-1,
             "feedback":-1,
             "submission_printing":-1,
             "answer_sheet_scan_upload":-1,
@@ -52,7 +56,9 @@
         "position": 2,
         "exam_settings": {
             "visibility":0,
+            "can_publish":0,
             "can_translate":0,
+            "can_submit":-1,
             "feedback":-1,
             "submission_printing":-1,
             "answer_sheet_scan_upload":-1,
@@ -76,7 +82,9 @@
         "position": 3,
         "exam_settings": {
             "visibility":1,
+            "can_publish":0,
             "can_translate":-1,
+            "can_submit":-1,
             "feedback":1,
             "submission_printing":-1,
             "answer_sheet_scan_upload":-1,
@@ -100,7 +108,9 @@
         "position": 4,
         "exam_settings": {
             "visibility":1,
+            "can_publish":0,
             "can_translate":1,
+            "can_submit":-1,
             "feedback":1,
             "submission_printing":-1,
             "answer_sheet_scan_upload":-1,
@@ -124,7 +134,9 @@
         "position": 5,
         "exam_settings": {
             "visibility":1,
+            "can_publish":-1,
             "can_translate":1,
+            "can_submit":1,
             "feedback":0,
             "submission_printing":-1,
             "answer_sheet_scan_upload":-1,
@@ -148,7 +160,9 @@
         "position": 6,
         "exam_settings": {
             "visibility":1,
+            "can_publish":-1,
             "can_translate":-1,
+            "can_submit":-1,
             "feedback":-1,
             "submission_printing":0,
             "answer_sheet_scan_upload":-1,
@@ -172,7 +186,9 @@
         "position": 7,
         "exam_settings": {
             "visibility":1,
+            "can_publish":-1,
             "can_translate":-1,
+            "can_submit":-1,
             "feedback":-1,
             "submission_printing":-1,
             "answer_sheet_scan_upload":0,
@@ -196,7 +212,9 @@
         "position": 8,
         "exam_settings": {
             "visibility":1,
+            "can_publish":-1,
             "can_translate":-1,
+            "can_submit":-1,
             "feedback":-1,
             "submission_printing":-1,
             "answer_sheet_scan_upload":-1,
@@ -220,7 +238,9 @@
         "position": 9,
         "exam_settings": {
             "visibility":1,
+            "can_publish":-1,
             "can_translate":-1,
+            "can_submit":-1,
             "feedback":-1,
             "submission_printing":-1,
             "answer_sheet_scan_upload":-1,
@@ -244,7 +264,9 @@
         "position": 10,
         "exam_settings": {
             "visibility":1,
+            "can_publish":-1,
             "can_translate":-1,
+            "can_submit":-1,
             "feedback":-1,
             "submission_printing":-1,
             "answer_sheet_scan_upload":-1,
@@ -268,7 +290,9 @@
         "position": 11,
         "exam_settings": {
             "visibility":1,
+            "can_publish":-1,
             "can_translate":-1,
+            "can_submit":-1,
             "feedback":-1,
             "submission_printing":-1,
             "answer_sheet_scan_upload":-1,
@@ -292,7 +316,9 @@
         "position": 12,
         "exam_settings": {
             "visibility":1,
+            "can_publish":-1,
             "can_translate":-1,
+            "can_submit":-1,
             "feedback":-1,
             "submission_printing":-1,
             "answer_sheet_scan_upload":-1,

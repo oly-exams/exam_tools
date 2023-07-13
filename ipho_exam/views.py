@@ -224,8 +224,9 @@ def wizard(request):
     ).order_by("name")
     ## Exam section
     exam_list = Exam.objects.for_user(request.user)
+    submittable_exams = exam_list.filter(can_submit__gte=Exam.CAN_SUBMIT_YES)
     open_submissions = ExamAction.objects.filter(
-        exam__in=exam_list,
+        exam__in=submittable_exams,
         delegation=delegation,
         action=ExamAction.TRANSLATION,
         status=ExamAction.OPEN,
@@ -1912,7 +1913,11 @@ def admin_list(request):
         return JsonResponse(
             {
                 "content": render_to_string(
-                    "ipho_exam/partials/admin_exam_tbody.html", {"exam": exam}
+                    "ipho_exam/partials/admin_exam_tbody.html",
+                    {
+                        "exam": exam,
+                        "exam_publishable": exam.check_publishability(request.user),
+                    },
                 ),
             }
         )
@@ -2199,7 +2204,16 @@ def admin_accept_version(
 def admin_publish_version(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+    if not exam.check_publishability(request.user):
+        return JsonResponse(
+            {
+                "success": False,
+                "title": "Not possible",
+                "form": "Publishing new versions is deactivated for this exam!",
+                "hide-publish-button": True,
+            }
+        )
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
@@ -2633,7 +2647,7 @@ def submission_exam_list(request):
 
     exams_open = (
         Exam.objects.for_user(request.user)
-        .filter(can_translate=Exam.get_translatability(request.user))
+        .filter(can_submit=Exam.get_submittability(request.user))
         .exclude(
             delegation_status__in=ExamAction.objects.filter(
                 delegation=delegation,
@@ -3008,7 +3022,7 @@ def submission_exam_assign(
     request, exam_id
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    if not exam.check_translatability(request.user):
+    if not exam.check_submittability(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to submit for this exam."
         )
@@ -3219,7 +3233,7 @@ def submission_exam_confirm(
     request, exam_id
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    if not exam.check_translatability(request.user):
+    if not exam.check_submittability(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to submit for this exam."
         )
