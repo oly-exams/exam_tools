@@ -13,7 +13,7 @@ tornado~=6.2
 pywebpush~=1.14
 CairoSVG~=2.5
 python-barcode~=0.14
-PyPDF2~=2.11
+PyPDF2 >1.28, <2
 mkdocs~=1.4
 Celery~=5.0
 flower~=1.2
