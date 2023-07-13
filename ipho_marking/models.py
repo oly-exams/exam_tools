@@ -58,9 +58,9 @@ def generate_markings_from_exam(exam, user=None):
             mmeta, created = MarkingMeta.objects.update_or_create(
                 question=question,
                 name=name,
-                defaults={"max_points": points, "position": i},
+                defaults={"max_points": abs(points), "position": i},
             )
-            total_points += points
+            total_points += abs(points)
             num_created += created
             num_tot += 1
 
