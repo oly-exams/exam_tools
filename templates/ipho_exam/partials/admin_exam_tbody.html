@@ -79,7 +79,7 @@
                               {% endfor %}
                           </ul>
                       </div>
-                      {% if node.status == 'S' %}
+                      {% if node.status == 'S' and exam_publishable %}
                         <a class="btn btn-xs btn-primary" data-toggle="modal" data-target="#publish-modal" data-remote="false" href="{% url 'exam:admin-publish-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="fa fa-play-circle"></i> publish</a>
                       {% endif %}
                     </div>
