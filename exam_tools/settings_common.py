@@ -110,6 +110,9 @@ SIGN_OFF_FINAL_MARKS = False
 # Defines wheter negative marks are allowed
 ALLOW_NEGATIVE_MARKS = False
 
+# Defines wheter marks can be None (in official and delegation marking)
+ALLOW_MARKS_NONE = False
+
 # Shows the remaining delegations in voting fullscreen view.
 VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
 

@@ -22,10 +22,17 @@
       {% for marking in markings %}
       <tr>
         <td>{{ marking.participant.full_name }} ({{ marking.participant.code }})</td>
-        <td>{{ marking.total|floatformat:"2" }}</td>
+        {% if marking.participant.pk not in markings_none %}
+          <td>{{ marking.total|floatformat:"2" }}</td>
+        {% else %}
+          <td>Incomplete</td>
+        {% endif %}
       </tr>
       {% endfor %}
-  </table>
+    </table>
+    <a id="edit_link" href="{% url 'marking:official-marking-detail' question_id=question.pk delegation_id=delegation.pk %}" class="btn btn-default"><i class="fa fa-pencil" aria-hidden="true"></i> Edit again</a>
+    <a id="selection_link" href="{% url 'marking:official-marking-index-question' question_id=question.pk %}" class="btn btn-default"><i class="fa fa-list" aria-hidden="true"></i> Go to delegation selection</a>
+  
   </div>
   </div>
 

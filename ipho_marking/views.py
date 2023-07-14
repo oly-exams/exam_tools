@@ -19,6 +19,7 @@
 import csv
 import decimal
 import itertools
+from functools import reduce
 from hashlib import md5
 from collections import OrderedDict, namedtuple
 
@@ -51,19 +52,16 @@ from .forms import ImportForm, PointsForm
 
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
-
+ALLOW_MARKS_NONE = getattr(settings, "ALLOW_MARKS_NONE", False)
 
 DiffColorPair = namedtuple("DiffColorPair", ["O", "D"])
 EmptyMarking = namedtuple("EmptyMarking", ["points", "comment"])
 
 
 def get_diff_color_pair(official, delegation):
-    if official is None or delegation is None:
-        return DiffColorPair("", "")
-
     if official == delegation:
         return DiffColorPair("", "")
-    if official > delegation:
+    if delegation is None or official is not None and official > delegation:
         return DiffColorPair("info", "warning")
     return DiffColorPair("warning", "info")
 
@@ -98,6 +96,11 @@ def get_valid_marking_question_list(request, editable):
                     question_list.append(answer_sheet)
 
     return question_list
+
+def sum_if_not_none(iterable):
+    return reduce(
+        lambda x, y: x + y if (x is not None and y is not None) else None, iterable
+    )
 
 
 @permission_required("ipho_core.is_organizer_admin")
@@ -176,9 +179,12 @@ def summary(request):  # pylint: disable=too-many-locals
                 marking_meta__question=question["question__pk"],
                 participant__code=code,
             )
-            points_question = ppnt_markings_question.aggregate(Sum("points"))[
-                "points__sum"
-            ]
+            if ppnt_markings_question.filter(points__isnull=True).exists():
+                points_question = "-"
+            else:
+                points_question = ppnt_markings_question.aggregate(Sum("points"))[
+                    "points__sum"
+                ]
             ppnt_question_points_list.append(points_question)
 
             editable = editable_markings.filter(
@@ -322,6 +328,7 @@ def export(
 
     csv_rows.append(title_row)
 
+    # pylint: disable=too-many-nested-blocks
     for student in Student.objects.all():
         participants = student.participant_set.all()
         for version in versions:
@@ -390,6 +397,7 @@ def export(
                         row.append(None)
 
                 student_total = 0
+                no_none = False
                 for exam in exams:
                     # Only append total if all markings are visible
                     # If some marks are not visible
@@ -402,16 +410,16 @@ def export(
                         points_exam = QuestionPointsRescale.external_sum_for_exam(
                             e_markings, participant_code=None, exam=None
                         )
-                        if points_exam is None:
-                            student_total = None  # disable the student total if any of an exam sum is None
-                        elif student_total is not None:
-                            student_total += points_exam  # only add if both the grand total and the exam total are not None
+                        if points_exam is not None:
+                            student_total += points_exam
+                        else:
+                            no_none = False
                         row.append(points_exam)
                     else:
                         row.append(None)
 
-                # Only append total if all markings are visible
-                if all_visible:
+                # Only append total if all markings are visible and none are None
+                if all_visible and no_none:
                     pass
                 else:
                     student_total = None
@@ -1163,10 +1171,10 @@ def delegation_view_all(request, question_id):
     ctx["markings"] = grouped_markings
     ctx["sums"] = [
         {
-            version: sum(
-                entry[1][participant][1][version].points or 0
-                for entry in grouped_markings
+            version: sum_if_not_none(
+                entry[1][participant][1][version].points for entry in grouped_markings
             )
+            or "-"
             for version in ["O", "D", "F"]
         }
         for participant in range(len(participants))
@@ -1268,7 +1276,9 @@ def delegation_confirm(
             )
         raise ValueError(f"Cannot confirm marks for {question.name}.")
 
-    if any(m.points is None for m in markings_query):
+    empty_markings_present = any(m.points is None for m in markings_query)
+    if empty_markings_present:
+        msg = None
         if (
             final_confirmation
             and marking_action.status == MarkingAction.LOCKED_BY_MODERATION
@@ -1280,12 +1290,13 @@ def delegation_confirm(
             msg = "Some marks for {} are missing, please wait for the organizers to submit all marks!".format(
                 question.name
             )
-        else:
+        elif not ALLOW_MARKS_NONE:
             msg = "Some marks for {} are missing, please submit marks for all subquestions and participants before confirming!".format(
                 question.name
             )
 
-        raise Http404(msg)
+        if msg:
+            raise Http404(msg)
 
     error_messages = []
     if request.POST:  # pylint: disable=too-many-nested-blocks
@@ -1352,7 +1363,7 @@ def delegation_confirm(
     # totals is of the form {question.pk:{participant.pk:total, ...}, ...}
     totals_questions = {
         k: {  # s is a list of markings for participant p
-            p: sum(m.points for m in s)
+            p: sum_if_not_none(m.points for m in s)
             for p, s in itertools.groupby(
                 sorted(g, key=lambda m: m.participant.pk),
                 key=lambda m: m.participant.pk,
@@ -1364,7 +1375,7 @@ def delegation_confirm(
     }
 
     totals = {
-        p: sum(totals_questions[k][p] for k in totals_questions)
+        p: (sum_if_not_none(totals_questions[k][p] for k in totals_questions))
         for p in list(totals_questions.values())[0]
     }
 
@@ -1408,6 +1419,11 @@ def delegation_confirm(
             "confirmation_info"
         ] = f"You need to confirm the marking of your delegation in order to attend the {_('moderation')} or to be able to indicate that you accept the marks without {_('moderation')} in a next step."
         ctx["confirmation_checkbox_label"] = "I confirm my version of the markings."
+        if empty_markings_present:
+            ctx["confirmation_checkbox_label"] = mark_safe(
+                "<b>Some markings are empty!</b> I nonetheless confirm my version of the markings."
+            )
+            ctx["confirmation_alert_class"] = "alert-danger"
         ctx["confirm_button_label"] = "Confirm"
     return render(request, "ipho_marking/delegation_confirm.html", ctx)
 
@@ -1498,6 +1514,7 @@ def moderation_detail(
             queryset=Marking.objects.filter(
                 marking_meta__in=metas, participant=participant, version="F"
             ),
+            form_kwargs={"require_points": True},
         )
         for j, f in enumerate(form):
             f.fields["points"].widget.attrs["tabindex"] = i * len(metas) + j + 1
@@ -1702,10 +1719,24 @@ def official_marking_confirmed(request, question_id, delegation_id):
             "total",
         )
     )
+
+    markings_none_query = (
+        Marking.objects.for_user(request.user, version="O")
+        .filter(marking_meta__question=question, participant__delegation=delegation)
+        .filter(points__isnull=True)
+        .values_list("participant__pk")
+    )
+    markings_none = [pk[0] for pk in markings_none_query]
+
     for ppnt in markings:
         ppnt["participant"] = get_object_or_404(Participant, pk=ppnt["participant__pk"])
 
-    ctx = {"question": question, "delegation": delegation, "markings": markings}
+    ctx = {
+        "question": question,
+        "delegation": delegation,
+        "markings": markings,
+        "markings_none": markings_none,
+    }
     return render(request, "ipho_marking/official_marking_confirmed.html", ctx)
 
 
