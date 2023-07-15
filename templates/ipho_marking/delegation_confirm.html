@@ -50,7 +50,7 @@
           <tr>
             <td><b>Total:</b></td>
           {% for participant in participants %}
-            <td><b>{{ totals_questions|lookup:question.pk|lookup:participant.pk|floatformat:2|default_if_none:"-" }}</b></td>
+            <td><b>{{ totals_questions|lookup:question.pk|lookup:participant.pk|default_if_none:"-" }}</b></td>
           {% endfor %}
           </tr>
         </tfoot>
