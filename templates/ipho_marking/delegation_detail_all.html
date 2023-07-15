@@ -88,7 +88,7 @@
       <tbody>
         {% for meta, participant_points in markings %}
         <tr>
-          <td><strong>{{ meta.name }} ({{ meta.max_points }})</strong></td>
+          <td><strong>{{ meta.name }} ({{ meta.min_points }},{{ meta.max_points }})</strong></td>
           {% for participant, versions in participant_points %}
           <td class="{{ versions.diff_color.O }}">
           {% include "ipho_marking/parts/view_cell.html" with instance=versions.O%}

@@ -17,11 +17,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=consider-using-f-string
-
 from decimal import Decimal
 
 from django.http.response import Http404
+from django.conf import settings
 
 from ipho_exam import qquery
 from ipho_exam.models import Question, VersionNode
@@ -37,6 +36,8 @@ __all__ = [
 OFFICIAL_LANGUAGE_PK = 1
 
 NESTING_LEVELS = [(QMLquestion), (QMLpart), (QMLsubquestion, QMLsubanswer)]
+
+ALLOW_NEGATIVE_MARKS = getattr(settings, "ALLOW_NEGATIVE_MARKS", False)
 
 
 class PointValidationError(ValueError):
@@ -89,6 +90,8 @@ def check_version(version, other_question_status=("C", "S")):
             )
         )
     check_question_answer_consistency(version, other_version)
+    check_min_max_consistency(version)
+    check_min_max_consistency(other_version)
     return (version, other_version)
 
 
@@ -106,6 +109,8 @@ def check_exam(exam):
         check_sum_consistency(version_1)
         check_sum_consistency(version_2)
         check_question_answer_consistency(version_1, version_2)
+        check_min_max_consistency(version_1)
+        check_min_max_consistency(version_2)
 
 
 def check_question_answer_consistency(version_node_1, version_node_2):
@@ -121,10 +126,14 @@ def check_question_answer_consistency(version_node_1, version_node_2):
     qml_2 = make_qml(version_node_2)
 
     flat_nodes_1 = [
-        node for node in _get_flat_node_list(qml_1) if "points" in node.attributes
+        node
+        for node in _get_flat_node_list(qml_1)
+        if ("min_points" in node.attributes or "max_points" in node.attributes)
     ]
     flat_nodes_2 = [
-        node for node in _get_flat_node_list(qml_2) if "points" in node.attributes
+        node
+        for node in _get_flat_node_list(qml_2)
+        if ("min_points" in node.attributes or "max_points" in node.attributes)
     ]
     if len(flat_nodes_1) != len(flat_nodes_2):
         raise PointValidationError(
@@ -139,21 +148,75 @@ def check_question_answer_consistency(version_node_1, version_node_2):
             )
         )
     for node1, node2 in zip(flat_nodes_1, flat_nodes_2):
-        pts1 = _get_points(node1)
-        pts2 = _get_points(node2)
-        if pts1 != pts2:
+        min_pts1, max_pts1 = _get_points(node1)
+        min_pts2, max_pts2 = _get_points(node2)
+        if min_pts1 != min_pts2:
             raise PointValidationError(
-                "The number of points of {} '{}' ({}) and {} '{}' ({}) do not match (in '{} v{}' and '{} v{}')".format(
+                "The minimum number of points of {} '{}' ({}) and {} '{}' ({}) do not match (in '{} v{}' and '{} v{}')".format(
                     _get_type_name(node1),
                     node1.attributes["id"],
-                    pts1,
+                    min_pts1,
                     _get_type_name(node2),
                     node2.attributes["id"],
-                    pts2,
+                    min_pts2,
                     version_node_1.question.name,
                     version_node_1.version,
                     version_node_2.question.name,
                     version_node_2.version,
+                )
+            )
+        if max_pts1 != max_pts2:
+            raise PointValidationError(
+                "The maximum number of points of {} '{}' ({}) and {} '{}' ({}) do not match (in '{} v{}' and '{} v{}')".format(
+                    _get_type_name(node1),
+                    node1.attributes["id"],
+                    max_pts1,
+                    _get_type_name(node2),
+                    node2.attributes["id"],
+                    max_pts2,
+                    version_node_1.question.name,
+                    version_node_1.version,
+                    version_node_2.question.name,
+                    version_node_2.version,
+                )
+            )
+
+
+def check_min_max_consistency(version_node):
+    """
+    Check that the min and max points are consistent.
+    """
+
+    qml = make_qml(version_node)
+
+    flat_nodes = [
+        node
+        for node in _get_flat_node_list(qml)
+        if ("min_points" in node.attributes or "max_points" in node.attributes)
+    ]
+
+    for node in flat_nodes:
+        min_pts, max_pts = _get_points(node)
+        print(min_pts, max_pts)
+        if not ALLOW_NEGATIVE_MARKS and min_pts < 0:
+            raise PointValidationError(
+                "The minimum '{}' number of points can not be negative in {} '{}' in '{} v{}'".format(
+                    min_pts,
+                    _get_type_name(node),
+                    node.attributes["id"],
+                    version_node.question.name,
+                    version_node.version,
+                )
+            )
+        if max_pts < min_pts:
+            raise PointValidationError(
+                "The maximum '{}' is smaller than the minimum '{}' number of points in {} '{}' in '{} v{}'".format(
+                    max_pts,
+                    min_pts,
+                    _get_type_name(node),
+                    node.attributes["id"],
+                    version_node.question.name,
+                    version_node.version,
                 )
             )
 
@@ -224,30 +287,32 @@ def _check_nested_sum_consistency(root_dict):
 
 
 def _check_sum_consistency_recursive(root_node, children_dict):
-    root_points = _get_points(root_node)
+    _, max_root_points = _get_points(root_node)
     if children_dict:
         sum_points = sum(
             _check_sum_consistency_recursive(key, value)
             for key, value in children_dict.items()
         )
-        if sum_points != root_points:
+        if sum_points != max_root_points:
             raise PointValidationError(
                 "The number of points for {} '{}' ({}) does not match the sum of its sub-parts ({})".format(
                     _get_type_name(root_node),
                     root_node.attributes["id"],
-                    root_points,
+                    max_root_points,
                     sum_points,
                 )
             )
-    return root_points
+    return max_root_points
 
 
 def _get_points(node):
     try:
-        return Decimal(node.attributes["points"])
+        return Decimal(node.attributes["min_points"]), Decimal(
+            node.attributes["max_points"]
+        )
     except KeyError:
         raise PointValidationError(  # pylint: disable=raise-missing-from
-            "{} {} is missing the 'points' attribute.".format(
+            "{} {} is missing the 'min_points' or 'max_points' attribute.".format(
                 _get_type_name(node), node.attributes["id"]
             )
         )
