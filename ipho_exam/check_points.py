@@ -197,7 +197,6 @@ def check_min_max_consistency(version_node):
 
     for node in flat_nodes:
         min_pts, max_pts = _get_points(node)
-        print(min_pts, max_pts)
         if not ALLOW_NEGATIVE_MARKS and min_pts < 0:
             raise PointValidationError(
                 "The minimum '{}' number of points can not be negative in {} '{}' in '{} v{}'".format(
