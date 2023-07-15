@@ -2104,13 +2104,6 @@ def admin_check_version_before_diff(request, exam_id, question_id, version_num):
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
-    lang = get_object_or_404(Language, id=lang_id)
-
-    assert lang.versioned
-
-    node = get_object_or_404(
-        VersionNode, question=question, language=lang, status="P", version=version_num
-    )
 
     accept_url = reverse(
         "exam:admin-accept-version",
@@ -2121,13 +2114,31 @@ def admin_check_version_before_diff(request, exam_id, question_id, version_num):
         ),
     )
 
+    if question.code == "G":
+        return JsonResponse(
+            {
+                "title": "Nothing to check!",
+                "message": "General Instructions should not have points and are not checked!",
+                "success": True,
+                "url": accept_url,
+            }
+        )
+
+    lang = get_object_or_404(Language, id=lang_id)
+
+    assert lang.versioned
+
+    node = get_object_or_404(
+        VersionNode, question=question, language=lang, status="P", version=version_num
+    )
+
     try:
         check_points.check_version(node)
     except check_points.PointValidationError as exc:
         check_message = (
-            "<div>Point check identified the following issue:</div><div><strong>"
-            + escape(str(exc))
-            + "</strong></div><div>Publish anyway?</div>"
+            "<div>Point check identified the following issue:</div><div><ul><li>"
+            + str(exc)
+            + "</ul></div><div>Coninue to diff anyway?</div>"
         )
         return JsonResponse(
             {
@@ -2281,6 +2292,7 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
+
     lang = get_object_or_404(Language, id=lang_id)
 
     assert lang.versioned
@@ -2305,13 +2317,24 @@ def admin_publish_version(request, exam_id, question_id, version_num):
         )
 
     form_html = render_crispy_form(publish_form)
+
+    if question.code == "G":
+        return JsonResponse(
+            {
+                "title": "Nothing to check!",
+                "form": "General Instructions should not have points and are not checked!"
+                + form_html,
+                "success": True,
+            }
+        )
+
     try:
         check_points.check_version(node)
     except check_points.PointValidationError as exc:
         check_message = (
-            "<div>Point check identified the following issue:</div><div><strong>"
-            + escape(str(exc))
-            + "</strong></div><div>Publish anyway?</div>"
+            "<div >Point check identified the following issue:</div><div><ul><li>"
+            + str(exc)
+            + "</ul></div>"
         )
         return JsonResponse(
             {
@@ -2357,15 +2380,26 @@ def admin_check_points(request, exam_id, question_id, version_num):
     node = get_object_or_404(
         VersionNode, question=question, language=lang, version=version_num
     )
+
+    if question.code == "G":
+        return JsonResponse(
+            {
+                "title": "Nothing to check!",
+                "msg": "General Instructions should not have points and are not checked!",
+                "class": "bg-warning",
+                "success": True,
+            }
+        )
+
     try:
         (version, other_version) = check_points.check_version(
             node, other_question_status=dict(VersionNode.STATUS_CHOICES).keys()
         )
     except (check_points.PointValidationError, TypeError) as exc:
         check_message = (
-            "<div >Point check identified the following issue:</div><div><strong>"
-            + escape(str(exc))
-            + "</strong></div>"
+            "<div >Point check identified the following issue:</div><div><ul><li>"
+            + str(exc)
+            + "</ul></div>"
         )
         return JsonResponse(
             {
@@ -2375,15 +2409,7 @@ def admin_check_points(request, exam_id, question_id, version_num):
                 "success": False,
             }
         )
-    if version == "G":
-        return JsonResponse(
-            {
-                "title": "Nothing to check!",
-                "msg": "General Instructions should not have points and are not checked!",
-                "class": "bg-warning",
-                "success": True,
-            }
-        )
+
     return JsonResponse(
         {
             "title": "Check succeeded",
