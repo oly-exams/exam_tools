@@ -418,7 +418,8 @@ class Marking(models.Model):
             raise ValidationError(
                 {"points": ValidationError("The points cannot be empty.")}
             )
-
+        if self.points == "" or self.points is None:
+            return
         try:
             if self.points > self.marking_meta.max_points:
                 raise ValidationError(
