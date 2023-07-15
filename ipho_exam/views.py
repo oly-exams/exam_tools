@@ -2096,6 +2096,70 @@ def admin_delete_version(request, exam_id, question_id, version_num):
 
 
 @permission_required("ipho_core.can_edit_exam")
+def admin_check_version_before_diff(request, exam_id, question_id, version_num):
+    lang_id = OFFICIAL_LANGUAGE_PK
+    print(exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
+    lang = get_object_or_404(Language, id=lang_id)
+
+    assert lang.versioned
+
+    node = get_object_or_404(
+        VersionNode, question=question, language=lang, status="P", version=version_num
+    )
+
+    accept_url = reverse(
+        "exam:admin-accept-version",
+        kwargs=dict(
+            exam_id=exam.pk,
+            question_id=question.pk,
+            version_num=int(version_num),
+        ),
+    )
+
+    try:
+        check_points.check_version(node)
+    except check_points.PointValidationError as exc:
+        check_message = (
+            "<div>Point check identified the following issue:</div><div><strong>"
+            + escape(str(exc))
+            + "</strong></div><div>Publish anyway?</div>"
+        )
+        return JsonResponse(
+            {
+                "title": "Inconsistent Points",
+                "message": check_message,
+                "success": False,
+                "url": accept_url,
+            }
+        )
+    except Exception:  # pylint: disable=broad-except
+        error_msg = f"Error in checking points:\n{traceback.format_exc()}"
+        logger.error(error_msg)
+        # to send e-mails
+        django_logger.error(error_msg)
+        return JsonResponse(
+            {
+                "title": "Error in point check.",
+                "message": "<div>An error has occurred while checking the points consistency.</div><div>Publish anyway?</div>",
+                "success": False,
+                "url": accept_url,
+            }
+        )
+    return JsonResponse(
+        {
+            "title": "Point check successful!",
+            "success": True,
+            "url": accept_url,
+        }
+    )
+
+
+@permission_required("ipho_core.can_edit_exam")
 def admin_accept_version(
     request, exam_id, question_id, version_num, compare_version=None
 ):

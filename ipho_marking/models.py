@@ -35,6 +35,7 @@ from ipho_exam import qml
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 ALLOW_NEGATIVE_MARKS = getattr(settings, "ALLOW_NEGATIVE_MARKS", False)
+ALLOW_MARKS_NONE = getattr(settings, "ALLOW_MARKS_NONE", False)
 
 
 def generate_markings_from_exam(exam, user=None):
@@ -323,8 +324,7 @@ class MarkingManager(models.Manager):
                 )
 
                 return queryset.filter(
-                    org_marking_view_after_subm_q  # pylint: disable=unsupported-binary-operation
-                    | org_marking_view_always_q
+                    org_marking_view_after_subm_q | org_marking_view_always_q
                 )
 
             if version == "D":
@@ -423,6 +423,10 @@ class Marking(models.Model):
     version = models.CharField(max_length=1, choices=list(MARKING_VERSIONS.items()))
 
     def clean(self):
+        if not ALLOW_MARKS_NONE and (self.points == "" or self.points is None):
+            raise ValidationError(
+                {"points": ValidationError("The points cannot be empty.")}
+            )
         if self.points == "" or self.points is None:
             return
         try:
