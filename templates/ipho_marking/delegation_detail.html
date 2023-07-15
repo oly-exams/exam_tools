@@ -78,7 +78,7 @@
           View scan
         </a>
         {% endif %}
-        {% if doc.scan_file_orig %}
+        {% if doc.scan_file_orig and doc.scan_status == 'S' %}
         <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=exam.pk participant_id=participant.pk position=question.position %}">
           <i class="fa fa-file-pdf-o"></i>
           View full scan
