@@ -53,6 +53,9 @@ from .forms import ImportForm, PointsForm
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 ALLOW_MARKS_NONE = getattr(settings, "ALLOW_MARKS_NONE", False)
+SHOW_PARTICIPANT_NAME_TO_MARKERS = getattr(
+    settings, "SHOW_PARTICIPANT_NAME_TO_MARKERS", True
+)
 
 DiffColorPair = namedtuple("DiffColorPair", ["O", "D"])
 EmptyMarking = namedtuple("EmptyMarking", ["points", "comment"])
@@ -96,6 +99,7 @@ def get_valid_marking_question_list(request, editable):
                     question_list.append(answer_sheet)
 
     return question_list
+
 
 def sum_if_not_none(iterable):
     return reduce(
@@ -1696,6 +1700,7 @@ def official_marking_detail(request, question_id, delegation_id):
         "request": request,
         "max_points_sum": sum(m.max_points for m in metas),
         "scan_files_ready": scan_files_ready,
+        "show_name": SHOW_PARTICIPANT_NAME_TO_MARKERS,
     }
     return render(request, "ipho_marking/official_marking_detail.html", ctx)
 
@@ -1736,6 +1741,7 @@ def official_marking_confirmed(request, question_id, delegation_id):
         "delegation": delegation,
         "markings": markings,
         "markings_none": markings_none,
+        "show_name": SHOW_PARTICIPANT_NAME_TO_MARKERS,
     }
     return render(request, "ipho_marking/official_marking_confirmed.html", ctx)
 

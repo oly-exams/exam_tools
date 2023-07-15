@@ -21,7 +21,7 @@
       </tr>
       {% for marking in markings %}
       <tr>
-        <td>{{ marking.participant.full_name }} ({{ marking.participant.code }})</td>
+        <td>{% if show_name %}{{ marking.participant.full_name }}{% endif %} ({{ marking.participant.code }})</td>
         {% if marking.participant.pk not in markings_none %}
           <td>{{ marking.total|floatformat:"2" }}</td>
         {% else %}
