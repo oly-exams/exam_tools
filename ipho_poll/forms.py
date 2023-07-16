@@ -27,7 +27,7 @@ from ipho_poll.models import Voting, VotingChoice, CastedVote
 
 
 class VotingForm(ModelForm):
-    feedbacks = forms.ModelMultipleChoiceField(Feedback.objects.order_by('pk'))
+    feedbacks = forms.ModelMultipleChoiceField(Feedback.objects.order_by('pk'), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
