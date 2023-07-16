@@ -55,13 +55,17 @@ def generate_markings_from_exam(exam, user=None):
         )
         question_points = qml.question_points(qwy.qml)
         total_points = 0
-        for i, (name, points) in enumerate(question_points):
+        for i, (name, min_points, max_points) in enumerate(question_points):
             mmeta, created = MarkingMeta.objects.update_or_create(
                 question=question,
                 name=name,
-                defaults={"max_points": abs(points), "position": i},
+                defaults={
+                    "min_points": min_points,
+                    "max_points": max_points,
+                    "position": i,
+                },
             )
-            total_points += abs(points)
+            total_points += max_points
             num_created += created
             num_tot += 1
 
@@ -220,13 +224,18 @@ class MarkingMeta(models.Model):
 
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     name = models.CharField(max_length=10)
-    max_points = models.DecimalField(max_digits=8, decimal_places=2)
+    min_points = models.DecimalField(
+        null=True, blank=True, max_digits=8, decimal_places=2
+    )
+    max_points = models.DecimalField(
+        null=True, blank=True, max_digits=8, decimal_places=2
+    )
     position = models.PositiveSmallIntegerField(
         default=10, help_text="Sorting index inside one question"
     )
 
     def __str__(self):
-        return f"{self.name} [{self.question.name}] {self.max_points} points"
+        return f"{self.name} [{self.question.name}] ({self.max_points},{self.max_points}) points"
 
     class Meta:
         ordering = ["position"]
@@ -421,7 +430,10 @@ class Marking(models.Model):
         if self.points == "" or self.points is None:
             return
         try:
-            if self.points > self.marking_meta.max_points:
+            if (
+                self.marking_meta.max_points is not None
+                and self.points > self.marking_meta.max_points
+            ):
                 raise ValidationError(
                     {
                         "points": ValidationError(
@@ -429,25 +441,25 @@ class Marking(models.Model):
                         )
                     }
                 )
-            if ALLOW_NEGATIVE_MARKS:
-                # pylint: disable=invalid-unary-operand-type
-                if self.points < -self.marking_meta.max_points:
-                    raise ValidationError(
-                        {
-                            "points": ValidationError(
-                                "The number of points cannot be smaller than the negative maximum."
-                            )
-                        }
-                    )
-            else:
-                if self.points < 0:
-                    raise ValidationError(
-                        {
-                            "points": ValidationError(
-                                "The number of points cannot be negative."
-                            )
-                        }
-                    )
+            if (
+                self.marking_meta.min_points is not None
+                and self.points > self.marking_meta.min_points
+            ):
+                raise ValidationError(
+                    {
+                        "points": ValidationError(
+                            "The number of points cannot subceed the minimum."
+                        )
+                    }
+                )
+            if not ALLOW_NEGATIVE_MARKS and self.points < 0:
+                raise ValidationError(
+                    {
+                        "points": ValidationError(
+                            "The number of points cannot be negative."
+                        )
+                    }
+                )
         except TypeError:
             # pylint: disable=raise-missing-from
             raise ValidationError(

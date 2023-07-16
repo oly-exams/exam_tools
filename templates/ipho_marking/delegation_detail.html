@@ -140,7 +140,7 @@
       {% for m, version in markings %}
       <tbody>
         <tr>
-          <td><strong>{{ m.name }} ({{ m.max_points }})</strong></td>
+          <td><strong>{{ m.name }} ({{ m.min_points }},{{ m.max_points }})</strong></td>
           <td class="{{ version.diff_color.O }}">{% include "ipho_marking/parts/view_cell.html" with instance=version.O%}</td>
           <td class="{{ version.diff_color.D }}">{% include "ipho_marking/parts/view_cell.html" with instance=version.D%}</td>
           <td>{% include "ipho_marking/parts/view_cell.html" with instance=version.F%}</td>

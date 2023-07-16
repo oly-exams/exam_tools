@@ -83,7 +83,7 @@ th {
     <tbody>
       {% for meta, forms in marking_forms %}
         <tr>
-          <td>{{ meta.name }} ({{ meta.max_points }})</td>
+          <td>{{ meta.name }} ({{ meta.min_points }},{{ meta.max_points }})</td>
           {% for form in forms %}
             <td class="thdnone"></td>
             <td>
