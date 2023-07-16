@@ -443,7 +443,7 @@ class Marking(models.Model):
                 )
             if (
                 self.marking_meta.min_points is not None
-                and self.points > self.marking_meta.min_points
+                and self.points < self.marking_meta.min_points
             ):
                 raise ValidationError(
                     {

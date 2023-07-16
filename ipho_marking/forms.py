@@ -51,7 +51,7 @@ class PointsForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields[
             "points"
-        ].label = f"{self.instance.marking_meta.name} ({self.instance.marking_meta.max_points})"
+        ].label = f"{self.instance.marking_meta.name} ({self.instance.marking_meta.min_points},{self.instance.marking_meta.max_points})"
         self.fields["points"].required = not ALLOW_MARKS_NONE or require_points
         self.fields["comment"].required = False
 
