@@ -691,8 +691,8 @@
   "persian": {
     "direction": "rtl",
     "fonts": [
-      "notokufiarabic",
       "notonaskharabic",
+      "notokufiarabic",
       "notonastaliqurdu"
     ],
     "language": "Persian",
