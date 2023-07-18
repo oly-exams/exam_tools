@@ -50,7 +50,7 @@
     ],
     "language": "Armenian",
     "polyglossia": "armenian",
-    "polyglossia_options": null
+    "polyglossia_options": "numerals=arabic"
   },
   "asturian": {
     "direction": "ltr",
