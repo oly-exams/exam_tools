@@ -819,7 +819,7 @@ class QMLsection(QMLobject):
     has_children = False
 
     def tex_begin(self):
-        return "\\subsubsection*{"
+        return "\\SCT{"
 
     def tex_end(self):
         return "}\n\n"
