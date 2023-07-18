@@ -27,12 +27,13 @@ from ipho_poll.models import Voting, VotingChoice, CastedVote
 
 
 class VotingForm(ModelForm):
-    feedbacks = forms.ModelMultipleChoiceField(Feedback.objects.order_by('pk'), required=False)
+    feedbacks = forms.ModelMultipleChoiceField(
+        Feedback.objects.order_by("pk"), required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        # self.helper.layout = Layout(Field('title', placeholder='Enter voting text'), Field('voting'))
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.helper.form_tag = False
