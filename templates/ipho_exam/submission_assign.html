@@ -114,11 +114,11 @@
         {% endfor %}
         {% if ss.is_group %}
           {% for s in ss.students.all %}
-            <tr>
+            <tr class="group-answer-row">
               <td>({{ ss.code }}) {{ s.full_name }}</td>
               {% for lang_id,oval in form.languages.field.choices %}
                 <td class="text-center">
-                  <div class="checkbox group-question-selection {% if form.languages.errors %}has-error{% endif %}">
+                  <div class="group-question-selection question-selection {% if form.languages.errors %}has-error{% endif %}">
                     <label>
                       <input type="checkbox" autocomplete="off" id="{{ form.languages.html_name }}-val-{{ lang_id }}" name="student-{{s.id}}-question-language" value="{{ lang_id }}" />
                       deliver
@@ -157,37 +157,59 @@
   language_selection_count = 0
   local_allow_anslang_without_qlang = false
   $(function() {
+
+    {% if max_num_languages_per_ppnt == 1 %}
+      $('div.answer-selection').hide();
+    {% endif %}
+
+    $('tr.student-row').each( function(index) {
+      console.log(index);
+      console.log($(this));
+      $questionSelectionDiv = $(this);
+      language_selection_count = $questionSelectionDiv.find('input:checkbox:checked').length;
+      if (language_selection_count >= {{ max_num_languages_per_ppnt }} ) {
+        $questionSelectionDiv.find('input:checkbox:not(:checked)').attr('disabled',true);
+        $questionSelectionDiv.addClass('disabled');
+        $questionSelectionDiv.find('input:checkbox:not(:checked)').each(function(idx){
+          $radio = $('#'+$(this).attr('id').replace('languages','answer_language'));
+          $radio.attr('disabled',true);
+          $radio.prop('checked',false);
+          $radio.parents('div.radio').addClass('disabled');
+        });
+        
+      }
+    });
+
     $(':checkbox[name^="ppnt"]').change(function() {
         $checkbox = $(this);
+        $parent = $checkbox.parents('.student-row');
         {% if allow_anslang_without_qlang %}
         if ( ! $('#toggle-answer-selection-checkbox').prop('checked') ) {
         {% endif %}
           $radio = $('#'+$checkbox.attr('id').replace('languages','answer_language'));
           if ($checkbox.is(':checked')) {
               $radio.removeAttr('disabled');
-              // $radio.prop('checked',true); 
+              {% if max_num_languages_per_ppnt == 1 %}
+                if ( ! $('#toggle-answer-selection-checkbox').prop('checked') ) {
+                  $radio.prop('checked',true); 
+                }
+              {% endif %}
+             
               $radio.parents('div.radio').removeClass('disabled');
           } else {
               $radio.attr('disabled',true);
               $radio.prop('checked',false);
-              $radio.parents('div.radio').addClass('disabled');
+              $radio.parents('div.answer-selection').addClass('disabled');
           }
-        {% if not allow_anslang_without_qlang %}
+        {% if allow_anslang_without_qlang %}
         }
         {% endif %}
-        if ($checkbox.prop('checked')) {
-          language_selection_count++;
-        }
-        else {
-          language_selection_count--;
-        }
+        language_selection_count = $parent.find('div.question-selection input:checkbox:checked').length;
         if (language_selection_count >= {{ max_num_languages_per_ppnt }} ) {
-          $parent = $checkbox.parents('.student-row')
           $parent.find('div.question-selection input:checkbox:not(:checked)').attr('disabled',true);
           $parent.find('div.question-selection').addClass('disabled');
         }
         else {
-          $parent = $checkbox.parents('.student-row')
           $parent.find('div.question-selection input:checkbox:not(:checked)').removeAttr('disabled');
           $parent.find('div.question-selection').removeClass('disabled');
         }
@@ -195,9 +217,35 @@
     });
 
     $('#toggle-answer-selection-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function(event, state) {
-        var $checkbox = $(this);
-      });
+      if (state){
+        $('div.answer-selection input:radio').attr('disabled',false);
+        $('div.answer-selection').removeClass('disabled');
+        {% if max_num_languages_per_ppnt == 1 %}
+        $('div.answer-selection').show();
+        {% endif %}
+      }else{
+        $('tr.student-row').each(function(idx1){
+          $(this).find('input:checkbox:not(:checked)').each(function(idx){
+            $radio = $('#'+$(this).attr('id').replace('languages','answer_language'));
+            $radio.attr('disabled',true);
+            $radio.prop('checked',false);
+            $radio.parents('div.answer-selection').addClass('disabled');
+          });
 
+          {% if max_num_languages_per_ppnt == 1 %}
+            $(this).find('input:checkbox:checked').each(function(idx){
+              $radio = $('#'+$(this).attr('id').replace('languages','answer_language'));
+              $radio.attr('disabled',false);
+              $radio.prop('checked',true);
+            });
+          {% endif %}
+        });
+        {% if max_num_languages_per_ppnt == 1 %}
+          $('div.answer-selection').hide();
+        {% endif %}
+      }
+    });
   });
+
 </script>
 {% endblock %}
