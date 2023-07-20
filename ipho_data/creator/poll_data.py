@@ -7,7 +7,7 @@ from .base_data import BaseDataCreator
 
 class PollDataCreator(BaseDataCreator):
     def create_poll_voting(self, title, content, room_name, **choices):
-        self.create_poll_voting_dict(title, content, room_name, choices)
+        return self.create_poll_voting_dict(title, content, room_name, choices)
 
     def create_poll_voting_dict(self, title, content, room_name, choices_dict):
         room = None
