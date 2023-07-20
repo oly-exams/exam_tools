@@ -50,14 +50,6 @@
 
 {% endblock %}
 
-{% block answer-selection-toggle %}
-<label class="navbar-text" style="font-weight:normal;">
-  <input type="checkbox" id="toggle-answer-selection-checkbox" data-size="mini">
-  Show answer sheet selection.
-</label>
-{% endblock %}
-
-
 {% block exam-submission-content %}
 <form method="post" action="{% url 'exam:submission-exam-assign' exam_id=exam.pk %}">
   {% csrf_token %}
@@ -70,7 +62,7 @@
     </tr>
     <tbody>
       {% for ss,form in submission_forms %}
-      <tr class="{% if form.languages.errors or form.answer_language.errors %}danger{% endif %}">
+      <tr class="{% if form.languages.errors or form.answer_language.errors %}danger{% endif %} student-row">
         <td>
           <div>
             {{ ss.full_name }} ({{ ss.code }})
@@ -143,32 +135,63 @@
   </table>
 
   <div>
-      <div class="pull-right">
-          <button type="submit" class="btn btn-primary">
-            <span><i class="pull-right glyphicon glyphicon-chevron-right"></i>Next&nbsp;</span>
-          </button>
-      </div>
+    <div class="pull-right">
+        <button type="submit" class="btn btn-primary">
+          <span><i class="pull-right glyphicon glyphicon-chevron-right"></i>Next&nbsp;</span>
+        </button>
+    </div>
   </div>
 </form>
+{% if allow_anslang_without_qlang %}
+<label class="navbar-text" style="font-weight:normal;">
+  <input type="checkbox" id="toggle-answer-selection-checkbox" data-size="mini">
+  Allow a language for answer sheets that has not been selected for question sheets.
+</label>
+{% endif %}
 {% endblock %}
 
 {% block extra-script %}
 {{ block.super }}
 <script src="{% static "bootstrap-switch/js/bootstrap-switch.min.js" %}"></script>
 <script>
+  language_selection_count = 0
+  local_allow_anslang_without_qlang = false
   $(function() {
-    $(':radio[name^="ppnt"]').change(function() {
+    $(':checkbox[name^="ppnt"]').change(function() {
         $checkbox = $(this);
-        $radio = $('#'+$checkbox.attr('id').replace('languages','answer_language'));
-        if ($checkbox.is(':checked')) {
-            $radio.removeAttr('disabled');
-            $radio.prop('checked',true);
-            $radio.parents('div.radio').removeClass('disabled');
-        } else {
-            $radio.attr('disabled',true);
-            $radio.prop('checked',false);
-            $radio.parents('div.radio').addClass('disabled');
+        {% if allow_anslang_without_qlang %}
+        if ( ! $('#toggle-answer-selection-checkbox').prop('checked') ) {
+        {% endif %}
+          $radio = $('#'+$checkbox.attr('id').replace('languages','answer_language'));
+          if ($checkbox.is(':checked')) {
+              $radio.removeAttr('disabled');
+              // $radio.prop('checked',true); 
+              $radio.parents('div.radio').removeClass('disabled');
+          } else {
+              $radio.attr('disabled',true);
+              $radio.prop('checked',false);
+              $radio.parents('div.radio').addClass('disabled');
+          }
+        {% if not allow_anslang_without_qlang %}
         }
+        {% endif %}
+        if ($checkbox.prop('checked')) {
+          language_selection_count++;
+        }
+        else {
+          language_selection_count--;
+        }
+        if (language_selection_count >= {{ max_num_languages_per_ppnt }} ) {
+          $parent = $checkbox.parents('.student-row')
+          $parent.find('div.question-selection input:checkbox:not(:checked)').attr('disabled',true);
+          $parent.find('div.question-selection').addClass('disabled');
+        }
+        else {
+          $parent = $checkbox.parents('.student-row')
+          $parent.find('div.question-selection input:checkbox:not(:checked)').removeAttr('disabled');
+          $parent.find('div.question-selection').removeClass('disabled');
+        }
+
     });
 
     $('#toggle-answer-selection-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function(event, state) {
