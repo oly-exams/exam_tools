@@ -59,7 +59,9 @@
 
     {% block step-content %}{% endblock %}
 
-    <h2>{% block exam-header %}{{ exam.name }}{% endblock %}</h2>
+    <h2>{% block exam-header %}{{ exam.name }}{% endblock %}  </h2>
+    {% block answer-selection-toggle %}{% endblock %}
+    
 
     {% block exam-submission-content %}{% endblock %}
 

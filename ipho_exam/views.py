@@ -157,6 +157,10 @@ django_logger = logging.getLogger("django.request")
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
+NO_ANSWER_SHEETS = getattr(settings, "NO_ANSWER_SHEETS", False)
+ONLY_OFFICIAL_ANSWER_SHEETS = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
+ALLOW_ANSLANG_WITHOUT_QLANG = getattr(settings, "ALLOW_ANSLANG_WITHOUT_QLANG", False)
+MAX_NUMBER_LANGUAGES_PER_PPNT = getattr(settings, "MAX_NUMBER_LANGUAGES_PER_PPNT", -1)
 
 
 @login_required
@@ -420,14 +424,13 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
     )
     if should_forbid is not None:
         return should_forbid
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    if en_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         num_questions = exam.question_set.exclude(type=Question.ANSWER).count()
     else:
         num_questions = exam.question_set.count()
     translation_form = TranslationForm(request.POST or None)
 
-    if en_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         answer_query = Q(translationnode__question__type=Question.ANSWER)
     else:
         answer_query = Q(pk=None)
@@ -460,7 +463,7 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
         questions = exam.question_set.exclude(
             translationnode__language=translation_form.cleaned_data["language"]
         )
-        if en_answer:
+        if ONLY_OFFICIAL_ANSWER_SHEETS:
             questions = questions.exclude(type=Question.ANSWER)
         for question in questions:
             if translation_form.cleaned_data["language"].is_pdf:
@@ -3117,13 +3120,14 @@ def submission_exam_assign(
             "You do not have the permissions to submit for this exam."
         )
     delegation = Delegation.objects.get(members=request.user)
-    no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    if en_answer:
+
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         num_questions = exam.question_set.exclude(type=Question.ANSWER).count()
     else:
         num_questions = exam.question_set.count()
-    languages = _get_submission_languages(exam, delegation, not en_answer)
+    languages = _get_submission_languages(
+        exam, delegation, not ONLY_OFFICIAL_ANSWER_SHEETS
+    )
     ex_submission, _ = ExamAction.objects.get_or_create(
         exam=exam, delegation=delegation, action=ExamAction.TRANSLATION
     )
@@ -3136,7 +3140,7 @@ def submission_exam_assign(
     all_valid = True
     with_errors = False
 
-    if en_answer or no_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS or NO_ANSWER_SHEETS:
         lang_id = OFFICIAL_LANGUAGE_PK
         answer_sheet_language = get_object_or_404(Language, id=lang_id)
     else:
@@ -3158,7 +3162,7 @@ def submission_exam_assign(
                 if (ssub.language in form.cleaned_data["languages"]) or (
                     ssub.language == form.cleaned_data["answer_language"]
                 ):
-                    if no_answer:
+                    if NO_ANSWER_SHEETS:
                         ssub.with_answer = False
                     else:
                         ssub.with_answer = (
@@ -3178,7 +3182,7 @@ def submission_exam_assign(
             ):
                 if lang in current_langs:
                     continue
-                if no_answer:
+                if NO_ANSWER_SHEETS:
                     with_answer = False
                 else:
                     with_answer = form.cleaned_data["answer_language"] == lang
@@ -3272,7 +3276,7 @@ def submission_exam_assign(
             reverse("exam:submission-exam-confirm", args=(exam.pk,))
         )
 
-    if en_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         answer_query = Q(translationnode__question__type=Question.ANSWER)
     else:
         answer_query = Q(pk=None)
@@ -3311,9 +3315,11 @@ def submission_exam_assign(
             "empty_languages": empty_languages,
             "submission_forms": submission_forms,
             "with_errors": with_errors,
-            "no_answer": no_answer,
-            "no_answer_language": en_answer,
+            "no_answer": NO_ANSWER_SHEETS,
+            "no_answer_language": ONLY_OFFICIAL_ANSWER_SHEETS,
             "answer_language": str(answer_sheet_language),
+            "allow_anslang_without_qlang": ALLOW_ANSLANG_WITHOUT_QLANG,
+            "max_num_languages_per_ppnt": MAX_NUMBER_LANGUAGES_PER_PPNT,
         },
     )
 
@@ -3328,9 +3334,9 @@ def submission_exam_confirm(
             "You do not have the permissions to submit for this exam."
         )
     delegation = Delegation.objects.get(members=request.user)
-    no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    languages = _get_submission_languages(exam, delegation, not en_answer)
+    languages = _get_submission_languages(
+        exam, delegation, not ONLY_OFFICIAL_ANSWER_SHEETS
+    )
 
     form_error = ""
 
@@ -3481,8 +3487,8 @@ def submission_exam_confirm(
             "submission_status": ex_submission.status,
             "participants_languages": assigned_participant_language,
             "form_error": form_error,
-            "no_answer": no_answer,
-            "fixed_answer_language": en_answer,
+            "no_answer": NO_ANSWER_SHEETS,
+            "fixed_answer_language": ONLY_OFFICIAL_ANSWER_SHEETS,
         },
     )
 
@@ -3491,9 +3497,9 @@ def submission_exam_confirm(
 def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-branches
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    languages = _get_submission_languages(exam, delegation, not en_answer)
+    languages = _get_submission_languages(
+        exam, delegation, not ONLY_OFFICIAL_ANSWER_SHEETS
+    )
 
     ex_submission, _ = ExamAction.objects.get_or_create(
         exam=exam, delegation=delegation, action=ExamAction.TRANSLATION
@@ -3556,8 +3562,8 @@ def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-bra
             "submission_status": ex_submission.status,
             "participants_languages": assigned_participant_language,
             "msg": msg,
-            "no_answer": no_answer,
-            "fixed_answer_language": en_answer,
+            "no_answer": NO_ANSWER_SHEETS,
+            "fixed_answer_language": ONLY_OFFICIAL_ANSWER_SHEETS,
         },
     )
 
