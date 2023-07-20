@@ -34,6 +34,7 @@ from collections import OrderedDict, defaultdict
 
 from io import BytesIO
 from PyPDF2 import PdfFileMerger, PdfFileReader
+import shutil
 
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render, redirect
@@ -3379,7 +3380,6 @@ def submission_exam_confirm(
                     #     output.addPage(page)
                     output.append(pdfdoc, pages=(start, pdfdoc.getNumPages()))
 
-                output2 = output
                 doc_path = Path(settings.DOCUMENT_PATH)
 
                 output_file = doc_path / f"eth-print-docs/{exam.name}_{ppnt.code}.pdf"
@@ -3388,9 +3388,7 @@ def submission_exam_confirm(
                     output.write(output_pdf)
 
                 output_file2 = doc_path / f"all-submissions/{exam.name}_{ppnt.code}.pdf"
-
-                with open(output_file2, "wb") as output_pdf2:
-                    output2.write(output_pdf2)
+                shutil.copy(output_file, output_file2)
 
             if getattr(settings, "RANDOM_DRAW_ON_SUBMISSION", False):
                 remaining_countries = (
