@@ -21,10 +21,14 @@ def add_min_max_points_node(node):
 def add_min_max_points_in_exam_qml(apps, schema_editor):
     version_nodes=VersionNode.objects.all()
     for version_node in version_nodes:
-        qml=make_qml(version_node)
-        add_min_max_points_node(qml)
-        version_node.text = xml2string(qml.make_xml())
-        version_node.save()
+        try:
+            qml=make_qml(version_node)
+            add_min_max_points_node(qml)
+            version_node.text = xml2string(qml.make_xml())
+            version_node.save()
+        except Exception as e:
+            print(f"\nInvalid QML of VersionNode { version_node.question.name } v{ version_node.version }, no migration performed. Error:")
+            print(e)
 
 class Migration(migrations.Migration):
 
