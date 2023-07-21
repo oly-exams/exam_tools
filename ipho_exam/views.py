@@ -4288,7 +4288,6 @@ def pdf_task(request, token):
 
 
 @permission_required("ipho_core.is_marker")
-@permission_required("ipho_core.is_printstaff")
 def admin_scan_progress(request, question_id=None):
     questions = (
         Question.objects.for_user(request.user).filter(type=Question.ANSWER).all()
