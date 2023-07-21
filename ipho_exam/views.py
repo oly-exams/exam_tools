@@ -23,6 +23,7 @@ import csv
 import json
 import types
 import random
+import shutil
 import urllib
 import logging
 import traceback
@@ -34,7 +35,6 @@ from collections import OrderedDict, defaultdict
 
 from io import BytesIO
 from PyPDF2 import PdfFileMerger, PdfFileReader
-import shutil
 
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render, redirect
@@ -4451,6 +4451,58 @@ def pdf_task(request, token):
             {"error_code": err.code, "task_id": task.id},
             status=500,
         )
+
+
+@permission_required("ipho_core.is_marker")
+@permission_required("ipho_core.is_printstaff")
+def admin_scan_progress(request, question_id=None):
+    questions = (
+        Question.objects.for_user(request.user).filter(type=Question.ANSWER).all()
+    )
+    ctx = {"questions": questions}
+
+    if question_id is not None:
+        question = get_object_or_404(
+            Question.objects.for_user(request.user),
+            id=question_id,
+        )
+
+        ctx["can_mark"] = (
+            question.exam.marking_organizer_can_enter
+            >= Exam.MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED
+        )
+
+        documents = (
+            Document.objects.for_user(request.user)
+            .filter(participant__exam=question.exam, position=question.position)
+            .order_by("participant__code")
+        )
+
+        num_docs = documents.count()
+        ctx["scans_all"] = num_docs
+
+        # ctx["documents"] = documents.all()
+
+        num_columns = 5
+        ctx["columns"] = range(num_columns)
+        ctx["documents"] = [
+            documents.all()[i : i + num_columns]
+            for i in range(0, num_docs, num_columns)
+        ]
+        print(ctx["documents"])
+
+        scanned_documents = documents.filter(scan_status="S").count()
+
+        ctx["scans_done"] = scanned_documents
+        ctx["scans_remaining"] = ctx["scans_all"] - ctx["scans_done"]
+
+        ctx["question"] = question
+
+    return render(
+        request,
+        "ipho_exam/admin_scan_progress.html",
+        ctx,
+    )
 
 
 @permission_required("ipho_core.is_printstaff")

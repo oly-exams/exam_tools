@@ -405,6 +405,16 @@ urlpatterns = [
         views.admin_submission_delete,
         name="admin-submission-delete",
     ),
+    path(
+        "admin/scan-progress/<int:question_id>",
+        views.admin_scan_progress,
+        name="admin-scan-progress",
+    ),
+    path(
+        "admin/scan-progress",
+        views.admin_scan_progress,
+        name="admin-scan-progress",
+    ),
     re_path(r"^admin/bulk-print/?$", views.bulk_print, name="bulk-print"),
     path(
         "admin/bulk-print/<int:page>/<int:tot_print>",
