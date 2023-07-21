@@ -410,6 +410,11 @@ urlpatterns = [
         views.admin_scan_progress,
         name="admin-scan-progress",
     ),
+    path(
+        "admin/scan-progress",
+        views.admin_scan_progress,
+        name="admin-scan-progress",
+    ),
     re_path(r"^admin/bulk-print/?$", views.bulk_print, name="bulk-print"),
     path(
         "admin/bulk-print/<int:page>/<int:tot_print>",
