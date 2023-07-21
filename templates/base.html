@@ -189,7 +189,10 @@
                   <li><a href="{% url 'marking:import-exam' %}">Import exam into marking system</a></li>
                   {% endif %}
                   <li><a href="{% url 'marking:official-marking-index' %}">Official marking</a></li>
+                  <li><a href="{% url 'exam:admin-scan-progress' %}">Scan progress</a></li>
+                  {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'marking:summary' %}">(Advanced marking editing)</a></li>
+                  {% endif %}
                   <li><a href="{% url 'marking:progress' %}">Marking progress</a></li>
                   {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'marking:marking-submissions' %}">Delegation marking subm. progress</a></li>
