@@ -4453,6 +4453,38 @@ def pdf_task(request, token):
         )
 
 
+@permission_required("ipho_core.is_marker")
+@permission_required("ipho_core.is_printstaff")
+def admin_scan_progress(request, question_id=None):
+    questions = Question.objects.for_user(request.user)
+    ctx = {"questions": questions}
+
+    if question_id is not None:
+        question = get_object_or_404(
+            Question.objects.for_user(request.user),
+            id=question_id,
+        )
+
+        documents = Document.objects.for_user(request.user).filter(
+            participant__exam=question.exam, position=question.position
+        )
+
+        ctx["scans_all"] = documents.count()
+
+        ctx["documents"] = documents.filter(scan_status="S").all()
+
+        ctx["scans_done"] = len(ctx["documents"])
+        ctx["scans_remaining"] = ctx["scans_all"] - ctx["scans_done"]
+
+        ctx["question"] = question
+
+    return render(
+        request,
+        "ipho_exam/admin_scan_progress.html",
+        ctx,
+    )
+
+
 @permission_required("ipho_core.is_printstaff")
 def bulk_print(
     request, page=None, tot_print=None
