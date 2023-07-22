@@ -34,8 +34,8 @@ def question_points(root, part_num=-1, subq_num=0):
         if isinstance(obj, qml.QMLpart):
             part_num += 1
             subq_num = 0
-            if not "Part" in obj.data:
-                obj.data = f"Part {part_code(part_num)}: " + obj.data
+            if not "Part" in obj.content():
+                obj.update({obj.id: f"Part {part_code(part_num)}: " + obj.content()})
         if isinstance(obj, qml.QMLsubquestion):
             subq_num += 1
             obj.attributes["part_nr"] = part_code(part_num)
@@ -50,7 +50,7 @@ def main():
             continue
         q = qml.make_qml(node)
         question_points(q)
-        node.text = qml.xml2string(q.make_xml())
+        node.text = q.dump()
         node.save()
 
     for node in TranslationNode.objects.all():
@@ -58,7 +58,7 @@ def main():
             continue
         q = qml.make_qml(node)
         question_points(q)
-        node.text = qml.xml2string(q.make_xml())
+        node.text = q.dump()
         node.save()
 
 
