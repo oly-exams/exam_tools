@@ -79,9 +79,6 @@ def generate_markings_from_exam(exam, user=None):
 
         QuestionPointsRescale.objects.get_or_create(
             question=question,
-            defaults=dict(
-                max_internal_points=total_points, max_external_points=total_points
-            ),
         )
 
     return num_tot, num_created, num_marking_tot, num_marking_created
@@ -162,13 +159,6 @@ def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
         MarkingAction.objects.get_or_create(question=question, delegation=instance)
 
 
-class MarkingMetaManager(models.Manager):
-    def for_user(self, user):
-        exams = Exam.objects.for_user(user)
-        queryset = self.get_queryset().filter(question__exam__in=exams)
-        return queryset
-
-
 class QuestionPointsRescaleManager(models.Manager):
     def for_user(self, user):
         exams = Exam.objects.for_user(user)
@@ -176,22 +166,72 @@ class QuestionPointsRescaleManager(models.Manager):
         return queryset
 
 
+def validate_nonzero(value):
+    if value == 0:
+        raise ValidationError("Field cannot be zero.")
+
+
+def sum_if_not_none(iterable):
+    if not iterable:
+        return None
+    return reduce(
+        lambda x, y: x + y if (x is not None and y is not None) else None, iterable
+    )
+
+
 class QuestionPointsRescale(models.Model):
     objects = QuestionPointsRescaleManager()
 
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    max_internal_points = models.DecimalField(max_digits=8, decimal_places=2)
-    max_external_points = models.DecimalField(max_digits=8, decimal_places=2)
+
+    numerator = models.SmallIntegerField(default=1)
+    denominator = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[
+            validate_nonzero,
+        ],
+    )
+    shift = models.DecimalField(default=0, max_digits=8, decimal_places=2)
 
     class Meta:
         ordering = ["question"]
         unique_together = index_together = ("question",)
 
     def __str__(self):
-        return f"[external points {self.max_external_points}] {self.question.name}"
+        return f"[Scale: {(self.numerator/self.denominator) if self.denominator else 'NaN'} - Shift: {self.shift}] {self.question.name}"
 
-    def factor(self):
-        return self.max_external_points / self.max_internal_points
+    def transform(self, value):
+        if value is None:
+            return None
+        return value * self.numerator / self.denominator + self.shift
+
+    @staticmethod
+    def min_max_points_for_exam(exam):
+        questions = (
+            Question.objects.filter(exam=exam)
+            .annotate(max_total=Sum("markingmeta__max_points"))
+            .annotate(min_total=Sum("markingmeta__min_points"))
+            .values("max_total", "min_total", "pk")
+            .distinct()
+        )
+        max_points = []
+        min_points = []
+
+        for quest in questions:
+            # points_total = quest.markingmeta_set.annotate(max_total=Sum("max_points")).annotate(min_total=Sum("min_points")).values("max_total", "min_total").distinct()
+            qscale = QuestionPointsRescale.objects.filter(
+                question__id=quest["pk"]
+            ).first()
+            if quest["min_total"] is None or quest["max_total"] is None:
+                continue
+            if not qscale:
+                max_points.append(quest["max_total"])
+                min_points.append(quest["min_total"])
+                continue
+            max_points.append(qscale.transform(quest["max_total"]))
+            min_points.append(qscale.transform(quest["min_total"]))
+
+        return sum_if_not_none(min_points), sum_if_not_none(max_points)
 
     @staticmethod
     def external_sum_for_exam(markings, participant_code=None, exam=None):
@@ -212,11 +252,18 @@ class QuestionPointsRescale(models.Model):
                 question__pk=x["marking_meta__question"]
             ).first()
             if x["question_total"] is not None:
-                points_exam += x["question_total"] * qscale.factor()
+                points_exam += qscale.transform(x["question_total"])
                 all_none = False
         if all_none:
             return None
         return points_exam
+
+
+class MarkingMetaManager(models.Manager):
+    def for_user(self, user):
+        exams = Exam.objects.for_user(user)
+        queryset = self.get_queryset().filter(question__exam__in=exams)
+        return queryset
 
 
 class MarkingMeta(models.Model):

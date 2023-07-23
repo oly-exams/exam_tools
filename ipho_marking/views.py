@@ -19,7 +19,6 @@
 import csv
 import decimal
 import itertools
-from functools import reduce
 from hashlib import md5
 from collections import OrderedDict, namedtuple
 
@@ -47,6 +46,7 @@ from .models import (
     QuestionPointsRescale,
     MarkingAction,
     generate_markings_from_exam,
+    sum_if_not_none,
 )
 from .forms import ImportForm, PointsForm
 
@@ -101,12 +101,6 @@ def get_valid_marking_question_list(request, editable):
     return question_list
 
 
-def sum_if_not_none(iterable):
-    return reduce(
-        lambda x, y: x + y if (x is not None and y is not None) else None, iterable
-    )
-
-
 @permission_required("ipho_core.is_organizer_admin")
 def import_exam(request):
     ctx = {}
@@ -141,30 +135,47 @@ def summary(request):  # pylint: disable=too-many-locals
     editable_markings = Marking.objects.editable(request.user, version=vid)
 
     questions = (
-        QuestionPointsRescale.objects.for_user(request.user)
-        .all()
+        Question.objects.for_user(request.user)
+        .filter(markingmeta__isnull=False)
+        .order_by("exam", "position")
         .values(
-            "question__pk",
-            "question__exam__name",
-            "question__name",
-            "max_internal_points",
-            "max_external_points",
+            "pk",
+            "exam__name",
+            "name",
         )
-        .order_by("question__exam", "question__position")
+        .annotate(max_int_points=Sum("markingmeta__max_points"))
+        .annotate(min_int_points=Sum("markingmeta__min_points"))
+        .values("max_int_points", "min_int_points", "pk", "exam__name", "name")
         .distinct()
     )
 
-    exams = (
-        QuestionPointsRescale.objects.for_user(request.user)
-        .all()
-        .values("question__exam")
-        .annotate(exam_points=Sum("max_external_points"))
-        .values("question__exam__pk", "question__exam__name", "exam_points")
-        .order_by(
-            "question__exam",
-        )
+    for quest in questions:
+        qscale = QuestionPointsRescale.objects.filter(question__id=quest["pk"]).first()
+
+        if quest["min_int_points"] is None or quest["max_int_points"] is None:
+            quest["points_transformed"] = False
+            continue
+        if not qscale:
+            quest["points_transformed"] = False
+            continue
+        if qscale.numerator / qscale.denominator == 1 and qscale.shift == 0:
+            quest["points_transformed"] = False
+            continue
+        quest["points_transformed"] = True
+
+        quest["max_ext_points"] = qscale.transform(quest["max_int_points"])
+        quest["min_ext_points"] = qscale.transform(quest["min_int_points"])
+
+    exams = []
+    for exam in (
+        Exam.objects.for_user(request.user)
+        .filter(question__markingmeta__isnull=False)
         .distinct()
-    )
+    ):
+        min_p, max_p = QuestionPointsRescale.min_max_points_for_exam(exam)
+        exams.append(
+            {"pk": exam.pk, "name": exam.name, "min_total": min_p, "max_total": max_p}
+        )
 
     points_per_participant = []
     participants = [
@@ -180,7 +191,7 @@ def summary(request):  # pylint: disable=too-many-locals
         ppnt_question_id_list = []
         for question in questions:
             ppnt_markings_question = markings.filter(
-                marking_meta__question=question["question__pk"],
+                marking_meta__question=question["pk"],
                 participant__code=code,
             )
             if ppnt_markings_question.filter(points__isnull=True).exists():
@@ -192,25 +203,25 @@ def summary(request):  # pylint: disable=too-many-locals
             ppnt_question_points_list.append(points_question)
 
             editable = editable_markings.filter(
-                marking_meta__question=question["question__pk"],
+                marking_meta__question=question["pk"],
                 participant__code=code,
             ).exists()
             if editable:
-                ppnt_question_editable_list.append(question["question__pk"])
+                ppnt_question_editable_list.append(question["pk"])
             else:
                 ppnt_question_editable_list.append(False)
             # pylint: disable=invalid-name
             ps = [
                 p
                 for p in participant_group
-                if p["exam__name"] == question["question__exam__name"]
+                if p["exam__name"] == question["exam__name"]
             ]
             ppnt_question_id_list.append(ps[0]["id"] if ps else None)
 
         ppnt_exam_points_list = []
         for exam in exams:
             points_exam = QuestionPointsRescale.external_sum_for_exam(
-                markings, participant_code=code, exam=exam["question__exam__pk"]
+                markings, participant_code=code, exam=exam["pk"]
             )
             ppnt_exam_points_list.append(points_exam)
 
@@ -718,16 +729,13 @@ def delegation_summary(
         points_per_student.append((student, ppnt_exam_points_list, total))
 
     # We need a list of exams and total number of points for the header of the table
-    exams_with_totals = (
-        QuestionPointsRescale.objects.filter(question__exam__in=exams)
-        .values("question__exam")
-        .annotate(exam_points=Sum("max_external_points"))
-        .values("question__exam__name", "exam_points")
-        .order_by(
-            "question__exam",
-        )
-        .distinct()
-    )
+    exams_with_totals = [
+        {
+            "question__exam__name": exam.name,
+            "exam_points": QuestionPointsRescale.min_max_points_for_exam(exam)[1],
+        }
+        for exam in exams
+    ]
 
     # scans pane
     scans_table_per_exam = []
