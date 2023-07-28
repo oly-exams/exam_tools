@@ -959,7 +959,7 @@ class QMLenumerate(QMLbase):
 
     def tex_begin(self):
         label = self.attributes.get("label", "")
-        label = "[" + label + ".]" if label else ""
+        label = "[" + label + "]" if label else ""
         return "\\begin{enumerate}" + label + "\n"
 
     def tex_end(self):

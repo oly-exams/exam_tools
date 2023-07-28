@@ -55,6 +55,7 @@
 % Others
 \RequirePackage{framed}
 \RequirePackage{xcolor}
+\RequirePackage{enumitem}
 
 % Fix fontenc problem with hbar display that appears for e.g. for CJK fonts (necessary for Texlive 2015, but not for e.g. 2018)
 \AtBeginDocument{%
