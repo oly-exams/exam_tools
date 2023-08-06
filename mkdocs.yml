@@ -2,6 +2,10 @@ site_name: Exam Tools Documentation
 theme: readthedocs
 copyright: Copyright 2014 - 2023, Oly Exams Team
 site_dir: _docs_html
+plugins:
+    - macros
+extra:
+    support_contact: 'Contact e-mail: <a href="mailto:exam-tools-users@oly-exams.org"><i class="fa fa-envelope-o"></i> exam-tools-users@oly-exams.org</a>'
 nav:
   - "Home": index.md
   - Exam translation:

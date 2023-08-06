@@ -70,6 +70,9 @@ DEMO_SIGN_UP = False
 # Determines whether the unoffical banner on top of every web page displayed
 OFFICIALLY_SUPPORTED = False
 
+# Support contact html info
+SUPPORT_CONTACT = "Contact e-mail: <a href='mailto:exam-tools-users@oly-exams.org'><i class='fa fa-envelope-o'></i> exam-tools-users@oly-exams.org</a>"
+
 # record users logging in and out
 # (will produce these entries, via exam-tools logger info)
 # CHE User 172.20.0.1 successfully logged in at 12/08/2020 08:44:41

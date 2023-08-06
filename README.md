@@ -100,7 +100,7 @@ celery -A exam_tools worker -E --concurrency=1
 ## Building the docs
 For development it is suggested to serve the docs locally
 ```bash
-mkdocs serve
+mkdocs serve -a localhost:8001
 ```
 
 For building the static docs
