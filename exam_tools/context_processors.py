@@ -28,4 +28,5 @@ def ipho_context(request):
         "STATIC_PATH": settings.STATIC_PATH,
         "DEBUG": getattr(settings, "DEBUG", False),
         "OFFICIALLY_SUPPORTED": settings.OFFICIALLY_SUPPORTED,
+        "SUPPORT_CONTACT": settings.SUPPORT_CONTACT,
     }

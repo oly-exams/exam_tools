@@ -207,10 +207,9 @@
         </div>
         <div class="col-md-3">
           <h2>Help</h2>
-          <p>If you need help with the Exam Tools, please contact a Leader Guide or IT Staff member. 
+          <p>Please contact a guide or IT staff member if you need help with ExamTools or you notice something malfunctioning.
               {% if OFFICIALLY_SUPPORTED %}
-              You can also contact us at <br />
-              <a href="mailto:secretary@ipho2023.jp"><i class="fa fa-envelope-o"></i> secretary@ipho2023.jp</a>.
+              {{ SUPPORT_CONTACT | safe }}
               {% else %}
               Note that this event is run without OlyExams support.
               {% endif %}

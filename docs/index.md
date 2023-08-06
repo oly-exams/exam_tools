@@ -34,6 +34,6 @@ Jump directly to the documentation of the individual components:
 
 ## Feedbacks, Help
 
-Please contact a Team Guide or IT Staff member if you need help with the exam tool or you notice something malfunctioning.
+Please contact a guide or IT staff member if you need help with ExamTools or you notice something malfunctioning.
 
-Contact e-mail: [secretary@ipho2023.jp](mailto:secretary@ipho2023.jp)
+{{ support_contact }}
