@@ -4,9 +4,10 @@ import os
 import argparse
 
 
-def fill_main(content, logo):
+def fill_main(content, oe_logo, logo):
     tex = f"""
-\\documentclass{{article}}
+\\documentclass[a5paper, landscape]{{article}}
+\\usepackage[margin=3cm]{{geometry}}
 
 \\usepackage{{hyperref}}
 \\usepackage{{fancyhdr}}
@@ -15,17 +16,19 @@ def fill_main(content, logo):
 \\pagestyle{{fancy}}
 
 \\fancyhf{{}}
+\\fancyhead[OL]{{\\includegraphics[height=5\\baselineskip]{{ {oe_logo} }}}}
 \\fancyhead[OR]{{\\includegraphics[height=5\\baselineskip]{{ {logo} }}}}
 \\addtolength{{\\headheight}}{{5\\baselineskip}}
+\\setlength\\parindent{{0pt}}
 
 \\begin{{document}}
 
-\\begin{{huge}}
+\\begin{{Huge}}
 
     {content}
 
-\\end{{huge}}
-    
+\\end{{Huge}}
+
 \\end{{document}}
 """
     return tex
@@ -36,11 +39,11 @@ def set_country(url, full_name, name, pwd):
 \\begin{{tabular}}{{ll}}
     URL & \\href{{https://{url}}}{{{url}}} \\\\
     Country &  {full_name} \\\\
-    user name & \\verb\\{name}\\ \\\\
-    password & \\verb\\{pwd}\\ \\\\
+    User name & \\verb\\{name}\\ \\\\
+    Password & \\verb\\{pwd}\\ \\\\
     \\\\
-    WiFi SSID & \\verb\\IBO2022_5\\ \\\\
-    WiFi password & \\verb@IBO2022#@ \\\\
+    WI-FI SSID & \\verb\\Planeta\\ \\\\
+    WI-FI password & \\verb@Planeta2023@ \\\\
 \\end{{tabular}}
 \\clearpage
 \\newpage
@@ -56,12 +59,13 @@ if __name__ == "__main__":
     # Armenia,ARM,pwd2
     pathdir = os.path.dirname(os.path.realpath(__file__))
     csv = os.path.join(
-        pathdir, "input_examples", "delegations_credentials.csv"
+        pathdir, "delegations_credentials.csv"
     )  # path to csv file
     file = os.path.join(pathdir, "input_examples", "delegation_password_printout.tex")
 
-    url = "ibo2022.oly-exams.org"  # URL of server
-    logo = os.path.join(pathdir, "input_examples", "logo.png")  # path to logo
+    url = "ioaa2023.oly-exams.org"  # URL of server
+    oe_logo = os.path.join(pathdir, "../static", "logo_square.png")  # path to OlyExams logo
+    logo = os.path.join(pathdir, "../static", "ioaa2023_logo.png")  # path to logo
 
     text = ""
     skip = True
@@ -74,7 +78,7 @@ if __name__ == "__main__":
             array = line.strip("\n").split(",")
             text += set_country(url, *array)
 
-    tex = fill_main(text, logo)
+    tex = fill_main(text, oe_logo, logo)
 
     with open(file, "w") as f:
         f.write(tex)
