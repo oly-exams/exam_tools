@@ -89,7 +89,10 @@
     { \hspace*{-3pt}\fontsize{11pt}{11pt}\selectfont\textcolor{color1}{\textbf{#1}}}\nopagebreak}
     {\vspace{0.1cm}}\nopagebreak
 
-
+% A new version of section titles to solve problems with arabic letter being not properly connected
+\newcommand{\SCT}[1]{\vspace{0cm}\noindent
+    { \hspace*{-3pt}\fontsize{10pt}{10pt}\selectfont{\textbf{#1}}}\nopagebreak}
+    {\vspace{0.1cm}}\nopagebreak
 
 %Question -- no longer used
 \newcommand{\QT}[3]{\vspace{0.2cm}\noindent{\textbf\Alph#2\arabic#3.~(#1 \if#11{pt}\else{pts}\fi)}}
