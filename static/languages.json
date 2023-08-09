@@ -50,7 +50,7 @@
     ],
     "language": "Armenian",
     "polyglossia": "armenian",
-    "polyglossia_options": null
+    "polyglossia_options": "numerals=arabic"
   },
   "asturian": {
     "direction": "ltr",
@@ -691,8 +691,8 @@
   "persian": {
     "direction": "rtl",
     "fonts": [
-      "notokufiarabic",
       "notonaskharabic",
+      "notokufiarabic",
       "notonastaliqurdu"
     ],
     "language": "Persian",

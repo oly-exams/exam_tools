@@ -75,7 +75,7 @@
               <div class="modal-body"></div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-danger">Publish</button>
+                <button type="submit" id="publish-button" class="btn btn-danger">Publish</button>
               </div>
           </form>
         </div>
@@ -337,6 +337,7 @@ $(function() {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var href = button.attr('href');
         var modal = $(this);
+        $('#publish-button').show();
 
         modal.find('.modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
         modal.find('.modal-body').html('');
@@ -351,6 +352,9 @@ $(function() {
                 modal.find('.modal-body').html(data['form']);
                 modal.find('.modal-footer').removeClass('hide');
                 modal.find("[data-toggle=popover]").popover(); // activate popover
+                if (data['hide-publish-button']||false){
+                    $('#publish-button').hide();
+                }
             },
         });
     })
