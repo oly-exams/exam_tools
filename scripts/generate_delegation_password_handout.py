@@ -8,6 +8,9 @@ def fill_main(content, oe_logo, logo):
     tex = f"""
 \\documentclass[a5paper, landscape]{{article}}
 \\usepackage[margin=3cm]{{geometry}}
+\\usepackage[T1]{{fontenc}}
+\\usepackage[ttdefault=true]{{AnonymousPro}}
+%\\renewcommand*\\familydefault{{\\ttdefault}}
 
 \\usepackage{{hyperref}}
 \\usepackage{{fancyhdr}}
@@ -23,11 +26,11 @@ def fill_main(content, oe_logo, logo):
 
 \\begin{{document}}
 
-\\begin{{Huge}}
+\\begin{{huge}}
 
     {content}
 
-\\end{{Huge}}
+\\end{{huge}}
 
 \\end{{document}}
 """
@@ -37,13 +40,13 @@ def fill_main(content, oe_logo, logo):
 def set_country(url, full_name, name, pwd):
     tex = f"""
 \\begin{{tabular}}{{ll}}
-    URL & \\href{{https://{url}}}{{{url}}} \\\\
+    URL & \\texttt{{\\href{{https://{url}}}{{{url}}}}} \\\\
     Country &  {full_name} \\\\
     User name & \\verb\\{name}\\ \\\\
     Password & \\verb\\{pwd}\\ \\\\
     \\\\
-    WI-FI SSID & \\verb\\Planeta\\ \\\\
-    WI-FI password & \\verb@Planeta2023@ \\\\
+    WI-FI SSID & \\texttt{{Planeta}} \\\\
+    WI-FI password & \\texttt{{Planeta2023}} \\\\
 \\end{{tabular}}
 \\clearpage
 \\newpage
