@@ -19,11 +19,13 @@
 
 \begin{document}
 
-\begin{letter}{\flushright{ 
-  \textbf{% templatetag openbrace %}{{ participant.code }} {{ exam.code }}-{{ question.position }} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}}{% if participant.is_group %}\\~{% for ss in participant.students.all%}\\{{ ss.full_name }}{%endfor%}{% endif %} }}
+\begin{letter}{}
 \opening{}
 
 \begin{center}
+{{ participant.full_name }}
+\vspace{3cm}\\
+
 {\textbf{\Huge {{ exam.name }}\\ {{ question.name }}}}
 \vspace{1em}\\
 {\textbf{\Large Cover sheet}}
