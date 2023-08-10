@@ -632,6 +632,9 @@ class Exam(models.Model):
     def natural_key(self):
         return (self.name,)
 
+    class Meta:
+        ordering = ["code", "name"]
+
     @classmethod
     def get_controllable_fields(cls):
         """Returns the fields available to the control app (i.e. changeable in ExamPhase)."""
