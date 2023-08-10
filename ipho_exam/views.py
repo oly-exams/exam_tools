@@ -3358,6 +3358,7 @@ def submission_exam_confirm(
             "form_error": form_error,
             "no_answer": no_answer,
             "fixed_answer_language": en_answer,
+            "include_cover": getattr(settings, "INCLUDE_COVER", True),
         },
     )
 
