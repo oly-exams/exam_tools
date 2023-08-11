@@ -2867,7 +2867,11 @@ def submission_delegation_list_submitted(request):
     return render(
         request,
         "ipho_exam/submission_delegation_list.html",
-        {"docs": all_docs, "exam2max_position": exam_id2max_position},
+        {
+            "docs": all_docs,
+            "exam2max_position": exam_id2max_position,
+            "include_cover": getattr(settings, "INCLUDE_COVER", True),
+        },
     )
 
 
@@ -3434,6 +3438,7 @@ def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-bra
             "msg": msg,
             "no_answer": no_answer,
             "fixed_answer_language": en_answer,
+            "include_cover": getattr(settings, "INCLUDE_COVER", True),
         },
     )
 
