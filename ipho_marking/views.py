@@ -523,7 +523,6 @@ def delegation_summary(
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
 
     delegation = Delegation.objects.get(members=request.user)
-    exams = Exam.objects.for_user(request.user).order_by("pk")
     students = Student.objects.filter(delegation=delegation)
 
     exam_marking_list = []
@@ -532,8 +531,9 @@ def delegation_summary(
     ) | Q(
         marking_delegation_can_see_organizer_marks__gte=Exam.MARKING_DELEGATION_VIEW_WHEN_SUBMITTED
     )
+    exams = Exam.objects.for_user(request.user).order_by("pk").filter(exam_filter)
 
-    for exam in exams.filter(exam_filter):
+    for exam in exams:
         participants = Participant.objects.filter(delegation=delegation, exam=exam)
         answer_sheet_list = Question.objects.filter(
             exam=exam, type=Question.ANSWER
