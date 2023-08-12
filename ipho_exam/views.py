@@ -3670,10 +3670,18 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
                 return HttpResponseForbidden(
                     "You do not have the permissions to edit this language."
                 )
-            ## TODO: check permissions for this.
-            trans_node = get_object_or_404(
-                TranslationNode, question=question, language_id=lang_id
+
+            trans_nodes = TranslationNode.objects.filter(
+                question__exam=exam, language=trans_lang
             )
+            if trans_nodes.exists():
+                trans_node, _ = TranslationNode.objects.get_or_create(
+                    question=question, language=trans_lang
+                )
+            else:
+                raise Http404(
+                    "You have not added a translation to the exam for this language."
+                )
 
             if len(trans_node.text) > 0:
                 trans_q = qml.make_qml(trans_node)
