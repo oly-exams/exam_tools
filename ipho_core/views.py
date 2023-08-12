@@ -64,22 +64,16 @@ def any_permission_required(*args):
     return user_passes_test(test_func)
 
 
-def autologin(request, token):
-    if not DEMO_MODE and not (
-        request.user.has_perm("ipho_core.can_impersonate")
-        and request.user.has_perm("ipho_core.is_organizer_admin")
-    ):
+def autologin(request, pk):
+    if not DEMO_MODE and not request.user.has_perm("ipho_core.can_impersonate"):
         return HttpResponseForbidden("Only the staff can use autologin.")
-    user = authenticate(token=token)
+    user = get_object_or_404(User, id=pk)
     redirect_to = reverse("home")
     base_user_id = request.user.id
-    if user:
-        login(request, user)
-        request.session["autologin_user"] = base_user_id
-        request.session.modified = True
-        return redirect(redirect_to)
-
-    return redirect(settings.LOGIN_URL + f"?next={redirect_to}")
+    login(request, user, backend=DEFAULT_AUTHENTICATION_BACKEND)
+    request.session["autologin_user"] = base_user_id
+    request.session.modified = True
+    return redirect(redirect_to)
 
 def autologin_stop(request):
     user_id = request.session.get("autologin_user", None)
@@ -304,14 +298,10 @@ def random_draw(request):  # pylint: disable=too-many-branches
     return render(request, "ipho_core/random_draw.html", {"form": form})
 
 
-@permission_required("ipho_core.is_organizer_admin")
 @permission_required("ipho_core.can_impersonate")
 def list_impersonate(request):
-    users = (
-        User.objects.exclude(delegation__isnull=True)
-        .exclude(autologin__isnull=True)
-        .order_by("username")
-    )
+    users = User.objects.order_by("username")
+    users = [user for user in users if not user.has_perm("ipho_core.can_impersonate")]
     chunk_size = max(old_div(len(users), 6) + 1, 1)
     grouped_users = [
         users[x : x + chunk_size] for x in range(0, len(users), chunk_size)
