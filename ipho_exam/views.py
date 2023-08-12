@@ -702,7 +702,7 @@ def list_language(request):
     languages = Language.objects.filter(
         hidden=False, delegation__in=delegation
     ).order_by("name")
-    # TODO: do not show Add language if no delegation
+
     return render(request, "ipho_exam/languages.html", {"languages": languages})
 
 

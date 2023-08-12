@@ -60,8 +60,6 @@ class LanguageForm(ModelForm):
         self.user_delegation = kwargs.pop("user_delegation")
         super().__init__(*args, **kwargs)
         instance = getattr(self, "instance", None)
-        if instance and instance.pk:
-            self.fields["name"].widget.attrs["readonly"] = True
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
