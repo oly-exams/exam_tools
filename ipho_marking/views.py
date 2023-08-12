@@ -608,6 +608,7 @@ def delegation_summary(
             question_ctx = {
                 "name": question.name,
                 "pk": question.pk,
+                "position": question.position,
                 "view_all": view_all[question.pk],
                 "edit_all": edit_all[question.pk],
             }
@@ -665,6 +666,7 @@ def delegation_summary(
             "questions": question_list,
             "name": exam.name,
             "pk": exam.pk,
+            "code": exam.code,
         }
         exam_marking_list.append(exam_ctxt)
 
