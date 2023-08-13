@@ -134,7 +134,7 @@
                   <li><a href="{% url 'admin:index' %}">Admin</a></li>
                   {% endif %}
                   {% if perms.ipho_core.can_impersonate %}
-                  <li><a href="{% url 'impersonate' %}">Impersonate user</a></li>
+                  <li><a href="{% url 'list_impersonate' %}">Impersonate user</a></li>
                   {% endif %}
                   <li class="divider"></li>
                   {% endif %}
@@ -210,8 +210,8 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
-              {% if request.session.autologin_user %}
-              <li><a href="{% url 'autologin_stop' %}">Stop impersonation</a></li>
+              {% if request.session.impersonation_user %}
+              <li><a href="{% url 'impersonate_stop' %}">Stop impersonation</a></li>
               {% endif %}
               <li class="navbar-text">{{ user.username }},
                 <strong>

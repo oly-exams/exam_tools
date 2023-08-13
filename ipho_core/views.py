@@ -64,21 +64,44 @@ def any_permission_required(*args):
     return user_passes_test(test_func)
 
 
-def autologin(request, pk):
-    if not DEMO_MODE and not request.user.has_perm("ipho_core.can_impersonate"):
-        return HttpResponseForbidden("Only the staff can use autologin.")
-    user = get_object_or_404(User, id=pk)
+def autologin(request, token):
+    if not DEMO_MODE:
+        return HttpResponseForbidden("Autologin is not available outside demo mode.")
+    user = authenticate(token=token)
     redirect_to = reverse("home")
-    base_user_id = request.user.id
-    login(request, user, backend=DEFAULT_AUTHENTICATION_BACKEND)
-    request.session["autologin_user"] = base_user_id
-    request.session.modified = True
-    return redirect(redirect_to)
+    if user:
+        login(request, user)
+        return redirect(redirect_to)
+    return redirect(settings.LOGIN_URL + f"?next={redirect_to}")
 
-def autologin_stop(request):
-    user_id = request.session.get("autologin_user", None)
+
+@permission_required("ipho_core.can_impersonate")
+def list_impersonate(request):
+    users = User.objects.order_by("username")
+    users = [user for user in users if not user.has_perm("ipho_core.can_impersonate")]
+    chunk_size = max(old_div(len(users), 6) + 1, 1)
+    grouped_users = [
+        users[x : x + chunk_size] for x in range(0, len(users), chunk_size)
+    ]
+    return render(
+        request, "ipho_core/impersonate.html", {"grouped_users": grouped_users}
+    )
+
+@permission_required("ipho_core.can_impersonate")
+def impersonate(request, pk):
+    base_user_id = request.user.id
+    user = get_object_or_404(User, id=pk)
+    if user.has_perm("ipho_core.can_impersonate"):
+        return HttpResponseForbidden("You cannot impersonate this user.")
+    login(request, user, backend=DEFAULT_AUTHENTICATION_BACKEND)
+    request.session["impersonation_user"] = base_user_id
+    request.session.modified = True
+    return redirect(reverse("home"))
+
+def impersonate_stop(request):
+    user_id = request.session.get("impersonation_user", None)
     if user_id is None:
-        return HttpResponseForbidden("No autologin currently active.")
+        return HttpResponseForbidden("No impersonation currently active.")
     login(request, get_object_or_404(User, id=user_id), backend=DEFAULT_AUTHENTICATION_BACKEND)
     return redirect(reverse("home"))
 
@@ -296,19 +319,6 @@ def random_draw(request):  # pylint: disable=too-many-branches
 
     form = RandomDrawForm()
     return render(request, "ipho_core/random_draw.html", {"form": form})
-
-
-@permission_required("ipho_core.can_impersonate")
-def list_impersonate(request):
-    users = User.objects.order_by("username")
-    users = [user for user in users if not user.has_perm("ipho_core.can_impersonate")]
-    chunk_size = max(old_div(len(users), 6) + 1, 1)
-    grouped_users = [
-        users[x : x + chunk_size] for x in range(0, len(users), chunk_size)
-    ]
-    return render(
-        request, "ipho_core/impersonate.html", {"grouped_users": grouped_users}
-    )
 
 
 @login_required
