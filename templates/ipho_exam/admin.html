@@ -125,7 +125,6 @@
         {% endfor %}
     </ul>
 
-    {% if exam %}
     <h3>
 		{{ exam.name }} 
         {% if exam.flags|binand:exam.FLAG_SQUASHED %}<span class="label label-default">Squashed</span>{% endif %} 
@@ -136,11 +135,6 @@
     <div id="exam-tbody" class="panel-group">
         <i class="fa fa-spinner fa-pulse"></i> Loading...
     </div>
-    {% else %}
-    <h3>
-        There are no exams.
-    </h3>
-    {% endif %}
 </div> <!-- /container -->
 
 
@@ -186,7 +180,6 @@ $(function() {
             .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
     }
 
-    {% if exam %}
     function update_questions() {
         $.ajax({
             method: "GET",
@@ -438,6 +431,8 @@ $(function() {
             },
         });
     })
+
+    update_questions();
 
     $(document).on('submit', '#import-modal form', function(evt) {
       var form = evt.target;
