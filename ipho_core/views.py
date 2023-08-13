@@ -77,8 +77,10 @@ def autologin(request, token):
 
 @permission_required("ipho_core.can_impersonate")
 def list_impersonate(request):
-    users = User.objects.order_by("username")
-    users = [user for user in users if not user.has_perm("ipho_core.can_impersonate")]
+    users = sorted(
+        [user for user in User.objects.all() if not user.has_perm("ipho_core.can_impersonate")],
+        key=lambda user: user.username,
+    )
     chunk_size = max(old_div(len(users), 6) + 1, 1)
     grouped_users = [
         users[x : x + chunk_size] for x in range(0, len(users), chunk_size)
