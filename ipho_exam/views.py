@@ -1905,11 +1905,9 @@ def admin_edit_question(request, exam_id, question_id):
 
 @permission_required("ipho_core.can_edit_exam")
 @ensure_csrf_cookie
-def admin_list(request):
-    if is_ajax(request) and "exam_id" in request.GET:
-        exam = get_object_or_404(
-            Exam.objects.for_user(request.user), id=request.GET["exam_id"]
-        )
+def admin_exam_detail(request, exam_id=None):
+    if is_ajax(request) and exam_id is not None:
+        exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
         return JsonResponse(
             {
                 "content": render_to_string(
@@ -1921,13 +1919,24 @@ def admin_list(request):
                 ),
             }
         )
+    return HttpResponseForbidden("request needs to be ajax")
 
+
+@permission_required("ipho_core.can_edit_exam")
+@ensure_csrf_cookie
+def admin(request, exam_id=None):
     exam_list = Exam.objects.for_user(request.user).all()
+    if exam_id is not None:
+        exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+    else:
+        exam = exam_list.first()
+
     return render(
         request,
         "ipho_exam/admin.html",
         {
             "exam_list": exam_list,
+            "exam": exam,
         },
     )
 
@@ -2119,7 +2128,14 @@ def admin_accept_version(
         )
         node.status = "S"
         node.save()
-        return HttpResponseRedirect(reverse("exam:admin"))
+        return HttpResponseRedirect(
+            reverse(
+                "exam:admin-exam",
+                kwargs={
+                    "exam_id": exam.pk,
+                },
+            )
+        )
 
     if compare_version is None:
         compare_node = (
@@ -2167,7 +2183,14 @@ def admin_accept_version(
     if request.POST:
         node.status = "S"
         node.save()
-        return HttpResponseRedirect(reverse("exam:admin"))
+        return HttpResponseRedirect(
+            reverse(
+                "exam:admin-exam",
+                kwargs={
+                    "exam_id": exam.pk,
+                },
+            )
+        )
 
     node_versions = []
     if lang.versioned:

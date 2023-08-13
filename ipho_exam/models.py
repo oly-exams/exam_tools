@@ -910,7 +910,7 @@ class Question(models.Model):
     ## TODO: add template field
 
     class Meta:
-        ordering = ["position", "type"]
+        ordering = ["position", "type", "code", "name"]
 
     def is_answer_sheet(self):
         return self.type == self.ANSWER
