@@ -707,7 +707,7 @@ def delegation_summary(
         .annotate(exam_points=Sum("max_external_points"))
         .values("question__exam__name", "exam_points")
         .order_by(
-            "question__exam",
+            "question__exam__pk",
         )
         .distinct()
     )
