@@ -23,7 +23,6 @@ import csv
 import json
 import types
 import random
-import shutil
 import urllib
 import logging
 import traceback
@@ -33,8 +32,7 @@ from pathlib import Path
 from copy import deepcopy
 from collections import OrderedDict, defaultdict
 
-from io import BytesIO
-from PyPDF2 import PdfFileMerger, PdfFileReader
+from PyPDF2 import PdfFileMerger
 
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render, redirect
@@ -4290,7 +4288,12 @@ def pdf_task(request, token):
 @permission_required("ipho_core.is_marker")
 def admin_scan_progress(request, question_id=None):
     questions = (
-        Question.objects.for_user(request.user).filter(type=Question.ANSWER).all()
+        Question.objects.for_user(request.user)
+        .filter(type=Question.ANSWER)
+        .filter(
+            exam__marking_organizer_can_enter__gte=Exam.MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED
+        )
+        .order_by("exam", "position")
     )
     ctx = {"questions": questions}
 
@@ -4307,14 +4310,20 @@ def admin_scan_progress(request, question_id=None):
 
         documents = (
             Document.objects.for_user(request.user)
-            .filter(participant__exam=question.exam, position=question.position)
+            .filter(
+                participant__exam=question.exam,
+                position=question.position,
+                participant__exam__delegation_status__action=ExamAction.TRANSLATION,
+                participant__exam__delegation_status__delegation=F(
+                    "participant__delegation"
+                ),
+                participant__exam__delegation_status__status=ExamAction.SUBMITTED,
+            )
             .order_by("participant__code")
         )
 
         num_docs = documents.count()
         ctx["scans_all"] = num_docs
-
-        # ctx["documents"] = documents.all()
 
         num_columns = 5
         ctx["columns"] = range(num_columns)
@@ -4322,7 +4331,6 @@ def admin_scan_progress(request, question_id=None):
             documents.all()[i : i + num_columns]
             for i in range(0, num_docs, num_columns)
         ]
-        print(ctx["documents"])
 
         scanned_documents = documents.filter(scan_status="S").count()
 

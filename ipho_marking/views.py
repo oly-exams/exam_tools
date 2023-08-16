@@ -1663,12 +1663,25 @@ def official_marking_detail(request, question_id, delegation_id):
             )
         )
 
-    scan_files_ready = (
+    files_ready = {}
+    files_ready["scan"] = (
         Document.objects.scans_ready(request.user)
         .filter(participant__exam=question.exam, position=question.position)
         .filter(participant__delegation=delegation)
         .values_list("participant__pk", flat=True)
     )
+
+    files_ready["full_scan"] = (
+        Document.objects.scans_ready(request.user)
+        .filter(participant__exam=question.exam, position=question.position)
+        .filter(participant__delegation=delegation)
+        .exclude(
+            scan_file_orig__isnull=True,
+        )
+        .exclude(scan_file_orig="")
+        .values_list("participant__pk", flat=True)
+    )
+
     # TODO: display errors
     ctx = {
         "question": question,
@@ -1677,7 +1690,7 @@ def official_marking_detail(request, question_id, delegation_id):
         "marking_forms": list(zip(metas, zip(*(f[1] for f in participant_forms)))),
         "request": request,
         "max_points_sum": sum(m.max_points for m in metas),
-        "scan_files_ready": scan_files_ready,
+        "files_ready": files_ready,
     }
     return render(request, "ipho_marking/official_marking_detail.html", ctx)
 
