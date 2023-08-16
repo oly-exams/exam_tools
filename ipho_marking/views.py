@@ -1796,8 +1796,11 @@ def export_countries_to_moderate(request):
 
     questions = (
         Question.objects.for_user(request.user)
-        .filter(type=Question.ANSWER)
-        .order_by("exam", "position")
+        .filter(
+            type=Question.ANSWER,
+            exam__marking_delegation_action__gte=Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT,
+        )
+        .order_by("exam__pk", "position")
     )
     for question in questions:
         title_row.append(f"{question.exam.code}-{question.position}")
@@ -1807,14 +1810,7 @@ def export_countries_to_moderate(request):
         "country"
     ):
         x = [delegation.country, delegation.name]
-        for question in (
-            Question.objects.for_user(request.user)
-            .filter(
-                exam__marking_delegation_action__gte=Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT,
-                type=Question.ANSWER,
-            )
-            .order_by("exam__pk", "position")
-        ):
+        for question in questions:
             for status in list(
                 MarkingAction.objects.filter(
                     question=question, delegation=delegation
