@@ -97,7 +97,7 @@ class QuestionBarcodeGen:
             text_xml.attrib["y"] = f"{height + 2}mm"
             text_xml.attrib["font-size"] = "10"
             text_xml.attrib["font-family"] = "Verdana"
-            text_xml.text = code.split()[0]
+            text_xml.text = code
 
             if not self.suppress_code:
                 bcode_xml.append(bcode_raw)
