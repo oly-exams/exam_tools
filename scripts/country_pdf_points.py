@@ -70,7 +70,6 @@ def compile_all():
                 .values("marking_meta__question")
                 .annotate(exam_points=Sum("points"))
                 .values("exam_points")
-                .order_by("marking_meta__question__exam", "marking_meta__question")
             )
             total = sum(
                 st_points["exam_points"]
@@ -91,7 +90,6 @@ def compile_all():
                 "question__exam__name",
                 "exam_points",
             )
-            .order_by("question__exam", "question")
             .distinct()
         )
 

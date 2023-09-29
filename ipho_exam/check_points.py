@@ -97,9 +97,7 @@ def check_exam(exam):
     Check the sum and question / answer consistency of all questions in the
     given exam.
     """
-    all_questions = Question.objects.filter(exam=exam, code__in=["Q", "A"]).order_by(
-        "position"
-    )
+    all_questions = Question.objects.filter(exam=exam, code__in=["Q", "A"])
     for que1, que2 in zip(all_questions[::2], all_questions[1::2]):
         version_1 = qquery.latest_version(que1.pk, lang_id=OFFICIAL_LANGUAGE_PK).node
         version_2 = qquery.latest_version(que2.pk, lang_id=OFFICIAL_LANGUAGE_PK).node

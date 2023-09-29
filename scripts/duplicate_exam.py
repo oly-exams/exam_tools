@@ -79,7 +79,7 @@ s = serialize(questions, with_pk=False)
 s = s.replace(orig_exam, dest_exam)
 all_data += json.loads(s)
 
-nodes = VersionNode.objects.filter(question=questions).order_by("-version")
+nodes = VersionNode.objects.filter(question=questions)
 s = serialize(nodes, with_pk=False)
 s = s.replace(orig_exam, dest_exam)
 all_data += json.loads(s)

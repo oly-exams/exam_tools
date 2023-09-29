@@ -114,6 +114,7 @@ class MarkingAction(models.Model):
     class Meta:
         unique_together = (("question", "delegation"),)
         index_together = unique_together
+        ordering = ["question", "delegation"]
 
     def natural_key(self):
         return self.question.natural_key() + self.delegation.natural_key()
@@ -179,8 +180,8 @@ class QuestionPointsRescale(models.Model):
     max_external_points = models.DecimalField(max_digits=8, decimal_places=2)
 
     class Meta:
-        ordering = ["question"]
         unique_together = index_together = ("question",)
+        ordering = ["question"]
 
     def __str__(self):
         return f"[external points {self.max_external_points}] {self.question.name}"
@@ -228,8 +229,8 @@ class MarkingMeta(models.Model):
         return f"{self.name} [{self.question.name}] {self.max_points} points"
 
     class Meta:
-        ordering = ["position"]
         unique_together = index_together = (("question", "name"),)
+        ordering = ["question", "position"]
 
 
 class MarkingManager(models.Manager):
@@ -459,5 +460,5 @@ class Marking(models.Model):
         )
 
     class Meta:
-        # should probably have an ordering?
         unique_together = (("marking_meta", "participant", "version"),)
+        ordering = ["marking_meta", "participant", "version"]
