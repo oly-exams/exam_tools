@@ -70,10 +70,16 @@ th {
           {{ forms.management_form }}
           <td class="thdnone"></td>
           <th><h4>{{ participant.full_name }} ({{ participant.code }})</h4>
-            {% if participant.pk in scan_files_ready %}
-            <a class="btn btn-default btn-xs" id="scan-{{ participant.pk }}-{{ question.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=question.exam.pk participant_id=participant.pk position=question.position %}">
+            {% if participant.pk in files_ready.scan %}
+            <a class="btn btn-success btn-xs" id="scan-{{ participant.pk }}-{{ question.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=question.exam.pk participant_id=participant.pk position=question.position %}">
               <i class="fa fa-file-pdf-o"></i>
               View scan
+            </a>
+            {% endif %}
+            {% if participant.pk in files_ready.full_scan %}
+            <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=question.exam.pk participant_id=participant.pk position=question.position %}">
+              <i class="fa fa-fw fa-file-pdf-o"></i>
+              View full scan
             </a>
             {% endif %}
           </th>

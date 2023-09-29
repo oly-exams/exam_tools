@@ -90,8 +90,10 @@
                   <td class="border-right">
                     <div class="btn-group">
                       {% if doc.scan_status == "S" %}
-                        <a class="btn btn-success btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=doc.participant.exam.pk participant_id=doc.participant.pk position=doc.position %}" title="Scan ({{ doc.timestamp|date:'d.M. H:m:s' }})" data-toggle="tooltip"><i class="fa fa-fw fa-file-pdf-o"></i></a>
-                        <a class="btn btn-default btn-xs" href="{% url 'exam:set-scan-full'  doc_id=doc.pk %}" title="Full scan" data-toggle="tooltip"><i class="fa fa-fw fa-file-pdf-o"></i></a>
+                        <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-participant' exam_id=doc.participant.exam.pk participant_id=doc.participant.pk position=doc.position %}" title="Scan ({{ doc.timestamp|date:'d.M. H:m:s' }})" data-toggle="tooltip"><i class="fa fa-fw fa-file-pdf-o"></i></a>
+                        {% if doc.scan_file_orig %}
+                          <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=doc.participant.exam.pk participant_id=doc.participant.pk position=doc.position %}" title="Full scan" data-toggle="tooltip"><i class="fa fa-fw fa-file-pdf-o"></i></a>
+                        {% endif %}
                       {% endif %}
                       {% if can_mark %}
                         <a class="btn btn-default btn-xs" href="{% url 'marking:official-marking-detail' question_id=question.pk delegation_id=doc.participant.delegation.pk %}" title="Go to marking" data-toggle="tooltip">Marking</a>
