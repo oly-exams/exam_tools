@@ -1,7 +1,7 @@
 import pandas as pd
 from django.db import connection
 
-final_points_string = """
+sql_query = lambda version: f"""
 SELECT s.code AS "Student code",
        s.first_name AS "First name",
        s.last_name AS "Last name",
@@ -12,7 +12,7 @@ SELECT s.code AS "Student code",
     JOIN ipho_core_student AS s ON s.id = ps.student_id
     JOIN ipho_exam_participant AS p ON p.id = ps.participant_id
     JOIN ipho_exam_exam AS e ON e.id = p.exam_id
-    WHERE m.version = 'F'
+    WHERE {version}
     GROUP BY GROUPING SETS (
         (e.name, s.code, s.first_name, s.last_name),
         (s.code, s.first_name, s.last_name)
@@ -20,8 +20,21 @@ SELECT s.code AS "Student code",
 """
 
 
-def get_final_marks():
-    rows, column_names = execute_sql(final_points_string)
+def get_version_marks(versions):
+    """Obtains marks for different versions.
+
+    Currently only works for a single version.
+
+    Args:
+        versions (list): can contain 'D' (delegation), 'O' (organizer),
+            'F' (final)
+
+    Returns:
+        pd.DataFrame: table with results
+    """
+    assert len(versions) == 1
+    query_string = f"m.version = '{versions[0]}'"
+    rows, column_names = execute_sql(sql_query(query_string))
     exam = column_names[-2]
     points = column_names[-1]
     df = pd.DataFrame(rows, columns=column_names)
