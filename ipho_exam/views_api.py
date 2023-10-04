@@ -44,7 +44,7 @@ class DocumentViewSet(
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = (
+    filterset_fields = (
         "id",
         "position",
         "participant",

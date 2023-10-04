@@ -50,13 +50,14 @@
                     <td class="col-md-2">
                         <div class="btn-toolbar">
                           <span class="parent">
-                            <a class="btn btn-default" href="{% url 'poll:voting' voting_pk=voting.pk %}" title="details"><i class="fa fa-info fa-fw"></i></a >
+                            <a class="btn btn-default" href="{% url 'poll:voting' voting_pk=voting.pk %}" title="details (for organizers)"><i class="fa fa-info fa-fw"></i></a >
                           </span>
                           <span class="parent">
-                              <a class="btn btn-default" target="_blank" href="{% url 'poll:voting_large' voting_pk=voting.pk %}" title="fullscreen"><i class="fa fa-expand fa-fw" aria-hidden="true"></i></a >
+                              <a class="btn btn-default" target="_blank" href="{% url 'poll:voting_large' voting_pk=voting.pk %}" title="fullscreen (for audience)"><i class="fa fa-expand fa-fw" aria-hidden="true"></i></a >
                           </span>
-
-
+                          <span class="parent">
+                            <button class="btn btn-warning" href="{% url 'poll:reopen-voting' voting_pk=voting.pk %}" data-toggle="modal" data-target="#voting-modal" data-remote="false" title="re-open vote"><i class="fa fa-level-up fa-fw"></i></button>
+                          </span>
                         </div>
                     </td>
                 </tr>

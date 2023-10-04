@@ -22,8 +22,7 @@ test_*.pdf
 docs/*.html
 out/*.pdf
 unittest_reports
-database.s3db
-database.s3db.bak
+database.s3db*
 database-initial.s3db
 poetry.lock
 pyproject.toml.bak

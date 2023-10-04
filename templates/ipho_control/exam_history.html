@@ -10,7 +10,7 @@
     </div>
         {{ h.user }} at
         {% if h.timestamp %}
-            <time datetime="{{ h.timestamp|date:'c' }}" data-format="DD. MMM HH:mm:ss"></time>
+            <time datetime="{{ h.timestamp|date:'c' }}" data-format="YYYY-MM-DD HH:mm:ss"></time>
         {% else %}
               --:--
         {% endif %}

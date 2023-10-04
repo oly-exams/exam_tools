@@ -49,7 +49,7 @@
       "notoserifarmenian"
     ],
     "language": "Armenian",
-    "polyglossia": "armenian",
+    "polyglossia": "english",
     "polyglossia_options": null
   },
   "asturian": {
@@ -796,7 +796,7 @@
       "notosanssinhala"
     ],
     "language": "Sinhalese",
-    "polyglossia": null,
+    "polyglossia": "french",
     "polyglossia_options": null
   },
   "slovak": {

@@ -95,7 +95,7 @@ if __name__ == "__main__":
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "mkdocs.yml"
         )
         cfg = mk_config.Config(
-            schema=mk_config.DEFAULT_SCHEMA, config_file_path=config_file_path
+            schema=mk_config.defaults.get_schema(), config_file_path=config_file_path
         )
         with open(config_file_path, "rb") as config_file:
             cfg.load_file(config_file)
@@ -103,7 +103,7 @@ if __name__ == "__main__":
             cfg.load_dict({"site_dir": args.site_dir})
         errors, warnings = cfg.validate()
         if errors:
-            raise ConfigurationError(str(error))
+            raise ConfigurationError(str(errors))
         cfg["config_file_path"] = ""
         cfg["event_name"] = args.event_name
         cfg["event_folder_path"] = os.path.normpath(

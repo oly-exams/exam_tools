@@ -70,6 +70,9 @@ DEMO_SIGN_UP = False
 # Determines whether the unoffical banner on top of every web page displayed
 OFFICIALLY_SUPPORTED = False
 
+# Support contact html info
+SUPPORT_CONTACT = "Contact e-mail: <a href='mailto:exam-tools-users@oly-exams.org'><i class='fa fa-envelope-o'></i> exam-tools-users@oly-exams.org</a>"
+
 # record users logging in and out
 # (will produce these entries, via exam-tools logger info)
 # CHE User 172.20.0.1 successfully logged in at 12/08/2020 08:44:41
@@ -85,6 +88,9 @@ ADD_DELEGATION_WATERMARK = True
 # Defines if there is a 'banner' page showing the name of the delegation for the official prints
 # to facilitate sorting the printed pages
 ADD_DELEGATION_PRINT_BANNER = True
+
+# whether a cover page should be included in the exam (official prints)
+INCLUDE_COVER = True
 
 # Defines whether a QR code should be printed on the cover sheets
 CODE_ON_COVER_SHEET = False
@@ -440,7 +446,7 @@ PRINTER_QUEUES = {
     # },
     "generic.printer-1": {
         "name": "Generic printer",
-        "host": "",
+        "host": "localhost",
         "queue": "printer-1",
         "auth_token": "",
         "opts": {"Duplex": "None", "ColourModel": "Colour", "Staple": "1PLU"},
@@ -583,6 +589,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     "django.contrib.admindocs",
     "django.contrib.humanize",
+    "django_filters",
     "crispy_forms",
     "django_ace",
     "django_celery_results",

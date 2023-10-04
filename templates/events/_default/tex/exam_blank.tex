@@ -3,6 +3,7 @@
 \documentclass[11pt,a4paper]{ipho2016}
 \usepackage{graphicx}
 
+
 % PDF metadata
 \hypersetup{pdftitle={ {{ title }} }}
 
@@ -18,7 +19,7 @@
 % Start other language with \begin{English}, or \textenglish
 
 \fancyhf[HL]{\textbf{\\\vfill \textenglish{\fontsize{.5cm}{.5cm} \selectfont {{ exam_name }}}} \\ \includegraphics[height=2cm]{% templatetag openbrace %}{{ STATIC_PATH }}/logo_square.png}}
-\fancyhf[HR]{\textbf{\textenglish{\fontsize{2cm}{2.5cm}\selectfont {{ code }}-\thepage}}}
+\fancyhf[HR]{\textbf{\textenglish{\fontsize{2cm}{2.5cm} \selectfont {{ code }}-\thepage}}}
 \fancyhf[HC]{\vspace{5cm}}
 \fancyhf[FC]{\underline{do not} write on the back of this page}
 
@@ -42,9 +43,9 @@
 \clearpage
 {% endif %}
   \rnode[lt]{A}{~}
-  %\vfill
-  \includegraphics[width=0.995\textwidth]{% templatetag openbrace %}{{ STATIC_PATH }}/graph-paper-ipho2019.png}\rnode[rb]{B}{~}
-  %\psframe(A)(B)
+  \vfill
+  ~\hfill\rnode[rb]{B}{~}
+  \psframe(A)(B)
 {% endfor %}
 
 \end{document}

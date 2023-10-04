@@ -48,7 +48,6 @@ def main(request):
         enable_opts=enable_opts,
     )
     if form.is_valid():
-        print(form.cleaned_data)
         try:
             opts = {
                 "ColourModel": form.cleaned_data["color"],

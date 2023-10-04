@@ -9,7 +9,7 @@ figure {
 
 <figure>
   <p align="center">
-      <img src="/img/menu_exam_language.png" alt="Language settings menu" />
+      <img src="../img/menu_exam_language.png" alt="Language settings menu" />
   </p>
   <figcaption>You can access the language settings from the main navigation menu <em>Exam &gt; Translations &gt; Define languages</em></figcaption>
 </figure>

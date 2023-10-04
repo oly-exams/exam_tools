@@ -15,6 +15,7 @@ CairoSVG~=2.5
 python-barcode~=0.14
 PyPDF2~=2.11
 mkdocs~=1.4
+mkdocs-macros-plugin~=1.0
 Celery~=5.0
 flower~=1.2
 requests~=2.28
@@ -34,4 +35,4 @@ psycopg2~=2.9
 pypandoc~=1.10
 latex2mathml~=3.74
 html-diff~=0.4
-pandas
+pandas~=2.0
