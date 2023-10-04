@@ -184,8 +184,7 @@ body { margin-bottom: 70px; }
           </div>
               <div class="modal-body">
                 <p class="alert alert-warning" id="copy-modal-alert-text">
-                  By copying the original version you erase all your changes.<br />
-                  This operation cannot be undone, <strong>are you sure?</strong>
+                  Fill all empty cells with original version?
                 </p>
               </div>
               <div class="modal-footer">
@@ -389,7 +388,7 @@ body { margin-bottom: 70px; }
                 {% if trans_lang %}
                 <button class="btn btn-default" id="language-settings" title="Language settings" data-toggle="modal" data-target="#language-modal" data-remote="false" href="{% url 'exam:language-edit' lang_id=trans_lang.pk %}"><i class="fa fa-cog"></i></button>
                 {% endif %}
-                <button type="button" id="copy-all" class="btn btn-sm btn-default translate-copy-all-button" title="Copy all blocks from the original version" data-toggle="modal" data-target="#copy-modal">
+                <button type="button" id="copy-all" class="btn btn-sm btn-default translate-copy-all-button" title="Copy all empty blocks from the original version" data-toggle="modal" data-target="#copy-modal">
                   <i class="fa fa-clipboard" aria-hidden="true"></i>
                   <span class="glyphicon glyphicon-arrow-right"></span>
                   <i class="fa fa-clipboard" aria-hidden="true"></i>
@@ -691,7 +690,18 @@ body { margin-bottom: 70px; }
 
             $('#copy-modal .btn-warning').on('click', function (evt){
               evt.preventDefault();
-              $(".translate-copy-button").click();
+		$(".translate-copy-button").each(function (index, obj) {
+		    const field_id = obj.id.replace('-copy', '');
+		    var is_empty;
+		    if (field_id in all_editors)
+			is_empty = !all_editors[field_id].getData();
+		    else
+			is_empty = !$('#'+field_id+'-translate input[type="text"]').val();
+		    // only copy over the ones where the translation has nothing
+		    if (is_empty) {
+			obj.click();
+		    }
+		});
               $('#copy-modal').modal('hide');
             });
 
@@ -1009,21 +1019,21 @@ body { margin-bottom: 70px; }
                     $('.translate-copy-button, .translate-copy-all-button').removeClass('btn-default');
                     $('.translate-copy-button').attr('aria-label', 'Translate original version');
                     $('.translate-copy-button').attr('title', 'Translate original version');
-                    $('.translate-copy-all-button').attr('title', 'Translate all blocks from the original version');
+                    $('.translate-copy-all-button').attr('title', 'Translate all empty blocks from the original version');
 
                     $('.equation-copy').prop("disabled", true);
-                    $('#copy-modal-alert-text').html('By inserting the auto-translated version you erase all your changes.<br />This operation cannot be undone, <strong>are you sure?</strong>');
+                    $('#copy-modal-alert-text').html('Auto-translate all empty fields?');
                   }else{
                     $('.translate-copy-button, .translate-copy-all-button').html('<i class="fa fa-clipboard" aria-hidden="true"></i><span class="glyphicon glyphicon-arrow-right"></span><i class="fa fa-clipboard" aria-hidden="true"></i>');
                     $('.translate-copy-button, .translate-copy-all-button').addClass('btn-default');
                     $('.translate-copy-button, .translate-copy-all-button').removeClass('btn-primary');
                     $('.translate-copy-button').attr('aria-label', 'Copy original version');
                     $('.translate-copy-button').attr('title', 'Copy original version');
-                    $('.translate-copy-all-button').attr('title', 'Copy all blocks from the original version');
+                    $('.translate-copy-all-button').attr('title', 'Copy all empty blocks from the original version');
 
 
                     $('.equation-copy').prop("disabled", false);
-                    $('#copy-modal-alert-text').html('By copying the original version you erase all your changes.<br />This operation cannot be undone, <strong>are you sure?</strong>');
+                    $('#copy-modal-alert-text').html('Copy all empty fields?');
                   }
                 }
             });

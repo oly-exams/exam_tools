@@ -613,7 +613,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAdminUser",
         "ipho_exam.permissions.HasValidApiKey",
     ],
-    "PAGE_SIZE": 10,
+    "PAGE_SIZE": None,
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }

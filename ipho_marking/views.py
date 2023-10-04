@@ -47,7 +47,11 @@ from .models import (
     MarkingAction,
     generate_markings_from_exam,
 )
-from .forms import ImportForm, PointsForm
+from .forms import ImportForm, PointsForm, UploadMarkingForm
+from .import_marking import import_marking, generate_template
+from .export_marking import get_version_marks
+
+import pandas as pd
 
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
@@ -255,8 +259,14 @@ def staff_ppnt_detail(request, version, ppnt_id, question_id):
 
 
 @permission_required("ipho_core.is_organizer_admin")
-def export_with_total(request):
-    return export(request, include_totals=True)
+def export_sql(request, versions):
+    response = HttpResponse(content_type="text/csv")
+    version_string = "_".join(versions)
+    response["Content-Disposition"] = f'attachment; filename="markings_{version_string}.csv"'
+
+    df = get_version_marks(versions)
+    df.to_csv(response)
+    return response
 
 
 @permission_required("ipho_core.is_organizer_admin")
@@ -1540,6 +1550,8 @@ def official_marking_index(request, question_id=None):
     question = (
         None if question_id is None else get_object_or_404(questions, id=question_id)
     )
+    error_msg = None
+    form = None
     if question is not None:
         can_edit_submitted = (
             question.exam.marking_organizer_can_enter
@@ -1562,10 +1574,45 @@ def official_marking_index(request, question_id=None):
             .exclude(name=OFFICIAL_DELEGATION)
             .all()
         )
+        if request.method == "POST":  # file uploaded
+            form = UploadMarkingForm(request.POST, request.FILES)
+            if form.is_valid():
+                file = request.FILES["file"]
+                try:
+                    student_codes = import_marking(question.id, file)
+                    context = {"question": question, "students": student_codes}
+                    return render(
+                        request,
+                        "ipho_marking/official_marking_upload_confirmation.html",
+                        context,
+                    )
+                except (pd.errors.ParserError, ValueError, AssertionError) as e:
+                    error_msg = f"Invalid CSV file:\n{e}"
+                    form.clean()
+                    form = UploadMarkingForm()
+        else:
+            form = UploadMarkingForm()
     else:
         delegations = Delegation.objects.all()
-    ctx = {"questions": questions, "question": question, "delegations": delegations}
+    ctx = {
+        "questions": questions,
+        "question": question,
+        "delegations": delegations,
+        "form": form,
+        "error_msg": error_msg,
+    }
     return render(request, "ipho_marking/official_marking_index.html", ctx)
+
+
+@permission_required("ipho_core.is_marker")
+def create_marking_template(request, question_id):
+    question = Question.objects.get(id=question_id)
+    response = HttpResponse(
+        content_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{question.name}.csv"'},
+    )
+    generate_template(question_id, response)
+    return response
 
 
 @permission_required("ipho_core.is_marker")
