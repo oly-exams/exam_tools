@@ -23,7 +23,6 @@ out/*.pdf
 unittest_reports
 database.s3db*
 database-initial.s3db
-poetry.lock
 pyproject.toml.bak
 libcairo.2.dylib
 
