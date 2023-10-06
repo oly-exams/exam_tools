@@ -28,6 +28,10 @@ from .models import Marking
 ALLOW_MARKS_NONE = getattr(settings, "ALLOW_MARKS_NONE", False)
 
 
+class UploadMarkingForm(Form):
+    file = forms.FileField()
+
+
 class ImportForm(Form):
     exam = forms.ModelChoiceField(
         queryset=Exam.objects.filter(

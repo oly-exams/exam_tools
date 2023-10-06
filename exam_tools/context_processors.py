@@ -41,4 +41,5 @@ def ipho_context(request):
         "DEBUG": getattr(settings, "DEBUG", False),
         "OFFICIALLY_SUPPORTED": settings.OFFICIALLY_SUPPORTED,
         "FAVICON_PATH": favicon_path,
+        "SUPPORT_CONTACT": settings.SUPPORT_CONTACT,
     }

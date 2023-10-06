@@ -9,7 +9,7 @@
           <span>
             Last change: 
             {% if phase.last_change %}
-            <time datetime="{{ phase.last_change|date:'c' }}" data-format="DD. MMM HH:mm:ss"></time>
+            <time datetime="{{ phase.last_change|date:'c' }}" data-format="YYYY-MM-DD HH:mm:ss"></time>
             {% else %}
                   --:--
             {% endif %}

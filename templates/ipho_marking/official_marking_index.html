@@ -35,7 +35,6 @@
 
     </div>
     <div class="col-md-6">
-
       {% if question %}
       <div class="dropdown" id="delegation-dropdown">
         <a class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
@@ -50,7 +49,28 @@
       </div>
       {% endif %}
     </div>
+
+  {% if perms.ipho_core.is_organizer_admin and question %}
+  <hr> <hr> <hr>
+  <p class="alert alert-info">Download the CSV template, fill in the points and upload it.</p>
+  <div class="row">
+    <div class="col-sm-4">
+      <a class="btn btn-default btn-s" href={% url 'marking:official-marking-template' question.id %}>Download template</a>
+    </div>
+    <div class="col-sm-4">
+      <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form }}
+      <button type="submit" class="btn btn-default btn-s">Upload</button>
+      </form>
+    </div>
+    <div class="col-sm-4">
+      {% if error_msg %}
+        <p class="alert alert-warning"> {{ error_msg }} </p>
+      {% endif %}
+    </div>
   </div>
+  {% endif %}
 {% endblock %}
 
 {% block extra-script %}

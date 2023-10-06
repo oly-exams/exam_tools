@@ -97,10 +97,12 @@ and for the compilation workers
 celery -A exam_tools worker -E --concurrency=1
 ```
 
+(on Macs with Apple Silicon, you need to run ```export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES``` before running celery)
+
 ## Building the docs
 For development it is suggested to serve the docs locally
 ```bash
-mkdocs serve
+mkdocs serve -a localhost:8001
 ```
 
 For building the static docs

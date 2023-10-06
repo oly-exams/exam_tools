@@ -9,7 +9,7 @@ figure {
 
 <figure>
   <p align="center">
-      <img src="/img/menu_exam_assign.png" alt="Assign exam menu" />
+      <img src="../img/menu_exam_assign.png" alt="Assign exam menu" />
   </p>
   <figcaption>You can access the submission form from the main navigation menu <em>Exam &gt; Translations &gt; Final submit</em></figcaption>
 </figure>

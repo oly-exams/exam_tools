@@ -46,7 +46,7 @@
                         <span class="label label-default">Proposal</span>
                     {% endif %}
                 </td>
-                <td><time datetime="{{ node.timestamp|date:"c" }}" data-format="YYYY MMM Do, h:mm:ss A"></td>
+                <td><time datetime="{{ node.timestamp|date:"c" }}" data-format="YYYY-MM-DD HH:mm:ss"></td>
                 <td>
                     <div class="btn-group">
                       {% if node.status == 'P' %}

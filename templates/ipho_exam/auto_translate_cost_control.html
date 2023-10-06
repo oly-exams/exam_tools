@@ -46,17 +46,19 @@
   <div class="col-md-12">
 
         <div class="">
-            <h1>Approximate Auto Translate Counts/Costs</h1>
+            <h1>Auto translate counts/costs</h1>
             <div class="">
-                <p><strong>Sent Costs:</strong> {{ sent_cost|floatformat:"-2" }}$</p>
-                <p><strong>Sent Count:</strong> {{ sent_count }}</p>
-                <p><strong>Total Count:</strong> {{ total_count }}</p>
+                <p><strong>Total translated character count (includes chached translations):</strong> {{ total_count }}</p>
+                <p><strong>Actual character count sent to translation service:</strong> {{ sent_count }}</p>
+                <p><strong>Total auto translate cost:</strong> {{ sent_cost|floatformat:"-2" }}$</p>
+                
+                
                 <br>
                 <table class="table table-condensed">
                     <tr>
                       <th>Delegation</th>
                       <th>Count</th>
-                      <th>Estimated Cost</th>
+                      <th>Cost</th>
                     </tr>
                     {% for row in delegation_counts %}
                     <tr>

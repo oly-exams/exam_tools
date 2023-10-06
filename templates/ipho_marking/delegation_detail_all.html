@@ -24,7 +24,7 @@
     <h3> {{ exam.name }} - {{ question.name }}</h3>
     
     {% if show_official_marks %}
-    <div class="alert alert-info"> If you want to copy from official marks, use "Edit marks" of individual students, not "Edit all marks".</div>
+    <div class="alert alert-info"> If you want to copy from the official marks, use "Edit marks" of individual students, not "Edit all marks".</div>
     {% endif %}
 
     {% if formset %}
@@ -77,7 +77,7 @@
           {% endfor %}
         </tr>
         <tr>
-          <th>Subquestion</th>
+          <th>Task</th>
           {% for ppnt in participants %}
             <th>Off.</th>
             <th>Del.</th>

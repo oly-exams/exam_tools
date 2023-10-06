@@ -53,7 +53,7 @@ def deactivate_users(modeladmin, request, queryset):  # pylint: disable=unused-a
 
 
 class UserAdmin(BaseUserAdmin):
-    list_display = BaseUserAdmin.list_display + ("is_active",)
+    list_display = BaseUserAdmin.list_display + ("is_active", "last_login")
     inlines = (AutoLoginInline,)
     actions = [activate_users, deactivate_users]
 

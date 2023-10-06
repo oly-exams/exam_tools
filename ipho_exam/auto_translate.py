@@ -122,14 +122,17 @@ def find_best_matching_deepl_lang(lang, langs):
     # As in, use fr-CH where fr-FR is given/requested?
     if ulang in langs:
         return ulang
-    if len(parts) > 1 and parts[0] in langs:
-        return parts[0]
+    if "zh" in lang:
+        return None
     if len(parts) == 1:
         if ulang + "-" + ulang in langs:
             return ulang + "-" + ulang
         for lng in langs:
             if ulang == lng.split("-")[0]:
                 return lng
+    # Workaround for trad/simplified chinese
+    if len(parts) > 1 and parts[0] in langs:
+        return parts[0]
     return None
 
 
@@ -150,7 +153,7 @@ def translate_deepl(from_lang, to_lang, text):
     # translate
     try:
         translated_text = translate_client.translate_text(
-            text, source_lang=from_lang, target_lang=to_lang
+            text, source_lang=from_lang, target_lang=to_lang, tag_handling="html"
         ).text
     except (ValueError, TypeError, deepl.DeepLException) as err:
         # log error and use google as a fallback
