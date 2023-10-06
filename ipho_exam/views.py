@@ -3380,6 +3380,7 @@ def submission_exam_confirm(
                     #     output.addPage(page)
                     output.append(pdfdoc, pages=(start, pdfdoc.getNumPages()))
 
+                output2 = output
                 doc_path = Path(settings.DOCUMENT_PATH)
 
                 output_file = doc_path / f"eth-print-docs/{exam.name}_{ppnt.code}.pdf"
@@ -3388,7 +3389,9 @@ def submission_exam_confirm(
                     output.write(output_pdf)
 
                 output_file2 = doc_path / f"all-submissions/{exam.name}_{ppnt.code}.pdf"
-                shutil.copy(output_file, output_file2)
+
+                with open(output_file2, "wb") as output_pdf2:
+                    output2.write(output_pdf2)
 
             if getattr(settings, "RANDOM_DRAW_ON_SUBMISSION", False):
                 remaining_countries = (
