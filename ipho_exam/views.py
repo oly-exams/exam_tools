@@ -33,8 +33,7 @@ from pathlib import Path
 from copy import deepcopy
 from collections import OrderedDict, defaultdict
 
-from io import BytesIO
-from PyPDF2 import PdfFileMerger, PdfFileReader
+from PyPDF2 import PdfFileMerger
 
 # coding=utf-8
 from django.shortcuts import get_object_or_404, render, redirect
@@ -3360,32 +3359,6 @@ def submission_exam_confirm(
         if "agree-submit" in request.POST:
             ex_submission.status = ExamAction.SUBMITTED
             ex_submission.save()
-
-            # TO REVERT specifically for IChO2023
-            ppnt_documents = {
-                k: list(g)
-                for k, g in itertools.groupby(documents, key=lambda d: d.participant)
-            }
-
-            for ppnt, docs in ppnt_documents.items():
-                output = PdfFileMerger()
-                cover = True
-                for doc in docs:
-                    start = 0 if cover else 1
-                    cover = False
-                    with open(doc.file.path, "rb") as wm_f:
-                        pdfdoc = PdfFileReader(BytesIO(wm_f.read()))
-                    # for idx in range(start, pdfdoc.getNumPages()):
-                    #     page = pdfdoc.getPage(idx)
-                    #     output.addPage(page)
-                    output.append(pdfdoc, pages=(start, pdfdoc.getNumPages()))
-
-                doc_path = Path(settings.DOCUMENT_PATH)
-                output_file = doc_path / f"eth-print-docs/{exam.name}_{ppnt.code}.pdf"
-
-                with open(output_file, "wb") as output_pdf:
-                    output.write(output_pdf)
-
             if getattr(settings, "RANDOM_DRAW_ON_SUBMISSION", False):
                 remaining_countries = (
                     ExamAction.objects.filter(
