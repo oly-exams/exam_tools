@@ -3386,11 +3386,6 @@ def submission_exam_confirm(
                 with open(output_file, "wb") as output_pdf:
                     output.write(output_pdf)
 
-                output_file = doc_path / f"all-submissions/{exam.name}_{ppnt.code}.pdf"
-
-                with open(output_file, "wb") as output_pdf:
-                    output.write(output_pdf)
-
             if getattr(settings, "RANDOM_DRAW_ON_SUBMISSION", False):
                 remaining_countries = (
                     ExamAction.objects.filter(
