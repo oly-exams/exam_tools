@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("ipho_marking", "0005_questionpointsrescale"),
+        ("ipho_marking", "0007_remove_questionpointsrescale_max_external_points_and_more"),
     ]
 
     operations = [

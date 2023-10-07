@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("ipho_exam", "0034_exam_can_publish_exam_can_submit"),
+        ("ipho_exam", "0035_add_min_max_points_in_exam_qml"),
     ]
 
     operations = [

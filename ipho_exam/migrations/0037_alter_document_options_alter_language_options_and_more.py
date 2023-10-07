@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("ipho_exam", "0035_alter_exam_options"),
+        ("ipho_exam", "0036_alter_exam_options"),
     ]
 
     operations = [
