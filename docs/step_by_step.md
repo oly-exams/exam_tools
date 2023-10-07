@@ -11,7 +11,7 @@ The step-by-step guide reports the tasks that you already completed and explains
 
 <figure>
   <p align="center">
-    <img src="/img/menu_exam_stepbystep.png" alt="Step-by-step menu" />
+    <img src="../img/menu_exam_stepbystep.png" alt="Step-by-step menu" />
   </p>
   <figcaption>You can access the step-by-step guide from the main navigation menu <em>Exam &gt; Step-by-step guide &gt; Get started!</em></figcaption>
 </figure>

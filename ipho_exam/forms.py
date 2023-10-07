@@ -21,6 +21,7 @@ import os
 import decimal
 
 from django import forms
+from django.conf import settings
 from django.forms import ModelForm
 from django.forms.formsets import formset_factory
 from django.core.exceptions import ValidationError
@@ -43,6 +44,9 @@ from ipho_exam.models import (
 )
 from ipho_exam.models import VALID_FIGURE_EXTENSIONS
 from ipho_print import printer
+
+ALLOW_ANSLANG_WITHOUT_QLANG = getattr(settings, "ALLOW_ANSLANG_WITHOUT_QLANG", False)
+MAX_NUMBER_LANGUAGES_PER_PPNT = getattr(settings, "MAX_NUMBER_LANGUAGES_PER_PPNT", -1)
 
 
 def build_extension_validator(valid_extensions):
@@ -338,26 +342,39 @@ class AssignTranslationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         languages_queryset = kwargs.pop("languages_queryset")
-        answer_lang = kwargs.pop("answer_language", None)
+        locked_answer_lang = kwargs.pop("answer_language", None)
         super().__init__(*args, **kwargs)
         self.fields["languages"].queryset = languages_queryset
-        if answer_lang is not None:
+        if locked_answer_lang is not None:
             self.fields.pop("answer_language")
-            self.answer_language = answer_lang
+            self.locked_answer_language = locked_answer_lang
         else:
-            self.answer_language = None
+            self.locked_answer_language = None
             self.fields["answer_language"].queryset = languages_queryset
 
     def clean(self):
         cleaned_data = super().clean()
         languages = cleaned_data.get("languages")
-        if self.answer_language is None:
-            answer_language = cleaned_data.get("answer_language")
-            if languages and answer_language and answer_language not in languages:
-                msg = "Answer language not enabled."
-                self.add_error("languages", msg)
-        else:
-            self.cleaned_data["answer_language"] = self.answer_language
+        if self.locked_answer_language is not None:
+            self.cleaned_data["answer_language"] = self.locked_answer_language
+            return
+
+        answer_language = cleaned_data.get("answer_language")
+        if (
+            languages
+            and answer_language
+            and answer_language not in languages
+            and not ALLOW_ANSLANG_WITHOUT_QLANG
+        ):
+            msg = "Answer language not enabled."
+            self.add_error("languages", msg)
+        if (
+            languages
+            and MAX_NUMBER_LANGUAGES_PER_PPNT > -1
+            and len(languages) > MAX_NUMBER_LANGUAGES_PER_PPNT
+        ):
+            msg = f"At most { MAX_NUMBER_LANGUAGES_PER_PPNT } language{ 's' if MAX_NUMBER_LANGUAGES_PER_PPNT !=1 else '' } can be selected per participant!"
+            self.add_error("languages", msg)
 
 
 ## ungly hack to propagate `languages_queryset` attribute to form construction

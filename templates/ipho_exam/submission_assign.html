@@ -6,17 +6,22 @@
 {% block confirm-classes %}disabled{% endblock %}
 {% block submitted-classes %}disabled{% endblock %}
 
+{% block extra-head %}
+{{ block.super }}
+<link href="{% static "bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" %}" rel="stylesheet">
+{% endblock %}
+
 {% block step-content %}
 <p>Select the languages that you want to deliver to your participants.</p>
 <ul>
-    <li>For each participant more than one language can be delivered.</li>
-    {% if not no_answer %}
+  <li>For each participant {{ max_num_languages_per_ppnt }} language{% if max_num_languages_per_ppnt > 1 %}s{% endif %} can be delivered.</li>
+  {% if not no_answer %}
     {% if not no_answer_language %}
-    <li>The answer sheets will be provided <strong>only in one</strong> language.</li>
+      <li>The answer sheets will be provided <strong>only in one</strong> language.</li>
     {% else %}
-    <li>The answer sheets will be provided <strong>only in {{answer_language}}</strong>.</li>
+      <li>The answer sheets will be provided <strong>only in {{answer_language}}</strong>.</li>
     {% endif %}
-    {% endif %}
+  {% endif %}
 </ul>
 
 {% if with_errors %}
@@ -44,115 +49,200 @@
 
 {% block exam-submission-content %}
 <form method="post" action="{% url 'exam:submission-exam-assign' exam_id=exam.pk %}">
-    {% csrf_token %}
-    <table class="table table-striped">
-        <tr>
-            <th></th>
-          {% for lang in languages %}
-            <th class="text-center">{{ lang.name }} ({{ lang.delegation.country }})</th>
-          {% endfor %}
-        </tr>
-        <tbody>
+  {% csrf_token %}
+  <table class="table table-striped">
+    <tr>
+        <th></th>
+      {% for lang in languages %}
+        <th class="text-center">{{ lang.name }} ({{ lang.delegation.country }})</th>
+      {% endfor %}
+    </tr>
+    <tbody>
       {% for ss,form in submission_forms %}
-      <tr class="{% if form.languages.errors or form.answer_language.errors %}danger{% endif %}">
-          <td><div>
-                {{ ss.full_name }} ({{ ss.code }})
-              </div>
-              {% if ss.is_group %}
-              <div>
-                  contains:
-              </div>
-              {% endif %}
-              <ul style="margin:0; padding:0;">
-                {% for error in form.languages.errors %}
-                    <li class="help-block"><strong>Deliver:</strong> {{ error|escape }}</li>
-                {% endfor %}
-                {% if not no_answer and not no_answer_language %}
-                  {% for error in form.answer_language.errors %}
-                      <li class="help-block"><strong>With answers:</strong> {{ error|escape }}</li>
-                  {% endfor %}
-                {% endif %}
-              </ul>
-           </td>
-          {% for lang_id,oval in form.languages.field.choices %}
-              <td class="text-center">
-              {% if ss.is_group %}
+      <tr class="{% if form.languages.errors or form.answer_language.errors %}danger{% endif %} student-row">
+        <td>
+          <div>
+            {{ ss.full_name }} ({{ ss.code }})
+          </div>
+          {% if ss.is_group %}
+            <div>
+              contains:
+            </div>
+          {% endif %}
+          <ul style="margin:0; padding:0;">
+            {% for error in form.languages.errors %}
+              <li class="help-block"><strong>Deliver:</strong> {{ error|escape }}</li>
+            {% endfor %}
+            {% if not no_answer and not no_answer_language %}
+              {% for error in form.answer_language.errors %}
+                <li class="help-block"><strong>With answers:</strong> {{ error|escape }}</li>
+              {% endfor %}
+            {% endif %}
+          </ul>
+        </td>
+        {% for lang_id,oval in form.languages.field.choices %}
+          <td class="text-center">
+            {% if ss.is_group %}
               {% if not no_answer and not no_answer_language %}
-                  <div class="radio {% if form.answer_language.errors %}has-error{% endif %}">
-                    <label>
-                      <input type="radio" id="{{ form.answer_language.html_name }}-val-{{ lang_id }}" name="{{ form.answer_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.answer_language.value|escape %}checked{% endif %}/>
-                      with answer sheets
-                    </label>
-                  </div>
+                <div class="radio group-answer-selection {% if form.answer_language.errors %}has-error{% endif %}">
+                  <label>
+                    <input type="radio" id="{{ form.answer_language.html_name }}-val-{{ lang_id }}" name="{{ form.answer_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.answer_language.value|escape %}checked{% endif %}/>
+                    with answer sheets
+                  </label>
+                </div>
               {% endif %}
-              {% else %}
-              <div class="checkbox {% if form.languages.errors %}has-error{% endif %}">
+            {% else %}
+              <div class="checkbox question-selection {% if form.languages.errors %}has-error{% endif %}">
                 <label>
                   <input type="checkbox" autocomplete="off" id="{{ form.languages.html_name }}-val-{{ lang_id }}" name="{{ form.languages.html_name }}" value="{{ lang_id }}" {% if lang_id in form.languages.value|intlist %}checked{% endif %} />
                   deliver
                 </label>
               </div>
               {% if not no_answer and not no_answer_language %}
-                  <div class="radio {% if not lang_id in form.languages.value|intlist %}disabled{% endif %} {% if form.answer_language.errors %}has-error{% endif %}">
-                    <label>
-                      <input type="radio" id="{{ form.answer_language.html_name }}-val-{{ lang_id }}" name="{{ form.answer_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.answer_language.value|escape %}checked{% endif %} {% if not lang_id in form.languages.value|intlist %}disabled{% endif %}/>
-                      with answer sheets
-                    </label>
-                  </div>
-              {% endif %}
-              {% endif %}
-              </td>
-          {% endfor %}
-          {% if ss.is_group %}
-          {% for s in ss.students.all %}
-          <tr>
-            <td>({{ ss.code }}) {{ s.full_name }}</td>
-            {% for lang_id,oval in form.languages.field.choices %}
-              <td class="text-center">
-                <div class="checkbox {% if form.languages.errors %}has-error{% endif %}">
+                <div class="radio answer-selection {% if not lang_id in form.languages.value|intlist %}disabled{% endif %} {% if form.answer_language.errors %}has-error{% endif %}">
                   <label>
-                    <input type="checkbox" autocomplete="off" id="{{ form.languages.html_name }}-val-{{ lang_id }}" name="student-{{s.id}}-question-language" value="{{ lang_id }}" />
-                    deliver
+                    <input type="radio" id="{{ form.answer_language.html_name }}-val-{{ lang_id }}" name="{{ form.answer_language.html_name }}" value="{{ lang_id }}" {% if lang_id|escape == form.answer_language.value|escape %}checked{% endif %} {% if not lang_id in form.languages.value|intlist %}disabled{% endif %}/>
+                    with answer sheets
                   </label>
                 </div>
-              </td>
-            {% endfor %}
-          </tr>
+              {% endif %}
+            {% endif %}
+          </td>
+        {% endfor %}
+        {% if ss.is_group %}
+          {% for s in ss.students.all %}
+            <tr class="group-answer-row">
+              <td>({{ ss.code }}) {{ s.full_name }}</td>
+              {% for lang_id,oval in form.languages.field.choices %}
+                <td class="text-center">
+                  <div class="group-question-selection question-selection {% if form.languages.errors %}has-error{% endif %}">
+                    <label>
+                      <input type="checkbox" autocomplete="off" id="{{ form.languages.html_name }}-val-{{ lang_id }}" name="student-{{s.id}}-question-language" value="{{ lang_id }}" />
+                      deliver
+                    </label>
+                  </div>
+                </td>
+              {% endfor %}
+            </tr>
           {% endfor %}
-          {% endif %}
-        </tr>
-      {% endfor %}
-        </tbody>
-    </table>
+        {% endif %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 
-    <div>
-        <div class="pull-right">
-            <button type="submit" class="btn btn-primary">
-              <span><i class="pull-right glyphicon glyphicon-chevron-right"></i>Next&nbsp;</span>
-            </button>
-        </div>
-
+  <div>
+    <div class="pull-right">
+        <button type="submit" class="btn btn-primary">
+          <span><i class="pull-right glyphicon glyphicon-chevron-right"></i>Next&nbsp;</span>
+        </button>
     </div>
-
+  </div>
 </form>
+{% if allow_anslang_without_qlang %}
+<label class="navbar-text" style="font-weight:normal;">
+  <input type="checkbox" id="toggle-answer-selection-checkbox" data-size="mini">
+  Allow a language for answer sheets that has not been selected for question sheets.
+</label>
+{% endif %}
 {% endblock %}
 
 {% block extra-script %}
 {{ block.super }}
+<script src="{% static "bootstrap-switch/js/bootstrap-switch.min.js" %}"></script>
 <script>
-$(function() {
+  language_selection_count = 0
+  local_allow_anslang_without_qlang = false
+  $(function() {
+
+    {% if max_num_languages_per_ppnt == 1 %}
+      $('div.answer-selection').hide();
+    {% endif %}
+
+    $('tr.student-row').each( function(index) {
+      console.log(index);
+      console.log($(this));
+      $questionSelectionDiv = $(this);
+      language_selection_count = $questionSelectionDiv.find('input:checkbox:checked').length;
+      if (language_selection_count >= {{ max_num_languages_per_ppnt }} ) {
+        $questionSelectionDiv.find('input:checkbox:not(:checked)').attr('disabled',true);
+        $questionSelectionDiv.addClass('disabled');
+        $questionSelectionDiv.find('input:checkbox:not(:checked)').each(function(idx){
+          $radio = $('#'+$(this).attr('id').replace('languages','answer_language'));
+          $radio.attr('disabled',true);
+          $radio.prop('checked',false);
+          $radio.parents('div.radio').addClass('disabled');
+        });
+        
+      }
+    });
+
     $(':checkbox[name^="ppnt"]').change(function() {
         $checkbox = $(this);
-        $radio = $('#'+$checkbox.attr('id').replace('languages','answer_language'));
-        if ($checkbox.is(':checked')) {
-            $radio.removeAttr('disabled');
-            $radio.parents('div.radio').removeClass('disabled');
-        } else {
+        $parent = $checkbox.parents('.student-row');
+        {% if allow_anslang_without_qlang %}
+        if ( ! $('#toggle-answer-selection-checkbox').prop('checked') ) {
+        {% endif %}
+          $radio = $('#'+$checkbox.attr('id').replace('languages','answer_language'));
+          if ($checkbox.is(':checked')) {
+              $radio.removeAttr('disabled');
+              {% if max_num_languages_per_ppnt == 1 %}
+                if ( ! $('#toggle-answer-selection-checkbox').prop('checked') ) {
+                  $radio.prop('checked',true); 
+                }
+              {% endif %}
+             
+              $radio.parents('div.radio').removeClass('disabled');
+          } else {
+              $radio.attr('disabled',true);
+              $radio.prop('checked',false);
+              $radio.parents('div.answer-selection').addClass('disabled');
+          }
+        {% if allow_anslang_without_qlang %}
+        }
+        {% endif %}
+        language_selection_count = $parent.find('div.question-selection input:checkbox:checked').length;
+        if (language_selection_count >= {{ max_num_languages_per_ppnt }} ) {
+          $parent.find('div.question-selection input:checkbox:not(:checked)').attr('disabled',true);
+          $parent.find('div.question-selection').addClass('disabled');
+        }
+        else {
+          $parent.find('div.question-selection input:checkbox:not(:checked)').removeAttr('disabled');
+          $parent.find('div.question-selection').removeClass('disabled');
+        }
+
+    });
+
+    $('#toggle-answer-selection-checkbox').bootstrapSwitch().on('switchChange.bootstrapSwitch', function(event, state) {
+      if (state){
+        $('div.answer-selection input:radio').attr('disabled',false);
+        $('div.answer-selection').removeClass('disabled');
+        {% if max_num_languages_per_ppnt == 1 %}
+        $('div.answer-selection').show();
+        {% endif %}
+      }else{
+        $('tr.student-row').each(function(idx1){
+          $(this).find('input:checkbox:not(:checked)').each(function(idx){
+            $radio = $('#'+$(this).attr('id').replace('languages','answer_language'));
             $radio.attr('disabled',true);
             $radio.prop('checked',false);
-            $radio.parents('div.radio').addClass('disabled');
-        }
+            $radio.parents('div.answer-selection').addClass('disabled');
+          });
+
+          {% if max_num_languages_per_ppnt == 1 %}
+            $(this).find('input:checkbox:checked').each(function(idx){
+              $radio = $('#'+$(this).attr('id').replace('languages','answer_language'));
+              $radio.attr('disabled',false);
+              $radio.prop('checked',true);
+            });
+          {% endif %}
+        });
+        {% if max_num_languages_per_ppnt == 1 %}
+          $('div.answer-selection').hide();
+        {% endif %}
+      }
     });
-});
+  });
+
 </script>
 {% endblock %}

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=no-member, too-many-lines, consider-using-f-string
+# pylint: disable=no-member, too-many-lines
 
 # mskoenz: I added lang, data in Object ctor as None
 
@@ -135,14 +135,35 @@ def question_points(root):
     for obj in root.children:
         if isinstance(obj, (QMLsubquestion, QMLsubanswer)):
             # TWOPLACES = Decimal(10) ** -2
-            points = Decimal(obj.attributes.get("points", 0.0))  # .quantize(TWOPLACES)
+            min_points = Decimal(
+                obj.attributes.get("min_points", 0.0)
+            )  # .quantize(TWOPLACES)
+            max_points = Decimal(
+                obj.attributes.get("max_points", 0.0)
+            )  # .quantize(TWOPLACES)
+
             name = "{}.{}".format(
                 obj.attributes.get("part_nr", ""), obj.attributes.get("question_nr", "")
             )
-            ret.append((name, points))
+            ret.append((name, min_points, max_points))
         child_points = question_points(obj)
         ret += child_points
     return ret
+
+
+def format_min_max_points(min_points, max_points):
+    if min_points is None and max_points is None:
+        return "-"
+    if min_points is None:
+        return max_points
+    if Decimal(min_points) == 0:
+        return max_points
+    if max_points is None:
+        return min_points
+    if Decimal(max_points) == 0:
+        return min_points
+
+    return f"[{min_points},{max_points}]"
 
 
 class QMLForm(forms.Form):
@@ -290,9 +311,11 @@ class QMLbase:
     def dump(self):
         return dump_xml(self.make_xml())
 
+    # pylint: disable=R0201
     def tex_begin(self):
         return ""
 
+    # pylint: disable=R0201
     def tex_end(self):
         return "\n\n"
 
@@ -309,9 +332,11 @@ class QMLbase:
         texout += self.tex_end()
         return texout, externals
 
+    # pylint: disable=R0201
     def xhtml_begin(self):
         return ""
 
+    # pylint: disable=R0201
     def xhtml_end(self):
         return ""
 
@@ -335,6 +360,7 @@ class QMLbase:
             else self.default_heading
         )
 
+    # pylint: disable=R0201
     def form_element(self):
         return forms.CharField()
 
@@ -436,7 +462,7 @@ class QMLquestion(QMLbase):
         )
     )
 
-    default_attributes = {"points": "0.0"}
+    default_attributes = {"min_points": "0.0", "max_points": "0.0"}
 
     def tex_title(self):
         tex_src = ""
@@ -446,11 +472,20 @@ class QMLquestion(QMLbase):
         return tex_src.strip()
 
     def heading(self):
-        return "Question/Answer {} pt".format(self.attributes["points"])
+        return "Question/Answer {} pt".format(
+            format_min_max_points(
+                self.attributes.get("min_points", None),
+                self.attributes.get("max_points", None),
+            )
+        )
 
     def tex_begin(self):
         return "\\begin{{PR}}{{{}}}{{{}}}\n\n".format(
-            self.tex_title(), self.attributes.get("points", "")
+            self.tex_title(),
+            format_min_max_points(
+                self.attributes.get("min_points", None),
+                self.attributes.get("max_points", None),
+            ),
         )
 
     def tex_end(self):
@@ -474,18 +509,29 @@ class QMLsubquestion(QMLbase):
     has_children = True
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
 
-    default_attributes = {"points": "0.0", "part_nr": "A", "question_nr": "1"}
+    default_attributes = {
+        "min_points": "0.0",
+        "max_points": "0.0",
+        "part_nr": "A",
+        "question_nr": "1",
+    }
 
     def heading(self):
         return "Task box {}.{}, {} pt".format(
             self.attributes["part_nr"],
             self.attributes["question_nr"],
-            self.attributes["points"],
+            format_min_max_points(
+                self.attributes.get("min_points", None),
+                self.attributes.get("max_points", None),
+            ),
         )
 
     def tex_begin(self):
         return "\\begin{{QTF}}{{{}}}{{{}}}{{{}}}\n".format(
-            self.attributes["points"],
+            format_min_max_points(
+                self.attributes.get("min_points", None),
+                self.attributes.get("max_points", None),
+            ),
             self.attributes["part_nr"],
             self.attributes["question_nr"],
         )
@@ -497,7 +543,10 @@ class QMLsubquestion(QMLbase):
         return "<h4>Task {}.{} ({} pt)</h4>".format(
             self.attributes["part_nr"],
             self.attributes["question_nr"],
-            self.attributes["points"],
+            format_min_max_points(
+                self.attributes.get("min_points", None),
+                self.attributes.get("max_points", None),
+            ),
         )
 
 
@@ -511,18 +560,29 @@ class QMLsubanswer(QMLbase):
     has_children = True
     valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
 
-    default_attributes = {"points": "0.0", "part_nr": "A", "question_nr": "1"}
+    default_attributes = {
+        "min_points": "0.0",
+        "max_points": "0.0",
+        "part_nr": "A",
+        "question_nr": "1",
+    }
 
     def heading(self):
         return "Answer box {}.{}, {} pt".format(
             self.attributes["part_nr"],
             self.attributes["question_nr"],
-            self.attributes["points"],
+            format_min_max_points(
+                self.attributes.get("min_points", None),
+                self.attributes.get("max_points", None),
+            ),
         )
 
     def tex_begin(self):
         res = "\\begin{{QSA}}{{{}}}{{{}}}{{{}}}{{{}}}\n".format(
-            self.attributes["points"],
+            format_min_max_points(
+                self.attributes.get("min_points", None),
+                self.attributes.get("max_points", None),
+            ),
             self.attributes["part_nr"],
             self.attributes["question_nr"],
             self.attributes.get("height", ""),
@@ -538,7 +598,10 @@ class QMLsubanswer(QMLbase):
         return "<h4>Answer {}.{} ({} pt)</h4>".format(
             self.attributes["part_nr"],
             self.attributes["question_nr"],
-            self.attributes["points"],
+            format_min_max_points(
+                self.attributes.get("min_points", None),
+                self.attributes.get("max_points", None),
+            ),
         )
 
 
@@ -627,13 +690,16 @@ class QMLpart(QMLbase):
     has_text = True
     has_children = False
 
-    default_attributes = {"points": "0.0"}
+    default_attributes = {"min_points": "0.0", "max_points": "0.0"}
 
     def tex_begin(self):
         return "\\PT{"
 
     def tex_end(self):
-        return "}{%s}\n\n" % self.attributes.get("points", "")
+        return "}{%s}\n\n" % format_min_max_points(
+            self.attributes.get("min_points", None),
+            self.attributes.get("max_points", None),
+        )
 
     def make_xhtml(self):
         return f"<h2>{self.data}</h2>", []
@@ -827,6 +893,7 @@ class QMLcellfigure(QMLfigure):
     has_text = False
     has_children = False
 
+    # pylint: disable=R0201
     def end_tex(self):
         return ""
 
@@ -1367,6 +1434,7 @@ class QMLcsvtable(QMLbase):
                         cell = ET.Element("cell", {})
                         cell.text = elem[col]
                         row_node.add_child(cell)
+                self.data_html = self.data
             # pylint: disable=broad-except
             except (Exception,) as error:
                 print("Error in parsing CSV table")

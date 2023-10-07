@@ -505,6 +505,16 @@ def set_end_date(request, voting_pk):
 @login_required
 @permission_required("ipho_core.can_edit_poll")
 @ensure_csrf_cookie
+def reopen_voting(request, voting_pk):
+    voting = get_object_or_404(Voting, pk=voting_pk)
+    voting.end_date = None
+    voting.save()
+    return set_end_date(request=request, voting_pk=voting_pk)
+
+
+@login_required
+@permission_required("ipho_core.can_edit_poll")
+@ensure_csrf_cookie
 def add_minutes(request, voting_pk, minutes):
     if minutes > 42:
         # NOTE: This is to avoid exceedingly long votes. The number is

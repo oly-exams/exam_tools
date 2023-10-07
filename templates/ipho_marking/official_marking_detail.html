@@ -65,13 +65,13 @@ th {
   <table class="table table-sm table-bordered">
     <thead>
       <tr>
-        <th class="thexpart">Problem part</th>
+        <th class="thexpart">Task</th>
         {% for participant, forms in participant_forms %}
           {{ forms.management_form }}
           <td class="thdnone"></td>
-          <th><h4>{{ participant.full_name }} ({{ participant.code }})</h4>
-            {% if participant.pk in files_ready.scan %}
-            <a class="btn btn-success btn-xs" id="scan-{{ participant.pk }}-{{ question.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=question.exam.pk participant_id=participant.pk position=question.position %}">
+          <th><h4>{% if show_name %}{{ participant.full_name }}{% endif %} ({{ participant.code }})</h4>
+            {% if participant.pk in scan_files_ready %}
+            <a class="btn btn-default btn-xs" id="scan-{{ participant.pk }}-{{ question.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=question.exam.pk participant_id=participant.pk position=question.position %}">
               <i class="fa fa-file-pdf-o"></i>
               View scan
             </a>
@@ -89,7 +89,7 @@ th {
     <tbody>
       {% for meta, forms in marking_forms %}
         <tr>
-          <td>{{ meta.name }} ({{ meta.max_points }})</td>
+          <td>{{ meta.name }} ({{ meta.min_points }},{{ meta.max_points }})</td>
           {% for form in forms %}
             <td class="thdnone"></td>
             <td>

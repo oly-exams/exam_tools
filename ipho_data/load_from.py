@@ -32,7 +32,7 @@ def load_from_data_path(data_path, enforce_iso3166):
 def main():  # pylint: disable=too-many-branches
     if len(sys.argv) < 2:
         print(
-            "please use load_from.py path [skip-iso] [ipho2016] [students] [remote] [mock]"
+            "please use load_from.py path [skip-iso] [ipho2016] [students] [seatings] [remote] [mock]"
         )
         return
     path = Path(sys.argv[1]).resolve()
@@ -58,6 +58,8 @@ def main():  # pylint: disable=too-many-branches
                 pass
             elif argv == "students":
                 tdc.create_students()
+            elif argv == "seatings":
+                tdc.create_seatings()
             elif argv == "test_votings":
                 tdc.create_three_poll_votings()
             elif argv == "mock":

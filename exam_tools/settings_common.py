@@ -89,6 +89,9 @@ ADD_DELEGATION_WATERMARK = True
 # to facilitate sorting the printed pages
 ADD_DELEGATION_PRINT_BANNER = True
 
+# whether a cover page should be included in the exam (official prints)
+INCLUDE_COVER = True
+
 # Defines whether a QR code should be printed on the cover sheets
 CODE_ON_COVER_SHEET = False
 
@@ -112,6 +115,12 @@ SIGN_OFF_FINAL_MARKS = False
 
 # Defines wheter negative marks are allowed
 ALLOW_NEGATIVE_MARKS = False
+
+# Defines wheter marks can be None (in official and delegation marking)
+ALLOW_MARKS_NONE = False
+
+# Shows the participant names to markers if True and only the codes if False
+SHOW_PARTICIPANT_NAME_TO_MARKERS = True
 
 # Shows the remaining delegations in voting fullscreen view.
 VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
@@ -443,7 +452,7 @@ PRINTER_QUEUES = {
     # },
     "generic.printer-1": {
         "name": "Generic printer",
-        "host": "",
+        "host": "localhost",
         "queue": "printer-1",
         "auth_token": "",
         "opts": {"Duplex": "None", "ColourModel": "Colour", "Staple": "1PLU"},

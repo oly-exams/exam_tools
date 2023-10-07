@@ -299,6 +299,11 @@ urlpatterns = [
         name="admin-delete-version",
     ),
     path(
+        "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/check_before_accept",
+        views.admin_check_version_before_diff,
+        name="admin-check-version-before-diff",
+    ),
+    path(
         "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/accept",
         views.admin_accept_version,
         name="admin-accept-version",

@@ -7,6 +7,9 @@ from .base_data import BaseDataCreator
 
 class PollDataCreator(BaseDataCreator):
     def create_poll_voting(self, title, content, room_name, **choices):
+        return self.create_poll_voting_dict(title, content, room_name, choices)
+
+    def create_poll_voting_dict(self, title, content, room_name, choices_dict):
         room = None
         if room_name is not None:
             room = VotingRoom.objects.get(name=room_name)
@@ -18,8 +21,10 @@ class PollDataCreator(BaseDataCreator):
             return voting, created
 
         voting.save()
-        for key, val in choices.items():
-            choice = VotingChoice(voting=voting, label=key, choice_text=val)
+        for key in choices_dict:
+            choice = VotingChoice(
+                voting=voting, label=key, choice_text=choices_dict[key]
+            )
             choice.save()
             voting.votingchoice_set.add(choice)
         self.log(voting, "..", "created")

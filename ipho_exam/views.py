@@ -23,6 +23,7 @@ import csv
 import json
 import types
 import random
+import shutil
 import urllib
 import logging
 import traceback
@@ -156,6 +157,10 @@ django_logger = logging.getLogger("django.request")
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
+NO_ANSWER_SHEETS = getattr(settings, "NO_ANSWER_SHEETS", False)
+ONLY_OFFICIAL_ANSWER_SHEETS = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
+ALLOW_ANSLANG_WITHOUT_QLANG = getattr(settings, "ALLOW_ANSLANG_WITHOUT_QLANG", False)
+MAX_NUMBER_LANGUAGES_PER_PPNT = getattr(settings, "MAX_NUMBER_LANGUAGES_PER_PPNT", -1)
 
 
 @login_required
@@ -173,12 +178,9 @@ def main(request):
     own_lang = None
     other_lang = None
     if delegation is not None:
-        own_lang = Language.objects.filter(
-            hidden=False, delegation=delegation
-        )
-        other_lang = (
-            Language.objects.filter(hidden=False)
-            .exclude(delegation=delegation)
+        own_lang = Language.objects.filter(hidden=False, delegation=delegation)
+        other_lang = Language.objects.filter(hidden=False).exclude(
+            delegation=delegation
         )
     else:
         other_lang = Language.objects.filter(hidden=False)
@@ -217,9 +219,7 @@ def time_response(request):
 @permission_required("ipho_core.is_delegation")
 def wizard(request):
     delegation = Delegation.objects.filter(members=request.user).first()
-    own_languages = Language.objects.filter(
-        hidden=False, delegation=delegation
-    )
+    own_languages = Language.objects.filter(hidden=False, delegation=delegation)
     ## Exam section
     exam_list = Exam.objects.for_user(request.user)
     submittable_exams = exam_list.filter(can_submit__gte=Exam.CAN_SUBMIT_YES)
@@ -418,14 +418,13 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
     )
     if should_forbid is not None:
         return should_forbid
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    if en_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         num_questions = exam.question_set.exclude(type=Question.ANSWER).count()
     else:
         num_questions = exam.question_set.count()
     translation_form = TranslationForm(request.POST or None)
 
-    if en_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         answer_query = Q(translationnode__question__type=Question.ANSWER)
     else:
         answer_query = Q(pk=None)
@@ -458,7 +457,7 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
         questions = exam.question_set.exclude(
             translationnode__language=translation_form.cleaned_data["language"]
         )
-        if en_answer:
+        if ONLY_OFFICIAL_ANSWER_SHEETS:
             questions = questions.exclude(type=Question.ANSWER)
         for question in questions:
             if translation_form.cleaned_data["language"].is_pdf:
@@ -698,9 +697,7 @@ def translation_import_confirm(request, slug):
 @ensure_csrf_cookie
 def list_language(request):
     delegation = Delegation.objects.filter(members=request.user)
-    languages = Language.objects.filter(
-        hidden=False, delegation__in=delegation
-    )
+    languages = Language.objects.filter(hidden=False, delegation__in=delegation)
 
     return render(request, "ipho_exam/languages.html", {"languages": languages})
 
@@ -720,9 +717,7 @@ def add_language(request):
         lang = language_form.instance.delegation = delegation
         lang = language_form.save()
 
-        languages = Language.objects.filter(
-            hidden=False, delegation=delegation
-        )
+        languages = Language.objects.filter(hidden=False, delegation=delegation)
         return JsonResponse(
             {
                 "type": "add",
@@ -762,9 +757,7 @@ def edit_language(request, lang_id):
     if language_form.is_valid():
         lang = language_form.save()
 
-        languages = Language.objects.filter(
-            hidden=False, delegation=delegation
-        )
+        languages = Language.objects.filter(hidden=False, delegation=delegation)
         return JsonResponse(
             {
                 "type": "edit",
@@ -852,10 +845,9 @@ def exam_view(
             )[0]
             orig_lang.version = orig_node.version
             orig_lang.tag = orig_node.tag
-            question_versions = (
-                VersionNode.objects.values_list("version", "tag")
-                .filter(question=question, language=orig_lang, status="C")[1:]
-            )
+            question_versions = VersionNode.objects.values_list(
+                "version", "tag"
+            ).filter(question=question, language=orig_lang, status="C")[1:]
         else:
             orig_node = get_object_or_404(
                 TranslationNode, question=question, language=orig_lang
@@ -1055,15 +1047,13 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             d[0]
             for d in Delegation.objects.filter(
                 like__status="L", like__feedback_id=f["pk"]
-            )
-            .values_list("name")
+            ).values_list("name")
         ]
         unlike_del = [
             d[0]
             for d in Delegation.objects.filter(
                 like__status="U", like__feedback_id=f["pk"]
-            )
-            .values_list("name")
+            ).values_list("name")
         ]
         like_del_string = ", ".join(like_del)
         like_del_slug = ""
@@ -1330,15 +1320,13 @@ def feedbacks_list(
                 d[0]
                 for d in Delegation.objects.filter(
                     like__status="L", like__feedback_id=fback["pk"]
-                )
-                .values_list("name")
+                ).values_list("name")
             ]
             unlike_del = [
                 d[0]
                 for d in Delegation.objects.filter(
                     like__status="U", like__feedback_id=fback["pk"]
-                )
-                .values_list("name")
+                ).values_list("name")
             ]
             like_del_string = ", ".join(like_del)
             like_del_slug = ""
@@ -1545,13 +1533,15 @@ def feedbacks_export_csv(request, exam_id, question_id):
         f = list(tfback)
         like_del = [
             d[0]
-            for d in Delegation.objects.filter(like__status="L", like__feedback_id=f[0])
-            .values_list("name")
+            for d in Delegation.objects.filter(
+                like__status="L", like__feedback_id=f[0]
+            ).values_list("name")
         ]
         unlike_del = [
             d[0]
-            for d in Delegation.objects.filter(like__status="U", like__feedback_id=f[0])
-            .values_list("name")
+            for d in Delegation.objects.filter(
+                like__status="U", like__feedback_id=f[0]
+            ).values_list("name")
         ]
         like_del_string = ", ".join(like_del)
         unlike_del_string = ", ".join(unlike_del)
@@ -1938,10 +1928,7 @@ def admin_new_version(request, exam_id, question_id):
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
         if VersionNode.objects.filter(question=question, language=lang).exists():
-            node = (
-                VersionNode.objects.filter(question=question, language=lang)
-                .first()
-            )
+            node = VersionNode.objects.filter(question=question, language=lang).first()
         else:
             node = VersionNode(
                 question=question,
@@ -1981,10 +1968,9 @@ def admin_import_version(request, question_id):
             if VersionNode.objects.filter(
                 question=question, language=language
             ).exists():
-                node = (
-                    VersionNode.objects.filter(question=question, language=language)
-                    .first()
-                )
+                node = VersionNode.objects.filter(
+                    question=question, language=language
+                ).first()
             else:
                 node = VersionNode(
                     question=question,
@@ -2083,6 +2069,81 @@ def admin_delete_version(request, exam_id, question_id, version_num):
 
 
 @permission_required("ipho_core.can_edit_exam")
+def admin_check_version_before_diff(request, exam_id, question_id, version_num):
+    lang_id = OFFICIAL_LANGUAGE_PK
+    print(exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
+
+    accept_url = reverse(
+        "exam:admin-accept-version",
+        kwargs=dict(
+            exam_id=exam.pk,
+            question_id=question.pk,
+            version_num=int(version_num),
+        ),
+    )
+
+    if question.code == "G":
+        return JsonResponse(
+            {
+                "title": "Nothing to check!",
+                "message": "General Instructions should not have points and are not checked!",
+                "success": True,
+                "url": accept_url,
+            }
+        )
+
+    lang = get_object_or_404(Language, id=lang_id)
+
+    assert lang.versioned
+
+    node = get_object_or_404(
+        VersionNode, question=question, language=lang, status="P", version=version_num
+    )
+
+    try:
+        check_points.check_version(node)
+    except check_points.PointValidationError as exc:
+        check_message = (
+            "<div>Point check identified the following issue:</div><div><ul><li>"
+            + str(exc)
+            + "</ul></div><div>Coninue to diff anyway?</div>"
+        )
+        return JsonResponse(
+            {
+                "title": "Inconsistent Points",
+                "message": check_message,
+                "success": False,
+                "url": accept_url,
+            }
+        )
+    except Exception:  # pylint: disable=broad-except
+        error_msg = f"Error in checking points:\n{traceback.format_exc()}"
+        logger.error(error_msg)
+        # to send e-mails
+        django_logger.error(error_msg)
+        return JsonResponse(
+            {
+                "title": "Error in point check.",
+                "message": "<div>An error has occurred while checking the points consistency.</div><div>Publish anyway?</div>",
+                "success": False,
+                "url": accept_url,
+            }
+        )
+    return JsonResponse(
+        {
+            "title": "Point check successful!",
+            "success": True,
+            "url": accept_url,
+        }
+    )
+
+
+@permission_required("ipho_core.can_edit_exam")
 def admin_accept_version(
     request, exam_id, question_id, version_num, compare_version=None
 ):
@@ -2110,12 +2171,9 @@ def admin_accept_version(
         return HttpResponseRedirect(reverse("exam:admin"))
 
     if compare_version is None:
-        compare_node = (
-            VersionNode.objects.filter(
-                question=question, language=lang, status__in=["S", "C"]
-            )
-            .first()
-        )
+        compare_node = VersionNode.objects.filter(
+            question=question, language=lang, status__in=["S", "C"]
+        ).first()
         return HttpResponseRedirect(
             reverse(
                 "exam:admin-accept-version-diff",
@@ -2158,12 +2216,9 @@ def admin_accept_version(
 
     node_versions = []
     if lang.versioned:
-        node_versions = (
-            VersionNode.objects.filter(
-                question=question, language=lang, status__in=["S", "C"]
-            )
-            .values_list("version", flat=True)
-        )
+        node_versions = VersionNode.objects.filter(
+            question=question, language=lang, status__in=["S", "C"]
+        ).values_list("version", flat=True)
 
     old_q = qml.make_qml(compare_node)
     new_q = qml.make_qml(node)
@@ -2202,6 +2257,7 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
+
     lang = get_object_or_404(Language, id=lang_id)
 
     assert lang.versioned
@@ -2226,13 +2282,24 @@ def admin_publish_version(request, exam_id, question_id, version_num):
         )
 
     form_html = render_crispy_form(publish_form)
+
+    if question.code == "G":
+        return JsonResponse(
+            {
+                "title": "Nothing to check!",
+                "form": "General Instructions should not have points and are not checked!"
+                + form_html,
+                "success": True,
+            }
+        )
+
     try:
         check_points.check_version(node)
     except check_points.PointValidationError as exc:
         check_message = (
-            "<div>Point check identified the following issue:</div><div><strong>"
-            + escape(str(exc))
-            + "</strong></div><div>Publish anyway?</div>"
+            "<div >Point check identified the following issue:</div><div><ul><li>"
+            + str(exc)
+            + "</ul></div>"
         )
         return JsonResponse(
             {
@@ -2278,15 +2345,26 @@ def admin_check_points(request, exam_id, question_id, version_num):
     node = get_object_or_404(
         VersionNode, question=question, language=lang, version=version_num
     )
+
+    if question.code == "G":
+        return JsonResponse(
+            {
+                "title": "Nothing to check!",
+                "msg": "General Instructions should not have points and are not checked!",
+                "class": "bg-warning",
+                "success": True,
+            }
+        )
+
     try:
         (version, other_version) = check_points.check_version(
             node, other_question_status=dict(VersionNode.STATUS_CHOICES).keys()
         )
     except (check_points.PointValidationError, TypeError) as exc:
         check_message = (
-            "<div >Point check identified the following issue:</div><div><strong>"
-            + escape(str(exc))
-            + "</strong></div>"
+            "<div >Point check identified the following issue:</div><div><ul><li>"
+            + str(exc)
+            + "</ul></div>"
         )
         return JsonResponse(
             {
@@ -2296,15 +2374,7 @@ def admin_check_points(request, exam_id, question_id, version_num):
                 "success": False,
             }
         )
-    if version == "G":
-        return JsonResponse(
-            {
-                "title": "Nothing to check!",
-                "msg": "General Instructions should not have points and are not checked!",
-                "class": "bg-warning",
-                "success": True,
-            }
-        )
+
     return JsonResponse(
         {
             "title": "Check succeeded",
@@ -3014,13 +3084,14 @@ def submission_exam_assign(
             "You do not have the permissions to submit for this exam."
         )
     delegation = Delegation.objects.get(members=request.user)
-    no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    if en_answer:
+
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         num_questions = exam.question_set.exclude(type=Question.ANSWER).count()
     else:
         num_questions = exam.question_set.count()
-    languages = _get_submission_languages(exam, delegation, not en_answer)
+    languages = _get_submission_languages(
+        exam, delegation, not ONLY_OFFICIAL_ANSWER_SHEETS
+    )
     ex_submission, _ = ExamAction.objects.get_or_create(
         exam=exam, delegation=delegation, action=ExamAction.TRANSLATION
     )
@@ -3033,7 +3104,7 @@ def submission_exam_assign(
     all_valid = True
     with_errors = False
 
-    if en_answer or no_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS or NO_ANSWER_SHEETS:
         lang_id = OFFICIAL_LANGUAGE_PK
         answer_sheet_language = get_object_or_404(Language, id=lang_id)
     else:
@@ -3055,7 +3126,7 @@ def submission_exam_assign(
                 if (ssub.language in form.cleaned_data["languages"]) or (
                     ssub.language == form.cleaned_data["answer_language"]
                 ):
-                    if no_answer:
+                    if NO_ANSWER_SHEETS:
                         ssub.with_answer = False
                     else:
                         ssub.with_answer = (
@@ -3075,7 +3146,7 @@ def submission_exam_assign(
             ):
                 if lang in current_langs:
                     continue
-                if no_answer:
+                if NO_ANSWER_SHEETS:
                     with_answer = False
                 else:
                     with_answer = form.cleaned_data["answer_language"] == lang
@@ -3119,7 +3190,7 @@ def submission_exam_assign(
                 participant_seat = Place.objects.get(participant=participant).name
             except Place.DoesNotExist:
                 participant_seat = ""
-            questions = exam.question_set.all()
+            questions = exam.question_set.all().order_by("name")
             if exam.flags & exam.FLAG_SQUASHED:
                 grouped_questions = {
                     0: [
@@ -3169,7 +3240,7 @@ def submission_exam_assign(
             reverse("exam:submission-exam-confirm", args=(exam.pk,))
         )
 
-    if en_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         answer_query = Q(translationnode__question__type=Question.ANSWER)
     else:
         answer_query = Q(pk=None)
@@ -3207,9 +3278,11 @@ def submission_exam_assign(
             "empty_languages": empty_languages,
             "submission_forms": submission_forms,
             "with_errors": with_errors,
-            "no_answer": no_answer,
-            "no_answer_language": en_answer,
+            "no_answer": NO_ANSWER_SHEETS,
+            "no_answer_language": ONLY_OFFICIAL_ANSWER_SHEETS,
             "answer_language": str(answer_sheet_language),
+            "allow_anslang_without_qlang": ALLOW_ANSLANG_WITHOUT_QLANG,
+            "max_num_languages_per_ppnt": MAX_NUMBER_LANGUAGES_PER_PPNT,
         },
     )
 
@@ -3224,9 +3297,9 @@ def submission_exam_confirm(
             "You do not have the permissions to submit for this exam."
         )
     delegation = Delegation.objects.get(members=request.user)
-    no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    languages = _get_submission_languages(exam, delegation, not en_answer)
+    languages = _get_submission_languages(
+        exam, delegation, not ONLY_OFFICIAL_ANSWER_SHEETS
+    )
 
     form_error = ""
 
@@ -3238,9 +3311,8 @@ def submission_exam_confirm(
             reverse("exam:submission-exam-submitted", args=(exam.pk,))
         )
 
-    documents = (
-        Document.objects.for_user(request.user)
-        .filter(participant__exam=exam, participant__delegation=delegation)
+    documents = Document.objects.for_user(request.user).filter(
+        participant__exam=exam, participant__delegation=delegation
     )
     all_finished = all(not hasattr(doc, "documenttask") for doc in documents)
 
@@ -3343,9 +3415,9 @@ def submission_exam_confirm(
             "submission_status": ex_submission.status,
             "participants_languages": assigned_participant_language,
             "form_error": form_error,
-            "no_answer": no_answer,
-            "fixed_answer_language": en_answer,
             "include_cover": getattr(settings, "INCLUDE_COVER", True),
+            "no_answer": NO_ANSWER_SHEETS,
+            "fixed_answer_language": ONLY_OFFICIAL_ANSWER_SHEETS,
         },
     )
 
@@ -3354,9 +3426,9 @@ def submission_exam_confirm(
 def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-branches
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    languages = _get_submission_languages(exam, delegation, not en_answer)
+    languages = _get_submission_languages(
+        exam, delegation, not ONLY_OFFICIAL_ANSWER_SHEETS
+    )
 
     ex_submission, _ = ExamAction.objects.get_or_create(
         exam=exam, delegation=delegation, action=ExamAction.TRANSLATION
@@ -3382,9 +3454,8 @@ def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-bra
         else:
             assigned_participant_language[ppnt_l.participant][ppnt_l.language] = ""
 
-    documents = (
-        Document.objects.for_user(request.user)
-        .filter(participant__exam=exam, participant__delegation=delegation)
+    documents = Document.objects.for_user(request.user).filter(
+        participant__exam=exam, participant__delegation=delegation
     )
     ppnt_documents = {
         k: list(g)
@@ -3418,9 +3489,9 @@ def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-bra
             "submission_status": ex_submission.status,
             "participants_languages": assigned_participant_language,
             "msg": msg,
-            "no_answer": no_answer,
-            "fixed_answer_language": en_answer,
             "include_cover": getattr(settings, "INCLUDE_COVER", True),
+            "no_answer": NO_ANSWER_SHEETS,
+            "fixed_answer_language": ONLY_OFFICIAL_ANSWER_SHEETS,
         },
     )
 
@@ -3571,10 +3642,9 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
             )[0]
             orig_lang.version = orig_node.version
             orig_lang.tag = orig_node.tag
-            question_versions = (
-                VersionNode.objects.values_list("version", "tag")
-                .filter(question=question, language=orig_lang, status="C")[1:]
-            )
+            question_versions = VersionNode.objects.values_list(
+                "version", "tag"
+            ).filter(question=question, language=orig_lang, status="C")[1:]
         else:
             orig_node = get_object_or_404(
                 TranslationNode, question=question, language=orig_lang
@@ -4154,9 +4224,8 @@ def pdf_exam_participant(request, exam_id, participant_id):
     output = doc_path / f"exams-docs/{participant.code}/print/exam-{exam_id}.pdf"
     if not output.exists():
         merger = PdfFileMerger()
-        for doc in (
-            Document.objects.filter(participant=participant_id)
-            .values("file", "position", "num_pages")
+        for doc in Document.objects.filter(participant=participant_id).values(
+            "file", "position", "num_pages"
         ):
             with open(doc_path / doc["file"], "rb") as f:
                 merger.append(f, pages=(1, doc["num_pages"]))
@@ -4286,17 +4355,14 @@ def admin_scan_progress(request, question_id=None):
             >= Exam.MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED
         )
 
-        documents = (
-            Document.objects.for_user(request.user)
-            .filter(
-                participant__exam=question.exam,
-                position=question.position,
-                participant__exam__delegation_status__action=ExamAction.TRANSLATION,
-                participant__exam__delegation_status__delegation=F(
-                    "participant__delegation"
-                ),
-                participant__exam__delegation_status__status=ExamAction.SUBMITTED,
-            )
+        documents = Document.objects.for_user(request.user).filter(
+            participant__exam=question.exam,
+            position=question.position,
+            participant__exam__delegation_status__action=ExamAction.TRANSLATION,
+            participant__exam__delegation_status__delegation=F(
+                "participant__delegation"
+            ),
+            participant__exam__delegation_status__status=ExamAction.SUBMITTED,
         )
 
         num_docs = documents.count()
