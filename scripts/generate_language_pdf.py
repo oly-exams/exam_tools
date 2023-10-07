@@ -294,6 +294,7 @@ def missing_submissions():
 
 def compile_all(names=("Theory", "Experiment")):
     exams = Exam.objects.filter(name__in=names)
+    # The position filter is only really needed if there are spare problems
     questions = Question.objects.filter(
         exam__in=exams, position__in=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     )

@@ -53,7 +53,7 @@
               {% else %}
               <span class="label label-default">pending</span>
               {% endif %}
-              {% if doc.scan_file_orig %}
+              {% if doc.scan_file_orig and doc.scan_status == 'S' %}
               <a class="btn btn-default btn-xs"
                 href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=exam.pk participant_id=participant.pk position=doc.position %}"><i
                   class="fa fa-fw fa-file-pdf-o"></i> View full scan</a>
@@ -178,7 +178,7 @@
           <tr>
             <th>Student</th>
             {% for e in final_points_exams %}
-            <th>{{ e.question__exam__name }}<br />({{ e.exam_points|default_if_none:'-' }})</th>
+            <th>{{ e.question__exam__name }}<br />({% if e.exam_points is None%}-{% else %}{{ e.exam_points|floatformat:3 }}{% endif %})</th>
             {% endfor %}
             <th>Total</th>
           </tr>

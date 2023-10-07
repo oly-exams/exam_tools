@@ -35,6 +35,7 @@ from ipho_exam import qml
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 ALLOW_NEGATIVE_MARKS = getattr(settings, "ALLOW_NEGATIVE_MARKS", False)
+ALLOW_MARKS_NONE = getattr(settings, "ALLOW_MARKS_NONE", False)
 
 
 def generate_markings_from_exam(exam, user=None):
@@ -54,13 +55,17 @@ def generate_markings_from_exam(exam, user=None):
         )
         question_points = qml.question_points(qwy.qml)
         total_points = 0
-        for i, (name, points) in enumerate(question_points):
+        for i, (name, min_points, max_points) in enumerate(question_points):
             mmeta, created = MarkingMeta.objects.update_or_create(
                 question=question,
                 name=name,
-                defaults={"max_points": points, "position": i},
+                defaults={
+                    "min_points": min_points,
+                    "max_points": max_points,
+                    "position": i,
+                },
             )
-            total_points += points
+            total_points += max_points
             num_created += created
             num_tot += 1
 
@@ -74,9 +79,6 @@ def generate_markings_from_exam(exam, user=None):
 
         QuestionPointsRescale.objects.get_or_create(
             question=question,
-            defaults=dict(
-                max_internal_points=total_points, max_external_points=total_points
-            ),
         )
 
     return num_tot, num_created, num_marking_tot, num_marking_created
@@ -157,13 +159,6 @@ def create_actions_on_delegation_creation(instance, created, raw, **kwargs):
         MarkingAction.objects.get_or_create(question=question, delegation=instance)
 
 
-class MarkingMetaManager(models.Manager):
-    def for_user(self, user):
-        exams = Exam.objects.for_user(user)
-        queryset = self.get_queryset().filter(question__exam__in=exams)
-        return queryset
-
-
 class QuestionPointsRescaleManager(models.Manager):
     def for_user(self, user):
         exams = Exam.objects.for_user(user)
@@ -171,22 +166,72 @@ class QuestionPointsRescaleManager(models.Manager):
         return queryset
 
 
+def validate_nonzero(value):
+    if value == 0:
+        raise ValidationError("Field cannot be zero.")
+
+
+def sum_if_not_none(iterable):
+    if not iterable:
+        return None
+    return reduce(
+        lambda x, y: x + y if (x is not None and y is not None) else None, iterable
+    )
+
+
 class QuestionPointsRescale(models.Model):
     objects = QuestionPointsRescaleManager()
 
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    max_internal_points = models.DecimalField(max_digits=8, decimal_places=2)
-    max_external_points = models.DecimalField(max_digits=8, decimal_places=2)
+
+    numerator = models.SmallIntegerField(default=1)
+    denominator = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[
+            validate_nonzero,
+        ],
+    )
+    shift = models.DecimalField(default=0, max_digits=8, decimal_places=2)
 
     class Meta:
         ordering = ["question"]
         unique_together = index_together = ("question",)
 
     def __str__(self):
-        return f"[external points {self.max_external_points}] {self.question.name}"
+        return f"[Scale: {(self.numerator/self.denominator) if self.denominator else 'NaN'} - Shift: {self.shift}] {self.question.name}"
 
-    def factor(self):
-        return self.max_external_points / self.max_internal_points
+    def transform(self, value):
+        if value is None:
+            return None
+        return value * self.numerator / self.denominator + self.shift
+
+    @staticmethod
+    def min_max_points_for_exam(exam):
+        questions = (
+            Question.objects.filter(exam=exam)
+            .annotate(max_total=Sum("markingmeta__max_points"))
+            .annotate(min_total=Sum("markingmeta__min_points"))
+            .values("max_total", "min_total", "pk")
+            .distinct()
+        )
+        max_points = []
+        min_points = []
+
+        for quest in questions:
+            # points_total = quest.markingmeta_set.annotate(max_total=Sum("max_points")).annotate(min_total=Sum("min_points")).values("max_total", "min_total").distinct()
+            qscale = QuestionPointsRescale.objects.filter(
+                question__id=quest["pk"]
+            ).first()
+            if quest["min_total"] is None or quest["max_total"] is None:
+                continue
+            if not qscale:
+                max_points.append(quest["max_total"])
+                min_points.append(quest["min_total"])
+                continue
+            max_points.append(qscale.transform(quest["max_total"]))
+            min_points.append(qscale.transform(quest["min_total"]))
+
+        return sum_if_not_none(min_points), sum_if_not_none(max_points)
 
     @staticmethod
     def external_sum_for_exam(markings, participant_code=None, exam=None):
@@ -207,11 +252,18 @@ class QuestionPointsRescale(models.Model):
                 question__pk=x["marking_meta__question"]
             ).first()
             if x["question_total"] is not None:
-                points_exam += x["question_total"] * qscale.factor()
+                points_exam += qscale.transform(x["question_total"])
                 all_none = False
         if all_none:
             return None
         return points_exam
+
+
+class MarkingMetaManager(models.Manager):
+    def for_user(self, user):
+        exams = Exam.objects.for_user(user)
+        queryset = self.get_queryset().filter(question__exam__in=exams)
+        return queryset
 
 
 class MarkingMeta(models.Model):
@@ -219,13 +271,18 @@ class MarkingMeta(models.Model):
 
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     name = models.CharField(max_length=10)
-    max_points = models.DecimalField(max_digits=8, decimal_places=2)
+    min_points = models.DecimalField(
+        null=True, blank=True, max_digits=8, decimal_places=2
+    )
+    max_points = models.DecimalField(
+        null=True, blank=True, max_digits=8, decimal_places=2
+    )
     position = models.PositiveSmallIntegerField(
         default=10, help_text="Sorting index inside one question"
     )
 
     def __str__(self):
-        return f"{self.name} [{self.question.name}] {self.max_points} points"
+        return f"{self.name} [{self.question.name}] ({self.max_points},{self.max_points}) points"
 
     class Meta:
         ordering = ["position"]
@@ -314,8 +371,7 @@ class MarkingManager(models.Manager):
                 )
 
                 return queryset.filter(
-                    org_marking_view_after_subm_q  # pylint: disable=unsupported-binary-operation
-                    | org_marking_view_always_q
+                    org_marking_view_after_subm_q | org_marking_view_always_q
                 )
 
             if version == "D":
@@ -414,10 +470,17 @@ class Marking(models.Model):
     version = models.CharField(max_length=1, choices=list(MARKING_VERSIONS.items()))
 
     def clean(self):
+        if not ALLOW_MARKS_NONE and (self.points == "" or self.points is None):
+            raise ValidationError(
+                {"points": ValidationError("The points cannot be empty.")}
+            )
         if self.points == "" or self.points is None:
             return
         try:
-            if self.points > self.marking_meta.max_points:
+            if (
+                self.marking_meta.max_points is not None
+                and self.points > self.marking_meta.max_points
+            ):
                 raise ValidationError(
                     {
                         "points": ValidationError(
@@ -425,25 +488,25 @@ class Marking(models.Model):
                         )
                     }
                 )
-            if ALLOW_NEGATIVE_MARKS:
-                # pylint: disable=invalid-unary-operand-type
-                if self.points < -self.marking_meta.max_points:
-                    raise ValidationError(
-                        {
-                            "points": ValidationError(
-                                "The number of points cannot be smaller than the negative maximum."
-                            )
-                        }
-                    )
-            else:
-                if self.points < 0:
-                    raise ValidationError(
-                        {
-                            "points": ValidationError(
-                                "The number of points cannot be negative."
-                            )
-                        }
-                    )
+            if (
+                self.marking_meta.min_points is not None
+                and self.points < self.marking_meta.min_points
+            ):
+                raise ValidationError(
+                    {
+                        "points": ValidationError(
+                            "The number of points cannot subceed the minimum."
+                        )
+                    }
+                )
+            if not ALLOW_NEGATIVE_MARKS and self.points < 0:
+                raise ValidationError(
+                    {
+                        "points": ValidationError(
+                            "The number of points cannot be negative."
+                        )
+                    }
+                )
         except TypeError:
             # pylint: disable=raise-missing-from
             raise ValidationError(

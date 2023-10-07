@@ -109,6 +109,7 @@ class Language(models.Model):
         ("malayalam", "Malayalam"),
         ("marathi", "Marathi"),
         ("mongolian", "Mongolian"),
+        ("myanmar", "Myanmar"),
         ("nko", "Nko"),
         ("norwegian", "Norwegian"),
         ("occitan", "Occitan"),
@@ -390,6 +391,22 @@ class Exam(models.Model):
         verbose_name="Exam Visibility",
     )
 
+    CAN_PUBLISH_NOBODY = -1
+    CAN_PUBLISH_ORGANIZER = 0
+
+    CAN_PUBLISH_CHOICES = (
+        (CAN_PUBLISH_NOBODY, "Nobody"),
+        (CAN_PUBLISH_ORGANIZER, "Organizers"),
+    )
+
+    # See comments on IntegerFields above
+    can_publish = models.IntegerField(
+        default=0,
+        choices=CAN_PUBLISH_CHOICES,
+        help_text="Sets the ability to publish new versions of the exam for organizers.",
+        verbose_name="Can Publish",
+    )
+
     CAN_TRANSLATE_NOBODY = -1
     CAN_TRANSLATE_ORGANIZER = 0
     CAN_TRANSLATE_BOARDMEETING = 1
@@ -424,6 +441,22 @@ class Exam(models.Model):
         choices=FEEDBACK_CHOICES,
         help_text="Sets the status of the feedbacks for all questions.",
         verbose_name="Feedback",
+    )
+
+    CAN_SUBMIT_NO = -1
+    CAN_SUBMIT_YES = 1
+
+    CAN_SUBMIT_CHOICES = (
+        (CAN_SUBMIT_NO, "No"),
+        (CAN_SUBMIT_YES, "Yes"),
+    )
+
+    # See comments on IntegerFields above
+    can_submit = models.IntegerField(
+        default=-1,
+        choices=CAN_SUBMIT_CHOICES,
+        help_text="Sets the ability to do a final submission for delegations.",
+        verbose_name="Can Submit",
     )
 
     SUBMISSION_PRINTING_NOT_VISIBLE = -1
@@ -579,7 +612,9 @@ class Exam(models.Model):
     # NOTE: only fields having a default value are respected.
     _controllable_fields = [
         "visibility",
+        "can_publish",
         "can_translate",
+        "can_submit",
         "feedback",
         "submission_printing",
         "answer_sheet_scan_upload",
@@ -621,6 +656,20 @@ class Exam(models.Model):
         return default_settings
 
     @classmethod
+    def get_publishability(cls, user):
+        if user.is_superuser:
+            return cls.CAN_PUBLISH_NOBODY
+        if user.has_perm("ipho_core.is_organizer_admin") or user.has_perm(
+            "ipho_core.can_edit_exam"
+        ):
+            return cls.CAN_PUBLISH_ORGANIZER
+
+        max_choice = max(
+            choice[0] for choice in cls._meta.get_field("can_publish").choices
+        )
+        return max_choice + 1
+
+    @classmethod
     def get_visibility(cls, user):
         if user.is_superuser:
             return cls.VISIBLE_2ND_LVL_SUPPORT_ONLY
@@ -654,13 +703,32 @@ class Exam(models.Model):
         )
         return max_choice + 1
 
+    @classmethod
+    def get_submittability(cls, user):
+        if user.has_perm("ipho_core.can_see_boardmeeting"):
+            return Exam.CAN_SUBMIT_YES
+        max_choice = max(
+            choice[0] for choice in cls._meta.get_field("can_submit").choices
+        )
+        return max_choice + 1
+
     def check_visibility(self, user):
         return self.visibility >= Exam.get_visibility(user)
+
+    def check_publishability(self, user):
+        if not self.check_visibility(user):
+            return False
+        return self.can_publish >= Exam.get_publishability(user)
 
     def check_translatability(self, user):
         if not self.check_visibility(user):
             return False
         return self.can_translate >= Exam.get_translatability(user)
+
+    def check_submittability(self, user):
+        if not self.check_visibility(user):
+            return False
+        return self.can_submit >= Exam.get_submittability(user)
 
     def check_feedback_visible(self):
         return self.feedback >= Exam.FEEDBACK_READONLY
@@ -1262,7 +1330,10 @@ class RawFigure(Figure):
 
 class PlaceManager(models.Manager):
     def get_by_natural_key(self, name, participant_key):
-        return self.get(name=name, participant=Participant.objects.get_by_natural_key(*participant_key))
+        return self.get(
+            name=name,
+            participant=Participant.objects.get_by_natural_key(*participant_key),
+        )
 
 
 class Place(models.Model):

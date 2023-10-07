@@ -13,7 +13,7 @@ tornado~=6.2
 pywebpush~=1.14
 CairoSVG~=2.5
 python-barcode~=0.14
-PyPDF2~=2.11
+PyPDF2 >1.28, <2
 mkdocs~=1.4
 mkdocs-macros-plugin~=1.0
 Celery~=5.0
@@ -35,4 +35,5 @@ psycopg2~=2.9
 pypandoc~=1.10
 latex2mathml~=3.74
 html-diff~=0.4
+markdown <3.4
 pandas~=2.0

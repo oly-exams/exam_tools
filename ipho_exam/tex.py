@@ -92,6 +92,12 @@ def html2tex(elem):  # pylint: disable=too-many-branches
         ## Underline
         elif sel.tag in ["u"]:
             result.append("\\underline{%s}" % (html2tex(sel)))
+        ## Subscript
+        elif sel.tag in ["sub"]:
+            result.append("\\textsubscript{%s}" % (html2tex(sel)))
+        ## Superscript
+        elif sel.tag in ["sup"]:
+            result.append("\\textsuperscript{%s}" % (html2tex(sel)))
         elif sel.name in ["ul"]:
             result.append("\\begin{itemize}\n{%s}\n\\end{itemize}" % (html2tex(sel)))
         elif sel.name in ["ol"]:
@@ -147,6 +153,12 @@ def html2tex_bs4(elem):  # pylint: disable=too-many-branches
         ## Underline
         elif sel.name in ["u"]:
             result.append("\\underline{%s}" % (html2tex_bs4(sel)))
+        ## Subscript
+        elif sel.name in ["sub"]:
+            result.append("\\textsubscript{%s}" % (html2tex_bs4(sel)))
+        ## Superscript
+        elif sel.name in ["sup"]:
+            result.append("\\textsuperscript{%s}" % (html2tex_bs4(sel)))
         elif sel.name in ["ul"]:
             result.append(
                 "\\begin{itemize}\n{%s}\n\\end{itemize}" % (html2tex_bs4(sel))

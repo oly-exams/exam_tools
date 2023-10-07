@@ -32,7 +32,7 @@ describe('Marking', function () {
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
         cy.get("#marking").should('be.visible')
-        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Sign off marks").click()
+        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Sign off final marks from moderation").click()
         cy.url().should('contain', '/marking/confirm/final/3')
         cy.get("div.container h2").should('contain', "Sign off final points")
         cy.get("#confirm-table").within(($table)=>{
@@ -210,7 +210,7 @@ describe('Marking', function () {
         cy.visit("/marking/")
         cy.get('a[href="#marking"]').click()
         cy.get("#marking").should('be.visible')
-        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Sign off marks").click()
+        cy.get('#marking .table-responsive tbody >:last-child >:nth-child(2) .btn').should('contain', "Sign off final marks from moderation").click()
         cy.url().should('contain', '/marking/confirm/final/3')
         cy.get("div.container h2").should('contain', "Sign off final points")
         cy.get("#confirm-table").within(($table)=>{

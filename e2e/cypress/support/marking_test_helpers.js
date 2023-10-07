@@ -255,9 +255,9 @@ export const view_enabled = { 'disabled': false, 'text': 'View marks' }
 export const viewall_enabled = { 'disabled': false, 'text': 'View all marks' }
 
 export const submit_action = { 'disabled': false, 'text': 'Submit marks to organizers' }
-export const accept_action = { 'disabled': false, 'text': 'Accept marks without moderation' }
-export const sign_off_action = { 'disabled': false, 'text': 'Sign off marks' }
-export const finalized_action = { 'disabled': true, 'text': 'Marks finalized' }
+export const accept_action = { 'disabled': false, 'text': 'Sign off official marks without moderation' }
+export const sign_off_action = { 'disabled': false, 'text': 'Sign off final marks from moderation' }
+export const finalized_action = { 'disabled': true, 'text': 'Final marks signed off' }
 
 export const view_only = [view_enabled, edit_disabled]
 export const edit_view = [view_enabled, edit_enabled]

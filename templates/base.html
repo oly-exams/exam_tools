@@ -12,8 +12,8 @@
     <meta name="google-site-verification" content="zqUrYerHwOScwmLIi5QyzGlA6gQn7DaG4idgsqq3_7U" />
 
 	<link rel="apple-touch-icon" sizes="180x180" href="{% static "apple-touch-icon.png" %}">
-	<link rel="icon" type="image/png" href="{% static "favicon-32x32.png" %}" sizes="32x32">
-	<link rel="icon" type="image/png" href="{% static "favicon-16x16.png" %}" sizes="16x16">
+	<link rel="icon" type="image/png" href="{% static FAVICON_PATH|add:'/favicon-32x32.png' %}" sizes="32x32">
+	<link rel="icon" type="image/png" href="{% static FAVICON_PATH|add:'/favicon-16x16.png' %}" sizes="16x16">
 	<link rel="manifest" href="{% static "manifest.json" %}">
 	<link rel="mask-icon" href="{% static "safari-pinned-tab.svg" %}" color="#5bbad5">
 	<meta name="theme-color" content="#ffffff">
@@ -189,7 +189,10 @@
                   <li><a href="{% url 'marking:import-exam' %}">Import exam into marking system</a></li>
                   {% endif %}
                   <li><a href="{% url 'marking:official-marking-index' %}">Official marking</a></li>
+                  <li><a href="{% url 'exam:admin-scan-progress' %}">Scan progress</a></li>
+                  {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'marking:summary' %}">(Advanced marking editing)</a></li>
+                  {% endif %}
                   <li><a href="{% url 'marking:progress' %}">Marking progress</a></li>
                   {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'marking:marking-submissions' %}">Delegation marking subm. progress</a></li>

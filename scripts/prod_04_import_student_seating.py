@@ -17,8 +17,12 @@
 
 
 import os
+import sys
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
+
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, root_dir)
 
 import django
 
@@ -40,11 +44,11 @@ def main(input):
     # experiment = Exam.objects.get(name='Experiment')
     for i, row in enumerate(reader):
         try:
-            participant = Participant.objects.get(code=row["individual_id"])
             for f, ex in zip(header, exams):
-                Place.objects.get_or_create(
-                    participant=participant, exam=ex, name=row[f]
+                participant = Participant.objects.get(
+                    code=row["individual_id"], exam=ex
                 )
+                Place.objects.get_or_create(participant=participant, name=row[f])
 
             # Place.objects.get_or_create(participant=participant, exam=theory, name=row['seat_theory'])
             # Place.objects.get_or_create(participant=participant, exam=experiment, name=row['seat_experiment'])
