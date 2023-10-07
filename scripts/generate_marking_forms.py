@@ -63,10 +63,10 @@ def moderation_detail(question_id, delegation_id, request=HttpRequest()):
     for i, participant in enumerate(participants):
         markings_official = Marking.objects.filter(
             participant=participant, marking_meta__in=metas, version="O"
-        ).order_by("marking_meta__position")
+        )
         markings_delegation = Marking.objects.filter(
             participant=participant, marking_meta__in=metas, version="D"
-        ).order_by("marking_meta__position")
+        )
 
         FormSet = modelformset_factory(
             Marking,

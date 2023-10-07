@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 from ipho_exam.models import VersionNode
-from ipho_exam.qml import make_qml, xml2string
+from ipho_exam.qml import make_qml, dump_xml
 
 def add_min_max_points_node(node):
     if node.tag in ['question', 'subquestion', 'subanswer', 'part']:
@@ -24,7 +24,7 @@ def add_min_max_points_in_exam_qml(apps, schema_editor):
         try:
             qml=make_qml(version_node)
             add_min_max_points_node(qml)
-            version_node.text = xml2string(qml.make_xml())
+            version_node.text = dump_xml(qml.make_xml())
             version_node.save()
         except Exception as e:
             print(f"\nInvalid QML of VersionNode { version_node.question.name } v{ version_node.version }, no migration performed. Error:")

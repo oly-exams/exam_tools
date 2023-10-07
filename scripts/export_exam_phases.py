@@ -19,6 +19,7 @@ import os, sys
 
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
+sys.path.append(".")
 
 import django
 
@@ -54,7 +55,7 @@ def export_exam_phase(phase, fields=fields_to_export):
 
 
 def export_exam_phases_for_exam(exam):
-    phases = ExamPhase.objects.filter(exam=exam).order_by("position").all()
+    phases = ExamPhase.objects.filter(exam=exam).all()
     data = [export_exam_phase(phase) for phase in phases]
     json.dump(data, sys.stdout, indent=2)
 

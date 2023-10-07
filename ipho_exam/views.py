@@ -178,16 +178,12 @@ def main(request):
     own_lang = None
     other_lang = None
     if delegation is not None:
-        own_lang = Language.objects.filter(
-            hidden=False, delegation=delegation
-        ).order_by("name")
-        other_lang = (
-            Language.objects.filter(hidden=False)
-            .exclude(delegation=delegation)
-            .order_by("name")
+        own_lang = Language.objects.filter(hidden=False, delegation=delegation)
+        other_lang = Language.objects.filter(hidden=False).exclude(
+            delegation=delegation
         )
     else:
-        other_lang = Language.objects.filter(hidden=False).order_by("name")
+        other_lang = Language.objects.filter(hidden=False)
     ## Exam section
     exam_list = Exam.objects.for_user(request.user)
     exams_open = ExamAction.objects.filter(
@@ -223,9 +219,7 @@ def time_response(request):
 @permission_required("ipho_core.is_delegation")
 def wizard(request):
     delegation = Delegation.objects.filter(members=request.user).first()
-    own_languages = Language.objects.filter(
-        hidden=False, delegation=delegation
-    ).order_by("name")
+    own_languages = Language.objects.filter(hidden=False, delegation=delegation)
     ## Exam section
     exam_list = Exam.objects.for_user(request.user)
     submittable_exams = exam_list.filter(can_submit__gte=Exam.CAN_SUBMIT_YES)
@@ -286,10 +280,10 @@ def translations_list(request):
             question__exam=exam,
             language__delegation__name=OFFICIAL_DELEGATION,
             status="C",
-        ).order_by("question", "-version")
+        )
         official_translations_tnode = TranslationNode.objects.filter(
             question__exam=exam, language__delegation__name=OFFICIAL_DELEGATION
-        ).order_by("question")
+        )
         official_nodes = []
         qdone = set()
         for node in official_translations_vnode:
@@ -352,7 +346,7 @@ def list_all_translations(request):
         question__exam__in=filter_ex,
         language__delegation__name=OFFICIAL_DELEGATION,
         status="C",
-    ).order_by("question", "-version")
+    )
     official_nodes = []
     qdone = set()
     for node in official_translations_vnode:
@@ -485,9 +479,11 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
                         user=request.user,
                     )
                 )
-                data = {key: "\xa0" for key in list(trans.qml.get_data().keys())}
+                data = {
+                    key: "\xa0" for key in list(trans.qml.flat_content_dict().keys())
+                }
                 trans.qml.update(data)
-                node.text = qml.xml2string(trans.qml.make_xml())
+                node.text = trans.qml.dump()
                 node.save()
             else:
                 # failed_questions.append(question.name)
@@ -582,7 +578,7 @@ def translation_export(request, question_id, lang_id, version_num=None):
     else:
         trans = qquery.get_version(question_id, lang_id, version_num, user=request.user)
 
-    content = qml.xml2string(trans.qml.make_xml())
+    content = trans.qml.dump()
 
     res = HttpResponse(content, content_type="application/ipho+qml+xml")
     res["content-disposition"] = 'attachment; filename="{}"'.format(
@@ -622,9 +618,8 @@ def translation_import(request, question_id, lang_id):
             txt = txt.decode("utf8")
         except AttributeError:
             pass
-        # obj.content = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
-        # obj.content = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
-        obj.content = txt  # safest, but does not look nice: all < and > escaped
+        # Assume that we are importing our internal dump format (xml with escaped html).
+        obj.content = txt
         obj.question = question
         obj.language = language
         obj.save()
@@ -669,14 +664,14 @@ def translation_import_confirm(request, slug):
         )
 
     old_q = trans.qml
-    old_data = old_q.get_data()
+    old_data = old_q.flat_content_dict()
     new_q = qml.QMLquestion(trans_import.content)
-    new_data = new_q.get_data()
+    new_data = new_q.flat_content_dict()
 
-    old_q.diff_content_html(new_data)
-    new_q.diff_content_html(old_data)
+    old_q.diff_content(new_data)
+    new_q.diff_content(old_data)
 
-    old_flat_dict = old_q.flat_content_dict()
+    old_flat_dict = old_q.flat_content_dict(with_extra=True)
 
     ctx = {}
     ctx.update(csrf(request))
@@ -702,10 +697,8 @@ def translation_import_confirm(request, slug):
 @ensure_csrf_cookie
 def list_language(request):
     delegation = Delegation.objects.filter(members=request.user)
-    languages = Language.objects.filter(
-        hidden=False, delegation__in=delegation
-    ).order_by("name")
-    # TODO: do not show Add language if no delegation
+    languages = Language.objects.filter(hidden=False, delegation__in=delegation)
+
     return render(request, "ipho_exam/languages.html", {"languages": languages})
 
 
@@ -724,9 +717,7 @@ def add_language(request):
         lang = language_form.instance.delegation = delegation
         lang = language_form.save()
 
-        languages = Language.objects.filter(
-            hidden=False, delegation=delegation
-        ).order_by("name")
+        languages = Language.objects.filter(hidden=False, delegation=delegation)
         return JsonResponse(
             {
                 "type": "add",
@@ -766,9 +757,7 @@ def edit_language(request, lang_id):
     if language_form.is_valid():
         lang = language_form.save()
 
-        languages = Language.objects.filter(
-            hidden=False, delegation=delegation
-        ).order_by("name")
+        languages = Language.objects.filter(hidden=False, delegation=delegation)
         return JsonResponse(
             {
                 "type": "edit",
@@ -853,14 +842,12 @@ def exam_view(
         if orig_lang.versioned:
             orig_node = VersionNode.objects.filter(
                 question=question, language=orig_lang, status="C"
-            ).order_by("-version")[0]
+            )[0]
             orig_lang.version = orig_node.version
             orig_lang.tag = orig_node.tag
-            question_versions = (
-                VersionNode.objects.values_list("version", "tag")
-                .order_by("-version")
-                .filter(question=question, language=orig_lang, status="C")[1:]
-            )
+            question_versions = VersionNode.objects.values_list(
+                "version", "tag"
+            ).filter(question=question, language=orig_lang, status="C")[1:]
         else:
             orig_node = get_object_or_404(
                 TranslationNode, question=question, language=orig_lang
@@ -873,7 +860,7 @@ def exam_view(
             question=question,
             status="C",
             language__delegation__name=OFFICIAL_DELEGATION,
-        ).order_by("-version"):
+        ):
             if not vnode.language in official_list:
                 official_list.append(vnode.language)
                 official_list[-1].version = vnode.version
@@ -887,7 +874,7 @@ def exam_view(
 
         orig_q_raw = qml.make_qml(orig_node)
         orig_q = deepcopy(official_question.qml)
-        orig_q_raw_data = orig_q_raw.get_data()
+        orig_q_raw_data = orig_q_raw.flat_content_dict()
         orig_q_raw_data = {k: v for k, v in list(orig_q_raw_data.items()) if v}
         orig_q.update(orig_q_raw_data)
         orig_q.set_lang(orig_lang)
@@ -934,7 +921,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         orig_lang = get_object_or_404(Language, id=orig_id)
         node = VersionNode.objects.filter(
             question=question, language=orig_lang, status="C"
-        ).order_by("-version")[0]
+        )[0]
         qml_root = qml.make_qml(node)
 
         nodes = [[nd, False] for nd in qml_root.children]
@@ -955,7 +942,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             # set part title
             if current_node.tag == "part":
                 part_count += 1
-                part_title = current_node.data
+                part_title = current_node.content()
                 if part_title == "" or part_title is None:
                     if part_label is not None:
                         part_title = part_label
@@ -1060,17 +1047,13 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             d[0]
             for d in Delegation.objects.filter(
                 like__status="L", like__feedback_id=f["pk"]
-            )
-            .values_list("name")
-            .order_by("name")
+            ).values_list("name")
         ]
         unlike_del = [
             d[0]
             for d in Delegation.objects.filter(
                 like__status="U", like__feedback_id=f["pk"]
-            )
-            .values_list("name")
-            .order_by("name")
+            ).values_list("name")
         ]
         like_del_string = ", ".join(like_del)
         like_del_slug = ""
@@ -1337,17 +1320,13 @@ def feedbacks_list(
                 d[0]
                 for d in Delegation.objects.filter(
                     like__status="L", like__feedback_id=fback["pk"]
-                )
-                .values_list("name")
-                .order_by("name")
+                ).values_list("name")
             ]
             unlike_del = [
                 d[0]
                 for d in Delegation.objects.filter(
                     like__status="U", like__feedback_id=fback["pk"]
-                )
-                .values_list("name")
-                .order_by("name")
+                ).values_list("name")
             ]
             like_del_string = ", ".join(like_del)
             like_del_slug = ""
@@ -1508,9 +1487,7 @@ def feedback_set_status(request, feedback_id, status):
 
 @permission_required("ipho_core.can_manage_feedback")
 def feedbacks_export(request):
-    questions = Question.objects.for_user(request.user).order_by(
-        "exam", "position", "type"
-    )
+    questions = Question.objects.for_user(request.user)
     return render(
         request,
         "ipho_exam/admin_feedbacks_export.html",
@@ -1556,15 +1533,15 @@ def feedbacks_export_csv(request, exam_id, question_id):
         f = list(tfback)
         like_del = [
             d[0]
-            for d in Delegation.objects.filter(like__status="L", like__feedback_id=f[0])
-            .values_list("name")
-            .order_by("name")
+            for d in Delegation.objects.filter(
+                like__status="L", like__feedback_id=f[0]
+            ).values_list("name")
         ]
         unlike_del = [
             d[0]
-            for d in Delegation.objects.filter(like__status="U", like__feedback_id=f[0])
-            .values_list("name")
-            .order_by("name")
+            for d in Delegation.objects.filter(
+                like__status="U", like__feedback_id=f[0]
+            ).values_list("name")
         ]
         like_del_string = ", ".join(like_del)
         unlike_del_string = ", ".join(unlike_del)
@@ -1951,11 +1928,7 @@ def admin_new_version(request, exam_id, question_id):
     lang = get_object_or_404(Language, id=lang_id)
     if lang.versioned:
         if VersionNode.objects.filter(question=question, language=lang).exists():
-            node = (
-                VersionNode.objects.filter(question=question, language=lang)
-                .order_by("-version")
-                .first()
-            )
+            node = VersionNode.objects.filter(question=question, language=lang).first()
         else:
             node = VersionNode(
                 question=question,
@@ -1995,11 +1968,9 @@ def admin_import_version(request, question_id):
             if VersionNode.objects.filter(
                 question=question, language=language
             ).exists():
-                node = (
-                    VersionNode.objects.filter(question=question, language=language)
-                    .order_by("-version")
-                    .first()
-                )
+                node = VersionNode.objects.filter(
+                    question=question, language=language
+                ).first()
             else:
                 node = VersionNode(
                     question=question,
@@ -2016,9 +1987,8 @@ def admin_import_version(request, question_id):
             node.pk = None
             node.version += 1
             node.status = "P"
-        # node.text = qml.escape_equations(txt)  # original: would be the nicest solution because only equations would be escaped
-        # node.text = qml.normalize_html(txt)    # ugly: allows for illegal characters in resulting QML
-        node.text = txt  # safest, but does not look nice: all < and > escaped
+        # Assume that we are importing our internal dump format (xml with escaped html).
+        node.text = txt
         node.save()
         return JsonResponse({"success": True})
 
@@ -2201,13 +2171,9 @@ def admin_accept_version(
         return HttpResponseRedirect(reverse("exam:admin"))
 
     if compare_version is None:
-        compare_node = (
-            VersionNode.objects.filter(
-                question=question, language=lang, status__in=["S", "C"]
-            )
-            .order_by("-version")
-            .first()
-        )
+        compare_node = VersionNode.objects.filter(
+            question=question, language=lang, status__in=["S", "C"]
+        ).first()
         return HttpResponseRedirect(
             reverse(
                 "exam:admin-accept-version-diff",
@@ -2250,13 +2216,9 @@ def admin_accept_version(
 
     node_versions = []
     if lang.versioned:
-        node_versions = (
-            VersionNode.objects.filter(
-                question=question, language=lang, status__in=["S", "C"]
-            )
-            .order_by("-version")
-            .values_list("version", flat=True)
-        )
+        node_versions = VersionNode.objects.filter(
+            question=question, language=lang, status__in=["S", "C"]
+        ).values_list("version", flat=True)
 
     old_q = qml.make_qml(compare_node)
     new_q = qml.make_qml(node)
@@ -2264,7 +2226,7 @@ def admin_accept_version(
     old_q = CachedHTMLDiff.calc_or_get_cache(compare_node, node, old_q)
     new_q = CachedHTMLDiff.calc_or_get_cache(node, compare_node, new_q)
 
-    old_flat_dict = old_q.flat_content_dict()
+    old_flat_dict = old_q.flat_content_dict(with_extra=True)
 
     ctx = {}
     ctx["exam"] = exam
@@ -2494,7 +2456,7 @@ def admin_editor(request, exam_id, question_id, version_num):
     qml_types = sorted(
         (
             (qobj.tag, qobj.display_name, qobj.sort_order)
-            for qobj in qml.QMLobject.all_objects()  # pylint: disable=not-an-iterable
+            for qobj in qml.QMLbase.all_classes()  # pylint: disable=not-an-iterable
         ),
         key=lambda t: t[2],
     )
@@ -2547,8 +2509,7 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     )
     if form.is_valid() and attrs_form.is_valid():
         if "block_content" in form.cleaned_data:
-            block.data = form.cleaned_data["block_content"]
-            block.data_html = form.cleaned_data["block_content"]
+            block.update({block_id: form.cleaned_data["block_content"]})
         current_id = block.attributes.get("id")
         block.attributes = {
             ff.cleaned_data["key"]: ff.cleaned_data["value"]
@@ -2559,13 +2520,13 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
             "id" not in block.attributes
         ):  # if "id" was deleted, restore it (since deletion of the "id" key is not allowed)
             block.attributes["id"] = current_id
-        node.text = qml.xml2string(qmln.make_xml())
+        node.text = qmln.dump()
         node.save()
 
         return JsonResponse(
             {
                 "title": heading,
-                "content": block.content_html(),
+                "content": block.content_with_extra(),
                 "attributes": render_to_string(
                     "ipho_exam/partials/admin_editor_attributes.html",
                     {"attributes": block.attributes},
@@ -2611,7 +2572,7 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
     qlmn = qml.make_qml(node)
 
     qlmn.delete(block_id)
-    node.text = qml.xml2string(qlmn.make_xml())
+    node.text = qlmn.dump()
     node.save()
 
     return JsonResponse(
@@ -2655,14 +2616,14 @@ def admin_editor_add_block(  # pylint: disable=too-many-arguments
     newblock = block.add_child(
         qml.ET.fromstring(f"<{tag_name} />"), after_id=after_id, insert_at_front=True
     )
-    node.text = qml.xml2string(qmln.make_xml())
+    node.text = qmln.dump()
     node.save()
 
     # TODO: find some better sorting way?
     qml_types = sorted(
         (
-            (qobj.tag, qobj.display_name, qobj.sort_order)
-            for qobj in qml.QMLobject.all_objects()  # pylint: disable=not-an-iterable
+            (qcls.tag, qcls.display_name, qcls.sort_order)
+            for qcls in qml.QMLbase.all_classes()  # pylint: disable=not-an-iterable
         ),
         key=lambda t: t[2],
     )
@@ -2728,7 +2689,7 @@ def admin_editor_move_block(  # pylint: disable=too-many-arguments
     else:
         return JsonResponse({"success": False})
 
-    node.text = qml.xml2string(qmln.make_xml())
+    node.text = qmln.dump()
     node.save()
 
     return JsonResponse({"success": True, "direction": direction})
@@ -2807,7 +2768,6 @@ def _get_submission_languages(exam, delegation, count_answersheets=True):
                 )
             )
         )
-        .order_by("name")
     )
 
 
@@ -2945,7 +2905,7 @@ def submission_delegation_list_submitted(request):
         "extra_num_pages",
         "scan_file",
         "timestamp",
-    ).order_by("participant__exam_id", "participant_id", "position")
+    )
     # do NOT change the secondary order by participant_id!
 
     exam_id2max_position = defaultdict(set)
@@ -2962,7 +2922,11 @@ def submission_delegation_list_submitted(request):
     return render(
         request,
         "ipho_exam/submission_delegation_list.html",
-        {"docs": all_docs, "exam2max_position": exam_id2max_position},
+        {
+            "docs": all_docs,
+            "exam2max_position": exam_id2max_position,
+            "include_cover": getattr(settings, "INCLUDE_COVER", True),
+        },
     )
 
 
@@ -3302,7 +3266,6 @@ def submission_exam_assign(
             ),
         )
         .filter(Q(num_translation__lt=num_questions) | Q(num_pdf__lt=num_questions))
-        .order_by("name")
     )
 
     return render(
@@ -3348,10 +3311,8 @@ def submission_exam_confirm(
             reverse("exam:submission-exam-submitted", args=(exam.pk,))
         )
 
-    documents = (
-        Document.objects.for_user(request.user)
-        .filter(participant__exam=exam, participant__delegation=delegation)
-        .order_by("participant", "position")
+    documents = Document.objects.for_user(request.user).filter(
+        participant__exam=exam, participant__delegation=delegation
     )
     all_finished = all(not hasattr(doc, "documenttask") for doc in documents)
 
@@ -3454,6 +3415,7 @@ def submission_exam_confirm(
             "submission_status": ex_submission.status,
             "participants_languages": assigned_participant_language,
             "form_error": form_error,
+            "include_cover": getattr(settings, "INCLUDE_COVER", True),
             "no_answer": NO_ANSWER_SHEETS,
             "fixed_answer_language": ONLY_OFFICIAL_ANSWER_SHEETS,
         },
@@ -3492,10 +3454,8 @@ def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-bra
         else:
             assigned_participant_language[ppnt_l.participant][ppnt_l.language] = ""
 
-    documents = (
-        Document.objects.for_user(request.user)
-        .filter(participant__exam=exam, participant__delegation=delegation)
-        .order_by("participant", "position")
+    documents = Document.objects.for_user(request.user).filter(
+        participant__exam=exam, participant__delegation=delegation
     )
     ppnt_documents = {
         k: list(g)
@@ -3529,6 +3489,7 @@ def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-bra
             "submission_status": ex_submission.status,
             "participants_languages": assigned_participant_language,
             "msg": msg,
+            "include_cover": getattr(settings, "INCLUDE_COVER", True),
             "no_answer": NO_ANSWER_SHEETS,
             "fixed_answer_language": ONLY_OFFICIAL_ANSWER_SHEETS,
         },
@@ -3665,9 +3626,9 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
         if delegation is not None:
             own_lang = Language.objects.filter(
                 hidden=False, translationnode__question=question, delegation=delegation
-            ).order_by("name")
+            )
         elif request.user.is_superuser:
-            own_lang = Language.objects.all().order_by("name")
+            own_lang = Language.objects.all()
 
         official_question = qquery.latest_version(
             question_id=question.pk, lang_id=OFFICIAL_LANGUAGE_PK, user=request.user
@@ -3678,14 +3639,12 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
         if orig_lang.versioned:
             orig_node = VersionNode.objects.filter(
                 question=question, language=orig_lang, status="C"
-            ).order_by("-version")[0]
+            )[0]
             orig_lang.version = orig_node.version
             orig_lang.tag = orig_node.tag
-            question_versions = (
-                VersionNode.objects.values_list("version", "tag")
-                .order_by("-version")
-                .filter(question=question, language=orig_lang, status="C")[1:]
-            )
+            question_versions = VersionNode.objects.values_list(
+                "version", "tag"
+            ).filter(question=question, language=orig_lang, status="C")[1:]
         else:
             orig_node = get_object_or_404(
                 TranslationNode, question=question, language=orig_lang
@@ -3698,7 +3657,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
             question=question,
             status="C",
             language__delegation__name=OFFICIAL_DELEGATION,
-        ).order_by("-version"):
+        ):
             if not vnode.language in official_list:
                 official_list.append(vnode.language)
                 official_list[-1].version = vnode.version
@@ -3727,14 +3686,13 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
                 "order": 2,
                 "list": Language.objects.filter(translationnode__question=question)
                 .exclude(delegation=delegation)
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
-                .order_by("delegation", "name"),
+                .exclude(delegation__name=OFFICIAL_DELEGATION),
             }
         )
 
         orig_q_raw = qml.make_qml(orig_node)
         orig_q = deepcopy(official_question.qml)
-        orig_q_raw_data = orig_q_raw.get_data()
+        orig_q_raw_data = orig_q_raw.flat_content_dict()
         orig_q_raw_data = {k: v for k, v in list(orig_q_raw_data.items()) if v}
         orig_q.update(orig_q_raw_data)
         orig_q.set_lang(orig_lang)
@@ -3762,36 +3720,31 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
                 return HttpResponseForbidden(
                     "You do not have the permissions to edit this language."
                 )
-            ## TODO: check permissions for this.
-            trans_node = get_object_or_404(
-                TranslationNode, question=question, language_id=lang_id
+
+            trans_nodes = TranslationNode.objects.filter(
+                question__exam=exam, language=trans_lang
             )
-
-            # RestrictedChar list from here:
-            # https://www.w3.org/TR/xml11/#charsets
-            remove_re = re.compile("[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x84\x84-\x9F]")
-
-            def strip_illegal_xml_chars(text):
-                text, count = remove_re.subn("", text)
-                if count > 0:
-                    print("removed invalid xml character")
-                return text
+            if trans_nodes.exists():
+                trans_node, _ = TranslationNode.objects.get_or_create(
+                    question=question, language=trans_lang
+                )
+            else:
+                raise Http404(
+                    "You have not added a translation to the exam for this language."
+                )
 
             if len(trans_node.text) > 0:
                 trans_q = qml.make_qml(trans_node)
                 trans_q.set_lang(trans_lang)
-                trans_content = trans_q.get_data()
+                trans_content = trans_q.flat_content_dict()
                 trans_extra_html = trans_q.get_trans_extra_html()
             checksum = md5(trans_node.text.encode("utf8")).hexdigest()
             form = qml.QMLForm(orig_q, trans_content, request.POST or None)
 
             if form.is_valid():
                 qmln = deepcopy(orig_q)
-                cleaned_data = form.cleaned_data
-                for k in list(cleaned_data.keys()):
-                    cleaned_data[k] = strip_illegal_xml_chars(cleaned_data[k])
-                qmln.update(cleaned_data, set_blanks=True)
-                new_text = qml.xml2string(qmln.make_xml())
+                qmln.update(form.cleaned_data)
+                new_text = qmln.dump()
                 new_checksum = md5(new_text.encode("utf8")).hexdigest()
 
                 ## Nothing to do, the checksum is still the same
@@ -4192,46 +4145,6 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
 
 
 @login_required
-def pdf_exam_for_participant(request, exam_id, participant_id):
-    # mskoenz 2022: afaics deprecated, see pdf_exam_participant
-    participant = get_object_or_404(Participant, id=participant_id)
-
-    user = request.user
-    if not user.has_perm("ipho_core.can_see_boardmeeting"):
-        exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-        if not (
-            exam.submission_printing >= Exam.SUBMISSION_PRINTING_WHEN_SUBMITTED
-            or exam.answer_sheet_scan_upload
-            >= Exam.ANSWER_SHEET_SCAN_UPLOAD_STUDENT_ANSWER
-        ):
-            return HttpResponseForbidden(
-                "You do not have permission to view this document."
-            )
-
-    ## TODO: implement caching
-    all_tasks = []
-
-    participant_languages = ParticipantSubmission.objects.filter(
-        participant=participant
-    )
-    questions = exam.question_set.all()
-    grouped_questions = {
-        k: list(g) for k, g in itertools.groupby(questions, key=lambda q: q.position)
-    }
-    grouped_questions = OrderedDict(sorted(grouped_questions.items()))
-    for _, qgroup in list(grouped_questions.items()):
-        question_task = question_utils.compile_ppnt_exam_question(
-            qgroup, participant_languages
-        )
-        result = question_task.delay()
-        all_tasks.append(result)
-    filename = f"exam-{slugify(exam.name)}-{participant.code}.pdf"
-    chord_task = tasks.wait_and_concatenate.delay(all_tasks, filename)
-    # chord_task = celery.chord(all_tasks, tasks.concatenate_documents.s(filename)).apply_async()
-    return HttpResponseRedirect(reverse("exam:pdf-task", args=[chord_task.id]))
-
-
-@login_required
 def pdf_exam_pos_participant(
     request, exam_id, position, participant_id, type="P"
 ):  # pylint: disable= # pylint: disable=redefined-builtin, too-many-return-statements, too-many-branches
@@ -4311,10 +4224,8 @@ def pdf_exam_participant(request, exam_id, participant_id):
     output = doc_path / f"exams-docs/{participant.code}/print/exam-{exam_id}.pdf"
     if not output.exists():
         merger = PdfFileMerger()
-        for doc in (
-            Document.objects.filter(participant=participant_id)
-            .values("file", "position", "num_pages")
-            .order_by("position")
+        for doc in Document.objects.filter(participant=participant_id).values(
+            "file", "position", "num_pages"
         ):
             with open(doc_path / doc["file"], "rb") as f:
                 merger.append(f, pages=(1, doc["num_pages"]))
@@ -4425,7 +4336,11 @@ def pdf_task(request, token):
 @permission_required("ipho_core.is_marker")
 def admin_scan_progress(request, question_id=None):
     questions = (
-        Question.objects.for_user(request.user).filter(type=Question.ANSWER).all()
+        Question.objects.for_user(request.user)
+        .filter(type=Question.ANSWER)
+        .filter(
+            exam__marking_organizer_can_enter__gte=Exam.MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED
+        )
     )
     ctx = {"questions": questions}
 
@@ -4440,16 +4355,18 @@ def admin_scan_progress(request, question_id=None):
             >= Exam.MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED
         )
 
-        documents = (
-            Document.objects.for_user(request.user)
-            .filter(participant__exam=question.exam, position=question.position)
-            .order_by("participant__code")
+        documents = Document.objects.for_user(request.user).filter(
+            participant__exam=question.exam,
+            position=question.position,
+            participant__exam__delegation_status__action=ExamAction.TRANSLATION,
+            participant__exam__delegation_status__delegation=F(
+                "participant__delegation"
+            ),
+            participant__exam__delegation_status__status=ExamAction.SUBMITTED,
         )
 
         num_docs = documents.count()
         ctx["scans_all"] = num_docs
-
-        # ctx["documents"] = documents.all()
 
         num_columns = 5
         ctx["columns"] = range(num_columns)
@@ -4457,7 +4374,6 @@ def admin_scan_progress(request, question_id=None):
             documents.all()[i : i + num_columns]
             for i in range(0, num_docs, num_columns)
         ]
-        print(ctx["documents"])
 
         scanned_documents = documents.filter(scan_status="S").count()
 

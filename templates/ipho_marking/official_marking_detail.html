@@ -76,6 +76,12 @@ th {
               View scan
             </a>
             {% endif %}
+            {% if participant.pk in files_ready.full_scan %}
+            <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=question.exam.pk participant_id=participant.pk position=question.position %}">
+              <i class="fa fa-fw fa-file-pdf-o"></i>
+              View full scan
+            </a>
+            {% endif %}
           </th>
         {% endfor %}
       </tr>

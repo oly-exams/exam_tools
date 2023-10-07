@@ -273,6 +273,7 @@ class Language(models.Model):
 
     class Meta:
         unique_together = index_together = (("name", "delegation"),)
+        ordering = ["delegation", "name"]
 
     def natural_key(self):
         return (self.name,) + self.delegation.natural_key()
@@ -632,6 +633,9 @@ class Exam(models.Model):
     def natural_key(self):
         return (self.name,)
 
+    class Meta:
+        ordering = ["code", "name"]
+
     @classmethod
     def get_controllable_fields(cls):
         """Returns the fields available to the control app (i.e. changeable in ExamPhase)."""
@@ -907,7 +911,7 @@ class Question(models.Model):
     ## TODO: add template field
 
     class Meta:
-        ordering = ["position", "type"]
+        ordering = ["exam", "position", "type", "code"]
 
     def is_answer_sheet(self):
         return self.type == self.ANSWER
@@ -993,7 +997,7 @@ class VersionNode(models.Model):
 
     class Meta:
         unique_together = index_together = (("question", "language", "version"),)
-        ordering = ["-version", "-timestamp"]
+        ordering = ["question", "language", "-version", "-timestamp"]
 
     def question_name(self):
         return self.question.name
@@ -1040,6 +1044,7 @@ class TranslationNode(models.Model):
 
     class Meta:
         unique_together = index_together = (("question", "language"),)
+        ordering = ["question", "language", "-timestamp"]
 
     def question_name(self):
         return self.question.name
@@ -1186,11 +1191,10 @@ class CachedHTMLDiff(models.Model):
             )
             start = time.time()
             target_q = ipho_exam.qml.make_qml(target_node)
-            target_data = target_q.get_data()
-            diff_q.diff_content_html(target_data)
-            diff_q.data_html2data()
+            target_data = target_q.flat_content_dict()
+            diff_q.diff_content(target_data)
             timing = time.time() - start
-            diff.diff_text = ipho_exam.qml.xml2string(diff_q.make_xml())
+            diff.diff_text = diff_q.dump()
             diff.timing = int(timing * 1000)
             diff.save()
         return diff_q
@@ -1620,6 +1624,7 @@ class Document(models.Model):
 
     class Meta:
         unique_together = index_together = (("participant", "position"),)
+        ordering = ["participant", "position"]
 
     # def question_name(self):
     # return self.question.name

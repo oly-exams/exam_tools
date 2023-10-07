@@ -342,7 +342,6 @@ class ExamPhaseHistory(models.Model):
             ExamPhaseHistory.objects.filter(
                 timestamp__lt=self.timestamp, exam=self.exam
             )
-            .order_by("-timestamp")
             .first()
         )
 

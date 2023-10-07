@@ -76,9 +76,7 @@ def get_diff_color_pair(official, delegation):
 def get_valid_marking_question_list(request, exam, editable):
     question_list = []
 
-    answer_sheet_list = Question.objects.filter(
-        exam=exam, type=Question.ANSWER
-    ).order_by("exam__pk", "position")
+    answer_sheet_list = Question.objects.filter(exam=exam, type=Question.ANSWER)
 
     for answer_sheet in answer_sheet_list:
         if not editable:
@@ -308,7 +306,9 @@ def staff_ppnt_detail(request, version, ppnt_id, question_id):
 def export_sql(request, versions):
     response = HttpResponse(content_type="text/csv")
     version_string = "_".join(versions)
-    response["Content-Disposition"] = f'attachment; filename="markings_{version_string}.csv"'
+    response[
+        "Content-Disposition"
+    ] = f'attachment; filename="markings_{version_string}.csv"'
 
     df = get_version_marks(versions)
     df.to_csv(response)
@@ -323,19 +323,11 @@ def export(
 
     csv_rows = []
     title_row = ["Student", "First_Name", "Last_Name", "Delegation", "Version"]
-    mmeta = (
-        MarkingMeta.objects.for_user(request.user)
-        .all()
-        .order_by("question__exam", "question__position", "position")
-    )
+    mmeta = MarkingMeta.objects.for_user(request.user).all()
     for meta in mmeta:
         title_row.append(f"{meta.question.name} - {meta.name} ({meta.max_points})")
     exams = Exam.objects.for_user(request.user)
-    questions = (
-        Question.objects.for_user(request.user)
-        .filter(type=Question.ANSWER)
-        .order_by("exam", "position")
-    )
+    questions = Question.objects.for_user(request.user).filter(type=Question.ANSWER)
     if include_totals:
         for question in questions:
 
@@ -365,16 +357,10 @@ def export(
                 version,
             ]
 
-            version_markings = ppnt_markings.order_by(
-                "marking_meta__question__exam",
-                "marking_meta__question__position",
-                "marking_meta__position",
-            )
-
             # directly iterating over is much simpler but a bit slower than using querysets
             points = []
             all_visible = True
-            for marking in version_markings:
+            for marking in ppnt_markings:
                 delegation = student.delegation
                 action = MarkingAction.objects.get(
                     delegation=delegation, question=marking.marking_meta.question
@@ -403,9 +389,7 @@ def export(
             if include_totals:
                 for question in questions:
                     # Only append total if all markings are visible
-                    q_markings = version_markings.filter(
-                        marking_meta__question=question
-                    )
+                    q_markings = ppnt_markings.filter(marking_meta__question=question)
                     # If some marks are not visible
                     if (
                         all_visible
@@ -422,7 +406,7 @@ def export(
                     if (
                         all_visible
                     ):  # e_markings.exclude(pk__in=visible_ppnt_markings).exists():
-                        e_markings = version_markings.filter(
+                        e_markings = ppnt_markings.filter(
                             marking_meta__question__exam=exam
                         )
                         points_exam = QuestionPointsRescale.external_sum_for_exam(
@@ -492,11 +476,7 @@ def delegation_export(
     writer.writerow(row2)
     totals = [decimal.Decimal(0)] * (len(row1) - 1)
 
-    mmeta = (
-        MarkingMeta.objects.for_user(request.user)
-        .filter(question__exam__in=exams)
-        .order_by("question__exam", "question__position", "position")
-    )
+    mmeta = MarkingMeta.objects.for_user(request.user).filter(question__exam__in=exams)
     for meta in mmeta:
         marking_action = MarkingAction.objects.get(
             delegation=delegation, question=meta.question
@@ -556,7 +536,6 @@ def delegation_summary(
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
 
     delegation = Delegation.objects.get(members=request.user)
-    exams = Exam.objects.for_user(request.user).order_by("pk")
     students = Student.objects.filter(delegation=delegation)
 
     exam_marking_list = []
@@ -565,12 +544,11 @@ def delegation_summary(
     ) | Q(
         marking_delegation_can_see_organizer_marks__gte=Exam.MARKING_DELEGATION_VIEW_WHEN_SUBMITTED
     )
+    exams = Exam.objects.for_user(request.user).filter(exam_filter)
 
-    for exam in exams.filter(exam_filter):
+    for exam in exams:
         participants = Participant.objects.filter(delegation=delegation, exam=exam)
-        answer_sheet_list = Question.objects.filter(
-            exam=exam, type=Question.ANSWER
-        ).order_by("exam__pk", "position")
+        answer_sheet_list = Question.objects.filter(exam=exam, type=Question.ANSWER)
 
         participant_list = []
         view_all = {a.pk: True for a in answer_sheet_list}
@@ -641,6 +619,7 @@ def delegation_summary(
             question_ctx = {
                 "name": question.name,
                 "pk": question.pk,
+                "position": question.position,
                 "view_all": view_all[question.pk],
                 "edit_all": edit_all[question.pk],
             }
@@ -698,6 +677,7 @@ def delegation_summary(
             "questions": question_list,
             "name": exam.name,
             "pk": exam.pk,
+            "code": exam.code,
         }
         exam_marking_list.append(exam_ctxt)
 
@@ -758,7 +738,6 @@ def delegation_summary(
                 Document.objects.for_user(request.user)
                 .filter(participant=participant)
                 .exclude(position=0)  # remove general instructions
-                .order_by("position")
             )
 
             scans_of_participants.append((participant, ppnt_exam_scans_list))
@@ -811,7 +790,7 @@ def delegation_ppnt_edit(
             )
         )
 
-    metas = MarkingMeta.objects.filter(question=question).order_by("position")
+    metas = MarkingMeta.objects.filter(question=question)
 
     delegation = Delegation.objects.filter(members=request.user).first()
     if (
@@ -821,7 +800,7 @@ def delegation_ppnt_edit(
     ):
         marking_query = Marking.objects.filter(
             version="D", participant=participant, marking_meta__question=question
-        ).order_by("marking_meta__position")
+        )
     else:
         marking_query = Marking.objects.none()
 
@@ -930,7 +909,7 @@ def delegation_edit_all(request, question_id):
     ):
         marking_query = Marking.objects.filter(
             version="D", participant__in=participants, marking_meta__question=question
-        ).order_by("marking_meta__position", "participant__code")
+        )
     else:
         marking_query = Marking.objects.none()
 
@@ -977,10 +956,8 @@ def delegation_edit_all(request, question_id):
             )
         )
 
-    documents = (
-        Document.objects.for_user(request.user)
-        .filter(position=question.position, participant__in=participants)
-        .order_by("participant__code")
+    documents = Document.objects.for_user(request.user).filter(
+        position=question.position, participant__in=participants
     )
 
     ctx["documents"] = documents
@@ -1257,14 +1234,12 @@ def delegation_confirm(
             vid = "O"
         else:
             return HttpResponseForbidden("An error occured, please contact support!")
-        ptqueryset = (
-            Marking.objects.filter(  # Note that there is no for_user(), as the delegations will only see the checksum, this is not a problem
-                marking_meta__question=question,
-                participant__delegation=delegation,
-                version=vid,
-            )
-            .order_by("pk")
-            .values_list("points")
+        ptqueryset = Marking.objects.filter(  # Note that there is no for_user(), as the delegations will only see the checksum, this is not a problem
+            marking_meta__question=question,
+            participant__delegation=delegation,
+            version=vid,
+        ).values_list(
+            "points"
         )
         ptlist = [str(p[0]) for p in ptqueryset]
         ptstr = str(ptlist)
@@ -1273,19 +1248,15 @@ def delegation_confirm(
         vid = "D"
         checksum = None
     # questions = Question.objects.filter(exam=exam, type=Question.ANSWER)
-    metas_query = MarkingMeta.objects.filter(question=question).order_by("position")
-    markings_query = (
-        Marking.objects.for_user(request.user, vid)
-        .filter(
-            participant__delegation=delegation,
-            marking_meta__in=metas_query,
-        )
-        .order_by("marking_meta__position", "participant")
+    metas_query = MarkingMeta.objects.filter(question=question)
+    markings_query = Marking.objects.for_user(request.user, vid).filter(
+        participant__delegation=delegation,
+        marking_meta__in=metas_query,
     )
 
     all_markings_query = Marking.objects.filter(
         participant__delegation=delegation, marking_meta__in=metas_query, version=vid
-    ).order_by("marking_meta__position", "participant")
+    )
 
     # if some markings are not visible, we cannot continue
     if list(markings_query.all()) != list(all_markings_query.all()):
@@ -1449,10 +1420,8 @@ def delegation_confirm(
 
 @permission_required("ipho_core.is_marker")
 def moderation_index(request, question_id=None):
-    questions = (
-        Question.objects.for_user(request.user)
-        .filter(exam__moderation__gte=Exam.MODERATION_OPEN, type=Question.ANSWER)
-        .order_by("exam__code", "position")
+    questions = Question.objects.for_user(request.user).filter(
+        exam__moderation__gte=Exam.MODERATION_OPEN, type=Question.ANSWER
     )
     question = (
         None if question_id is None else get_object_or_404(Question, id=question_id)
@@ -1508,12 +1477,8 @@ def moderation_detail(
     # The reason is that upon moderation, all marks should be visible, and final marks are editable
     markings = Marking.objects.filter(marking_meta__in=metas)
     for i, participant in enumerate(participants):
-        markings_official = markings.filter(
-            participant=participant, version="O"
-        ).order_by("marking_meta__position")
-        markings_delegation = markings.filter(
-            participant=participant, version="D"
-        ).order_by("marking_meta__position")
+        markings_official = markings.filter(participant=participant, version="O")
+        markings_delegation = markings.filter(participant=participant, version="D")
 
         diff_color = []
         for off, dele in zip(markings_official, markings_delegation):
@@ -1607,7 +1572,6 @@ def official_marking_index(request, question_id=None):
         .filter(
             exam__marking_organizer_can_enter__gte=Exam.MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED
         )
-        .order_by("exam__code", "position")
     )
     question = (
         None if question_id is None else get_object_or_404(questions, id=question_id)
@@ -1737,12 +1701,25 @@ def official_marking_detail(request, question_id, delegation_id):
             )
         )
 
-    scan_files_ready = (
+    files_ready = {}
+    files_ready["scan"] = (
         Document.objects.scans_ready(request.user)
         .filter(participant__exam=question.exam, position=question.position)
         .filter(participant__delegation=delegation)
         .values_list("participant__pk", flat=True)
     )
+
+    files_ready["full_scan"] = (
+        Document.objects.scans_ready(request.user)
+        .filter(participant__exam=question.exam, position=question.position)
+        .filter(participant__delegation=delegation)
+        .exclude(
+            scan_file_orig__isnull=True,
+        )
+        .exclude(scan_file_orig="")
+        .values_list("participant__pk", flat=True)
+    )
+
     # TODO: display errors
     ctx = {
         "question": question,
@@ -1770,7 +1747,6 @@ def official_marking_confirmed(request, question_id, delegation_id):
         .filter(marking_meta__question=question, participant__delegation=delegation)
         .values("participant")
         .annotate(total=Sum("points"))
-        .order_by("participant")
         .values(
             "participant__pk",
             "total",
@@ -1816,7 +1792,6 @@ def moderation_confirmed(request, question_id, delegation_id):
         )
         .values("participant")
         .annotate(total=Sum("points"))
-        .order_by("participant")
         .values(
             "participant__pk",
             "total",
@@ -1865,15 +1840,12 @@ def marking_submissions(request):
                 )
                 .exclude(delegation__name=OFFICIAL_DELEGATION)
                 .exclude(status=MarkingAction.FINAL)
-                .order_by("delegation__country")
                 .values_list("delegation__country", flat=True),
             )
-            for question in Question.objects.for_user(request.user)
-            .filter(
+            for question in Question.objects.for_user(request.user).filter(
                 exam__marking_delegation_action__gte=Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT,
                 type=Question.ANSWER,
             )
-            .order_by("exam__pk", "position")
         ]
     }
     return render(request, "ipho_marking/marking_submissions.html", ctx)
@@ -1882,29 +1854,19 @@ def marking_submissions(request):
 @permission_required("ipho_core.is_organizer_admin")
 def export_countries_to_moderate(request):
     csv_rows = []
-    title_row = ["Country", "Code"]
+    title_row = ["Code", "Country"]
 
-    questions = (
-        Question.objects.for_user(request.user)
-        .filter(type=Question.ANSWER)
-        .order_by("exam", "position")
+    questions = Question.objects.for_user(request.user).filter(
+        type=Question.ANSWER,
+        exam__marking_delegation_action__gte=Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT,
     )
     for question in questions:
         title_row.append(f"{question.exam.code}-{question.position}")
     csv_rows.append(title_row)
 
-    for delegation in Delegation.objects.exclude(name=OFFICIAL_DELEGATION).order_by(
-        "country"
-    ):
-        x = [delegation.country, delegation.name]
-        for question in (
-            Question.objects.for_user(request.user)
-            .filter(
-                exam__marking_delegation_action__gte=Exam.MARKING_DELEGATION_ACTION_ENTER_SUBMIT,
-                type=Question.ANSWER,
-            )
-            .order_by("exam__pk", "position")
-        ):
+    for delegation in Delegation.objects.exclude(name=OFFICIAL_DELEGATION):
+        x = [delegation.name, delegation.country]
+        for question in questions:
             for status in list(
                 MarkingAction.objects.filter(
                     question=question, delegation=delegation

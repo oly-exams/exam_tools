@@ -14,11 +14,11 @@
             <div class="col-xs-5">
                 <div class="translate-original {% if orig_lang.direction == 'rtl' and field.tag != "equation" and field.tag != "equation_unnumbered" %}rtl{% endif %}" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
                     {% if field.tag == "equation" %}
-                    \({{ field.original_html|safe }}\)
+                    \({{ field.original_with_extra|safe }}\)
                     {% elif field.tag == "equation_unnumbered" %}
-                    \({{ field.original_html|safe }}\)
+                    \({{ field.original_with_extra|safe }}\)
                     {% else %}
-                      {{ field.original_html|safe }} 
+                      {{ field.original_with_extra|safe }}
                     {% endif %}
                 </div>
             </div>
@@ -38,16 +38,16 @@
                 </div>
         {% endif %}
         </div>
-    {% elif field.original_html %}
+    {% elif field.original_with_extra %}
         <div class="row">
             <div class="col-xs-5">
                 <div class="{% if trans_lang.direction == 'rtl' and field.tag != "equation" and field.tag != "equation_unnumbered" %}rtl{% endif %}">
                     {% if field.tag == "equation" %}
-                    \({{ field.original_html|safe }}\)
+                    \({{ field.original_with_extra|safe }}\)
                     {% elif field.tag == "equation_unnumbered" %}
-                    \({{ field.original_html|safe }}\)
+                    \({{ field.original_with_extra|safe }}\)
                     {% else %}
-                      {{ field.original_html|safe }} 
+                      {{ field.original_with_extra|safe }}
                     {% endif %}
                 </div>
             </div>
