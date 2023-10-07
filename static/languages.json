@@ -49,8 +49,8 @@
       "notoserifarmenian"
     ],
     "language": "Armenian",
-    "polyglossia": "english",
-    "polyglossia_options": null
+    "polyglossia": "armenian",
+    "polyglossia_options": "numerals=arabic"
   },
   "asturian": {
     "direction": "ltr",
@@ -139,7 +139,7 @@
       "notosansmyanmar"
     ],
     "language": "Burmese",
-    "polyglossia": null,
+    "polyglossia": "myanmar",
     "polyglossia_options": null
   },
   "cantonese": {
@@ -691,8 +691,8 @@
   "persian": {
     "direction": "rtl",
     "fonts": [
-      "notokufiarabic",
       "notonaskharabic",
+      "notokufiarabic",
       "notonastaliqurdu"
     ],
     "language": "Persian",

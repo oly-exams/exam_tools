@@ -31,10 +31,10 @@
         <tr>
             <th>Participant</th>
             {% for q in questions %}
-            <th>{{ q.question__exam__name }}<br />{{ q.question__name }}<br />{{ q.max_internal_points|floatformat:"-2" }} {% if q.max_external_points != q.max_internal_points %}[scales to {{ q.max_external_points|floatformat:"-2" }}]{%endif%}</th>
+            <th>{{ q.exam__name }}<br />{{ q.name }}<br />({{ q.min_int_points|floatformat:"-2" }},{{ q.max_int_points|floatformat:"-2" }}) {% if q.points_transformed %}[transformes to ({{ q.min_ext_points|floatformat:"-2" }},{{ q.max_ext_points|floatformat:"-2" }})]{%endif%}</th>
             {% endfor %}
             {% for e in exams %}
-            <th>Total<br />{{ e.question__exam__name }}<br />{{ e.exam_points|floatformat:"-2" }}</th>
+            <th>Total<br />{{ e.name }}<br />({{ e.min_total|floatformat:"-2" }},{{ e.max_total|floatformat:"-2" }})</th>
             {% endfor %}
         </tr>
       </thead>

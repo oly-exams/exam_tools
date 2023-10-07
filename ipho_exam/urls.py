@@ -304,6 +304,11 @@ urlpatterns = [
         name="admin-delete-version",
     ),
     path(
+        "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/check_before_accept",
+        views.admin_check_version_before_diff,
+        name="admin-check-version-before-diff",
+    ),
+    path(
         "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/accept",
         views.admin_accept_version,
         name="admin-accept-version",
@@ -399,6 +404,16 @@ urlpatterns = [
         "admin/submissions/<int:submission_id>/delete",
         views.admin_submission_delete,
         name="admin-submission-delete",
+    ),
+    path(
+        "admin/scan-progress/<int:question_id>",
+        views.admin_scan_progress,
+        name="admin-scan-progress",
+    ),
+    path(
+        "admin/scan-progress",
+        views.admin_scan_progress,
+        name="admin-scan-progress",
     ),
     re_path(r"^admin/bulk-print/?$", views.bulk_print, name="bulk-print"),
     path(

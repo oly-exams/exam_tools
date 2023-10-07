@@ -23,6 +23,7 @@ import csv
 import json
 import types
 import random
+import shutil
 import urllib
 import logging
 import traceback
@@ -156,6 +157,10 @@ django_logger = logging.getLogger("django.request")
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
+NO_ANSWER_SHEETS = getattr(settings, "NO_ANSWER_SHEETS", False)
+ONLY_OFFICIAL_ANSWER_SHEETS = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
+ALLOW_ANSLANG_WITHOUT_QLANG = getattr(settings, "ALLOW_ANSLANG_WITHOUT_QLANG", False)
+MAX_NUMBER_LANGUAGES_PER_PPNT = getattr(settings, "MAX_NUMBER_LANGUAGES_PER_PPNT", -1)
 
 
 @login_required
@@ -223,8 +228,9 @@ def wizard(request):
     ).order_by("name")
     ## Exam section
     exam_list = Exam.objects.for_user(request.user)
+    submittable_exams = exam_list.filter(can_submit__gte=Exam.CAN_SUBMIT_YES)
     open_submissions = ExamAction.objects.filter(
-        exam__in=exam_list,
+        exam__in=submittable_exams,
         delegation=delegation,
         action=ExamAction.TRANSLATION,
         status=ExamAction.OPEN,
@@ -418,14 +424,13 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
     )
     if should_forbid is not None:
         return should_forbid
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    if en_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         num_questions = exam.question_set.exclude(type=Question.ANSWER).count()
     else:
         num_questions = exam.question_set.count()
     translation_form = TranslationForm(request.POST or None)
 
-    if en_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         answer_query = Q(translationnode__question__type=Question.ANSWER)
     else:
         answer_query = Q(pk=None)
@@ -458,7 +463,7 @@ def add_translation(request, exam_id):  # pylint: disable=too-many-branches
         questions = exam.question_set.exclude(
             translationnode__language=translation_form.cleaned_data["language"]
         )
-        if en_answer:
+        if ONLY_OFFICIAL_ANSWER_SHEETS:
             questions = questions.exclude(type=Question.ANSWER)
         for question in questions:
             if translation_form.cleaned_data["language"].is_pdf:
@@ -1312,6 +1317,7 @@ def feedbacks_list(
                 "part_position",
                 "comment",
                 "org_comment",
+                "qml_id",
             )
             .order_by("-timestamp")
         )
@@ -1380,6 +1386,7 @@ def feedbacks_list(
             "ipho_exam/partials/feedbacks_tbody.html",
             {
                 "feedbacks": feedbacks,
+                "exam_id": exam_id,
                 "status_choices": Feedback.STATUS_CHOICES,
                 "is_delegation": delegation is not None
                 or request.user.has_perm("ipho_core.is_organizer_admin"),
@@ -1909,7 +1916,11 @@ def admin_list(request):
         return JsonResponse(
             {
                 "content": render_to_string(
-                    "ipho_exam/partials/admin_exam_tbody.html", {"exam": exam}
+                    "ipho_exam/partials/admin_exam_tbody.html",
+                    {
+                        "exam": exam,
+                        "exam_publishable": exam.check_publishability(request.user),
+                    },
                 ),
             }
         )
@@ -2088,6 +2099,81 @@ def admin_delete_version(request, exam_id, question_id, version_num):
 
 
 @permission_required("ipho_core.can_edit_exam")
+def admin_check_version_before_diff(request, exam_id, question_id, version_num):
+    lang_id = OFFICIAL_LANGUAGE_PK
+    print(exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+
+    question = get_object_or_404(
+        Question.objects.for_user(request.user), id=question_id
+    )
+
+    accept_url = reverse(
+        "exam:admin-accept-version",
+        kwargs=dict(
+            exam_id=exam.pk,
+            question_id=question.pk,
+            version_num=int(version_num),
+        ),
+    )
+
+    if question.code == "G":
+        return JsonResponse(
+            {
+                "title": "Nothing to check!",
+                "message": "General Instructions should not have points and are not checked!",
+                "success": True,
+                "url": accept_url,
+            }
+        )
+
+    lang = get_object_or_404(Language, id=lang_id)
+
+    assert lang.versioned
+
+    node = get_object_or_404(
+        VersionNode, question=question, language=lang, status="P", version=version_num
+    )
+
+    try:
+        check_points.check_version(node)
+    except check_points.PointValidationError as exc:
+        check_message = (
+            "<div>Point check identified the following issue:</div><div><ul><li>"
+            + str(exc)
+            + "</ul></div><div>Coninue to diff anyway?</div>"
+        )
+        return JsonResponse(
+            {
+                "title": "Inconsistent Points",
+                "message": check_message,
+                "success": False,
+                "url": accept_url,
+            }
+        )
+    except Exception:  # pylint: disable=broad-except
+        error_msg = f"Error in checking points:\n{traceback.format_exc()}"
+        logger.error(error_msg)
+        # to send e-mails
+        django_logger.error(error_msg)
+        return JsonResponse(
+            {
+                "title": "Error in point check.",
+                "message": "<div>An error has occurred while checking the points consistency.</div><div>Publish anyway?</div>",
+                "success": False,
+                "url": accept_url,
+            }
+        )
+    return JsonResponse(
+        {
+            "title": "Point check successful!",
+            "success": True,
+            "url": accept_url,
+        }
+    )
+
+
+@permission_required("ipho_core.can_edit_exam")
 def admin_accept_version(
     request, exam_id, question_id, version_num, compare_version=None
 ):
@@ -2196,10 +2282,20 @@ def admin_accept_version(
 def admin_publish_version(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
 
-    get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+    exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
+    if not exam.check_publishability(request.user):
+        return JsonResponse(
+            {
+                "success": False,
+                "title": "Not possible",
+                "form": "Publishing new versions is deactivated for this exam!",
+                "hide-publish-button": True,
+            }
+        )
     question = get_object_or_404(
         Question.objects.for_user(request.user), id=question_id
     )
+
     lang = get_object_or_404(Language, id=lang_id)
 
     assert lang.versioned
@@ -2224,13 +2320,24 @@ def admin_publish_version(request, exam_id, question_id, version_num):
         )
 
     form_html = render_crispy_form(publish_form)
+
+    if question.code == "G":
+        return JsonResponse(
+            {
+                "title": "Nothing to check!",
+                "form": "General Instructions should not have points and are not checked!"
+                + form_html,
+                "success": True,
+            }
+        )
+
     try:
         check_points.check_version(node)
     except check_points.PointValidationError as exc:
         check_message = (
-            "<div>Point check identified the following issue:</div><div><strong>"
-            + escape(str(exc))
-            + "</strong></div><div>Publish anyway?</div>"
+            "<div >Point check identified the following issue:</div><div><ul><li>"
+            + str(exc)
+            + "</ul></div>"
         )
         return JsonResponse(
             {
@@ -2276,15 +2383,26 @@ def admin_check_points(request, exam_id, question_id, version_num):
     node = get_object_or_404(
         VersionNode, question=question, language=lang, version=version_num
     )
+
+    if question.code == "G":
+        return JsonResponse(
+            {
+                "title": "Nothing to check!",
+                "msg": "General Instructions should not have points and are not checked!",
+                "class": "bg-warning",
+                "success": True,
+            }
+        )
+
     try:
         (version, other_version) = check_points.check_version(
             node, other_question_status=dict(VersionNode.STATUS_CHOICES).keys()
         )
     except (check_points.PointValidationError, TypeError) as exc:
         check_message = (
-            "<div >Point check identified the following issue:</div><div><strong>"
-            + escape(str(exc))
-            + "</strong></div>"
+            "<div >Point check identified the following issue:</div><div><ul><li>"
+            + str(exc)
+            + "</ul></div>"
         )
         return JsonResponse(
             {
@@ -2294,15 +2412,7 @@ def admin_check_points(request, exam_id, question_id, version_num):
                 "success": False,
             }
         )
-    if version == "G":
-        return JsonResponse(
-            {
-                "title": "Nothing to check!",
-                "msg": "General Instructions should not have points and are not checked!",
-                "class": "bg-warning",
-                "success": True,
-            }
-        )
+
     return JsonResponse(
         {
             "title": "Check succeeded",
@@ -2630,7 +2740,7 @@ def submission_exam_list(request):
 
     exams_open = (
         Exam.objects.for_user(request.user)
-        .filter(can_translate=Exam.get_translatability(request.user))
+        .filter(can_submit=Exam.get_submittability(request.user))
         .exclude(
             delegation_status__in=ExamAction.objects.filter(
                 delegation=delegation,
@@ -3005,18 +3115,19 @@ def submission_exam_assign(
     request, exam_id
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    if not exam.check_translatability(request.user):
+    if not exam.check_submittability(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to submit for this exam."
         )
     delegation = Delegation.objects.get(members=request.user)
-    no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    if en_answer:
+
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         num_questions = exam.question_set.exclude(type=Question.ANSWER).count()
     else:
         num_questions = exam.question_set.count()
-    languages = _get_submission_languages(exam, delegation, not en_answer)
+    languages = _get_submission_languages(
+        exam, delegation, not ONLY_OFFICIAL_ANSWER_SHEETS
+    )
     ex_submission, _ = ExamAction.objects.get_or_create(
         exam=exam, delegation=delegation, action=ExamAction.TRANSLATION
     )
@@ -3029,7 +3140,7 @@ def submission_exam_assign(
     all_valid = True
     with_errors = False
 
-    if en_answer or no_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS or NO_ANSWER_SHEETS:
         lang_id = OFFICIAL_LANGUAGE_PK
         answer_sheet_language = get_object_or_404(Language, id=lang_id)
     else:
@@ -3051,7 +3162,7 @@ def submission_exam_assign(
                 if (ssub.language in form.cleaned_data["languages"]) or (
                     ssub.language == form.cleaned_data["answer_language"]
                 ):
-                    if no_answer:
+                    if NO_ANSWER_SHEETS:
                         ssub.with_answer = False
                     else:
                         ssub.with_answer = (
@@ -3071,7 +3182,7 @@ def submission_exam_assign(
             ):
                 if lang in current_langs:
                     continue
-                if no_answer:
+                if NO_ANSWER_SHEETS:
                     with_answer = False
                 else:
                     with_answer = form.cleaned_data["answer_language"] == lang
@@ -3165,7 +3276,7 @@ def submission_exam_assign(
             reverse("exam:submission-exam-confirm", args=(exam.pk,))
         )
 
-    if en_answer:
+    if ONLY_OFFICIAL_ANSWER_SHEETS:
         answer_query = Q(translationnode__question__type=Question.ANSWER)
     else:
         answer_query = Q(pk=None)
@@ -3204,9 +3315,11 @@ def submission_exam_assign(
             "empty_languages": empty_languages,
             "submission_forms": submission_forms,
             "with_errors": with_errors,
-            "no_answer": no_answer,
-            "no_answer_language": en_answer,
+            "no_answer": NO_ANSWER_SHEETS,
+            "no_answer_language": ONLY_OFFICIAL_ANSWER_SHEETS,
             "answer_language": str(answer_sheet_language),
+            "allow_anslang_without_qlang": ALLOW_ANSLANG_WITHOUT_QLANG,
+            "max_num_languages_per_ppnt": MAX_NUMBER_LANGUAGES_PER_PPNT,
         },
     )
 
@@ -3216,14 +3329,14 @@ def submission_exam_confirm(
     request, exam_id
 ):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
-    if not exam.check_translatability(request.user):
+    if not exam.check_submittability(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to submit for this exam."
         )
     delegation = Delegation.objects.get(members=request.user)
-    no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    languages = _get_submission_languages(exam, delegation, not en_answer)
+    languages = _get_submission_languages(
+        exam, delegation, not ONLY_OFFICIAL_ANSWER_SHEETS
+    )
 
     form_error = ""
 
@@ -3341,8 +3454,8 @@ def submission_exam_confirm(
             "submission_status": ex_submission.status,
             "participants_languages": assigned_participant_language,
             "form_error": form_error,
-            "no_answer": no_answer,
-            "fixed_answer_language": en_answer,
+            "no_answer": NO_ANSWER_SHEETS,
+            "fixed_answer_language": ONLY_OFFICIAL_ANSWER_SHEETS,
         },
     )
 
@@ -3351,9 +3464,9 @@ def submission_exam_confirm(
 def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-branches
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
     delegation = Delegation.objects.get(members=request.user)
-    no_answer = getattr(settings, "NO_ANSWER_SHEETS", False)
-    en_answer = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS", False)
-    languages = _get_submission_languages(exam, delegation, not en_answer)
+    languages = _get_submission_languages(
+        exam, delegation, not ONLY_OFFICIAL_ANSWER_SHEETS
+    )
 
     ex_submission, _ = ExamAction.objects.get_or_create(
         exam=exam, delegation=delegation, action=ExamAction.TRANSLATION
@@ -3416,8 +3529,8 @@ def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-bra
             "submission_status": ex_submission.status,
             "participants_languages": assigned_participant_language,
             "msg": msg,
-            "no_answer": no_answer,
-            "fixed_answer_language": en_answer,
+            "no_answer": NO_ANSWER_SHEETS,
+            "fixed_answer_language": ONLY_OFFICIAL_ANSWER_SHEETS,
         },
     )
 
@@ -4307,6 +4420,57 @@ def pdf_task(request, token):
             {"error_code": err.code, "task_id": task.id},
             status=500,
         )
+
+
+@permission_required("ipho_core.is_marker")
+def admin_scan_progress(request, question_id=None):
+    questions = (
+        Question.objects.for_user(request.user).filter(type=Question.ANSWER).all()
+    )
+    ctx = {"questions": questions}
+
+    if question_id is not None:
+        question = get_object_or_404(
+            Question.objects.for_user(request.user),
+            id=question_id,
+        )
+
+        ctx["can_mark"] = (
+            question.exam.marking_organizer_can_enter
+            >= Exam.MARKING_ORGANIZER_CAN_ENTER_IF_NOT_SUBMITTED
+        )
+
+        documents = (
+            Document.objects.for_user(request.user)
+            .filter(participant__exam=question.exam, position=question.position)
+            .order_by("participant__code")
+        )
+
+        num_docs = documents.count()
+        ctx["scans_all"] = num_docs
+
+        # ctx["documents"] = documents.all()
+
+        num_columns = 5
+        ctx["columns"] = range(num_columns)
+        ctx["documents"] = [
+            documents.all()[i : i + num_columns]
+            for i in range(0, num_docs, num_columns)
+        ]
+        print(ctx["documents"])
+
+        scanned_documents = documents.filter(scan_status="S").count()
+
+        ctx["scans_done"] = scanned_documents
+        ctx["scans_remaining"] = ctx["scans_all"] - ctx["scans_done"]
+
+        ctx["question"] = question
+
+    return render(
+        request,
+        "ipho_exam/admin_scan_progress.html",
+        ctx,
+    )
 
 
 @permission_required("ipho_core.is_printstaff")

@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import forms
+from django.conf import settings
 from django.forms import ModelForm, Form
 
 from crispy_forms.helper import FormHelper
@@ -23,6 +24,8 @@ from crispy_forms.layout import Submit
 
 from ipho_exam.models import Exam
 from .models import Marking
+
+ALLOW_MARKS_NONE = getattr(settings, "ALLOW_MARKS_NONE", False)
 
 
 class UploadMarkingForm(Form):
@@ -48,12 +51,12 @@ class ImportForm(Form):
 
 
 class PointsForm(ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, require_points=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields[
             "points"
-        ].label = f"{self.instance.marking_meta.name} ({self.instance.marking_meta.max_points})"
-        self.fields["points"].required = True
+        ].label = f"{self.instance.marking_meta.name} ({self.instance.marking_meta.min_points},{self.instance.marking_meta.max_points})"
+        self.fields["points"].required = not ALLOW_MARKS_NONE or require_points
         self.fields["comment"].required = False
 
         self.helper = FormHelper()
