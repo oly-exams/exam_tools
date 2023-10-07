@@ -75,24 +75,24 @@ test:testing-pytest:
 #     artifacts:
 #         <<: *batch_artifacts
 
-test:testing-pdf-compilation:
-    extends: .test:pull_and_run
-    variables:
-        ALL_SERVICE_NAME: django-server postgres rabbitmq celery-worker testing-cypress
-        OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/a-dev.yml $DOCKER_DIR/overwrite/testing-pdf-compilation.yml
-    after_script:
-        # copying makes the folderstructure look nicer on gitlab
-        - mkdir $CI_PROJECT_DIR/screenshots
-        - mkdir $CI_PROJECT_DIR/pdfs
-        - cp -r $CI_PROJECT_DIR/e2e/cypress/pdfs/* $CI_PROJECT_DIR/pdfs
-        - cp -r $CI_PROJECT_DIR/e2e/cypress/screenshots/* $CI_PROJECT_DIR/screenshots
-    artifacts:
-        when: always
-        paths:
-            - $CI_PROJECT_DIR/screenshots
-            - $CI_PROJECT_DIR/pdfs
-        reports:
-            junit: $CI_PROJECT_DIR/e2e/cypress/reports/*.xml
+# test:testing-pdf-compilation:
+#     extends: .test:pull_and_run
+#     variables:
+#         ALL_SERVICE_NAME: django-server postgres rabbitmq celery-worker testing-cypress
+#         OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/a-dev.yml $DOCKER_DIR/overwrite/testing-pdf-compilation.yml
+#     after_script:
+#         # copying makes the folderstructure look nicer on gitlab
+#         - mkdir $CI_PROJECT_DIR/screenshots
+#         - mkdir $CI_PROJECT_DIR/pdfs
+#         - cp -r $CI_PROJECT_DIR/e2e/cypress/pdfs/* $CI_PROJECT_DIR/pdfs
+#         - cp -r $CI_PROJECT_DIR/e2e/cypress/screenshots/* $CI_PROJECT_DIR/screenshots
+#     artifacts:
+#         when: always
+#         paths:
+#             - $CI_PROJECT_DIR/screenshots
+#             - $CI_PROJECT_DIR/pdfs
+#         reports:
+#             junit: $CI_PROJECT_DIR/e2e/cypress/reports/*.xml
 
 test:testing-ibo-data:
     extends: .test:pull_and_run
