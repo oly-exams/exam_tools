@@ -1,5 +1,5 @@
 # Feedbacks, help, bugs
 
-Please contact us if you need help with the exam tools or you notice something malfunctioning.
+Please contact a guide or IT staff member if you need help with ExamTools or you notice something malfunctioning.
 
-Contact e-mail: [exam-tools-users@oly-exams.org](mailto:exam-tools-users@oly-exams.org)
+{{ support_contact }}
