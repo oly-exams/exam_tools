@@ -14,7 +14,7 @@
 {% block step-content %}
 <p>Select the languages that you want to deliver to your participants.</p>
 <ul>
-  <li>For each participant more than one language can be delivered.</li>
+  <li>For each participant {{ max_num_languages_per_ppnt }} language{% if max_num_languages_per_ppnt > 1 %}s{% endif %} can be delivered.</li>
   {% if not no_answer %}
     {% if not no_answer_language %}
       <li>The answer sheets will be provided <strong>only in one</strong> language.</li>
@@ -22,9 +22,6 @@
       <li>The answer sheets will be provided <strong>only in {{answer_language}}</strong>.</li>
     {% endif %}
   {% endif %}
-
-    <li>The exam will be provided in only <strong>one</strong> language.</li>
-    <li>An official English version will be available upon request during the exam.</li>
 </ul>
 
 {% if with_errors %}

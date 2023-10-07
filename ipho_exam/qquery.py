@@ -57,7 +57,6 @@ def latest_version(question_id, lang_id, user=None, status=None):
             VersionNode.objects.filter(
                 question=qwp.question, language=qwp.lang, status__in=status
             )
-            .order_by("-version")
             .first()
         )
         if qwp.node is None:

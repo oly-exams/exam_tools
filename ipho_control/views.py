@@ -67,7 +67,7 @@ def add_edit_phase(request, phase_id=None, exam_id=None):
 
 def exam_phase_context(user, exam_id=None):
     """Helper function to create context for cockpit_base.html."""
-    exams = Exam.objects.for_user(user).order_by("pk")
+    exams = Exam.objects.for_user(user)
     if exam_id is None:
         if exams.exists():
             exam_id = exams.first().pk
@@ -276,7 +276,7 @@ def delete_phase(request, phase_id):
 def exam_history(request, exam_id):
     """View for the exam history modal."""
     exam = get_object_or_404(Exam.objects.for_user(request.user), pk=exam_id)
-    history = ExamPhaseHistory.objects.filter(exam=exam).order_by("-timestamp")
+    history = ExamPhaseHistory.objects.filter(exam=exam)
     ctx = {}
     ctx["help_texts_settings"] = ExamPhase.get_exam_field_help_texts()
     ctx["choices_settings"] = ExamPhase.get_exam_field_verbose_choices()

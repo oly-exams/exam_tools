@@ -1,56 +1,55 @@
+/* noto-serif-regular - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
 @font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
   font-family: 'Noto Serif';
-  font-weight: 400;
   font-style: normal;
-  src: url('/static/noto/Noto-Serif-regular.eot');
-  src: url('/static/noto/Noto-Serif-regular.eot?#iefix') format('embedded-opentype'),
-       local('Noto Serif'),
-       local('Noto-Serif-regular'),
-       url('/static/noto/Noto-Serif-regular.woff2') format('woff2'),
-       url('/static/noto/Noto-Serif-regular.woff') format('woff'),
-       url('/static/noto/Noto-Serif-regular.ttf') format('truetype'),
-       url('/static/noto/Noto-Serif-regular.svg#NotoSerif') format('svg');
-}
-
-@font-face {
-  font-family: 'Noto Serif';
-  font-weight: 700;
-  font-style: normal;
-  src: url('/static/noto/Noto-Serif-Bold.eot');
-  src: url('/static/noto/Noto-Serif-Bold.eot?#iefix') format('embedded-opentype'),
-       local('Noto Serif Bold'),
-       local('Noto-Serif-700'),
-       url('/static/noto/Noto-Serif-Bold.woff2') format('woff2'),
-       url('/static/noto/Noto-Serif-Bold.woff') format('woff'),
-       url('/static/noto/Noto-Serif-Bold.ttf') format('truetype'),
-       url('/static/noto/Noto-Serif-Bold.svg#NotoSerif') format('svg');
-}
-
-@font-face {
-  font-family: 'Noto Serif';
   font-weight: 400;
-  font-style: italic;
-  src: url('/static/noto/Noto-Serif-italic.eot');
-  src: url('/static/noto/Noto-Serif-italic.eot?#iefix') format('embedded-opentype'),
-       local('Noto Serif Italic'),
-       local('Noto-Serif-italic'),
-       url('/static/noto/Noto-Serif-italic.woff2') format('woff2'),
-       url('/static/noto/Noto-Serif-italic.woff') format('woff'),
-       url('/static/noto/Noto-Serif-italic.ttf') format('truetype'),
-       url('/static/noto/Noto-Serif-italic.svg#NotoSerif') format('svg');
+  src: url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-regular.eot'); /* IE9 Compat Modes */
+  src: url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-regular.woff2') format('woff2'), /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-regular.woff') format('woff'), /* Chrome 5+, Firefox 3.6+, IE 9+, Safari 5.1+, iOS 5+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-regular.ttf') format('truetype'), /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-regular.svg#NotoSerif') format('svg'); /* Legacy iOS */
 }
 
+/* noto-serif-italic - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
 @font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
   font-family: 'Noto Serif';
-  font-weight: 700;
   font-style: italic;
-  src: url('/static/noto/Noto-Serif-bolditalic.eot');
-  src: url('/static/noto/Noto-Serif-bolditalic.eot?#iefix') format('embedded-opentype'),
-       local('Noto Serif Bold Italic'),
-       local('Noto-Serif-bolditalic'),
-       url('/static/noto/Noto-Serif-bolditalic.woff2') format('woff2'),
-       url('/static/noto/Noto-Serif-bolditalic.woff') format('woff'),
-       url('/static/noto/Noto-Serif-bolditalic.ttf') format('truetype'),
-       url('/static/noto/Noto-Serif-bolditalic.svg#NotoSerif') format('svg');
+  font-weight: 400;
+  src: url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-italic.eot'); /* IE9 Compat Modes */
+  src: url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-italic.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-italic.woff2') format('woff2'), /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-italic.woff') format('woff'), /* Chrome 5+, Firefox 3.6+, IE 9+, Safari 5.1+, iOS 5+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-italic.ttf') format('truetype'), /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-italic.svg#NotoSerif') format('svg'); /* Legacy iOS */
 }
 
+/* noto-serif-700 - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: 'Noto Serif';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700.eot'); /* IE9 Compat Modes */
+  src: url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700.woff2') format('woff2'), /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700.woff') format('woff'), /* Chrome 5+, Firefox 3.6+, IE 9+, Safari 5.1+, iOS 5+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700.ttf') format('truetype'), /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700.svg#NotoSerif') format('svg'); /* Legacy iOS */
+}
+
+/* noto-serif-700italic - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: 'Noto Serif';
+  font-style: italic;
+  font-weight: 700;
+  src: url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700italic.eot'); /* IE9 Compat Modes */
+  src: url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700italic.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700italic.woff2') format('woff2'), /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700italic.woff') format('woff'), /* Chrome 5+, Firefox 3.6+, IE 9+, Safari 5.1+, iOS 5+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700italic.ttf') format('truetype'), /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */
+       url('/static/fonts/noto-serif-v22-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700italic.svg#NotoSerif') format('svg'); /* Legacy iOS */
+}

@@ -71,7 +71,7 @@ for exam in Exam.objects.all():
     all_data += json.loads(s)
 
     for question in questions:
-        node = VersionNode.objects.filter(question=question).order_by("-version").first()
+        node = VersionNode.objects.filter(question=question).first()
         if node is not None:
             s = serialize([node])
             s = s.replace(orig_exam_name, dest_exam_name)

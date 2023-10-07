@@ -24,7 +24,6 @@ from django import forms
 from django.conf import settings
 from django.forms import ModelForm
 from django.forms.formsets import formset_factory
-from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
 from crispy_forms.helper import FormHelper
@@ -65,8 +64,6 @@ class LanguageForm(ModelForm):
         self.user_delegation = kwargs.pop("user_delegation")
         super().__init__(*args, **kwargs)
         instance = getattr(self, "instance", None)
-        if instance and instance.pk:
-            self.fields["name"].widget.attrs["readonly"] = True
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -485,7 +482,7 @@ class AdminBlockForm(forms.Form):
         super().__init__(*args, **kwargs)
         if node.has_text:
             self.fields["block_content"] = node.form_element()
-            self.fields["block_content"].initial = mark_safe(node.content())
+            self.fields["block_content"].initial = node.content()
             self.fields["block_content"].required = False
             self.fields["block_content"].widget.attrs["class"] = "block-content-editor"
         # for k,v in node.attributes.items():

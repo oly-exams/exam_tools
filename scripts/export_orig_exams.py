@@ -85,7 +85,7 @@ figures.extend(Figure.objects.non_polymorphic().all())
 figures.extend(Figure.objects.all())
 save_with_pk(figures, "033_figures.json")
 
-nodes = VersionNode.objects.filter(question__in=questions).order_by("-version")
+nodes = VersionNode.objects.filter(question__in=questions)
 last_nodes = []
 last_nodes_incl = []
 for node in nodes:

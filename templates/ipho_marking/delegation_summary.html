@@ -36,7 +36,7 @@
           <tr>
             <th>Participant</th>
             {% for question in questions %}
-            <th style="max-width: 10em;">{{ question.name }}</th>
+            <th style="max-width: 10em;">{{ question.exam.code }}{{ question.position }} - {{ question.name }}</th>
             {% endfor %}
           </tr>
           {% for participant,scans_list in scans_of_participants %}
@@ -87,7 +87,7 @@
             <tr>
               <th style="font-size:16px;">Participant</th>
               {% for question_ctxt in exam_ctxt.questions %}
-              <th style="font-size:16px;">{{ question_ctxt.name }} {{ question_ctxt.participants }}</th>
+              <th style="font-size:16px;">{{ exam_ctxt.code }}{{ question_ctxt.position }} - {{ question_ctxt.name }}</th>
               {% endfor %}
             </tr>
             {% for participant_ctxt in exam_ctxt.participants %}

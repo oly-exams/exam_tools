@@ -22,9 +22,9 @@
             <div class="col-sm-2 text-center"></div>
 
             <div class="col-xs-5">
-                {% if field.content_html %}
+                {% if field.content_with_extra %}
                 <div class="content-new">
-                    {{ field.content_html|safe }}
+                    {{ field.content_with_extra|safe }}
                 </div>
                 {% endif %}
             </div>
