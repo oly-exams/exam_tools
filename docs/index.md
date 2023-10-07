@@ -32,7 +32,7 @@ Jump directly to the documentation of the individual components:
     * [Exam feedbacks](exam_feedbacks.md)
 
 
-## Feedbacks, Help
+## Feedbacks, help, bugs
 
 Please contact a guide or IT staff member if you need help with ExamTools or you notice something malfunctioning.
 
