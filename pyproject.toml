@@ -65,3 +65,7 @@ DJANGO_SETTINGS_MODULE = "exam_tools.settings_testing"
 testpaths = [
     "test",
 ]
+
+[tool.isort]
+profile = "black"
+py_version=38
