@@ -19,40 +19,39 @@
 import csv
 import decimal
 import itertools
-from hashlib import md5
 from collections import OrderedDict, namedtuple
+from hashlib import md5
 
+import pandas as pd
 from django.conf import settings
-from django.db.models import Sum, F, Q
-from django.urls import reverse
-from django.utils.safestring import mark_safe
+from django.contrib.auth.decorators import permission_required
+from django.db.models import F, Q, Sum
 from django.forms import modelformset_factory
-from django.shortcuts import get_object_or_404, render
 from django.http import (
-    HttpResponseRedirect,
+    Http404,
     HttpResponse,
     HttpResponseForbidden,
-    Http404,
+    HttpResponseRedirect,
 )
-from django.contrib.auth.decorators import permission_required
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from ipho_core.models import Student, Delegation
-from ipho_exam.models import Exam, Participant, Question, Document
+from ipho_core.models import Delegation, Student
+from ipho_exam.models import Document, Exam, Participant, Question
 
+from .export_marking import get_version_marks
+from .forms import ImportForm, PointsForm, UploadMarkingForm
+from .import_marking import generate_template, import_marking
 from .models import (
-    MarkingMeta,
     Marking,
-    QuestionPointsRescale,
     MarkingAction,
+    MarkingMeta,
+    QuestionPointsRescale,
     generate_markings_from_exam,
     sum_if_not_none,
 )
-from .forms import ImportForm, PointsForm, UploadMarkingForm
-from .import_marking import import_marking, generate_template
-from .export_marking import get_version_marks
-
-import pandas as pd
 
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")

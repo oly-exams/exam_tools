@@ -1,7 +1,7 @@
 """creates a PDF with all passwords for login."""
-import subprocess
-import os
 import argparse
+import os
+import subprocess
 
 
 def fill_main(content, oe_logo, logo):
@@ -61,13 +61,13 @@ if __name__ == "__main__":
     # Argentina,ARG,pwd1
     # Armenia,ARM,pwd2
     pathdir = os.path.dirname(os.path.realpath(__file__))
-    csv = os.path.join(
-        pathdir, "delegations_credentials.csv"
-    )  # path to csv file
+    csv = os.path.join(pathdir, "delegations_credentials.csv")  # path to csv file
     file = os.path.join(pathdir, "input_examples", "delegation_password_printout.tex")
 
     url = "ioaa2023.oly-exams.org"  # URL of server
-    oe_logo = os.path.join(pathdir, "../static", "logo_square.png")  # path to OlyExams logo
+    oe_logo = os.path.join(
+        pathdir, "../static", "logo_square.png"
+    )  # path to OlyExams logo
     logo = os.path.join(pathdir, "../static", "ioaa2023_logo.png")  # path to logo
 
     text = ""

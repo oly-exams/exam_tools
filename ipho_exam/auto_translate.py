@@ -15,19 +15,18 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
-import logging
 import json
+import logging
+import re
 from hashlib import md5
+
+import deepl
+from django.conf import settings
+from google.api_core.exceptions import BadRequest
 from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
-from google.api_core.exceptions import BadRequest
-import deepl
-
-from django.conf import settings
 
 from ipho_exam.models import CachedAutoTranslation
-
 
 django_logger = logging.getLogger("django.request")
 logger = logging.getLogger("exam_tools")

@@ -28,7 +28,6 @@ raise NotImplementedError(
 
 from .settings_common import *
 
-
 EVENT_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, "events", "apho2019")
 
 DEBUG = True

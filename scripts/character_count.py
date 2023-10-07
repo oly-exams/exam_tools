@@ -19,10 +19,10 @@
 # -*- coding: utf-8 -*-
 
 
-import re
-import os
-import operator
 import collections
+import operator
+import os
+import re
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 
@@ -30,8 +30,8 @@ import django
 
 django.setup()
 
-from ipho_exam.models import *
 from ipho_exam import qml
+from ipho_exam.models import *
 
 REPLACE_TOKENS = [
     "<[^<>]*>",

@@ -19,29 +19,28 @@
 
 # mskoenz: I added lang, data in Object ctor as None
 
-import re
-import uuid
-import json
 import binascii
+import json
+import re
+import urllib.parse
+import uuid
 from copy import deepcopy
 from decimal import Decimal
 from io import StringIO
 from xml.etree import ElementTree as ET
-import urllib.parse
 
 from future import standard_library
 
 standard_library.install_aliases()
 
 import html_diff
-
+import pandas as pd
 from django import forms
 from django.urls import reverse
-import pandas as pd
 
+from . import tex
 from .models import Figure
 from .utils import string_manipulation
-from . import tex
 
 html_diff.config.tags_fcts_as_blocks.append(
     lambda tag: tag.name == "span" and "math-tex" in tag.attrs.get("class", [])

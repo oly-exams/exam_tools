@@ -28,8 +28,9 @@ import django
 
 django.setup()
 
-from ipho_marking.models import Marking, MarkingMeta
 import random
+
+from ipho_marking.models import Marking, MarkingMeta
 
 
 def main():

@@ -31,22 +31,20 @@ import django
 django.setup()
 from django.conf import settings
 from django.http import HttpRequest
-from django.template.loader import render_to_string
 from django.template.defaultfilters import slugify
-
-from ipho_core.models import Delegation
-from ipho_exam.models import (
-    Exam,
-    Question,
-    Language,
-    ParticipantSubmission,
-    ExamAction,
-    Place,
-)
-from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
+from django.template.loader import render_to_string
 
 import ipho_exam
-from ipho_exam import tasks
+from ipho_core.models import Delegation
+from ipho_exam import fonts, iphocode, pdf, qml, qquery, tasks, tex
+from ipho_exam.models import (
+    Exam,
+    ExamAction,
+    Language,
+    ParticipantSubmission,
+    Place,
+    Question,
+)
 
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")

@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django import forms
-from django.conf import settings
-from django.forms import ModelForm, Form
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
+from django import forms
+from django.conf import settings
+from django.forms import Form, ModelForm
 
 from ipho_exam.models import Exam
+
 from .models import Marking
 
 ALLOW_MARKS_NONE = getattr(settings, "ALLOW_MARKS_NONE", False)

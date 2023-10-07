@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
+import os
+import sys
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 
@@ -23,10 +24,11 @@ import django
 
 django.setup()
 
-from django.core import serializers
 import csv
 
-from ipho_core.models import Delegation, Group, User, Autologin
+from django.core import serializers
+
+from ipho_core.models import Autologin, Delegation, Group, User
 from ipho_poll.models import VotingRight
 
 

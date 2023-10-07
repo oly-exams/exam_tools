@@ -15,32 +15,25 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import concurrent.futures
 import json
 import random
-import concurrent.futures
-from past.utils import old_div
 
 from django.conf import settings
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import (
     login_required,
     permission_required,
     user_passes_test,
 )
-from django.contrib.auth import authenticate, login, logout
-
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from past.utils import old_div
 from pywebpush import WebPushException
 
-
-from ipho_core.models import (
-    User,
-    PushSubscription,
-    RandomDrawLog,
-    Delegation,
-)
-from ipho_core.forms import AccountRequestForm, SendPushForm, RandomDrawForm
+from ipho_core.forms import AccountRequestForm, RandomDrawForm, SendPushForm
+from ipho_core.models import Delegation, PushSubscription, RandomDrawLog, User
 
 DEMO_MODE = getattr(settings, "DEMO_MODE")
 DEMO_SIGN_UP = getattr(settings, "DEMO_SIGN_UP")
@@ -78,7 +71,11 @@ def autologin(request, token):
 @permission_required("ipho_core.can_impersonate")
 def list_impersonate(request):
     users = sorted(
-        [user for user in User.objects.all() if not user.has_perm("ipho_core.can_impersonate")],
+        [
+            user
+            for user in User.objects.all()
+            if not user.has_perm("ipho_core.can_impersonate")
+        ],
         key=lambda user: user.username,
     )
     chunk_size = max(old_div(len(users), 6) + 1, 1)
@@ -88,6 +85,7 @@ def list_impersonate(request):
     return render(
         request, "ipho_core/impersonate.html", {"grouped_users": grouped_users}
     )
+
 
 @permission_required("ipho_core.can_impersonate")
 def impersonate(request, pk):
@@ -100,11 +98,16 @@ def impersonate(request, pk):
     request.session.modified = True
     return redirect(reverse("home"))
 
+
 def impersonate_stop(request):
     user_id = request.session.get("impersonation_user", None)
     if user_id is None:
         return HttpResponseForbidden("No impersonation currently active.")
-    login(request, get_object_or_404(User, id=user_id), backend=DEFAULT_AUTHENTICATION_BACKEND)
+    login(
+        request,
+        get_object_or_404(User, id=user_id),
+        backend=DEFAULT_AUTHENTICATION_BACKEND,
+    )
     return redirect(reverse("home"))
 
 

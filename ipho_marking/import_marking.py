@@ -1,13 +1,12 @@
 import csv
 import os.path
 
-import pandas as pd
 import numpy as np
-
+import pandas as pd
 from django.db.models import Q
 
-from ipho_marking.models import Marking, MarkingMeta, MarkingAction
 from ipho_exam.models import Question
+from ipho_marking.models import Marking, MarkingAction, MarkingMeta
 
 
 def generate_template(question_id, filehandler):

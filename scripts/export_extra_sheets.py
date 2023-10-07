@@ -2,9 +2,9 @@
 #
 # Author:  Dominik Gresch <greschd@gmx.ch>
 
+import csv
 import os
 import sys
-import csv
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 

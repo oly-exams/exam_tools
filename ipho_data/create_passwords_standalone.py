@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-import sys
 import csv
+import sys
 from pathlib import Path
 
 import non_install_helper  # pylint: disable=unused-import,import-error
+
 from ipho_data.creator.base_data import BaseDataCreator
 from ipho_data.creator.password_creator import PasswordCreator
 

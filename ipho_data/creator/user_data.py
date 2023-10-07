@@ -1,10 +1,9 @@
 import string
-import iso3166
 
+import iso3166
 from django.contrib.auth.models import Permission
 
-from ipho_core.models import Group, User
-from ipho_core.models import Delegation, AutoLogin
+from ipho_core.models import AutoLogin, Delegation, Group, User
 from ipho_poll.models import VotingRight
 
 from .base_data import BaseDataCreator

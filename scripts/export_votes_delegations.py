@@ -18,8 +18,8 @@
 #!/usr/bin/env python
 
 import csv
-import sys
 import os
+import sys
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 sys.path.append(".")

@@ -17,41 +17,41 @@
 
 import concurrent.futures
 import datetime
-from dateutil import tz
-from past.utils import old_div
 
-from django.shortcuts import get_object_or_404, render
-from django.http import (
-    HttpResponseRedirect,
-    JsonResponse,
-    Http404,
-)
-from django.urls import reverse
-from django.template.context_processors import csrf
+from crispy_forms.utils import render_crispy_form
+from dateutil import tz
+from django.conf import settings
 from django.contrib.auth.decorators import (
     login_required,
     permission_required,
     user_passes_test,
 )
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.forms import inlineformset_factory, modelform_factory
 from django.core.exceptions import PermissionDenied
-from django.conf import settings
+from django.db.models import Case, Count, F, IntegerField, Sum, When
+from django.forms import inlineformset_factory, modelform_factory
+from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.template.context_processors import csrf
+from django.urls import reverse
 from django.utils import timezone
-from django.db.models import Count, Sum, Case, When, IntegerField, F
-
-from crispy_forms.utils import render_crispy_form
-
+from django.views.decorators.csrf import ensure_csrf_cookie
+from past.utils import old_div
 from pywebpush import WebPushException
-
 
 from ipho_core.models import User
 from ipho_core.utils import is_ajax
-from ipho_exam.models import Feedback, Exam
+from ipho_exam.models import Exam, Feedback
 
-from .models import Voting, VotingChoice, VotingRight, CastedVote, VotingRoom
-from .forms import VotingForm, VotingChoiceForm, CastedVoteForm, EndDateForm
-from .forms import VotingChoiceFormHelper, CastedVoteFormHelper, CastedVoteBaseFormset
+from .forms import (
+    CastedVoteBaseFormset,
+    CastedVoteForm,
+    CastedVoteFormHelper,
+    EndDateForm,
+    VotingChoiceForm,
+    VotingChoiceFormHelper,
+    VotingForm,
+)
+from .models import CastedVote, Voting, VotingChoice, VotingRight, VotingRoom
 
 # staff views
 

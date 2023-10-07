@@ -17,19 +17,18 @@
 
 #!/usr/bin/env python
 
-import os
-import sys
-import io
-import tempfile
-import shutil
-from functools import partial
 import argparse
+import io
+import os
+import shutil
+import sys
+import tempfile
+from functools import partial
 
 from mkdocs import config as mk_config
+from mkdocs.commands import build, serve
 from mkdocs.exceptions import ConfigurationError
 from mkdocs.plugins import BasePlugin
-from mkdocs.commands import build
-from mkdocs.commands import serve
 from mkdocs.structure import files
 
 

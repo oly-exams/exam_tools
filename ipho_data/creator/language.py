@@ -1,4 +1,4 @@
-from ipho_exam.models import Language, Delegation
+from ipho_exam.models import Delegation, Language
 
 from .base_data import BaseDataCreator
 

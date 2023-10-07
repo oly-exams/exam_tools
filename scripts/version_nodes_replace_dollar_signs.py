@@ -1,6 +1,6 @@
-import sys
 import os
 import re
+import sys
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 sys.path.append(".")

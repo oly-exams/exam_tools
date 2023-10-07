@@ -18,15 +18,13 @@
 # coding=utf-8
 
 import os
-import celery
 
+import celery
+from django.conf import settings
 from django.http import HttpRequest
 from django.template.loader import render_to_string
-from django.conf import settings
 
-from ipho_exam import tasks
-from ipho_exam import tex, pdf, qquery, fonts, iphocode
-
+from ipho_exam import fonts, iphocode, pdf, qquery, tasks, tex
 
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")

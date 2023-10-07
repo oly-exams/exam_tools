@@ -17,32 +17,30 @@
 
 # pylint: disable=consider-using-f-string
 
-import os
 import decimal
+import os
 
+from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML, Div, Field, Layout, Submit
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.forms.formsets import formset_factory
-from django.core.exceptions import ValidationError
-
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, Div, HTML
-from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
-
 
 from ipho_exam.models import (
-    Language,
-    Question,
-    Participant,
-    Figure,
-    VersionNode,
-    PDFNode,
+    VALID_FIGURE_EXTENSIONS,
     Feedback,
+    Figure,
+    Language,
+    Participant,
     ParticipantSubmission,
+    PDFNode,
+    Question,
     TranslationImportTmp,
+    VersionNode,
 )
-from ipho_exam.models import VALID_FIGURE_EXTENSIONS
 from ipho_print import printer
 
 ALLOW_ANSLANG_WITHOUT_QLANG = getattr(settings, "ALLOW_ANSLANG_WITHOUT_QLANG", False)

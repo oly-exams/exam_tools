@@ -20,26 +20,25 @@
 # mskoenz: text_direction on 738 inactive, is this intended?
 #         disabled Document.question_name, since it makes no sense
 
-import os
-import uuid
-import time
-import subprocess
 import codecs
+import os
+import subprocess
+import time
+import uuid
 
-
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.conf import settings
 from django.utils import timezone
-
-from polymorphic.models import PolymorphicModel
 from polymorphic.managers import PolymorphicManager
+from polymorphic.models import PolymorphicModel
 
-from ipho_core.models import Delegation, Student
 import ipho_exam
+from ipho_core.models import Delegation, Student
 from ipho_exam import fonts
+
 from .exceptions import IphoExamForbidden
 from .utils import natural_id
 

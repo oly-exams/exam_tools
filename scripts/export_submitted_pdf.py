@@ -21,8 +21,8 @@
 import os
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
-import sys
 import shutil
+import sys
 
 sys.path.append(".")
 
@@ -30,9 +30,9 @@ import django
 
 django.setup()
 from django.conf import settings
-
-from ipho_exam.models import Document, ExamAction, Exam
 from django.db.models import F
+
+from ipho_exam.models import Document, Exam, ExamAction
 
 # BASE_PATH = "/srv/exam_tools/backups/submission_pdf_export/"
 BASE_PATH = "downloads/participant_pdf/"  # inside media folder

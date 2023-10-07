@@ -16,22 +16,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import os
 import codecs
-from pathlib import Path
-import shutil
 import logging
+import os
+import shutil
 import subprocess
 from hashlib import md5
+from io import BytesIO
+from pathlib import Path
 from tempfile import mkdtemp
 
-from io import BytesIO
-from PyPDF2 import PdfFileWriter, PdfFileReader
-
-from django.http import HttpResponse, HttpResponseNotModified
-from django.core.cache import cache
 from django.conf import settings
-
+from django.core.cache import cache
+from django.http import HttpResponse, HttpResponseNotModified
+from PyPDF2 import PdfFileReader, PdfFileWriter
 
 TEMP_PREFIX = getattr(settings, "TEX_TEMP_PREFIX", "render_tex-")
 CACHE_PREFIX = getattr(settings, "TEX_CACHE_PREFIX", "render-tex")

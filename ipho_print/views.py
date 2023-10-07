@@ -16,20 +16,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.http import (
-    JsonResponse,
-)
-from django.template.context_processors import csrf
-from django.conf import settings
 from crispy_forms.utils import render_crispy_form
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.template.context_processors import csrf
 
 from ipho_core.utils import is_ajax
 
-from .forms import PrintForm
-
 from . import printer
+from .forms import PrintForm
 
 PRINTER_QUEUES = getattr(settings, "PRINTER_QUEUES")
 

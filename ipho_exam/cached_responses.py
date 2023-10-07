@@ -21,12 +21,9 @@ import logging
 from hashlib import md5
 
 from django.conf import settings
-from django.http import (
-    HttpResponseNotModified,
-    HttpResponseRedirect,
-)
-from django.urls import reverse
 from django.core.cache import cache
+from django.http import HttpResponseNotModified, HttpResponseRedirect
+from django.urls import reverse
 
 from ipho_exam import tasks
 

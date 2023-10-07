@@ -15,15 +15,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, HiddenInput, RadioSelect, BaseInlineFormSet
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Div, HTML
-
+from django.forms import BaseInlineFormSet, HiddenInput, ModelForm, RadioSelect
 
 from ipho_exam.models import Feedback
-from ipho_poll.models import Voting, VotingChoice, CastedVote
+from ipho_poll.models import CastedVote, Voting, VotingChoice
 
 
 class VotingForm(ModelForm):

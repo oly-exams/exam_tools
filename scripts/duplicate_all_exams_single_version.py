@@ -27,11 +27,14 @@ import django
 
 django.setup()
 
-from django.core import serializers
-from ipho_exam.models import Exam, Question, VersionNode, ExamAction
-from ipho_control.models import ExamPhase
 import json
 from io import StringIO
+
+from django.core import serializers
+
+from ipho_control.models import ExamPhase
+from ipho_exam.models import Exam, ExamAction, Question, VersionNode
+
 
 def serialize(objs):
     ss = StringIO()
@@ -44,6 +47,7 @@ def serialize(objs):
         stream=ss,
     )
     return ss.getvalue()
+
 
 all_data = []
 for exam in Exam.objects.all():

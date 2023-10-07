@@ -16,11 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from django.urls import include, path, re_path
 from django.conf import settings
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
+from django.urls import include, path, re_path
 
 admin.autodiscover()
 
@@ -29,7 +29,6 @@ from django.contrib.auth import views as auth_views
 import ipho_core.views
 
 from . import static_views
-
 
 urlpatterns = [
     # Examples:

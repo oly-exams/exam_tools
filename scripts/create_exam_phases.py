@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
-
+import os
+import sys
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 sys.path.append(".")
@@ -27,8 +27,8 @@ django.setup()
 
 import json
 
-from ipho_exam.models import Exam
 from ipho_control.models import ExamPhase
+from ipho_exam.models import Exam
 
 
 def log(*args):

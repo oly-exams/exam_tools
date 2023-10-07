@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import sys
 import os
 import os.path
+import sys
 
 if __name__ == "__main__":
     output_dir = sys.argv[1]

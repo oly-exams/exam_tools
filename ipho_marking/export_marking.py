@@ -1,7 +1,8 @@
 import pandas as pd
 from django.db import connection
 
-sql_query = lambda version: f"""
+sql_query = (
+    lambda version: f"""
 SELECT s.code AS "Student code",
        s.first_name AS "First name",
        s.last_name AS "Last name",
@@ -18,6 +19,7 @@ SELECT s.code AS "Student code",
         (s.code, s.first_name, s.last_name)
 );
 """
+)
 
 
 def get_version_marks(versions):

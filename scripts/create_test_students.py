@@ -15,8 +15,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from past.utils import old_div
 import os
+
+from past.utils import old_div
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 
@@ -25,6 +26,7 @@ import django
 django.setup()
 
 import csv
+
 from ipho_core.models import Delegation, Student
 
 

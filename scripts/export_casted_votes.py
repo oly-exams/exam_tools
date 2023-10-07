@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import csv
 import os
 import os.path
 import sys
-import csv
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 sys.path.append(".")
@@ -28,7 +28,7 @@ import django
 django.setup()
 from django.conf import settings
 
-from ipho_poll.models import Voting, CastedVote, VotingRight
+from ipho_poll.models import CastedVote, Voting, VotingRight
 
 
 def export_casted_votes(voting_pks):

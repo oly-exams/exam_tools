@@ -17,12 +17,11 @@
 
 
 from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework import viewsets, mixins
+from rest_framework import mixins, viewsets
 
 from ipho_exam.models import Document
-from ipho_exam.serializers import DocumentSerializer
 from ipho_exam.permissions import HasValidApiKeyOrAdmin
+from ipho_exam.serializers import DocumentSerializer
 
 
 class DocumentViewSet(

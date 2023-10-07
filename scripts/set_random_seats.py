@@ -24,9 +24,9 @@ import django
 
 django.setup()
 
-from ipho_exam.models import Participant, Place, Exam
-
 import random
+
+from ipho_exam.models import Exam, Participant, Place
 
 
 def main():
