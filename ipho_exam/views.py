@@ -17,140 +17,123 @@
 
 # pylint: disable=too-many-lines, consider-using-f-string
 
-import os
-import re
 import csv
-import json
-import types
-import random
-import shutil
-import urllib
-import logging
-import traceback
 import itertools
+import json
+import logging
+import os
+import random
+import re
+import shutil
+import traceback
+import types
+import urllib
+from collections import OrderedDict, defaultdict
+from copy import deepcopy
 from hashlib import md5
 from pathlib import Path
-from copy import deepcopy
-from collections import OrderedDict, defaultdict
 
-from PyPDF2 import PdfFileMerger
-
-# coding=utf-8
-from django.shortcuts import get_object_or_404, render, redirect
-from django.http import (
-    HttpResponseRedirect,
-    HttpResponse,
-    HttpResponseNotModified,
-    JsonResponse,
-    Http404,
-    HttpResponseForbidden,
-)
-from django.http.request import QueryDict
-
-from django.urls import reverse
+from celery.result import AsyncResult
+from crispy_forms.utils import render_crispy_form
+from django.conf import settings
 from django.contrib.auth.decorators import (
     login_required,
     permission_required,
     user_passes_test,
 )
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.template.context_processors import csrf
-from django.template import RequestContext
-from django.template.loader import render_to_string
-from django.db.models import (
-    Q,
-    Sum,
-    Case,
-    When,
-    IntegerField,
-    F,
-    Max,
-    Count,
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Case, Count, F, IntegerField, Max, Q, Sum, When
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseForbidden,
+    HttpResponseNotModified,
+    HttpResponseRedirect,
+    JsonResponse,
 )
-from django.template.defaultfilters import slugify
-from django.utils.html import escape
-from django.conf import settings
-from django.utils import timezone
+from django.http.request import QueryDict
 
-from crispy_forms.utils import render_crispy_form
+# coding=utf-8
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template import RequestContext
+from django.template.context_processors import csrf
+from django.template.defaultfilters import slugify
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.html import escape
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from PyPDF2 import PdfFileMerger
 from pywebpush import WebPushException
 
-from celery.result import AsyncResult
-
+import ipho_exam
 from ipho_core.models import Delegation, RandomDrawLog
 from ipho_core.utils import is_ajax
-
-import ipho_exam
-from ipho_exam import tasks
-from ipho_exam.models import (
-    Exam,
-    Participant,
-    Question,
-    VersionNode,
-    TranslationNode,
-    PDFNode,
-    Language,
-    Figure,
-    CompiledFigure,
-    RawFigure,
-    Feedback,
-    FeedbackComment,
-    Like,
-    ParticipantSubmission,
-    ExamAction,
-    TranslationImportTmp,
-    Document,
-    DocumentTask,
-    PrintLog,
-    Place,
-    CachedAutoTranslation,
-    CachedHTMLDiff,
-)
-from ipho_exam.models import (
-    VALID_RAW_FIGURE_EXTENSIONS,
-    VALID_COMPILED_FIGURE_EXTENSIONS,
-)
 from ipho_exam import (
-    qml,
-    tex,
-    pdf,
-    iphocode,
-    qquery,
-    fonts,
     cached_responses,
+    check_points,
+    fonts,
+    iphocode,
+    pdf,
+    qml,
+    qquery,
     question_utils,
-)
-from ipho_exam.response import render_odt_response
-
-from ipho_exam import check_points
-from ipho_exam.forms import (
-    LanguageForm,
-    FigureForm,
-    TranslationForm,
-    ExamQuestionForm,
-    DeleteForm,
-    VersionNodeForm,
-    PDFNodeForm,
-    FeedbackForm,
-    AdminBlockForm,
-    AdminBlockAttributeFormSet,
-    AdminBlockAttributeHelper,
-    SubmissionAssignForm,
-    AssignTranslationForm,
-    TranslationImportForm,
-    AdminImportForm,
-    PrintDocsForm,
-    ScanForm,
-    DelegationScanForm,
-    DelegationScanManyForm,
-    ExtraSheetForm,
-    PublishForm,
-    FeedbackCommentForm,
+    tasks,
+    tex,
 )
 from ipho_exam.auto_translate import auto_translate_helper
+from ipho_exam.forms import (
+    AdminBlockAttributeFormSet,
+    AdminBlockAttributeHelper,
+    AdminBlockForm,
+    AdminImportForm,
+    AssignTranslationForm,
+    DelegationScanForm,
+    DelegationScanManyForm,
+    DeleteForm,
+    ExamQuestionForm,
+    ExtraSheetForm,
+    FeedbackCommentForm,
+    FeedbackForm,
+    FigureForm,
+    LanguageForm,
+    PDFNodeForm,
+    PrintDocsForm,
+    PublishForm,
+    ScanForm,
+    SubmissionAssignForm,
+    TranslationForm,
+    TranslationImportForm,
+    VersionNodeForm,
+)
+from ipho_exam.models import (
+    VALID_COMPILED_FIGURE_EXTENSIONS,
+    VALID_RAW_FIGURE_EXTENSIONS,
+    CachedAutoTranslation,
+    CachedHTMLDiff,
+    CompiledFigure,
+    Document,
+    DocumentTask,
+    Exam,
+    ExamAction,
+    Feedback,
+    FeedbackComment,
+    Figure,
+    Language,
+    Like,
+    Participant,
+    ParticipantSubmission,
+    PDFNode,
+    Place,
+    PrintLog,
+    Question,
+    RawFigure,
+    TranslationImportTmp,
+    TranslationNode,
+    VersionNode,
+)
+from ipho_exam.response import render_odt_response
 from ipho_print import printer
-
 
 logger = logging.getLogger("ipho_exam")
 django_logger = logging.getLogger("django.request")

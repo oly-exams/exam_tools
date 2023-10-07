@@ -20,15 +20,15 @@
 import os
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
-import sys
 import datetime
+import sys
 
 import django
 
 django.setup()
 
-from django.utils import timezone
 from django.core import serializers
+from django.utils import timezone
 
 from ipho_marking.models import Marking
 

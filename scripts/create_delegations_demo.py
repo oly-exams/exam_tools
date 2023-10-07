@@ -25,6 +25,7 @@ import django
 django.setup()
 
 import csv
+
 from ipho_core.models import Delegation, Student
 
 

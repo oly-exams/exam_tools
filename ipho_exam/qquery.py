@@ -15,17 +15,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.shortcuts import get_object_or_404
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 
-from ipho_exam.models import (
-    Question,
-    VersionNode,
-    TranslationNode,
-    PDFNode,
-    Language,
-)
 from ipho_exam import qml
+from ipho_exam.models import Language, PDFNode, Question, TranslationNode, VersionNode
 
 
 class Qwrapper:
@@ -53,12 +47,9 @@ def latest_version(question_id, lang_id, user=None, status=None):
         return qwp
 
     if qwp.lang.versioned:
-        qwp.node = (
-            VersionNode.objects.filter(
-                question=qwp.question, language=qwp.lang, status__in=status
-            )
-            .first()
-        )
+        qwp.node = VersionNode.objects.filter(
+            question=qwp.question, language=qwp.lang, status__in=status
+        ).first()
         if qwp.node is None:
             raise Http404("No VersionNode found.")
     else:

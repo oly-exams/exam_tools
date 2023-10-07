@@ -23,7 +23,6 @@ import warnings
 
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning, NavigableString
 
-
 warnings.filterwarnings(
     "ignore", category=MarkupResemblesLocatorWarning
 )  # ignore bs4 warnings

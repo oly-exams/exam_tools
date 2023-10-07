@@ -25,7 +25,8 @@ import django
 django.setup()
 
 import csv
-from ipho_core.models import Delegation, User, Group, AutoLogin
+
+from ipho_core.models import AutoLogin, Delegation, Group, User
 
 
 def main(input, autologins):

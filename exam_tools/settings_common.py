@@ -17,10 +17,9 @@
 
 # Django settings for exam_tools project.
 
-import subprocess
-
 # Import the OS module and work out our project's paths
 import os
+import subprocess
 
 # pylint: disable = consider-using-f-string
 

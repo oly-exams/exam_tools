@@ -1,7 +1,7 @@
-import csv
-import random
-import datetime
 import collections
+import csv
+import datetime
+import random
 from contextlib import contextmanager
 
 

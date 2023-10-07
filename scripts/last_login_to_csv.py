@@ -37,12 +37,12 @@ from ipho_core.models import User
 
 all_users = list(User.objects.all())
 
-with open(out_file, 'w', encoding='utf-8') as out_f:
+with open(out_file, "w", encoding="utf-8") as out_f:
     out_f.write("username,last_login\n")
     for u in all_users:
         last_login = u.last_login
         if last_login is None:
-            last_login_str = ''
+            last_login_str = ""
         else:
             last_login_str = last_login.isoformat()
         out_f.write(f"{u.username},{last_login_str}\n")

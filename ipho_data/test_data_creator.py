@@ -1,22 +1,19 @@
 import shutil
-from pathlib import Path
 from contextlib import contextmanager, suppress
+from pathlib import Path
 
 from django.conf import settings
 from django.db import connections
 from django.utils import lorem_ipsum
 
 from ipho_core.models import Delegation
+from ipho_data.data_creator import DataCreator
+from ipho_data.ibo2019_qml_data import IBO2019_DATA
+from ipho_data.imko_qml_theory_data import IMKO_THEORY_DATA
+from ipho_data.ipho2016_qml_experiment_data import IPHO2016_EXPERIMENT_DATA
+from ipho_data.ipho2016_qml_theory_data import IPHO2016_THEORY_DATA
 from ipho_exam.models import Question
 from ipho_marking.models import MarkingAction
-
-
-from ipho_data.ipho2016_qml_theory_data import IPHO2016_THEORY_DATA
-from ipho_data.ipho2016_qml_experiment_data import IPHO2016_EXPERIMENT_DATA
-from ipho_data.imko_qml_theory_data import IMKO_THEORY_DATA
-from ipho_data.ibo2019_qml_data import IBO2019_DATA
-
-from ipho_data.data_creator import DataCreator
 
 DEFAULT_DATABASE_NAME = settings.DATABASES["default"]["NAME"]
 

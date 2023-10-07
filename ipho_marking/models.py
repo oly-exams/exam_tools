@@ -19,18 +19,17 @@ import operator
 from collections import OrderedDict
 from functools import reduce
 
-from django.db import models
-from django.db.models import Q
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.dispatch import receiver
+from django.db import models
+from django.db.models import Q, Sum
 from django.db.models.signals import post_save
-from django.db.models import Sum
+from django.dispatch import receiver
 
 from ipho_core.models import Delegation
-from ipho_exam.models import Participant, Question, Exam
-from ipho_exam import qquery as qwquery
 from ipho_exam import qml
+from ipho_exam import qquery as qwquery
+from ipho_exam.models import Exam, Participant, Question
 
 OFFICIAL_LANGUAGE_PK = 1
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")

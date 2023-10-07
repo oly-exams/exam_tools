@@ -21,20 +21,15 @@
 import itertools
 import os
 from hashlib import md5
-import requests
 
+import requests
+from django.conf import settings
 from django.http import HttpRequest
+from django.template.loader import render_to_string
 from django.urls import reverse
 
-from django.template.loader import render_to_string
-
-from django.conf import settings
-
-from ipho_exam.models import (
-    DocumentTask,
-    get_ppnt_on_stud_exam,
-)
-from ipho_exam import tex, pdf, qquery, fonts, iphocode
+from ipho_exam import fonts, iphocode, pdf, qquery, tex
+from ipho_exam.models import DocumentTask, get_ppnt_on_stud_exam
 
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")

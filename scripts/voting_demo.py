@@ -28,8 +28,9 @@ import django
 
 django.setup()
 
-from ipho_poll.models import Voting, VotingChoice, CastedVote, VotingRight
 import random
+
+from ipho_poll.models import CastedVote, Voting, VotingChoice, VotingRight
 
 
 def main():

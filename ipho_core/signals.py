@@ -1,12 +1,9 @@
-import time
 import logging
+import time
 
-from ipware import get_client_ip
 from django.conf import settings
-from django.contrib.auth.signals import (
-    user_logged_in,
-    user_logged_out,
-)
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from ipware import get_client_ip
 
 # this is not the right place for this, but for now I put it here
 if getattr(settings, "RECORD_USER_LOGIN_LOGOUT_IPS"):

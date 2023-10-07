@@ -15,14 +15,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from past.utils import old_div
+from io import StringIO
+
 import barcode
-from barcode.writer import ImageWriter, SVGWriter
+import cairosvg
 import qrcode
 import qrcode.image.svg
+from barcode.writer import ImageWriter, SVGWriter
 from lxml import etree
-from io import StringIO
-import cairosvg
+from past.utils import old_div
 
 code = "TTT-S-3 T-4 Q-2"
 img_w = 50
@@ -76,7 +77,7 @@ with open("outcode.pdf", "w") as fp:
 
 ## Add to PDF
 def add_barcode(fname):
-    from PyPDF2 import PdfFileWriter, PdfFileReader
+    from PyPDF2 import PdfFileReader, PdfFileWriter
 
     pdfdoc = PdfFileReader(open(fname, "rb"))
 

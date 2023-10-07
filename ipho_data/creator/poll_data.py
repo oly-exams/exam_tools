@@ -1,6 +1,8 @@
 from datetime import timedelta
+
 from django.utils import timezone
-from ipho_poll.models import VotingRight, Voting, VotingChoice, CastedVote, VotingRoom
+
+from ipho_poll.models import CastedVote, Voting, VotingChoice, VotingRight, VotingRoom
 
 from .base_data import BaseDataCreator
 

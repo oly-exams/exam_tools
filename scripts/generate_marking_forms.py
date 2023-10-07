@@ -18,8 +18,9 @@
 #!/usr/bin/env python
 
 
-import pdfkit
 import os
+
+import pdfkit
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 import sys
@@ -27,22 +28,20 @@ import sys
 import django
 
 django.setup()
+import decimal
+
 from django.conf import settings
-
-from django.shortcuts import get_object_or_404
+from django.db.models import F, Sum
+from django.forms import inlineformset_factory, modelformset_factory
 from django.http import HttpRequest
-
-from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+from django.urls import reverse
 
 from ipho_core.models import Delegation
-from ipho_exam.models import Participant, Exam, Question
-
-from django.db.models import Sum, F
-from ipho_marking.models import MarkingMeta, Marking
+from ipho_exam.models import Exam, Participant, Question
 from ipho_marking.forms import ImportForm, PointsForm
-from django.forms import modelformset_factory, inlineformset_factory
-import decimal
+from ipho_marking.models import Marking, MarkingMeta
 
 
 def moderation_detail(question_id, delegation_id, request=HttpRequest()):

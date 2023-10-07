@@ -119,7 +119,12 @@ urlpatterns = [
         name="countries-to-moderate",
     ),
     path("all/export.csv", views.export, name="export"),
-    path("all/export-final.csv", views.export_sql, name="export-total", kwargs={'versions': ['F']}),
+    path(
+        "all/export-final.csv",
+        views.export_sql,
+        name="export-total",
+        kwargs={"versions": ["F"]},
+    ),
     path("marking-submissions", views.marking_submissions, name="marking-submissions"),
     path("progress", views.progress, name="progress"),
 ]

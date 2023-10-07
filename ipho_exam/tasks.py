@@ -17,13 +17,13 @@
 
 
 from hashlib import md5
-from celery import shared_task
 
-from django_celery_results.models import TaskResult
+from celery import shared_task
 from django.core.files.base import ContentFile
 from django.utils import timezone
+from django_celery_results.models import TaskResult
 
-from ipho_exam import pdf, compile_utils, models
+from ipho_exam import compile_utils, models, pdf
 
 
 ## utils

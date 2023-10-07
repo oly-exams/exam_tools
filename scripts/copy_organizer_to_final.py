@@ -5,8 +5,8 @@ This is useful for exams without moderation.
 import os
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
-import sys
 import shutil
+import sys
 
 sys.path.append(".")
 
@@ -15,8 +15,8 @@ import django
 django.setup()
 from django.conf import settings
 from django.db.models import Q
-from ipho_exam.models import Question
 
+from ipho_exam.models import Question
 from ipho_marking.models import Marking
 
 exams = Exam.objects.filter(name__in=names)

@@ -25,34 +25,31 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 import django
 
 django.setup()
-from django.conf import settings
-
-from django.shortcuts import get_object_or_404
-from django.http import HttpRequest
-
-from django.urls import reverse
-from django.core.context_processors import csrf
 from crispy_forms.utils import render_crispy_form
-from django.template.loader import render_to_string
-from django.db.models import Sum
-
 from django.conf import settings
+from django.core.context_processors import csrf
+from django.db.models import Sum
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
+from django.urls import reverse
+
 from ipho_core.models import Delegation
+from ipho_exam import fonts, iphocode, pdf, qml, qquery, tex
 from ipho_exam.models import (
     Exam,
-    Participant,
-    Question,
-    VersionNode,
-    TranslationNode,
-    PDFNode,
-    Language,
-    Figure,
-    Feedback,
-    ParticipantSubmission,
     ExamAction,
+    Feedback,
+    Figure,
+    Language,
+    Participant,
+    ParticipantSubmission,
+    PDFNode,
+    Question,
+    TranslationNode,
+    VersionNode,
 )
 from ipho_marking.models import Marking, MarkingMeta
-from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
 
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 

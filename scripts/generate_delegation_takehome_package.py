@@ -21,36 +21,26 @@
 import os
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
-import sys
 import shutil
+import sys
 
 sys.path.append(".")
 
 import django
 
 django.setup()
-from django.conf import settings
-
-from django.shortcuts import get_object_or_404
-from django.http import HttpRequest
-
-from django.template.loader import render_to_string
-from django.template.defaultfilters import slugify
-
-
-from django.conf import settings
-from ipho_core.models import Delegation
-from ipho_exam.models import (
-    Exam,
-    Question,
-    Language,
-)
-from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
-
-import ipho_exam
-from ipho_exam import tasks
 import celery
 from celery.result import AsyncResult
+from django.conf import settings
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404
+from django.template.defaultfilters import slugify
+from django.template.loader import render_to_string
+
+import ipho_exam
+from ipho_core.models import Delegation
+from ipho_exam import fonts, iphocode, pdf, qml, qquery, tasks, tex
+from ipho_exam.models import Exam, Language, Question
 
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")

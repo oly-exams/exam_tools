@@ -17,14 +17,14 @@
 
 # pylint: disable=c-extension-no-member, consider-using-f-string
 
-from past.utils import old_div
-from django.conf import settings
 import barcode
-from barcode.writer import SVGWriter
+import cairosvg
 import qrcode
 import qrcode.image.svg
+from barcode.writer import SVGWriter
+from django.conf import settings
 from lxml import etree
-import cairosvg
+from past.utils import old_div
 
 
 class QuestionBarcodeGen:

@@ -16,16 +16,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import uuid
 import json
-from django.db import models
-from django.conf import settings
+import uuid
 
-# other modules expect Group to be here
-from django.contrib.auth.models import Group  # pylint: disable=unused-import
+from django.conf import settings
 
 # User should not be imported directly (pylint-django:E5142)
 from django.contrib.auth import get_user_model
+
+# other modules expect Group to be here
+from django.contrib.auth.models import Group  # pylint: disable=unused-import
+from django.db import models
 
 User = get_user_model()
 

@@ -9,9 +9,13 @@ get_hex = lambda: uuid.uuid4().hex
 
 
 def ensure_escaped(s):
-    if re.search(r"[\\~]|\d\.\d", s) is not None and re.search(r"\$|\\[\[(]", s) is None:
+    if (
+        re.search(r"[\\~]|\d\.\d", s) is not None
+        and re.search(r"\$|\\[\[(]", s) is None
+    ):
         s = "$" + s + "$"
     return html.escape(s)
+
 
 def make_multi_escape(s):
     begin = "\\multicolumn"
@@ -31,11 +35,14 @@ def make_multi_escape(s):
             if c == "}":
                 lvl -= 1
                 if lvl == 0:
-                    parts.append(s[last_i + 1:i])
+                    parts.append(s[last_i + 1 : i])
                     last_i = None
         assert lvl == 0, s
         assert len(parts) == 3
-        return f"""<multicolumncell columns="{parts[1]}" size="{parts[0]}" id="{get_hex()}">{ensure_escaped(parts[2])}</multicolumncell>""", int(parts[0])
+        return (
+            f"""<multicolumncell columns="{parts[1]}" size="{parts[0]}" id="{get_hex()}">{ensure_escaped(parts[2])}</multicolumncell>""",
+            int(parts[0]),
+        )
     else:
         return ensure_escaped(s), 1
 
@@ -58,7 +65,7 @@ def tex2xml(file):
     i = content.find(begin)
     colspec = None
     if i != -1:
-        content = content[i + len(begin):].strip()
+        content = content[i + len(begin) :].strip()
         assert content.startswith("{")
         k = 1
         i = 1
@@ -71,7 +78,7 @@ def tex2xml(file):
                 k -= 1
             if k == 0:
                 colspec = content[1:i]
-                content = content[i + 1:]
+                content = content[i + 1 :]
                 break
             i += 1
     j = content.find(end)
@@ -84,7 +91,7 @@ def tex2xml(file):
     lines_after = [0 for __ in rows]
     for i, row in enumerate(rows):
         while row.startswith(hline):
-            row = row[len(hline):].strip()
+            row = row[len(hline) :].strip()
             if i == 0:
                 lines_before += 1
             else:
@@ -94,15 +101,18 @@ def tex2xml(file):
         assert lines_after[-1] == 0
         rows = rows[:-1]
         lines_after = lines_after[:-1]
-    cells = [[make_multi_escape(c.strip()) for c in re.split(r"(?<!\\)&", row)] for row in rows]
+    cells = [
+        [make_multi_escape(c.strip()) for c in re.split(r"(?<!\\)&", row)]
+        for row in rows
+    ]
     sizes = [[c[1] for c in row] for row in cells]
     cells = [[c[0] for c in row] for row in cells]
     n = max(sum(size) for size in sizes)
-#    for i, (row, size) in enumerate(zip(cells, sizes)):
-#        if sum(size) < n:
-#            cells[i] = row + [""]*(n - sum(size))
+    #    for i, (row, size) in enumerate(zip(cells, sizes)):
+    #        if sum(size) < n:
+    #            cells[i] = row + [""]*(n - sum(size))
     if colspec is None:
-        colspec = "|l"*n + "|"
+        colspec = "|l" * n + "|"
 
     xml = f'<table columns="{colspec}" top_line="{lines_before}" id="{get_hex()}">\n'
     for row, bline in zip(cells, lines_after):

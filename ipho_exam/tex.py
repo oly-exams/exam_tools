@@ -23,7 +23,6 @@ from django.template.loader import render_to_string
 
 from ipho_exam.models import Figure
 
-
 TEMP_PREFIX = getattr(settings, "TEX_TEMP_PREFIX", "render_tex-")
 CACHE_PREFIX = getattr(settings, "TEX_CACHE_PREFIX", "render-tex")
 CACHE_TIMEOUT = getattr(settings, "TEX_CACHE_TIMEOUT", 60)  # 1 min

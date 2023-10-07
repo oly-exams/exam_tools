@@ -16,21 +16,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 # User should not be imported directly (pylint-django:E5142)
 from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 User = get_user_model()
 
 
 from ipho_core.models import (
-    Delegation,
-    Student,
-    AutoLogin,
     AccountRequest,
+    AutoLogin,
+    Delegation,
     PushSubscription,
     RandomDrawLog,
+    Student,
 )
 
 # Register your models here.

@@ -1,4 +1,5 @@
 import os
+
 import django
 
 if "DJANGO_SETTINGS_MODULE" not in os.environ:

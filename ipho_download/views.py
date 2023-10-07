@@ -15,23 +15,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import operator
-import mimetypes
-import hashlib
 import datetime
+import hashlib
+import mimetypes
+import operator
+import os
 import shutil
+
 import pytz
 from crispy_forms.utils import render_crispy_form
-
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpResponse, HttpResponseNotModified, Http404, JsonResponse
 from django.conf import settings
+from django.contrib.auth.decorators import login_required, permission_required
+from django.http import Http404, HttpResponse, HttpResponseNotModified, JsonResponse
+from django.shortcuts import render
 from django.utils.cache import patch_response_headers
 
 from ipho_download.forms import NewDirectoryForm, NewFileForm
-
 
 MEDIA_ROOT = getattr(settings, "MEDIA_ROOT")
 

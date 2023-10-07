@@ -1,8 +1,8 @@
 """create table from csv"""
 import argparse
 import os
-from string import Template
 import uuid
+from string import Template
 
 import pandas as pd
 

@@ -16,24 +16,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import OrderedDict
-from django.shortcuts import get_object_or_404, render
-from django.http import JsonResponse
-
-from django.forms import inlineformset_factory
-from django.urls import reverse
-from django.contrib.auth.decorators import (
-    permission_required,
-    user_passes_test,
-    login_required,
-)
-from django.template.context_processors import csrf
-from django.template.loader import render_to_string
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
+from django.contrib.auth.decorators import (
+    login_required,
+    permission_required,
+    user_passes_test,
+)
+from django.forms import inlineformset_factory
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.template.context_processors import csrf
+from django.template.loader import render_to_string
+from django.urls import reverse
 
-from ipho_control.models import ExamPhase, ExamPhaseHistory
 from ipho_control.forms import ExamPhaseForm
+from ipho_control.models import ExamPhase, ExamPhaseHistory
 from ipho_exam.models import Exam, Question
 
 

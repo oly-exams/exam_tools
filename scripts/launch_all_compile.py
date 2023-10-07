@@ -1,17 +1,18 @@
 import os
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
-import sys
 import datetime
+import sys
 
 import django
 
 django.setup()
 
 import itertools
+
 from ipho_core.models import *
-from ipho_exam.models import *
 from ipho_exam import tasks
+from ipho_exam.models import *
 
 
 def main():

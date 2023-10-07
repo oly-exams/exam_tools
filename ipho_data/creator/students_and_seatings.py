@@ -2,8 +2,8 @@ from collections import defaultdict
 
 from django.conf import settings
 
-from ipho_core.models import Student, Delegation
-from ipho_exam.models import Participant, Exam, Place
+from ipho_core.models import Delegation, Student
+from ipho_exam.models import Exam, Participant, Place
 
 from .base_data import BaseDataCreator
 

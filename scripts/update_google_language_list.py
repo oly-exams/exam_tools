@@ -16,12 +16,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import json
+import os
+import sys
+
 # Imports the Google Cloud client library
 from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
-import json
-import sys
-import os
 
 raw_cred = sys.argv[1]
 str_cred = eval(raw_cred)

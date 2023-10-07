@@ -18,14 +18,13 @@
 # pylint: disable = consider-using-f-string
 
 
-import os
 import json
+import os
 import types
-from copy import deepcopy
-
-import urllib.request
-import urllib.parse
 import urllib.error
+import urllib.parse
+import urllib.request
+from copy import deepcopy
 
 from future import standard_library
 

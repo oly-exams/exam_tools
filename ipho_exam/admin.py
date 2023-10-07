@@ -17,35 +17,35 @@
 
 import json
 
-from django.contrib import admin
 from django import forms
+from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django_ace import AceWidget
 
 from ipho_exam.models import (
-    Delegation,
-    Language,
-    Exam,
-    Participant,
-    Question,
-    VersionNode,
-    TranslationNode,
-    PDFNode,
-    Figure,
-    RawFigure,
-    Feedback,
-    FeedbackComment,
-    Like,
-    ParticipantSubmission,
-    ExamAction,
-    TranslationImportTmp,
+    AttributeChange,
     CachedAutoTranslation,
+    CachedHTMLDiff,
+    Delegation,
     Document,
     DocumentTask,
+    Exam,
+    ExamAction,
+    Feedback,
+    FeedbackComment,
+    Figure,
+    Language,
+    Like,
+    Participant,
+    ParticipantSubmission,
+    PDFNode,
     Place,
-    AttributeChange,
-    CachedHTMLDiff,
     PrintLog,
+    Question,
+    RawFigure,
+    TranslationImportTmp,
+    TranslationNode,
+    VersionNode,
 )
 
 # Register your models here.

@@ -25,7 +25,7 @@ import django
 
 django.setup()
 
-from ipho_exam.models import Exam, ExamAction, Delegation, Question
+from ipho_exam.models import Delegation, Exam, ExamAction, Question
 from ipho_marking.models import MarkingAction
 
 for exam in Exam.objects.all():
