@@ -1727,7 +1727,7 @@ def official_marking_detail(request, question_id, delegation_id):
         "marking_forms": list(zip(metas, zip(*(f[1] for f in participant_forms)))),
         "request": request,
         "max_points_sum": sum(m.max_points for m in metas),
-        "scan_files_ready": scan_files_ready,
+        "files_ready": files_ready,
         "show_name": SHOW_PARTICIPANT_NAME_TO_MARKERS,
     }
     return render(request, "ipho_marking/official_marking_detail.html", ctx)
