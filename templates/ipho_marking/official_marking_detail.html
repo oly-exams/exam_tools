@@ -70,8 +70,8 @@ th {
           {{ forms.management_form }}
           <td class="thdnone"></td>
           <th><h4>{% if show_name %}{{ participant.full_name }}{% endif %} ({{ participant.code }})</h4>
-            {% if participant.pk in scan_files_ready %}
-            <a class="btn btn-default btn-xs" id="scan-{{ participant.pk }}-{{ question.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=question.exam.pk participant_id=participant.pk position=question.position %}">
+            {% if participant.pk in files_ready.scan %}
+            <a class="btn btn-success btn-xs" id="scan-{{ participant.pk }}-{{ question.position }}" href="{% url 'exam:scan-exam-pos-participant' exam_id=question.exam.pk participant_id=participant.pk position=question.position %}">
               <i class="fa fa-file-pdf-o"></i>
               View scan
             </a>
