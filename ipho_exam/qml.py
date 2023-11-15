@@ -203,6 +203,9 @@ class QMLbase:
     _all_classes = None
     valid_children = DEFAULT_BLOCKS
     default_heading = None
+    has_text = False
+    escape_tex = True
+    has_children = False
 
     @_classproperty
     def display_name(cls):  # pylint: disable=no-self-argument
@@ -322,7 +325,7 @@ class QMLbase:
         externals = []
         texout = self.tex_begin()
         if self.has_text:
-            texout += string_manipulation.html2tex(self.data)
+            texout += string_manipulation.html2tex(self.data, escape=self.escape_tex)
         for child in self.children:
             (texchild, extchild) = child.make_tex()
             externals += extchild
@@ -956,6 +959,7 @@ class QMLequation(QMLbase):
     sort_order = 300
 
     has_text = True
+    escape_tex = False
     has_children = False
 
     def tex_begin(self):
@@ -978,6 +982,7 @@ class QMLequation_unnumbered(QMLbase):  # pylint: disable=invalid-name
     sort_order = 300
 
     has_text = True
+    escape_tex = False
     has_children = False
 
     def tex_begin(self):
