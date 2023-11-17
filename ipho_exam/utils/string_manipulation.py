@@ -87,29 +87,38 @@ def html2tex(text, escape=True):
 
 
 def escape_tex(text, escape_special=True, escape_all_verbs=True):
-    """ Escape special characters for LaTeX.
-        escape_special = False: only escape %, i.e. the comment character (escape_all_verbs is ignored in this case)
-        escape_special = True: escape %, &, $, #, _, ~, ^, <, >
-        escape_all_verbs = False: do not escape \ and {} to allow for the use of simple LaTeX commands like \textcolor{}{}
-        escape_all_verbs = True in combination with escape_spiecal = True: escape all LaTeX special characters
+    """Escape special characters for LaTeX.
+    escape_special = False: only escape %, i.e. the comment character (escape_all_verbs is ignored in this case)
+    escape_special = True: escape %, &, $, #, _, ~, ^, <, >
+    escape_all_verbs = False: do not escape \\ and {} to allow for the use of simple LaTeX commands like \textcolor{}{}
+    escape_all_verbs = True in combination with escape_spiecal = True: escape all LaTeX special characters
     """
     # step 1: escape special characters if not already escaped
     conv = {
-        '%': r'\%',
+        "%": r"\%",
     }
     if escape_special:
-        conv.update({
-            '&': r'\&',
-            '$': r'\$',
-            '#': r'\#',
-            '_': r'\_',
-        })
+        conv.update(
+            {
+                "&": r"\&",
+                "$": r"\$",
+                "#": r"\#",
+                "_": r"\_",
+            }
+        )
         if escape_all_verbs:
-            conv.update({
-                '{': r'\{',
-                '}': r'\}',
-            })
-    regex = re.compile('|'.join(r'(?<!\\){}'.format(re.escape(str(key))) for key in sorted(conv.keys(), key = lambda item: - len(item))))
+            conv.update(
+                {
+                    "{": r"\{",
+                    "}": r"\}",
+                }
+            )
+    regex = re.compile(
+        "|".join(
+            rf"(?<!\\){re.escape(str(key))}"
+            for key in sorted(conv.keys(), key=lambda item: -len(item))
+        )
+    )
     text = regex.sub(lambda match: conv[match.group()], text)
 
     if not escape_special:
@@ -120,22 +129,27 @@ def escape_tex(text, escape_special=True, escape_all_verbs=True):
     if escape_all_verbs:
         # step 2: escape backslash if not part of an escaped special character
         escaped = conv.keys()
-        regex = re.compile(r'\\([^{}])'.format(re.escape(''.join(escaped))))
-        text = regex.sub(r'\\textbackslash{}\1', text)
+        regex = re.compile(r"\\([^{}])".format(re.escape("".join(escaped))))
+        text = regex.sub(r"\\textbackslash{}\1", text)
     else:
         # step 2: escape backslash if not beginning of a LaTeX command or not part of an escaped special character
         escaped = conv.keys()
-        regex = re.compile(r'\\([^{}a-zA-Z])'.format(re.escape(''.join(escaped))))
-        text = regex.sub(r'\\textbackslash{}\1', text)
+        regex = re.compile(r"\\([^{}a-zA-Z])".format(re.escape("".join(escaped))))
+        text = regex.sub(r"\\textbackslash{}\1", text)
 
     # step 3: replace remaining special characters by their LaTeX equivalent
     conv = {
-        '~': r'\textasciitilde{}',
-        '^': r'\textasciicircum{}',
-        '<': r'\textless{}',
-        '>': r'\textgreater{}',
+        "~": r"\textasciitilde{}",
+        "^": r"\textasciicircum{}",
+        "<": r"\textless{}",
+        ">": r"\textgreater{}",
     }
-    regex = re.compile('|'.join(r'{}'.format(re.escape(str(key))) for key in sorted(conv.keys(), key = lambda item: - len(item))))
+    regex = re.compile(
+        "|".join(
+            rf"{re.escape(str(key))}"
+            for key in sorted(conv.keys(), key=lambda item: -len(item))
+        )
+    )
     text = regex.sub(lambda match: conv[match.group()], text)
 
     return text
@@ -145,15 +159,15 @@ def fix_tex_parens(s):
     if not isinstance(s, str):
         return s
     # do not count escaped parens in the check below -> remove them
-    count_s = s.replace(r'\{', '').replace(r'\}', '')
-    diff = count_s.count('{') - count_s.count('}')
+    count_s = s.replace(r"\{", "").replace(r"\}", "")
+    diff = count_s.count("{") - count_s.count("}")
     if diff == 0:
         return s
     if diff > 0:
         # add required number of closing parens add the end
-        return s + '}' * diff
+        return s + "}" * diff
     # add required number of opening parens at the beginning
-    return '{' * diff + s
+    return "{" * diff + s
 
 
 def html2tex_bs4(elem, escape=True):  # pylint: disable=too-many-branches
@@ -179,7 +193,9 @@ def html2tex_bs4(elem, escape=True):  # pylint: disable=too-many-branches
                             print("WARNING:", "Math with nested tags!!")
                             print(sel)
                         # we are in math mode: only escape comment character (%)
-                        result.append(fix_tex_parens(escape_tex(sel.string, escape_special=False)))
+                        result.append(
+                            fix_tex_parens(escape_tex(sel.string, escape_special=False))
+                        )
                 elif att == "class" and "lang-ltr" in sel.attrs[att]:
                     result.append("\\textenglish{%s}" % (html2tex_bs4(sel)))
         ## Bold
