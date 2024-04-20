@@ -59,11 +59,6 @@ urlpatterns = [
         auth_views.LogoutView.as_view(next_page="/"),
         name="logout",
     ),
-    re_path(
-        r"^accounts/autologin/(?P<token>[0-9a-z\-]+)/?$",
-        ipho_core.views.autologin,
-        name="autologin",
-    ),
     path(
         "accounts/impersonate/",
         ipho_core.views.list_impersonate,

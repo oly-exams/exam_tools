@@ -3,7 +3,7 @@ import string
 import iso3166
 from django.contrib.auth.models import Permission
 
-from ipho_core.models import AutoLogin, Delegation, Group, User
+from ipho_core.models import Delegation, Group, User
 from ipho_poll.models import VotingRight
 
 from .base_data import BaseDataCreator
@@ -58,11 +58,6 @@ class UserDataCreator(BaseDataCreator):
                     group="Delegation",
                 )
 
-                if not hasattr(user, "autologin"):
-                    autologin = AutoLogin(user=user)
-                    autologin.save()
-                    self.log("Autologin created")
-
                 delegation.members.add(user)
                 delegation.save()
 
@@ -85,10 +80,6 @@ class UserDataCreator(BaseDataCreator):
                     set_pw_if_exists=set_pw_if_exists,
                     group="Delegation Examsite Team",
                 )
-                if not hasattr(user, "autologin"):
-                    autologin = AutoLogin(user=user)
-                    autologin.save()
-                    self.log("Autologin created")
 
                 delegation = Delegation.objects.get(name=country_code)
                 delegation.members.add(user)

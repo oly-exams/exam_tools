@@ -57,24 +57,6 @@ class IphoPerm(models.Model):
         )
 
 
-class AutoLoginManager(models.Manager):
-    def get_by_natural_key(self, username):
-        return self.get(user=User.objects.get_by_natural_key(username))
-
-
-class AutoLogin(models.Model):
-    objects = AutoLoginManager()
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    token = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
-
-    def __str__(self):
-        return str(self.token)
-
-    def natural_key(self):
-        return self.user.natural_key()
-
-
 class DelegationManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)

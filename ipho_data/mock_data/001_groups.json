@@ -20,21 +20,6 @@
         "group"
       ],
       [
-        "add_autologin",
-        "ipho_core",
-        "autologin"
-      ],
-      [
-        "change_autologin",
-        "ipho_core",
-        "autologin"
-      ],
-      [
-        "delete_autologin",
-        "ipho_core",
-        "autologin"
-      ],
-      [
         "add_delegation",
         "ipho_core",
         "delegation"

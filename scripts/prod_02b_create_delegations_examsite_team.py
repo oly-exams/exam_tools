@@ -28,7 +28,7 @@ import csv
 
 from django.core import serializers
 
-from ipho_core.models import Autologin, Delegation, Group, User
+from ipho_core.models import Delegation, Group, User
 from ipho_poll.models import VotingRight
 
 
@@ -54,12 +54,6 @@ def create_objs(input):
         if created:
             log(user, "..", "created")
         created_objs.append(user)
-
-        if not hasattr(user, "autologin"):
-            autologin = AutoLogin(user=user)
-            autologin.save()
-            log("Autologin created")
-        created_objs.append(user.autologin)
 
         delegation.members.add(user)
         delegation.save()
