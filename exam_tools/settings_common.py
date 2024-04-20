@@ -572,10 +572,7 @@ MIDDLEWARE = (
     "ipho_exam.middleware.IphoExamExceptionsMiddleware",
 )
 
-AUTHENTICATION_BACKENDS = (
-    "ipho_core.backends.TokenLoginBackend",
-    "django.contrib.auth.backends.ModelBackend",
-)
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
 ROOT_URLCONF = "exam_tools.urls"
 

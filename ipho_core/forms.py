@@ -27,7 +27,6 @@ from ipho_core.models import AccountRequest, User
 class AccountRequestForm(ModelForm):
     user = forms.ModelChoiceField(
         queryset=User.objects.exclude(delegation__isnull=True)
-        .exclude(autologin__isnull=True)
         .exclude(is_superuser=True)
         .order_by("username"),
         to_field_name="username",
