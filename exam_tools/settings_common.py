@@ -100,6 +100,10 @@ NO_ANSWER_SHEETS = False
 # Defines wheter translated answer sheets are possible
 ONLY_OFFICIAL_ANSWER_SHEETS = False
 
+# Defines how many languages can be printed per participant
+ALLOW_ANSLANG_WITHOUT_QLANG = True
+MAX_NUMBER_LANGUAGES_PER_PPNT = 1
+
 # Defines whether the QR code should *not* be printed on the student sheets
 # (Answer sheets and Working sheets)
 # ```CODE_WITHOUT_QR = True``` means: do not print QR codes on any sheets
