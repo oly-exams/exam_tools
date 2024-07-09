@@ -31,7 +31,9 @@ json_cred = json.loads(str_cred)
 translate_client = translate.Client(
     credentials=service_account.Credentials.from_service_account_info(json_cred)
 )
-lan_list = json.dumps(translate_client.get_languages())
+lang_json = translate_client.get_languages()
+lang_json.append({"language": "pt-br", "name": "Portugese (Brazil)"})
+lan_list = json.dumps(lang_json)
 with open(
     os.path.join(os.path.dirname(__file__), "../exam_tools/settings.py"), "a"
 ) as f:
