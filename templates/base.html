@@ -107,7 +107,7 @@
               </li>
               {% endif %}
 
-              {% if perms.ipho_core.is_delegation_print %}
+              {% if perms.ipho_core.is_delegation_print and not user.is_superuser %}
               <li><a href="{% url 'exam:submission-delegation-submitted' %}">Submitted Exams</a></li>
               {% endif %}
 
