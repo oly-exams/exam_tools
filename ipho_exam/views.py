@@ -3928,6 +3928,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
         context["orig_font"] = fonts.ipho[context["orig_lang"].font]
     if context["trans_lang"]:
         context["trans_font"] = fonts.ipho[context["trans_lang"].font]
+    context['only_official_answer_sheets'] = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS")
     return render(request, "ipho_exam/editor.html", context)
 
 
