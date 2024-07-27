@@ -287,17 +287,20 @@ class FeedbackForm(ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("comment", placeholder="Comment"),
-            Field("topic", placeholder="Select topic"),
+            Field("category"),
         )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.form_tag = False
         self.helper.disable_csrf = True
         self.fields["comment"].required = True
+        self.fields["category"].required = True
+        self.fields["comment"].label = "Feedback comment"
+        self.fields["category"].label = "Feedback category"
 
     class Meta:
         model = Feedback
-        fields = ["comment", "topic"]
+        fields = ["comment", "category"]
 
 
 class FeedbackCommentForm(forms.Form):

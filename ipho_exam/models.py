@@ -884,12 +884,17 @@ class Question(models.Model):
 
     FEEDBACK_CLOSED = -1
     FEEDBACK_ORGANIZER_COMMENT = 0
-    FEEDBACK_OPEN = 1
+    FEEDBACK_EVERYBODY_COMMENT = 1
+    FEEDBACK_OPEN = 2
 
     FEEDBACK_CHOICES = (
-        (FEEDBACK_CLOSED, "Closed"),
         (FEEDBACK_OPEN, "Open"),
-        (FEEDBACK_ORGANIZER_COMMENT, "Closed, Organizer can still comment."),
+        (
+            FEEDBACK_EVERYBODY_COMMENT,
+            "Feedbback entry closed, Everybody can comment, like & withdraw.",
+        ),
+        (FEEDBACK_ORGANIZER_COMMENT, "Feedbback entry closed, Organizer can comment."),
+        (FEEDBACK_CLOSED, "Feedbback entry closed"),
     )
 
     feedback_status = models.IntegerField(
@@ -1364,7 +1369,7 @@ class Feedback(models.Model):
         ("T", "Settled after voting"),
         ("W", "Withdrawn"),
     )
-    TOPIC_CHOICES = (
+    CATEGORY_CHOICES = (
         ("T", "Typo"),
         ("F", "Formulation"),
         ("C", "Science"),
@@ -1380,7 +1385,7 @@ class Feedback(models.Model):
     comment = models.TextField(blank=True)
     org_comment = models.TextField(blank=True, null=True, default=None)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="S")
-    topic = models.CharField(max_length=1, choices=TOPIC_CHOICES)
+    category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):

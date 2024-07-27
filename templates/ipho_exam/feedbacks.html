@@ -47,7 +47,7 @@
         <li>You can <strong/>submit feedbacks <a href="{% if exam %}{% url 'exam:exam-view' exam_id=exam.pk %}{% else %}{% url 'exam:exam-view' %}{% endif %}">here</a>.</strong/></li>
         <li>
           The first column shows the status of your report.
-          It will change from <mark>Submitted</mark> to either <mark>Scheduled for Voting</mark> or <mark>Withdrawn</mark>. If implemented it will change to <mark>Implemented</mark>.
+          It will change from <mark>Submitted</mark> to either <mark>Scheduled for Voting</mark>, <mark>Settled after Voting</mark> or <mark>Withdrawn</mark>. You can only withdraw your feedback yourself as long as it is in state <mark>Submitted</mark> and no other delegation has liked it. Authors can withdraw feedbacks for you anytime. If the changes proposed are implemented in the exam it will change to <mark>Implemented</mark>.
         </li>
     </ul>
 
@@ -96,17 +96,17 @@
           </div>
           <div class="dropdown div-inline" style="float: left; padding-left: 5px;" >
             <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-          {% if topic %}
-              {{ topic }}
+          {% if category %}
+              {{ category }}
           {% else %}
-              Filter topic
+              Filter category
           {% endif %}
               <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-              <li><a href="{% this_url to=None %}">-- None --</a></li>
-          {% for to in topic_choices %}
-              <li {% if topic == to %} class="active" {% endif %}><a href="{% this_url to=to.0 %}">{{ to.1 }}</a></li>
+              <li><a href="{% this_url ca=None %}">-- None --</a></li>
+          {% for ca in category_choices %}
+              <li {% if category == ca %} class="active" {% endif %}><a href="{% this_url ca=ca.0 %}">{{ ca.1 }}</a></li>
           {% endfor %}
             </ul>
           </div>
@@ -138,7 +138,7 @@
       <tr>
           <th class="col-sm-01">#</th>
           <th>Status</th>
-          <th>Topic</th>
+          <th>Category</th>
           <th>Delegation</th>
           <th>Question</th>
           <th>Part</th>
@@ -314,7 +314,7 @@ $(function() {
       });
       return false;
     });
-    $('.feedback-table').on('click','.feedback-topic', function(evt){
+    $('.feedback-table').on('click','.feedback-category', function(evt){
       evt.preventDefault();
       var a = evt.target;
       if($(a).hasClass('disabled')){return false}

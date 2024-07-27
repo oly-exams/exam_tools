@@ -1008,7 +1008,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             "delegation__name",
             "delegation__country",
             "status",
-            "topic",
+            "category",
             "timestamp",
             "part",
             "part_position",
@@ -1054,16 +1054,17 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         f["like_delegations"] = [like_del_string, like_del_slug]
         f["unlike_delegations"] = [unlike_del_string, unlike_del_slug]
     status_choices = dict(Feedback._meta.get_field("status").flatchoices)
-    topic_choices = dict(Feedback._meta.get_field("topic").flatchoices)
+    category_choices = dict(Feedback._meta.get_field("category").flatchoices)
     for fback in feedbacks:
         fback["status_display"] = status_choices[fback["status"]]
-        fback["topic_display"] = topic_choices[fback["topic"]]
+        fback["category_display"] = category_choices[fback["category"]]
         fback["commentable"] = Question.objects.get(
             pk=fback["question__pk"]
         ).check_feedback_commentable()
         fback["enable_likes"] = (
             (fback["delegation_likes"] == 0)
-            and fback["question__feedback_status"] == Question.FEEDBACK_OPEN
+            and fback["question__feedback_status"]
+            >= Question.FEEDBACK_EVERYBODY_COMMENT
             and fback["question__exam__feedback"] >= Exam.FEEDBACK_CAN_BE_OPENED
             and delegation is not None
         )
@@ -1075,10 +1076,8 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
     ctxt["question"] = question
     ctxt["feedbacks"] = feedbacks
     ctxt["status_choices"] = Feedback.STATUS_CHOICES
-    ctxt["topic_choices"] = Feedback.TOPIC_CHOICES
-    ctxt["is_delegation"] = delegation is not None or request.user.has_perm(
-        "ipho_core.is_organizer_admin"
-    )
+    ctxt["category_choices"] = Feedback.CATEGORY_CHOICES
+    ctxt["delegation"] = delegation
 
     return render(request, "ipho_exam/partials/feedbacks_partial_tbody.html", ctxt)
 
@@ -1088,7 +1087,7 @@ def feedback_partial_like(request, status, feedback_id):
     feedback = get_object_or_404(
         Feedback,
         pk=feedback_id,
-        question__feedback_status=Question.FEEDBACK_OPEN,
+        question__feedback_status__gte=Question.FEEDBACK_EVERYBODY_COMMENT,
         question__exam__feedback__gte=Exam.FEEDBACK_CAN_BE_OPENED,
         question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
     )
@@ -1116,8 +1115,8 @@ def feedback_thread(request, feedback_id):
     )
     ctx = {}
     ctx["feedback_open"] = (
-        feedback.question.feedback_status == Question.FEEDBACK_OPEN
-        and feedback.question.exam.feedback == Exam.FEEDBACK_CAN_BE_OPENED
+        feedback.question.feedback_status >= Question.FEEDBACK_EVERYBODY_COMMENT
+        and feedback.question.exam.feedback >= Exam.FEEDBACK_CAN_BE_OPENED
     )
     ctx["original_comment"] = feedback.comment
     ctx["original_delegation"] = feedback.delegation.name
@@ -1215,14 +1214,14 @@ def feedbacks_list(
         display_status = dict(Feedback.STATUS_CHOICES)[status]
         filter_st = status
 
-    topic_list = Feedback.TOPIC_CHOICES
-    filter_to = [t[0] for t in topic_list]
-    topic = request.GET.get("to", None)
-    display_topic = None
-    if topic is not None:
-        topic = topic.rstrip("/")
-        display_topic = dict(Feedback.TOPIC_CHOICES)[topic]
-        filter_to = topic
+    category_list = Feedback.CATEGORY_CHOICES
+    filter_ca = [t[0] for t in category_list]
+    category = request.GET.get("ca", None)
+    display_category = None
+    if category is not None:
+        category = category.rstrip("/")
+        display_category = dict(Feedback.CATEGORY_CHOICES)[category]
+        filter_ca = category
 
     filter_qu = questions_f
     qf_pk = request.GET.get("qu", None)
@@ -1261,7 +1260,7 @@ def feedbacks_list(
         )
         query = Feedback.objects.filter(question__in=questions).filter(
             status__in=filter_st,
-            topic__in=filter_to,
+            category__in=filter_ca,
             question__in=filter_qu,
         )
         feedbacks = (
@@ -1292,7 +1291,7 @@ def feedbacks_list(
                 "delegation__name",
                 "delegation__country",
                 "status",
-                "topic",
+                "category",
                 "timestamp",
                 "part",
                 "part_position",
@@ -1313,7 +1312,7 @@ def feedbacks_list(
             x["num_comments"] = feedback_comments[x["pk"]]
 
         status_choices = dict(Feedback._meta.get_field("status").flatchoices)
-        topic_choices = dict(Feedback._meta.get_field("topic").flatchoices)
+        category_choices = dict(Feedback._meta.get_field("category").flatchoices)
         for fback in feedbacks:
             like_del = [
                 d[0]
@@ -1342,7 +1341,7 @@ def feedbacks_list(
             fback["like_delegations"] = [like_del_string, like_del_slug]
             fback["unlike_delegations"] = [unlike_del_string, unlike_del_slug]
             fback["status_display"] = status_choices[fback["status"]]
-            fback["topic_display"] = topic_choices[fback["topic"]]
+            fback["category_display"] = category_choices[fback["category"]]
             fback["commentable"] = Question.objects.get(
                 pk=fback["question__pk"]
             ).check_feedback_commentable()
@@ -1351,7 +1350,8 @@ def feedbacks_list(
             ).exam.check_feedback_editable()
             fback["enable_likes"] = (
                 (fback["delegation_likes"] == 0)
-                and fback["question__feedback_status"] == Question.FEEDBACK_OPEN
+                and fback["question__feedback_status"]
+                >= Question.FEEDBACK_EVERYBODY_COMMENT
                 and fback["question__exam__feedback"] >= Exam.FEEDBACK_CAN_BE_OPENED
                 and delegation is not None
             )
@@ -1359,6 +1359,7 @@ def feedbacks_list(
         feedbacks.sort(
             key=lambda fback: (fback["question__pk"], fback["part_position"])
         )
+
         return render(
             request,
             "ipho_exam/partials/feedbacks_tbody.html",
@@ -1366,9 +1367,8 @@ def feedbacks_list(
                 "feedbacks": feedbacks,
                 "exam_id": exam_id,
                 "status_choices": Feedback.STATUS_CHOICES,
-                "topic_choices": Feedback.TOPIC_CHOICES,
-                "is_delegation": delegation is not None
-                or request.user.has_perm("ipho_core.is_organizer_admin"),
+                "category_choices": Feedback.CATEGORY_CHOICES,
+                "delegation": delegation,
             },
         )
 
@@ -1391,12 +1391,10 @@ def feedbacks_list(
             "exam": exam,
             "status": display_status,
             "status_choices": Feedback.STATUS_CHOICES,
-            "topic": display_topic,
-            "topic_choices": Feedback.TOPIC_CHOICES,
+            "category": display_category,
+            "category_choices": Feedback.CATEGORY_CHOICES,
             "question": question_f,
             "questions": questions_f,
-            "is_delegation": delegation is not None
-            or request.user.has_perm("ipho_core.is_organizer_admin"),
             "this_url_builder": url_builder,
             "form": form_html,
         },
@@ -1457,26 +1455,27 @@ def feedbacks_add_comment(request, feedback_id=None):
     )
 
 
-@permission_required("ipho_core.is_delegation")
-def feedback_like(request, status, feedback_id):
-    feedback = get_object_or_404(
-        Feedback,
-        pk=feedback_id,
-        question__feedback_status=Question.FEEDBACK_OPEN,
-        question__exam__feedback__gte=Exam.FEEDBACK_CAN_BE_OPENED,
-    )
-    delegation = Delegation.objects.get(members=request.user)
-    Like.objects.get_or_create(
-        feedback=feedback, delegation=delegation, defaults={"status": status}
-    )
-    return redirect("exam:feedbacks-list")
-
-
-@permission_required("ipho_core.can_manage_feedback")
+@user_passes_test(
+    lambda u: u.has_perm("ipho_core.can_manage_feedback")
+    or u.has_perm("ipho_core.is_delegation")
+)
 def feedback_set_status(request, feedback_id, status):
     fback = get_object_or_404(Feedback, id=feedback_id)
+    num_likes = Like.objects.filter(feedback=fback, status="L").count()
+    delegation = Delegation.objects.filter(members=request.user).first()
     question = fback.question
-    if (
+
+    if delegation is not None and (
+        not question.exam.check_visibility(request.user)
+        or status != "W"
+        or fback.status != "S"
+        or fback.delegation.pk is not delegation.pk
+        or num_likes > 0
+        or question.feedback_status <= Question.FEEDBACK_ORGANIZER_COMMENT
+        or question.exam.feedback <= Exam.FEEDBACK_READONLY
+    ):
+        return JsonResponse({"success": False})
+    elif (
         not question.exam.check_visibility(request.user)
         or question.feedback_status <= Question.FEEDBACK_CLOSED
         or question.exam.feedback <= Exam.FEEDBACK_READONLY
@@ -1488,7 +1487,7 @@ def feedback_set_status(request, feedback_id, status):
 
 
 @permission_required("ipho_core.can_manage_feedback")
-def feedback_set_topic(request, feedback_id, topic):
+def feedback_set_category(request, feedback_id, category):
     fback = get_object_or_404(Feedback, id=feedback_id)
     question = fback.question
     if (
@@ -1497,7 +1496,7 @@ def feedback_set_topic(request, feedback_id, topic):
         or question.exam.feedback <= Exam.FEEDBACK_READONLY
     ):
         return JsonResponse({"success": False})
-    fback.topic = topic
+    fback.category = category
     fback.save()
     return JsonResponse({"success": True})
 
@@ -1537,7 +1536,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             "part_position",
             "delegation__name",
             "status",
-            "topic",
+            "category",
             "timestamp",
             "comment",
             "org_comment",
@@ -1592,7 +1591,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             "Position",
             "Delegation",
             "Status",
-            "Topic",
+            "Category",
             "Timestamp",
             "Comment",
             "Organizer comment",

@@ -23,17 +23,17 @@
      {% if perms.ipho_core.can_manage_feedback and fb.commentable %}
         <div class="btn-group">
           <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-            {{ fb.topic_display }}
+            {{ fb.category_display }}
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
-            {% for k,v in topic_choices %}
-            <li class="{% if k == fb.topic %}active{% endif %}"><a href="{% url 'exam:feedback-set-topic' topic=k feedback_id=fb.pk %}" class="feedback-topic">{{ v }}</a></li>
+            {% for k,v in category_choices %}
+            <li class="{% if k == fb.category %}active{% endif %}"><a href="{% url 'exam:feedback-set-category' category=k feedback_id=fb.pk %}" class="feedback-category">{{ v }}</a></li>
             {% endfor %}
           </ul>
         </div>
       {% else %}
-        {{ fb.topic_display }}
+        {{ fb.category_display }}
       {% endif %}
     </td>
     <td>{{ fb.delegation__country }}</td>
@@ -50,7 +50,7 @@
             {% if fb.num_likes %}
             <span class="badge feedback-like">{{ fb.num_likes }}</span>
             {% endif %}
-            {{fb.like_delegations.1|safe}}
+            <!-- {{fb.like_delegations.1|safe}} -->
           </span>
         </div>
         <div style="display:inline-block" data-toggle="tooltip" title="{{fb.unlike_delegations.0|safe}}">
@@ -59,7 +59,7 @@
             {% if fb.num_unlikes %}
             <span class="badge feedback-like">{{ fb.num_unlikes }}</span>
             {% endif %}
-            {{fb.unlike_delegations.1|safe}}
+            <!-- {{fb.unlike_delegations.1|safe}} -->
           </span> <!-- btn-toolbar -->
         </div>
         <div style="display:inline-block">
@@ -68,7 +68,7 @@
             {% if fb.num_comments %}
             <span class="badge">{{ fb.num_comments }}</span>
             {% endif %}
-          </span> <!-- btn-toolbar -->
+          </span> 
         </div>
         {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
         {% if fb.commentable %}
@@ -79,9 +79,18 @@
         </div>
         {% endif %}
         {% endif %}
-        <a href="{% url 'exam:exam-view' exam_id=exam_id question_id=fb.question__pk %}#{{ fb.qml_id }}" class="btn btn-sm btn-default" id="view-exam-{{ fb.qml_id }}" target="_blank" role="button" title="View Exam">
-          View Exam
-        </a>
+        <div style="display:inline-block">
+          <a href="{% url 'exam:exam-view' exam_id=exam_id question_id=fb.question__pk %}#{{ fb.qml_id }}" class="btn btn-sm btn-default" id="view-exam-{{ fb.qml_id }}" target="_blank" role="button" title="View Exam">
+            View Exam
+          </a>
+        </div>
+        {% if fb.status == "S" and fb.num_likes is None and fb.delegation__name == delegation.name %}
+        <div style="display:inline-block">
+          <a href="{% url 'exam:feedback-set-status' status='W' feedback_id=fb.pk %}" class="btn btn-sm btn-danger feedback-status" id="withdraw-{{ fb.pk }}" role="button" title="Withdraw">
+            Withdraw
+          </a>
+        </div>
+        {% endif %}
       </div>
     </td>
 </tr>

@@ -281,9 +281,9 @@ urlpatterns = [
         name="feedback-set-status",
     ),
     re_path(
-        r"^feedbacks/(?P<feedback_id>\d+)/topic/(?P<topic>\w)$",
-        views.feedback_set_topic,
-        name="feedback-set-topic",
+        r"^feedbacks/(?P<feedback_id>\d+)/category/(?P<category>\w)$",
+        views.feedback_set_category,
+        name="feedback-set-category",
     ),
     path("submission/list", views.submission_exam_list, name="submission-exam-list"),
     path(
