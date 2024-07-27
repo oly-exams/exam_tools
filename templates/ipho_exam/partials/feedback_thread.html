@@ -1,10 +1,9 @@
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h4>Discussion</h4>
-        {% include "ipho_exam/partials/feedback_thread_msg.html" with delegation=original_delegation comment=original_comment %}
+        <h4>Delegation discussion</h4>
     </div>
     <div class="panel-body">
-        <div class="comment-area" style="overflow-y: scroll !important; height:450px !important;">
+        <div class="comment-area" style="overflow-y: scroll !important; height:300px !important;">
             {% for delegation, comment in comments %}
             {% include "ipho_exam/partials/feedback_thread_msg.html"%}
             {% endfor %}
@@ -17,9 +16,8 @@
             <textarea class="form-control comment-text"></textarea>
             <div class="btn btn-primary comment-submit pull-right" style="margin-left:6px;margin-top:6px;">Send</div>
             {% elif current_delegation %}
-            <div class="btn btn-primary disabled">Feedback closed</div>
+            <div class="btn btn-primary disabled">Feedback discussion closed</div>
             {% endif %}
-            <button type="button" class="btn btn-default pull-right" data-dismiss="modal" style="margin-left:6px;margin-top:6px;">Close</button>
             <div class="clearfix"></div>
         </div>
     

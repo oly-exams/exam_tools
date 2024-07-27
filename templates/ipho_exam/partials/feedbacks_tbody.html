@@ -40,7 +40,21 @@
     <td>{{ fb.question__name }}</td>
     <td>{{ fb.part }}</td>
     <td style="display:none;">{{ fb.part_position }}</td>
-    <td>{{ fb.comment }}{% if fb.org_comment %}<br><strong>Comment from the organizers:</strong><br>{{ fb.org_comment }}{% endif %}</td>
+    <td>
+      {{ fb.comment }}{% if fb.org_comment %}
+      <br>
+      <strong>Comment from the organizers:</strong>
+      <br>
+      {{ fb.org_comment }}{% endif %}
+      <br>
+      <a data-toggle="collapse" href="#feedback-thread-{{ fb.pk }}" role="button" aria-expanded="false" aria-controls="#feedback-thread-{{ fb.pk }}" >
+            <span class="glyphicon glyphicon-chevron-up"></span>{% if fb.num_comments > 0 %} {{ fb.num_comments }} delegation discussion messages.{% else %} Start delegation discussion.{% endif %}
+        </a>
+      <br>
+      <div class="feedback-thread collapse" id="feedback-thread-{{ fb.pk }}" data-fbid="{{ fb.pk }}">
+        <i class="fa fa-spinner fa-pulse"></i> Loading...
+      </div>
+    </td>
     <td><time datetime="{{ fb.timestamp|date:"c" }}" data-format="MMM Do, HH:mm"></time></td>
     <td>
       <div class="btn-toolbar">
@@ -61,14 +75,6 @@
             {% endif %}
             <!-- {{fb.unlike_delegations.1|safe}} -->
           </span> <!-- btn-toolbar -->
-        </div>
-        <div style="display:inline-block">
-          <span url="{% url 'exam:feedback-thread' feedback_id=fb.pk %}" class="btn btn-primary open-fb-thread" data-toggle="modal" data-target="#feedback-thread-modal">
-            <i class="fa fa-comment" aria-hidden="true"></i>
-            {% if fb.num_comments %}
-            <span class="badge">{{ fb.num_comments }}</span>
-            {% endif %}
-          </span> 
         </div>
         {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
         {% if fb.commentable %}

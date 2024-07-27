@@ -156,7 +156,7 @@ body { margin-bottom: 70px; }
   </div>
 </div>
 
-<div class="modal fade " id="feedback-modal" tabindex="-1">
+<div class="modal fade " id="feedback-modal" data-backdrop="static" data-keyboard=true tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -178,8 +178,6 @@ body { margin-bottom: 70px; }
     </div>
   </div>
 </div>
-
-{% include "ipho_exam/partials/feedback_thread_modal.html" %}
 
 <div id="alerts-container">
     {% if warning %}
@@ -390,8 +388,6 @@ body { margin-bottom: 70px; }
                 }
             });
 
-            {% include "ipho_exam/partials/feedback_thread.js" %}
-
             {% if exam and question %}
 
             function update_feedback_numbers(){
@@ -490,6 +486,40 @@ body { margin-bottom: 70px; }
                     }
                 });
 
+            });
+
+            $('#feedback-modal').on('hide.bs.collapse','.feedback-thread', function(evt){
+              var a = evt.target;
+              $(a.parentElement).find('span.glyphicon')
+                                .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+            });
+
+            $('#feedback-modal').on('show.bs.collapse','.feedback-thread', function(evt){
+              var a = evt.target;
+              $(a.parentElement).find('span.glyphicon')
+                                .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+
+              var tid = $(a).data('fbid');
+              $.ajax({
+                  method: "GET",
+                  url: "{% url 'exam:feedback-thread' %}",
+                  data: {feedback_id:tid},
+                  dataType: "json",
+              }).done(function( data ) {
+                  $(a).html(data.text);
+                  a.querySelector('.comment-submit').onclick = function(evt) {
+                  c = a.querySelector('.comment-text');
+                  var text = a.querySelector('.comment-text').value;
+                  $.ajax({
+                    url: "{% url 'exam:feedback-thread' %}",
+                    type: 'POST',
+                    data: {feedback_id:tid, text: text},
+                  }).done(function(data){
+                    $(a.querySelector('.comment-area')).append(data.new_comment);
+                    a.querySelector('.comment-text').value = "";
+                  });
+                };
+              });
             });
 
 

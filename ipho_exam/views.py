@@ -1103,7 +1103,22 @@ def feedback_partial_like(request, status, feedback_id):
 
 
 @permission_required("ipho_core.can_see_boardmeeting")
-def feedback_thread(request, feedback_id):
+def feedback_thread(request):
+    feedback_id = None
+    if request.POST:
+        feedback_id = request.POST.get("feedback_id", None)
+    elif request.GET:
+        feedback_id = request.GET.get("feedback_id", None)
+
+    if feedback_id is None:
+        return JsonResponse(
+            {
+                "success": False,
+            }
+        )
+    else:
+        feedback_id = feedback_id.rstrip("/")
+
     if not is_ajax(request):
         raise Exception()  # pylint: disable=broad-exception-raised
 

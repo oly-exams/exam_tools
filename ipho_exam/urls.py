@@ -271,7 +271,7 @@ urlpatterns = [
         name="feedback-like",
     ),
     re_path(
-        r"^feedbacks/thread/(?P<feedback_id>\d+)$",
+        r"^feedbacks/thread/?$",
         views.feedback_thread,
         name="feedback-thread",
     ),
