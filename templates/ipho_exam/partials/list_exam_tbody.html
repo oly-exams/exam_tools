@@ -55,6 +55,7 @@
     <td>
       <div class="btn-group">
         <a class="btn btn-xs btn-success" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+        {% if exam.has_solution %}<a class="btn btn-xs btn-primary" target="_blank" href="{% url 'exam:pdf-solution' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF with solution"><i class="fa fa-lightbulb-o"></i> PDF (solution)</a>{% endif %}
         {% if user.is_superuser %}
         <div class="btn-group">
           <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">
@@ -62,8 +63,11 @@
           </button>
           <ul class="dropdown-menu">
             <li><a target="_blank" href="{% url 'exam:tex' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as TeX"><i class="fa fa-fw fa-file-text-o"></i> export TeX</a></li>
+            {% if exam.has_solution %}<li><a target="_blank" href="{% url 'exam:tex-solution' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as TeX"><i class="fa fa-fw fa-file-text-o"></i> export TeX (solution)</a></li>{% endif %}
             <li><a target="_blank" href="{% url 'exam:html' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as HTML"><i class="fa fa-fw fa-file-text-o"></i> export HTML</a></li>
+            {% if exam.has_solution %}<li><a target="_blank" href="{% url 'exam:html-solution' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as HTML"><i class="fa fa-fw fa-file-text-o"></i> export HTML (solution)</a></li>{% endif %}
             <li><a target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as ODT"><i class="fa fa-fw fa-file-text-o"></i> export ODT</a></li>
+            {% if exam.has_solution %}<li><a target="_blank" href="{% url 'exam:odt-solution' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as ODT"><i class="fa fa-fw fa-file-text-o"></i> export ODT (solution)</a></li>{% endif %}
           </ul>
         </div>
         {% endif %}

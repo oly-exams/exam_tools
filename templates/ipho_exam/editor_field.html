@@ -1,4 +1,5 @@
 {% for field in fields_set %}
+    {% if field.translatable %}
     {% if field.heading %}
     <div class="row">
         <div class="col-xs-12 translation-field-nested">
@@ -68,6 +69,7 @@
             {% include 'ipho_exam/editor_field.html' with fields_set=field.children %}
         </div>
     </div>
+    {% endif %}
     {% endif %}
 
 {% endfor %}

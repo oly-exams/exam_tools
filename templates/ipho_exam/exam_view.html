@@ -217,6 +217,7 @@ body { margin-bottom: 70px; }
                     <span class="label label-default">{{ orig_lang.tag|default:'' }}</span>{% endif %}
                   </a>
                   <a class="btn btn-default btn-success" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=orig_lang.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+                  {% if exam.has_solution %}<a class="btn btn-default btn-primary" target="_blank" href="{% url 'exam:pdf-solution' question_id=question.pk lang_id=orig_lang.pk %}" title="View PDF with solution"><i class="fa fa-lightbulb-o"></i> PDF (solution)</a>{% endif %}
                 </span>
                 </h4>
             </div>
@@ -392,7 +393,7 @@ body { margin-bottom: 70px; }
             {% include "ipho_exam/partials/feedback_thread.js" %}
 
             {% if exam and question %}
-            
+
             function update_feedback_numbers(){
               var url = "{% url 'exam:feedback-numbers' exam_id=exam.pk question_id=question.pk%}";
               $.ajax({
@@ -459,14 +460,14 @@ body { margin-bottom: 70px; }
             }
 
 
-            
+
             $('#feedback-modal').on('show.bs.modal', function (event) {
               {% include "ipho_exam/partials/stackable_modal_fix.js" %}
               var modal = $(this);
               var button = $(event.relatedTarget); // Button that triggered the modal
               var qml_id = button[0].id;
               load_feedbacks(modal, qml_id);
-              
+
             });
             $('#feedback-modal form').on('submit',function(evt) {
                 var form = evt.target;

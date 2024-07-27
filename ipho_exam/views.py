@@ -3810,7 +3810,7 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
 
 
 @permission_required("ipho_core.can_see_boardmeeting")
-def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False):
+def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False, solution=False):
     if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
@@ -3823,7 +3823,8 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     else:
         trans = qquery.latest_version(question_id, lang_id, user=request.user)
 
-    filename = "exam-{}-{}{}-{}.pdf".format(
+    filename = "{}-{}-{}{}-{}.pdf".format(
+        "solution" if solution else "exam",
         slugify(trans.question.exam.name),
         trans.question.code,
         trans.question.position,
@@ -3853,6 +3854,15 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         return res
 
     trans_content, ext_resources = trans.qml.make_tex()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"\\begin{QTS}{[^}]*}.*?\\end{QTS}"
+        trans_content = re.sub(solution_env_pattern, "", trans_content, flags=re.DOTALL)
+    # Remove the figures from the questions that are tagged as not included
+    else:
+        tagged_figures_pattern = r"% BEGIN_EXCLUDE_IN_SOLUTION.*?% END_EXCLUDE_IN_SOLUTION"
+        trans_content = re.sub(tagged_figures_pattern, "", trans_content, flags=re.DOTALL)
+
     for reso in ext_resources:
         if isinstance(reso, tex.FigureExport):
             reso.lang = trans.lang
@@ -3953,7 +3963,7 @@ def auto_translate_count(request):
     or u.has_perm("ipho_core.can_edit_exam")
 )
 def compiled_question_diff(  # pylint: disable=too-many-locals
-    request, question_id, lang_id, old_version_num=None, new_version_num=None
+    request, question_id, lang_id, old_version_num=None, new_version_num=None, solution=False
 ):
     if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
@@ -3992,7 +4002,23 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
         )
 
     old_trans_content, old_ext_resources = trans_old.qml.make_tex()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"\\begin{QTS}{[^}]*}.*?\\end{QTS}"
+        old_trans_content = re.sub(solution_env_pattern, "", old_trans_content, flags=re.DOTALL)
+    # Remove the figures from the questions that are tagged as not included
+    else:
+        tagged_figures_pattern = r"% BEGIN_EXCLUDE_IN_SOLUTION.*?% END_EXCLUDE_IN_SOLUTION"
+        old_trans_content = re.sub(tagged_figures_pattern, "", old_trans_content, flags=re.DOTALL)
     new_trans_content, new_ext_resources = trans_new.qml.make_tex()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"\\begin{QTS}{[^}]*}.*?\\end{QTS}"
+        new_trans_content = re.sub(solution_env_pattern, "", new_trans_content, flags=re.DOTALL)
+    # Remove the figures from the questions that are tagged as not included
+    else:
+        tagged_figures_pattern = r"% BEGIN_EXCLUDE_IN_SOLUTION.*?% END_EXCLUDE_IN_SOLUTION"
+        new_trans_content = re.sub(tagged_figures_pattern, "", new_trans_content, flags=re.DOTALL)
 
     ext_resources = list(set(old_ext_resources) | set(new_ext_resources))
     for reso in ext_resources:
@@ -4057,7 +4083,7 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
 
 
 @login_required
-def compiled_question_odt(request, question_id, lang_id, version_num=None):
+def compiled_question_odt(request, question_id, lang_id, version_num=None, solution=False):
     if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
@@ -4072,6 +4098,14 @@ def compiled_question_odt(request, question_id, lang_id, version_num=None):
     filename = f"Exam - {trans.question.exam.name} Q{trans.question.position} - {trans.lang.name}.odt"
 
     trans_content, ext_resources = trans.qml.make_xhtml()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"<!-- BEGINSOLUTION -->.*?<!-- ENDSOLUTION -->"
+        trans_content = re.sub(solution_env_pattern, "", trans_content, flags=re.DOTALL)
+    # Remove the figures from the questions that are tagged as not included
+    else:
+        tagged_figures_pattern = r"% BEGIN_EXCLUDE_IN_SOLUTION.*?% END_EXCLUDE_IN_SOLUTION"
+        trans_content = re.sub(tagged_figures_pattern, "", trans_content, flags=re.DOTALL)
     for reso in ext_resources:
         if isinstance(reso, tex.FigureExport):
             reso.lang = trans.lang
@@ -4088,7 +4122,7 @@ def compiled_question_odt(request, question_id, lang_id, version_num=None):
 
 
 @login_required
-def compiled_question_html(request, question_id, lang_id, version_num=None):
+def compiled_question_html(request, question_id, lang_id, version_num=None, solution=False):
     if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
@@ -4101,6 +4135,14 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
     else:
         trans = qquery.latest_version(question_id, lang_id, user=request.user)
     trans_content, _ = trans.qml.make_xhtml()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"<!-- BEGINSOLUTION -->.*?<!-- ENDSOLUTION -->"
+        trans_content = re.sub(solution_env_pattern, "", trans_content, flags=re.DOTALL)
+    # Remove the figures from the questions that are tagged as not included
+    else:
+        tagged_figures_pattern = r"% BEGIN_EXCLUDE_IN_SOLUTION.*?% END_EXCLUDE_IN_SOLUTION"
+        trans_content = re.sub(tagged_figures_pattern, "", trans_content, flags=re.DOTALL)
 
     html = """<!DOCTYPE html>
 <html>
