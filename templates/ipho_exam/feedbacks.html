@@ -94,7 +94,22 @@
           {% endfor %}
             </ul>
           </div>
-
+          <div class="dropdown div-inline" style="float: left; padding-left: 5px;" >
+            <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+          {% if topic %}
+              {{ topic }}
+          {% else %}
+              Filter topic
+          {% endif %}
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="{% this_url to=None %}">-- None --</a></li>
+          {% for to in topic_choices %}
+              <li {% if topic == to %} class="active" {% endif %}><a href="{% this_url to=to.0 %}">{{ to.1 }}</a></li>
+          {% endfor %}
+            </ul>
+          </div>
           <div class="dropdown div-inline" style="float: left; padding-left: 5px;">
             <a class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
           {% if question %}
@@ -123,6 +138,7 @@
       <tr>
           <th class="col-sm-01">#</th>
           <th>Status</th>
+          <th>Topic</th>
           <th>Delegation</th>
           <th>Question</th>
           <th>Part</th>
@@ -285,6 +301,20 @@ $(function() {
     });
 
     $('.feedback-table').on('click','.feedback-status', function(evt){
+      evt.preventDefault();
+      var a = evt.target;
+      if($(a).hasClass('disabled')){return false}
+      $(a).parent().parent().dropdown("toggle");
+      var url = $(a).attr('href');
+      $.ajax({
+          url: url,
+          type: 'POST',
+      }).done(function( data ) {
+        update_feedbacks({{ exam.pk }});
+      });
+      return false;
+    });
+    $('.feedback-table').on('click','.feedback-topic', function(evt){
       evt.preventDefault();
       var a = evt.target;
       if($(a).hasClass('disabled')){return false}

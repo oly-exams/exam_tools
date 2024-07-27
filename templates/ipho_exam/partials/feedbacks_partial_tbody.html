@@ -11,6 +11,7 @@
     <tr>
         <th>#</th>
         <th>Status</th>
+        <th>Topic</th>
         <th>Delegation</th>
         <th>Comment</th>
         <th>Timestamp</th>
@@ -36,6 +37,23 @@
               </div>
             {% else %}
               {{ fb.status_display }}
+            {% endif %}
+          </td>
+          <td>
+            {% if perms.ipho_core.is_organizer_admin and fb.commentable %}
+              <div class="btn-group">
+                <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+                  {{ fb.topic_display }}
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                  {% for k,v in topic_choices %}
+                  <li class="{% if k == fb.topic %}active{% endif %}"><a href="{% url 'exam:feedback-set-topic' topic=k feedback_id=fb.pk %}" class="feedback-topic">{{ v }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% else %}
+              {{ fb.topic_display }}
             {% endif %}
           </td>
           <td>{{ fb.delegation__country }}</td>

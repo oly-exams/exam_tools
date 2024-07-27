@@ -287,6 +287,7 @@ class FeedbackForm(ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("comment", placeholder="Comment"),
+            Field("topic", placeholder="Select topic"),
         )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
@@ -296,8 +297,7 @@ class FeedbackForm(ModelForm):
 
     class Meta:
         model = Feedback
-        fields = ["comment"]
-        # labels = {'part': 'Question part'}
+        fields = ["comment", "topic"]
 
 
 class FeedbackCommentForm(forms.Form):

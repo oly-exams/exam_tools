@@ -280,6 +280,11 @@ urlpatterns = [
         views.feedback_set_status,
         name="feedback-set-status",
     ),
+    re_path(
+        r"^feedbacks/(?P<feedback_id>\d+)/topic/(?P<topic>\w)$",
+        views.feedback_set_topic,
+        name="feedback-set-topic",
+    ),
     path("submission/list", views.submission_exam_list, name="submission-exam-list"),
     path(
         "submission/<int:exam_id>/assign",

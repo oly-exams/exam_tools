@@ -534,6 +534,26 @@ body { margin-bottom: 70px; }
               });
               return false;
             });
+            $('#feedback-modal').on('click','.feedback-topic', function(evt){
+              evt.preventDefault();
+              var a = evt.target;
+              if($(a).hasClass('disabled')){return false}
+              var qml_id = document.getElementById('qml_id_div').className;
+              var modal = $('#feedback-modal');
+              if($(a).is("[href]")){
+                var url = $(a).attr('href');
+              }else {
+                var url = $(a).parent().attr('href');
+              }
+              $.ajax({
+                  url: url,
+                  type: 'POST',
+                  success: function(data) {
+                      load_feedbacks(modal, qml_id);
+                  }
+              });
+              return false;
+            });
             {% endif %}
             /// Saving methods
 

@@ -1364,28 +1364,12 @@ class Feedback(models.Model):
         ("T", "Settled after voting"),
         ("W", "Withdrawn"),
     )
-    PARTS_CHOICES = (
-        ("General", "General"),
-        ("Intro", "Introduction"),
-        ("A", "Part A"),
-        ("B", "Part B"),
-        ("C", "Part C"),
-        ("D", "Part D"),
-        ("E", "Part E"),
-        ("F", "Part F"),
-        ("G", "Part G"),
-    )
-    SUBPARTS_CHOICES = (
-        ("General", "General comment on part"),
-        ("Intro", "Introduction of part"),
-        ("1", "1"),
-        ("2", "2"),
-        ("3", "3"),
-        ("4", "4"),
-        ("5", "5"),
-        ("6", "6"),
-        ("7", "7"),
-        ("8", "8"),
+    TOPIC_CHOICES = (
+        ("T", "Typo"),
+        ("F", "Formulation"),
+        ("C", "Science"),
+        ("S", "Structure"),
+        ("O", "Other"),
     )
 
     delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
@@ -1396,6 +1380,7 @@ class Feedback(models.Model):
     comment = models.TextField(blank=True)
     org_comment = models.TextField(blank=True, null=True, default=None)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="S")
+    topic = models.CharField(max_length=1, choices=TOPIC_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):

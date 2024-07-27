@@ -1008,6 +1008,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             "delegation__name",
             "delegation__country",
             "status",
+            "topic",
             "timestamp",
             "part",
             "part_position",
@@ -1052,9 +1053,11 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             unlike_del_slug = "<br> " + unlike_del[0] + ", ..., " + unlike_del[-1]
         f["like_delegations"] = [like_del_string, like_del_slug]
         f["unlike_delegations"] = [unlike_del_string, unlike_del_slug]
-    choices = dict(Feedback._meta.get_field("status").flatchoices)
+    status_choices = dict(Feedback._meta.get_field("status").flatchoices)
+    topic_choices = dict(Feedback._meta.get_field("topic").flatchoices)
     for fback in feedbacks:
-        fback["status_display"] = choices[fback["status"]]
+        fback["status_display"] = status_choices[fback["status"]]
+        fback["topic_display"] = topic_choices[fback["topic"]]
         fback["commentable"] = Question.objects.get(
             pk=fback["question__pk"]
         ).check_feedback_commentable()
@@ -1072,6 +1075,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
     ctxt["question"] = question
     ctxt["feedbacks"] = feedbacks
     ctxt["status_choices"] = Feedback.STATUS_CHOICES
+    ctxt["topic_choices"] = Feedback.TOPIC_CHOICES
     ctxt["is_delegation"] = delegation is not None or request.user.has_perm(
         "ipho_core.is_organizer_admin"
     )
@@ -1211,6 +1215,15 @@ def feedbacks_list(
         display_status = dict(Feedback.STATUS_CHOICES)[status]
         filter_st = status
 
+    topic_list = Feedback.TOPIC_CHOICES
+    filter_to = [t[0] for t in topic_list]
+    topic = request.GET.get("to", None)
+    display_topic = None
+    if topic is not None:
+        topic = topic.rstrip("/")
+        display_topic = dict(Feedback.TOPIC_CHOICES)[topic]
+        filter_to = topic
+
     filter_qu = questions_f
     qf_pk = request.GET.get("qu", None)
     if qf_pk is not None:
@@ -1248,6 +1261,7 @@ def feedbacks_list(
         )
         query = Feedback.objects.filter(question__in=questions).filter(
             status__in=filter_st,
+            topic__in=filter_to,
             question__in=filter_qu,
         )
         feedbacks = (
@@ -1278,6 +1292,7 @@ def feedbacks_list(
                 "delegation__name",
                 "delegation__country",
                 "status",
+                "topic",
                 "timestamp",
                 "part",
                 "part_position",
@@ -1297,7 +1312,8 @@ def feedbacks_list(
         for x in feedbacks:
             x["num_comments"] = feedback_comments[x["pk"]]
 
-        choices = dict(Feedback._meta.get_field("status").flatchoices)
+        status_choices = dict(Feedback._meta.get_field("status").flatchoices)
+        topic_choices = dict(Feedback._meta.get_field("topic").flatchoices)
         for fback in feedbacks:
             like_del = [
                 d[0]
@@ -1325,7 +1341,8 @@ def feedbacks_list(
                 unlike_del_slug = "<br> " + unlike_del[0] + ", ..."
             fback["like_delegations"] = [like_del_string, like_del_slug]
             fback["unlike_delegations"] = [unlike_del_string, unlike_del_slug]
-            fback["status_display"] = choices[fback["status"]]
+            fback["status_display"] = status_choices[fback["status"]]
+            fback["topic_display"] = topic_choices[fback["topic"]]
             fback["commentable"] = Question.objects.get(
                 pk=fback["question__pk"]
             ).check_feedback_commentable()
@@ -1342,7 +1359,6 @@ def feedbacks_list(
         feedbacks.sort(
             key=lambda fback: (fback["question__pk"], fback["part_position"])
         )
-
         return render(
             request,
             "ipho_exam/partials/feedbacks_tbody.html",
@@ -1350,6 +1366,7 @@ def feedbacks_list(
                 "feedbacks": feedbacks,
                 "exam_id": exam_id,
                 "status_choices": Feedback.STATUS_CHOICES,
+                "topic_choices": Feedback.TOPIC_CHOICES,
                 "is_delegation": delegation is not None
                 or request.user.has_perm("ipho_core.is_organizer_admin"),
             },
@@ -1374,6 +1391,8 @@ def feedbacks_list(
             "exam": exam,
             "status": display_status,
             "status_choices": Feedback.STATUS_CHOICES,
+            "topic": display_topic,
+            "topic_choices": Feedback.TOPIC_CHOICES,
             "question": question_f,
             "questions": questions_f,
             "is_delegation": delegation is not None
@@ -1469,6 +1488,21 @@ def feedback_set_status(request, feedback_id, status):
 
 
 @permission_required("ipho_core.can_manage_feedback")
+def feedback_set_topic(request, feedback_id, topic):
+    fback = get_object_or_404(Feedback, id=feedback_id)
+    question = fback.question
+    if (
+        not question.exam.check_visibility(request.user)
+        or question.feedback_status <= Question.FEEDBACK_CLOSED
+        or question.exam.feedback <= Exam.FEEDBACK_READONLY
+    ):
+        return JsonResponse({"success": False})
+    fback.topic = topic
+    fback.save()
+    return JsonResponse({"success": True})
+
+
+@permission_required("ipho_core.can_manage_feedback")
 def feedbacks_export(request):
     questions = Question.objects.for_user(request.user)
     return render(
@@ -1503,6 +1537,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             "part_position",
             "delegation__name",
             "status",
+            "topic",
             "timestamp",
             "comment",
             "org_comment",
@@ -1557,6 +1592,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             "Position",
             "Delegation",
             "Status",
+            "Topic",
             "Timestamp",
             "Comment",
             "Organizer comment",
