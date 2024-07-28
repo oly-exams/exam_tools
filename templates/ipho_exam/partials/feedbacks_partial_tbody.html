@@ -6,6 +6,21 @@
     </div>
 {% endif %}
 
+{% if content %}
+    <div class="card card-body">
+      <a data-toggle="collapse" href="#feedback-on-orig-{{ fb.pk }}" role="button" aria-expanded="false" aria-controls="#feedback-on-orig-{{ fb.pk }}">
+        <span class="glyphicon glyphicon-chevron-up"></span>Show original text the comment will be on
+      </a>
+      <br>
+      <div class="feedback-on-orig collapse" id="feedback-on-orig-{{ fb.pk }}">
+        <div class="card card-body">
+            <br>
+            <p>{{ content |safe}}</p>
+            <br>
+        </div>
+      </div>
+    </div>
+{% endif %}
   <table class="table table-striped" id="feedback-table">
     <thead>
     <tr>
@@ -23,7 +38,7 @@
       <tr>
           <td>{{ fb.pk }}</td>
           <td>
-            {% if perms.ipho_core.is_organizer_admin and fb.commentable %}
+            {% if perms.ipho_core.can_manage_feedback and fb.commentable %}
               <div class="btn-group">
                 <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                   {{ fb.status_display }}
@@ -40,7 +55,7 @@
             {% endif %}
           </td>
           <td>
-            {% if perms.ipho_core.is_organizer_admin and fb.commentable %}
+            {% if perms.ipho_core.can_manage_feedback and fb.commentable %}
               <div class="btn-group">
                 <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                   {{ fb.category_display }}
@@ -65,8 +80,8 @@
             {{ fb.org_comment }}{% endif %}
             <br>
             <a data-toggle="collapse" href="#feedback-thread-{{ fb.pk }}" role="button" aria-expanded="false" aria-controls="#feedback-thread-{{ fb.pk }}" >
-                  <span class="glyphicon glyphicon-chevron-up"></span>{% if fb.num_comments > 0 %} {{ fb.num_comments }} delegation discussion messages.{% else %} Start delegation discussion.{% endif %}
-              </a>
+              <span class="glyphicon glyphicon-chevron-up"></span>{% if fb.num_comments > 0 %} {{ fb.num_comments }} delegation discussion messages.{% else %} Start delegation discussion.{% endif %}
+            </a>
             <br>
             <div class="feedback-thread collapse" id="feedback-thread-{{ fb.pk }}" data-fbid="{{ fb.pk }}">
               <i class="fa fa-spinner fa-pulse"></i> Loading...

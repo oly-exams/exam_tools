@@ -18,7 +18,7 @@
       {% else %}
         {{ fb.status_display }}
       {% endif %}
-    </td> 
+    </td>
     <td>
      {% if perms.ipho_core.can_manage_feedback and fb.commentable %}
         <div class="btn-group">
@@ -38,7 +38,7 @@
     </td>
     <td>{{ fb.delegation__country }}</td>
     <td>{{ fb.question__name }}</td>
-    <td>{{ fb.part }}</td>
+    <td>{{ fb.sort_order }}-{{ fb.part }}</td>
     <td style="display:none;">{{ fb.part_position }}</td>
     <td>
       {{ fb.comment }}{% if fb.org_comment %}
@@ -76,14 +76,12 @@
             <!-- {{fb.unlike_delegations.1|safe}} -->
           </span> <!-- btn-toolbar -->
         </div>
-        {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
-        {% if fb.commentable %}
-        <div style="display:inline-block">
-          <span type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
-            Comment
-          </span>
-        </div>
-        {% endif %}
+        {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable and fb.commentable %}
+          <div style="display:inline-block">
+            <span type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
+              Comment
+            </span>
+          </div>
         {% endif %}
         <div style="display:inline-block">
           <a href="{% url 'exam:exam-view' exam_id=exam_id question_id=fb.question__pk %}#{{ fb.qml_id }}" class="btn btn-sm btn-default" id="view-exam-{{ fb.qml_id }}" target="_blank" role="button" title="View Exam">

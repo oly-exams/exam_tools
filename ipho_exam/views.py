@@ -907,6 +907,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
     ctxt = {}
+    block_text = None
 
     if request.user.has_perm("ipho_core.is_delegation"):
         form = FeedbackForm(request.POST or None)
@@ -914,6 +915,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         node = VersionNode.objects.filter(
             question=question, language=orig_lang, status="C"
         )[0]
+        ids_in_order = [f"global_{node.question_id}"] + node.ids_in_order.split(",")
         qml_root = qml.make_qml(node)
 
         nodes = [[nd, False] for nd in qml_root.children]
@@ -922,6 +924,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         part_position = 0
         part_label = None
         question_label = None
+        block_text = None
         part_count = 0
 
         if qml_id in (qml_root.id, "global"):
@@ -951,6 +954,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
                 is_subpart = True
             # end the loop if our node is reached
             if current_node.id == qml_id:
+                block_text = current_node.content()
                 break
             # depth first
             if current_node.has_children and current_node.children:
@@ -974,7 +978,10 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             form.instance.qml_id = qml_id
             form.instance.part = part_text[:100]
             form.instance.part_position = part_position
-
+            try:
+                form.instance.sort_order = ids_in_order.index(qml_id.replace("global", f"global_{question_id}"))
+            except ValueError:
+                form.instance.sort_order = 0
             # part = models.CharField(max_length=100, default=None)
             form.save()
             ctxt[
@@ -1089,6 +1096,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
     ctxt["status_choices"] = Feedback.STATUS_CHOICES
     ctxt["category_choices"] = Feedback.CATEGORY_CHOICES
     ctxt["delegation"] = delegation
+    ctxt["content"] = block_text
 
     return render(request, "ipho_exam/partials/feedbacks_partial_tbody.html", ctxt)
 
@@ -1237,9 +1245,11 @@ def feedbacks_list(
         Question.objects.for_user(request.user).filter(exam__in=exam_filter_list).all()
     )
 
+    # Clean request url for filtering
+    query_dict = QueryDict(request.META["QUERY_STRING"].replace("amp;", ""))
     status_list = Feedback.STATUS_CHOICES
     filter_st = [s[0] for s in status_list]
-    status = request.GET.get("st", None)
+    status = query_dict.get("st", None)
     display_status = None
     if status is not None:
         status = status.rstrip("/")
@@ -1248,7 +1258,7 @@ def feedbacks_list(
 
     category_list = Feedback.CATEGORY_CHOICES
     filter_ca = [t[0] for t in category_list]
-    category = request.GET.get("ca", None)
+    category = query_dict.get("ca", None)
     display_category = None
     if category is not None:
         category = category.rstrip("/")
@@ -1256,7 +1266,7 @@ def feedbacks_list(
         filter_ca = category
 
     filter_qu = questions_f
-    qf_pk = request.GET.get("qu", None)
+    qf_pk = query_dict.get("qu", None)
     if qf_pk is not None:
         qf_pk = qf_pk.rstrip("/")
     question_f = Question.objects.for_user(request.user).filter(pk=qf_pk).first()
@@ -1289,12 +1299,13 @@ def feedbacks_list(
 
         questions = Question.objects.for_user(request.user).filter(
             exam=request.GET["exam_id"]
-        )
+        ).order_by("position")
         query = Feedback.objects.filter(question__in=questions).filter(
             status__in=filter_st,
             category__in=filter_ca,
             question__in=filter_qu,
         )
+
         feedbacks = (
             query.annotate(
                 num_likes=Sum(
@@ -1330,8 +1341,9 @@ def feedbacks_list(
                 "comment",
                 "org_comment",
                 "qml_id",
+                "sort_order",
             )
-            .order_by("-timestamp")
+            .order_by("sort_order", "timestamp")
         )
 
         # not in an annotate due to: https://code.djangoproject.com/ticket/10060
@@ -2123,7 +2135,6 @@ def admin_delete_version(request, exam_id, question_id, version_num):
 @permission_required("ipho_core.can_edit_exam")
 def admin_check_version_before_diff(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
-    print(exam_id)
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
 
     question = get_object_or_404(
@@ -2321,6 +2332,16 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     publish_form = PublishForm(request.POST or None)
     if publish_form.is_valid():
         node.status = "C"
+        # Save the ids in order, so they can be used for feedback sorting
+        qmln = qml.make_qml(node)
+        ids_in_order = []
+        def get_ids(obj):
+            if obj.id is not None:
+                ids_in_order.append(obj.id)
+            for child in obj.children:
+                get_ids(child)
+        get_ids(qmln)
+        node.ids_in_order = ",".join(ids_in_order)
         node.save()
 
         exam_id = node.question.exam.id

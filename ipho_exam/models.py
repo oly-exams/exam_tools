@@ -991,6 +991,7 @@ class VersionNode(models.Model):
     )
 
     text = models.TextField()
+    ids_in_order = models.TextField(default="")
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     version = models.IntegerField()
     tag = models.CharField(
@@ -1380,6 +1381,7 @@ class Feedback(models.Model):
     delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     qml_id = models.CharField(max_length=100, default=None, null=True, blank=True)
+    sort_order = models.IntegerField(default=0)
     part = models.CharField(max_length=100, default=None)
     part_position = models.IntegerField(default=0)
     comment = models.TextField(blank=True)

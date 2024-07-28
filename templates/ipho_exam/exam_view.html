@@ -168,10 +168,8 @@ body { margin-bottom: 70px; }
           <div class="modal-body feedback"></div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            {% if not perms.ipho_core.is_organizer_admin %}
-              {% if question.check_feedback_editable %}
-                <button id="modal-form-submit" type="submit" class="btn btn-primary">Send feedback</button>
-              {% endif %}
+            {% if not perms.ipho_core.is_organizer_admin and question.check_feedback_editable %}
+              <button id="modal-form-submit" type="submit" class="btn btn-primary">Send feedback</button>
             {% endif %}
           </div>
       </form>
@@ -463,7 +461,6 @@ body { margin-bottom: 70px; }
               var button = $(event.relatedTarget); // Button that triggered the modal
               var qml_id = button[0].id;
               load_feedbacks(modal, qml_id);
-
             });
             $('#feedback-modal form').on('submit',function(evt) {
                 var form = evt.target;
@@ -493,7 +490,18 @@ body { margin-bottom: 70px; }
               $(a.parentElement).find('span.glyphicon')
                                 .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
             });
-
+            $('#feedback-modal').on('show.bs.collapse','.feedback-on-orig', function(evt){
+              var a = evt.target;
+              console.log(a);
+              console.log(a.parentElement);
+              $(a.parentElement).find('span.glyphicon')
+                                .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+            });
+            $('#feedback-modal').on('hide.bs.collapse','.feedback-on-orig', function(evt){
+              var a = evt.target;
+              $(a.parentElement).find('span.glyphicon')
+                                .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+            });
             $('#feedback-modal').on('show.bs.collapse','.feedback-thread', function(evt){
               var a = evt.target;
               $(a.parentElement).find('span.glyphicon')
