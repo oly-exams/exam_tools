@@ -1076,6 +1076,8 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             >= Question.FEEDBACK_EVERYBODY_COMMENT
             and fback["question__exam__feedback"] >= Exam.FEEDBACK_CAN_BE_OPENED
             and delegation is not None
+            and fback["status"] != "I"
+            and fback["status"] != "W"
         )
     feedbacks = list(feedbacks)
     feedbacks.sort(
@@ -1100,6 +1102,12 @@ def feedback_partial_like(request, status, feedback_id):
         question__exam__feedback__gte=Exam.FEEDBACK_CAN_BE_OPENED,
         question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
     )
+    if feedback.status == "I" or feedback.status == "W":
+        return JsonResponse(
+            {
+                "success": False,
+            }
+        )
     delegation = Delegation.objects.get(members=request.user)
     Like.objects.get_or_create(
         feedback=feedback, delegation=delegation, defaults={"status": status}
@@ -1378,6 +1386,8 @@ def feedbacks_list(
                 >= Question.FEEDBACK_EVERYBODY_COMMENT
                 and fback["question__exam__feedback"] >= Exam.FEEDBACK_CAN_BE_OPENED
                 and delegation is not None
+                and fback["status"] != "I"
+                and fback["status"] != "W"
             )
         feedbacks = list(feedbacks)
         feedbacks.sort(
