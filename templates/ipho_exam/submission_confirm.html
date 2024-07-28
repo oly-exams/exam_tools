@@ -47,7 +47,7 @@ The final documents are being prepared. You have to wait until all documents are
                   {% for doc in ppnt_documents|lookup:ss.pk %}
                   <a class="btn btn-xs btn-default single-doc" target="_blank" title="Preview PDF" id="preview-{{ ss.pk }}-{{ doc.position }}" href="{% url 'exam:pdf-exam-pos-participant'  exam_id=exam.pk participant_id=ss.pk position=doc.position %}" data-doc-status="loading"><i class="fa fa-spinner fa-spin"></i> #{{ doc.position }}</a>
                   {% endfor %}
-                  <a class="btn btn-xs btn-default combine-all" title="Preview combined PDF without coversheets" download="preview-{{ ss.code }}.pdf"><i class="fa fa-spinner fa-spin"></i> All</a>
+                  <a class="btn btn-xs btn-default combine-all" title="Preview combined PDF{% if include_cover %} without coversheets{% endif %}" download="preview-{{ ss.code }}.pdf"><i class="fa fa-spinner fa-spin"></i> All</a>
               </div>
               <div>
                   {% if ss.is_group %}

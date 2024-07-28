@@ -132,6 +132,7 @@ del {
     });
 </script>
 <script src="{% static "MathJax/MathJax.js" %}?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="{% static '/pdflib/pdf-lib.min.js' %}"></script>
 
 <script>
 $(function() {
@@ -220,6 +221,24 @@ $(function() {
         });
     })
 
+    {% include "ipho_exam/partials/merge_pdf_clientside.js"%}
+    function merge_translation_on_click(event) {
+        $(".student-docs .single-doc").remove();
+        var row = event.target.closest("tr");
+        
+        for (let i = 0; i < $(event.target).data('qnum'); i++) {
+            row = row.previousElementSibling;
+            const a = document.createElement("a");
+            a.className = "single-doc";
+            const link = $(row).find(".single-doc").attr("href");
+            a.setAttribute("href", link);
+            $(".student-docs").prepend(a);
+        }
+    
+        merge_on_click(event, progress=true);
+        // var name = `scan_batch_${new String(new Date().toISOString()).replace(/[.:-]+/g, "_").replace(".", "_")}.pdf`;
+        // $(".combine-all").attr("download", name);
+    };
 
     function update_questions(tid) {
         $.ajax({
@@ -234,6 +253,7 @@ $(function() {
                 var dt = moment(el.attr("datetime"));
                 el.text(dt.format(el.data("format")));
             });
+            $(".combine-all").click(merge_translation_on_click);
         });
     }
 

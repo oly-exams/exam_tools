@@ -252,13 +252,22 @@ def translations_list(request):
         in_progress = ExamAction.action_in_progress(
             ExamAction.TRANSLATION, exam=exam, delegation=delegation
         )
-        trans_list = TranslationNode.objects.filter(
-            question__exam=exam, language__delegation=delegation
-        ).order_by("language", "question")
-        pdf_list = PDFNode.objects.filter(
-            question__exam=exam, language__delegation=delegation
-        ).order_by("language", "question")
-        node_list = list(trans_list) + list(pdf_list)
+        node_lists = {}
+        lang_list = Language.objects.filter(delegation=delegation)
+        for lang in lang_list:
+            if lang.is_pdf:
+                nodes = PDFNode.objects.filter(
+                    question__exam=exam, language=lang
+                ).order_by("question")
+                if nodes:
+                    node_lists[lang] = nodes
+            else:
+                nodes = TranslationNode.objects.filter(
+                    question__exam=exam, language=lang
+                ).order_by("question")
+                if nodes:
+                    node_lists[lang] = nodes
+
         official_translations_vnode = VersionNode.objects.filter(
             question__exam=exam,
             language__delegation__name=OFFICIAL_DELEGATION,
@@ -279,7 +288,7 @@ def translations_list(request):
             "ipho_exam/partials/list_exam_tbody.html",
             {
                 "exam": exam,
-                "node_list": node_list,
+                "node_lists": node_lists,
                 "official_nodes": official_nodes,
                 "exam_active": exam.visibility >= Exam.get_visibility(request.user)
                 and in_progress,

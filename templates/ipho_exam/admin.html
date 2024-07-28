@@ -121,8 +121,8 @@
 
     {% for ex in exam_list %}
     <h3>
-		{{ ex.name }} 
-        {% if ex.flags|binand:ex.FLAG_SQUASHED %}<span class="label label-default">Squashed</span>{% endif %} 
+		{{ ex.name }}
+        {% if ex.flags|binand:ex.FLAG_SQUASHED %}<span class="label label-default">Squashed</span>{% endif %}
         <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'exam:admin-add-question' exam_id=ex.pk %}">
             <i class="fa fa-plus fa-fw"></i> Add question</button>
         <a class="btn btn-secondary" data-toggle="collapse" href="#exam-tbody-{{ ex.pk }}" role="button" aria-expanded="false" aria-controls="#exam-tbody-{{ ex.pk }}">
@@ -383,7 +383,7 @@ $(function() {
         $('#accept-anyway-button').attr("href", "");
         $('#accept-anyway-button').hide();
         $('#accept-check-modal .modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
-        
+
         $('#accept-check-modal .modal-body').html("");
         $('#accept-check-modal').modal("show");
 
@@ -419,7 +419,7 @@ $(function() {
         modal.find('.modal-body').html('');
         $("#check-modal-header").removeClass();
         $("#check-modal-header").addClass("modal-header");
-        
+
         //modal.find('.modal-footer').addClass('hide');
 
         $.ajax({
