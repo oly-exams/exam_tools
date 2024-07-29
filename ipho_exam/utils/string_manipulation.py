@@ -211,11 +211,11 @@ def html2tex_bs4(elem, escape=True):  # pylint: disable=too-many-branches
         elif sel.name in ["u"]:
             result.append("\\underline{%s}" % (html2tex_bs4(sel, escape=escape)))
         ## Subscript
-        elif sel.tag in ["sub"]:
-            result.append("\\textsubscript{%s}" % (html2tex(sel, escape=escape)))
+        elif sel.name in ["sub"]:
+            result.append("\\textsubscript{%s}" % (html2tex_bs4(sel, escape=escape)))
         ## Superscript
-        elif sel.tag in ["sup"]:
-            result.append("\\textsuperscript{%s}" % (html2tex(sel, escape=escape)))
+        elif sel.name in ["sup"]:
+            result.append("\\textsuperscript{%s}" % (html2tex_bs4(sel, escape=escape)))
 
         elif sel.name in ["ul"]:
             result.append(
