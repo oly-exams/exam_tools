@@ -2053,8 +2053,17 @@ def admin_import_version(request, question_id):
             node.status = "P"
         # Assume that we are importing our internal dump format (xml with escaped html).
         node.text = txt
-        node.save()
-        return JsonResponse({"success": True})
+        # Check that all ids are unique
+        ids = set()
+        root = qml.make_qml(node)
+        for obj in root.children:
+            if obj.id in ids:
+                form.add_error("file", f"ID {obj.id} is not unique.")
+            ids.add(obj.id)
+
+        if form.is_valid():
+            node.save()
+            return JsonResponse({"success": True})
 
     form_html = render_crispy_form(form)
     return JsonResponse(
