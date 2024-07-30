@@ -25,7 +25,6 @@ from django.conf import settings
 from google.api_core.exceptions import BadRequest
 from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
-
 from ipho_exam.models import CachedAutoTranslation
 
 django_logger = logging.getLogger("django.request")
@@ -37,23 +36,24 @@ AUTO_TRANSLATE_LANGUAGE_LIST = [
 ]
 
 
-class MathReplacer:
-    """Replaces math spans with empty spans"""
+class SpanReplacer:
+    """Replaces spans with empty spans"""
 
-    def __init__(self):
+    def __init__(self, span_class):
+        self.span_class = span_class
         self.matches = []
         self.i = -1
         self.replace_pattern = (
-            r'<\s*span\s*class\s*=\s*"math-tex"\s*>.*?<\s*\/\s*span\s*>'
+            r'<\s*span[^>]*\sclass\s*=\s*"' + span_class + r'"\s*>.*?<\s*/\s*span\s*>'
         )
         self.readd_pattern = (
-            r'<\s*span\s*data-oly\s*=\s*"([0-9]*)"\s*>\s*<\s*\/\s*span\s*>'
+            r'<\s*span\s*data-'+span_class+r'-oly\s*=\s*"([0-9]*)"\s*>\s*<\s*\/\s*span\s*>'
         )
 
     def _repl(self, match):
         self.matches.append(match.group(0))
         self.i += 1
-        return f'<span data-oly="{self.i}"></span>'
+        return f'<span data-{self.span_class}-oly="{self.i}"></span>'
 
     def _readd(self, match):
         num = int(match.group(1))
@@ -61,10 +61,10 @@ class MathReplacer:
             return self.matches[num]
         return match.group(0)
 
-    def replace_math(self, raw_text):
+    def replace_span(self, raw_text):
         return re.sub(self.replace_pattern, self._repl, raw_text)
 
-    def readd_math(self, raw_translated_text):
+    def readd_span(self, raw_translated_text):
         return re.sub(self.readd_pattern, self._readd, raw_translated_text)
 
 
@@ -184,8 +184,10 @@ def auto_translate_helper(raw_text, from_lang_obj, to_lang, delegation):
         )
 
     # replace math with empty spans
-    math_replacer = MathReplacer()
-    text = math_replacer.replace_math(raw_text)
+    math_replacer = SpanReplacer("math-tex")
+    rtl_replacer = SpanReplacer("lang-ltr")
+    math_text = math_replacer.replace_span(raw_text)
+    text = rtl_replacer.replace_span(math_text)
 
     # update translate_char_count
     from_length = len(text)
@@ -210,6 +212,7 @@ def auto_translate_helper(raw_text, from_lang_obj, to_lang, delegation):
         )
 
     # readd math
-    translated_text = math_replacer.readd_math(raw_translated_text)
+    translated_text_math = math_replacer.readd_span(raw_translated_text)
+    translated_text = rtl_replacer.readd_span(translated_text_math)
 
     return {"text": translated_text}
