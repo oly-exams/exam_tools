@@ -1219,7 +1219,7 @@ class FigureManager(PolymorphicManager):
 class Figure(PolymorphicModel):
     objects = FigureManager()
     name = models.CharField(max_length=100, db_index=True)
-    fig_id = models.URLField(
+    fig_id = models.CharField(
         max_length=100,
         db_index=True,
         default=natural_id.generate_id,
