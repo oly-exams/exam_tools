@@ -18,12 +18,13 @@
 import os
 import sys
 
-os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
-sys.path.append(".")
-
 import django
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "exam_tools.settings")
+sys.path.append('.')
+
 django.setup()
+
 
 from ipho_exam.models import Delegation, Exam, ExamAction, Question
 from ipho_marking.models import MarkingAction
