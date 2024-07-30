@@ -3971,6 +3971,13 @@ def compiled_question(
 
     for reso in ext_resources:
         if isinstance(reso, tex.FigureExport):
+            if not reso.exists():
+                return render(
+                    request,
+                    "ipho_exam/missing_figure.html",
+                    {"figid": reso.figid},
+                    status=404,
+                )
             reso.lang = trans.lang
     ext_resources.append(
         tex.TemplateExport(
@@ -4146,6 +4153,13 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
     ext_resources = list(set(old_ext_resources) | set(new_ext_resources))
     for reso in ext_resources:
         if isinstance(reso, tex.FigureExport):
+            if not reso.exists():
+                return render(
+                    request,
+                    "ipho_exam/missing_figure.html",
+                    {"figid": reso.figid},
+                    status=404,
+                )
             reso.lang = lang
     ext_resources.append(
         tex.TemplateExport(
@@ -4237,6 +4251,13 @@ def compiled_question_odt(
         )
     for reso in ext_resources:
         if isinstance(reso, tex.FigureExport):
+            if not reso.exists():
+                return render(
+                    request,
+                    "ipho_exam/missing_figure.html",
+                    {"figid": reso.figid},
+                    status=404,
+                )
             reso.lang = trans.lang
     context = {
         "lang_name": f"{trans.lang.name} ({trans.lang.delegation.country})",
