@@ -120,8 +120,10 @@
               {% if perms.ipho_core.can_see_boardmeeting or perms.ipho_core.is_delegation_print %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
               {% endif %}
-              {% if perms.ipho_core.can_print_boardmeeting_site or perms.ipho_core.can_print_exam_site %}
+              {% if perms.ipho_core.can_print_exam_site %}
               <li><a href="{% url 'print:main' %}">Print</a></li>
+              {% elif perms.ipho_core.can_print_boardmeeting_site %}
+              <li><a href="{% url 'print:main' %}">Draft Print</a></li>
               {% endif %}
 
               {% if perms.ipho_core.is_organizer_admin or perms.ipho_core.is_marker or perms.ipho_core.is_printstaff or perms.ipho_core.can_edit_exam or perms.ipho_core.can_manage_feedback or perms.ipho_core.can_edit_poll %}
