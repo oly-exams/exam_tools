@@ -28,8 +28,8 @@ from copy import deepcopy
 from decimal import Decimal
 from io import StringIO
 from xml.etree import ElementTree as ET
-from django.conf import settings
 
+from django.conf import settings
 from future import standard_library
 
 standard_library.install_aliases()
@@ -607,7 +607,7 @@ class QMLsubanswer(QMLbase):
 
     has_text = False
     has_children = True
-    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + ("vspace",)
 
     default_attributes = {
         "min_points": "0.0",
@@ -975,7 +975,7 @@ class QMLcellfigure(QMLfigure):
 
         fig_caption = ""
         for child in self.children:
-            if child.tag == "caption":
+            if child.tag == "caption" or child.tag == "paragraph":
                 caption_text = string_manipulation.html2tex(child.data)
                 caption_text = caption_text.strip("\n")
                 caption_text = caption_text.replace("\n", r" ~\newline ")
@@ -986,7 +986,7 @@ class QMLcellfigure(QMLfigure):
         texout = ""
         texout += str(r"\begin{minipage}{" + width + r"\textwidth}\centering") + "\n"
         texout += f"\\includegraphics[width=\\textwidth]{{{figname}}}\n"
-        texout += r"\end{minipage}" + "\n"
+        texout += r"\end{minipage}" + "\n\\newline\n"
 
         externals = [
             tex.FigureExport(
