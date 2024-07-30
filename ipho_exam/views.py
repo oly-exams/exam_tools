@@ -1757,7 +1757,7 @@ def figure_edit(request, fig_id):
         ext = os.path.splitext(str(request.FILES["file"]))[1]
         if "file" in request.FILES:
             if compiled:
-                obj.content = request.FILES["file"].read()
+                obj.content = str(request.FILES["file"].read(), "utf-8")
                 placeholders = figparam_placeholder.findall(obj.content)
                 obj.params = ",".join(placeholders)
                 obj.save()
