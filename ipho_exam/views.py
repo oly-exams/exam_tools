@@ -32,6 +32,7 @@ from collections import OrderedDict, defaultdict
 from copy import deepcopy
 from hashlib import md5
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 from celery.result import AsyncResult
 from crispy_forms.utils import render_crispy_form
@@ -1685,7 +1686,13 @@ def figure_add(request):
 
         if ext in VALID_COMPILED_FIGURE_EXTENSIONS:
             obj = CompiledFigure.objects.create(name=obj.name)
-            obj.content = str(request.FILES["file"].read(), "utf-8")
+            raw_content = str(request.FILES["file"].read(), "utf-8")
+            # Remove metadata
+            clean_content = ET.fromstring(raw_content)
+            for child in clean_content:
+                if "metadata" == re.sub("{(.*?)}", "", child.tag):
+                    clean_content.remove(child)
+            obj.content = str(ET.tostring(clean_content, encoding="utf-8"), "utf-8")
             placeholders = figparam_placeholder.findall(obj.content)
             obj.params = ",".join(placeholders)
             obj.save()
@@ -1757,7 +1764,13 @@ def figure_edit(request, fig_id):
         ext = os.path.splitext(str(request.FILES["file"]))[1]
         if "file" in request.FILES:
             if compiled:
-                obj.content = str(request.FILES["file"].read(), "utf-8")
+                raw_content = str(request.FILES["file"].read(), "utf-8")
+                # Remove metadata
+                clean_content = ET.fromstring(raw_content)
+                for child in clean_content:
+                    if "metadata" == re.sub("{(.*?)}", "", child.tag):
+                        clean_content.remove(child)
+                obj.content = str(ET.tostring(clean_content, encoding="utf-8"), "utf-8")
                 placeholders = figparam_placeholder.findall(obj.content)
                 obj.params = ",".join(placeholders)
                 obj.save()
