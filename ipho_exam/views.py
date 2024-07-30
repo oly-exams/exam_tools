@@ -2832,7 +2832,7 @@ def _get_submission_languages(exam, delegation, count_answersheets=True):
         exclude_translation_q = Q(translationnode__question__type=Question.ANSWER)
 
     return (
-        Language.objects.all()
+        Language.objects.all().order_by("pk")
         .annotate(
             num_translation=Sum(
                 Case(
