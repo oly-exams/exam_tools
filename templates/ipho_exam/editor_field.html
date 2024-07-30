@@ -10,7 +10,7 @@
     </div>
     {% endif %}
 
-    {% if field.original != None %}
+    {% if field.original %}
         <div class="row">
             <div class="col-xs-5">
                 <div class="translate-original {% if orig_lang.direction == 'rtl' and field.tag != "equation" and field.tag != "equation_unnumbered" %}rtl{% endif %}" id="{{ field.id }}-original" data-original-text="{{ field.original | escape }}">
@@ -37,7 +37,7 @@
                         {{ form|lookup:field.id }}
                     </div>
                 </div>
-        {% endif %}
+    {% endif %}
         </div>
     {% elif field.original_with_extra %}
         <div class="row">
