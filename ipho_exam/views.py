@@ -3581,7 +3581,10 @@ def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-bra
                 else:
                     msg = "You have won Chocolate !!     Please come to the Oly-Exams table to collect your prize."
             elif "received" in status:
-                msg = "You already got your chocolate."
+                if "switzerland" in delegation.country.lower():
+                    msg = "Thank you for the Chocolate, we have enjoyed it very much!"
+                else:
+                    msg = "You already got your chocolate."
 
     return render(
         request,
