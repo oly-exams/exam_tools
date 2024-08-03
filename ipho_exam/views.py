@@ -2878,7 +2878,12 @@ def admin_submissions_translation(request):
             .values_list("delegation__country")
         )
 
-        remaining_countries = [country[0] + "," for country in remaining_countries]
+        # Query to get all delegations where the number of participants is zero for the specific exam
+        countries_no_participants = Delegation.objects.annotate(
+            participant_count=Count('participant', filter=Q(participant__exam=exam))
+        ).filter(participant_count=0).values_list('country')
+
+        remaining_countries = [country[0] + "," for country in remaining_countries if not country in countries_no_participants]
         if remaining_countries:
             remaining_countries[-1] = remaining_countries[-1][:-1]
 
@@ -2927,7 +2932,12 @@ def print_submissions_translation(request):
             .values_list("delegation__country")
         )
 
-        remaining_countries = [country[0] + "," for country in remaining_countries]
+        # Query to get all delegations where the number of participants is zero for the specific exam
+        countries_no_participants = Delegation.objects.annotate(
+            participant_count=Count('participant', filter=Q(participant__exam=exam))
+        ).filter(participant_count=0).values_list('country')
+
+        remaining_countries = [country[0] + "," for country in remaining_countries if not country in countries_no_participants]
         if remaining_countries:
             remaining_countries[-1] = remaining_countries[-1][:-1]
 

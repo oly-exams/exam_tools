@@ -25,7 +25,7 @@ from hashlib import md5
 import pandas as pd
 from django.conf import settings
 from django.contrib.auth.decorators import permission_required
-from django.db.models import F, Q, Sum
+from django.db.models import Count, F, Q, Sum
 from django.forms import modelformset_factory
 from django.http import (
     Http404,
@@ -1805,6 +1805,11 @@ def moderation_confirmed(request, question_id, delegation_id):
 
 @permission_required("ipho_core.is_organizer_admin")
 def marking_submissions(request):
+    countries_no_participants_exam = {}
+    for exam in Exam.objects.for_user(request.user).all():
+        countries_no_participants_exam[exam.pk] = Delegation.objects.annotate(
+            participant_count=Count('participant', filter=Q(participant__exam=exam))
+        ).filter(participant_count=0).values_list('country') + [OFFICIAL_DELEGATION]
     ctx = {
         "summaries": [
             (
@@ -1812,32 +1817,32 @@ def marking_submissions(request):
                 MarkingAction.objects.filter(
                     question=question, status=MarkingAction.OPEN
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(delegation__country__in=countries_no_participants_exam[question.exam.pk])
                 .count(),
                 MarkingAction.objects.filter(
                     question=question, status=MarkingAction.SUBMITTED_FOR_MODERATION
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(delegation__country__in=countries_no_participants_exam[question.exam.pk])
                 .count(),
                 MarkingAction.objects.filter(
                     question=question, status=MarkingAction.OPEN
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(delegation__country__in=countries_no_participants_exam[question.exam.pk])
                 .values_list("delegation__country", flat=True),
                 MarkingAction.objects.filter(
                     question=question, status=MarkingAction.LOCKED_BY_MODERATION
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(delegation__country__in=countries_no_participants_exam[question.exam.pk])
                 .count(),
                 MarkingAction.objects.filter(
                     question=question, status=MarkingAction.FINAL
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(delegation__country__in=countries_no_participants_exam[question.exam.pk])
                 .count(),
                 MarkingAction.objects.filter(
                     question=question,
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(delegation__country__in=countries_no_participants_exam[question.exam.pk])
                 .exclude(status=MarkingAction.FINAL)
                 .values_list("delegation__country", flat=True),
             )
