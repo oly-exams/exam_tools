@@ -52,24 +52,12 @@ from PyPDF2 import PdfFileMerger, PdfFileReader
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
-BASE_PATH = "downloads/delegation_takehome_package/"  # inside media folder
+BASE_PATH = "downloads/delegations_private_dirs/"  # inside media folder
 FONT_PATH = os.path.join(settings.STATIC_PATH, "noto")
 REPLACEMENTS = [(settings.STATIC_PATH, ".")]
 
 CACHE_PREFIX = getattr(settings, "CACHE_CACHED_RESPONSES_PREFIX", "cached-responses")
 CACHE_TIMEOUT = getattr(settings, "CACHE_CACHED_RESPONSES_TIMEOUT", 600)  # 10 min
-
-
-def compile_tex_async(body, ext_resources=tuple(), filename="question.pdf"):
-    etag = md5(body.encode("utf8")).hexdigest()
-    cache_key = "{}:{}:{}".format(CACHE_PREFIX, "compile_tex", etag)
-    task_id = cache.get(cache_key)
-
-    if task_id is None:
-        job = tasks.compile_tex.delay(body, ext_resources, filename, etag)
-        task_id = job.id
-        cache.set(cache_key, task_id, CACHE_TIMEOUT)
-    return task_id
 
 
 def compile_tex_async(body, ext_resources=tuple(), filename="question.pdf"):
@@ -89,6 +77,10 @@ def compile_question_pdf(question, language, solution):
     except:
         return
     trans_content, ext_resources = trans.qml.make_tex()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"\\begin{QTS}{[^}]*}.*?\\end{QTS}"
+        trans_content = re.sub(solution_env_pattern, "", trans_content, flags=re.DOTALL)
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
             r.lang = language
@@ -139,6 +131,10 @@ def compile_question_tex(question, language, delegation, logo_file, solution):
         return
 
     trans_content, ext_resources = trans.qml.make_tex()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"\\begin{QTS}{[^}]*}.*?\\end{QTS}"
+        trans_content = re.sub(solution_env_pattern, "", trans_content, flags=re.DOTALL)
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
             r.lang = language
@@ -228,7 +224,7 @@ def compile_question_tex(question, language, delegation, logo_file, solution):
         print("ERROR", e)
 
 
-def generate_delegation(logo_file, exams, delegation, combine_exams):
+def generate_delegation(logo_file, exams, delegation, combine_exams, solution):
     delegation_takehome_pdf_dir = os.path.join(
         settings.DOCUMENT_PATH, BASE_PATH, f"{delegation.name}_private/takehome/pdf"
     )
@@ -249,16 +245,25 @@ def generate_delegation(logo_file, exams, delegation, combine_exams):
             f"Going to export exam {exam} in {len(languages)} languages for delegation {delegation}."
         )
         for lang in languages:
+            # Only official EN has solution if any
+            if solution and not lang.delegation.name == OFFICIAL_DELEGATION:
+                continue
             merger = PdfFileMerger()
             for q in questions:
-                compile_question_tex(q, lang, delegation, logo_file)
+                compile_question_tex(q, lang, delegation, logo_file, solution)
                 if combine_exams:
-                    pdfdoc = PdfFileReader(
-                        BytesIO(compile_question_pdf(q, lang, delegation))
-                    )
-                    merger.append(pdfdoc)
+                    pdf = False
+                    tries = 0
+                    while not pdf and tries < 10: # Max 10 retries if compilation fails
+                        pdf = compile_question_pdf(q, lang, solution)
+                        tries += 1
+                        if pdf:
+                            pdfdoc = PdfFileReader(
+                                BytesIO(pdf)
+                            )
+                            merger.append(pdfdoc)
                 else:
-                    question_pdf = compile_question_pdf(q, lang, delegation, logo_file)
+                    question_pdf = compile_question_pdf(q, lang, solution)
                     base_filename = "{}_{}_{}_{}_{}.pdf".format(
                         exam.code,
                         q.position,
@@ -272,7 +277,7 @@ def generate_delegation(logo_file, exams, delegation, combine_exams):
                         fp.write(question_pdf)
             if combine_exams:
                 base_filename = (
-                    f"{exam.code}_{slugify(lang.name)}_{delegation.name}.pdf"
+                    f"{exam.code}_{slugify(lang.name)}_{delegation.name}_{'solution' if solution else ''}.pdf"
                 )
                 filename = os.path.join(delegation_takehome_pdf_dir, base_filename)
                 os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -283,7 +288,7 @@ def generate_delegation(logo_file, exams, delegation, combine_exams):
         print(f"Completed exam {exam} for delegation {delegation.name}")
 
 
-def generate_all(logo_file, exam_names=None, combine_exams=False):
+def generate_all(logo_file, exam_names=None, combine_exams=False, solution=False):
     delegations = Delegation.objects.exclude(name=OFFICIAL_DELEGATION).all()
     if exam_names == None:
         exams = Exam.objects.all()
@@ -295,7 +300,9 @@ def generate_all(logo_file, exam_names=None, combine_exams=False):
         return
 
     for d in delegations:
-        generate_delegation(logo_file, exams, d, combine_exams)
+        generate_delegation(logo_file, exams, d, combine_exams, solution=False)
+        if solution:
+            generate_delegation(logo_file, exams, d, combine_exams, solution=True)
         base_folder = os.path.join(str(d.name) + "_private", "takehome")
         shutil.make_archive(
             os.path.join(
@@ -312,9 +319,11 @@ if __name__ == "__main__":
     parser.add_argument("logo_file", help="Filename of the logo file image in templates")
     parser.add_argument("--filter_exams", help="Name of the exam(s) to use")
     parser.add_argument("--combine", help="Combine exams to one pdf", action="store_true")
+    parser.add_argument("--solution", help="Include solutions", action="store_true")
     args = parser.parse_args()
     generate_all(
         logo_file=args.logo_file,
         combine_exams=args.combine,
-        exam_names=args.filter_exams.split(",") if args.filter_exams else None
+        exam_names=args.filter_exams.split(",") if args.filter_exams else None,
+        solution=args.solution
     )
