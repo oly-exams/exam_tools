@@ -164,7 +164,7 @@
       console.log($(this));
       $questionSelectionDiv = $(this);
       language_selection_count = $questionSelectionDiv.find('input:checkbox:checked').length;
-      if (language_selection_count >= {{ max_num_languages_per_ppnt }} ) {
+      if (language_selection_count >= {{ max_num_languages_per_ppnt }} && !(max_num_languages_per_ppnt == -1)) {
         $questionSelectionDiv.find('input:checkbox:not(:checked)').attr('disabled',true);
         $questionSelectionDiv.addClass('disabled');
         $questionSelectionDiv.find('input:checkbox:not(:checked)').each(function(idx){
@@ -173,7 +173,7 @@
           $radio.prop('checked',false);
           $radio.parents('div.radio').addClass('disabled');
         });
-        
+
       }
     });
 
@@ -188,10 +188,10 @@
               $radio.removeAttr('disabled');
               {% if max_num_languages_per_ppnt == 1 %}
                 if ( ! $('#toggle-answer-selection-checkbox').prop('checked') ) {
-                  $radio.prop('checked',true); 
+                  $radio.prop('checked',true);
                 }
               {% endif %}
-             
+
               $radio.parents('div.radio').removeClass('disabled');
           } else {
               $radio.attr('disabled',true);
