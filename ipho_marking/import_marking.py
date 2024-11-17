@@ -62,7 +62,6 @@ def import_marking(question_id, file):
                 and not df[student_code][question_part] == ""
             ):
                 marking = stud_markings.filter(marking_meta__name=question_part)
-                print(marking.__dict__)
                 assert (
                     len(marking) == 1
                 ), f"Found {len(marking)} markings for {student_code} {question_part}"
