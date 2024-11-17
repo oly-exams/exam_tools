@@ -120,13 +120,20 @@ def make_content_node(node, translatable=True):
     return descr
 
 
-def make_qml(node):
+def make_qml(node, check_ids_unique=False):
     que = QMLquestion(node.text)
 
     attr_change = {}
     if hasattr(node, "attributechange"):
         attr_change = json.loads(node.attributechange.content)
     que.update_attrs(attr_change)
+    # Check that all ids are unique
+    if check_ids_unique:
+        ids = set()
+        for obj in que.children:
+            if obj.id in ids:
+                raise ValueError(f"Duplicate id: {obj.id} in QML")
+            ids.add(obj.id)
     return que
 
 

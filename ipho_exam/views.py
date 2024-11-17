@@ -2071,12 +2071,10 @@ def admin_import_version(request, question_id):
         # Assume that we are importing our internal dump format (xml with escaped html).
         node.text = txt
         # Check that all ids are unique
-        ids = set()
-        root = qml.make_qml(node)
-        for obj in root.children:
-            if obj.id in ids:
-                form.add_error("file", f"ID {obj.id} is not unique.")
-            ids.add(obj.id)
+        try:
+            qml.make_qml(node, check_ids_unique=True)
+        except ValueError as e:
+            form.add_error("file", str(e))
 
         if form.is_valid():
             node.save()
@@ -2359,7 +2357,18 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     if publish_form.is_valid():
         node.status = "C"
         # Save the ids in order, so they can be used for feedback sorting
-        qmln = qml.make_qml(node)
+        try:
+            qmln = qml.make_qml(node, check_ids_unique=True)
+        except ValueError as e:
+            publish_form.add_error(None, str(e))
+            form_html = render_crispy_form(publish_form)
+            return JsonResponse(
+                {
+                    "title": "Error in QML",
+                    "form": form_html,
+                    "success": False,
+                }
+            )
         ids_in_order = []
 
         def get_ids(obj):
