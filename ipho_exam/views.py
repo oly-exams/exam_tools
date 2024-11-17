@@ -2939,7 +2939,7 @@ def admin_submissions_translation(request):
 def print_submissions_translation(request):
     exams = {}
     for exam in Exam.objects.for_user(request.user):
-        if exam.submission_printing == -1 and exam.can_submit == -1:
+        if exam.submission_printing == -1:
             continue
         remaining_countries = (
             ExamAction.objects.filter(
