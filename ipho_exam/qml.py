@@ -59,6 +59,7 @@ PARAGRAPH_LIKE_BLOCKS = (
     "figure",
     "box",
     "csvtable",
+    "vspace",
 )
 DEFAULT_BLOCKS = ("texfield", "texenv")
 
@@ -607,7 +608,7 @@ class QMLsubanswer(QMLbase):
 
     has_text = False
     has_children = True
-    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + ("vspace",)
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
 
     default_attributes = {
         "min_points": "0.0",
