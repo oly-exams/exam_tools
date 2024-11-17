@@ -37,23 +37,26 @@ AUTO_TRANSLATE_LANGUAGE_LIST = [
 ]
 
 
-class MathReplacer:
-    """Replaces math spans with empty spans"""
+class SpanReplacer:
+    """Replaces spans with empty spans"""
 
-    def __init__(self):
+    def __init__(self, span_class):
+        self.span_class = span_class
         self.matches = []
         self.i = -1
         self.replace_pattern = (
-            r'<\s*span\s*class\s*=\s*"math-tex"\s*>.*?<\s*\/\s*span\s*>'
+            r'<\s*span[^>]*\sclass\s*=\s*"' + span_class + r'"\s*>.*?<\s*/\s*span\s*>'
         )
         self.readd_pattern = (
-            r'<\s*span\s*data-oly\s*=\s*"([0-9]*)"\s*>\s*<\s*\/\s*span\s*>'
+            r"<\s*span\s*data-"
+            + span_class
+            + r'-oly\s*=\s*"([0-9]*)"\s*>\s*<\s*\/\s*span\s*>'
         )
 
     def _repl(self, match):
         self.matches.append(match.group(0))
         self.i += 1
-        return f'<span data-oly="{self.i}"></span>'
+        return f'<span data-{self.span_class}-oly="{self.i}"></span>'
 
     def _readd(self, match):
         num = int(match.group(1))
@@ -61,10 +64,10 @@ class MathReplacer:
             return self.matches[num]
         return match.group(0)
 
-    def replace_math(self, raw_text):
+    def replace_span(self, raw_text):
         return re.sub(self.replace_pattern, self._repl, raw_text)
 
-    def readd_math(self, raw_translated_text):
+    def readd_span(self, raw_translated_text):
         return re.sub(self.readd_pattern, self._readd, raw_translated_text)
 
 
@@ -115,13 +118,26 @@ def translate_google(from_lang, to_lang, text):
 
 
 def find_best_matching_deepl_lang(lang, langs):
+    """Find the best matching DeepL supported language in the list of languages
+
+    Args:
+        lang (str): lanauge to be matched (can be in any case)
+        langs (list of strings): list of languages (must all be in uppercase)
+
+    Returns:
+        str: best match (uppercase) or None if no match is found
+    """
     ulang = lang.upper()
     parts = ulang.split("-")
-    # TODO: Should we allow variants?
-    # As in, use fr-CH where fr-FR is given/requested?
+    ulang = ulang.replace("ZH-CN", "ZH-HANS").replace(
+        "ZH-TW", "ZH-HANT"
+    )  # replace with DeepL's language codes
     if ulang in langs:
+        # is exact match is found, return it
         return ulang
-    if "zh" in lang:
+    if ulang == "ZH-HANT":
+        # if traditional chinese is requested but not found in DeepL's list, return None
+        # to force fallback to Google Translate
         return None
     if len(parts) == 1:
         if ulang + "-" + ulang in langs:
@@ -129,9 +145,6 @@ def find_best_matching_deepl_lang(lang, langs):
         for lng in langs:
             if ulang == lng.split("-")[0]:
                 return lng
-    # Workaround for trad/simplified chinese
-    if len(parts) > 1 and parts[0] in langs:
-        return parts[0]
     return None
 
 
@@ -184,8 +197,10 @@ def auto_translate_helper(raw_text, from_lang_obj, to_lang, delegation):
         )
 
     # replace math with empty spans
-    math_replacer = MathReplacer()
-    text = math_replacer.replace_math(raw_text)
+    math_replacer = SpanReplacer("math-tex")
+    rtl_replacer = SpanReplacer("lang-ltr")
+    math_text = math_replacer.replace_span(raw_text)
+    text = rtl_replacer.replace_span(math_text)
 
     # update translate_char_count
     from_length = len(text)
@@ -210,6 +225,7 @@ def auto_translate_helper(raw_text, from_lang_obj, to_lang, delegation):
         )
 
     # readd math
-    translated_text = math_replacer.readd_math(raw_translated_text)
+    translated_text_math = math_replacer.readd_span(raw_translated_text)
+    translated_text = rtl_replacer.readd_span(translated_text_math)
 
     return {"text": translated_text}

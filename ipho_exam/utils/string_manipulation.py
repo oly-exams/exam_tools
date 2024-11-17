@@ -184,9 +184,13 @@ def html2tex_bs4(elem, escape=True):  # pylint: disable=too-many-branches
             for att in list(sel.attrs.keys()):
                 if att == "style":
                     if "font-style:italic" in sel.attrs[att]:
-                        result.append("\\textit{%s}" % (html2tex_bs4(sel, escape=escape)))
+                        result.append(
+                            "\\textit{%s}" % (html2tex_bs4(sel, escape=escape))
+                        )
                     elif "font-weight:bold" in sel.attrs[att]:
-                        result.append("\\textbf{%s}" % (html2tex_bs4(sel, escape=escape)))
+                        result.append(
+                            "\\textbf{%s}" % (html2tex_bs4(sel, escape=escape))
+                        )
                 elif att == "class" and "math-tex" in sel.attrs[att]:
                     if sel.string is not None and sel.string[:2] == r"\(":
                         if len(sel.contents) > 1:
@@ -197,7 +201,9 @@ def html2tex_bs4(elem, escape=True):  # pylint: disable=too-many-branches
                             fix_tex_parens(escape_tex(sel.string, escape_special=False))
                         )
                 elif att == "class" and "lang-ltr" in sel.attrs[att]:
-                    result.append("\\textenglish{%s}" % (html2tex_bs4(sel, escape=escape)))
+                    result.append(
+                        "\\textenglish{%s}" % (html2tex_bs4(sel, escape=escape))
+                    )
         ## Bold
         elif sel.name in ["b", "strong"]:
             result.append("\\textbf{%s}" % (html2tex_bs4(sel, escape=escape)))
@@ -211,25 +217,30 @@ def html2tex_bs4(elem, escape=True):  # pylint: disable=too-many-branches
         elif sel.name in ["u"]:
             result.append("\\underline{%s}" % (html2tex_bs4(sel, escape=escape)))
         ## Subscript
-        elif sel.tag in ["sub"]:
-            result.append("\\textsubscript{%s}" % (html2tex(sel, escape=escape)))
+        elif sel.name in ["sub"]:
+            result.append("\\textsubscript{%s}" % (html2tex_bs4(sel, escape=escape)))
         ## Superscript
-        elif sel.tag in ["sup"]:
-            result.append("\\textsuperscript{%s}" % (html2tex(sel, escape=escape)))
+        elif sel.name in ["sup"]:
+            result.append("\\textsuperscript{%s}" % (html2tex_bs4(sel, escape=escape)))
 
         elif sel.name in ["ul"]:
             result.append(
-                "\\begin{itemize}\n{%s}\n\\end{itemize}" % (html2tex_bs4(sel, escape=escape))
+                "\\begin{itemize}\n{%s}\n\\end{itemize}"
+                % (html2tex_bs4(sel, escape=escape))
             )
         elif sel.name in ["ol"]:
             result.append(
-                "\\begin{enumerate}\n{%s}\n\\end{enumerate}" % (html2tex_bs4(sel, escape=escape))
+                "\\begin{enumerate}\n{%s}\n\\end{enumerate}"
+                % (html2tex_bs4(sel, escape=escape))
             )
         elif sel.name in ["li"]:
             result.append("\\item %s\n" % (html2tex_bs4(sel, escape=escape)))
         ## English in RTL
         elif "dir" in sel.attrs and sel.attrs["dir"] == "ltr":
-            result.append("\\begin{english}\n%s\n\\end{english}" % (html2tex_bs4(sel, escape=escape)))
+            result.append(
+                "\\begin{english}\n%s\n\\end{english}"
+                % (html2tex_bs4(sel, escape=escape))
+            )
 
         ## By default just append content
         else:

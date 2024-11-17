@@ -127,4 +127,6 @@ urlpatterns = [
     ),
     path("marking-submissions", views.marking_submissions, name="marking-submissions"),
     path("progress", views.progress, name="progress"),
+    path("ranking", views.ranking, name="ranking"),
+    path("export-ranking-csv", views.export_ranking_csv, name="export-ranking-csv"),
 ]

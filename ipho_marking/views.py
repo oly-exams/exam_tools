@@ -25,7 +25,7 @@ from hashlib import md5
 import pandas as pd
 from django.conf import settings
 from django.contrib.auth.decorators import permission_required
-from django.db.models import F, Q, Sum
+from django.db.models import Count, F, Q, Sum
 from django.forms import modelformset_factory
 from django.http import (
     Http404,
@@ -93,6 +93,37 @@ def get_valid_marking_question_list(request, exam, editable):
                 question_list.append(answer_sheet)
 
     return question_list
+
+
+def get_points_per_student(exams, students, markings):
+    """Obtains points per student for each exam."""
+    points_per_student = []
+    for student in students:
+        # Exam points
+        ppnt_exam_points_list = []
+        for exam in exams:
+            participant = student.participant_set.filter(exam=exam).first()
+            # if there are no open/submitted marking actions:
+            if not MarkingAction.objects.filter(
+                question__exam=exam,
+                delegation=student.delegation,
+                # status__lte=MarkingAction.SUBMITTED_FOR_MODERATION,
+            ).exists():
+                points_exam = QuestionPointsRescale.external_sum_for_exam(
+                    markings, participant.code, exam
+                )
+                ppnt_exam_points_list.append(points_exam)
+            else:
+                ppnt_exam_points_list.append(None)
+
+        not_none_pts = [p for p in ppnt_exam_points_list if p is not None]
+        # As sum([]) = 0 would give a total =0 for None points, we need to set it to None by hand
+        if not_none_pts and not_none_pts == ppnt_exam_points_list:
+            total = sum(p for p in ppnt_exam_points_list if p is not None)
+        else:
+            total = None
+        points_per_student.append((student, ppnt_exam_points_list, total))
+    return points_per_student
 
 
 @permission_required("ipho_core.is_organizer_admin")
@@ -682,33 +713,8 @@ def delegation_summary(
 
     # Final points pane
     vid = "F"
-    points_per_student = []
     markings = Marking.objects.for_user(request.user, vid)
-    for student in students:
-        # Exam points
-        ppnt_exam_points_list = []
-        for exam in exams:
-            participant = student.participant_set.filter(exam=exam).first()
-            # if there are no open/submitted marking actions:
-            if not MarkingAction.objects.filter(
-                question__exam=exam,
-                delegation=delegation,
-                status__lte=MarkingAction.SUBMITTED_FOR_MODERATION,
-            ).exists():
-                points_exam = QuestionPointsRescale.external_sum_for_exam(
-                    markings, participant.code, exam
-                )
-                ppnt_exam_points_list.append(points_exam)
-            else:
-                ppnt_exam_points_list.append(None)
-
-        not_none_pts = [p for p in ppnt_exam_points_list if p is not None]
-        # As sum([]) = 0 would give a total =0 for None points, we need to set it to None by hand
-        if not_none_pts and not_none_pts == ppnt_exam_points_list:
-            total = sum(p for p in ppnt_exam_points_list if p is not None)
-        else:
-            total = None
-        points_per_student.append((student, ppnt_exam_points_list, total))
+    points_per_student = get_points_per_student(exams, students, markings)
 
     # We need a list of exams and total number of points for the header of the table
     exams_with_totals = [
@@ -1805,6 +1811,15 @@ def moderation_confirmed(request, question_id, delegation_id):
 
 @permission_required("ipho_core.is_organizer_admin")
 def marking_submissions(request):
+    countries_no_participants_exam = {}
+    for exam in Exam.objects.for_user(request.user).all():
+        countries_no_participants_exam[exam.pk] = (
+            Delegation.objects.annotate(
+                participant_count=Count("participant", filter=Q(participant__exam=exam))
+            )
+            .filter(participant_count=0)
+            .values_list("country")
+        )
     ctx = {
         "summaries": [
             (
@@ -1812,32 +1827,56 @@ def marking_submissions(request):
                 MarkingAction.objects.filter(
                     question=question, status=MarkingAction.OPEN
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(
+                    delegation__country__in=countries_no_participants_exam[
+                        question.exam.pk
+                    ]
+                )
                 .count(),
                 MarkingAction.objects.filter(
                     question=question, status=MarkingAction.SUBMITTED_FOR_MODERATION
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(
+                    delegation__country__in=countries_no_participants_exam[
+                        question.exam.pk
+                    ]
+                )
                 .count(),
                 MarkingAction.objects.filter(
                     question=question, status=MarkingAction.OPEN
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(
+                    delegation__country__in=countries_no_participants_exam[
+                        question.exam.pk
+                    ]
+                )
                 .values_list("delegation__country", flat=True),
                 MarkingAction.objects.filter(
                     question=question, status=MarkingAction.LOCKED_BY_MODERATION
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(
+                    delegation__country__in=countries_no_participants_exam[
+                        question.exam.pk
+                    ]
+                )
                 .count(),
                 MarkingAction.objects.filter(
                     question=question, status=MarkingAction.FINAL
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(
+                    delegation__country__in=countries_no_participants_exam[
+                        question.exam.pk
+                    ]
+                )
                 .count(),
                 MarkingAction.objects.filter(
                     question=question,
                 )
-                .exclude(delegation__name=OFFICIAL_DELEGATION)
+                .exclude(
+                    delegation__country__in=countries_no_participants_exam[
+                        question.exam.pk
+                    ]
+                )
                 .exclude(status=MarkingAction.FINAL)
                 .values_list("delegation__country", flat=True),
             )
@@ -1938,3 +1977,65 @@ def progress(request):
         "marking_statuses": marking_statuses,
     }
     return render(request, "ipho_marking/progress.html", ctx)
+
+
+@permission_required("ipho_core.is_organizer_admin")
+def ranking(request):
+    vid = "F"
+    points_per_student = []
+    markings = Marking.objects.for_user(request.user, vid)
+    all_students = Student.objects.all()
+    exams_final = Exam.objects.for_user(request.user).all()
+    points_per_student = get_points_per_student(exams_final, all_students, markings)
+    # Sort for ranking, rank students that have no final marks yet last
+    points_per_student.sort(
+        key=lambda x: (x is None, x[2] if x is not None else float("-inf")),
+        reverse=True,
+    )
+    # We need a list of exams and total number of points for the header of the table
+    exams_with_totals = [
+        {
+            "question__exam__name": exam.name,
+            "exam_points": QuestionPointsRescale.min_max_points_for_exam(exam)[1],
+        }
+        for exam in exams_final
+    ]
+
+    ctx = {
+        "final_points_exams": exams_with_totals,
+        "points_per_student": points_per_student,
+    }
+    return render(request, "ipho_marking/ranking.html", ctx)
+
+
+@permission_required("ipho_core.is_organizer_admin")
+def export_ranking_csv(request):
+    vid = "F"
+    points_per_student = []
+    markings = Marking.objects.for_user(request.user, vid)
+    all_students = Student.objects.all()
+    exams = Exam.objects.for_user(request.user).all()
+    points_per_student = get_points_per_student(exams, all_students, markings)
+    # Sort for ranking, rank students that have no final marks yet last
+    points_per_student.sort(
+        key=lambda x: (x is None, x[2] if x is not None else float("-inf")),
+        reverse=True,
+    )
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="ranking.csv"'
+
+    writer = csv.writer(response)
+    header = (
+        ["Rank", "Student Code", "Student Name"]
+        + [exam.name for exam in exams]
+        + ["Total"]
+    )
+    writer.writerow(header)
+    for idx, (student, exam_points, total) in enumerate(points_per_student):
+        row = [str(idx + 1).zfill(3), student.code, student.full_name]
+        row.extend(exam_points)
+        row.append(total)
+        writer.writerow(row)
+
+    return response

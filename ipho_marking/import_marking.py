@@ -20,14 +20,13 @@ def generate_template(question_id, filehandler):
     """
     question = Question.objects.get(id=question_id)
     question_parts = MarkingMeta.objects.filter(question__id=question_id)
-    question_parts = [q.name for q in question_parts]
     student_codes = [ppnt.code for ppnt in question.exam.participant_set.all()]
     zeros = len(student_codes) * [""]
 
     writer = csv.writer(filehandler)
-    writer.writerow(["", *student_codes])
+    writer.writerow(["", "Min. Points", "Max. Points", *student_codes])
     for q in question_parts:
-        writer.writerow([q, *zeros])
+        writer.writerow([q.name, q.min_points, q.max_points, *zeros])
 
 
 def import_marking(question_id, file):
@@ -40,36 +39,40 @@ def import_marking(question_id, file):
             the rows to different parts of the question.
 
     Returns:
-        list: list with student codes that answeres this question
+        list: list with student codes that answers this question
     """
-    df = pd.read_csv(file, index_col=0)
-    df = df.astype(float)  # convert entries to floats
+    # Needed to ensure indices are string and e.g. 1.1 and 1.10 are not mixed up
+    df = pd.read_csv(file, dtype=str)
+    df = df.set_index(df.columns[0])
 
     markings = Marking.objects.filter(
         Q(marking_meta__question__id=question_id) & Q(version="O")
     )
-    student_codes = df.columns
-    question = Question.objects.get(id=question_id)
-
+    student_codes = df.columns.values[2:]
     for student_code in student_codes:
         stud_markings = markings.filter(participant__code=student_code)
         for question_part in df.index:
+            try:
+                awarded_points = float(df[student_code][question_part])
+            except ValueError as e:
+                raise ValueError(f"Value error for {student_code} {question_part}: {e}")
             # do not update if no points have been entered
-            if not np.isnan(df[student_code][question_part]):
+            if (
+                not np.isnan(awarded_points)
+                and not df[student_code][question_part] == ""
+            ):
                 marking = stud_markings.filter(marking_meta__name=question_part)
                 assert (
                     len(marking) == 1
                 ), f"Found {len(marking)} markings for {student_code} {question_part}"
                 marking = marking[0]
-                marking.points = df[student_code][question_part]
+                assert awarded_points >= float(
+                    marking.marking_meta.min_points
+                ) and awarded_points <= float(
+                    marking.marking_meta.max_points
+                ), f"Points {awarded_points} not in range {marking.marking_meta.min_points}, {marking.marking_meta.max_points} for {student_code} {question_part}"
+                marking = marking
+                marking.points = awarded_points
                 marking.save()
-                print(
-                    f"Saved marking for {student_code} {question.name} {question_part}"
-                )
-
-    marking_actions = MarkingAction.objects.filter(question__id=question_id)
-    for action in marking_actions:
-        action.status = 1  # submitted for moderation
-        action.save()
 
     return student_codes

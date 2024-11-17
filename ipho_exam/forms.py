@@ -57,6 +57,16 @@ def build_extension_validator(valid_extensions):
     return validate_file_extension
 
 
+def build_size_validator(max_size):  # Max. size in bytes
+    def validate_file_size(value):
+        if value.size > max_size:
+            raise ValidationError(
+                f"File too large. Size should not exceed {max_size/1048576} MB."
+            )
+
+    return validate_file_size
+
+
 class LanguageForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.user_delegation = kwargs.pop("user_delegation")
@@ -132,7 +142,10 @@ class FigureForm(ModelForm):
         super().__init__(*args, **kwargs)
         instance = getattr(self, "instance", None)
         self.fields["file"] = forms.FileField(
-            validators=[build_extension_validator(valid_extensions)],
+            validators=[
+                build_extension_validator(valid_extensions),
+                build_size_validator(10485760),
+            ],  # Max. 10 MB
             label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: {}"><span class="glyphicon glyphicon-info-sign"></span></a>'.format(
                 " ".join("*" + ext for ext in valid_extensions)
             ),
@@ -287,17 +300,20 @@ class FeedbackForm(ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("comment", placeholder="Comment"),
+            Field("category"),
         )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.form_tag = False
         self.helper.disable_csrf = True
         self.fields["comment"].required = True
+        self.fields["category"].required = True
+        self.fields["comment"].label = "Feedback comment"
+        self.fields["category"].label = "Feedback category"
 
     class Meta:
         model = Feedback
-        fields = ["comment"]
-        # labels = {'part': 'Question part'}
+        fields = ["comment", "category"]
 
 
 class FeedbackCommentForm(forms.Form):

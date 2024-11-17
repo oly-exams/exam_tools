@@ -292,16 +292,17 @@ This list shows only documents that have been submitted by the delegations.
       </tbody>
     </table>
 
-    <div class="student-docs">
-      <a class="btn btn-default pull-right combine-all" download="batch.pdf" style="margin-left:6px;margin-top:6px;"><i class="fa fa-plus-square-o"></i> combined selected into PDF</a>
-      <!-- used to comply with the merge_on_click function, there will be dynamic elements here -->
-    </div>
-    <a class="btn btn-default pull-right scan-print-marker" style="margin-left:6px;margin-top:6px;">mark selected as printed</a>
-    <a class="btn btn-default pull-right select-10-more-scans" style="margin-left:6px;margin-top:6px;">Select 10 more scans</a>
-    <a class="btn btn-default pull-right select-20-scans" style="margin-left:6px;margin-top:6px;">Select first 20 scans</a>
-    <a class="btn btn-default pull-right clear-scan-select" style="margin-left:6px;margin-top:6px;">Clear selection</a>
-    <div class="clearfix"></div>
-    
+    {% if docs_list|length > 0 and docs_list|has_scan_file %}
+      <div class="student-docs">
+        <a class="btn btn-default pull-right combine-all" download="batch.pdf" style="margin-left:6px;margin-top:6px;"><i class="fa fa-plus-square-o"></i> combine selected into PDF</a>
+        <!-- used to comply with the merge_on_click function, there will be dynamic elements here -->
+      </div>
+        <a class="btn btn-default pull-right scan-print-marker" style="margin-left:6px;margin-top:6px;">mark selected as printed</a>
+        <a class="btn btn-default pull-right select-10-more-scans" style="margin-left:6px;margin-top:6px;">Select 10 more scans</a>
+        <a class="btn btn-default pull-right select-20-scans" style="margin-left:6px;margin-top:6px;">Select first 20 scans</a>
+        <a class="btn btn-default pull-right clear-scan-select" style="margin-left:6px;margin-top:6px;">Clear selection</a>
+        <div class="clearfix"></div>
+    {% endif %}
     {% crispy form %}
 
     </form>
@@ -447,7 +448,7 @@ $(function() {
   {% include "ipho_exam/partials/merge_pdf_clientside.js"%}
   $(".combine-all").click(function(event){
     $(".student-docs .single-doc").remove();
-    
+
     $('.scan-single').each(function(i,checkbox){
       if(checkbox.checked){
         const a = document.createElement("a");
@@ -462,7 +463,7 @@ $(function() {
     var name = `scan_batch_${new String(new Date().toISOString()).replace(/[.:-]+/g, "_").replace(".", "_")}.pdf`;
     $(".combine-all").attr("download", name);
   });
-  
+
   $(".scan-print-marker").click(function(event){
     $('.scan-single').each(function(i,checkbox){
       if(checkbox.checked){
@@ -485,7 +486,7 @@ $(function() {
         });
       }
     });
-    
+
   });
 </script>
 {% endblock %}

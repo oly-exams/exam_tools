@@ -1,8 +1,9 @@
 {% load static %}
-{% for node in node_list %}
+{% for lang, nodes in node_lists.items %}
+{% for node in nodes %}
 <tr>
     <td>{{ node.question.name }}</td>
-    <td>{{ node.language.name }}</td>
+    <td>{{ lang.name }}</td>
     <td><time datetime="{{ node.timestamp|date:"c" }}" data-format="YYYY-MM-DD HH:mm:ss"></time></td>
     <td>{{ exam_active|yesno:'In progress,Closed' }}</td>
     <td>
@@ -19,7 +20,7 @@
           {% endif %}
         {% endif %}
 
-        <a class="btn btn-xs btn-success" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+        <a class="btn btn-xs btn-success single-doc" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
 
         {% if user.is_superuser or not node.language.is_pdf %}
         <div class="btn-group">
@@ -46,6 +47,16 @@
     </td>
 </tr>
 {% endfor %}
+<tr>
+  <td colspan="4"></td>
+  <td>
+    <div class="student-docs">
+      <a class="btn btn-default btn-xs combine-all" target="_blank" download="exam-{{ nodes.0.question.exam.name }}-full-{{ lang.name }}.pdf" title="Combine {{ lang.name }} questions into single PDF" data-qnum="{{ nodes.count }}"><i class="fa fa-plus-square-o"></i> combined PDFs for {{ lang.name }}</a>
+      <!-- used to comply with the merge_on_click function, there will be dynamic elements here -->
+    </div>
+  </td>
+</tr>
+{% endfor %}
 {% for node in official_nodes %}
 <tr>
     <td>{{ node.question.name }}</td>
@@ -55,6 +66,7 @@
     <td>
       <div class="btn-group">
         <a class="btn btn-xs btn-success" target="_blank" href="{% url 'exam:pdf' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+        {% if exam.has_solution %}<a class="btn btn-xs btn-primary" target="_blank" href="{% url 'exam:pdf-solution' question_id=node.question.pk lang_id=node.language.pk %}" title="View PDF with solution"><i class="fa fa-lightbulb-o"></i> PDF (solution)</a>{% endif %}
         {% if user.is_superuser %}
         <div class="btn-group">
           <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">
@@ -62,8 +74,11 @@
           </button>
           <ul class="dropdown-menu">
             <li><a target="_blank" href="{% url 'exam:tex' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as TeX"><i class="fa fa-fw fa-file-text-o"></i> export TeX</a></li>
+            {% if exam.has_solution %}<li><a target="_blank" href="{% url 'exam:tex-solution' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as TeX"><i class="fa fa-fw fa-file-text-o"></i> export TeX (solution)</a></li>{% endif %}
             <li><a target="_blank" href="{% url 'exam:html' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as HTML"><i class="fa fa-fw fa-file-text-o"></i> export HTML</a></li>
+            {% if exam.has_solution %}<li><a target="_blank" href="{% url 'exam:html-solution' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as HTML"><i class="fa fa-fw fa-file-text-o"></i> export HTML (solution)</a></li>{% endif %}
             <li><a target="_blank" href="{% url 'exam:odt' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as ODT"><i class="fa fa-fw fa-file-text-o"></i> export ODT</a></li>
+            {% if exam.has_solution %}<li><a target="_blank" href="{% url 'exam:odt-solution' question_id=node.question.pk lang_id=node.language.pk %}" title="Export question as ODT"><i class="fa fa-fw fa-file-text-o"></i> export ODT (solution)</a></li>{% endif %}
           </ul>
         </div>
         {% endif %}

@@ -484,16 +484,16 @@
     "polyglossia_options": null
   },
   "kurdish": {
-    "direction": "ltr",
+    "direction": "rtl",
     "fonts": [
-      "notosans",
-      "notoserif",
+      "notonaskharabic",
       "notokufiarabic",
-      "notonaskharabic"
+      "notosans",
+      "notoserif"
     ],
     "language": "Kurdish",
     "polyglossia": "kurdish",
-    "polyglossia_options": null
+    "polyglossia_options": "numerals = western"
   },
   "kyrgyz": {
     "direction": "ltr",

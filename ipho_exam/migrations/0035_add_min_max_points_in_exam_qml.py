@@ -2,7 +2,6 @@
 
 from django.db import migrations, models
 
-from ipho_exam.models import VersionNode
 from ipho_exam.qml import dump_xml, make_qml
 
 
@@ -21,7 +20,8 @@ def add_min_max_points_node(node):
             add_min_max_points_node(child)
 
 def add_min_max_points_in_exam_qml(apps, schema_editor):
-    version_nodes=VersionNode.objects.all()
+    VersionNode = apps.get_model('ipho_exam', 'VersionNode')
+    version_nodes = VersionNode.objects.all()
     for version_node in version_nodes:
         try:
             qml=make_qml(version_node)

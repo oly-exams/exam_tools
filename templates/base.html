@@ -107,7 +107,7 @@
               </li>
               {% endif %}
 
-              {% if perms.ipho_core.is_delegation_print %}
+              {% if perms.ipho_core.is_delegation_print and not user.is_superuser %}
               <li><a href="{% url 'exam:submission-delegation-submitted' %}">Submitted Exams</a></li>
               {% endif %}
 
@@ -120,8 +120,10 @@
               {% if perms.ipho_core.can_see_boardmeeting or perms.ipho_core.is_delegation_print %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
               {% endif %}
-              {% if perms.ipho_core.can_print_boardmeeting_site or perms.ipho_core.can_print_exam_site %}
+              {% if perms.ipho_core.can_print_exam_site %}
               <li><a href="{% url 'print:main' %}">Print</a></li>
+              {% elif perms.ipho_core.can_print_boardmeeting_site %}
+              <li><a href="{% url 'print:main' %}">Draft Print</a></li>
               {% endif %}
 
               {% if perms.ipho_core.is_organizer_admin or perms.ipho_core.is_marker or perms.ipho_core.is_printstaff or perms.ipho_core.can_edit_exam or perms.ipho_core.can_manage_feedback or perms.ipho_core.can_edit_poll %}
@@ -199,6 +201,7 @@
                   {% endif %}
                   <li><a href="{% url 'marking:moderation-index' %}">{% trans "Moderation" %}</a></li>
                   {% if perms.ipho_core.is_organizer_admin %}
+                  <li><a href="{% url 'marking:ranking' %}">Ranking</a></li>
                   <li><a href="{% url 'marking:export' %}">Export markings (all versions, slow)</a></li>
                   <li><a href="{% url 'marking:export-total' %}">Export markings (final) </a></li>
                   {% endif %}

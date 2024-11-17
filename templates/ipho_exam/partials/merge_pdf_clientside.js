@@ -1,3 +1,15 @@
+async function recursive_fetch(href){
+  // wait for pdf task to be finished
+  response = await fetch(href, {redirect: "follow"});
+  if (response.headers.get('content-type') != 'application/pdf') {
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    return recursive_fetch(href);
+  }
+  else{
+    return response;
+  }
+}
+
 async function merge(docs, progress=false, start=0) {
     const mergedPdf = await PDFLib.PDFDocument.create();
     var query = $(".single-doc", docs);
@@ -9,7 +21,8 @@ async function merge(docs, progress=false, start=0) {
     }
     for(var i = 0; i < query.length; i++) {
       const elem = query[i];
-      var bytes1 = await fetch(elem["href"]).then(res => res.arrayBuffer());
+      var response = await recursive_fetch(elem["href"]);
+      var bytes1 = await response.arrayBuffer();
       const pdf1 = await PDFLib.PDFDocument.load(bytes1);
       // remove the coversheet [0,1,2...] -> [1,2...]
       const copiedPages = await mergedPdf.copyPages(pdf1, pdf1.getPageIndices().splice(start));
@@ -19,13 +32,15 @@ async function merge(docs, progress=false, start=0) {
       };
     };
     if(progress){
-      button.html(spinner+" saving...");
+      button.html(spinner + " saving...");
     };
-    const pdfDataUri = await mergedPdf.saveAsBase64({ dataUri: true });
+    const pdfBytes = await mergedPdf.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const pdfBlobUri = URL.createObjectURL(blob);
     if(progress){
-      button.html(text);
+        button.html(text);
     };
-    button.attr("href", pdfDataUri);
+    button.attr("href", pdfBlobUri);
     $('.combine-all i', docs).addClass("fa-file-pdf-o").removeClass("fa-spinner fa-spin");
 }
 
@@ -37,6 +52,6 @@ function merge_on_click(event, progress=false, start=0) {
     button.off("click");
 };
 
-function merge_on_click_remove_cover(event, progress=true) {
+function merge_on_click_remove_cover(event, progress=false) {
   merge_on_click(event, progress=progress, start=1);
 }

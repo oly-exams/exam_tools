@@ -44,6 +44,9 @@ class FigureExport:
             svg_to_png=svg_to_png,
         )
 
+    def exists(self):
+        return Figure.objects.filter(fig_id=self.figid).exists()
+
 
 class StaticExport:
     def __init__(self, origin):

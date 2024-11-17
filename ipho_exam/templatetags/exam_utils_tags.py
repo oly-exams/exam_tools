@@ -24,6 +24,11 @@ def to_intlist(raw_list):
 
 
 @register.filter
+def has_scan_file(docs_list):
+    return any(doc.scan_file for doc in docs_list)
+
+
+@register.filter
 def binand(value, arg):
     return value & arg
 

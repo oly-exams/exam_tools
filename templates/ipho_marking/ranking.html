@@ -1,0 +1,62 @@
+{% extends "ipho_marking/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block extra-head %}
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Include DataTables CSS and JS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+{% endblock %}
+
+{% block pageheader %}<h1>Ranking</h1>{% endblock %}
+
+{% block page-content %}
+
+<div>
+    <p>Ranking of students based on the rescaled final signed off points in exams. Students from delegations that have not signed off yet appear at the end of the list. You can track the state in the <a href="/marking/progress?version=F">marking progress</a>.</p>
+    <br />
+    <button id="export-csv" class="btn btn-primary">Export as CSV</button>
+    <br /><br />
+    <table id="sortable-table" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Student</th>
+                {% for e in final_points_exams %}
+                <th>{{ e.question__exam__name }}<br />({% if e.exam_points is None%}-{% else %}{{ e.exam_points|floatformat:3 }}{% endif %})</th>
+                {% endfor %}
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student, exam_points, total in points_per_student %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ student.full_name }} ({{ student.code }})</td>
+                {% for ep in exam_points %}
+                <td>{{ ep|floatformat:2|default:'-' }}</td>
+                {% endfor %}
+                <td>{{ total|floatformat:2|default:'-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+{% block extra-script %}
+<script>
+    $(document).ready(function() {
+        $('#sortable-table').DataTable({
+            "pageLength": 50
+        });
+        $('#export-csv').click(function() {
+            window.location.href = "{% url 'marking:export-ranking-csv' %}";
+        });
+    });
+</script>
+{% endblock %}

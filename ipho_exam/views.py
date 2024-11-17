@@ -32,6 +32,7 @@ from collections import OrderedDict, defaultdict
 from copy import deepcopy
 from hashlib import md5
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 from celery.result import AsyncResult
 from crispy_forms.utils import render_crispy_form
@@ -252,13 +253,22 @@ def translations_list(request):
         in_progress = ExamAction.action_in_progress(
             ExamAction.TRANSLATION, exam=exam, delegation=delegation
         )
-        trans_list = TranslationNode.objects.filter(
-            question__exam=exam, language__delegation=delegation
-        ).order_by("language", "question")
-        pdf_list = PDFNode.objects.filter(
-            question__exam=exam, language__delegation=delegation
-        ).order_by("language", "question")
-        node_list = list(trans_list) + list(pdf_list)
+        node_lists = {}
+        lang_list = Language.objects.filter(delegation=delegation)
+        for lang in lang_list:
+            if lang.is_pdf:
+                nodes = PDFNode.objects.filter(
+                    question__exam=exam, language=lang
+                ).order_by("question")
+                if nodes:
+                    node_lists[lang] = nodes
+            else:
+                nodes = TranslationNode.objects.filter(
+                    question__exam=exam, language=lang
+                ).order_by("question")
+                if nodes:
+                    node_lists[lang] = nodes
+
         official_translations_vnode = VersionNode.objects.filter(
             question__exam=exam,
             language__delegation__name=OFFICIAL_DELEGATION,
@@ -279,7 +289,7 @@ def translations_list(request):
             "ipho_exam/partials/list_exam_tbody.html",
             {
                 "exam": exam,
-                "node_list": node_list,
+                "node_lists": node_lists,
                 "official_nodes": official_nodes,
                 "exam_active": exam.visibility >= Exam.get_visibility(request.user)
                 and in_progress,
@@ -898,6 +908,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
     if question_id is not None:
         question = get_object_or_404(Question, id=question_id, exam=exam)
     ctxt = {}
+    block_text = None
 
     if request.user.has_perm("ipho_core.is_delegation"):
         form = FeedbackForm(request.POST or None)
@@ -905,6 +916,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         node = VersionNode.objects.filter(
             question=question, language=orig_lang, status="C"
         )[0]
+        ids_in_order = [f"global_{node.question_id}"] + node.ids_in_order.split(",")
         qml_root = qml.make_qml(node)
 
         nodes = [[nd, False] for nd in qml_root.children]
@@ -913,6 +925,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
         part_position = 0
         part_label = None
         question_label = None
+        block_text = None
         part_count = 0
 
         if qml_id in (qml_root.id, "global"):
@@ -942,6 +955,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
                 is_subpart = True
             # end the loop if our node is reached
             if current_node.id == qml_id:
+                block_text = current_node.content()
                 break
             # depth first
             if current_node.has_children and current_node.children:
@@ -965,7 +979,12 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             form.instance.qml_id = qml_id
             form.instance.part = part_text[:100]
             form.instance.part_position = part_position
-
+            try:
+                form.instance.sort_order = ids_in_order.index(
+                    qml_id.replace("global", f"global_{question_id}")
+                )
+            except ValueError:
+                form.instance.sort_order = 0
             # part = models.CharField(max_length=100, default=None)
             form.save()
             ctxt[
@@ -1008,6 +1027,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             "delegation__name",
             "delegation__country",
             "status",
+            "category",
             "timestamp",
             "part",
             "part_position",
@@ -1052,17 +1072,22 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             unlike_del_slug = "<br> " + unlike_del[0] + ", ..., " + unlike_del[-1]
         f["like_delegations"] = [like_del_string, like_del_slug]
         f["unlike_delegations"] = [unlike_del_string, unlike_del_slug]
-    choices = dict(Feedback._meta.get_field("status").flatchoices)
+    status_choices = dict(Feedback._meta.get_field("status").flatchoices)
+    category_choices = dict(Feedback._meta.get_field("category").flatchoices)
     for fback in feedbacks:
-        fback["status_display"] = choices[fback["status"]]
+        fback["status_display"] = status_choices[fback["status"]]
+        fback["category_display"] = category_choices[fback["category"]]
         fback["commentable"] = Question.objects.get(
             pk=fback["question__pk"]
         ).check_feedback_commentable()
         fback["enable_likes"] = (
             (fback["delegation_likes"] == 0)
-            and fback["question__feedback_status"] == Question.FEEDBACK_OPEN
+            and fback["question__feedback_status"]
+            >= Question.FEEDBACK_EVERYBODY_COMMENT
             and fback["question__exam__feedback"] >= Exam.FEEDBACK_CAN_BE_OPENED
             and delegation is not None
+            and fback["status"] != "I"
+            and fback["status"] != "W"
         )
     feedbacks = list(feedbacks)
     feedbacks.sort(
@@ -1072,9 +1097,9 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
     ctxt["question"] = question
     ctxt["feedbacks"] = feedbacks
     ctxt["status_choices"] = Feedback.STATUS_CHOICES
-    ctxt["is_delegation"] = delegation is not None or request.user.has_perm(
-        "ipho_core.is_organizer_admin"
-    )
+    ctxt["category_choices"] = Feedback.CATEGORY_CHOICES
+    ctxt["delegation"] = delegation
+    ctxt["content"] = block_text
 
     return render(request, "ipho_exam/partials/feedbacks_partial_tbody.html", ctxt)
 
@@ -1084,10 +1109,16 @@ def feedback_partial_like(request, status, feedback_id):
     feedback = get_object_or_404(
         Feedback,
         pk=feedback_id,
-        question__feedback_status=Question.FEEDBACK_OPEN,
+        question__feedback_status__gte=Question.FEEDBACK_EVERYBODY_COMMENT,
         question__exam__feedback__gte=Exam.FEEDBACK_CAN_BE_OPENED,
         question__exam__visibility__gte=Exam.VISIBLE_ORGANIZER_AND_2ND_LVL_SUPPORT_AND_BOARDMEETING,
     )
+    if feedback.status == "I" or feedback.status == "W":
+        return JsonResponse(
+            {
+                "success": False,
+            }
+        )
     delegation = Delegation.objects.get(members=request.user)
     Like.objects.get_or_create(
         feedback=feedback, delegation=delegation, defaults={"status": status}
@@ -1100,7 +1131,22 @@ def feedback_partial_like(request, status, feedback_id):
 
 
 @permission_required("ipho_core.can_see_boardmeeting")
-def feedback_thread(request, feedback_id):
+def feedback_thread(request):
+    feedback_id = None
+    if request.POST:
+        feedback_id = request.POST.get("feedback_id", None)
+    elif request.GET:
+        feedback_id = request.GET.get("feedback_id", None)
+
+    if feedback_id is None:
+        return JsonResponse(
+            {
+                "success": False,
+            }
+        )
+    else:
+        feedback_id = feedback_id.rstrip("/")
+
     if not is_ajax(request):
         raise Exception()  # pylint: disable=broad-exception-raised
 
@@ -1112,8 +1158,8 @@ def feedback_thread(request, feedback_id):
     )
     ctx = {}
     ctx["feedback_open"] = (
-        feedback.question.feedback_status == Question.FEEDBACK_OPEN
-        and feedback.question.exam.feedback == Exam.FEEDBACK_CAN_BE_OPENED
+        feedback.question.feedback_status >= Question.FEEDBACK_EVERYBODY_COMMENT
+        and feedback.question.exam.feedback >= Exam.FEEDBACK_CAN_BE_OPENED
     )
     ctx["original_comment"] = feedback.comment
     ctx["original_delegation"] = feedback.delegation.name
@@ -1202,17 +1248,28 @@ def feedbacks_list(
         Question.objects.for_user(request.user).filter(exam__in=exam_filter_list).all()
     )
 
+    # Clean request url for filtering
+    query_dict = QueryDict(request.META["QUERY_STRING"].replace("amp;", ""))
     status_list = Feedback.STATUS_CHOICES
     filter_st = [s[0] for s in status_list]
-    status = request.GET.get("st", None)
+    status = query_dict.get("st", None)
     display_status = None
     if status is not None:
         status = status.rstrip("/")
         display_status = dict(Feedback.STATUS_CHOICES)[status]
         filter_st = status
 
+    category_list = Feedback.CATEGORY_CHOICES
+    filter_ca = [t[0] for t in category_list]
+    category = query_dict.get("ca", None)
+    display_category = None
+    if category is not None:
+        category = category.rstrip("/")
+        display_category = dict(Feedback.CATEGORY_CHOICES)[category]
+        filter_ca = category
+
     filter_qu = questions_f
-    qf_pk = request.GET.get("qu", None)
+    qf_pk = query_dict.get("qu", None)
     if qf_pk is not None:
         qf_pk = qf_pk.rstrip("/")
     question_f = Question.objects.for_user(request.user).filter(pk=qf_pk).first()
@@ -1243,13 +1300,17 @@ def feedbacks_list(
         if not int(request.GET["exam_id"]) in [ex.pk for ex in exam_list]:
             raise Http404("Not such active exam.")
 
-        questions = Question.objects.for_user(request.user).filter(
-            exam=request.GET["exam_id"]
+        questions = (
+            Question.objects.for_user(request.user)
+            .filter(exam=request.GET["exam_id"])
+            .order_by("position")
         )
         query = Feedback.objects.filter(question__in=questions).filter(
             status__in=filter_st,
+            category__in=filter_ca,
             question__in=filter_qu,
         )
+
         feedbacks = (
             query.annotate(
                 num_likes=Sum(
@@ -1278,14 +1339,16 @@ def feedbacks_list(
                 "delegation__name",
                 "delegation__country",
                 "status",
+                "category",
                 "timestamp",
                 "part",
                 "part_position",
                 "comment",
                 "org_comment",
                 "qml_id",
+                "sort_order",
             )
-            .order_by("-timestamp")
+            .order_by("sort_order", "timestamp")
         )
 
         # not in an annotate due to: https://code.djangoproject.com/ticket/10060
@@ -1297,7 +1360,8 @@ def feedbacks_list(
         for x in feedbacks:
             x["num_comments"] = feedback_comments[x["pk"]]
 
-        choices = dict(Feedback._meta.get_field("status").flatchoices)
+        status_choices = dict(Feedback._meta.get_field("status").flatchoices)
+        category_choices = dict(Feedback._meta.get_field("category").flatchoices)
         for fback in feedbacks:
             like_del = [
                 d[0]
@@ -1325,7 +1389,8 @@ def feedbacks_list(
                 unlike_del_slug = "<br> " + unlike_del[0] + ", ..."
             fback["like_delegations"] = [like_del_string, like_del_slug]
             fback["unlike_delegations"] = [unlike_del_string, unlike_del_slug]
-            fback["status_display"] = choices[fback["status"]]
+            fback["status_display"] = status_choices[fback["status"]]
+            fback["category_display"] = category_choices[fback["category"]]
             fback["commentable"] = Question.objects.get(
                 pk=fback["question__pk"]
             ).check_feedback_commentable()
@@ -1334,9 +1399,12 @@ def feedbacks_list(
             ).exam.check_feedback_editable()
             fback["enable_likes"] = (
                 (fback["delegation_likes"] == 0)
-                and fback["question__feedback_status"] == Question.FEEDBACK_OPEN
+                and fback["question__feedback_status"]
+                >= Question.FEEDBACK_EVERYBODY_COMMENT
                 and fback["question__exam__feedback"] >= Exam.FEEDBACK_CAN_BE_OPENED
                 and delegation is not None
+                and fback["status"] != "I"
+                and fback["status"] != "W"
             )
         feedbacks = list(feedbacks)
         feedbacks.sort(
@@ -1350,8 +1418,8 @@ def feedbacks_list(
                 "feedbacks": feedbacks,
                 "exam_id": exam_id,
                 "status_choices": Feedback.STATUS_CHOICES,
-                "is_delegation": delegation is not None
-                or request.user.has_perm("ipho_core.is_organizer_admin"),
+                "category_choices": Feedback.CATEGORY_CHOICES,
+                "delegation": delegation,
             },
         )
 
@@ -1374,10 +1442,10 @@ def feedbacks_list(
             "exam": exam,
             "status": display_status,
             "status_choices": Feedback.STATUS_CHOICES,
+            "category": display_category,
+            "category_choices": Feedback.CATEGORY_CHOICES,
             "question": question_f,
             "questions": questions_f,
-            "is_delegation": delegation is not None
-            or request.user.has_perm("ipho_core.is_organizer_admin"),
             "this_url_builder": url_builder,
             "form": form_html,
         },
@@ -1438,23 +1506,39 @@ def feedbacks_add_comment(request, feedback_id=None):
     )
 
 
-@permission_required("ipho_core.is_delegation")
-def feedback_like(request, status, feedback_id):
-    feedback = get_object_or_404(
-        Feedback,
-        pk=feedback_id,
-        question__feedback_status=Question.FEEDBACK_OPEN,
-        question__exam__feedback__gte=Exam.FEEDBACK_CAN_BE_OPENED,
-    )
-    delegation = Delegation.objects.get(members=request.user)
-    Like.objects.get_or_create(
-        feedback=feedback, delegation=delegation, defaults={"status": status}
-    )
-    return redirect("exam:feedbacks-list")
+@user_passes_test(
+    lambda u: u.has_perm("ipho_core.can_manage_feedback")
+    or u.has_perm("ipho_core.is_delegation")
+)
+def feedback_set_status(request, feedback_id, status):
+    fback = get_object_or_404(Feedback, id=feedback_id)
+    num_likes = Like.objects.filter(feedback=fback, status="L").count()
+    delegation = Delegation.objects.filter(members=request.user).first()
+    question = fback.question
+
+    if delegation is not None and (
+        not question.exam.check_visibility(request.user)
+        or status != "W"
+        or fback.status != "S"
+        or fback.delegation.pk is not delegation.pk
+        or num_likes > 0
+        or question.feedback_status <= Question.FEEDBACK_ORGANIZER_COMMENT
+        or question.exam.feedback <= Exam.FEEDBACK_READONLY
+    ):
+        return JsonResponse({"success": False})
+    elif (
+        not question.exam.check_visibility(request.user)
+        or question.feedback_status <= Question.FEEDBACK_CLOSED
+        or question.exam.feedback <= Exam.FEEDBACK_READONLY
+    ):
+        return JsonResponse({"success": False})
+    fback.status = status
+    fback.save()
+    return JsonResponse({"success": True})
 
 
 @permission_required("ipho_core.can_manage_feedback")
-def feedback_set_status(request, feedback_id, status):
+def feedback_set_category(request, feedback_id, category):
     fback = get_object_or_404(Feedback, id=feedback_id)
     question = fback.question
     if (
@@ -1463,7 +1547,7 @@ def feedback_set_status(request, feedback_id, status):
         or question.exam.feedback <= Exam.FEEDBACK_READONLY
     ):
         return JsonResponse({"success": False})
-    fback.status = status
+    fback.category = category
     fback.save()
     return JsonResponse({"success": True})
 
@@ -1503,6 +1587,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             "part_position",
             "delegation__name",
             "status",
+            "category",
             "timestamp",
             "comment",
             "org_comment",
@@ -1557,6 +1642,7 @@ def feedbacks_export_csv(request, exam_id, question_id):
             "Position",
             "Delegation",
             "Status",
+            "Category",
             "Timestamp",
             "Comment",
             "Organizer comment",
@@ -1604,7 +1690,13 @@ def figure_add(request):
 
         if ext in VALID_COMPILED_FIGURE_EXTENSIONS:
             obj = CompiledFigure.objects.create(name=obj.name)
-            obj.content = str(request.FILES["file"].read(), "utf-8")
+            raw_content = str(request.FILES["file"].read(), "utf-8")
+            # Remove metadata
+            clean_content = ET.fromstring(raw_content)
+            for child in clean_content:
+                if "metadata" == re.sub("{(.*?)}", "", child.tag):
+                    clean_content.remove(child)
+            obj.content = str(ET.tostring(clean_content, encoding="utf-8"), "utf-8")
             placeholders = figparam_placeholder.findall(obj.content)
             obj.params = ",".join(placeholders)
             obj.save()
@@ -1676,7 +1768,13 @@ def figure_edit(request, fig_id):
         ext = os.path.splitext(str(request.FILES["file"]))[1]
         if "file" in request.FILES:
             if compiled:
-                obj.content = request.FILES["file"].read()
+                raw_content = str(request.FILES["file"].read(), "utf-8")
+                # Remove metadata
+                clean_content = ET.fromstring(raw_content)
+                for child in clean_content:
+                    if "metadata" == re.sub("{(.*?)}", "", child.tag):
+                        clean_content.remove(child)
+                obj.content = str(ET.tostring(clean_content, encoding="utf-8"), "utf-8")
                 placeholders = figparam_placeholder.findall(obj.content)
                 obj.params = ",".join(placeholders)
                 obj.save()
@@ -1972,8 +2070,15 @@ def admin_import_version(request, question_id):
             node.status = "P"
         # Assume that we are importing our internal dump format (xml with escaped html).
         node.text = txt
-        node.save()
-        return JsonResponse({"success": True})
+        # Check that all ids are unique
+        try:
+            qml.make_qml(node, check_ids_unique=True)
+        except ValueError as e:
+            form.add_error("file", str(e))
+
+        if form.is_valid():
+            node.save()
+            return JsonResponse({"success": True})
 
     form_html = render_crispy_form(form)
     return JsonResponse(
@@ -2054,7 +2159,6 @@ def admin_delete_version(request, exam_id, question_id, version_num):
 @permission_required("ipho_core.can_edit_exam")
 def admin_check_version_before_diff(request, exam_id, question_id, version_num):
     lang_id = OFFICIAL_LANGUAGE_PK
-    print(exam_id)
     exam = get_object_or_404(Exam.objects.for_user(request.user), id=exam_id)
 
     question = get_object_or_404(
@@ -2252,6 +2356,29 @@ def admin_publish_version(request, exam_id, question_id, version_num):
     publish_form = PublishForm(request.POST or None)
     if publish_form.is_valid():
         node.status = "C"
+        # Save the ids in order, so they can be used for feedback sorting
+        try:
+            qmln = qml.make_qml(node, check_ids_unique=True)
+        except ValueError as e:
+            publish_form.add_error(None, str(e))
+            form_html = render_crispy_form(publish_form)
+            return JsonResponse(
+                {
+                    "title": "Error in QML",
+                    "form": form_html,
+                    "success": False,
+                }
+            )
+        ids_in_order = []
+
+        def get_ids(obj):
+            if obj.id is not None:
+                ids_in_order.append(obj.id)
+            for child in obj.children:
+                get_ids(child)
+
+        get_ids(qmln)
+        node.ids_in_order = ",".join(ids_in_order)
         node.save()
 
         exam_id = node.question.exam.id
@@ -2721,6 +2848,7 @@ def _get_submission_languages(exam, delegation, count_answersheets=True):
 
     return (
         Language.objects.all()
+        .order_by("pk")
         .annotate(
             num_translation=Sum(
                 Case(
@@ -2766,7 +2894,20 @@ def admin_submissions_translation(request):
             .values_list("delegation__country")
         )
 
-        remaining_countries = [country[0] + "," for country in remaining_countries]
+        # Query to get all delegations where the number of participants is zero for the specific exam
+        countries_no_participants = (
+            Delegation.objects.annotate(
+                participant_count=Count("participant", filter=Q(participant__exam=exam))
+            )
+            .filter(participant_count=0)
+            .values_list("country")
+        )
+
+        remaining_countries = [
+            country[0] + ","
+            for country in remaining_countries
+            if not country in countries_no_participants
+        ]
         if remaining_countries:
             remaining_countries[-1] = remaining_countries[-1][:-1]
 
@@ -2807,6 +2948,8 @@ def admin_submissions_translation(request):
 def print_submissions_translation(request):
     exams = {}
     for exam in Exam.objects.for_user(request.user):
+        if exam.submission_printing == -1:
+            continue
         remaining_countries = (
             ExamAction.objects.filter(
                 exam=exam, action=ExamAction.TRANSLATION, status=ExamAction.OPEN
@@ -2815,7 +2958,20 @@ def print_submissions_translation(request):
             .values_list("delegation__country")
         )
 
-        remaining_countries = [country[0] + "," for country in remaining_countries]
+        # Query to get all delegations where the number of participants is zero for the specific exam
+        countries_no_participants = (
+            Delegation.objects.annotate(
+                participant_count=Count("participant", filter=Q(participant__exam=exam))
+            )
+            .filter(participant_count=0)
+            .values_list("country")
+        )
+
+        remaining_countries = [
+            country[0] + ","
+            for country in remaining_countries
+            if not country in countries_no_participants
+        ]
         if remaining_countries:
             remaining_countries[-1] = remaining_countries[-1][:-1]
 
@@ -3459,7 +3615,10 @@ def submission_exam_submitted(request, exam_id):  # pylint: disable=too-many-bra
                 else:
                     msg = "You have won Chocolate !!     Please come to the Oly-Exams table to collect your prize."
             elif "received" in status:
-                msg = "You already got your chocolate."
+                if "switzerland" in delegation.country.lower():
+                    msg = "Thank you for the Chocolate, we have enjoyed it very much!"
+                else:
+                    msg = "You already got your chocolate."
 
     return render(
         request,
@@ -3806,11 +3965,16 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
         context["orig_font"] = fonts.ipho[context["orig_lang"].font]
     if context["trans_lang"]:
         context["trans_font"] = fonts.ipho[context["trans_lang"].font]
+    context["only_official_answer_sheets"] = getattr(
+        settings, "ONLY_OFFICIAL_ANSWER_SHEETS"
+    )
     return render(request, "ipho_exam/editor.html", context)
 
 
 @permission_required("ipho_core.can_see_boardmeeting")
-def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=False):
+def compiled_question(
+    request, question_id, lang_id, version_num=None, raw_tex=False, solution=False
+):
     if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
@@ -3823,11 +3987,13 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
     else:
         trans = qquery.latest_version(question_id, lang_id, user=request.user)
 
-    filename = "exam-{}-{}{}-{}.pdf".format(
+    filename = "{}-{}-{}{}-{}_{}.pdf".format(
+        "solution" if solution else "exam",
         slugify(trans.question.exam.name),
         trans.question.code,
         trans.question.position,
         slugify(trans.lang.name),
+        trans.node.timestamp.strftime("%Y-%m-%d_%H%M-UTC"),
     )
 
     if trans.lang.is_pdf:
@@ -3853,8 +4019,28 @@ def compiled_question(request, question_id, lang_id, version_num=None, raw_tex=F
         return res
 
     trans_content, ext_resources = trans.qml.make_tex()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"\\begin{QTS}{[^}]*}.*?\\end{QTS}"
+        trans_content = re.sub(solution_env_pattern, "", trans_content, flags=re.DOTALL)
+    # Remove the figures from the questions that are tagged as not included
+    else:
+        tagged_figures_pattern = (
+            r"% BEGIN_EXCLUDE_IN_SOLUTION.*?% END_EXCLUDE_IN_SOLUTION"
+        )
+        trans_content = re.sub(
+            tagged_figures_pattern, "", trans_content, flags=re.DOTALL
+        )
+
     for reso in ext_resources:
         if isinstance(reso, tex.FigureExport):
+            if not reso.exists():
+                return render(
+                    request,
+                    "ipho_exam/missing_figure.html",
+                    {"figid": reso.figid},
+                    status=404,
+                )
             reso.lang = trans.lang
     ext_resources.append(
         tex.TemplateExport(
@@ -3953,7 +4139,12 @@ def auto_translate_count(request):
     or u.has_perm("ipho_core.can_edit_exam")
 )
 def compiled_question_diff(  # pylint: disable=too-many-locals
-    request, question_id, lang_id, old_version_num=None, new_version_num=None
+    request,
+    question_id,
+    lang_id,
+    old_version_num=None,
+    new_version_num=None,
+    solution=False,
 ):
     if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
@@ -3992,11 +4183,46 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
         )
 
     old_trans_content, old_ext_resources = trans_old.qml.make_tex()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"\\begin{QTS}{[^}]*}.*?\\end{QTS}"
+        old_trans_content = re.sub(
+            solution_env_pattern, "", old_trans_content, flags=re.DOTALL
+        )
+    # Remove the figures from the questions that are tagged as not included
+    else:
+        tagged_figures_pattern = (
+            r"% BEGIN_EXCLUDE_IN_SOLUTION.*?% END_EXCLUDE_IN_SOLUTION"
+        )
+        old_trans_content = re.sub(
+            tagged_figures_pattern, "", old_trans_content, flags=re.DOTALL
+        )
     new_trans_content, new_ext_resources = trans_new.qml.make_tex()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"\\begin{QTS}{[^}]*}.*?\\end{QTS}"
+        new_trans_content = re.sub(
+            solution_env_pattern, "", new_trans_content, flags=re.DOTALL
+        )
+    # Remove the figures from the questions that are tagged as not included
+    else:
+        tagged_figures_pattern = (
+            r"% BEGIN_EXCLUDE_IN_SOLUTION.*?% END_EXCLUDE_IN_SOLUTION"
+        )
+        new_trans_content = re.sub(
+            tagged_figures_pattern, "", new_trans_content, flags=re.DOTALL
+        )
 
     ext_resources = list(set(old_ext_resources) | set(new_ext_resources))
     for reso in ext_resources:
         if isinstance(reso, tex.FigureExport):
+            if not reso.exists():
+                return render(
+                    request,
+                    "ipho_exam/missing_figure.html",
+                    {"figid": reso.figid},
+                    status=404,
+                )
             reso.lang = lang
     ext_resources.append(
         tex.TemplateExport(
@@ -4057,7 +4283,9 @@ def compiled_question_diff(  # pylint: disable=too-many-locals
 
 
 @login_required
-def compiled_question_odt(request, question_id, lang_id, version_num=None):
+def compiled_question_odt(
+    request, question_id, lang_id, version_num=None, solution=False
+):
     if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
@@ -4072,8 +4300,27 @@ def compiled_question_odt(request, question_id, lang_id, version_num=None):
     filename = f"Exam - {trans.question.exam.name} Q{trans.question.position} - {trans.lang.name}.odt"
 
     trans_content, ext_resources = trans.qml.make_xhtml()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"<!-- BEGINSOLUTION -->.*?<!-- ENDSOLUTION -->"
+        trans_content = re.sub(solution_env_pattern, "", trans_content, flags=re.DOTALL)
+    # Remove the figures from the questions that are tagged as not included
+    else:
+        tagged_figures_pattern = (
+            r"% BEGIN_EXCLUDE_IN_SOLUTION.*?% END_EXCLUDE_IN_SOLUTION"
+        )
+        trans_content = re.sub(
+            tagged_figures_pattern, "", trans_content, flags=re.DOTALL
+        )
     for reso in ext_resources:
         if isinstance(reso, tex.FigureExport):
+            if not reso.exists():
+                return render(
+                    request,
+                    "ipho_exam/missing_figure.html",
+                    {"figid": reso.figid},
+                    status=404,
+                )
             reso.lang = trans.lang
     context = {
         "lang_name": f"{trans.lang.name} ({trans.lang.delegation.country})",
@@ -4088,7 +4335,9 @@ def compiled_question_odt(request, question_id, lang_id, version_num=None):
 
 
 @login_required
-def compiled_question_html(request, question_id, lang_id, version_num=None):
+def compiled_question_html(
+    request, question_id, lang_id, version_num=None, solution=False
+):
     if not Question.objects.get(pk=question_id).check_visibility(request.user):
         return HttpResponseForbidden(
             "You do not have the permissions to view this question."
@@ -4101,6 +4350,18 @@ def compiled_question_html(request, question_id, lang_id, version_num=None):
     else:
         trans = qquery.latest_version(question_id, lang_id, user=request.user)
     trans_content, _ = trans.qml.make_xhtml()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"<!-- BEGINSOLUTION -->.*?<!-- ENDSOLUTION -->"
+        trans_content = re.sub(solution_env_pattern, "", trans_content, flags=re.DOTALL)
+    # Remove the figures from the questions that are tagged as not included
+    else:
+        tagged_figures_pattern = (
+            r"% BEGIN_EXCLUDE_IN_SOLUTION.*?% END_EXCLUDE_IN_SOLUTION"
+        )
+        trans_content = re.sub(
+            tagged_figures_pattern, "", trans_content, flags=re.DOTALL
+        )
 
     html = """<!DOCTYPE html>
 <html>

@@ -29,6 +29,7 @@ from decimal import Decimal
 from io import StringIO
 from xml.etree import ElementTree as ET
 
+from django.conf import settings
 from future import standard_library
 
 standard_library.install_aliases()
@@ -58,6 +59,7 @@ PARAGRAPH_LIKE_BLOCKS = (
     "figure",
     "box",
     "csvtable",
+    "vspace",
 )
 DEFAULT_BLOCKS = ("texfield", "texenv")
 
@@ -70,7 +72,7 @@ def make_content(root):
     return ret
 
 
-def make_content_node(node):
+def make_content_node(node, translatable=True):
     """
     Recursively contruct a list of node descriptors for the template containing
     the text of root and the form elements for the translated language.
@@ -79,8 +81,9 @@ def make_content_node(node):
         'heading'   : str or None
         'style'     : list of css classes
         'id'        : object id
-        'type       : object type (aka the tag)
-        'attrs      : dict of attributes
+        'type'       : object type (aka the tag)
+        'translatable' : node can be translated
+        'attrs'      : dict of attributes
         'original'  : original language, as html content
         'translate' : translated language, as FormWidget # REMOVED
         'children'  : list of other nodes
@@ -101,22 +104,36 @@ def make_content_node(node):
     else:
         descr["original"] = node.content()
         descr["original_with_extra"] = node.content_with_extra()
+    if node.tag == "subsolution":
+        translatable = False
+    descr["translatable"] = translatable
     descr["description"] = node.attributes.get("description")
 
     descr["children"] = []
     for child in node.children:
-        descr["children"].append(make_content_node(child))
+        if not translatable and not settings.TRANSLATABLE_SOLUTIONS:
+            # do not translate solutions unless enabled in settings
+            descr["children"].append(make_content_node(child, False))
+        else:
+            descr["children"].append(make_content_node(child))
 
     return descr
 
 
-def make_qml(node):
+def make_qml(node, check_ids_unique=False):
     que = QMLquestion(node.text)
 
     attr_change = {}
     if hasattr(node, "attributechange"):
         attr_change = json.loads(node.attributechange.content)
     que.update_attrs(attr_change)
+    # Check that all ids are unique
+    if check_ids_unique:
+        ids = set()
+        for obj in que.children:
+            if obj.id in ids:
+                raise ValueError(f"Duplicate id: {obj.id} in QML")
+            ids.add(obj.id)
     return que
 
 
@@ -461,6 +478,7 @@ class QMLquestion(QMLbase):
             "box",
             "subanswer",
             "subanswercontinuation",
+            "subsolution",
         )
     )
 
@@ -509,7 +527,7 @@ class QMLsubquestion(QMLbase):
 
     has_text = False
     has_children = True
-    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS + ("subsolution",)
 
     default_attributes = {
         "min_points": "0.0",
@@ -550,6 +568,43 @@ class QMLsubquestion(QMLbase):
                 self.attributes.get("max_points", None),
             ),
         )
+
+
+class QMLsubsolution(QMLbase):
+    tag = "subsolution"
+    display_name = "Solution box (add solution here)"
+    default_heading = "Solution box"
+    sort_order = 505
+
+    has_text = False
+    has_children = True
+    valid_children = DEFAULT_BLOCKS + PARAGRAPH_LIKE_BLOCKS
+
+    default_attributes = {
+        "header": "SOLUTION:",
+        "color": "red",
+    }
+
+    def heading(self):
+        return "Solution"
+
+    def tex_begin(self):
+        return "\\begin{{QTS}}{{{}}}{{{}}}\n".format(
+            self.attributes["header"],
+            self.attributes["color"],
+        )
+
+    def tex_end(self):
+        return "\\end{QTS}\n\n"
+
+    def xhtml_begin(self):
+        return "<!-- BEGINSOLUTION --><div style='color: {};'<h4>{}</h4>".format(
+            self.attributes["color"],
+            self.attributes["header"],
+        )
+
+    def xhtml_end(self):
+        return "</div><!-- ENDSOLUTION -->"
 
 
 class QMLsubanswer(QMLbase):
@@ -736,6 +791,19 @@ class QMLparagraph(QMLbase):
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
 
+    def tex_begin(self):
+        res = ""
+        if self.attributes.get("exclude_in_solution") == "1":
+            res += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
+        return res
+
+    def tex_end(self):
+        res = "\n"
+        if self.attributes.get("exclude_in_solution") == "1":
+            res += "% END_EXCLUDE_IN_SOLUTION \n"
+        res += "\n\n"
+        return res
+
     def xhtml_begin(self):
         return "<p>"
 
@@ -751,10 +819,17 @@ class QMLparagraphcolored(QMLparagraph):
     default_attributes = {"color": "red"}
 
     def tex_begin(self):
-        return "{\\color{" + self.attributes.get("color", "") + "}"
+        res = ""
+        if self.attributes.get("exclude_in_solution") == "1":
+            res += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
+        res += "{\\color{" + self.attributes.get("color", "") + "}"
+        return res
 
     def tex_end(self):
-        return "}"
+        res = "}\n\n"
+        if self.attributes.get("exclude_in_solution") == "1":
+            res += "% END_EXCLUDE_IN_SOLUTION \n"
+        return res
 
 
 class QMLfigure(QMLbase):
@@ -838,12 +913,16 @@ class QMLfigure(QMLbase):
         width = self.attributes.get("width", 0.9)  # 0.9 is the default value
 
         texout = ""
+        if self.attributes.get("exclude_in_solution") == "1":
+            texout += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
         texout += r"\vspace{0.5cm}\begin{minipage}{\textwidth}\centering" + "\n"
         texout += f"\\includegraphics[width={width}\\textwidth]{{{figname}}}\n"
         if len(fig_caption) > 0:
             texout += str("\n" + r"\vspace{0.1cm}" + "\n")
             texout += "\\pbox[b]{0.9\\textwidth}{%s}\n" % fig_caption
         texout += r"\end{minipage}\vspace{0.5cm}" + "\n\n"
+        if self.attributes.get("exclude_in_solution") == "1":
+            texout += "% END_EXCLUDE_IN_SOLUTION \n"
 
         externals = [
             tex.FigureExport(
@@ -904,7 +983,7 @@ class QMLcellfigure(QMLfigure):
 
         fig_caption = ""
         for child in self.children:
-            if child.tag == "caption":
+            if child.tag == "caption" or child.tag == "paragraph":
                 caption_text = string_manipulation.html2tex(child.data)
                 caption_text = caption_text.strip("\n")
                 caption_text = caption_text.replace("\n", r" ~\newline ")
@@ -915,7 +994,7 @@ class QMLcellfigure(QMLfigure):
         texout = ""
         texout += str(r"\begin{minipage}{" + width + r"\textwidth}\centering") + "\n"
         texout += f"\\includegraphics[width=\\textwidth]{{{figname}}}\n"
-        texout += r"\end{minipage}" + "\n"
+        texout += r"\end{minipage}" + "\n\\newline\n"
 
         externals = [
             tex.FigureExport(
@@ -998,15 +1077,30 @@ class QMLlist(QMLbase):
     default_heading = "Bullet list"
     sort_order = 200
 
+    default_attributes = {
+        "itemsep": "0",
+    }
+
     has_text = False
     has_children = True
     valid_children = "item"
 
     def tex_begin(self):
-        return "\\begin{itemize}\n"
+        res = ""
+        if self.attributes.get("exclude_in_solution") == "1":
+            res += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
+        res += (
+            "\\begin{itemize}\\setlength{\\itemsep}{"
+            + str(self.attributes["itemsep"])
+            + "pt}\n\n"
+        )
+        return res
 
     def tex_end(self):
-        return "\\end{itemize}\n\n"
+        res = "\\end{itemize}\n\n"
+        if self.attributes.get("exclude_in_solution") == "1":
+            res += "% END_EXCLUDE_IN_SOLUTION \n"
+        return res
 
     def xhtml_begin(self):
         return "<ul>"
@@ -1029,12 +1123,16 @@ class QMLenumerate(QMLbase):
     )
 
     def tex_begin(self):
-        label = self.attributes.get("label", "")
-        label = "[" + label + ".]" if label else ""
-        return "\\begin{enumerate}" + label + "\n"
+        res = ""
+        if self.attributes.get("exclude_in_solution") == "1":
+            res += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
+        res += "\\begin{enumerate}\n"
 
     def tex_end(self):
-        return "\\end{enumerate}\n\n"
+        res = "\\end{enumerate}\n\n"
+        if self.attributes.get("exclude_in_solution") == "1":
+            res += "% END_EXCLUDE_IN_SOLUTION \n"
+        return res
 
     def xhtml_begin(self):
         label = self.attributes.get("label", "")
@@ -1059,12 +1157,21 @@ class QMLlistItem(QMLbase):
         return forms.CharField(widget=forms.Textarea)
 
     def tex_begin(self):
-        texout = "\\item"
+        texout = ""
+        if self.attributes.get("exclude_in_solution") == "1":
+            texout += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
+        texout += "\\item "
         try:
             texout += "[{}]".format(self.attributes["label"])
         except KeyError:
             pass
         texout += " "
+        return texout
+
+    def tex_end(self):
+        texout = "\n"
+        if self.attributes.get("exclude_in_solution") == "1":
+            texout += "% END_EXCLUDE_IN_SOLUTION \n"
         return texout
 
     def make_xhtml(self):
@@ -1212,7 +1319,10 @@ class QMLtable(QMLbase):
         return super().make_tex()
 
     def tex_begin(self):
-        return (
+        res = ""
+        if self.attributes.get("exclude_in_solution") == "1":
+            res += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
+        res += (
             r"\vspace{0.5cm}"
             + "\\begin{center}"
             + self._arraystretch
@@ -1222,11 +1332,14 @@ class QMLtable(QMLbase):
             + int(self.attributes["top_line"]) * "\\hline"
             + "\n"
         )
+        return res
 
     def tex_end(self):
         tex_src = r"\end{tabular}\end{center}"
         tex_src += "".join(child.make_tex()[0] for child in self.captions)
         tex_src += r"\vspace{0.5cm}" + "\n\n"
+        if self.attributes.get("exclude_in_solution") == "1":
+            tex_src += "% END_EXCLUDE_IN_SOLUTION \n"
         return tex_src
 
     def xhtml_begin(self):
@@ -1382,7 +1495,7 @@ class QMLvspace(QMLbase):
 
     DEFAULT_AMOUNT = 10
 
-    default_attributes = {"amount": f"{DEFAULT_AMOUNT}"}
+    default_attributes = {"amount": f"{DEFAULT_AMOUNT}", "exclude_in_solution": "0"}
 
     def get_amount(self):
         try:
@@ -1392,7 +1505,13 @@ class QMLvspace(QMLbase):
         return val
 
     def make_tex(self):
-        return r"\vspace{%iem}" % self.get_amount() + "\n", []
+        res = ""
+        if self.attributes.get("exclude_in_solution") == "1":
+            res += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
+        res += r"\vspace{%iem}" % self.get_amount() + "\n"
+        if self.attributes.get("exclude_in_solution") == "1":
+            res += "% END_EXCLUDE_IN_SOLUTION \n"
+        return res, []
 
 
 class QMLcsvtable(QMLbase):
@@ -1406,7 +1525,7 @@ class QMLcsvtable(QMLbase):
     has_text = True
     has_children = False
     valid_children = ("table",)
-    default_attributes = {"columns": "|l|c|", "row_separator": "11"}
+    default_attributes = {"columns": "|l|c|", "bottom_line": "1"}
 
     def form_element(self):
         return forms.CharField(widget=forms.Textarea)
@@ -1431,19 +1550,16 @@ class QMLcsvtable(QMLbase):
 
                 for i, elem in df_table.iterrows():
                     row = ET.Element(
-                        "row", {"bottom_line": self.attributes["row_separator"][i]}
+                        "row", {"bottom_line": self.attributes["bottom_line"]}
                     )
                     row_node = table_node.add_child(row)
                     for col in df_table.columns:
                         cell = ET.Element("cell", {})
-                        cell.text = elem[col]
+                        cell.text = str(elem[col]) if not pd.isna(elem[col]) else ""
                         row_node.add_child(cell)
                 self.data_html = self.data
             # pylint: disable=broad-except
             except (Exception,) as error:
-                print("Error in parsing CSV table")
-                print(error)
-                print(root.text)
                 root.text = "<p></p>"
                 super().parse(root)
 

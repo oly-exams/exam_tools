@@ -55,6 +55,9 @@ def check_version(version, other_question_status=("C", "S")):
     code = question.code
     if code == "G":
         return (version, None)
+    if not code in ["Q", "A"]:
+        error_msg_list.append(f"Code must be 'A' or 'Q' and not {code}")
+        raise PointValidationError("<li>".join(error_msg_list))
     error_msg_list += check_sum_consistency(version)
     error_msg_list += check_min_max_consistency(version)
 
@@ -70,6 +73,14 @@ def check_version(version, other_question_status=("C", "S")):
                 q_type[other_code], q_type[code]
             )
         )
+        raise PointValidationError("<li>".join(error_msg_list))
+    except Question.MultipleObjectsReturned:
+        error_msg_list.append(
+            "There are multiple {} sheets corresponding to this {} sheet.".format(
+                q_type[other_code], q_type[code]
+            )
+        )
+        raise PointValidationError("<li>".join(error_msg_list))
     try:
         qquery.latest_version(
             other_question.pk,

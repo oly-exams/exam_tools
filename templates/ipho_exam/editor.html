@@ -195,6 +195,27 @@ body { margin-bottom: 70px; }
       </div>
     </div>
 
+    <div class="modal fade" id="delete-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+ Delete all</h4>
+          </div>
+              <div class="modal-body">
+                <p class="alert alert-warning" id="delete-modal-alert-text">
+                  Delete the content from all translation fields in this question and start over?
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger">Confirm</button>
+              </div>
+        </div>
+      </div>
+    </div>
+
     <div id="alerts-container">
         {% if warning %}
             <div class="alert alert-warning alert-dismissible" role="alert">
@@ -281,15 +302,17 @@ body { margin-bottom: 70px; }
 <ul class="nav nav-tabs">
     {% for q in exam.question_set.all %}
         {% if q.has_published_version %}
-            <li {% if question == q %} class="active" {% endif %}>
-                {% if orig_lang and trans_lang %}
-                    <a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk lang_id=trans_lang.pk %}">{{ q.exam.code }}{{ q.position }} - {{ q.name }}</a>
-                {% elif orig_lang %}
-                    <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk %}">{{ q.exam.code }}{{ q.position }} - {{ q.name }}</a>
-                {% else %}
-                    <a href="{% url 'exam:editor-question' exam_id=exam.pk question_id=q.pk %}">{{ q.exam.code }}{{ q.position }} - {{ q.name }}</a>
-                {% endif %}
-            </li>
+            {% if not q.type or not only_official_answer_sheets %}
+                <li {% if question == q %} class="inactive" {% endif %}>
+                    {% if orig_lang and trans_lang %}
+                        <a href="{% url 'exam:editor-orig-lang' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk lang_id=trans_lang.pk %}">{{ q.exam.code }}{{ q.position }} - {{ q.name }}</a>
+                    {% elif orig_lang %}
+                        <a href="{% url 'exam:editor-orig' exam_id=exam.pk question_id=q.pk orig_id=orig_lang.pk %}">{{ q.exam.code }}{{ q.position }} - {{ q.name }}</a>
+                    {% else %}
+                        <a href="{% url 'exam:editor-question' exam_id=exam.pk question_id=q.pk %}">{{ q.exam.code }}{{ q.position }} - {{ q.name }}</a>
+                    {% endif %}
+                </li>
+            {% endif %}
         {% endif %}
     {% endfor %}
 </ul>
@@ -392,6 +415,10 @@ body { margin-bottom: 70px; }
                   <i class="fa fa-clipboard" aria-hidden="true"></i>
                   <span class="glyphicon glyphicon-arrow-right"></span>
                   <i class="fa fa-clipboard" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-warning" id="delete-all" class="btn btn-sm btn-default translate-delete-all-button" title="Delete all blocks from the translation to start over" data-toggle="modal" data-target="#delete-modal">
+                  <i class="fa fa-trash-o" aria-hidden="true"></i>
+                  CLEAR ALL
                 </button>
 
                 </h4>
@@ -690,19 +717,32 @@ body { margin-bottom: 70px; }
 
             $('#copy-modal .btn-warning').on('click', function (evt){
               evt.preventDefault();
-		$(".translate-copy-button").each(function (index, obj) {
-		    const field_id = obj.id.replace('-copy', '');
-		    var is_empty;
-		    if (field_id in all_editors)
-			is_empty = !all_editors[field_id].getData();
-		    else
-			is_empty = !$('#'+field_id+'-translate input[type="text"]').val();
-		    // only copy over the ones where the translation has nothing
-		    if (is_empty) {
-			obj.click();
-		    }
-		});
+              $(".translate-copy-button").each(function (index, obj) {
+                  const field_id = obj.id.replace('-copy', '');
+                  var is_empty;
+                  if (field_id in all_editors)
+                is_empty = !all_editors[field_id].getData();
+                  else
+                is_empty = !$('#'+field_id+'-translate input[type="text"]').val();
+                  // only copy over the ones where the translation has nothing
+                  if (is_empty) {
+                obj.click();
+                  }
+              });
               $('#copy-modal').modal('hide');
+            });
+
+            $('#delete-modal .btn-danger').on('click', function (evt){
+              evt.preventDefault();
+              console.log("Deleting all fields");
+              $(".translate-copy-button").each(function (index, obj) {
+                  const field_id = obj.id.replace('-copy', '');
+                  if (field_id in all_editors)
+                all_editors[field_id].setData('');
+                  else
+                $('#'+field_id+'-translate input[type="text"]').val('');
+              });
+              $('#delete-modal').modal('hide');
             });
 
             $('.translate-foreign textarea').each(function() {
