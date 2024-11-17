@@ -20,15 +20,15 @@
 
 import os
 
-import django
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "exam_tools.settings")
 import shutil
 import sys
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "exam_tools.settings")
 sys.path.append(".")
 
+import django
 django.setup()
+
 import argparse
 import re
 import time
