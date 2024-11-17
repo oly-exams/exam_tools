@@ -1084,6 +1084,7 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             >= Question.FEEDBACK_EVERYBODY_COMMENT
             and fback["question__exam__feedback"] >= Exam.FEEDBACK_CAN_BE_OPENED
             and delegation is not None
+            and delegation.name != fback["delegation__name"]
             and fback["status"] != "I"
             and fback["status"] != "W"
         )
@@ -1118,6 +1119,13 @@ def feedback_partial_like(request, status, feedback_id):
             }
         )
     delegation = Delegation.objects.get(members=request.user)
+    if feedback.delegation == delegation:
+        print("You can't like your own feedback")
+        return JsonResponse(
+            {
+                "success": False,
+            }
+        )
     Like.objects.get_or_create(
         feedback=feedback, delegation=delegation, defaults={"status": status}
     )
@@ -1399,6 +1407,7 @@ def feedbacks_list(
                 >= Question.FEEDBACK_EVERYBODY_COMMENT
                 and fback["question__exam__feedback"] >= Exam.FEEDBACK_CAN_BE_OPENED
                 and delegation is not None
+                and delegation.name != fback["delegation__name"]
                 and fback["status"] != "I"
                 and fback["status"] != "W"
             )
