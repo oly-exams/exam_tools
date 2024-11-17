@@ -4,6 +4,7 @@ import os.path
 import numpy as np
 import pandas as pd
 from django.db.models import Q
+
 from ipho_exam.models import Question
 from ipho_marking.models import Marking, MarkingAction, MarkingMeta
 
@@ -56,16 +57,20 @@ def import_marking(question_id, file):
             except ValueError as e:
                 raise ValueError(f"Value error for {student_code} {question_part}: {e}")
             # do not update if no points have been entered
-            if not np.isnan(awarded_points) and not df[student_code][question_part] == "":
+            if (
+                not np.isnan(awarded_points)
+                and not df[student_code][question_part] == ""
+            ):
                 marking = stud_markings.filter(marking_meta__name=question_part)
                 print(marking.__dict__)
                 assert (
                     len(marking) == 1
                 ), f"Found {len(marking)} markings for {student_code} {question_part}"
                 marking = marking[0]
-                assert (
-                    awarded_points >= float(marking.marking_meta.min_points) and
-                    awarded_points <= float(marking.marking_meta.max_points)
+                assert awarded_points >= float(
+                    marking.marking_meta.min_points
+                ) and awarded_points <= float(
+                    marking.marking_meta.max_points
                 ), f"Points {awarded_points} not in range {marking.marking_meta.min_points}, {marking.marking_meta.max_points} for {student_code} {question_part}"
                 marking = marking
                 marking.points = awarded_points

@@ -25,6 +25,7 @@ from django.conf import settings
 from google.api_core.exceptions import BadRequest
 from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
+
 from ipho_exam.models import CachedAutoTranslation
 
 django_logger = logging.getLogger("django.request")
@@ -47,7 +48,9 @@ class SpanReplacer:
             r'<\s*span[^>]*\sclass\s*=\s*"' + span_class + r'"\s*>.*?<\s*/\s*span\s*>'
         )
         self.readd_pattern = (
-            r'<\s*span\s*data-'+span_class+r'-oly\s*=\s*"([0-9]*)"\s*>\s*<\s*\/\s*span\s*>'
+            r"<\s*span\s*data-"
+            + span_class
+            + r'-oly\s*=\s*"([0-9]*)"\s*>\s*<\s*\/\s*span\s*>'
         )
 
     def _repl(self, match):

@@ -45,17 +45,20 @@ def publish_all_questions(exam_id):
             # Save the ids in order, so they can be used for feedback sorting
             qmln = qml.make_qml(node)
             ids_in_order = []
+
             def get_ids(obj):
                 if obj.id is not None:
                     ids_in_order.append(obj.id)
                 for child in obj.children:
                     get_ids(child)
+
             get_ids(qmln)
             node.ids_in_order = ",".join(ids_in_order)
             node.save()
 
         exam_id = node.question.exam.id
     return questions.count()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -67,9 +70,13 @@ if __name__ == "__main__":
         for exam_name in exam_names:
             exam_id = Exam.objects.get(name=exam_name).pk
             num_questions = publish_all_questions(exam_id)
-            print(f"Published all versions for {num_questions} questions from exam {exam_name}")
+            print(
+                f"Published all versions for {num_questions} questions from exam {exam_name}"
+            )
     else:
         exam_name = args.exam_name
         exam_id = Exam.objects.get(name=exam_name).pk
         num_questions = publish_all_questions(exam_id)
-        print(f"Published all versions for {num_questions} questions from exam {exam_name}")
+        print(
+            f"Published all versions for {num_questions} questions from exam {exam_name}"
+        )

@@ -28,10 +28,19 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.forms.formsets import formset_factory
-from ipho_exam.models import (VALID_FIGURE_EXTENSIONS, Feedback, Figure,
-                              Language, Participant, ParticipantSubmission,
-                              PDFNode, Question, TranslationImportTmp,
-                              VersionNode)
+
+from ipho_exam.models import (
+    VALID_FIGURE_EXTENSIONS,
+    Feedback,
+    Figure,
+    Language,
+    Participant,
+    ParticipantSubmission,
+    PDFNode,
+    Question,
+    TranslationImportTmp,
+    VersionNode,
+)
 from ipho_print import printer
 
 ALLOW_ANSLANG_WITHOUT_QLANG = getattr(settings, "ALLOW_ANSLANG_WITHOUT_QLANG", False)
@@ -48,10 +57,13 @@ def build_extension_validator(valid_extensions):
     return validate_file_extension
 
 
-def build_size_validator(max_size): # Max. size in bytes
+def build_size_validator(max_size):  # Max. size in bytes
     def validate_file_size(value):
         if value.size > max_size:
-            raise ValidationError(f'File too large. Size should not exceed {max_size/1048576} MB.')
+            raise ValidationError(
+                f"File too large. Size should not exceed {max_size/1048576} MB."
+            )
+
     return validate_file_size
 
 
@@ -130,7 +142,10 @@ class FigureForm(ModelForm):
         super().__init__(*args, **kwargs)
         instance = getattr(self, "instance", None)
         self.fields["file"] = forms.FileField(
-            validators=[build_extension_validator(valid_extensions), build_size_validator(10485760)], # Max. 10 MB
+            validators=[
+                build_extension_validator(valid_extensions),
+                build_size_validator(10485760),
+            ],  # Max. 10 MB
             label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: {}"><span class="glyphicon glyphicon-info-sign"></span></a>'.format(
                 " ".join("*" + ext for ext in valid_extensions)
             ),

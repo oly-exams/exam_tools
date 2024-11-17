@@ -23,10 +23,10 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.http.response import Http404
+
 from ipho_exam import qquery
 from ipho_exam.models import Question, VersionNode
-from ipho_exam.qml import (QMLpart, QMLquestion, QMLsubanswer, QMLsubquestion,
-                           make_qml)
+from ipho_exam.qml import QMLpart, QMLquestion, QMLsubanswer, QMLsubquestion, make_qml
 
 __all__ = [
     "check_version",

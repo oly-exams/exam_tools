@@ -19,7 +19,6 @@
 
 
 import os
-
 import shutil
 import sys
 
@@ -27,6 +26,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "exam_tools.settings")
 sys.path.append(".")
 
 import django
+
 django.setup()
 
 import argparse
@@ -36,7 +36,6 @@ from hashlib import md5
 from io import BytesIO
 
 import celery
-import ipho_exam
 from celery.result import AsyncResult
 from django.conf import settings
 from django.core.cache import cache
@@ -44,10 +43,12 @@ from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
+from PyPDF2 import PdfFileMerger, PdfFileReader
+
+import ipho_exam
 from ipho_core.models import Delegation
 from ipho_exam import fonts, qquery, tasks, tex
 from ipho_exam.models import Exam, Language, Question
-from PyPDF2 import PdfFileMerger, PdfFileReader
 
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
@@ -70,6 +71,7 @@ def compile_tex_async(body, ext_resources=tuple(), filename="question.pdf"):
         task_id = job.id
         cache.set(cache_key, task_id, CACHE_TIMEOUT)
     return task_id
+
 
 def compile_question_pdf(question, language, solution):
     try:
@@ -254,13 +256,11 @@ def generate_delegation(logo_file, exams, delegation, combine_exams, solution):
                 if combine_exams:
                     pdf = False
                     tries = 0
-                    while not pdf and tries < 10: # Max 10 retries if compilation fails
+                    while not pdf and tries < 10:  # Max 10 retries if compilation fails
                         pdf = compile_question_pdf(q, lang, solution)
                         tries += 1
                         if pdf:
-                            pdfdoc = PdfFileReader(
-                                BytesIO(pdf)
-                            )
+                            pdfdoc = PdfFileReader(BytesIO(pdf))
                             merger.append(pdfdoc)
                 else:
                     question_pdf = compile_question_pdf(q, lang, solution)
@@ -276,9 +276,7 @@ def generate_delegation(logo_file, exams, delegation, combine_exams, solution):
                     with open(filename, "wb") as fp:
                         fp.write(question_pdf)
             if combine_exams:
-                base_filename = (
-                    f"{exam.code}_{slugify(lang.name)}_{delegation.name}_{'solution' if solution else ''}.pdf"
-                )
+                base_filename = f"{exam.code}_{slugify(lang.name)}_{delegation.name}_{'solution' if solution else ''}.pdf"
                 filename = os.path.join(delegation_takehome_pdf_dir, base_filename)
                 os.makedirs(os.path.dirname(filename), exist_ok=True)
                 merger.write(filename)
@@ -316,14 +314,18 @@ def generate_all(logo_file, exam_names=None, combine_exams=False, solution=False
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("logo_file", help="Filename of the logo file image in templates")
+    parser.add_argument(
+        "logo_file", help="Filename of the logo file image in templates"
+    )
     parser.add_argument("--filter_exams", help="Name of the exam(s) to use")
-    parser.add_argument("--combine", help="Combine exams to one pdf", action="store_true")
+    parser.add_argument(
+        "--combine", help="Combine exams to one pdf", action="store_true"
+    )
     parser.add_argument("--solution", help="Include solutions", action="store_true")
     args = parser.parse_args()
     generate_all(
         logo_file=args.logo_file,
         combine_exams=args.combine,
         exam_names=args.filter_exams.split(",") if args.filter_exams else None,
-        solution=args.solution
+        solution=args.solution,
     )

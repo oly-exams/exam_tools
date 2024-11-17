@@ -980,7 +980,9 @@ def feedback_partial(  # pylint: disable=too-many-locals, too-many-branches, too
             form.instance.part = part_text[:100]
             form.instance.part_position = part_position
             try:
-                form.instance.sort_order = ids_in_order.index(qml_id.replace("global", f"global_{question_id}"))
+                form.instance.sort_order = ids_in_order.index(
+                    qml_id.replace("global", f"global_{question_id}")
+                )
             except ValueError:
                 form.instance.sort_order = 0
             # part = models.CharField(max_length=100, default=None)
@@ -1298,9 +1300,11 @@ def feedbacks_list(
         if not int(request.GET["exam_id"]) in [ex.pk for ex in exam_list]:
             raise Http404("Not such active exam.")
 
-        questions = Question.objects.for_user(request.user).filter(
-            exam=request.GET["exam_id"]
-        ).order_by("position")
+        questions = (
+            Question.objects.for_user(request.user)
+            .filter(exam=request.GET["exam_id"])
+            .order_by("position")
+        )
         query = Feedback.objects.filter(question__in=questions).filter(
             status__in=filter_st,
             category__in=filter_ca,
@@ -2357,11 +2361,13 @@ def admin_publish_version(request, exam_id, question_id, version_num):
         # Save the ids in order, so they can be used for feedback sorting
         qmln = qml.make_qml(node)
         ids_in_order = []
+
         def get_ids(obj):
             if obj.id is not None:
                 ids_in_order.append(obj.id)
             for child in obj.children:
                 get_ids(child)
+
         get_ids(qmln)
         node.ids_in_order = ",".join(ids_in_order)
         node.save()
@@ -2832,7 +2838,8 @@ def _get_submission_languages(exam, delegation, count_answersheets=True):
         exclude_translation_q = Q(translationnode__question__type=Question.ANSWER)
 
     return (
-        Language.objects.all().order_by("pk")
+        Language.objects.all()
+        .order_by("pk")
         .annotate(
             num_translation=Sum(
                 Case(
@@ -2879,11 +2886,19 @@ def admin_submissions_translation(request):
         )
 
         # Query to get all delegations where the number of participants is zero for the specific exam
-        countries_no_participants = Delegation.objects.annotate(
-            participant_count=Count('participant', filter=Q(participant__exam=exam))
-        ).filter(participant_count=0).values_list('country')
+        countries_no_participants = (
+            Delegation.objects.annotate(
+                participant_count=Count("participant", filter=Q(participant__exam=exam))
+            )
+            .filter(participant_count=0)
+            .values_list("country")
+        )
 
-        remaining_countries = [country[0] + "," for country in remaining_countries if not country in countries_no_participants]
+        remaining_countries = [
+            country[0] + ","
+            for country in remaining_countries
+            if not country in countries_no_participants
+        ]
         if remaining_countries:
             remaining_countries[-1] = remaining_countries[-1][:-1]
 
@@ -2935,11 +2950,19 @@ def print_submissions_translation(request):
         )
 
         # Query to get all delegations where the number of participants is zero for the specific exam
-        countries_no_participants = Delegation.objects.annotate(
-            participant_count=Count('participant', filter=Q(participant__exam=exam))
-        ).filter(participant_count=0).values_list('country')
+        countries_no_participants = (
+            Delegation.objects.annotate(
+                participant_count=Count("participant", filter=Q(participant__exam=exam))
+            )
+            .filter(participant_count=0)
+            .values_list("country")
+        )
 
-        remaining_countries = [country[0] + "," for country in remaining_countries if not country in countries_no_participants]
+        remaining_countries = [
+            country[0] + ","
+            for country in remaining_countries
+            if not country in countries_no_participants
+        ]
         if remaining_countries:
             remaining_countries[-1] = remaining_countries[-1][:-1]
 
@@ -3933,7 +3956,9 @@ def editor(  # pylint: disable=too-many-locals, too-many-return-statements, too-
         context["orig_font"] = fonts.ipho[context["orig_lang"].font]
     if context["trans_lang"]:
         context["trans_font"] = fonts.ipho[context["trans_lang"].font]
-    context['only_official_answer_sheets'] = getattr(settings, "ONLY_OFFICIAL_ANSWER_SHEETS")
+    context["only_official_answer_sheets"] = getattr(
+        settings, "ONLY_OFFICIAL_ANSWER_SHEETS"
+    )
     return render(request, "ipho_exam/editor.html", context)
 
 

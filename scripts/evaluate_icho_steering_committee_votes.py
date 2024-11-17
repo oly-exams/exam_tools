@@ -3,28 +3,36 @@
 import argparse
 
 import condorcet
+
 from ipho_poll.models import CastedVote, Voting, VotingChoice, VotingRight
 
 
 def get_votings():
-    sc_votings = Voting.objects.filter(title__startswith='Steering committee election:')
+    sc_votings = Voting.objects.filter(title__startswith="Steering committee election:")
     rights = VotingRight.objects.all()
     votings_list = []
     for right in rights:
         votings_dict = {}
         for voting in sc_votings:
-            candidate = voting.title.split(': ')[1]
+            candidate = voting.title.split(": ")[1]
             casted_votes = CastedVote.objects.filter(voting=voting, voting_right=right)
             for casted_vote in casted_votes:
-                if not casted_vote.choice.label == 'A':
+                if not casted_vote.choice.label == "A":
                     votings_dict[candidate] = int(casted_vote.choice.label)
         votings_list.append(votings_dict)
     return votings_list
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Evaluate the Steering Committee votes.')
-    parser.add_argument('--num_winners', type=int, help='Number of winners to select (int).')
-    parser.add_argument('--rank_of_empty_preference', type=int, help='Rank of empty preference (int).')
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Evaluate the Steering Committee votes."
+    )
+    parser.add_argument(
+        "--num_winners", type=int, help="Number of winners to select (int)."
+    )
+    parser.add_argument(
+        "--rank_of_empty_preference", type=int, help="Rank of empty preference (int)."
+    )
     args = parser.parse_args()
 
     votings_list = get_votings()
@@ -41,9 +49,9 @@ if __name__ == '__main__':
     evaluator = condorcet.CondorcetEvaluator(candidates=candidates, votes=votings_list)
     winners, rest_of_table = evaluator.get_n_winners(args.num_winners)
 
-    print(f'FROM CANDIDATES:\n{candidates}')
-    print(f'WINNERS:\n{winners}\n\n')
-    print(f'REST OF TABLE:\n{rest_of_table}')
+    print(f"FROM CANDIDATES:\n{candidates}")
+    print(f"WINNERS:\n{winners}\n\n")
+    print(f"REST OF TABLE:\n{rest_of_table}")
 
 
 # EXCEPTION FROM REGULATIONS:
