@@ -17,7 +17,7 @@ To compile exams
 * pandoc (to generate odt exports)
 
 ### Example Ubuntu packages
-On Ubuntu (currently 20.04 LTS), install these packages using ```apt-get```:
+On Ubuntu (currently 22.04 LTS), install these packages using ```apt-get```:
 ```
 git
 python-dev
