@@ -790,7 +790,7 @@ class QMLparagraph(QMLbase):
         return res
 
     def tex_end(self):
-        res =  "\n"
+        res = "\n"
         if self.attributes.get("exclude_in_solution") == "1":
             res += "% END_EXCLUDE_IN_SOLUTION \n"
         res += "\n\n"
@@ -818,7 +818,7 @@ class QMLparagraphcolored(QMLparagraph):
         return res
 
     def tex_end(self):
-        res =  "}\n\n"
+        res = "}\n\n"
         if self.attributes.get("exclude_in_solution") == "1":
             res += "% END_EXCLUDE_IN_SOLUTION \n"
         return res
@@ -1081,7 +1081,11 @@ class QMLlist(QMLbase):
         res = ""
         if self.attributes.get("exclude_in_solution") == "1":
             res += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
-        res += "\\begin{itemize}\\setlength{\\itemsep}{"+str(self.attributes['itemsep'])+"pt}\n\n"
+        res += (
+            "\\begin{itemize}\\setlength{\\itemsep}{"
+            + str(self.attributes["itemsep"])
+            + "pt}\n\n"
+        )
         return res
 
     def tex_end(self):

@@ -21,7 +21,7 @@ import sys
 import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "exam_tools.settings")
-sys.path.append('.')
+sys.path.append(".")
 
 django.setup()
 

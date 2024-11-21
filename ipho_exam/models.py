@@ -26,17 +26,18 @@ import subprocess
 import time
 import uuid
 
-import ipho_exam
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from ipho_core.models import Delegation, Student
-from ipho_exam import fonts
 from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
+
+import ipho_exam
+from ipho_core.models import Delegation, Student
+from ipho_exam import fonts
 
 from .exceptions import IphoExamForbidden
 from .utils import natural_id

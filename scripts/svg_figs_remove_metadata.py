@@ -24,7 +24,7 @@ from xml.etree import ElementTree as ET
 import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "exam_tools.settings")
-sys.path.append('.')
+sys.path.append(".")
 
 django.setup()
 
@@ -52,4 +52,3 @@ for fig in compiled_figs:
         print(f"WARNING: Figure {fig.id} has no content")
 
 print("All svg figures have been stripped of metadata.")
-
