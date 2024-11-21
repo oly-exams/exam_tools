@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# NOTE: Svg metadata is not stripped by default upon figure upload. This script was only used in the transition phase.
+
 import os
 import os.path
 import re

@@ -118,13 +118,26 @@ def translate_google(from_lang, to_lang, text):
 
 
 def find_best_matching_deepl_lang(lang, langs):
+    """Find the best matching DeepL supported language in the list of languages
+
+    Args:
+        lang (str): lanauge to be matched (can be in any case)
+        langs (list of strings): list of languages (must all be in uppercase)
+
+    Returns:
+        str: best match (uppercase) or None if no match is found
+    """
     ulang = lang.upper()
     parts = ulang.split("-")
-    # TODO: Should we allow variants?
-    # As in, use fr-CH where fr-FR is given/requested?
+    ulang = ulang.replace("ZH-CN", "ZH-HANS").replace(
+        "ZH-TW", "ZH-HANT"
+    )  # replace with DeepL's language codes
     if ulang in langs:
+        # is exact match is found, return it
         return ulang
-    if "zh" in lang:
+    if ulang == "ZH-HANT":
+        # if traditional chinese is requested but not found in DeepL's list, return None
+        # to force fallback to Google Translate
         return None
     if len(parts) == 1:
         if ulang + "-" + ulang in langs:
@@ -132,9 +145,6 @@ def find_best_matching_deepl_lang(lang, langs):
         for lng in langs:
             if ulang == lng.split("-")[0]:
                 return lng
-    # Workaround for trad/simplified chinese
-    if len(parts) > 1 and parts[0] in langs:
-        return parts[0]
     return None
 
 
