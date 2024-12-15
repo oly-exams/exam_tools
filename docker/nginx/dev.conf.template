@@ -1,0 +1,35 @@
+upstream server_upstream {
+    server $UWSGI_HOST:8001;
+}
+
+server {
+    listen 80;
+
+
+
+    location /static/sass/ {
+        deny                all;
+        return              404;
+    }
+    location /static/(*.rb|*) {
+        deny                all;
+        return              404;
+    }
+
+    location @500 {
+        return 500;
+    }
+
+    location /static {
+        alias /collected_static;
+        autoindex off;
+        expires 2d;
+    }
+
+    location / {
+        include            uwsgi_params;
+        uwsgi_pass         server_upstream;
+        uwsgi_read_timeout 10;
+    }
+
+}

@@ -1,0 +1,55 @@
+build:docker-images:
+  stage: build
+  interruptible: false
+
+  image: docker
+
+  variables:
+    DOCKER_CACHE: "no"
+    DOCKER_LAYER_CACHE: "no"
+    DOCKER_BUILDKIT: "1"
+
+    # technical git variables
+    GIT_DEPTH: 1 # (default=50) we need the previous commit for pre-commit
+    REGISTRY: "registry.gitlab.com/oly-exams/exam_tools"
+
+  before_script: |
+    docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+
+  script: |
+
+    for stage_name in 'django-server' 'celery-worker' 'nginx-with-static'; do
+      docker buildx build --push -t ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested \
+      --cache-to type=inline \
+      --cache-from type=registry,ref=${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested \
+      -f docker/Dockerfile --target ${stage_name} .
+
+      docker tag ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested ${REGISTRY}/${stage_name}:${CI_COMMIT_REF_SLUG}-untested
+      docker push ${REGISTRY}/${stage_name}:${CI_COMMIT_REF_SLUG}-untested
+    done
+
+post-test:docker-images:
+  stage: post-test
+  interruptible: false
+
+  image: docker
+
+  variables:
+    # technical git variables
+    GIT_DEPTH: 1 # (default=50) we need the previous commit for pre-commit
+    REGISTRY: "registry.gitlab.com/oly-exams/exam_tools"
+
+  before_script: |
+    docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+
+  script: |
+
+    for stage_name in 'django-server' 'celery-worker' 'nginx-with-static'; do
+      docker pull ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested
+
+      docker tag ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}
+      docker push ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}
+
+      docker tag ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested ${REGISTRY}/${stage_name}:${CI_COMMIT_REF_SLUG}
+      docker push ${REGISTRY}/${stage_name}:${CI_COMMIT_REF_SLUG}
+    done

@@ -1,0 +1,2 @@
+* text=auto
+./bower/bower_postinstall.sh text=auto eol=lf

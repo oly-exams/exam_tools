@@ -19,7 +19,6 @@ def set_up_basic_test_database():
     tdc.create_organizer_user(pw_strategy="trivial")
     tdc.create_delegation_user(pw_strategy="trivial")
     tdc.create_examsite_user(pw_strategy="trivial")
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     tdc.create_students()
 
     voting_room = "room"
