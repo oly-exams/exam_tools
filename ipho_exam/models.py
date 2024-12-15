@@ -861,6 +861,12 @@ class QuestionManager(models.Manager):
 class Question(models.Model):
     objects = QuestionManager()
 
+    CODE_TYPES = (
+        ("Q", "Q (Question)"),
+        ("A", "A (Answer)"),
+        ("G", "G (General)"),
+    )
+
     QUESTION = 0
     ANSWER = 1
     QUESTION_TYPES = (
@@ -868,10 +874,7 @@ class Question(models.Model):
         (ANSWER, "Answer"),
     )
 
-    code = models.CharField(
-        max_length=8,
-        help_text="e.g. Q for Question, A for Answer Sheet, G for General Instruction",
-    )
+    code = models.CharField(choices=CODE_TYPES, max_length=20, default="Q")
     name = models.CharField(max_length=100, db_index=True)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     position = models.PositiveSmallIntegerField(
