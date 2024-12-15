@@ -53,4 +53,5 @@
                 fi
             done
         - ALL_OVERWRITE_WITH_F=$(echo $OVERWRITE_COMPOSE | sed 's/ / --file=/g')
+        - $DOCKER_DIR/$COMPOSE_FILE --file $ALL_OVERWRITE_WITH_F --file=$DOCKER_DIR/overwrite/gitlab-ci.yml config # for debugging
         - $DOCKER_DIR/$COMPOSE_FILE --file $ALL_OVERWRITE_WITH_F --file=$DOCKER_DIR/overwrite/gitlab-ci.yml up --abort-on-container-exit $ALL_SERVICE_NAME
