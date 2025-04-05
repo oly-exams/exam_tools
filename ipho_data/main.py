@@ -41,7 +41,7 @@ def set_up_basic_test_database():
 
 
 def argv_flush_confirmed():
-    if len(sys.argv) > 1 and sys.argv[1] == "flush":
+    if "--flush" in sys.argv:
         confirm = input(
             "Are you sure you want to irreversibly flush the database? Type 'flush' to confirm: "
         )
