@@ -363,13 +363,20 @@ body { margin-bottom: 70px; }
                     url: href,
                     dataType: 'json',
                     success: function(data) {
-                        modal.data('block-id', block_id);
-                        modal.find('.modal-title').text(data['title']);
-                        modal.find('form').attr('action', href);
-                        modal.find('.modal-body').html(data['form']);
-                        modal.find('.block-content-editor').ckeditor();
-                        modal.find("[data-toggle=popover]").popover(); // activate popover
-                    },
+                        if (!data['success'] && data['edit_expired']) {
+                          modal.find('.modal-title').text(data['title']);
+                          modal.find('.modal-body').html('<div class="alert alert-danger alert-dismissible">'+data.message+'</div>');
+                          modal.find('.modal-footer').css('display', 'none');
+                        }
+                        else {
+                          modal.data('block-id', block_id);
+                          modal.find('.modal-title').text(data['title']);
+                          modal.find('form').attr('action', href);
+                          modal.find('.modal-body').html(data['form']);
+                          modal.find('.block-content-editor').ckeditor();
+                          modal.find("[data-toggle=popover]").popover(); // activate popover
+                        }
+                    }
                 });
 
                 // var modal = $(this);
