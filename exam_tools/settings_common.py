@@ -128,6 +128,12 @@ SHOW_PARTICIPANT_NAME_TO_MARKERS = True
 # Shows the remaining delegations in voting fullscreen view.
 VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
 
+# Defines if solutions are translatable
+TRANSLATABLE_SOLUTIONS = False
+
+# Maximum size for the uploaded figures in MB
+MAX_FIGURE_UPLOAD_SIZE_MB = 10
+
 # Activates autotranslate
 AUTO_TRANSLATE = False
 # The API-key for google translate

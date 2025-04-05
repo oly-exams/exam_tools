@@ -45,6 +45,7 @@ from ipho_print import printer
 
 ALLOW_ANSLANG_WITHOUT_QLANG = getattr(settings, "ALLOW_ANSLANG_WITHOUT_QLANG", False)
 MAX_NUMBER_LANGUAGES_PER_PPNT = getattr(settings, "MAX_NUMBER_LANGUAGES_PER_PPNT", -1)
+MAX_FIGURE_UPLOAD_SIZE_MB = getattr(settings, "MAX_FIGURE_UPLOAD_SIZE_MB", 10)
 
 
 def build_extension_validator(valid_extensions):
@@ -144,8 +145,8 @@ class FigureForm(ModelForm):
         self.fields["file"] = forms.FileField(
             validators=[
                 build_extension_validator(valid_extensions),
-                build_size_validator(10485760),
-            ],  # Max. 10 MB
+                build_size_validator(1048576 * MAX_FIGURE_UPLOAD_SIZE_MB),
+            ],
             label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: {}"><span class="glyphicon glyphicon-info-sign"></span></a>'.format(
                 " ".join("*" + ext for ext in valid_extensions)
             ),
