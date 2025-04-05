@@ -3,6 +3,8 @@
 
 
 # pylint: disable=unused-import, import-error, useless-suppression
+import sys
+
 import non_install_helper
 
 import ipho_data.django_setup
@@ -38,7 +40,22 @@ def set_up_basic_test_database():
     tdc.put_students_in_teams(experiment)
 
 
-def main():
+def argv_flush_confirmed():
+    if len(sys.argv) > 1 and sys.argv[1] == "flush":
+        confirm = input(
+            "Are you sure you want to irreversibly flush the database? Type 'flush' to confirm: "
+        )
+        return confirm.lower() == "flush"
+    return False
+
+
+def main(flush=False):
+    # flush the database
+    if flush or argv_flush_confirmed():
+        print("Flushing the database...")
+        from django.core.management import call_command
+        call_command("flush", interactive=False)
+ 
     set_up_basic_test_database()
 
 
