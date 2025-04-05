@@ -1141,6 +1141,7 @@ class QMLenumerate(QMLbase):
         if self.attributes.get("exclude_in_solution") == "1":
             res += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
         res += "\\begin{enumerate}\n"
+        return res
 
     def tex_end(self):
         res = "\\end{enumerate}\n\n"
