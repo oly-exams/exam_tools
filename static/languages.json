@@ -2,8 +2,8 @@
   "afrikaans": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Afrikaans",
     "polyglossia": "afrikaans",
@@ -12,8 +12,8 @@
   "albanian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Albanian",
     "polyglossia": "albanian",
@@ -45,8 +45,8 @@
   "armenian": {
     "direction": "ltr",
     "fonts": [
-      "notoserifarmenian",
-      "notosansarmenian"
+      "notosansarmenian",
+      "notoserifarmenian"
     ],
     "language": "Armenian",
     "polyglossia": "armenian",
@@ -55,8 +55,8 @@
   "asturian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Asturian",
     "polyglossia": "asturian",
@@ -65,8 +65,8 @@
   "azerbaijani": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
       "notosans",
+      "notoserif",
       "notokufiarabic",
       "notonaskharabic"
     ],
@@ -77,8 +77,8 @@
   "basque": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Basque",
     "polyglossia": "basque",
@@ -87,8 +87,8 @@
   "belarusian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Belarusian",
     "polyglossia": "belarusian",
@@ -106,8 +106,8 @@
   "bosnian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Bosnian",
     "polyglossia": "bosnian",
@@ -116,8 +116,8 @@
   "breton": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Breton",
     "polyglossia": "breton",
@@ -126,8 +126,8 @@
   "bulgarian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Bulgarian",
     "polyglossia": "bulgarian",
@@ -155,8 +155,8 @@
   "catalan": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Catalan",
     "polyglossia": "catalan",
@@ -196,8 +196,8 @@
   "croatian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Croatian",
     "polyglossia": "croatian",
@@ -206,8 +206,8 @@
   "czech": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Czech",
     "polyglossia": "czech",
@@ -216,8 +216,8 @@
   "danish": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Danish",
     "polyglossia": "danish",
@@ -235,8 +235,8 @@
   "dutch": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Dutch",
     "polyglossia": "dutch",
@@ -245,8 +245,8 @@
   "english": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "English",
     "polyglossia": "english",
@@ -255,8 +255,8 @@
   "esperanto": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Esperanto",
     "polyglossia": "esperanto",
@@ -265,8 +265,8 @@
   "estonian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Estonian",
     "polyglossia": "estonian",
@@ -275,8 +275,8 @@
   "filipino": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
       "notosans",
+      "notoserif",
       "notosanstagalog"
     ],
     "language": "Filipino",
@@ -286,8 +286,8 @@
   "finnish": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Finnish",
     "polyglossia": "finnish",
@@ -296,8 +296,8 @@
   "french": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "French",
     "polyglossia": "french",
@@ -306,8 +306,8 @@
   "friulian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Friulian",
     "polyglossia": "friulian",
@@ -316,8 +316,8 @@
   "galician": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Galician",
     "polyglossia": "galician",
@@ -326,8 +326,8 @@
   "georgian": {
     "direction": "ltr",
     "fonts": [
-      "notoserifgeorgian",
-      "notosansgeorgian"
+      "notosansgeorgian",
+      "notoserifgeorgian"
     ],
     "language": "Georgian",
     "polyglossia": "georgian",
@@ -336,8 +336,8 @@
   "german": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "German",
     "polyglossia": "german",
@@ -346,8 +346,8 @@
   "greek": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Greek",
     "polyglossia": "greek",
@@ -374,8 +374,8 @@
   "hungarian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Hungarian",
     "polyglossia": "hungarian",
@@ -384,8 +384,8 @@
   "icelandic": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Icelandic",
     "polyglossia": "icelandic",
@@ -394,8 +394,8 @@
   "indonesian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
       "notosans",
+      "notoserif",
       "notokufiarabic",
       "notonaskharabic"
     ],
@@ -406,8 +406,8 @@
   "interlingua": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Interlingua",
     "polyglossia": "interlingua",
@@ -416,8 +416,8 @@
   "irish": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
       "notosans",
+      "notoserif",
       "notosansogham"
     ],
     "language": "Irish",
@@ -427,8 +427,8 @@
   "italian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Italian",
     "polyglossia": "italian",
@@ -455,8 +455,8 @@
   "kazakh": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
       "notosans",
+      "notoserif",
       "notokufiarabic",
       "notonaskharabic"
     ],
@@ -484,22 +484,22 @@
     "polyglossia_options": null
   },
   "kurdish": {
-    "direction": "ltr",
+    "direction": "rtl",
     "fonts": [
-      "notoserif",
-      "notosans",
+      "notonaskharabic",
       "notokufiarabic",
-      "notonaskharabic"
+      "notosans",
+      "notoserif"
     ],
     "language": "Kurdish",
     "polyglossia": "kurdish",
-    "polyglossia_options": null
+    "polyglossia_options": "numerals = western"
   },
   "kyrgyz": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
       "notosans",
+      "notoserif",
       "notokufiarabic",
       "notonaskharabic"
     ],
@@ -510,8 +510,8 @@
   "lao": {
     "direction": "ltr",
     "fonts": [
-      "notoseriflao",
-      "notosanslao"
+      "notosanslao",
+      "notoseriflao"
     ],
     "language": "Lao",
     "polyglossia": "lao",
@@ -520,8 +520,8 @@
   "latin": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Latin",
     "polyglossia": "latin",
@@ -530,8 +530,8 @@
   "latvian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Latvian",
     "polyglossia": "latvian",
@@ -540,8 +540,8 @@
   "lithuanian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Lithuanian",
     "polyglossia": "lithuanian",
@@ -550,8 +550,8 @@
   "luxembourgish": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Luxembourgish",
     "polyglossia": null,
@@ -560,8 +560,8 @@
   "macedonian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Macedonian",
     "polyglossia": "macedonian",
@@ -570,8 +570,8 @@
   "magyar": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Magyar",
     "polyglossia": "magyar",
@@ -580,8 +580,8 @@
   "malay": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
       "notosans",
+      "notoserif",
       "notokufiarabic",
       "notonaskharabic"
     ],
@@ -601,8 +601,8 @@
   "malaysian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Malaysian",
     "polyglossia": "malay",
@@ -632,8 +632,8 @@
   "montenegrin": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Montenegrin",
     "polyglossia": null,
@@ -651,8 +651,8 @@
   "northern sotho": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Northern Sotho",
     "polyglossia": null,
@@ -661,8 +661,8 @@
   "norwegian bokmål": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Norwegian Bokmål",
     "polyglossia": "norwegian",
@@ -671,8 +671,8 @@
   "norwegian nynorsk": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Norwegian Nynorsk",
     "polyglossia": "norwegian",
@@ -681,8 +681,8 @@
   "occitan": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Occitan",
     "polyglossia": "occitan",
@@ -702,8 +702,8 @@
   "piedmontese": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Piedmontese",
     "polyglossia": "piedmontese",
@@ -712,8 +712,8 @@
   "polish": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Polish",
     "polyglossia": "polish",
@@ -722,8 +722,8 @@
   "portuguese": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Portuguese",
     "polyglossia": "portuguese",
@@ -732,8 +732,8 @@
   "romanian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Romanian",
     "polyglossia": "romanian",
@@ -742,8 +742,8 @@
   "romansh": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Romansh",
     "polyglossia": "romansh",
@@ -752,8 +752,8 @@
   "russian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Russian",
     "polyglossia": "russian",
@@ -772,8 +772,8 @@
   "scottish": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Scottish",
     "polyglossia": "scottish",
@@ -782,8 +782,8 @@
   "serbian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Serbian",
     "polyglossia": "russian",
@@ -802,8 +802,8 @@
   "slovak": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Slovak",
     "polyglossia": "slovak",
@@ -812,8 +812,8 @@
   "slovenian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Slovenian",
     "polyglossia": "slovenian",
@@ -822,8 +822,8 @@
   "southern ndebele": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Southern Ndebele",
     "polyglossia": null,
@@ -832,8 +832,8 @@
   "southern sotho": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Southern Sotho",
     "polyglossia": null,
@@ -842,8 +842,8 @@
   "spanish": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Spanish",
     "polyglossia": "spanish",
@@ -852,8 +852,8 @@
   "swedish": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Swedish",
     "polyglossia": "swedish",
@@ -873,8 +873,8 @@
   "tajik": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
       "notosans",
+      "notoserif",
       "notokufiarabic",
       "notonaskharabic"
     ],
@@ -903,8 +903,8 @@
   "thai": {
     "direction": "ltr",
     "fonts": [
-      "notoserifthai",
-      "notosansthai"
+      "notosansthai",
+      "notoserifthai"
     ],
     "language": "Thai",
     "polyglossia": "thai",
@@ -922,8 +922,8 @@
   "tsonga": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Tsonga",
     "polyglossia": null,
@@ -932,8 +932,8 @@
   "tswana": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Tswana",
     "polyglossia": null,
@@ -942,8 +942,8 @@
   "turkish": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
       "notosans",
+      "notoserif",
       "notokufiarabic",
       "notonaskharabic"
     ],
@@ -954,8 +954,8 @@
   "turkmen": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
       "notosans",
+      "notoserif",
       "notokufiarabic",
       "notonaskharabic"
     ],
@@ -966,8 +966,8 @@
   "ukrainian": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Ukrainian",
     "polyglossia": "ukrainian",
@@ -986,8 +986,8 @@
   "uzbek": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
       "notosans",
+      "notoserif",
       "notokufiarabic",
       "notonaskharabic"
     ],
@@ -998,8 +998,8 @@
   "venda": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Venda",
     "polyglossia": null,
@@ -1008,8 +1008,8 @@
   "vietnamese": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Vietnamese",
     "polyglossia": "vietnamese",
@@ -1018,8 +1018,8 @@
   "welsh": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Welsh",
     "polyglossia": "welsh",
@@ -1028,8 +1028,8 @@
   "xhosa": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Xhosa",
     "polyglossia": null,
@@ -1038,8 +1038,8 @@
   "zulu": {
     "direction": "ltr",
     "fonts": [
-      "notoserif",
-      "notosans"
+      "notosans",
+      "notoserif"
     ],
     "language": "Zulu",
     "polyglossia": null,

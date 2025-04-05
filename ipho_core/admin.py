@@ -16,30 +16,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 # User should not be imported directly (pylint-django:E5142)
 from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 User = get_user_model()
 
 
 from ipho_core.models import (
-    Delegation,
-    Student,
-    AutoLogin,
     AccountRequest,
+    Delegation,
     PushSubscription,
     RandomDrawLog,
+    Student,
 )
 
 # Register your models here.
-
-
-class AutoLoginInline(admin.StackedInline):
-    model = AutoLogin
-    can_delete = False
-    verbose_name_plural = "autologin"
 
 
 @admin.action(description="Activate selected accounts")
@@ -53,8 +46,7 @@ def deactivate_users(modeladmin, request, queryset):  # pylint: disable=unused-a
 
 
 class UserAdmin(BaseUserAdmin):
-    list_display = BaseUserAdmin.list_display + ("is_active",)
-    inlines = (AutoLoginInline,)
+    list_display = BaseUserAdmin.list_display + ("is_active", "last_login")
     actions = [activate_users, deactivate_users]
 
 

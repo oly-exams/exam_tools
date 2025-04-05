@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+  <div class="container text-center">
+    <h1>Missing Figure Error</h1>
+    <p>
+      Missing figure with id: {{ figid }}.
+    </p>
+    <div class="panel panel-default">
+        <div class="panel-body">
+          <p class="text-muted">
+            The figure with id: {{ figid }} is missing. If not yet done so, please upload the figure using the <a href="{% url 'exam:figures'%}">Figure Management</a> and put the generated id in the attributes of the figure block in question you want to see the pdf of.
+          </p>
+        </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -16,11 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from django.urls import include, path, re_path
 from django.conf import settings
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
+from django.urls import include, path, re_path
 
 admin.autodiscover()
 
@@ -29,7 +29,6 @@ from django.contrib.auth import views as auth_views
 import ipho_core.views
 
 from . import static_views
-
 
 urlpatterns = [
     # Examples:
@@ -60,17 +59,21 @@ urlpatterns = [
         auth_views.LogoutView.as_view(next_page="/"),
         name="logout",
     ),
-    re_path(
-        r"^accounts/autologin/(?P<token>[0-9a-z\-]+)/?$",
-        ipho_core.views.autologin,
-        name="autologin",
+    path(
+        "accounts/impersonate/",
+        ipho_core.views.list_impersonate,
+        name="list_impersonate",
     ),
-    re_path(
-        r"^accounts/autologin_stop/?$",
-        ipho_core.views.autologin_stop,
-        name="autologin_stop",
+    path(
+        "accounts/impersonate/<int:pk>/",
+        ipho_core.views.impersonate,
+        name="impersonate",
     ),
-    path("accounts/impersonate", ipho_core.views.list_impersonate, name="impersonate"),
+    path(
+        "accounts/impersonate_stop/",
+        ipho_core.views.impersonate_stop,
+        name="impersonate_stop",
+    ),
     path(
         "accounts/account_request",
         ipho_core.views.account_request,

@@ -15,32 +15,25 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import concurrent.futures
 import json
 import random
-import concurrent.futures
-from past.utils import old_div
 
 from django.conf import settings
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import (
     login_required,
     permission_required,
     user_passes_test,
 )
-from django.contrib.auth import authenticate, login, logout
-
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from past.utils import old_div
 from pywebpush import WebPushException
 
-
-from ipho_core.models import (
-    User,
-    PushSubscription,
-    RandomDrawLog,
-    Delegation,
-)
-from ipho_core.forms import AccountRequestForm, SendPushForm, RandomDrawForm
+from ipho_core.forms import AccountRequestForm, RandomDrawForm, SendPushForm
+from ipho_core.models import Delegation, PushSubscription, RandomDrawLog, User
 
 DEMO_MODE = getattr(settings, "DEMO_MODE")
 DEMO_SIGN_UP = getattr(settings, "DEMO_SIGN_UP")
@@ -64,28 +57,46 @@ def any_permission_required(*args):
     return user_passes_test(test_func)
 
 
-def autologin(request, token):
-    if not DEMO_MODE and not (
-        request.user.has_perm("ipho_core.can_impersonate")
-        and request.user.has_perm("ipho_core.is_organizer_admin")
-    ):
-        return HttpResponseForbidden("Only the staff can use autologin.")
-    user = authenticate(token=token)
-    redirect_to = reverse("home")
+@permission_required("ipho_core.can_impersonate")
+def list_impersonate(request):
+    users = sorted(
+        [
+            user
+            for user in User.objects.all()
+            if not user.has_perm("ipho_core.can_impersonate")
+        ],
+        key=lambda user: user.username,
+    )
+    chunk_size = max(old_div(len(users), 6) + 1, 1)
+    grouped_users = [
+        users[x : x + chunk_size] for x in range(0, len(users), chunk_size)
+    ]
+    return render(
+        request, "ipho_core/impersonate.html", {"grouped_users": grouped_users}
+    )
+
+
+@permission_required("ipho_core.can_impersonate")
+def impersonate(request, pk):
     base_user_id = request.user.id
-    if user:
-        login(request, user)
-        request.session["autologin_user"] = base_user_id
-        request.session.modified = True
-        return redirect(redirect_to)
+    user = get_object_or_404(User, id=pk)
+    if user.has_perm("ipho_core.can_impersonate"):
+        return HttpResponseForbidden("You cannot impersonate this user.")
+    login(request, user, backend=DEFAULT_AUTHENTICATION_BACKEND)
+    request.session["impersonation_user"] = base_user_id
+    request.session.modified = True
+    return redirect(reverse("home"))
 
-    return redirect(settings.LOGIN_URL + f"?next={redirect_to}")
 
-def autologin_stop(request):
-    user_id = request.session.get("autologin_user", None)
+def impersonate_stop(request):
+    user_id = request.session.get("impersonation_user", None)
     if user_id is None:
-        return HttpResponseForbidden("No autologin currently active.")
-    login(request, get_object_or_404(User, id=user_id), backend=DEFAULT_AUTHENTICATION_BACKEND)
+        return HttpResponseForbidden("No impersonation currently active.")
+    login(
+        request,
+        get_object_or_404(User, id=user_id),
+        backend=DEFAULT_AUTHENTICATION_BACKEND,
+    )
     return redirect(reverse("home"))
 
 
@@ -99,10 +110,8 @@ def account_request(request):
     if form.is_valid():
         form.save()
         selected_user = form.cleaned_data["user"]
-        ## Redirect authenticated user
-        user = authenticate(token=selected_user.autologin.token)
         redirect_to = reverse("home")
-        login(request, user)
+        login(request, selected_user)
         return redirect(redirect_to)
 
     return render(request, "registration/account_request.html", {"form": form})
@@ -302,23 +311,6 @@ def random_draw(request):  # pylint: disable=too-many-branches
 
     form = RandomDrawForm()
     return render(request, "ipho_core/random_draw.html", {"form": form})
-
-
-@permission_required("ipho_core.is_organizer_admin")
-@permission_required("ipho_core.can_impersonate")
-def list_impersonate(request):
-    users = (
-        User.objects.exclude(delegation__isnull=True)
-        .exclude(autologin__isnull=True)
-        .order_by("username")
-    )
-    chunk_size = max(old_div(len(users), 6) + 1, 1)
-    grouped_users = [
-        users[x : x + chunk_size] for x in range(0, len(users), chunk_size)
-    ]
-    return render(
-        request, "ipho_core/impersonate.html", {"grouped_users": grouped_users}
-    )
 
 
 @login_required

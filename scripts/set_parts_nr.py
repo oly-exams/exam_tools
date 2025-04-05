@@ -24,8 +24,9 @@ import django
 django.setup()
 
 import csv
-from ipho_exam.models import TranslationNode, VersionNode
+
 from ipho_exam import qml
+from ipho_exam.models import TranslationNode, VersionNode
 
 
 def question_points(root, part_num=-1, subq_num=0):

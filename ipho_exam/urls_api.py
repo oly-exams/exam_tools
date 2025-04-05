@@ -17,12 +17,11 @@
 
 from django.conf.urls import include
 from django.urls import re_path
-from rest_framework.routers import DefaultRouter
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from rest_framework.routers import DefaultRouter
 
 from ipho_exam import views_api
 from ipho_exam.permissions import HasValidApiKeyOrAdmin
-
 
 router = DefaultRouter()
 router.register(r"documents", views_api.DocumentViewSet)

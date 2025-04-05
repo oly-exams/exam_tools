@@ -16,16 +16,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import uuid
 import json
-from django.db import models
-from django.conf import settings
+import uuid
 
-# other modules expect Group to be here
-from django.contrib.auth.models import Group  # pylint: disable=unused-import
+from django.conf import settings
 
 # User should not be imported directly (pylint-django:E5142)
 from django.contrib.auth import get_user_model
+
+# other modules expect Group to be here
+from django.contrib.auth.models import Group  # pylint: disable=unused-import
+from django.db import models
 
 User = get_user_model()
 
@@ -54,24 +55,6 @@ class IphoPerm(models.Model):
             ("can_print_exam_site", "Can print at the exam site"),
             ("is_printstaff", "Is a print staff"),
         )
-
-
-class AutoLoginManager(models.Manager):
-    def get_by_natural_key(self, username):
-        return self.get(user=User.objects.get_by_natural_key(username))
-
-
-class AutoLogin(models.Model):
-    objects = AutoLoginManager()
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    token = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
-
-    def __str__(self):
-        return str(self.token)
-
-    def natural_key(self):
-        return self.user.natural_key()
 
 
 class DelegationManager(models.Manager):

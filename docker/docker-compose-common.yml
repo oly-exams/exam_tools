@@ -1,0 +1,33 @@
+services:
+  rabbitmq:
+    image: ${DOCKER_RABBITMQ_IMAGE:-rabbitmq:latest}
+    hostname: rabbitmq
+    volumes:
+      - secrets:/etc/rabbitmq:ro
+  postgres:
+    image: ${DOCKER_POSTGRES_IMAGE:-postgres:latest}
+    hostname: postgres
+    env_file:
+      # TODO: maybe move into Dockerfile?
+      - env/secret_locations.env
+    environment:
+      # I need to use a subfolder pgdata, since the image
+      # changes chown on data (which will fail, since our user cant do it)
+      # and then somehow the mounted dir is owned by systemd-coredump.
+      # With a subdir we can preserve the local owner (see link above)
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - secrets:/run/secrets:ro
+      - postgres:/var/lib/postgresql/data/pgdata
+    # user: $U_ID:$G_ID
+    shm_size: 512MB
+# TODO: SFTP
+
+volumes:
+  secrets:
+    driver: local
+    driver_opts:
+      type: none
+      device: "${SECRETS_DIR:-secrets/unsafe/}"
+      o: bind
+  postgres:

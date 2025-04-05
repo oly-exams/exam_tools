@@ -15,19 +15,18 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from crispy_forms.bootstrap import FormActions
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Field, Layout, Submit
 from django import forms
 from django.forms import ModelForm
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field
-from crispy_forms.bootstrap import FormActions
 
-from ipho_core.models import User, AccountRequest
+from ipho_core.models import AccountRequest, User
 
 
 class AccountRequestForm(ModelForm):
     user = forms.ModelChoiceField(
         queryset=User.objects.exclude(delegation__isnull=True)
-        .exclude(autologin__isnull=True)
         .exclude(is_superuser=True)
         .order_by("username"),
         to_field_name="username",

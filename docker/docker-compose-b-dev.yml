@@ -1,0 +1,42 @@
+include:
+  - path:
+      - docker-compose-common.yml
+
+services:
+  nginx-with-static:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: nginx-with-static
+    volumes:
+      - secrets:/run/secrets:ro
+    environment:
+      - UWSGI_HOST=django-server
+    ports:
+      - 8000:80
+      - 80:80
+      - 443:443
+  django-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: django-server
+    env_file:
+      # TODO: maybe move parts of these into Dockerfile?
+      - env/secret_locations.env
+      - env/common.env
+      - env/b-dev.env
+    volumes:
+      - secrets:/run/secrets:ro
+  celery-worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: celery-worker
+    env_file:
+      # TODO: maybe move parts of these into Dockerfile?
+      - env/secret_locations.env
+      - env/common.env
+      - env/b-dev.env
+    volumes:
+      - secrets:/run/secrets:ro

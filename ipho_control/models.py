@@ -17,13 +17,14 @@
 
 import inspect
 from collections import OrderedDict
+
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.db import models
-from ipho_exam.models import Exam, Question
 
 from ipho_control import phase_checks
+from ipho_exam.models import Exam, Question
 
 
 class ExamPhaseManager(models.Manager):
@@ -338,13 +339,9 @@ class ExamPhaseHistory(models.Model):
 
     def get_previous(self):
         """Returns the previous phase of self belonging to the same exam."""
-        return (
-            ExamPhaseHistory.objects.filter(
-                timestamp__lt=self.timestamp, exam=self.exam
-            )
-            .order_by("-timestamp")
-            .first()
-        )
+        return ExamPhaseHistory.objects.filter(
+            timestamp__lt=self.timestamp, exam=self.exam
+        ).first()
 
     def changed_to_previous(self):
         """Returns the exam phase changes to the previous phase."""

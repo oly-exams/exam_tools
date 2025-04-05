@@ -16,13 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Fieldset, Div, Field
+from crispy_forms.layout import Div, Field, Fieldset, Layout, Submit
+from django import forms
 
-from ipho_control.models import (
-    ExamPhase,
-)
+from ipho_control.models import ExamPhase
 
 
 class ExamPhaseForm(forms.ModelForm):

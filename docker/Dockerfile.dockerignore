@@ -1,0 +1,17 @@
+*
+!requirements.txt
+!bower/**
+bower/static
+bower/static_bower
+!docker/wait_for
+!docker/nginx
+!exam_tools
+!ipho_*
+!locale
+!manage.py
+!scripts
+!static
+!templates
+!uwsgi.ini
+__pycache__
+*.pyc

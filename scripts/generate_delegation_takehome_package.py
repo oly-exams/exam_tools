@@ -19,55 +19,70 @@
 
 
 import os
-
-os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
-import sys
 import shutil
+import sys
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "exam_tools.settings")
 sys.path.append(".")
 
 import django
 
 django.setup()
-from django.conf import settings
 
-from django.shortcuts import get_object_or_404
-from django.http import HttpRequest
+import argparse
+import re
+import time
+from hashlib import md5
+from io import BytesIO
 
-from django.template.loader import render_to_string
-from django.template.defaultfilters import slugify
-
-
-from django.conf import settings
-from ipho_core.models import Delegation
-from ipho_exam.models import (
-    Exam,
-    Question,
-    Language,
-)
-from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
-
-import ipho_exam
-from ipho_exam import tasks
 import celery
 from celery.result import AsyncResult
+from django.conf import settings
+from django.core.cache import cache
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404
+from django.template.defaultfilters import slugify
+from django.template.loader import render_to_string
+from PyPDF2 import PdfFileMerger, PdfFileReader
+
+import ipho_exam
+from ipho_core.models import Delegation
+from ipho_exam import fonts, qquery, tasks, tex
+from ipho_exam.models import Exam, Language, Question
 
 OFFICIAL_DELEGATION = getattr(settings, "OFFICIAL_DELEGATION")
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 
-BASE_PATH = "downloads/delegation_takehome_package/"  # inside media folder
+BASE_PATH = "downloads/delegations_private_dirs/"  # inside media folder
 FONT_PATH = os.path.join(settings.STATIC_PATH, "noto")
 REPLACEMENTS = [(settings.STATIC_PATH, ".")]
 
+CACHE_PREFIX = getattr(settings, "CACHE_CACHED_RESPONSES_PREFIX", "cached-responses")
+CACHE_TIMEOUT = getattr(settings, "CACHE_CACHED_RESPONSES_TIMEOUT", 600)  # 10 min
 
-def compile_question_pdf(question, language, delegation):
-    print("Prepare", question, "in", language)
+
+def compile_tex_async(body, ext_resources=tuple(), filename="question.pdf"):
+    etag = md5(body.encode("utf8")).hexdigest()
+    cache_key = "{}:{}:{}".format(CACHE_PREFIX, "compile_tex", etag)
+    task_id = cache.get(cache_key)
+
+    if task_id is None:
+        job = tasks.compile_tex.delay(body, ext_resources, filename, etag)
+        task_id = job.id
+        cache.set(cache_key, task_id, CACHE_TIMEOUT)
+    return task_id
+
+
+def compile_question_pdf(question, language, solution):
     try:
         trans = qquery.latest_version(question.pk, language.pk)
     except:
-        print("NOT-FOUND")
         return
     trans_content, ext_resources = trans.qml.make_tex()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"\\begin{QTS}{[^}]*}.*?\\end{QTS}"
+        trans_content = re.sub(solution_env_pattern, "", trans_content, flags=re.DOTALL)
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
             r.lang = language
@@ -93,32 +108,20 @@ def compile_question_pdf(question, language, delegation):
         request=HttpRequest(),
         context=context,
     )
-    print("Compile...")
     try:
-        question_pdf = pdf.compile_tex(body, ext_resources)
-        exam_code = question.exam.code
-        position = question.position
-        question_code = question.code
-
-        base_filename = "{}/{}{}_{}_{}_{}.pdf".format(
-            slugify(delegation.country),
-            question.exam.code,
-            question.position,
-            slugify(question.name),
-            slugify(language.name),
-            language.delegation.name,
-        )
-        filename = os.path.join(settings.DOCUMENT_PATH, BASE_PATH, base_filename)
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, "wb") as fp:
-            fp.write(question_pdf)
-        print(filename, "DONE")
+        task = AsyncResult(compile_tex_async(body, ext_resources))
+        while not task.ready():
+            time.sleep(1)
+        if task.ready():
+            pdf, _ = task.get()
+            return pdf
     except Exception as e:
-        print("ERROR")
+        print("WARNING")
         print(e)
+        return False
 
 
-def compile_question_tex(question, language, delegation, logo_file):
+def compile_question_tex(question, language, delegation, logo_file, solution):
     if language.is_pdf:
         print("LANGUAGE IS PDF")
         return
@@ -130,6 +133,10 @@ def compile_question_tex(question, language, delegation, logo_file):
         return
 
     trans_content, ext_resources = trans.qml.make_tex()
+    # Remove the solution if we don't want it
+    if not solution:
+        solution_env_pattern = r"\\begin{QTS}{[^}]*}.*?\\end{QTS}"
+        trans_content = re.sub(solution_env_pattern, "", trans_content, flags=re.DOTALL)
     for r in ext_resources:
         if isinstance(r, tex.FigureExport):
             r.lang = language
@@ -161,8 +168,8 @@ def compile_question_tex(question, language, delegation, logo_file):
         position = question.position
         question_code = question.code
 
-        base_folder = "{}/{}{}_{}_{}_{}_tex/".format(
-            slugify(delegation.country),
+        base_folder = "{}_private/takehome/tex/{}_{}_{}_{}_tex/".format(
+            delegation.name,
             question.exam.code,
             question.position,
             slugify(question.name),
@@ -219,11 +226,15 @@ def compile_question_tex(question, language, delegation, logo_file):
         print("ERROR", e)
 
 
-def generate_delegation(logo_file, exams, delegation):
+def generate_delegation(logo_file, exams, delegation, combine_exams, solution):
+    delegation_takehome_pdf_dir = os.path.join(
+        settings.DOCUMENT_PATH, BASE_PATH, f"{delegation.name}_private/takehome/pdf"
+    )
+    os.makedirs(delegation_takehome_pdf_dir, exist_ok=True)
     for exam in exams:
         # The position filter is only really needed if there are spare problems
         questions = Question.objects.filter(
-            exam=exam, position__in=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+            exam=exam  # , position__in=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         )
         languages = Language.objects.filter(
             participantsubmission__participant__exam=exam, delegation=delegation
@@ -235,26 +246,66 @@ def generate_delegation(logo_file, exams, delegation):
         print(
             f"Going to export exam {exam} in {len(languages)} languages for delegation {delegation}."
         )
-        for q in questions:
-            for lang in languages:
-                compile_question_tex(q, lang, delegation, logo_file)
-                compile_question_pdf(q, lang, delegation)
-    print("COMPLETED")
+        for lang in languages:
+            # Only official EN has solution if any
+            if solution and not lang.delegation.name == OFFICIAL_DELEGATION:
+                continue
+            merger = PdfFileMerger()
+            for q in questions:
+                compile_question_tex(q, lang, delegation, logo_file, solution)
+                if combine_exams:
+                    pdf = False
+                    tries = 0
+                    while not pdf and tries < 10:  # Max 10 retries if compilation fails
+                        pdf = compile_question_pdf(q, lang, solution)
+                        tries += 1
+                        if pdf:
+                            pdfdoc = PdfFileReader(BytesIO(pdf))
+                            merger.append(pdfdoc)
+                else:
+                    question_pdf = compile_question_pdf(q, lang, solution)
+                    base_filename = "{}_{}_{}_{}_{}.pdf".format(
+                        exam.code,
+                        q.position,
+                        slugify(q.name),
+                        slugify(lang.name),
+                        delegation.name,
+                    )
+                    filename = os.path.join(delegation_takehome_pdf_dir, base_filename)
+                    os.makedirs(os.path.dirname(filename), exist_ok=True)
+                    with open(filename, "wb") as fp:
+                        fp.write(question_pdf)
+            if combine_exams:
+                base_filename = f"{exam.code}_{slugify(lang.name)}_{delegation.name}_{'solution' if solution else ''}.pdf"
+                filename = os.path.join(delegation_takehome_pdf_dir, base_filename)
+                os.makedirs(os.path.dirname(filename), exist_ok=True)
+                merger.write(filename)
+                merger.close()
+
+            print(f"Completed language {lang} for delegation {delegation.name}")
+        print(f"Completed exam {exam} for delegation {delegation.name}")
 
 
-def generate_all(logo_file, exam_names=("Theory", "Experiment")):
+def generate_all(logo_file, exam_names=None, combine_exams=False, solution=False):
     delegations = Delegation.objects.exclude(name=OFFICIAL_DELEGATION).all()
-    exams = Exam.objects.filter(name__in=exam_names)
+    if exam_names == None:
+        exams = Exam.objects.all()
+    else:
+        exams = Exam.objects.filter(name__in=exam_names)
 
     if not exams:
         print(f"ERROR: no exams corresponding to {exam_names}.")
         return
 
     for d in delegations:
-        generate_delegation(logo_file, exams, d)
-        base_folder = slugify(d.country)
+        generate_delegation(logo_file, exams, d, combine_exams, solution=False)
+        if solution:
+            generate_delegation(logo_file, exams, d, combine_exams, solution=True)
+        base_folder = os.path.join(str(d.name) + "_private", "takehome")
         shutil.make_archive(
-            os.path.join(settings.DOCUMENT_PATH, BASE_PATH, base_folder),
+            os.path.join(
+                settings.DOCUMENT_PATH, BASE_PATH, str(d.name) + "_private", "takehome"
+            ),
             "zip",
             root_dir=os.path.join(settings.DOCUMENT_PATH, BASE_PATH),
             base_dir=base_folder,
@@ -262,11 +313,19 @@ def generate_all(logo_file, exam_names=("Theory", "Experiment")):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 2:
-        generate_all(logo_file=sys.argv[1], exam_names=sys.argv[2:])
-    elif len(sys.argv) > 1:
-        generate_all(logo_file=sys.argv[1])
-    else:
-        print(
-            "You need to provide at least one argument with the name of the logo file."
-        )
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "logo_file", help="Filename of the logo file image in templates"
+    )
+    parser.add_argument("--filter_exams", help="Name of the exam(s) to use")
+    parser.add_argument(
+        "--combine", help="Combine exams to one pdf", action="store_true"
+    )
+    parser.add_argument("--solution", help="Include solutions", action="store_true")
+    args = parser.parse_args()
+    generate_all(
+        logo_file=args.logo_file,
+        combine_exams=args.combine,
+        exam_names=args.filter_exams.split(",") if args.filter_exams else None,
+        solution=args.solution,
+    )

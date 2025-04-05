@@ -1,6 +1,6 @@
-import sys
 import csv
 import json
+import sys
 from collections import namedtuple
 
 from django.core.management import call_command

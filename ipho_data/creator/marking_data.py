@@ -1,13 +1,12 @@
-from ipho_marking.models import (
-    generate_markings_from_exam,
-    Marking,
-    MarkingMeta,
-    MarkingAction,
-)
 from ipho_core.models import Delegation
+from ipho_marking.models import (
+    Marking,
+    MarkingAction,
+    MarkingMeta,
+    generate_markings_from_exam,
+)
 
 from .base_data import BaseDataCreator
-
 
 OFFICIAL_LANGUAGE_PK = 1
 

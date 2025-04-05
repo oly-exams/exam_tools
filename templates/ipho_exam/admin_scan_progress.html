@@ -1,0 +1,136 @@
+
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra-head %}
+{% if question %}
+<meta http-equiv="refresh" content="30" />
+{% endif %}
+
+<style>
+  th{
+    font-family: Arial;
+    font-size: 10pt;
+    border-top: solid 1px rgb(125, 125, 125) !important; 
+    border-bottom: solid 1px rgb(125, 125, 125); 
+  }
+  td{
+    font-family: Arial;
+    font-size: 10pt;
+    border-top: solid 1px rgb(125, 125, 125) !important; 
+    border-bottom: solid 1px rgb(125, 125, 125); 
+  }
+  .border-right {
+    border-right: solid 1px rgb(125, 125, 125); 
+  }
+  .border-left {
+    border-left: solid 1px rgb(125, 125, 125); 
+  }
+
+  div.row {
+    
+  }
+
+  .flex {
+    display: flex-inline;
+  }
+
+
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="col-md-12">
+    <div class="">
+      <h1>Scan progress</h1>
+      {% if not question %}
+      <p class="lead">Select a question.</p>
+      {% endif %}
+      <div class="row">
+        {% if questions %}
+        <div class="dropdown" id="question-dropdown">
+          <a class="btn {{ question|yesno:"btn-default,btn-primary" }} btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+            {% if question %}
+            {{ question.exam.code }}-{{ question.position }} {{ question.exam.name }} - {{ question.name }}
+            {% else %}
+            Select question
+            {% endif %}
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            {% for q in questions %}
+                <li {% if question == q %} class="active" {% endif %}><a href="{% url 'exam:admin-scan-progress' question_id=q.pk %}">{{ q.exam.code }}-{{ q.position }} {{ q.exam.name }} - {{ q.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        <br>
+        {% else %}
+        <p class="alert alert-info">No question available.</p>
+        {% endif %}
+      </div>
+      {% if question %}
+        <div class="">
+        <p><strong>In Progress:</strong> {{ scans_remaining }}</p>
+        <p><strong>Scanned:</strong> {{ scans_done }}</p>
+        <br>
+        <p><strong>Last scanned:</strong></p>
+        <div class="flex">
+          <table class="table">
+            {% for doc_column in documents %}
+              <tr>
+                {% for doc in doc_column %}
+                  <td class="border-left">{{ doc.participant.code }} </td>
+                  <!--{{ doc.barcode_num_pages }} / {{ doc.extra_num_pages }}-->
+                  <!--<td><time datetime="{{ doc.timestamp|date:"c" }}" data-format="HH:mm:ss"></time></td>-->
+                  <td class="border-right">
+                    <div class="btn-group">
+                      {% if doc.scan_status == "S" %}
+                        <a class="btn btn-success btn-xs" href="{% url 'exam:scan-exam-pos-participant' exam_id=doc.participant.exam.pk participant_id=doc.participant.pk position=doc.position %}" title="Scan ({{ doc.timestamp|date:'d.M. H:m:s' }})" data-toggle="tooltip"><i class="fa fa-fw fa-file-pdf-o"></i></a>
+                        {% if doc.scan_file_orig %}
+                          <a class="btn btn-default btn-xs" href="{% url 'exam:scan-orig-exam-pos-participant' exam_id=doc.participant.exam.pk participant_id=doc.participant.pk position=doc.position %}" title="Full scan" data-toggle="tooltip"><i class="fa fa-fw fa-file-pdf-o"></i></a>
+                        {% endif %}
+                      {% endif %}
+                      {% if can_mark %}
+                        <a class="btn btn-default btn-xs" href="{% url 'marking:official-marking-detail' question_id=question.pk delegation_id=doc.participant.delegation.pk %}" title="Go to marking" data-toggle="tooltip">Marking</a>
+                      {% endif %}
+                    </div>
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      {% endif %}
+      </div>
+    </div>
+  </div>
+
+
+
+
+{% endblock %}
+
+
+{% block extra-script %}
+<script>
+$('document').ready(function(){
+   $("time[data-format]").each(function () {
+              var el = $(this);
+              var dt = moment(el.attr("datetime"));
+              el.text(dt.format(el.data("format")));
+          });
+    $(document).on('click', '#reload', function(event){
+        location.reload();
+    });
+
+    // Activates tooltipls
+    $('.btn').tooltip({containter: ".parent"});
+
+}); // $(document).ready()
+</script>
+{% endblock %}

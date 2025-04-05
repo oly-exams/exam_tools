@@ -24,13 +24,14 @@ sys.path.append(".")
 import django
 
 django.setup()
-from django.conf import settings
-
-from django.core import serializers
-from ipho_core.models import Delegation
-from ipho_exam.models import *
 import json
 from io import StringIO
+
+from django.conf import settings
+from django.core import serializers
+
+from ipho_core.models import Delegation
+from ipho_exam.models import *
 
 
 def save(objs, stream):
@@ -85,7 +86,7 @@ figures.extend(Figure.objects.non_polymorphic().all())
 figures.extend(Figure.objects.all())
 save_with_pk(figures, "033_figures.json")
 
-nodes = VersionNode.objects.filter(question__in=questions).order_by("-version")
+nodes = VersionNode.objects.filter(question__in=questions)
 last_nodes = []
 last_nodes_incl = []
 for node in nodes:

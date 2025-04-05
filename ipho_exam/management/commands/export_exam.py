@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.core.management.base import BaseCommand
 from django.core import serializers
+from django.core.management.base import BaseCommand
 
 from ipho_exam.models import Exam, Question, VersionNode
 

@@ -106,14 +106,32 @@ urlpatterns = [
         name="pdf",
     ),
     path(
+        "pdf/solution/<int:question_id>/lang/<int:lang_id>",
+        views.compiled_question,
+        {"solution": True},
+        name="pdf-solution",
+    ),
+    path(
         "pdf/question/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
         views.compiled_question,
         name="pdf-version",
     ),
     path(
+        "pdf/solution/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
+        views.compiled_question,
+        {"solution": True},
+        name="pdf-solution-version",
+    ),
+    path(
         "pdf-diff/question/<int:question_id>/lang/<int:lang_id>/v<int:old_version_num>/v<int:new_version_num>",
         views.compiled_question_diff,
         name="pdfdiff-version",
+    ),
+    path(
+        "pdf-diff/solution/<int:question_id>/lang/<int:lang_id>/v<int:old_version_num>/v<int:new_version_num>",
+        views.compiled_question_diff,
+        {"solution": True},
+        name="pdfdiff-solution-version",
     ),
     path(
         "tex/question/<int:question_id>/lang/<int:lang_id>",
@@ -122,10 +140,22 @@ urlpatterns = [
         name="tex",
     ),
     path(
+        "tex/solution/<int:question_id>/lang/<int:lang_id>",
+        views.compiled_question,
+        {"raw_tex": True, "solution": True},
+        name="tex-solution",
+    ),
+    path(
         "tex/question/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
         views.compiled_question,
         {"raw_tex": True},
         name="tex-version",
+    ),
+    path(
+        "tex/solution/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
+        views.compiled_question,
+        {"raw_tex": True, "solution": True},
+        name="tex-solution-version",
     ),
     path(
         "odt/question/<int:question_id>/lang/<int:lang_id>",
@@ -133,9 +163,21 @@ urlpatterns = [
         name="odt",
     ),
     path(
+        "odt/solution/<int:question_id>/lang/<int:lang_id>",
+        views.compiled_question_odt,
+        {"solution": True},
+        name="odt-solution",
+    ),
+    path(
         "odt/question/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
         views.compiled_question_odt,
         name="odt-version",
+    ),
+    path(
+        "odt/solution/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
+        views.compiled_question_odt,
+        {"solution": True},
+        name="odt-solution-version",
     ),
     path(
         "html/question/<int:question_id>/lang/<int:lang_id>",
@@ -143,9 +185,21 @@ urlpatterns = [
         name="html",
     ),
     path(
+        "html/solution/<int:question_id>/lang/<int:lang_id>",
+        views.compiled_question_html,
+        {"solution": True},
+        name="html-solution",
+    ),
+    path(
         "html/question/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
         views.compiled_question_html,
         name="html-version",
+    ),
+    path(
+        "html/solution/<int:question_id>/lang/<int:lang_id>/v<int:version_num>",
+        views.compiled_question_html,
+        {"solution": True},
+        name="html-solution-version",
     ),
     path(
         "pdf/exam/<int:exam_id>/<int:position>/participant/<int:participant_id>",
@@ -217,7 +271,7 @@ urlpatterns = [
         name="feedback-like",
     ),
     re_path(
-        r"^feedbacks/thread/(?P<feedback_id>\d+)$",
+        r"^feedbacks/thread/?$",
         views.feedback_thread,
         name="feedback-thread",
     ),
@@ -225,6 +279,11 @@ urlpatterns = [
         r"^feedbacks/(?P<feedback_id>\d+)/status/(?P<status>\w)$",
         views.feedback_set_status,
         name="feedback-set-status",
+    ),
+    re_path(
+        r"^feedbacks/(?P<feedback_id>\d+)/category/(?P<category>\w)$",
+        views.feedback_set_category,
+        name="feedback-set-category",
     ),
     path("submission/list", views.submission_exam_list, name="submission-exam-list"),
     path(
@@ -311,6 +370,11 @@ urlpatterns = [
         "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/delete",
         views.admin_delete_version,
         name="admin-delete-version",
+    ),
+    path(
+        "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/check_before_accept",
+        views.admin_check_version_before_diff,
+        name="admin-check-version-before-diff",
     ),
     path(
         "admin/<int:exam_id>/<int:question_id>/v<int:version_num>/accept",
@@ -408,6 +472,16 @@ urlpatterns = [
         "admin/submissions/<int:submission_id>/delete",
         views.admin_submission_delete,
         name="admin-submission-delete",
+    ),
+    path(
+        "admin/scan-progress/<int:question_id>",
+        views.admin_scan_progress,
+        name="admin-scan-progress",
+    ),
+    path(
+        "admin/scan-progress",
+        views.admin_scan_progress,
+        name="admin-scan-progress",
     ),
     re_path(r"^admin/bulk-print/?$", views.bulk_print, name="bulk-print"),
     path(

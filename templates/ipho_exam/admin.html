@@ -81,6 +81,23 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="accept-check-modal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+              <h4 class="modal-title"></h4>
+            </div>
+            <form method="post" action="">
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <a href="" id="accept-anyway-button" class="btn btn-danger">Continue to diff</a>
+                </div>
+            </form>
+          </div>
+        </div>
+      </div>
     <div class="modal fade" id="check-modal" tabindex="-1">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -191,7 +208,7 @@ $(function() {
                     if (data['success']) {
                         update_questions();
                     } else {
-                        alert('An error occured.');
+                        alert(data['message']);
                     }
                 });
             });
@@ -363,6 +380,40 @@ $(function() {
         });
     })
 
+    $(document).on('click',"a.diff-accept-button",function(evt) {
+        var abtn = evt.target;
+        var $abtn = $(abtn);
+        evt.preventDefault();
+        $('#accept-anyway-button').attr("href", "");
+        $('#accept-anyway-button').hide();
+        $('#accept-check-modal .modal-title').html('<i class="fa fa-spinner fa-pulse"></i> Loading...');
+
+        $('#accept-check-modal .modal-body').html("");
+        $('#accept-check-modal').modal("show");
+
+        var url = abtn.href;
+        $.ajax({
+            url: url,
+            type: "POST",
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                console.log(data);
+                if (!data['success']) {
+                    console.log("bbbb");
+                    $('#accept-anyway-button').attr("href", data["url"]);
+                    $('#accept-check-modal .modal-body').html(data["message"]);
+                    $('#accept-check-modal .modal-title').html(data["title"]);
+                    $('#accept-anyway-button').show();
+                    return;
+                }else{
+                    window.location.assign(data["url"]);
+                }
+            }
+        });
+    });
+
     $('#check-modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var href = button.attr('href');
@@ -372,7 +423,7 @@ $(function() {
         modal.find('.modal-body').html('');
         $("#check-modal-header").removeClass();
         $("#check-modal-header").addClass("modal-header");
-        
+
         //modal.find('.modal-footer').addClass('hide');
 
         $.ajax({

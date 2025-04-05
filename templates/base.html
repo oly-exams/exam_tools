@@ -107,7 +107,7 @@
               </li>
               {% endif %}
 
-              {% if perms.ipho_core.is_delegation_print %}
+              {% if perms.ipho_core.is_delegation_print and not user.is_superuser %}
               <li><a href="{% url 'exam:submission-delegation-submitted' %}">Submitted Exams</a></li>
               {% endif %}
 
@@ -120,8 +120,10 @@
               {% if perms.ipho_core.can_see_boardmeeting or perms.ipho_core.is_delegation_print %}
               <li><a href="{% url 'download:main' %}">Downloads</a></li>
               {% endif %}
-              {% if perms.ipho_core.can_print_boardmeeting_site or perms.ipho_core.can_print_exam_site %}
+              {% if perms.ipho_core.can_print_exam_site %}
               <li><a href="{% url 'print:main' %}">Print</a></li>
+              {% elif perms.ipho_core.can_print_boardmeeting_site %}
+              <li><a href="{% url 'print:main' %}">Draft Print</a></li>
               {% endif %}
 
               {% if perms.ipho_core.is_organizer_admin or perms.ipho_core.is_marker or perms.ipho_core.is_printstaff or perms.ipho_core.can_edit_exam or perms.ipho_core.can_manage_feedback or perms.ipho_core.can_edit_poll %}
@@ -134,7 +136,7 @@
                   <li><a href="{% url 'admin:index' %}">Admin</a></li>
                   {% endif %}
                   {% if perms.ipho_core.can_impersonate %}
-                  <li><a href="{% url 'impersonate' %}">Impersonate delegation</a></li>
+                  <li><a href="{% url 'list_impersonate' %}">Impersonate user</a></li>
                   {% endif %}
                   <li class="divider"></li>
                   {% endif %}
@@ -189,15 +191,19 @@
                   <li><a href="{% url 'marking:import-exam' %}">Import exam into marking system</a></li>
                   {% endif %}
                   <li><a href="{% url 'marking:official-marking-index' %}">Official marking</a></li>
+                  <li><a href="{% url 'exam:admin-scan-progress' %}">Scan progress</a></li>
+                  {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'marking:summary' %}">(Advanced marking editing)</a></li>
+                  {% endif %}
                   <li><a href="{% url 'marking:progress' %}">Marking progress</a></li>
                   {% if perms.ipho_core.is_organizer_admin %}
                   <li><a href="{% url 'marking:marking-submissions' %}">Delegation marking subm. progress</a></li>
                   {% endif %}
                   <li><a href="{% url 'marking:moderation-index' %}">{% trans "Moderation" %}</a></li>
                   {% if perms.ipho_core.is_organizer_admin %}
-                  <li><a href="{% url 'marking:export' %}">Export markings</a></li>
-                  <li><a href="{% url 'marking:export-total' %}">Export markings (with totals)</a></li>
+                  <li><a href="{% url 'marking:ranking' %}">Ranking</a></li>
+                  <li><a href="{% url 'marking:export' %}">Export markings (all versions, slow)</a></li>
+                  <li><a href="{% url 'marking:export-total' %}">Export markings (final) </a></li>
                   {% endif %}
                   <li class="divider"></li>
                   {% endif %}
@@ -210,8 +216,8 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
-              {% if request.session.autologin_user %}
-              <li><a href="{% url 'autologin_stop' %}">Stop impersonation</a></li>
+              {% if request.session.impersonation_user %}
+              <li><a href="{% url 'impersonate_stop' %}">Stop impersonation</a></li>
               {% endif %}
               <li class="navbar-text">{{ user.username }},
                 <strong>
@@ -249,7 +255,7 @@
       </div>
     <script src="{% static "jquery/js/jquery-1.11.2.min.js" %}"></script>
     <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
-    <script src="{% static "datatables.net/js/jquery.dataTables.min.js" %}"></script>
+    <script src="{% static "datatables.net/js/dataTables.min.js" %}"></script>
     <script src="{% static "datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>
     <script src="{% static "datatables-plugins/sorting/natural.js" %}"></script>
     <script src="{% static "bootstrap-ckeditor-modal-fix.js" %}"></script>

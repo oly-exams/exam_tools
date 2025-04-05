@@ -17,32 +17,35 @@
 
 # pylint: disable=consider-using-f-string
 
-import os
 import decimal
+import os
 
+from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML, Div, Field, Layout, Submit
 from django import forms
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.forms.formsets import formset_factory
-from django.core.exceptions import ValidationError
-
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, Div, HTML
-from crispy_forms.bootstrap import Accordion, AccordionGroup, FormActions
-
 
 from ipho_exam.models import (
-    Language,
-    Question,
-    Participant,
-    Figure,
-    VersionNode,
-    PDFNode,
+    VALID_FIGURE_EXTENSIONS,
     Feedback,
+    Figure,
+    Language,
+    Participant,
     ParticipantSubmission,
+    PDFNode,
+    Question,
     TranslationImportTmp,
+    VersionNode,
 )
-from ipho_exam.models import VALID_FIGURE_EXTENSIONS
 from ipho_print import printer
+
+ALLOW_ANSLANG_WITHOUT_QLANG = getattr(settings, "ALLOW_ANSLANG_WITHOUT_QLANG", False)
+MAX_NUMBER_LANGUAGES_PER_PPNT = getattr(settings, "MAX_NUMBER_LANGUAGES_PER_PPNT", -1)
+MAX_FIGURE_UPLOAD_SIZE_MB = getattr(settings, "MAX_FIGURE_UPLOAD_SIZE_MB", 10)
 
 
 def build_extension_validator(valid_extensions):
@@ -53,6 +56,16 @@ def build_extension_validator(valid_extensions):
             raise ValidationError("Unsupported file extension.")
 
     return validate_file_extension
+
+
+def build_size_validator(max_size):  # Max. size in bytes
+    def validate_file_size(value):
+        if value.size > max_size:
+            raise ValidationError(
+                f"File too large. Size should not exceed {max_size/1048576} MB."
+            )
+
+    return validate_file_size
 
 
 class LanguageForm(ModelForm):
@@ -130,7 +143,10 @@ class FigureForm(ModelForm):
         super().__init__(*args, **kwargs)
         instance = getattr(self, "instance", None)
         self.fields["file"] = forms.FileField(
-            validators=[build_extension_validator(valid_extensions)],
+            validators=[
+                build_extension_validator(valid_extensions),
+                build_size_validator(1048576 * MAX_FIGURE_UPLOAD_SIZE_MB),
+            ],
             label='Figure file <a href="#" data-toggle="popover" data-trigger="hover" data-container="body" data-content="Allowed filetypes: {}"><span class="glyphicon glyphicon-info-sign"></span></a>'.format(
                 " ".join("*" + ext for ext in valid_extensions)
             ),
@@ -285,17 +301,20 @@ class FeedbackForm(ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("comment", placeholder="Comment"),
+            Field("category"),
         )
         self.helper.html5_required = True
         self.helper.form_show_labels = True
         self.form_tag = False
         self.helper.disable_csrf = True
         self.fields["comment"].required = True
+        self.fields["category"].required = True
+        self.fields["comment"].label = "Feedback comment"
+        self.fields["category"].label = "Feedback category"
 
     class Meta:
         model = Feedback
-        fields = ["comment"]
-        # labels = {'part': 'Question part'}
+        fields = ["comment", "category"]
 
 
 class FeedbackCommentForm(forms.Form):
@@ -338,26 +357,39 @@ class AssignTranslationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         languages_queryset = kwargs.pop("languages_queryset")
-        answer_lang = kwargs.pop("answer_language", None)
+        locked_answer_lang = kwargs.pop("answer_language", None)
         super().__init__(*args, **kwargs)
         self.fields["languages"].queryset = languages_queryset
-        if answer_lang is not None:
+        if locked_answer_lang is not None:
             self.fields.pop("answer_language")
-            self.answer_language = answer_lang
+            self.locked_answer_language = locked_answer_lang
         else:
-            self.answer_language = None
+            self.locked_answer_language = None
             self.fields["answer_language"].queryset = languages_queryset
 
     def clean(self):
         cleaned_data = super().clean()
         languages = cleaned_data.get("languages")
-        if self.answer_language is None:
-            answer_language = cleaned_data.get("answer_language")
-            if languages and answer_language and answer_language not in languages:
-                msg = "Answer language not enabled."
-                self.add_error("languages", msg)
-        else:
-            self.cleaned_data["answer_language"] = self.answer_language
+        if self.locked_answer_language is not None:
+            self.cleaned_data["answer_language"] = self.locked_answer_language
+            return
+
+        answer_language = cleaned_data.get("answer_language")
+        if (
+            languages
+            and answer_language
+            and answer_language not in languages
+            and not ALLOW_ANSLANG_WITHOUT_QLANG
+        ):
+            msg = "Answer language not enabled."
+            self.add_error("languages", msg)
+        if (
+            languages
+            and MAX_NUMBER_LANGUAGES_PER_PPNT > -1
+            and len(languages) > MAX_NUMBER_LANGUAGES_PER_PPNT
+        ):
+            msg = f"At most { MAX_NUMBER_LANGUAGES_PER_PPNT } language{ 's' if MAX_NUMBER_LANGUAGES_PER_PPNT !=1 else '' } can be selected per participant!"
+            self.add_error("languages", msg)
 
 
 ## ungly hack to propagate `languages_queryset` attribute to form construction

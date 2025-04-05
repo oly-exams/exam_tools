@@ -18,14 +18,13 @@
 # pylint: disable = consider-using-f-string
 
 
-import os
 import json
+import os
 import types
-from copy import deepcopy
-
-import urllib.request
-import urllib.parse
 import urllib.error
+import urllib.parse
+import urllib.request
+from copy import deepcopy
 
 from future import standard_library
 
@@ -118,8 +117,5 @@ def send2queue(
     if req.status_code == 200:
         return SUCCESS
 
-    try:
-        error_msg = req.json()["message"]
-    except Exception:  # pylint: disable=broad-except
-        error_msg = ""
+    error_msg = req.json()["message"]
     raise PrinterError(error_msg)

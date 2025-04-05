@@ -3,7 +3,7 @@
 <tr>
     <td>{{ fb.pk }}</td>
     <td>
-      {% if perms.ipho_core.can_manage_feedback and fb.commentable %}
+     {% if perms.ipho_core.can_manage_feedback and fb.commentable %}
         <div class="btn-group">
           <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
             {{ fb.status_display }}
@@ -19,11 +19,42 @@
         {{ fb.status_display }}
       {% endif %}
     </td>
+    <td>
+     {% if perms.ipho_core.can_manage_feedback and fb.commentable %}
+        <div class="btn-group">
+          <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+            {{ fb.category_display }}
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            {% for k,v in category_choices %}
+            <li class="{% if k == fb.category %}active{% endif %}"><a href="{% url 'exam:feedback-set-category' category=k feedback_id=fb.pk %}" class="feedback-category">{{ v }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        {{ fb.category_display }}
+      {% endif %}
+    </td>
     <td>{{ fb.delegation__country }}</td>
     <td>{{ fb.question__name }}</td>
-    <td>{{ fb.part }}</td>
+    <td>{{ fb.sort_order }}-{{ fb.part }}</td>
     <td style="display:none;">{{ fb.part_position }}</td>
-    <td>{{ fb.comment }}{% if fb.org_comment %}<br><strong>Comment from the organizers:</strong><br>{{ fb.org_comment }}{% endif %}</td>
+    <td>
+      {{ fb.comment }}{% if fb.org_comment %}
+      <br>
+      <strong>Comment from the organizers:</strong>
+      <br>
+      {{ fb.org_comment }}{% endif %}
+      <br>
+      <a data-toggle="collapse" href="#feedback-thread-{{ fb.pk }}" role="button" aria-expanded="false" aria-controls="#feedback-thread-{{ fb.pk }}" >
+            <span class="glyphicon glyphicon-chevron-up"></span>{% if fb.num_comments > 0 %} {{ fb.num_comments }} delegation discussion messages.{% else %} Start delegation discussion.{% endif %}
+        </a>
+      <br>
+      <div class="feedback-thread collapse" id="feedback-thread-{{ fb.pk }}" data-fbid="{{ fb.pk }}">
+        <i class="fa fa-spinner fa-pulse"></i> Loading...
+      </div>
+    </td>
     <td><time datetime="{{ fb.timestamp|date:"c" }}" data-format="MMM Do, HH:mm"></time></td>
     <td>
       <div class="btn-toolbar">
@@ -33,7 +64,7 @@
             {% if fb.num_likes %}
             <span class="badge feedback-like">{{ fb.num_likes }}</span>
             {% endif %}
-            {{fb.like_delegations.1|safe}}
+            <!-- {{fb.like_delegations.1|safe}} -->
           </span>
         </div>
         <div style="display:inline-block" data-toggle="tooltip" title="{{fb.unlike_delegations.0|safe}}">
@@ -42,29 +73,28 @@
             {% if fb.num_unlikes %}
             <span class="badge feedback-like">{{ fb.num_unlikes }}</span>
             {% endif %}
-            {{fb.unlike_delegations.1|safe}}
+            <!-- {{fb.unlike_delegations.1|safe}} -->
           </span> <!-- btn-toolbar -->
         </div>
+        {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable and fb.commentable %}
+          <div style="display:inline-block">
+            <span type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
+              Comment
+            </span>
+          </div>
+        {% endif %}
         <div style="display:inline-block">
-          <span url="{% url 'exam:feedback-thread' feedback_id=fb.pk %}" class="btn btn-primary open-fb-thread" data-toggle="modal" data-target="#feedback-thread-modal">
-            <i class="fa fa-comment" aria-hidden="true"></i>
-            {% if fb.num_comments %}
-            <span class="badge">{{ fb.num_comments }}</span>
-            {% endif %}
-          </span> <!-- btn-toolbar -->
+          <a href="{% url 'exam:exam-view' exam_id=exam_id question_id=fb.question__pk %}#{{ fb.qml_id }}" class="btn btn-sm btn-default" id="view-exam-{{ fb.qml_id }}" target="_blank" role="button" title="View Exam">
+            View Exam
+          </a>
         </div>
-        {% if perms.ipho_core.can_manage_feedback and fb.exam_feedback_editable %}
-        {% if fb.commentable %}
+        {% if fb.status == "S" and fb.num_likes is None and fb.delegation__name == delegation.name %}
         <div style="display:inline-block">
-          <span type="button" class="btn btn-sm btn-default add-comment-button" id="add-comment-{{ fb.pk }}" data-feedback-pk="{{ fb.pk }}" aria-label="Add Comment" title="Add Comment" data-toggle="modal" data-target="#feedback-modal">
-            Comment
-          </span>
+          <a href="{% url 'exam:feedback-set-status' status='W' feedback_id=fb.pk %}" class="btn btn-sm btn-danger feedback-status" id="withdraw-{{ fb.pk }}" role="button" title="Withdraw">
+            Withdraw
+          </a>
         </div>
         {% endif %}
-        {% endif %}
-        <a href="{% url 'exam:exam-view' exam_id=exam_id question_id=fb.question__pk %}#{{ fb.qml_id }}" class="btn btn-sm btn-default" id="view-exam-{{ fb.qml_id }}" target="_blank" role="button" title="View Exam">
-          View Exam
-        </a>
       </div>
     </td>
 </tr>

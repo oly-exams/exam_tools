@@ -3,14 +3,14 @@
 import os
 
 from ipho_exam.models import (
-    Figure,
-    CompiledFigure,
-    RawFigure,
-    VALID_RAW_FIGURE_EXTENSIONS,
     VALID_COMPILED_FIGURE_EXTENSIONS,
+    VALID_RAW_FIGURE_EXTENSIONS,
+    CompiledFigure,
+    Figure,
+    RawFigure,
 )
-
 from ipho_exam.utils import natural_id
+
 from .base_data import BaseDataCreator
 
 

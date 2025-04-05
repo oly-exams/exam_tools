@@ -31,19 +31,18 @@ import django
 
 django.setup()
 
-from django.conf import settings
+from hashlib import md5
 
-from django.shortcuts import get_object_or_404
+import requests
+from crispy_forms.utils import render_crispy_form
+from django.conf import settings
 from django.http import HttpRequest
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import reverse
 
-from crispy_forms.utils import render_crispy_form
-from django.template.loader import render_to_string
-
-from ipho_exam import qml, tex, pdf, qquery, fonts, iphocode
-from ipho_exam.models import Exam, Question, Participant, Language
-from hashlib import md5
-import requests
+from ipho_exam import fonts, iphocode, pdf, qml, qquery, tex
+from ipho_exam.models import Exam, Language, Participant, Question
 
 EVENT_TEMPLATE_PATH = getattr(settings, "EVENT_TEMPLATE_PATH")
 

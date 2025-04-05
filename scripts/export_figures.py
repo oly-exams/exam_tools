@@ -1,6 +1,6 @@
 # Exam Tools
 #
-# Copyright (C) 2014 - 2023 Oly Exams Team
+# Copyright (C) 2014 - 2024 Oly Exams Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -25,13 +25,14 @@ sys.path.append(".")
 import django
 
 django.setup()
-from django.conf import settings
-
-from django.core import serializers
-from ipho_core.models import Delegation
-from ipho_exam.models import *
 import json
 from io import StringIO
+
+from django.conf import settings
+from django.core import serializers
+
+from ipho_core.models import Delegation
+from ipho_exam.models import *
 
 
 def save(objs, stream):

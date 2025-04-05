@@ -83,7 +83,8 @@ def inline_edit(request):
     für die folgenden Parameter als Funktion von $R$ und $r$: <ul>
     <li>Entfernung zwischen $m$ und $M$.</li> <li>Entfernung zwischen
     $m$ und $m$.</li> <li>Entfernung zwischen $m$ und dem
-    Schwerpunkt.</li> </ul> </p> """
+    Schwerpunkt.</li> </ul> </p>
+    """
     )
 
     parts.append(

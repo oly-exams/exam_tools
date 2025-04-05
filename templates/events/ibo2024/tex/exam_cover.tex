@@ -1,0 +1,44 @@
+\documentclass[12pt,a4paper,foldmarks=false]{scrlttr2}
+\usepackage{graphicx}
+
+% \LoadLetterOption{visualize}
+% \showfields{address}
+
+\makeatletter
+  \@setplength{backaddrheight}{0pt}% because backaddress=off
+  \@setplength{toaddrhpos}{9.0cm}%distance from left
+  \@setplength{toaddrvpos}{2.0cm}%distance from top
+  \@setplength{toaddrheight}{4cm}%height of the addressbox
+  \@setplength{toaddrwidth}{9cm}% width of the addressbox
+\makeatother
+
+\usepackage{fontspec}
+\setmainfont[ Path = {{ STATIC_PATH }}/noto/,BoldFont=NotoSans-Bold.ttf, ItalicFont=NotoSans-Italic.ttf, BoldItalicFont=NotoSans-BoldItalic.ttf, ]{NotoSans-Regular.ttf}
+\setkomavar{date}{}
+\nonstopmode
+
+\begin{document}
+
+\begin{letter}{\flushright{ \textbf{% templatetag openbrace %}{{ student.code }} {{ exam.code }}-{{ question.position }} C}\\{{ participant.full_name }}\\\textbf{\large {{ place }}} }}
+\opening{}
+
+\begin{center}
+{\textbf{\Huge {{ exam.name }}\\ {{ question.name }}}}
+\vspace{1em}\\
+{\textbf{\Large Cover sheet}}
+\end{center}
+
+\vspace{4cm}
+
+% PRACTICAL EXAM
+% The exam takes 90 minutes and the maximum number of points is {% if exam.name == "Bioinformatics" %}78{% elif exam.name == "Molecular Biology" %}79{% elif exam.name == "Biochemistry" %}100{% elif exam.name == "Anatomy and Physiology of Animals and Humans" %}87{% else %}undefined{% endif %}.
+
+% THEORETICAL EXAM
+The exam takes 3 hours, 15 minutes and the maximum number of points is 50.
+
+\vspace{2cm}
+Please return this cover sheet together with all the related question sheets.
+
+\end{letter}
+
+\end{document}

@@ -20,26 +20,25 @@
 # mskoenz: text_direction on 738 inactive, is this intended?
 #         disabled Document.question_name, since it makes no sense
 
-import os
-import uuid
-import time
-import subprocess
 import codecs
+import os
+import subprocess
+import time
+import uuid
 
-
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.conf import settings
 from django.utils import timezone
-
-from polymorphic.models import PolymorphicModel
 from polymorphic.managers import PolymorphicManager
+from polymorphic.models import PolymorphicModel
 
-from ipho_core.models import Delegation, Student
 import ipho_exam
+from ipho_core.models import Delegation, Student
 from ipho_exam import fonts
+
 from .exceptions import IphoExamForbidden
 from .utils import natural_id
 
@@ -273,6 +272,7 @@ class Language(models.Model):
 
     class Meta:
         unique_together = index_together = (("name", "delegation"),)
+        ordering = ["delegation", "name"]
 
     def natural_key(self):
         return (self.name,) + self.delegation.natural_key()
@@ -355,6 +355,8 @@ class Exam(models.Model):
 
     code = models.CharField(max_length=8)
     name = models.CharField(max_length=100, unique=True)
+
+    has_solution = models.BooleanField(default=False)
 
     FLAG_SQUASHED = 1
 
@@ -859,6 +861,12 @@ class QuestionManager(models.Manager):
 class Question(models.Model):
     objects = QuestionManager()
 
+    CODE_TYPES = (
+        ("Q", "Q (Question)"),
+        ("A", "A (Answer)"),
+        ("G", "G (General)"),
+    )
+
     QUESTION = 0
     ANSWER = 1
     QUESTION_TYPES = (
@@ -866,10 +874,7 @@ class Question(models.Model):
         (ANSWER, "Answer"),
     )
 
-    code = models.CharField(
-        max_length=8,
-        help_text="e.g. Q for Question, A for Answer Sheet, G for General Instruction",
-    )
+    code = models.CharField(choices=CODE_TYPES, max_length=20, default="Q")
     name = models.CharField(max_length=100, db_index=True)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     position = models.PositiveSmallIntegerField(
@@ -883,12 +888,17 @@ class Question(models.Model):
 
     FEEDBACK_CLOSED = -1
     FEEDBACK_ORGANIZER_COMMENT = 0
-    FEEDBACK_OPEN = 1
+    FEEDBACK_EVERYBODY_COMMENT = 1
+    FEEDBACK_OPEN = 2
 
     FEEDBACK_CHOICES = (
-        (FEEDBACK_CLOSED, "Closed"),
         (FEEDBACK_OPEN, "Open"),
-        (FEEDBACK_ORGANIZER_COMMENT, "Closed, Organizer can still comment."),
+        (
+            FEEDBACK_EVERYBODY_COMMENT,
+            "Feedbback entry closed, Everybody can comment, like & withdraw.",
+        ),
+        (FEEDBACK_ORGANIZER_COMMENT, "Feedbback entry closed, Organizer can comment."),
+        (FEEDBACK_CLOSED, "Feedbback entry closed"),
     )
 
     feedback_status = models.IntegerField(
@@ -910,7 +920,7 @@ class Question(models.Model):
     ## TODO: add template field
 
     class Meta:
-        ordering = ["position", "type", "code", "name"]
+        ordering = ["exam", "position", "type", "code"]
 
     def is_answer_sheet(self):
         return self.type == self.ANSWER
@@ -985,6 +995,7 @@ class VersionNode(models.Model):
     )
 
     text = models.TextField()
+    ids_in_order = models.TextField(default="")
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     version = models.IntegerField()
     tag = models.CharField(
@@ -996,7 +1007,7 @@ class VersionNode(models.Model):
 
     class Meta:
         unique_together = index_together = (("question", "language", "version"),)
-        ordering = ["-version", "-timestamp"]
+        ordering = ["question", "language", "-version", "-timestamp"]
 
     def question_name(self):
         return self.question.name
@@ -1043,6 +1054,7 @@ class TranslationNode(models.Model):
 
     class Meta:
         unique_together = index_together = (("question", "language"),)
+        ordering = ["question", "language", "-timestamp"]
 
     def question_name(self):
         return self.question.name
@@ -1211,7 +1223,7 @@ class FigureManager(PolymorphicManager):
 class Figure(PolymorphicModel):
     objects = FigureManager()
     name = models.CharField(max_length=100, db_index=True)
-    fig_id = models.URLField(
+    fig_id = models.CharField(
         max_length=100,
         db_index=True,
         default=natural_id.generate_id,
@@ -1362,38 +1374,24 @@ class Feedback(models.Model):
         ("T", "Settled after voting"),
         ("W", "Withdrawn"),
     )
-    PARTS_CHOICES = (
-        ("General", "General"),
-        ("Intro", "Introduction"),
-        ("A", "Part A"),
-        ("B", "Part B"),
-        ("C", "Part C"),
-        ("D", "Part D"),
-        ("E", "Part E"),
-        ("F", "Part F"),
-        ("G", "Part G"),
-    )
-    SUBPARTS_CHOICES = (
-        ("General", "General comment on part"),
-        ("Intro", "Introduction of part"),
-        ("1", "1"),
-        ("2", "2"),
-        ("3", "3"),
-        ("4", "4"),
-        ("5", "5"),
-        ("6", "6"),
-        ("7", "7"),
-        ("8", "8"),
+    CATEGORY_CHOICES = (
+        ("T", "Typo"),
+        ("F", "Formulation"),
+        ("C", "Science"),
+        ("S", "Structure"),
+        ("O", "Other"),
     )
 
     delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     qml_id = models.CharField(max_length=100, default=None, null=True, blank=True)
+    sort_order = models.IntegerField(default=0)
     part = models.CharField(max_length=100, default=None)
     part_position = models.IntegerField(default=0)
     comment = models.TextField(blank=True)
     org_comment = models.TextField(blank=True, null=True, default=None)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="S")
+    category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -1622,6 +1620,7 @@ class Document(models.Model):
 
     class Meta:
         unique_together = index_together = (("participant", "position"),)
+        ordering = ["participant", "position"]
 
     # def question_name(self):
     # return self.question.name

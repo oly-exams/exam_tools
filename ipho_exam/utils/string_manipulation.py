@@ -23,7 +23,6 @@ import warnings
 
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning, NavigableString
 
-
 warnings.filterwarnings(
     "ignore", category=MarkupResemblesLocatorWarning
 )  # ignore bs4 warnings
@@ -80,100 +79,170 @@ def sanitize_html(text):
     return "".join(contents)
 
 
-def html2tex(text):
+def html2tex(text, escape=True):
     # NOTE: a bit ugly, ensure that each paragraph is treated as such by TeX.
     text = paragraph_space_pattern.sub("</p>\n\n<p>", text)
     cont_html = BeautifulSoup(text, "html5lib")
-    return html2tex_bs4(cont_html.body)
+    return html2tex_bs4(cont_html.body, escape=escape)
 
 
-def escape_percents(tex_code):
-    parts = tex_code.split("%")
-    parts_it = iter(parts)
-    next(parts_it)
-    for i, (part, part_it) in enumerate(zip(parts, parts_it)):
-        if part.endswith("\\vspace{") and part_it.startswith("iem}"):
-            continue
-        if not (len(part) - len(part.rstrip("\\"))) % 2:
-            parts[i] += "\\"
-    return "%".join(parts)
+def escape_tex(text, escape_special=True, escape_all_verbs=True):
+    """Escape special characters for LaTeX.
+    escape_special = False: only escape %, i.e. the comment character (escape_all_verbs is ignored in this case)
+    escape_special = True: escape %, &, $, #, _, ~, ^, <, >
+    escape_all_verbs = False: do not escape \\ and {} to allow for the use of simple LaTeX commands like \textcolor{}{}
+    escape_all_verbs = True in combination with escape_spiecal = True: escape all LaTeX special characters
+    """
+    # step 1: escape special characters if not already escaped
+    conv = {
+        "%": r"\%",
+    }
+    if escape_special:
+        conv.update(
+            {
+                "&": r"\&",
+                "$": r"\$",
+                "#": r"\#",
+                "_": r"\_",
+            }
+        )
+        if escape_all_verbs:
+            conv.update(
+                {
+                    "{": r"\{",
+                    "}": r"\}",
+                }
+            )
+    regex = re.compile(
+        "|".join(
+            rf"(?<!\\){re.escape(str(key))}"
+            for key in sorted(conv.keys(), key=lambda item: -len(item))
+        )
+    )
+    text = regex.sub(lambda match: conv[match.group()], text)
+
+    if not escape_special:
+        # nothing left to do if only % should be escaped
+        return text
+
+    # step 2: handle LaTeX commands
+    if escape_all_verbs:
+        # step 2: escape backslash if not part of an escaped special character
+        escaped = conv.keys()
+        regex = re.compile(r"\\([^{}])".format(re.escape("".join(escaped))))
+        text = regex.sub(r"\\textbackslash{}\1", text)
+    else:
+        # step 2: escape backslash if not beginning of a LaTeX command or not part of an escaped special character
+        escaped = conv.keys()
+        regex = re.compile(r"\\([^{}a-zA-Z])".format(re.escape("".join(escaped))))
+        text = regex.sub(r"\\textbackslash{}\1", text)
+
+    # step 3: replace remaining special characters by their LaTeX equivalent
+    conv = {
+        "~": r"\textasciitilde{}",
+        "^": r"\textasciicircum{}",
+        "<": r"\textless{}",
+        ">": r"\textgreater{}",
+    }
+    regex = re.compile(
+        "|".join(
+            rf"{re.escape(str(key))}"
+            for key in sorted(conv.keys(), key=lambda item: -len(item))
+        )
+    )
+    text = regex.sub(lambda match: conv[match.group()], text)
+
+    return text
 
 
-def fix_tex_parens(s, add_warning_comment=False):  # pylint: disable=unused-argument
+def fix_tex_parens(s):
     if not isinstance(s, str):
         return s
-    count = 0
-    out_s = ""
-    fix_required = False  # pylint: disable=unused-variable
-    last = ""
-    for char in s:
-        if char == "{" and last != "\\":
-            count += 1
-        elif char == "}" and last != "\\":
-            count -= 1
-        if count >= 0:
-            out_s += char
-        else:
-            fix_required = True
-        last = char
-    if count > 0:
-        out_s += "}" * count
-        fix_required = True
-    # if fix_required and add_warning_comment:
-    #    out_s += " % %%% non-matching curly braces removed by fix_tex_parens in QML export %%%\n\n"
-    return out_s
+    # do not count escaped parens in the check below -> remove them
+    count_s = s.replace(r"\{", "").replace(r"\}", "")
+    diff = count_s.count("{") - count_s.count("}")
+    if diff == 0:
+        return s
+    if diff > 0:
+        # add required number of closing parens add the end
+        return s + "}" * diff
+    # add required number of opening parens at the beginning
+    return "{" * diff + s
 
 
-def html2tex_bs4(elem):  # pylint: disable=too-many-branches
+def html2tex_bs4(elem, escape=True):  # pylint: disable=too-many-branches
     result = []
     if isinstance(elem, NavigableString):
-        return escape_percents(fix_tex_parens(str(elem), add_warning_comment=True))
+        # still allow for the use of simple LaTeX commands like \textcolor{}{}
+        s = escape_tex(str(elem), escape_special=escape, escape_all_verbs=False)
+        return fix_tex_parens(s)
     for sel in elem.children:  # pylint: disable=too-many-nested-blocks
         if isinstance(sel, NavigableString):
-            result.append(html2tex_bs4(sel))
+            result.append(html2tex_bs4(sel, escape=escape))
         ## Span styling
         elif sel.name in ["span"]:
             for att in list(sel.attrs.keys()):
                 if att == "style":
                     if "font-style:italic" in sel.attrs[att]:
-                        result.append("\\textit{%s}" % (html2tex_bs4(sel)))
+                        result.append(
+                            "\\textit{%s}" % (html2tex_bs4(sel, escape=escape))
+                        )
                     elif "font-weight:bold" in sel.attrs[att]:
-                        result.append("\\textbf{%s}" % (html2tex_bs4(sel)))
+                        result.append(
+                            "\\textbf{%s}" % (html2tex_bs4(sel, escape=escape))
+                        )
                 elif att == "class" and "math-tex" in sel.attrs[att]:
                     if sel.string is not None and sel.string[:2] == r"\(":
                         if len(sel.contents) > 1:
                             print("WARNING:", "Math with nested tags!!")
                             print(sel)
-                        result.append(sel.string)
+                        # we are in math mode: only escape comment character (%)
+                        result.append(
+                            fix_tex_parens(escape_tex(sel.string, escape_special=False))
+                        )
                 elif att == "class" and "lang-ltr" in sel.attrs[att]:
-                    result.append("\\textenglish{%s}" % (html2tex_bs4(sel)))
+                    result.append(
+                        "\\textenglish{%s}" % (html2tex_bs4(sel, escape=escape))
+                    )
         ## Bold
         elif sel.name in ["b", "strong"]:
-            result.append("\\textbf{%s}" % (html2tex_bs4(sel)))
+            result.append("\\textbf{%s}" % (html2tex_bs4(sel, escape=escape)))
         ## Italic
         elif sel.name in ["i"]:
-            result.append("\\textit{%s}" % (html2tex_bs4(sel)))
+            result.append("\\textit{%s}" % (html2tex_bs4(sel, escape=escape)))
         ## Emph
         elif sel.name in ["em"]:
-            result.append("\\emph{%s}" % (html2tex_bs4(sel)))
+            result.append("\\emph{%s}" % (html2tex_bs4(sel, escape=escape)))
         ## Underline
         elif sel.name in ["u"]:
-            result.append("\\underline{%s}" % (html2tex_bs4(sel)))
+            result.append("\\underline{%s}" % (html2tex_bs4(sel, escape=escape)))
+        ## Subscript
+        elif sel.name in ["sub"]:
+            result.append("\\textsubscript{%s}" % (html2tex_bs4(sel, escape=escape)))
+        ## Superscript
+        elif sel.name in ["sup"]:
+            result.append("\\textsuperscript{%s}" % (html2tex_bs4(sel, escape=escape)))
+
         elif sel.name in ["ul"]:
             result.append(
-                "\\begin{itemize}\n{%s}\n\\end{itemize}" % (html2tex_bs4(sel))
+                "\\begin{itemize}\n{%s}\n\\end{itemize}"
+                % (html2tex_bs4(sel, escape=escape))
             )
         elif sel.name in ["ol"]:
             result.append(
-                "\\begin{enumerate}\n{%s}\n\\end{enumerate}" % (html2tex_bs4(sel))
+                "\\begin{enumerate}\n{%s}\n\\end{enumerate}"
+                % (html2tex_bs4(sel, escape=escape))
             )
         elif sel.name in ["li"]:
-            result.append("\\item %s\n" % (html2tex_bs4(sel)))
+            result.append("\\item %s\n" % (html2tex_bs4(sel, escape=escape)))
         ## English in RTL
         elif "dir" in sel.attrs and sel.attrs["dir"] == "ltr":
-            result.append("\\begin{english}\n%s\n\\end{english}" % (html2tex_bs4(sel)))
+            result.append(
+                "\\begin{english}\n%s\n\\end{english}"
+                % (html2tex_bs4(sel, escape=escape))
+            )
 
         ## By default just append content
         else:
-            result.append(html2tex_bs4(sel))
+            result.append(html2tex_bs4(sel, escape=escape))
     return "".join(result)

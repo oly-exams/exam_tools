@@ -73,6 +73,11 @@ urlpatterns = [
         views.close_voting,
         name="close-voting",
     ),
+    path(
+        "voting/<int:voting_pk>/reopen",
+        views.reopen_voting,
+        name="reopen-voting",
+    ),
     path("room/edit/<int:room_id>", views.edit_room, name="edit-room"),
     # delegation urls
     path("", views.voter_index, name="voter-index"),

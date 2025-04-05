@@ -17,14 +17,14 @@
 
 # pylint: disable=c-extension-no-member, consider-using-f-string
 
-from past.utils import old_div
-from django.conf import settings
 import barcode
-from barcode.writer import SVGWriter
+import cairosvg
 import qrcode
 import qrcode.image.svg
+from barcode.writer import SVGWriter
+from django.conf import settings
 from lxml import etree
-import cairosvg
+from past.utils import old_div
 
 
 class QuestionBarcodeGen:
@@ -69,7 +69,6 @@ class QuestionBarcodeGen:
             width = float(bcode_raw.attrib["width"].replace("mm", ""))
             height = float(bcode_raw.attrib["height"].replace("mm", ""))
             img_h = height + 5
-            img.save("outcode_raw.svg")
             bcode_raw.tag = "g"
             bcode_raw.attrib["transform"] = "translate({}mm,0)".format(
                 old_div((img_w - width), 2.0)
@@ -97,7 +96,7 @@ class QuestionBarcodeGen:
             text_xml.attrib["y"] = f"{height + 2}mm"
             text_xml.attrib["font-size"] = "10"
             text_xml.attrib["font-family"] = "Verdana"
-            text_xml.text = code.split()[0]
+            text_xml.text = code
 
             if not self.suppress_code:
                 bcode_xml.append(bcode_raw)

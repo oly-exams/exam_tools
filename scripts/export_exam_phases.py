@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
-
+import os
+import sys
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
 sys.path.append(".")
@@ -27,8 +27,8 @@ django.setup()
 
 import json
 
-from ipho_exam.models import Exam
 from ipho_control.models import ExamPhase
+from ipho_exam.models import Exam
 
 
 def log(*args):
@@ -55,7 +55,7 @@ def export_exam_phase(phase, fields=fields_to_export):
 
 
 def export_exam_phases_for_exam(exam):
-    phases = ExamPhase.objects.filter(exam=exam).order_by("position").all()
+    phases = ExamPhase.objects.filter(exam=exam).all()
     data = [export_exam_phase(phase) for phase in phases]
     json.dump(data, sys.stdout, indent=2)
 

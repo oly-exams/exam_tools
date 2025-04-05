@@ -156,7 +156,7 @@ body { margin-bottom: 70px; }
   </div>
 </div>
 
-<div class="modal fade " id="feedback-modal" tabindex="-1">
+<div class="modal fade " id="feedback-modal" data-backdrop="static" data-keyboard=true tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -168,18 +168,14 @@ body { margin-bottom: 70px; }
           <div class="modal-body feedback"></div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            {% if not perms.ipho_core.is_organizer_admin %}
-              {% if question.check_feedback_editable %}
-                <button id="modal-form-submit" type="submit" class="btn btn-primary">Send feedback</button>
-              {% endif %}
+            {% if not perms.ipho_core.is_organizer_admin and question.check_feedback_editable %}
+              <button id="modal-form-submit" type="submit" class="btn btn-primary">Send feedback</button>
             {% endif %}
           </div>
       </form>
     </div>
   </div>
 </div>
-
-{% include "ipho_exam/partials/feedback_thread_modal.html" %}
 
 <div id="alerts-container">
     {% if warning %}
@@ -217,6 +213,7 @@ body { margin-bottom: 70px; }
                     <span class="label label-default">{{ orig_lang.tag|default:'' }}</span>{% endif %}
                   </a>
                   <a class="btn btn-default btn-success" target="_blank" href="{% url 'exam:pdf' question_id=question.pk lang_id=orig_lang.pk %}" title="View PDF"><i class="fa fa-fw fa-file-pdf-o"></i> PDF</a>
+                  {% if exam.has_solution %}<a class="btn btn-default btn-primary" target="_blank" href="{% url 'exam:pdf-solution' question_id=question.pk lang_id=orig_lang.pk %}" title="View PDF with solution"><i class="fa fa-lightbulb-o"></i> PDF (solution)</a>{% endif %}
                 </span>
                 </h4>
             </div>
@@ -389,10 +386,8 @@ body { margin-bottom: 70px; }
                 }
             });
 
-            {% include "ipho_exam/partials/feedback_thread.js" %}
-
             {% if exam and question %}
-            
+
             function update_feedback_numbers(){
               var url = "{% url 'exam:feedback-numbers' exam_id=exam.pk question_id=question.pk%}";
               $.ajax({
@@ -459,14 +454,13 @@ body { margin-bottom: 70px; }
             }
 
 
-            
+
             $('#feedback-modal').on('show.bs.modal', function (event) {
               {% include "ipho_exam/partials/stackable_modal_fix.js" %}
               var modal = $(this);
               var button = $(event.relatedTarget); // Button that triggered the modal
               var qml_id = button[0].id;
               load_feedbacks(modal, qml_id);
-              
             });
             $('#feedback-modal form').on('submit',function(evt) {
                 var form = evt.target;
@@ -489,6 +483,51 @@ body { margin-bottom: 70px; }
                     }
                 });
 
+            });
+
+            $('#feedback-modal').on('hide.bs.collapse','.feedback-thread', function(evt){
+              var a = evt.target;
+              $(a.parentElement).find('span.glyphicon')
+                                .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+            });
+            $('#feedback-modal').on('show.bs.collapse','.feedback-on-orig', function(evt){
+              var a = evt.target;
+              console.log(a);
+              console.log(a.parentElement);
+              $(a.parentElement).find('span.glyphicon')
+                                .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+            });
+            $('#feedback-modal').on('hide.bs.collapse','.feedback-on-orig', function(evt){
+              var a = evt.target;
+              $(a.parentElement).find('span.glyphicon')
+                                .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+            });
+            $('#feedback-modal').on('show.bs.collapse','.feedback-thread', function(evt){
+              var a = evt.target;
+              $(a.parentElement).find('span.glyphicon')
+                                .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+
+              var tid = $(a).data('fbid');
+              $.ajax({
+                  method: "GET",
+                  url: "{% url 'exam:feedback-thread' %}",
+                  data: {feedback_id:tid},
+                  dataType: "json",
+              }).done(function( data ) {
+                  $(a).html(data.text);
+                  a.querySelector('.comment-submit').onclick = function(evt) {
+                  c = a.querySelector('.comment-text');
+                  var text = a.querySelector('.comment-text').value;
+                  $.ajax({
+                    url: "{% url 'exam:feedback-thread' %}",
+                    type: 'POST',
+                    data: {feedback_id:tid, text: text},
+                  }).done(function(data){
+                    $(a.querySelector('.comment-area')).append(data.new_comment);
+                    a.querySelector('.comment-text').value = "";
+                  });
+                };
+              });
             });
 
 
@@ -514,6 +553,26 @@ body { margin-bottom: 70px; }
             });
 
             $('#feedback-modal').on('click','.feedback-status', function(evt){
+              evt.preventDefault();
+              var a = evt.target;
+              if($(a).hasClass('disabled')){return false}
+              var qml_id = document.getElementById('qml_id_div').className;
+              var modal = $('#feedback-modal');
+              if($(a).is("[href]")){
+                var url = $(a).attr('href');
+              }else {
+                var url = $(a).parent().attr('href');
+              }
+              $.ajax({
+                  url: url,
+                  type: 'POST',
+                  success: function(data) {
+                      load_feedbacks(modal, qml_id);
+                  }
+              });
+              return false;
+            });
+            $('#feedback-modal').on('click','.feedback-category', function(evt){
               evt.preventDefault();
               var a = evt.target;
               if($(a).hasClass('disabled')){return false}

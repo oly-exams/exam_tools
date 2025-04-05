@@ -1,6 +1,6 @@
 # pylint: disable=redefined-builtin
 
-from ipho_exam.models import Exam, Question, Language, VersionNode, TranslationNode
+from ipho_exam.models import Exam, Language, Question, TranslationNode, VersionNode
 
 from .base_data import BaseDataCreator
 

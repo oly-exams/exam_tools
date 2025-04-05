@@ -17,7 +17,7 @@
 
 from django.contrib import admin
 
-from .models import Voting, VotingChoice, CastedVote, VotingRight, VotingRoom
+from .models import CastedVote, Voting, VotingChoice, VotingRight, VotingRoom
 
 
 class VotingChoiceInline(admin.TabularInline):

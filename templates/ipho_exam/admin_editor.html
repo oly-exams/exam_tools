@@ -132,6 +132,7 @@ body { margin-bottom: 70px; }
       <div class="container">
         <div class="navbar-right">
             <a class="btn btn-success navbar-btn" target="_blank" href="{% url 'exam:pdf-version' question_id=question.pk lang_id=lang_id version_num=node_version %}"><i class="fa fa-fw fa-file-pdf-o"></i> View PDF</a>
+            {% if exam.has_solution %}<a class="btn btn-primary navbar-btn" target="_blank" href="{% url 'exam:pdf-solution-version' question_id=question.pk lang_id=lang_id version_num=node_version %}"><i class="fa fa-lightbulb-o"></i> PDF (solution)</a>{% endif %}
             {# <button type="button" class="btn btn-default navbar-btn"><i class="fa fa-fw fa-unlock"></i> Lock</button>#}
             {# <a type="submit" class="btn btn-primary navbar-btn" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node_version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> Accept</a>#}
             <a type="submit" class="btn btn-primary navbar-btn" href="{% url 'exam:admin-exam' exam_id=exam.pk %}" title="Close the exam editor"><i class="glyphicon glyphicon-ok"></i> Close</a>
@@ -165,7 +166,7 @@ body { margin-bottom: 70px; }
         CKEDITOR.plugins.addExternal( 'mathjax-mathquill', '{% static "ckeditor_plugins/mathjax-mathquill/" %}', 'plugin.js' );
 
         CKEDITOR.config.toolbar = [
-                [ 'Bold', 'Italic', 'Underline', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat', '-', 'Mathjax-mathquill', 'BulletedList', 'NumberedList', '-', 'BidiLtr', 'BidiRtl', '-', 'Source']
+                [ 'Bold', 'Italic', 'Underline', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat', '-', 'Mathjax-mathquill', 'BulletedList', 'NumberedList', '-', 'BidiLtr', 'BidiRtl', '-', 'Source', 'Styles']
             ];
         CKEDITOR.config.forcePasteAsPlainText = true;
         CKEDITOR.config.resize_enabled = false;
@@ -189,6 +190,11 @@ body { margin-bottom: 70px; }
         CKEDITOR.config.MathQuilljQuery = '{% static "jquery/js/jquery-1.11.2.min.js" %}';
         CKEDITOR.config.contentsCss = [ CKEDITOR.getUrl( 'contents.css' ), '{% static "noto/notosans.css" %}' ];
         CKEDITOR.addCss("body{font-family: Noto Sans;}");
+        CKEDITOR.stylesSet.add( 'my_styles', [
+            { name: 'Language: LTR', element: 'span', attributes: { 'class': 'lang-ltr' } },
+            // { name: 'Language: RTL', element: 'span', attributes: { 'class': 'lang-rtl' } },
+        ] );
+        CKEDITOR.config.stylesSet = 'my_styles';
 
         all_editors = new Array();
 
@@ -357,13 +363,20 @@ body { margin-bottom: 70px; }
                     url: href,
                     dataType: 'json',
                     success: function(data) {
-                        modal.data('block-id', block_id);
-                        modal.find('.modal-title').text(data['title']);
-                        modal.find('form').attr('action', href);
-                        modal.find('.modal-body').html(data['form']);
-                        modal.find('.block-content-editor').ckeditor();
-                        modal.find("[data-toggle=popover]").popover(); // activate popover
-                    },
+                        if (!data['success'] && data['edit_expired']) {
+                          modal.find('.modal-title').text(data['title']);
+                          modal.find('.modal-body').html('<div class="alert alert-danger alert-dismissible">'+data.message+'</div>');
+                          modal.find('.modal-footer').css('display', 'none');
+                        }
+                        else {
+                          modal.data('block-id', block_id);
+                          modal.find('.modal-title').text(data['title']);
+                          modal.find('form').attr('action', href);
+                          modal.find('.modal-body').html(data['form']);
+                          modal.find('.block-content-editor').ckeditor();
+                          modal.find("[data-toggle=popover]").popover(); // activate popover
+                        }
+                    }
                 });
 
                 // var modal = $(this);

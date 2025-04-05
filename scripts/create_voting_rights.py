@@ -27,8 +27,9 @@ import django
 
 django.setup()
 
-from ipho_core.models import Delegation
 from django.contrib.auth.models import User
+
+from ipho_core.models import Delegation
 from ipho_poll.models import VotingRight
 
 

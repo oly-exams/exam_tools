@@ -24,12 +24,13 @@ sys.path.append(".")
 import django
 
 django.setup()
-from django.conf import settings
-
-from django.core import serializers
-from ipho_exam.models import *
 import json
 from io import StringIO
+
+from django.conf import settings
+from django.core import serializers
+
+from ipho_exam.models import *
 
 
 def save(objs, stream):

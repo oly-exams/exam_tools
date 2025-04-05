@@ -25,10 +25,11 @@ import django
 django.setup()
 
 import csv
-from ipho_core.models import Delegation, User, Group, AutoLogin
+
+from ipho_core.models import Delegation, Group, User
 
 
-def main(input, autologins):
+def main(input):
     reader = csv.DictReader(input)
 
     delegations_group = Group.objects.get(name="Delegation")
@@ -50,10 +51,6 @@ def main(input, autologins):
         delegation.members.add(user)
         delegation.save()
 
-        if autologins:
-            autologin = AutoLogin(user=user)
-            autologin.save()
-
         print(row["Country code"], "...", "imported.")
 
 
@@ -64,12 +61,6 @@ if __name__ == "__main__":
         description="Import CSV to users and assign delegations"
     )
     parser.add_argument("file", type=argparse.FileType("rU"), help="Input CSV file")
-    parser.add_argument(
-        "--without_autologings",
-        dest="autologins",
-        action="store_false",
-        help="Discard autologin",
-    )
     args = parser.parse_args()
 
-    main(args.file, args.autologins)
+    main(args.file)

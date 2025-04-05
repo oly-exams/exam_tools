@@ -49,7 +49,7 @@
                 <td class="col-md-3">
                     <div class="btn-toolbar">
                         <span class="parent">
-                        <a class="btn btn-default" href="{% url 'poll:voting' voting_pk=voting.pk %}" title="details"><i class="fa fa-info fa-fw"></i></a >
+                        <a class="btn btn-default" href="{% url 'poll:voting' voting_pk=voting.pk %}" title="details (for organizers)"><i class="fa fa-info fa-fw"></i></a >
                         </span>
                         <span class="parent">
                         <a class="btn btn-warning" href="{% url 'poll:add-minutes' voting_pk=voting.pk minutes=1 %}" title="Add one minute">+1 min</a>
@@ -58,7 +58,7 @@
                         <a class="btn btn-success" href="{% url 'poll:close-voting' voting_pk=voting.pk %}" title="close vote"><i class="fa fa-check-square fa-fw"></i></a>
                         </span>
                         <span class="parent">
-                            <a class="btn btn-default" target="_blank" href="{% url 'poll:voting_large' voting_pk=voting.pk %}" title="fullscreen"><i class="fa fa-expand fa-fw" aria-hidden="true"></i></a >
+                            <a class="btn btn-default" target="_blank" href="{% url 'poll:voting_large' voting_pk=voting.pk %}" title="fullscreen (for audience)"><i class="fa fa-expand fa-fw" aria-hidden="true"></i></a >
                         </span>
 
 

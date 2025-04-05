@@ -29,7 +29,7 @@ import django
 django.setup()
 
 from django.db import models
-from django.db.models import Q, Count, Sum, Case, When
+from django.db.models import Case, Count, Q, Sum, When
 
 from ipho_exam.models import *
 

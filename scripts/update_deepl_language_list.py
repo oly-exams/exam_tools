@@ -16,11 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import os
+import sys
+
 # Imports the Deepl client library
 import deepl
-import sys
-import os
-
 
 raw_cred = sys.argv[1]
 # Instantiates a client

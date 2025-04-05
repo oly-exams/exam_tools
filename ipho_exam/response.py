@@ -16,17 +16,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import os
-import shutil
 import logging
-from tempfile import mkdtemp
+import os
 import re
-import pypandoc
+import shutil
+from tempfile import mkdtemp
+
 import latex2mathml.converter
-
-
-from django.http import HttpResponse
+import pypandoc
 from django.conf import settings
+from django.http import HttpResponse
 from django.utils.html import escape
 
 from . import tex

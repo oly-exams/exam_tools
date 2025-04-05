@@ -1,12 +1,13 @@
 {% autoescape off %}
 
 \documentclass[9pt,a4paper]{ipho2016}
-\usepackage{graphicx}
 \usepackage{array}
+\usepackage{graphicx}
 \usepackage{multirow}
 
 % PDF metadata
 \hypersetup{pdftitle={ {{ title }}}}
+
 \setmainfont[ Path = {{ STATIC_PATH }}/noto/,{% if font.font_bold %}BoldFont={{ font.font_bold }}, {% endif %}{% if font.font_italic %}ItalicFont={{ font.font_italic }}, {% endif %}{% if font.font_bolditalic %}BoldItalicFont={{ font.font_bolditalic }}, {% endif %}]{% templatetag openbrace %}{{ font.font_regular }}} %Calibri
 \setmainlanguage[{{ polyglossia_options|default:'' }}]{% templatetag openbrace %}{{ polyglossia }}}
 {% if font.cjk %}
@@ -27,7 +28,9 @@
 
 \nonstopmode
 
-
+%% These two commands prevent line breaks in math mode, which was a problem with RTL languages
+\relpenalty=10000
+\binoppenalty=10000
 
 {{ extraheader }}
 

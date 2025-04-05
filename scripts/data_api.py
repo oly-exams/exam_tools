@@ -1,14 +1,14 @@
-import subprocess
 import os
+import subprocess
 import sys
 
 sys.path.append(".")
 
-import datetime
 import argparse
-import contextlib
 import collections
+import contextlib
 import csv
+import datetime
 import itertools
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
@@ -29,11 +29,11 @@ with redirect_stdout(os.devnull):
     django.setup()
 
 import django.contrib.auth.models
+import django.core
+
 import ipho_core.models
 import ipho_exam.models
 import ipho_marking.models
-import django.core
-
 
 demo_input_folder = "data/demo_input"
 demo_output_folder = "data/demo"

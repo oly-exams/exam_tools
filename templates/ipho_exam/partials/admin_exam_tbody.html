@@ -46,27 +46,31 @@
                         <span class="label label-default">Proposal</span>
                     {% endif %}
                 </td>
-                <td><time datetime="{{ node.timestamp|date:"c" }}" data-format="YYYY MMM Do, h:mm:ss A"></td>
+                <td><time datetime="{{ node.timestamp|date:"c" }}" data-format="YYYY-MM-DD HH:mm:ss"></td>
                 <td>
                     <div class="btn-group">
                       {% if node.status == 'P' %}
                         <a class="btn btn-xs btn-warning" href="{% url 'exam:admin-editor' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Edit version"><i class="fa fa-pencil fa-fw"></i> edit</a>
                       {% endif %}
                       <a class="btn btn-xs btn-success" target="_blank" href="{% url 'exam:pdf-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="View PDF"><i class="fa fa-file-pdf-o fa-fw"></i> PDF</a>
+                      {% if exam.has_solution %}<a class="btn btn-xs btn-primary" target="_blank" href="{% url 'exam:pdf-solution-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="View PDF with solution"><i class="fa fa-lightbulb-o"></i> Solution</a>{% endif %}
                         <div class="btn-group">
                             <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">advanced <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a data-toggle="modal" data-target="#check-modal" data-remote="false" href="{% url 'exam:admin-check-points' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Check points"><i class="fa fa-check"></i> check points</a></li>                      
+                                <li><a data-toggle="modal" data-target="#check-modal" data-remote="false" href="{% url 'exam:admin-check-points' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Check points"><i class="fa fa-check"></i> check points</a></li>
                                 <li><a target="_blank" href="{% url 'exam:tex-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as TeX"><i class="fa fa-fw fa-download"></i> export TeX</a></li>
+                                {% if exam.has_solution %}<li><a target="_blank" href="{% url 'exam:tex-solution-version' question_id=question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as TeX"><i class="fa fa-fw fa-download"></i> export TeX (solution)</a></li>{% endif %}
                                 <li><a target="_blank" href="{% url 'exam:export-translation-version' question_id=node.question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as QML"><i class="fa fa-fw fa-download"></i> export QML</a></li>
                                 <li><a target="_blank" href="{% url 'exam:html-version' question_id=node.question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as HTML"><i class="fa fa-fw fa-download"></i> export HTML</a></li>
+                                {% if exam.has_solution %}<li><a target="_blank" href="{% url 'exam:html-solution-version' question_id=node.question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as HTML"><i class="fa fa-fw fa-download"></i> export HTML (solution)</a></li>{% endif %}
                                 <li><a target="_blank" href="{% url 'exam:odt-version' question_id=node.question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as ODT"><i class="fa fa-fw fa-download"></i> export ODT</a></li>
+                                {% if exam.has_solution %}<li><a target="_blank" href="{% url 'exam:odt-solution-version' question_id=node.question.pk lang_id=node.language.pk version_num=node.version %}" title="Export question as ODT"><i class="fa fa-fw fa-download"></i> export ODT (solution)</a></li>{% endif %}
                             </ul>
                         </div>
                       {% if node.status == 'P' %}
                         <a class="btn btn-xs btn-danger" data-toggle="modal" data-target="#delete-modal" data-remote="false" href="{% url 'exam:admin-delete-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Delete version"><i class="fa fa-trash-o"></i> delete</a>
-                        <a class="btn btn-xs btn-info" href="{% url 'exam:admin-accept-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> diff/accept</a>
+                        <a class="btn btn-xs btn-info diff-accept-button" href="{% url 'exam:admin-check-version-before-diff' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="glyphicon glyphicon-ok"></i> diff/accept</a>
                       {% endif %}
                       <div class="btn-group">
                           <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">PDF compare <span class="caret"></span>
@@ -77,8 +81,19 @@
                                   <li><a target="_blank" href="{% url 'exam:pdfdiff-version' question_id=question.pk lang_id=node.language.pk new_version_num=node.version old_version_num=cmp_node.version %}" title="View PDF diff"><i class="fa fa-file-pdf-o fa-fw"></i> old: v{{ cmp_node.version }} new: v{{ node.version }}</a></li>
                                 {% endif %}
                               {% endfor %}
-                          </ul>
-                      </div>
+                            </ul>
+                          </div>
+                          {% if exam.has_solution %}<div class="btn-group">
+                            <button type="button" class="btn btn-xs dropdown-toggle" data-toggle="dropdown">PDF compare (solution) <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                {% for cmp_node in question.versionnode_set.all %}
+                                  {% if cmp_node.version != node.version %}
+                                    <li><a target="_blank" href="{% url 'exam:pdfdiff-solution-version' question_id=question.pk lang_id=node.language.pk new_version_num=node.version old_version_num=cmp_node.version %}" title="View PDF diff"><i class="fa fa-file-pdf-o fa-fw"></i> old: v{{ cmp_node.version }} new: v{{ node.version }}</a></li>
+                                {% endif %}
+                              {% endfor %}
+                              </ul>
+                            </div>{% endif %}
                       {% if node.status == 'S' and exam_publishable %}
                         <a class="btn btn-xs btn-primary" data-toggle="modal" data-target="#publish-modal" data-remote="false" href="{% url 'exam:admin-publish-version' exam_id=exam.pk question_id=question.pk version_num=node.version %}" title="Show diff and accept"><i class="fa fa-play-circle"></i> publish</a>
                       {% endif %}

@@ -17,10 +17,9 @@
 
 # Django settings for exam_tools project.
 
-import subprocess
-
 # Import the OS module and work out our project's paths
 import os
+import subprocess
 
 # pylint: disable = consider-using-f-string
 
@@ -89,6 +88,9 @@ ADD_DELEGATION_WATERMARK = True
 # to facilitate sorting the printed pages
 ADD_DELEGATION_PRINT_BANNER = True
 
+# whether a cover page should be included in the exam (official prints)
+INCLUDE_COVER = True
+
 # Defines whether a QR code should be printed on the cover sheets
 CODE_ON_COVER_SHEET = False
 
@@ -97,6 +99,10 @@ NO_ANSWER_SHEETS = False
 
 # Defines wheter translated answer sheets are possible
 ONLY_OFFICIAL_ANSWER_SHEETS = False
+
+# Defines how many languages can be printed per participant
+ALLOW_ANSLANG_WITHOUT_QLANG = True
+MAX_NUMBER_LANGUAGES_PER_PPNT = 1
 
 # Defines whether the QR code should *not* be printed on the student sheets
 # (Answer sheets and Working sheets)
@@ -113,8 +119,20 @@ SIGN_OFF_FINAL_MARKS = False
 # Defines wheter negative marks are allowed
 ALLOW_NEGATIVE_MARKS = False
 
+# Defines wheter marks can be None (in official and delegation marking)
+ALLOW_MARKS_NONE = False
+
+# Shows the participant names to markers if True and only the codes if False
+SHOW_PARTICIPANT_NAME_TO_MARKERS = True
+
 # Shows the remaining delegations in voting fullscreen view.
 VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
+
+# Defines if solutions are translatable
+TRANSLATABLE_SOLUTIONS = False
+
+# Maximum size for the uploaded figures in MB
+MAX_FIGURE_UPLOAD_SIZE_MB = 10
 
 # Activates autotranslate
 AUTO_TRANSLATE = False
@@ -231,8 +249,8 @@ AUTO_TRANSLATE_LANGUAGES = [
     {"language": "ps", "name": "Pashto"},
     {"language": "fa", "name": "Persian"},
     {"language": "pl", "name": "Polish"},
-    {"language": "pt-PT", "name": "Portuguese"},
-    {"language": "pt-BR", "name": "Portuguese (Brazilian)"},
+    {"language": "pt-PT", "name": "Portuguese (Portugal)"},
+    {"language": "pt-BR", "name": "Portuguese (Brazil)"},
     {"language": "pa", "name": "Punjabi"},
     {"language": "ro", "name": "Romanian"},
     {"language": "ru", "name": "Russian"},
@@ -443,7 +461,7 @@ PRINTER_QUEUES = {
     # },
     "generic.printer-1": {
         "name": "Generic printer",
-        "host": "",
+        "host": "localhost",
         "queue": "printer-1",
         "auth_token": "",
         "opts": {"Duplex": "None", "ColourModel": "Colour", "Staple": "1PLU"},
@@ -564,10 +582,7 @@ MIDDLEWARE = (
     "ipho_exam.middleware.IphoExamExceptionsMiddleware",
 )
 
-AUTHENTICATION_BACKENDS = (
-    "ipho_core.backends.TokenLoginBackend",
-    "django.contrib.auth.backends.ModelBackend",
-)
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
 ROOT_URLCONF = "exam_tools.urls"
 

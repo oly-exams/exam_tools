@@ -7,8 +7,8 @@ Note that due to avoiding 'problematic' characters, the actual number of bytes
 will be slightly lower than the target value.
 """
 
-import sys
 import secrets
+import sys
 
 BLOCKED_CHARACTERS = "0O1Il-_"
 

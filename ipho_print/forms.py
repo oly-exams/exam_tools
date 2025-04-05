@@ -18,13 +18,11 @@
 import os
 import random
 
+from crispy_forms.bootstrap import FormActions
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Field, Layout, Submit
 from django import forms
 from django.core.exceptions import ValidationError
-
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-from crispy_forms.layout import Layout, Field
-from crispy_forms.bootstrap import FormActions
 
 from . import printer
 

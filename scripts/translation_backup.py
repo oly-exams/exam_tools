@@ -20,18 +20,18 @@
 import os
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "exam_tools.settings"
-import sys
 import datetime
+import sys
 
 import django
 
 django.setup()
 
-from django.utils import timezone
 from django.core import serializers
+from django.utils import timezone
 
-from ipho_exam.models import *
 from ipho_exam import qml
+from ipho_exam.models import *
 
 TIMESTP_FORMAT = "%Y%m%d%H%M%S"
 

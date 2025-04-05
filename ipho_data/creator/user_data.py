@@ -1,10 +1,9 @@
 import string
-import iso3166
 
+import iso3166
 from django.contrib.auth.models import Permission
 
-from ipho_core.models import Group, User
-from ipho_core.models import Delegation, AutoLogin
+from ipho_core.models import Delegation, Group, User
 from ipho_poll.models import VotingRight
 
 from .base_data import BaseDataCreator
@@ -40,10 +39,11 @@ class UserDataCreator(BaseDataCreator):
         fieldnames = ["country_name", "country_code", "voting_power"]
         with self._pw_creator.create_pw_gen(filename_csv, pw_strategy) as pw_gen:
             for deleg_data in self.read_csv(filename_csv, fieldnames):
-                if enforce_iso3166 and not deleg_data.country_code in ["OLY", "ORG"]:
-                    self._enforce_iso3166(
-                        deleg_data.country_code, deleg_data.country_name
-                    )
+                self._check_iso3166(
+                    deleg_data.country_code,
+                    deleg_data.country_name,
+                    enforce=enforce_iso3166,
+                )
 
                 country_name, country_code, voting_power = deleg_data
                 username = country_code
@@ -58,11 +58,6 @@ class UserDataCreator(BaseDataCreator):
                     group="Delegation",
                 )
 
-                if not hasattr(user, "autologin"):
-                    autologin = AutoLogin(user=user)
-                    autologin.save()
-                    self.log("Autologin created")
-
                 delegation.members.add(user)
                 delegation.save()
 
@@ -73,8 +68,7 @@ class UserDataCreator(BaseDataCreator):
         fieldnames = ["country_code"]
         with self._pw_creator.create_pw_gen(filename_csv, pw_strategy) as pw_gen:
             for deleg_data in self.read_csv(filename_csv, fieldnames):
-                if enforce_iso3166:
-                    self._enforce_iso3166(deleg_data.country_code)
+                self._check_iso3166(deleg_data.country_code, enforce=enforce_iso3166)
 
                 country_code = deleg_data.country_code
                 username = country_code + "-Examsite"
@@ -86,10 +80,6 @@ class UserDataCreator(BaseDataCreator):
                     set_pw_if_exists=set_pw_if_exists,
                     group="Delegation Examsite Team",
                 )
-                if not hasattr(user, "autologin"):
-                    autologin = AutoLogin(user=user)
-                    autologin.save()
-                    self.log("Autologin created")
 
                 delegation = Delegation.objects.get(name=country_code)
                 delegation.members.add(user)
@@ -171,11 +161,17 @@ class UserDataCreator(BaseDataCreator):
         return delegation
 
     @staticmethod
-    def _enforce_iso3166(country_code, country_name=None):
+    def _check_iso3166(country_code, country_name=None, enforce=True):
+        if country_code in ["OLY", "ORG"]:  # special codes
+            return
         if country_code not in iso3166.countries_by_alpha3:
-            raise ValueError(
+            err = ValueError(
                 f"{country_code} is not a valid iso3166 3-letter shortcut, valid options are {list(iso3166.countries_by_alpha3)}"
             )
+            if enforce:
+                raise err
+            print(err)
+            return
         if country_name is None:
             return
 
@@ -192,6 +188,9 @@ class UserDataCreator(BaseDataCreator):
                     iso3166.countries_by_name,
                 )
             )
-            raise ValueError(
+            err = ValueError(
                 f"{country_name} is not a valid iso3166 country name, did you mean one of {suggestions}"
             )
+            if enforce:
+                raise err
+            print(err)
