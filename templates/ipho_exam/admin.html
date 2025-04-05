@@ -207,7 +207,7 @@ $(function() {
                     if (data['success']) {
                         update_questions(tid, true);
                     } else {
-                        alert('An error occured.');
+                        alert(data['message']);
                     }
                 });
             });

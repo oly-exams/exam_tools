@@ -2028,6 +2028,15 @@ def admin_new_version(request, exam_id, question_id):
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
+    # assert version before is no more editable
+    if node.version > 0 and node.status == "P":
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "The previous version needs to be staged or published before creating a new version.",
+            }
+        )
+
     if lang.versioned:  ## make new version and increase version number
         node.pk = None
         node.tag = None
@@ -2562,8 +2571,11 @@ def admin_editor(request, exam_id, question_id, version_num):
             VersionNode, question=question, language=lang, version=version_num
         )
         node_version = node.version
+
+        # assert version is editable, otherwise redirect to exam management
         if node.status != "P":
-            raise RuntimeError("Can only edit questions with `Proposal` status.")
+            return redirect("exam:admin")
+
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
         node_version = 0
@@ -2589,6 +2601,17 @@ def admin_editor(request, exam_id, question_id, version_num):
     return render(request, "ipho_exam/admin_editor.html", context)
 
 
+def stale_edit_request_json_feedback():
+    return JsonResponse(
+        {
+            "success": False,
+            "edit_expired": True,
+            "title": "Error: Can only edit questions in 'Proposal' status.",
+            "message": "This question might have been staged or published in the meantime. Please return to <a href='/exam/admin'>Exam Management</a>.",
+        }
+    )
+
+
 @permission_required("ipho_core.can_edit_exam")
 def admin_editor_block(request, exam_id, question_id, version_num, block_id):
     if not is_ajax(request):
@@ -2607,8 +2630,9 @@ def admin_editor_block(request, exam_id, question_id, version_num, block_id):
         node = get_object_or_404(
             VersionNode, question=question, language=lang, version=version_num
         )
+        # assert version is editable
         if node.status != "P":
-            raise RuntimeError("Can only edit questions with `Proposal` status.")
+            return stale_edit_request_json_feedback()
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
@@ -2682,8 +2706,10 @@ def admin_editor_delete_block(request, exam_id, question_id, version_num, block_
         node = get_object_or_404(
             VersionNode, question=question, language=lang, version=version_num
         )
+        # assert version is editable
         if node.status != "P":
-            raise RuntimeError("Can only edit questions with `Proposal` status.")
+            return stale_edit_request_json_feedback()
+
     else:
         node = get_object_or_404(TranslationNode, question=question, language=lang)
 
