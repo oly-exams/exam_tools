@@ -54,8 +54,9 @@ def main(flush=False):
     if flush or argv_flush_confirmed():
         print("Flushing the database...")
         from django.core.management import call_command
+
         call_command("flush", interactive=False)
- 
+
     set_up_basic_test_database()
 
 
