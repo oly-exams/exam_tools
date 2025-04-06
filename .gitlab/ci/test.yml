@@ -3,6 +3,8 @@ test:pre-commit:
     needs: ["build:docker-images"]
     interruptible: true
     image: docker
+    variables:
+        REGISTRY: "registry.gitlab.com/oly-exams/exam_tools"
     before_script: |
         docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
     script: |
