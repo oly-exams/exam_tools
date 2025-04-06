@@ -1,6 +1,6 @@
 test:pre-commit:
     stage: test
-    needs: ["build"]
+    needs: ["build:docker-images"]
     interruptible: true
     image: docker
     before_script: |
