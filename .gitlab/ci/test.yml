@@ -45,7 +45,7 @@ test:docker-compose-a-dev:
     before_script: |
         docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
     script: |
-        docker compose -f docker/docker-compose-a-dev.yml up --build --wait
+        COMPOSE_BAKE=true docker compose -f docker/docker-compose-a-dev.yml up --build --wait
         docker compose -f docker/docker-compose-a-dev.yml down --volumes
 
 # test:testing-cypress-batch-1:
