@@ -1,20 +1,3 @@
-# Exam Tools
-#
-# Copyright (C) 2014 - 2023 Oly Exams Team
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 #!/usr/bin/env python
 
 import argparse
@@ -91,7 +74,7 @@ if __name__ == "__main__":
 
     def builder():
         config_file_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "mkdocs.yml"
+            os.path.dirname(os.path.dirname(__file__)), "mkdocs.yml"
         )
         cfg = mk_config.Config(
             schema=mk_config.defaults.get_schema(), config_file_path=config_file_path

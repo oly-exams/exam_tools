@@ -65,7 +65,7 @@
       {% endif %}
       {% endblock %}
       {% if DEMO_MODE %}
-      <div class="alert alert-info" role="alert"><div class="container"><strong>DEMO VERSION.</strong> This is a demo version of the Exam Tools. (v{{ VERSION }} - {{ VERSION_DATE }})</div></div>
+      <div class="alert alert-info" role="alert"><div class="container"><strong>DEMO VERSION.</strong> This is a demo version of the Exam Tools. ({{ VERSION_DATE }})</div></div>
       {% endif %}
       <!-- Static navbar -->
       <div class="navbar navbar-default" role="navigation">
@@ -250,7 +250,7 @@
       <div class="footer">
           <hr />
           <div class="container">
-              <p class="text-muted">Copyright © 2014 - 2023 <a href="http://oly-exams.org/">Oly Exams Team</a>. Version {{ VERSION }} - {{ VERSION_DATE }}. <a href="https://gitlab.com/oly-exams/exam_tools">Source</a></p>
+              <p class="text-muted">Copyright © 2014 - {% now "Y" %} <a href="http://oly-exams.org/">Oly Exams Team</a>. Version from {{ VERSION_DATE }}. <a href="https://gitlab.com/oly-exams/exam_tools">Source</a></p>
           </div>
       </div>
     <script src="{% static "jquery/js/jquery-1.11.2.min.js" %}"></script>

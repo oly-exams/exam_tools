@@ -1,20 +1,3 @@
-# Exam Tools
-#
-# Copyright (C) 2014 - 2023 Oly Exams Team
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 # pylint: disable=no-member, too-many-lines
 
 # mskoenz: I added lang, data in Object ctor as None
@@ -29,6 +12,7 @@ from decimal import Decimal
 from io import StringIO
 from xml.etree import ElementTree as ET
 
+import webcolors
 from django.conf import settings
 from future import standard_library
 
@@ -822,7 +806,19 @@ class QMLparagraphcolored(QMLparagraph):
         res = ""
         if self.attributes.get("exclude_in_solution") == "1":
             res += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
-        res += "{\\color{" + self.attributes.get("color", "") + "}"
+
+        col = self.attributes.get("color", "black")
+        if col == "":
+            col = "black"
+        try:
+            if col[0] == "#":
+                col = webcolors.normalize_hex(col)
+            else:
+                col = webcolors.name_to_hex(col)
+        except ValueError:
+            col = "#000000"  # fallback: just take black to avoid crashing
+
+        res += "{\\color[HTML]{" + col[1:] + "}"
         return res
 
     def tex_end(self):
@@ -1127,6 +1123,7 @@ class QMLenumerate(QMLbase):
         if self.attributes.get("exclude_in_solution") == "1":
             res += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
         res += "\\begin{enumerate}\n"
+        return res
 
     def tex_end(self):
         res = "\\end{enumerate}\n\n"
