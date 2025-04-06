@@ -1,9 +1,3 @@
-# test:pre-commit:
-#     extends: .test:pull_and_run
-#     variables:
-#         ALL_SERVICE_NAME: pre-commit
-#         OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/pre-commit-diff.yml
-
 test:pre-commit:
     stage: test
     needs: ["build"]
