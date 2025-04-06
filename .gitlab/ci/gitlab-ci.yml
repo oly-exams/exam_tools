@@ -3,6 +3,7 @@ services:
     - docker:dind
 
 stages:
+    - pre-build
     - build
     - test
     - post-test
