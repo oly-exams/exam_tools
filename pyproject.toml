@@ -1,8 +1,10 @@
-[tool.poetry]
+[project]
 name = "exam_tools"
 version = "0.1.0"
 description = ""
-authors = ["OlyExams Team <thomas.uehlinger@oly-exams.org>"]
+authors = [
+    {name = "OlyExams Team", email = "thomas.uehlinger@oly-exams.org"}
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -53,7 +55,7 @@ pre-commit = "~=2.20"
 pylint-django = "~=2.5"
 
 [tool.poetry.group.test.dependencies]
-pytest-django = { git = "https://github.com/pytest-dev/pytest-django", rev = "53373573f905ec5e0ec5786f49efdcdca5ae41fd" }
+pytest-django = ">= 4.6.0, <5"
 pytest = ">= 7.2.0, <8"
 
 [build-system]

@@ -30,6 +30,13 @@ COPY requirements_dev.txt /requirements_dev.txt
 RUN --mount=type=cache,target=/home/container/.cache/pip \
     python -m pip wheel -r requirements_dev.txt --wheel-dir=/wheelhouse
 
+FROM wheelhouse-builder-base AS wheelhouse-builder-test
+
+COPY requirements_test.txt /requirements_test.txt
+
+RUN --mount=type=cache,target=/home/container/.cache/pip \
+    python -m pip wheel -r requirements_test.txt --wheel-dir=/wheelhouse
+
 FROM $DOCKER_PYTHON_IMAGE AS python-base
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -108,6 +115,15 @@ RUN git init && pre-commit install-hooks
 COPY --chown=5000:5000 . .
 
 CMD ["pre-commit", "run", "--all-files"]
+
+FROM django-server-nosrc AS pytest
+
+RUN --mount=type=bind,target=/tmp/wheelhouse,from=wheelhouse-builder-test,source=/wheelhouse \
+    python3 -m pip install --no-index --user /tmp/wheelhouse/*.whl
+
+COPY --chown=5000:5000 . .
+
+CMD ["pytest"]
 
 FROM django-server-nosrc AS django-server
 
