@@ -13,7 +13,6 @@ from io import StringIO
 from xml.etree import ElementTree as ET
 
 import webcolors
-
 from django.conf import settings
 from future import standard_library
 
