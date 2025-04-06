@@ -309,7 +309,21 @@ urlpatterns = [
         views.figure_export,
         name="figure-lang-export",
     ),
-    re_path(r"^admin/?$", views.admin_list, name="admin"),
+    path(
+        "admin/",
+        views.admin,
+        name="admin",
+    ),
+    path(
+        "admin/<int:exam_id>/",
+        views.admin,
+        name="admin-exam",
+    ),
+    path(
+        "admin/exam-detail/<int:exam_id>/",
+        views.admin_exam_detail,
+        name="admin-exam-detail",
+    ),
     path(
         "admin/<int:exam_id>/question/add",
         views.admin_add_question,

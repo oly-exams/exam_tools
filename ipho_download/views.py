@@ -13,6 +13,7 @@ from django.http import Http404, HttpResponse, HttpResponseNotModified, JsonResp
 from django.shortcuts import render
 from django.utils.cache import patch_response_headers
 
+from ipho_core.models import Delegation
 from ipho_download.forms import NewDirectoryForm, NewFileForm
 
 MEDIA_ROOT = getattr(settings, "MEDIA_ROOT")
@@ -60,10 +61,39 @@ def main(
     if not os.path.exists(path):
         raise Http404("File not found.")
 
+    # Needed to check which folders the user should have access to
+    delegation_private_dirs = [
+        delegation.name + "_private" for delegation in list(Delegation.objects.all())
+    ]
+    print([delegation.name for delegation in list(Delegation.objects.all())])
+    is_admin = "ipho_core.is_organizer_admin" in request.user.get_all_permissions()
+    # Create private folder for delegations if they don't exist yet
+    if is_admin:
+        for delegation in list(Delegation.objects.all()):
+            os.makedirs(
+                os.path.join(
+                    basedir, "delegations_private_dirs", delegation.name + "_private"
+                ),
+                exist_ok=True,
+            )
+
     dir_form = NewDirectoryForm()
     file_form = NewFileForm()
 
     if type_ == "f":
+        # Check if user has access to the file
+        if any(
+            path_subdir in delegation_private_dirs for path_subdir in path.split("/")
+        ):
+            if (
+                not any(
+                    path_subdir == str(request.user.username) + "_private"
+                    for path_subdir in path.split("/")
+                )
+                and not is_admin
+            ):
+                raise Http404("No access to this resource.")
+
         if os.path.isdir(path):
             # if a directory is requested for download, raise a 404.
             # in the future, we might want to zip of the directory and serve it for download
@@ -84,9 +114,39 @@ def main(
         return res
 
     flist = []
+    if os.path.normpath(path) == os.path.normpath(basedir) and os.path.exists(
+        os.path.join(
+            basedir, "delegations_private_dirs", str(request.user.username) + "_private"
+        )
+    ):
+        flist.append(
+            (
+                "folder",
+                "d",
+                str(request.user.username) + "_private",
+                os.path.join(
+                    "delegations_private_dirs", str(request.user.username) + "_private"
+                ),
+                None,
+                None,
+            )
+        )
     for fname in os.listdir(path):
-        if fname[0] == ".":
+        if fname[0] == "." or (fname == "delegations_private_dirs" and not is_admin):
             continue
+
+        # Check if file or directory should be displayed to the user
+        if "delegations_private_dirs" in path:
+            if (
+                not fname == str(request.user.username) + "_private"
+                and not any(
+                    path_subdir == str(request.user.username) + "_private"
+                    for path_subdir in path.split("/")
+                )
+                and not is_admin
+            ):
+                continue
+
         fullpath = os.path.join(path, fname)
         fpath = os.path.relpath(fullpath, basedir)
         fttype = "f"
