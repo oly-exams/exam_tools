@@ -3,10 +3,12 @@ services:
     - docker:dind
 
 stages:
-    - pre-build
     - build
     - test
     - post-test
+    - pre-build-old
+    - build-old
+    - test-old
 
 variables:
     # directories

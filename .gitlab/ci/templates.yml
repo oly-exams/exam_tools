@@ -1,5 +1,5 @@
 .build:build_cached_push:
-    stage: build
+    stage: build-old
     # build will not be spawned every time, dont interrupt
     interruptible: false
     variables:
@@ -31,7 +31,7 @@
         - docker push $IMG
 
 .test:pull_and_run:
-    stage: test
+    stage: test-old
     #if we push faster than CI runs, kill old pipeline jobs
     interruptible: true
     variables:
