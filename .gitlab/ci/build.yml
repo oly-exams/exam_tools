@@ -1,6 +1,6 @@
-pre-build:oly-python-deps:
+build:oly-python-deps:
     extends: .build:build_cached_push
-    # stage: "pre-build"
+    stage: "build"
     needs: []
     variables:
         SERVICE_NAME: oly-python-deps
@@ -13,6 +13,7 @@ pre-build:oly-python-deps:
 
 build:django-server:
     extends: .build:build_cached_push
+    needs: ["build:oly-python-deps"]
     variables:
         SERVICE_NAME: django-server
         BUILD_DEPENDENCY: oly-python-deps
@@ -27,6 +28,7 @@ build:django-server:
 
 build:celery-worker:
     extends: .build:build_cached_push
+    needs: ["build:oly-python-deps"]
     variables:
         SERVICE_NAME: celery-worker
         BUILD_DEPENDENCY: oly-python-deps
@@ -39,6 +41,7 @@ build:celery-worker:
 
 build:testing-cypress:
     extends: .build:build_cached_push
+    needs: ["build:oly-python-deps"]
     variables:
         SERVICE_NAME: testing-cypress
     rules:

@@ -1,5 +1,5 @@
 test:pre-commit:
-    # stage: test
+    stage: test
     needs: ["build:docker-images"]
     interruptible: true
     image: docker
@@ -11,7 +11,7 @@ test:pre-commit:
         docker run ${REGISTRY}/pre-commit:${CI_COMMIT_SHA}-untested
 
 test:pytest:
-    # stage: test
+    stage: test
     needs: ["build:docker-images"]
     interruptible: true
     image: docker
