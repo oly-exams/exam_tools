@@ -1,35 +1,20 @@
 build:docker-images:
   stage: build
-  interruptible: false
-
+  needs: []
+  interruptible: true
   image: docker
 
   variables:
-    DOCKER_CACHE: "no"
-    DOCKER_LAYER_CACHE: "no"
-    DOCKER_BUILDKIT: "1"
-
-    # technical git variables
-    GIT_DEPTH: 1 # (default=50) we need the previous commit for pre-commit
-    REGISTRY: "registry.gitlab.com/oly-exams/exam_tools"
+    REGISTRY: "registry.gitlab.com/oly-exams/exam_tools/"
 
   before_script: |
     docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
 
   script: |
+    REGISTRY=${REGISTRY} TAG=${CI_COMMIT_SHA}-untested docker buildx bake -f docker/bake.hcl --push
 
-    for stage_name in 'pre-commit' 'django-server' 'celery-worker' 'nginx-with-static'; do
-      docker buildx build --push -t ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested \
-      --cache-to type=inline \
-      --cache-from type=registry,ref=${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested \
-      -f docker/Dockerfile --target ${stage_name} .
-
-      docker tag ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested ${REGISTRY}/${stage_name}:${CI_COMMIT_REF_SLUG}-untested
-      docker push ${REGISTRY}/${stage_name}:${CI_COMMIT_REF_SLUG}-untested
-    done
-
-post-test:docker-images:
-  stage: post-test
+push:docker-images:
+  stage: push
   interruptible: false
 
   image: docker
@@ -37,7 +22,7 @@ post-test:docker-images:
   variables:
     # technical git variables
     GIT_DEPTH: 1 # (default=50) we need the previous commit for pre-commit
-    REGISTRY: "registry.gitlab.com/oly-exams/exam_tools"
+    REGISTRY: "registry.gitlab.com/oly-exams/exam_tools/"
 
   before_script: |
     docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -45,11 +30,6 @@ post-test:docker-images:
   script: |
 
     for stage_name in 'django-server' 'celery-worker' 'nginx-with-static'; do
-      docker pull ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested
-
-      docker tag ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}
-      docker push ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}
-
-      docker tag ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested ${REGISTRY}/${stage_name}:${CI_COMMIT_REF_SLUG}
-      docker push ${REGISTRY}/${stage_name}:${CI_COMMIT_REF_SLUG}
+      docker buildx imagetools create --tag ${REGISTRY}${stage_name}:${CI_COMMIT_SHA} ${REGISTRY}${stage_name}:${CI_COMMIT_SHA}-untested
+      docker buildx imagetools create --tag ${REGISTRY}${stage_name}:${CI_COMMIT_REF_SLUG} ${REGISTRY}${stage_name}:${CI_COMMIT_SHA}-untested
     done

@@ -1,6 +1,7 @@
-pre-build:oly-python-deps:
+build:oly-python-deps:
     extends: .build:build_cached_push
-    stage: pre-build
+    stage: "build"
+    needs: []
     variables:
         SERVICE_NAME: oly-python-deps
     rules:
@@ -10,21 +11,9 @@ pre-build:oly-python-deps:
             - .gitlab/ci/build.yml
             - requirements.txt
 
-build:testing-pytest:
-    extends: .build:build_cached_push
-    variables:
-        SERVICE_NAME: testing-pytest
-        BUILD_DEPENDENCY: oly-python-deps
-    rules:
-        - if: '$DOCKER_CACHE == "no"'
-        - if: '$IMG_NAME != $IMG_COMPARE'
-        - changes:
-            - .gitlab/ci/build.yml
-            - requirements.txt
-            - requirements_test.txt
-
 build:django-server:
     extends: .build:build_cached_push
+    needs: ["build:oly-python-deps"]
     variables:
         SERVICE_NAME: django-server
         BUILD_DEPENDENCY: oly-python-deps
@@ -39,6 +28,7 @@ build:django-server:
 
 build:celery-worker:
     extends: .build:build_cached_push
+    needs: ["build:oly-python-deps"]
     variables:
         SERVICE_NAME: celery-worker
         BUILD_DEPENDENCY: oly-python-deps
@@ -51,6 +41,7 @@ build:celery-worker:
 
 build:testing-cypress:
     extends: .build:build_cached_push
+    needs: ["build:oly-python-deps"]
     variables:
         SERVICE_NAME: testing-cypress
     rules:

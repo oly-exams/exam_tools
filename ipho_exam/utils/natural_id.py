@@ -530,7 +530,7 @@ ADJ_LIST = [
     "pretend",
     "prize",
     "resident",
-]  # yapf:disable
+]
 
 NOUN_LIST = [
     "people",
@@ -2055,7 +2055,7 @@ NOUN_LIST = [
     "wake",
     "wrap",
     "yesterday",
-]  # yapf:disable
+]
 
 
 def generate_id():

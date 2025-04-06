@@ -30,6 +30,13 @@ COPY requirements_dev.txt /requirements_dev.txt
 RUN --mount=type=cache,target=/home/container/.cache/pip \
     python -m pip wheel -r requirements_dev.txt --wheel-dir=/wheelhouse
 
+FROM wheelhouse-builder-base AS wheelhouse-builder-test
+
+COPY requirements_test.txt /requirements_test.txt
+
+RUN --mount=type=cache,target=/home/container/.cache/pip \
+    python -m pip wheel -r requirements_test.txt --wheel-dir=/wheelhouse
+
 FROM $DOCKER_PYTHON_IMAGE AS python-base
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -109,6 +116,16 @@ COPY --chown=5000:5000 . .
 
 CMD ["pre-commit", "run", "--all-files"]
 
+FROM django-server-nosrc AS pytest
+
+RUN --mount=type=bind,target=/tmp/wheelhouse,from=wheelhouse-builder-test,source=/wheelhouse \
+    python3 -m pip install --no-index --user /tmp/wheelhouse/*.whl
+
+COPY --chown=5000:5000 . .
+
+ENTRYPOINT ["pytest"]
+CMD ["test/ipho_exam"]
+
 FROM django-server-nosrc AS django-server
 
 COPY --chown=5000:5000 . .
@@ -116,6 +133,12 @@ COPY --chown=5000:5000 . .
 EXPOSE 8001
 
 CMD /bin/sh -c "python docker/wait_for/wait_for_postgres_60.py && python manage.py migrate && uwsgi --ini uwsgi.ini  --socket :8001"
+
+FROM django-server AS django-server-test
+
+ENV DJANGO_SETTINGS_MODULE=exam_tools.settings_testing
+
+CMD /bin/sh -c "python manage.py migrate && python manage.py test"
 
 FROM django-server AS static-provider
 

@@ -10,29 +10,41 @@ test:pre-commit:
     script: |
         docker run ${REGISTRY}/pre-commit:${CI_COMMIT_SHA}-untested
 
+test:pytest:
+    stage: test
+    needs: ["build:docker-images"]
+    interruptible: true
+    image: docker
+    variables:
+        REGISTRY: "registry.gitlab.com/oly-exams/exam_tools"
+    before_script: |
+        docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    script: |
+        docker run ${REGISTRY}/pytest:${CI_COMMIT_SHA}-untested
+
 test:django-server:
     extends: .test:pull_and_run
+    needs: ["build:docker-images"]
+    interruptible: true
+    image: docker
     variables:
-        ALL_SERVICE_NAME: django-server
-        OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/django-server-test.yml
-    artifacts:
-        when: always
-        reports:
-            junit: unittest_reports/*.xml
+        REGISTRY: "registry.gitlab.com/oly-exams/exam_tools"
+    before_script: |
+        docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    script: |
+        docker run ${REGISTRY}/django-server-test:${CI_COMMIT_SHA}-untested
 
 test:docker-a-dev-setup:
     extends: .test:pull_and_run
+    needs: [
+        "build:django-server",
+        "build:celery-worker",
+        "build:testing-cypress",
+    ]
     variables:
         COMPOSE_FILE: a-dev-compose.sh
         ALL_SERVICE_NAME: django-server postgres rabbitmq celery-worker
         OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/a-dev-test.yml
-
-test:testing-pytest:
-    extends: .test:pull_and_run
-    variables:
-        ALL_SERVICE_NAME: testing-pytest
-        OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/pre-commit-diff.yml
-
 
 # test:testing-cypress-batch-1:
 #     extends: .test:pull_and_run
@@ -102,6 +114,11 @@ test:testing-pytest:
 
 test:testing-ibo-data:
     extends: .test:pull_and_run
+    needs: [
+        "build:django-server",
+        "build:celery-worker",
+        "build:testing-cypress",
+    ]
     variables:
         ALL_SERVICE_NAME: django-server postgres rabbitmq celery-worker testing-cypress
         OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/a-dev.yml $DOCKER_DIR/overwrite/testing-ibo-data.yml

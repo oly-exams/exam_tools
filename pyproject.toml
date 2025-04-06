@@ -49,14 +49,13 @@ dependencies = [
 ]
 
 [tool.poetry.group.dev.dependencies]
-yapf = "~=0.32"
 pylint = "~=2.15"
 docker = "~=6.0"
-pre-commit = "~=2.20"
+pre-commit = "~=4.0"
 pylint-django = "~=2.5"
 
 [tool.poetry.group.test.dependencies]
-pytest-django = { git = "https://github.com/pytest-dev/pytest-django", rev = "53373573f905ec5e0ec5786f49efdcdca5ae41fd" }
+pytest-django = ">= 4.6.0, <5"
 pytest = ">= 7.2.0, <8"
 
 [build-system]

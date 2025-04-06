@@ -1,5 +1,6 @@
 .build:build_cached_push:
     stage: build
+    needs: ["pre-build:oly-python-deps"]
     # build will not be spawned every time, dont interrupt
     interruptible: false
     variables:
