@@ -1,10 +1,10 @@
 # Build from the repository root with 'docker buildx bake -f docker/bake.hcl'
 
 variable "TAG" {
-    default = "local-dev"
+    default = "latest"
 }
 variable "REGISTRY" {
-    default = "registry.gitlab.com/oly-exams/exam_tools"
+    default = ""
 }
 
 group "default" {
@@ -15,29 +15,29 @@ target "django-server" {
     context = "."
     dockerfile = "docker/Dockerfile"
     target = "django-server"
-    tags = ["${REGISTRY}/django-server:${TAG}"]
+    tags = ["${REGISTRY}django-server:${TAG}"]
 }
 target "celery-worker" {
     context = "."
     dockerfile = "docker/Dockerfile"
     target = "celery-worker"
-    tags = ["${REGISTRY}/celery-worker:${TAG}"]
+    tags = ["${REGISTRY}celery-worker:${TAG}"]
 }
 target "nginx-with-static" {
     context = "."
     dockerfile = "docker/Dockerfile"
     target = "nginx-with-static"
-    tags = ["${REGISTRY}/nginx-with-static:${TAG}"]
+    tags = ["${REGISTRY}nginx-with-static:${TAG}"]
 }
 target "pre-commit" {
     context = "."
     dockerfile = "docker/Dockerfile"
     target = "pre-commit"
-    tags = ["${REGISTRY}/pre-commit:${TAG}"]
+    tags = ["${REGISTRY}pre-commit:${TAG}"]
 }
 target "pytest" {
     context = "."
     dockerfile = "docker/Dockerfile"
     target = "pytest"
-    tags = ["${REGISTRY}/pytest:${TAG}"]
+    tags = ["${REGISTRY}pytest:${TAG}"]
 }

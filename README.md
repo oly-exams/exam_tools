@@ -202,6 +202,12 @@ For "production" images, this can be one of the following:
 * ``django-server``
 * ``celery-worker``
 
+Alternatively, you can build all "end-use" targets (including testing targets, but not tagging intermediate stages) with
+
+```
+docker buildx bake -f docker/bake.hcl
+```
+
 ## Using Precommit Hooks
 
 Developers can use the precommit hooks to automatically format the code and get feedback. Install all dev dependencies
