@@ -29,6 +29,7 @@ from decimal import Decimal
 from io import StringIO
 from xml.etree import ElementTree as ET
 
+import webcolors
 from django.conf import settings
 from future import standard_library
 
@@ -822,7 +823,19 @@ class QMLparagraphcolored(QMLparagraph):
         res = ""
         if self.attributes.get("exclude_in_solution") == "1":
             res += "% BEGIN_EXCLUDE_IN_SOLUTION \n"
-        res += "{\\color{" + self.attributes.get("color", "") + "}"
+
+        col = self.attributes.get("color", "black")
+        if col == "":
+            col = "black"
+        try:
+            if col[0] == "#":
+                col = webcolors.normalize_hex(col)
+            else:
+                col = webcolors.name_to_hex(col)
+        except ValueError:
+            col = "#000000"  # fallback: just take black to avoid crashing
+
+        res += "{\\color[HTML]{" + col[1:] + "}"
         return res
 
     def tex_end(self):
