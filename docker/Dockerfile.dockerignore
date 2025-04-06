@@ -1,5 +1,11 @@
 *
+!.git
 !requirements.txt
+!requirements_dev.txt
+!requirements_test.txt
+!.pre-commit-config.yaml
+!pyproject.toml
+!poetry.lock
 !bower/**
 bower/static
 bower/static_bower

@@ -62,5 +62,4 @@ include: #relative to project root
     - local: ".gitlab/ci/templates.yml"
     - local: ".gitlab/ci/build.yml"
     - local: ".gitlab/ci/test.yml"
-    - local: ".gitlab/ci/merge.yml"
     - local: ".gitlab/ci/docker-build.yml"

@@ -1,8 +1,14 @@
 test:pre-commit:
-    extends: .test:pull_and_run
+    stage: test
+    needs: ["build:docker-images"]
+    interruptible: true
+    image: docker
     variables:
-        ALL_SERVICE_NAME: pre-commit
-        OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/pre-commit-diff.yml
+        REGISTRY: "registry.gitlab.com/oly-exams/exam_tools"
+    before_script: |
+        docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    script: |
+        docker run ${REGISTRY}/pre-commit:${CI_COMMIT_SHA}-untested
 
 test:django-server:
     extends: .test:pull_and_run
