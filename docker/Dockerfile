@@ -4,7 +4,7 @@ ARG DOCKER_PYTHON_IMAGE=python:3.11-slim-bookworm
 ARG DOCKER_NGINX_IMAGE=nginx:1.19
 ARG DJANGO_SETTINGS_NAME=settings_b_dev
 
-FROM $DOCKER_PYTHON_IMAGE AS wheelhouse-builder
+FROM $DOCKER_PYTHON_IMAGE AS wheelhouse-builder-base
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -16,10 +16,19 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
 RUN --mount=type=cache,target=/home/container/.cache/pip \
     python -m pip wheel uwsgi==2.0.22 --wheel-dir=/wheelhouse
 
+FROM wheelhouse-builder-base AS wheelhouse-builder
+
 COPY requirements.txt /requirements.txt
 
 RUN --mount=type=cache,target=/home/container/.cache/pip \
     python -m pip wheel -r requirements.txt --wheel-dir=/wheelhouse
+
+FROM wheelhouse-builder-base AS wheelhouse-builder-dev
+
+COPY requirements_dev.txt /requirements_dev.txt
+
+RUN --mount=type=cache,target=/home/container/.cache/pip \
+    python -m pip wheel -r requirements_dev.txt --wheel-dir=/wheelhouse
 
 FROM $DOCKER_PYTHON_IMAGE AS python-base
 
@@ -86,6 +95,19 @@ RUN python -m pip install debugpy
 EXPOSE 5678
 
 CMD ["python", "-m", "debugpy", "--listen", "localhost:5678", "manage.py", "runserver", "0.0.0.0:8000"]
+
+FROM django-server-nosrc AS pre-commit
+
+RUN --mount=type=bind,target=/tmp/wheelhouse,from=wheelhouse-builder-dev,source=/wheelhouse \
+    python3 -m pip install --no-index --user /tmp/wheelhouse/*.whl
+
+COPY --chown=5000:5000 .pre-commit-config.yaml .
+
+RUN git init && pre-commit install-hooks
+
+COPY --chown=5000:5000 . .
+
+CMD ["pre-commit", "run", "--all-files"]
 
 FROM django-server-nosrc AS django-server
 
