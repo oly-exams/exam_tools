@@ -41,3 +41,9 @@ target "pytest" {
     target = "pytest"
     tags = ["${REGISTRY}pytest:${TAG}"]
 }
+target "django-server-test" {
+    context = "."
+    dockerfile = "docker/Dockerfile"
+    target = "django-server-test"
+    tags = ["${REGISTRY}django-server-test:${TAG}"]
+}

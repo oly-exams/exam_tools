@@ -134,6 +134,12 @@ EXPOSE 8001
 
 CMD /bin/sh -c "python docker/wait_for/wait_for_postgres_60.py && python manage.py migrate && uwsgi --ini uwsgi.ini  --socket :8001"
 
+FROM django-server AS django-server-test
+
+ENV DJANGO_SETTINGS_MODULE=exam_tools.settings_testing
+
+CMD /bin/sh -c "python manage.py migrate && python manage.py test"
+
 FROM django-server AS static-provider
 
 # Need to use 'settings_testing', since secrets are not yet available
