@@ -1,20 +1,3 @@
-# Exam Tools
-#
-# Copyright (C) 2014 - 2023 Oly Exams Team
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 # Django settings for exam_tools project.
 
 # Import the OS module and work out our project's paths
@@ -36,8 +19,6 @@ LOCALE_PATHS = [os.path.join(PROJECT_PATH, "locale")]
 EVENT_TEMPLATE_PATH = os.path.join(TEMPLATE_PATH, "events", "demo")
 
 SITE_URL = "http://127.0.0.1:8000"
-
-VERSION = "3.1.0"
 
 try:
     GIT_HEAD_DATE = str(
@@ -127,6 +108,12 @@ SHOW_PARTICIPANT_NAME_TO_MARKERS = True
 
 # Shows the remaining delegations in voting fullscreen view.
 VOTING_FULLSCREEN_DISPLAY_REMAINING_USERS = False
+
+# Defines if solutions are translatable
+TRANSLATABLE_SOLUTIONS = False
+
+# Maximum size for the uploaded figures in MB
+MAX_FIGURE_UPLOAD_SIZE_MB = 10
 
 # Activates autotranslate
 AUTO_TRANSLATE = False
