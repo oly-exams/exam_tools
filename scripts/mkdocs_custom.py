@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
     def builder():
         config_file_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "mkdocs.yml"
+            os.path.dirname(os.path.dirname(__file__)), "mkdocs.yml"
         )
         cfg = mk_config.Config(
             schema=mk_config.defaults.get_schema(), config_file_path=config_file_path
