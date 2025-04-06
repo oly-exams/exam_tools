@@ -114,7 +114,7 @@ body { margin-bottom: 70px; }
     <div class="navbar navbar-default navbar-fixed-bottom">
       <div class="container">
           <div class="navbar-left">
-              <a class="btn btn-default navbar-btn" href="{% url 'exam:admin' %}" title="Back to versions list"><i class="fa fa-angle-double-left"></i> Back</a>
+              <a class="btn btn-default navbar-btn" href="{% url 'exam:admin-exam' exam_id=exam.pk%}" title="Back to versions list"><i class="fa fa-angle-double-left"></i> Back</a>
           </div>
         <div class="navbar-right">
             <button type="submit" class="btn btn-primary navbar-btn"><i class="glyphicon glyphicon-ok"></i> Stage version</button>

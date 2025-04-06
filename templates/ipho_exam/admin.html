@@ -119,22 +119,28 @@
 
     <div id="alerts-container"></div>
 
-    {% for ex in exam_list %}
+    <ul class="nav nav-tabs">
+        {% for ex in exam_list %}
+            <li {% if exam == ex %} class="active" {% endif %}><a href="{% url 'exam:admin-exam' exam_id=ex.pk %}">{{ ex.code }} - {{ ex.name }}</a></li>
+        {% endfor %}
+    </ul>
+
+    {% if exam %}
     <h3>
-		{{ ex.name }}
-        {% if ex.flags|binand:ex.FLAG_SQUASHED %}<span class="label label-default">Squashed</span>{% endif %}
-        <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'exam:admin-add-question' exam_id=ex.pk %}">
+		{{ exam.name }} 
+        {% if exam.flags|binand:exam.FLAG_SQUASHED %}<span class="label label-default">Squashed</span>{% endif %} 
+        <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#question-modal" data-remote="false" href="{% url 'exam:admin-add-question' exam_id=exam.pk %}">
             <i class="fa fa-plus fa-fw"></i> Add question</button>
-        <a class="btn btn-secondary" data-toggle="collapse" href="#exam-tbody-{{ ex.pk }}" role="button" aria-expanded="false" aria-controls="#exam-tbody-{{ ex.pk }}">
-            Hide/Show
-        </a>
     </h3>
-    <div id="exam-tbody-{{ ex.pk }}" class="panel-group collapse in">
+
+    <div id="exam-tbody" class="panel-group">
         <i class="fa fa-spinner fa-pulse"></i> Loading...
     </div>
-    {% endfor %}
-
-
+    {% else %}
+    <h3>
+        There are no exams.
+    </h3>
+    {% endif %}
 </div> <!-- /container -->
 
 
@@ -180,20 +186,15 @@ $(function() {
             .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
     }
 
-    function update_questions(tid, active) {
-        active = (typeof active !== 'undefined') ? active : false;
-
+    {% if exam %}
+    function update_questions() {
         $.ajax({
             method: "GET",
-            url: "{% url 'exam:admin' %}/",
-            data:{exam_id:tid},
+            url: "{% url 'exam:admin-exam-detail' exam_id=exam.pk %}",
             dataType: "json",
         }).done(function( data ) {
-            var exam_tbody = $("#exam-tbody-"+tid);
+            var exam_tbody = $("#exam-tbody");
             var content = $(data['content']);
-            if (active) {
-                content.find('.panel-collapse').addClass('in');
-            }
             exam_tbody.html(content);
             exam_tbody.find('[data-action="new-version"]').on('click', function(evt) {
                 evt.preventDefault();
@@ -205,7 +206,7 @@ $(function() {
                     dataType: "json",
                 }).done(function( data ) {
                     if (data['success']) {
-                        update_questions(tid, true);
+                        update_questions();
                     } else {
                         alert(data['message']);
                     }
@@ -220,6 +221,9 @@ $(function() {
             });
         });
     }
+
+    update_questions();
+    {% endif %}
 
     $(document).on('submit', '#question-modal form', function(evt) {
         var form = evt.target;
@@ -240,7 +244,7 @@ $(function() {
                     return;
                 }
 
-                update_questions(data['exam_id']);
+                update_questions();
 
                 $('#question-modal').modal('hide');
                 $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
@@ -291,7 +295,7 @@ $(function() {
                     return;
                 }
 
-                update_questions(data['exam_id']);
+                update_questions();
 
                 $('#delete-modal').modal('hide');
                 $('#alerts-container').prepend('<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
@@ -341,7 +345,7 @@ $(function() {
                     return;
                 }
 
-                update_questions(data['exam_id']);
+                update_questions();
 
                 $('#publish-modal').modal('hide');
                 $('#alerts-container').prepend('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>'+data['message']+'</div>');
@@ -435,11 +439,6 @@ $(function() {
         });
     })
 
-    {% for ex in exam_list %}
-    update_questions({{ ex.pk }});
-    {% endfor %}
-
-
     $(document).on('submit', '#import-modal form', function(evt) {
       var form = evt.target;
       var $form = $(form);
@@ -466,7 +465,7 @@ $(function() {
               modal.find('.modal-footer').removeClass('hide');
               return;
             }
-            update_questions(exid, true);
+            update_questions();
             modal.modal('hide');
             }
         });
