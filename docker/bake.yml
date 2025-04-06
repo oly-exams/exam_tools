@@ -1,0 +1,27 @@
+# Build from the repository root, with 'docker buildx bake -f docker/bake.yml'
+services:
+  django-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: django-server
+  celery-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: celery-worker
+  nginx-with-static:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: nginx-with-static
+  pre-commit:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: pre-commit
+  pytest:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: pytest

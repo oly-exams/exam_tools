@@ -17,16 +17,7 @@ build:docker-images:
     docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
 
   script: |
-
-    for stage_name in 'pre-commit' 'pytest' 'django-server' 'celery-worker' 'nginx-with-static'; do
-      docker buildx build --push -t ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested \
-      --cache-to type=inline \
-      --cache-from type=registry,ref=${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested \
-      -f docker/Dockerfile --target ${stage_name} .
-
-      docker tag ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested ${REGISTRY}/${stage_name}:${CI_COMMIT_REF_SLUG}-untested
-      docker push ${REGISTRY}/${stage_name}:${CI_COMMIT_REF_SLUG}-untested
-    done
+    REGISTRY=${REGISTRY} TAG=${CI_COMMIT_SHA}-untested docker buildx bake --push -f docker/bake.yml
 
 post-test:docker-images:
   stage: post-test

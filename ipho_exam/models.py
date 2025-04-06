@@ -122,7 +122,7 @@ class Language(models.Model):
         ("uyghur", "Uyghur"),
         ("vietnamese", "Vietnamese"),
         ("welsh", "Welsh"),
-    )  # yapf:disable
+    )
     STYLES_CHOICES = (
         ("afrikaans", "Afrikaans"),
         ("albanian", "Albanian"),
@@ -228,7 +228,7 @@ class Language(models.Model):
         ("welsh", "Welsh"),
         ("xhosa", "Xhosa"),
         ("zulu", "Zulu"),
-    )  # yapf:disable
+    )
 
     name = models.CharField(max_length=100, db_index=True)
     delegation = models.ForeignKey(
