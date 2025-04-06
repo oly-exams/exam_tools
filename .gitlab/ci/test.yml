@@ -1,5 +1,5 @@
 test:pre-commit:
-    stage: test
+    # stage: test
     needs: ["build:docker-images"]
     interruptible: true
     image: docker
@@ -11,7 +11,7 @@ test:pre-commit:
         docker run ${REGISTRY}/pre-commit:${CI_COMMIT_SHA}-untested
 
 test:pytest:
-    stage: test
+    # stage: test
     needs: ["build:docker-images"]
     interruptible: true
     image: docker
@@ -24,6 +24,7 @@ test:pytest:
 
 test:django-server:
     extends: .test:pull_and_run
+    needs: ["build:django-server"]
     variables:
         ALL_SERVICE_NAME: django-server
         OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/django-server-test.yml
@@ -34,6 +35,11 @@ test:django-server:
 
 test:docker-a-dev-setup:
     extends: .test:pull_and_run
+    needs: [
+        "build:django-server",
+        "build:celery-worker",
+        "build:testing-cypress",
+    ]
     variables:
         COMPOSE_FILE: a-dev-compose.sh
         ALL_SERVICE_NAME: django-server postgres rabbitmq celery-worker
@@ -107,6 +113,11 @@ test:docker-a-dev-setup:
 
 test:testing-ibo-data:
     extends: .test:pull_and_run
+    needs: [
+        "build:django-server",
+        "build:celery-worker",
+        "build:testing-cypress",
+    ]
     variables:
         ALL_SERVICE_NAME: django-server postgres rabbitmq celery-worker testing-cypress
         OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/a-dev.yml $DOCKER_DIR/overwrite/testing-ibo-data.yml

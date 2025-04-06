@@ -1,5 +1,5 @@
 .build:build_cached_push:
-    stage: build
+    # stage: build
     needs: ["pre-build:oly-python-deps"]
     # build will not be spawned every time, dont interrupt
     interruptible: false
@@ -32,7 +32,7 @@
         - docker push $IMG
 
 .test:pull_and_run:
-    stage: test
+    # stage: test
     #if we push faster than CI runs, kill old pipeline jobs
     interruptible: true
     variables:

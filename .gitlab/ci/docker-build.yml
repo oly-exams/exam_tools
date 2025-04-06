@@ -1,5 +1,5 @@
 build:docker-images:
-  stage: build
+  # stage: build
   needs: []
   interruptible: false
   image: docker
@@ -14,7 +14,7 @@ build:docker-images:
     REGISTRY=${REGISTRY} TAG=${CI_COMMIT_SHA}-untested docker buildx bake --push -f docker/bake.yml
 
 post-test:docker-images:
-  stage: post-test
+  # stage: post-test
   needs: [
     "test:pre-commit",
     "test:pytest",

@@ -2,11 +2,11 @@ image: docker/compose
 services:
     - docker:dind
 
-stages:
-    - pre-build
-    - build
-    - test
-    - post-test
+# stages:
+#     - pre-build
+#     - build
+#     - test
+#     - post-test
 
 variables:
     # directories
