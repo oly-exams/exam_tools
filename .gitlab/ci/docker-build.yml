@@ -11,7 +11,7 @@ build:docker-images:
     docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
 
   script: |
-    REGISTRY=${REGISTRY} TAG=${CI_COMMIT_SHA}-untested docker buildx bake --push -f docker/bake.yml
+    REGISTRY=${REGISTRY} TAG=${CI_COMMIT_SHA}-untested docker buildx bake -f docker/bake.hcl --push
 
 post-test:docker-images:
   # stage: post-test
