@@ -23,7 +23,7 @@ test:pytest:
         docker run ${REGISTRY}/pytest:${CI_COMMIT_SHA}-untested
 
 test:django-server:
-    extends: .test:pull_and_run
+    stage: test
     needs: ["build:docker-images"]
     interruptible: true
     image: docker
@@ -34,17 +34,19 @@ test:django-server:
     script: |
         docker run ${REGISTRY}/django-server-test:${CI_COMMIT_SHA}-untested
 
-test:docker-a-dev-setup:
-    extends: .test:pull_and_run
-    needs: [
-        "build:django-server",
-        "build:celery-worker",
-        "build:testing-cypress",
-    ]
+
+test:docker-compose-a-dev:
+    stage: test
+    needs: []
+    interruptible: true
+    image: docker
     variables:
-        COMPOSE_FILE: a-dev-compose.sh
-        ALL_SERVICE_NAME: django-server postgres rabbitmq celery-worker
-        OVERWRITE_COMPOSE: $DOCKER_DIR/overwrite/a-dev-test.yml
+        REGISTRY: "registry.gitlab.com/oly-exams/exam_tools"
+    before_script: |
+        docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    script: |
+        COMPOSE_BAKE=true docker compose -f docker/docker-compose-a-dev.yml up --build --wait
+        docker compose -f docker/docker-compose-a-dev.yml down --volumes
 
 # test:testing-cypress-batch-1:
 #     extends: .test:pull_and_run
