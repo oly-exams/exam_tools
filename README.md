@@ -4,7 +4,7 @@
 
 Base dependencies
 
-* Python 3.8
+* Python 3.10+
 * Django 4.1.x
 * django-crispy-forms
 * mkdocs (for building the docs)
