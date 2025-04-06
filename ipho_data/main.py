@@ -45,7 +45,10 @@ def argv_flush_confirmed():
         confirm = input(
             "Are you sure you want to irreversibly flush the database? Type 'flush' to confirm: "
         )
-        return confirm.lower() == "flush"
+        if confirm.lower() == "flush":
+            return True
+
+        print("ABORTED FLUSHING: setting up database without flushing...")
     return False
 
 
