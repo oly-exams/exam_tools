@@ -18,7 +18,7 @@ build:docker-images:
 
   script: |
 
-    for stage_name in 'pre-commit' 'django-server' 'celery-worker' 'nginx-with-static'; do
+    for stage_name in 'pre-commit' 'pytest' 'django-server' 'celery-worker' 'nginx-with-static'; do
       docker buildx build --push -t ${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested \
       --cache-to type=inline \
       --cache-from type=registry,ref=${REGISTRY}/${stage_name}:${CI_COMMIT_SHA}-untested \
