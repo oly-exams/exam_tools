@@ -123,7 +123,8 @@ RUN --mount=type=bind,target=/tmp/wheelhouse,from=wheelhouse-builder-test,source
 
 COPY --chown=5000:5000 . .
 
-CMD ["pytest"]
+ENTRYPOINT ["pytest"]
+CMD ["test/ipho_exam"]
 
 FROM django-server-nosrc AS django-server
 

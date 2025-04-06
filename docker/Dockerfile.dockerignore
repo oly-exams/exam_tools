@@ -6,6 +6,7 @@
 !.pre-commit-config.yaml
 !pyproject.toml
 !poetry.lock
+!test
 !bower/**
 bower/static
 bower/static_bower
