@@ -1,7 +1,7 @@
 import os
 import zipfile
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 zipout = os.path.join(ROOT_DIR, "media", "downloads", "all_translations.zip")
 
 private_dirs_basepath = os.path.join(
