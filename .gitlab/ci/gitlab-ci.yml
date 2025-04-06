@@ -6,9 +6,6 @@ stages:
     - build
     - test
     - post-test
-    - pre-build-old
-    - build-old
-    - test-old
 
 variables:
     # directories

@@ -1,6 +1,6 @@
 pre-build:oly-python-deps:
     extends: .build:build_cached_push
-    stage: pre-build-old
+    stage: pre-build
     needs: []
     variables:
         SERVICE_NAME: oly-python-deps
@@ -10,19 +10,6 @@ pre-build:oly-python-deps:
         - changes:
             - .gitlab/ci/build.yml
             - requirements.txt
-
-build:testing-pytest:
-    extends: .build:build_cached_push
-    variables:
-        SERVICE_NAME: testing-pytest
-        BUILD_DEPENDENCY: oly-python-deps
-    rules:
-        - if: '$DOCKER_CACHE == "no"'
-        - if: '$IMG_NAME != $IMG_COMPARE'
-        - changes:
-            - .gitlab/ci/build.yml
-            - requirements.txt
-            - requirements_test.txt
 
 build:django-server:
     extends: .build:build_cached_push

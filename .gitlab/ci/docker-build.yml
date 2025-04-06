@@ -1,16 +1,10 @@
 build:docker-images:
   stage: build
+  needs: []
   interruptible: false
-
   image: docker
 
   variables:
-    DOCKER_CACHE: "no"
-    DOCKER_LAYER_CACHE: "no"
-    DOCKER_BUILDKIT: "1"
-
-    # technical git variables
-    GIT_DEPTH: 1 # (default=50) we need the previous commit for pre-commit
     REGISTRY: "registry.gitlab.com/oly-exams/exam_tools"
 
   before_script: |
@@ -21,6 +15,13 @@ build:docker-images:
 
 post-test:docker-images:
   stage: post-test
+  needs: [
+    "test:pre-commit",
+    "test:pytest",
+    "test:django-server",
+    "test:docker-a-dev-setup",
+    "test:testing-ibo-data",
+  ]
   interruptible: false
 
   image: docker
